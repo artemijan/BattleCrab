@@ -322,7 +322,7 @@ fn ai_type_name(t: AiType) -> &'static str {
 /// `NpcTemplate.getRace().toString()` — the `Race` enum constant name. Java
 /// prints a bare `null` for the templates that declare no race.
 fn race_name(t: &NpcTemplate) -> &'static str {
-    let Some(race) = t.race.and_then(crate::enums::Race::from_ordinal) else {
+    let Some(race) = t.race.and_then(Race::from_ordinal) else {
         return "null";
     };
     use crate::enums::Race;

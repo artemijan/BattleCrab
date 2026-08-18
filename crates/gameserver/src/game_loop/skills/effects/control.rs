@@ -78,10 +78,7 @@ pub(crate) fn retarget_onto(world: &mut World, victim_oid: i32, new_target_oid: 
 /// Higher Mana Gain 285 (`mode=DIFF`, +22..81 by level) is a flat addition.
 pub(crate) fn mana_charge_of(world: &World, target_oid: i32, amount: f64) -> f64 {
     use crate::model::stats::Stat;
-    let Some(mods) = world
-        .objects
-        .get_component::<crate::model::components::StatModifiers>(&target_oid)
-    else {
+    let Some(mods) = world.objects.get_component::<StatModifiers>(&target_oid) else {
         return amount;
     };
     let mul = mods.mul.get(&Stat::ManaCharge).copied().unwrap_or(1.0);
@@ -1076,7 +1073,7 @@ pub(crate) fn bluff(
     skill: &Skill,
     chance: i32,
 ) {
-    let is_raid = crate::game_loop::helpers::is_raid_npc(world, target_oid)
+    let is_raid = is_raid_npc(world, target_oid)
         // Java's `isRaidMinion()` is `Monster.onSpawn`'s
         // `setIsRaidMinion(_master.isRaid())` — a minion inherits its master's
         // raid immunity. The port tracks the link as `MinionOf`, so ask the
@@ -1097,7 +1094,7 @@ pub(crate) fn bluff(
         .get_component::<crate::model::components::Position>(&target_oid)
         .map(|p| p.heading)
         .unwrap_or(0);
-    if let Some(region) = crate::game_loop::helpers::region_cell_of(world, target_oid) {
+    if let Some(region) = region_cell_of(world, target_oid) {
         for pkt in [
             server_packets::start_rotation(target_oid, target_heading, 1, 65535),
             server_packets::stop_rotation(target_oid, caster_heading, 65535),
@@ -1162,7 +1159,7 @@ pub(crate) fn skill_turning(
     chance: i32,
     static_chance: bool,
 ) {
-    let is_raid = crate::game_loop::helpers::is_raid_npc(world, target_oid);
+    let is_raid = is_raid_npc(world, target_oid);
     if caster_oid == target_oid || is_raid {
         return;
     }
@@ -1365,7 +1362,7 @@ pub(crate) fn hp_by_level(world: &mut World, caster_oid: i32, power: f64) {
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
         v.cur_hp += restored;
     }
-    crate::game_loop::helpers::send_sm_to_player(
+    send_sm_to_player(
         world,
         caster_oid,
         sm_ids::S1_HP_HAS_BEEN_RESTORED,
@@ -1437,7 +1434,7 @@ pub(crate) fn try_break_stun(world: &mut World, object_id: i32) {
     if world.roll(14) != 0 {
         return;
     }
-    super::ticks::expire_buffs_where(world, object_id, |_, buff| {
+    expire_buffs_where(world, object_id, |_, buff| {
         buff.abnormal_type.eq_ignore_ascii_case("STUN")
     });
 }

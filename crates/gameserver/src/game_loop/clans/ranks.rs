@@ -391,11 +391,7 @@ pub(crate) fn handle_request_pledge_power_grade_list(world: &World, client_id: u
 
 /// Resolve a named member of the acting player's clan; `None` when the player
 /// is clanless or the name is not in the roster.
-fn clan_member_by_name(
-    world: &World,
-    player: i32,
-    name: &str,
-) -> Option<(i32, crate::model::clan::ClanMember)> {
+fn clan_member_by_name(world: &World, player: i32, name: &str) -> Option<(i32, ClanMember)> {
     let clan_id = crate::game_loop::guard::clan_of(world, player)?;
     let clan = world.clans.get(&clan_id)?;
     clan.member_by_name(name).map(|m| (clan_id, m.clone()))
@@ -443,12 +439,7 @@ pub(crate) fn handle_request_pledge_member_list(world: &mut World, client_id: u3
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(clan_id) = world
-        .objects
-        .get_component::<Player>(&player)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
-    else {
+    let Some(clan_id) = crate::game_loop::guard::clan_of(world, player) else {
         return;
     };
     let Some(clan) = world.clans.get(&clan_id) else {
@@ -490,8 +481,7 @@ pub(crate) fn handle_request_pledge_member_info(world: &World, client_id: u32, e
             }
         })
         .unwrap_or_default();
-    let partner_name =
-        crate::game_loop::clans::academy::partner_name(world, clan_id, member.char_id);
+    let partner_name = academy::partner_name(world, clan_id, member.char_id);
     send_to_client(
         world,
         client_id,
@@ -534,7 +524,7 @@ pub(crate) fn handle_request_pledge_set_member_power_grade(
         return;
     }
     // Java: an academy member cannot be re-ranked out of rank 9.
-    if crate::game_loop::clans::academy::member_is_academy(world, clan_id, member.char_id) {
+    if academy::member_is_academy(world, clan_id, member.char_id) {
         send_sm_with(
             world,
             player,
@@ -706,7 +696,7 @@ pub(crate) fn handle_change_clan_leader(
         return;
     }
     // Java: an academy member cannot be nominated clan leader.
-    if crate::game_loop::clans::academy::member_is_academy(world, clan_id, member.char_id) {
+    if academy::member_is_academy(world, clan_id, member.char_id) {
         send_sm_with(
             world,
             player_oid,
@@ -819,11 +809,7 @@ pub(crate) fn handle_request_give_nick_name(world: &mut World, client_id: u32, b
         return;
     }
 
-    if !crate::game_loop::clans::has_clan_privilege(
-        world,
-        player,
-        crate::model::clan::CL_GIVE_TITLE,
-    ) {
+    if !has_clan_privilege(world, player, crate::model::clan::CL_GIVE_TITLE) {
         send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
         return;
     }
@@ -878,6 +864,6 @@ fn set_title_and_broadcast(world: &mut World, oid: i32, title: String) {
     crate::game_loop::helpers::broadcast_including_self(
         world,
         oid,
-        &crate::network::server_packets::nickname_changed(oid, &title),
+        &server_packets::nickname_changed(oid, &title),
     );
 }

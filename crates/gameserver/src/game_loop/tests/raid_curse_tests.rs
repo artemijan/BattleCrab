@@ -14,11 +14,7 @@ const RAID_CURSE2: i32 = 4515;
 /// 4215 `RAID_CURSE` — silence, for helping from a distance.
 const RAID_CURSE: i32 = 4215;
 
-fn curse_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn curse_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for (id, kind) in [(BOSS_NPC, "RaidBoss"), (MOB_NPC, "Monster")] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -30,31 +26,28 @@ fn curse_world() -> (
     for (id, effects) in [
         (
             RAID_CURSE2,
-            vec![crate::model::skill::SkillEffect::BlockActions { conditional: false }],
+            vec![model::skill::SkillEffect::BlockActions { conditional: false }],
         ),
         (
             RAID_CURSE,
-            vec![crate::model::skill::SkillEffect::StatModifier(
-                crate::model::skill::StatModifierEffect {
-                    stat: crate::model::stats::Stat::RunSpeed,
-                    mode: crate::model::stats::StatModifierType::Diff,
+            vec![model::skill::SkillEffect::StatModifier(
+                model::skill::StatModifierEffect {
+                    stat: Stat::RunSpeed,
+                    mode: model::stats::StatModifierType::Diff,
                     amount: -1.0,
                     ..Default::default()
                 },
             )],
         ),
     ] {
-        world
-            .data
-            .skill_data
-            .insert_for_test(crate::model::skill::Skill {
-                self_continuous: false,
-                id,
-                level: 1,
-                abnormal_time: 120,
-                effects,
-                ..Default::default()
-            });
+        world.data.skill_data.insert_for_test(Skill {
+            self_continuous: false,
+            id,
+            level: 1,
+            abnormal_time: 120,
+            effects,
+            ..Default::default()
+        });
     }
     (world, db, l)
 }
@@ -62,7 +55,7 @@ fn curse_world() -> (
 fn set_level(world: &mut World, oid: i32, level: i32) {
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&oid)
+        .get_component_mut::<Player>(&oid)
         .unwrap()
         .level = level;
 }
@@ -137,7 +130,7 @@ fn casting_near_a_fighting_raid_boss_curses_by_skill_kind() {
         // The boss must be in combat: someone else is fighting it.
         world
             .objects
-            .get_component_mut::<crate::model::npc::AggroList>(&BOSS)
+            .get_component_mut::<AggroList>(&BOSS)
             .unwrap()
             .0
             .entry(PLAYER + 1)
@@ -180,7 +173,7 @@ fn a_real_hit_curses_and_still_deals_its_damage() {
     set_level(&mut world, PLAYER, 40);
 
     let before = world.objects.get_component::<Vitals>(&BOSS).unwrap().cur_hp;
-    crate::game_loop::combat::apply_physical_damage(&mut world, PLAYER, BOSS, 500.0, false, false);
+    combat::apply_physical_damage(&mut world, PLAYER, BOSS, 500.0, false, false);
 
     assert!(
         has_buff(&world, PLAYER, RAID_CURSE2),
@@ -206,7 +199,7 @@ fn raid_with_points(world: &mut World, points: f64) {
 fn points_of(world: &World, oid: i32) -> i32 {
     world
         .objects
-        .get_component::<crate::model::Player>(&oid)
+        .get_component::<Player>(&oid)
         .unwrap()
         .raidboss_points
 }
@@ -214,7 +207,7 @@ fn points_of(world: &World, oid: i32) -> i32 {
 fn seed_damage(world: &mut World, npc: i32, dealer: i32, dmg: f64) {
     world
         .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&npc)
+        .get_component_mut::<AggroList>(&npc)
         .unwrap()
         .0
         .entry(dealer)

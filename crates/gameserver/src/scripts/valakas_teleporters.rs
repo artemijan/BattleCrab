@@ -9,7 +9,7 @@
 //! - **Teleport Cubic (31759)** — the exit.
 //! - **Gatekeepers (31384 / 31686 / 31687)** — open the path doors.
 //!
-//! The interesting half lives in [`crate::game_loop::valakas`]; this is the
+//! The interesting half lives in [`valakas`]; this is the
 //! player-facing routing.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};

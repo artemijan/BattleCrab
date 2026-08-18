@@ -85,7 +85,7 @@ impl MapRegionData {
         let mut regions = Vec::new();
         let dir = format!("{file_path}{MAPREGION_DIR}");
         {
-            for path in super::xml::xml_files_in(&dir) {
+            for path in xml::xml_files_in(&dir) {
                 parse_file(&path, &mut regions);
             }
         }

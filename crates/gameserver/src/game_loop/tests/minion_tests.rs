@@ -30,11 +30,7 @@ fn leader_template(
     t
 }
 
-fn minion_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn minion_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     let mut m = crate::data::npc_data::default_template(MINION_ID);
     m.type_name = "Monster".into();
@@ -121,7 +117,7 @@ fn minions_spawn_near_the_leader() {
     for oid in minions_of(&mut world, LEADER_OID) {
         let p = world
             .objects
-            .get_component::<crate::model::components::Position>(&oid)
+            .get_component::<Position>(&oid)
             .copied()
             .unwrap();
         let dist = ((p.x as f64).powi(2) + (p.y as f64).powi(2)).sqrt();

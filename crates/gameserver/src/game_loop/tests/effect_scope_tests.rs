@@ -13,10 +13,6 @@ use crate::model::stats::Stat;
 const CASTER: i32 = 9501;
 const CID: u32 = 1;
 
-fn dist_skills() -> crate::data::skill_data::SkillData {
-    dist::skills_owned()
-}
-
 // ---------------------------------------------------------------------------
 // Parsing
 // ---------------------------------------------------------------------------
@@ -26,7 +22,7 @@ fn dist_skills() -> crate::data::skill_data::SkillData {
 /// load, into their own lists.
 #[test]
 fn vengeance_self_effect_now_loads() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     let v = skills.get(368, 1).expect("Vengeance loads");
 
     assert!(
@@ -54,7 +50,7 @@ fn vengeance_self_effect_now_loads() {
 /// payoff — six skills gained a real self-buff.
 #[test]
 fn the_learnable_self_effect_skills_all_load_something() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     // Blinding Blow 321 (Speed), Sonic Rage 345 / Raging Force 346
     // (FocusMomentum), Evade Shot 369 (PhysicalEvasion), Critical Blow 409
     // (FatalBlowRate).
@@ -75,7 +71,7 @@ fn the_learnable_self_effect_skills_all_load_something() {
 /// mechanical change rather than an inert marker.
 #[test]
 fn critical_blow_self_buffs_its_own_blow_rate() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     let cb = skills.get(409, 1).expect("Critical Blow loads");
     let self_mods: Vec<_> = cb
         .self_effects
@@ -97,7 +93,7 @@ fn critical_blow_self_buffs_its_own_blow_rate() {
 /// to `Skill.channeling_effects` in the G19 ground/channeling slice.)
 #[test]
 fn unsupported_scopes_are_dropped_not_merged() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     // Anchor 1170 is the one learnable `<endEffects>` carrier.
     let anchor = skills.get(1170, 1).expect("Anchor loads");
     let general_and_self = anchor.effects.len() + anchor.self_effects.len();
@@ -127,11 +123,11 @@ fn a_self_effect_lands_on_the_caster() {
     let target = 9502;
     let _t = ingame_caster(&mut world, 2, target, 40, 0);
 
-    let skill = crate::model::skill::Skill {
+    let skill = Skill {
         self_continuous: false,
         id: 9950,
         name: "SelfScoped".into(),
-        target_type: crate::model::skill::TargetType::Target,
+        target_type: TargetType::Target,
         abnormal_time: 60,
         abnormal_type: "SELFSCOPE".into(),
         // Nothing on the target; a flag buff on the caster.
@@ -142,20 +138,20 @@ fn a_self_effect_lands_on_the_caster() {
     world.data.skill_data.insert_for_test(skill.clone());
 
     // Apply the self scope the way the cast path does.
-    let self_skill = crate::model::skill::Skill {
+    let self_skill = Skill {
         self_continuous: false,
         effects: skill.self_effects.clone(),
         ..skill.clone()
     };
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &self_skill);
+    effects::apply_skill_effects(&mut world, CASTER, CASTER, &self_skill);
 
     assert_ne!(
-        crate::game_loop::abnormal::flags_of(&world, CASTER) & effect_flag::IMMOBILIZED,
+        abnormal::flags_of(&world, CASTER) & effect_flag::IMMOBILIZED,
         0,
         "the caster got the self-effect"
     );
     assert_eq!(
-        crate::game_loop::abnormal::flags_of(&world, target) & effect_flag::IMMOBILIZED,
+        abnormal::flags_of(&world, target) & effect_flag::IMMOBILIZED,
         0,
         "and the target did not"
     );
@@ -166,7 +162,7 @@ fn a_self_effect_lands_on_the_caster() {
 /// two Java sentinels that gates test for explicitly.
 #[test]
 fn skill_default_uses_javas_sentinels() {
-    let d = crate::model::skill::Skill::default();
+    let d = Skill::default();
     assert_eq!(
         d.activate_rate, -1,
         "\"no declared rate\" — never reflected, always lands"
@@ -180,7 +176,7 @@ fn skill_default_uses_javas_sentinels() {
 /// the datapack, and the case that must not regress.
 #[test]
 fn an_ordinary_skill_has_no_scoped_effects() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     // Death Whisper 1242: a plain single-scope buff.
     let dw = skills.get(1242, 1).expect("Death Whisper loads");
     assert!(!dw.effects.is_empty(), "its general effects load");
@@ -194,7 +190,7 @@ fn self_scope_buffs_use_the_normal_pipeline() {
     let (mut world, _db, _l) = cast_test_world();
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
-    let skill = crate::model::skill::Skill {
+    let skill = Skill {
         self_continuous: false,
         id: 9951,
         name: "SelfBuff".into(),
@@ -203,7 +199,7 @@ fn self_scope_buffs_use_the_normal_pipeline() {
         effects: vec![SkillEffect::BlockMove],
         ..Default::default()
     };
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &skill);
+    effects::apply_skill_effects(&mut world, CASTER, CASTER, &skill);
 
     assert!(
         has_buff(&world, CASTER, 9951),

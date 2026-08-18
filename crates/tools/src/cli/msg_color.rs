@@ -476,7 +476,7 @@ mod tests {
                     safe_package: true,
                     nodes: Vec::new(),
                 },
-                std::path::PathBuf::from("/nonexistent/SystemMsg-t.dat"),
+                PathBuf::from("/nonexistent/SystemMsg-t.dat"),
             )
             .unwrap(),
         )

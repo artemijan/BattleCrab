@@ -102,7 +102,7 @@ fn can_fish(world: &World, player: i32) -> bool {
             .data
             .zone_data
             .zones_at(pos.x, pos.y, pos.z)
-            .any(|z| z.kind == crate::data::zone_data::ZoneKind::Water);
+            .any(|z| z.kind == ZoneKind::Water);
         if in_water {
             return false;
         }
@@ -348,7 +348,7 @@ fn calculate_bait_location(world: &World, player: i32) -> Option<(i32, i32, i32)
         .data
         .zone_data
         .zones_at(p.x, p.y, p.z)
-        .any(|z| z.kind == crate::data::zone_data::ZoneKind::Fishing);
+        .any(|z| z.kind == ZoneKind::Fishing);
     if !in_fishing_zone {
         return None;
     }
@@ -361,7 +361,7 @@ fn calculate_bait_location(world: &World, player: i32) -> Option<(i32, i32, i32)
         .data
         .zone_data
         .zones_at(bx, by, p.z)
-        .find(|z| z.kind == crate::data::zone_data::ZoneKind::Water)
+        .find(|z| z.kind == ZoneKind::Water)
         .map(|z| z.territory.max_z)?;
     Some((bx, by, water_z))
 }

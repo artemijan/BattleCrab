@@ -17,7 +17,7 @@ const CID: u32 = 1;
 const COLISEUM_A: (i32, i32, i32) = (148416, 46724, -3000);
 const SEAT_COST: i64 = 80;
 
-fn tower_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn tower_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.data.item_data = dist::items_owned();
     world.id_pool = 0x4900_0000..0x4900_0200;
@@ -55,7 +55,7 @@ fn pos_of(world: &World) -> (i32, i32, i32) {
 fn adena(world: &World) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&PLAYER)
+        .get_component::<Inventory>(&PLAYER)
         .map(|i| i.adena())
         .unwrap_or(0)
 }
@@ -215,7 +215,7 @@ fn a_spectator_cannot_click_anything() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&PLAYER)
+            .get_component::<TargetRef>(&PLAYER)
             .and_then(|t| t.0)
             .is_none(),
         "a spectator's click selects nothing"
@@ -229,7 +229,7 @@ fn a_spectator_cannot_click_anything() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&PLAYER)
+            .get_component::<TargetRef>(&PLAYER)
             .and_then(|t| t.0),
         Some(neighbour),
         "the same click works when not observing"

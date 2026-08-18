@@ -467,10 +467,7 @@ pub(crate) fn handle_exit_game_answer(world: &mut World, client_id: u32, yes: bo
 /// The rows are always loaded (the DB thread has no config), so this is also
 /// where a server that turned the feature off clears them — Java gets the same
 /// end state by never reading them and letting `storeOffliners` overwrite.
-pub(crate) fn restore_offline_traders(
-    world: &mut World,
-    traders: Vec<crate::db::OfflineTraderRow>,
-) {
+pub(crate) fn restore_offline_traders(world: &mut World, traders: Vec<db::OfflineTraderRow>) {
     let cfg = world.cfg.offline_trade.clone();
     if !cfg.any_enabled() || !cfg.restore_offliners {
         return;
@@ -501,7 +498,7 @@ pub(crate) fn restore_offline_traders(
 
 /// Spawn one stored shop back into the world. `false` when the character can't
 /// be rebuilt (Java logs and disconnects the half-loaded player).
-fn restore_one(world: &mut World, row: crate::db::OfflineTraderRow, store_type: u8) -> bool {
+fn restore_one(world: &mut World, row: db::OfflineTraderRow, store_type: u8) -> bool {
     use crate::model::components::StoreItem;
     use crate::model::inventory::Inventory;
 
@@ -512,7 +509,7 @@ fn restore_one(world: &mut World, row: crate::db::OfflineTraderRow, store_type: 
 
     // Same construction as character-select → enter-world: the bundle carries
     // every child collection, and the store byte rides `Player.store_type`.
-    let mut bundle = crate::model::Player::from_char(&world.data, &row.char);
+    let mut bundle = Player::from_char(&world.data, &row.char);
     bundle.restore_reuses(&row.char, world.tick, now_millis());
     bundle.restore_buffs(&row.char);
     bundle.player.store_type = store_type;

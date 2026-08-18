@@ -152,16 +152,16 @@ fn player_max_hp_is_capped_by_the_config_key() {
         .get(0)
         .expect("a human fighter template")
         .clone();
-    let mods = crate::model::components::StatModifiers::default();
+    let mods = model::components::StatModifiers::default();
 
     // Uncapped: raise the ceiling far above anything a level-80 can reach.
     data.combat_caps.max_hp = 10_000_000.0;
-    let uncapped = crate::model::calc_max_hp(&data, &t, 80, None, &mods);
+    let uncapped = model::calc_max_hp(&data, &t, 80, None, &mods);
     assert!(uncapped > 0.0);
 
     // Now drop the ceiling under it and the total lands exactly on the cap.
     data.combat_caps.max_hp = uncapped / 2.0;
-    let capped = crate::model::calc_max_hp(&data, &t, 80, None, &mods);
+    let capped = model::calc_max_hp(&data, &t, 80, None, &mods);
     assert_eq!(
         capped,
         uncapped / 2.0,
@@ -232,23 +232,21 @@ fn spawn_protection_hides_a_new_arrival_until_they_act() {
 
     // Not protected until armed — the monster notices normally.
     assert!(
-        crate::game_loop::npc::ai::perception::notices_target(&world, npc_oid, 3001),
+        ai::perception::notices_target(&world, npc_oid, 3001),
         "an unprotected player is visible to a monster"
     );
 
     spawn_protection::arm(&mut world, 3001);
     assert!(spawn_protection::is_protected(&world, 3001));
     assert!(
-        !crate::game_loop::npc::ai::perception::notices_target(&world, npc_oid, 3001),
+        !ai::perception::notices_target(&world, npc_oid, 3001),
         "a spawn-protected player is ignored by aggressive monsters"
     );
 
     // `onActionRequest` ends it, and the monster sees them again.
     spawn_protection::on_action_request(&mut world, 1, 3001);
     assert!(!spawn_protection::is_protected(&world, 3001));
-    assert!(crate::game_loop::npc::ai::perception::notices_target(
-        &world, npc_oid, 3001
-    ));
+    assert!(ai::perception::notices_target(&world, npc_oid, 3001));
 }
 
 /// The window is a *ceiling*, not a duration: it also lapses on its own.
@@ -704,15 +702,12 @@ fn armour_set_actives_are_granted_on_cooldown() {
     const OWN_REUSE: i32 = 9_401;
     const NO_REUSE: i32 = 9_402;
     for (id, reuse) in [(OWN_REUSE, 5_000), (NO_REUSE, 0)] {
-        world
-            .data
-            .skill_data
-            .insert_for_test(crate::model::skill::Skill {
-                id,
-                level: 1,
-                reuse_delay: reuse,
-                ..Default::default()
-            });
+        world.data.skill_data.insert_for_test(Skill {
+            id,
+            level: 1,
+            reuse_delay: reuse,
+            ..Default::default()
+        });
     }
 
     crate::game_loop::armor_sets::stamp_equip_reuse_for_test(
@@ -743,15 +738,12 @@ fn a_zero_armour_set_reuse_stamps_nothing() {
     use crate::model::components::Reuses;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            id: 9_403,
-            level: 1,
-            reuse_delay: 0,
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        id: 9_403,
+        level: 1,
+        reuse_delay: 0,
+        ..Default::default()
+    });
     world.cfg.character.armor_set_equip_active_skill_reuse_ms = 0;
     crate::game_loop::armor_sets::stamp_equip_reuse_for_test(&mut world, 3001, &[(9_403, 1)]);
     assert!(
@@ -881,12 +873,10 @@ fn character_create_refuses_a_forbidden_name() {
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = crate::session::Session::new(9, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("acct".into(), crate::session::SessionKey::new(1, 2, 3, 4))
+    let s = Session::new(9, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("acct".into(), SessionKey::new(1, 2, 3, 4))
         .into_lobby(vec![]);
-    world
-        .clients
-        .insert(9, crate::session::ClientSession::InLobby(s));
+    world.clients.insert(9, ClientSession::InLobby(s));
     world.cfg.character.forbidden_names = vec!["annou".to_string()];
 
     // `CharCreateFail` is the only thing this path can answer with.
@@ -941,7 +931,7 @@ fn a_subclass_stops_at_its_own_ceiling_and_the_base_class_does_not() {
         {
             let p = world
                 .objects
-                .get_component_mut::<crate::model::Player>(&3001)
+                .get_component_mut::<Player>(&3001)
                 .expect("player");
             p.class_index = class_index;
             p.level = 1;
@@ -950,7 +940,7 @@ fn a_subclass_stops_at_its_own_ceiling_and_the_base_class_does_not() {
         crate::game_loop::death::add_exp_and_sp(world, 3001, 1e18, 0.0, false);
         world
             .objects
-            .get_component::<crate::model::Player>(&3001)
+            .get_component::<Player>(&3001)
             .expect("player")
             .level
     };
@@ -1000,7 +990,7 @@ fn fame_is_clamped_to_max_personal_fame_points() {
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let fame = |w: &World| {
         w.objects
-            .get_component::<crate::model::Player>(&3001)
+            .get_component::<Player>(&3001)
             .expect("player")
             .fame
     };

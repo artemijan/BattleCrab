@@ -114,27 +114,11 @@ pub(crate) fn set_skill_reuse(world: &mut World, object_id: i32, skill: &Skill) 
         );
     }
     let until_tick = world.tick + ms_to_ticks(reuse_delay);
-    // Players are given `Reuses` at load; **NPCs were not**, so this write was
-    // a silent no-op for them and `npc_cast`'s check — which treats an absent
-    // component as "ready" — always passed. NPC skill cooldowns therefore
-    // never applied at all: a mob could re-cast as fast as its AI ticked.
-    //
-    // Attached on first use rather than at spawn, so only NPCs that actually
-    // cast pay for the map (this world holds ~34.9k of them, the vast majority
-    // of which never cast anything).
-    if world
-        .objects
-        .get_component::<crate::model::components::Reuses>(&object_id)
-        .is_none()
-    {
-        world
-            .objects
-            .add_components(&object_id, crate::model::components::Reuses::default());
-    }
-    if let Some(reuses) = world
-        .objects
-        .get_component_mut::<crate::model::components::Reuses>(&object_id)
-    {
+    // `reuses_mut` attaches the map when it is missing — without it this write
+    // was a silent no-op on an NPC and `npc_cast`'s check, which treats an
+    // absent component as "ready", always passed: NPC skill cooldowns never
+    // applied at all and a mob could re-cast as fast as its AI ticked.
+    if let Some(reuses) = crate::game_loop::helpers::reuses_mut(world, object_id) {
         reuses.0.insert(
             skill.reuse_key(),
             crate::model::SkillReuse {

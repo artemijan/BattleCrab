@@ -10,8 +10,8 @@ const PLAYER: i32 = 2001;
 const CID: u32 = 1;
 const CASTLE: i32 = 5;
 
-fn cuboid() -> crate::data::spawn_data::Territory {
-    crate::data::spawn_data::Territory {
+fn cuboid() -> Territory {
+    Territory {
         form: crate::data::spawn_data::ZoneForm::Cuboid {
             x1: -500,
             x2: 500,
@@ -156,7 +156,7 @@ fn a_castle_trap_bites_during_a_siege() {
     insert_damage_zone(&mut world, damage_params(CASTLE));
     world
         .sieges
-        .insert(CASTLE, crate::model::siege::Siege::new(CASTLE));
+        .insert(CASTLE, model::siege::Siege::new(CASTLE));
     let before = hp(&world);
 
     sweep(&mut world, 20);
@@ -175,17 +175,17 @@ fn a_defender_is_spared_by_its_own_castles_trap() {
     insert_damage_zone(&mut world, damage_params(CASTLE));
     world
         .sieges
-        .insert(CASTLE, crate::model::siege::Siege::new(CASTLE));
+        .insert(CASTLE, model::siege::Siege::new(CASTLE));
     // Put the player in a clan that owns the castle.
     let clan_id = 700;
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .get_component_mut::<Player>(&PLAYER)
         .unwrap()
         .clan_id = clan_id;
     world.clans.insert(
         clan_id,
-        crate::model::clan::Clan {
+        Clan {
             id: clan_id,
             name: "Defenders".into(),
             leader_id: PLAYER,
@@ -238,12 +238,12 @@ fn a_swamp_slows_the_player_down() {
     {
         let pos = world
             .objects
-            .get_component_mut::<crate::model::components::Position>(&PLAYER)
+            .get_component_mut::<Position>(&PLAYER)
             .unwrap();
         pos.x = 0;
         pos.y = 0;
     }
-    crate::game_loop::zones::revalidate_zone(&mut world, PLAYER, true);
+    zones::revalidate_zone(&mut world, PLAYER, true);
 
     let slowed = run_speed(&world);
     assert!(
@@ -272,23 +272,23 @@ fn leaving_the_swamp_restores_full_speed() {
     {
         let pos = world
             .objects
-            .get_component_mut::<crate::model::components::Position>(&PLAYER)
+            .get_component_mut::<Position>(&PLAYER)
             .unwrap();
         pos.x = 0;
         pos.y = 0;
     }
-    crate::game_loop::zones::revalidate_zone(&mut world, PLAYER, true);
+    zones::revalidate_zone(&mut world, PLAYER, true);
     assert!(run_speed(&world) < normal);
 
     {
         let pos = world
             .objects
-            .get_component_mut::<crate::model::components::Position>(&PLAYER)
+            .get_component_mut::<Position>(&PLAYER)
             .unwrap();
         pos.x = 5000;
         pos.y = 5000;
     }
-    crate::game_loop::zones::revalidate_zone(&mut world, PLAYER, true);
+    zones::revalidate_zone(&mut world, PLAYER, true);
 
     assert_eq!(run_speed(&world), normal, "speed comes back on exit");
 }
@@ -309,12 +309,12 @@ fn a_castle_swamp_is_inert_outside_a_siege() {
     {
         let pos = world
             .objects
-            .get_component_mut::<crate::model::components::Position>(&PLAYER)
+            .get_component_mut::<Position>(&PLAYER)
             .unwrap();
         pos.x = 0;
         pos.y = 0;
     }
-    crate::game_loop::zones::revalidate_zone(&mut world, PLAYER, true);
+    zones::revalidate_zone(&mut world, PLAYER, true);
 
     assert_eq!(
         run_speed(&world),
@@ -350,7 +350,7 @@ fn the_area_damage_stat_scales_zone_ticks() {
         if let Some(v) = vuln {
             let mut mods = world
                 .objects
-                .get_component::<crate::model::components::StatModifiers>(&PLAYER)
+                .get_component::<model::components::StatModifiers>(&PLAYER)
                 .cloned()
                 .unwrap_or_default();
             mods.add.insert(Stat::DamageZoneVuln, v);

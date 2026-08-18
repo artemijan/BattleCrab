@@ -54,7 +54,7 @@ pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32,
         .get(skill_id, level)
         .map(|s| s.name.clone())
         .unwrap_or_default();
-    if let Some(tc) = crate::game_loop::helpers::client_for_player(world, target) {
+    if let Some(tc) = helpers::client_for_player(world, target) {
         send_message(
             world,
             tc,
@@ -128,7 +128,7 @@ fn give_all_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard<(
     let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     super::death::reward_skills(world, target);
     refresh_skill_list(world, target);
-    let name = helpers::player_name_or_empty(world, target);
+    let name = player_name_or_empty(world, target);
     send_message(
         world,
         client_id,
@@ -161,7 +161,7 @@ fn give_clan_skills(
     use crate::network::server_packets::SmParam;
     let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     let clan_id = guard::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
-    let target_name = helpers::player_name_or_empty(world, target);
+    let target_name = player_name_or_empty(world, target);
     // Java warns when the target isn't the leader but grants to the clan anyway.
     if world
         .clans
@@ -183,7 +183,7 @@ fn give_clan_skills(
         client_id,
         &format!("You gave {count} skills to {target_name}'s clan {clan_name}."),
     );
-    if let Some(cid) = super::helpers::client_for_player(world, target) {
+    if let Some(cid) = helpers::client_for_player(world, target) {
         send_message(world, cid, &format!("Your clan received {count} skills."));
     }
     Ok(())
@@ -209,7 +209,7 @@ fn remove_all_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard
     // them, so they re-apply on relog.
     crate::game_loop::clans::remove_clan_skills_from_member(world, target);
     refresh_skill_list(world, target);
-    let name = helpers::player_name_or_empty(world, target);
+    let name = player_name_or_empty(world, target);
     send_message(
         world,
         client_id,
@@ -247,7 +247,7 @@ fn get_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
         }
     }
     refresh_skill_list(world, object_id);
-    let name = helpers::player_name_or_empty(world, target);
+    let name = player_name_or_empty(world, target);
     send_message(
         world,
         client_id,
@@ -418,10 +418,10 @@ fn remove_skills_page(world: &mut World, client_id: u32, page: usize) {
 
 /// Resend a player's `SkillList` after a skill-book change.
 pub(crate) fn refresh_skill_list(world: &World, target: i32) {
-    let Some(cid) = super::helpers::client_for_player(world, target) else {
+    let Some(cid) = helpers::client_for_player(world, target) else {
         return;
     };
-    let Some(packet) = super::helpers::skill_list_packet(world, target) else {
+    let Some(packet) = helpers::skill_list_packet(world, target) else {
         return;
     };
     send_to_client(world, cid, packet);
@@ -634,7 +634,7 @@ fn removereuse(world: &mut World, client_id: u32, object_id: i32, args: &[&str])
     {
         reuses.0.clear();
     }
-    if let Some(cid) = super::helpers::client_for_player(world, target)
+    if let Some(cid) = helpers::client_for_player(world, target)
         && let Some(reuses) = world
             .objects
             .get_component::<crate::model::components::Reuses>(&target)
@@ -642,7 +642,7 @@ fn removereuse(world: &mut World, client_id: u32, object_id: i32, args: &[&str])
         let packet = crate::network::server_packets::skill_cool_time(reuses, world.tick);
         send_to_client(world, cid, packet);
     }
-    let name = helpers::player_name_or_empty(world, target);
+    let name = player_name_or_empty(world, target);
     send_message(
         world,
         client_id,

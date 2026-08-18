@@ -1,6 +1,6 @@
 //! `l2r-tools dat-text` — render decrypted `.dat` files as editable text.
 //!
-//! See [`tools::dat_text`] for the walk and [`tools::dat_schema`] for where the
+//! See [`dat_text`] for the walk and [`tools::dat_schema`] for where the
 //! layouts come from; this module is only flags and output.
 
 use std::path::PathBuf;

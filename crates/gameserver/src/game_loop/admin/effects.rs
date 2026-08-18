@@ -300,7 +300,7 @@ pub(super) fn admin_setteam(
             n.team = team;
             set += 1;
             // The aura rides `NpcInfo`, so the whole packet is re-sent.
-            super::super::death::introduce_npc(world, target);
+            super::death::introduce_npc(world, target);
         }
     }
     send_message(world, client_id, &format!("Team set on {set} target(s)."));

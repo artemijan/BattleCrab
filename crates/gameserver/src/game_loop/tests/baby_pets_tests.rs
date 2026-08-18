@@ -16,7 +16,7 @@ const CID: u32 = 1;
 const BABY_BUFFALO: i32 = 12780;
 const BUFFALO_COLLAR: i32 = 6648;
 
-fn baby_pet_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn baby_pet_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.data.skill_data = dist::skills_owned();
     world.id_pool = 0x5000_0000..0x5000_0200;
@@ -66,12 +66,12 @@ fn baby_pet_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes
 fn summon_baby(world: &mut World) -> i32 {
     let World { data, objects, .. } = world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component_mut::<Inventory>(&OWNER)
         .unwrap()
         .add_item(&data.item_data, 7_100_050, BUFFALO_COLLAR, 1);
     let collar = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component::<Inventory>(&OWNER)
         .unwrap()
         .items()
         .iter()
@@ -80,7 +80,7 @@ fn summon_baby(world: &mut World) -> i32 {
         .object_id;
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&OWNER)
+        .get_component_mut::<Player>(&OWNER)
         .unwrap()
         .pending_pet_collar = Some(collar);
     crate::game_loop::servitor::summon_pet(world, OWNER).expect("summoned")
@@ -92,10 +92,7 @@ fn summon_baby(world: &mut World) -> i32 {
 /// is 0 there too. The caster's M.Atk is therefore the whole heal, and a
 /// fixture pet with none heals nothing.
 fn give_pet_magic_attack(world: &mut World, pet: i32) {
-    if let Some(cs) = world
-        .objects
-        .get_component_mut::<crate::model::components::CombatStats>(&pet)
-    {
+    if let Some(cs) = world.objects.get_component_mut::<CombatStats>(&pet) {
         cs.m_atk = 200.0;
         cs.m_atk_spd = 333;
     }
@@ -133,7 +130,7 @@ fn a_baby_pet_heals_its_wounded_owner() {
 
     let cast = world
         .objects
-        .get_component::<crate::model::components::Casting>(&pet)
+        .get_component::<Casting>(&pet)
         .expect("the pet started a heal");
     // At 10 % both fire; the second overwrites the first, so the live cast is
     // Greater Heal Trick — the emergency one.
@@ -181,9 +178,7 @@ fn the_greater_heal_is_held_back_for_an_emergency() {
     // Observed on the tick itself: the timer reschedules, so waiting for HP
     // would let a *later* tick's random rolls heal and hide the gate.
     assert!(
-        !world
-            .objects
-            .has_component::<crate::model::components::Casting>(&pet),
+        !world.objects.has_component::<Casting>(&pet),
         "no cast started — the emergency heal is held back at half health"
     );
 }
@@ -201,9 +196,7 @@ fn a_hungry_baby_pet_does_not_heal() {
     baby_pets::handle_heal_tick(&mut world, pet);
 
     assert!(
-        !world
-            .objects
-            .has_component::<crate::model::components::Casting>(&pet),
+        !world.objects.has_component::<Casting>(&pet),
         "a starving pet starts no cast"
     );
 }
@@ -238,7 +231,7 @@ fn only_baby_pets_get_the_heal_timer() {
 const BUFFER_NPC: i32 = 36402;
 const BUFFER_OID: i32 = 5401;
 
-fn buffer_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn buffer_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.data.skill_data = dist::skills_owned();
     world.data.root = crate::data::DIST_GAME.to_string();
@@ -262,7 +255,7 @@ fn take_buff(world: &mut World, index: usize) {
 }
 
 fn has_buff(world: &World, skill_id: i32) -> bool {
-    crate::game_loop::abnormal::has_buff(world, OWNER, skill_id)
+    abnormal::has_buff(world, OWNER, skill_id)
 }
 
 /// **The buffer's buffs.** Two of these stand in every Olympiad arena and
@@ -289,7 +282,7 @@ fn the_buffer_stops_after_five() {
     }
     let script_value = world
         .objects
-        .get_component::<crate::model::npc::Npc>(&BUFFER_OID)
+        .get_component::<model::npc::Npc>(&BUFFER_OID)
         .map(|n| n.script_value);
     assert_eq!(script_value, Some(5), "five taken");
 
@@ -314,7 +307,7 @@ fn a_forged_buff_index_grants_nothing() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&BUFFER_OID)
+            .get_component::<model::npc::Npc>(&BUFFER_OID)
             .map(|n| n.script_value),
         Some(0),
         "nothing was counted"

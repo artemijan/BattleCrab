@@ -252,7 +252,7 @@ fn blessing_of_protection_blocks_the_pk_both_ways() {
     }
     world.objects.add_components(
         &VICTIM,
-        crate::model::components::Buffs(vec![ActiveBuff {
+        Buffs(vec![ActiveBuff {
             skill_id: 5182,
             abnormal_type: "PK_PROTECT".to_string(),
             abnormal_level: 1,
@@ -262,14 +262,14 @@ fn blessing_of_protection_blocks_the_pk_both_ways() {
     );
 
     // The PK can't engage the blessed newbie.
-    crate::game_loop::combat::start_attack_intent(&mut world, KILLER_CID, KILLER, VICTIM);
+    combat::start_attack_intent(&mut world, KILLER_CID, KILLER, VICTIM);
     assert!(
         !world.objects.has_component::<Intent>(&KILLER),
         "the chaotic attacker is refused"
     );
 
     // …and the blessed newbie can't engage the PK.
-    crate::game_loop::combat::start_attack_intent(&mut world, VICTIM_CID, VICTIM, KILLER);
+    combat::start_attack_intent(&mut world, VICTIM_CID, VICTIM, KILLER);
     assert!(
         !world.objects.has_component::<Intent>(&VICTIM),
         "the shield is symmetric"
@@ -281,7 +281,7 @@ fn blessing_of_protection_blocks_the_pk_both_ways() {
         .get_component_mut::<Player>(&KILLER)
         .unwrap()
         .reputation = 0;
-    crate::game_loop::combat::start_attack_intent(&mut world, KILLER_CID, KILLER, VICTIM);
+    combat::start_attack_intent(&mut world, KILLER_CID, KILLER, VICTIM);
     assert!(
         world.objects.has_component::<Intent>(&KILLER),
         "no karma, no protection"
@@ -299,7 +299,7 @@ fn blessing_of_protection_blocks_the_pk_both_ways() {
         ..Default::default()
     };
     world.objects.add_components(&VICTIM, z);
-    crate::game_loop::combat::start_attack_intent(&mut world, KILLER_CID, KILLER, VICTIM);
+    combat::start_attack_intent(&mut world, KILLER_CID, KILLER, VICTIM);
     assert!(
         world.objects.has_component::<Intent>(&KILLER),
         "a PVP zone suspends the blessing"

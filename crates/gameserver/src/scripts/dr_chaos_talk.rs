@@ -1,7 +1,7 @@
 //! Dr. Chaos's chat window — the first-talk half of `ai/bosses/DrChaos`.
 //! Talking to Dr. Chaos (32033) drains his paranoia timer by 1–5 and, at ≤0,
 //! tips him into the transformation. The state machine lives in
-//! [`crate::game_loop::dr_chaos`]; this is only the first-talk hook.
+//! [`dr_chaos`]; this is only the first-talk hook.
 
 use crate::game_loop::dr_chaos;
 use crate::game_loop::quests::{QuestCtx, QuestScript};

@@ -114,7 +114,7 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
             } else {
                 server_packets::obtained_item_sm(item_id, amount)
             };
-            crate::game_loop::helpers::send_to_client(world, client_id, sm);
+            send_to_client(world, client_id, sm);
             crate::game_loop::helpers::send_inventory_update(world, target_oid, changes);
         }
     }
@@ -257,11 +257,7 @@ pub(crate) fn roll_magic_failure(
                     creature_name(world, target_oid),
                     creature_name(world, caster_oid),
                 );
-                crate::game_loop::helpers::send_to_player(
-                    world,
-                    caster_oid,
-                    server_packets::system_message(&message),
-                );
+                send_to_player(world, caster_oid, server_packets::system_message(&message));
             }
             formulas::MagicFailure::Half
         } else {
@@ -295,7 +291,7 @@ pub(crate) fn roll_magic_failure(
             } else {
                 sm_ids::YOU_RESISTED_C1_S_MAGIC
             },
-            &[crate::network::server_packets::SmParam::Text(caster_name)],
+            &[SmParam::Text(caster_name)],
         );
     }
 
@@ -317,7 +313,7 @@ pub(crate) fn give_sp(world: &mut World, caster_oid: i32, target_oid: i32, sp: i
         && world
             .objects
             .has_component::<crate::model::Player>(&target_oid);
-    let dead = crate::game_loop::helpers::is_dead(world, target_oid);
+    let dead = is_dead(world, target_oid);
     if both_players && !dead {
         crate::game_loop::death::add_exp_and_sp(world, caster_oid, 0.0, sp as f64, false);
     }

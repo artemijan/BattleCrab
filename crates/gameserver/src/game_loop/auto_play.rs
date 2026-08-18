@@ -46,7 +46,9 @@ pub(crate) fn handle_voiced(
         return;
     }
     // `AutoPlayPremium`: the whole panel is premium-only here.
-    if world.cfg.auto_play.premium_only && !is_premium(world, player_oid) {
+    if world.cfg.auto_play.premium_only
+        && !super::admin::premium::has_premium_status(world, player_oid)
+    {
         return;
     }
     if command != "play" {
@@ -455,10 +457,6 @@ fn attack(world: &mut World, player_oid: i32, target: i32) {
 
 fn reset_idle(world: &mut World, player_oid: i32) {
     world.auto_play_idle.remove(&player_oid);
-}
-
-fn is_premium(world: &World, player_oid: i32) -> bool {
-    super::admin::premium::has_premium_status(world, player_oid)
 }
 
 pub(crate) fn settings(world: &World, player_oid: i32) -> Option<AutoPlaySettings> {

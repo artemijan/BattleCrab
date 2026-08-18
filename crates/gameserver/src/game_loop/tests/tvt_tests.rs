@@ -400,7 +400,7 @@ fn player_do_die_drives_tvt_scoring() {
 fn adena_count(world: &World, oid: i32) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .get_component::<Inventory>(&oid)
         .map_or(0, |inv| inv.count_of(57))
 }
 
@@ -433,7 +433,7 @@ fn end_fight_rewards_the_winning_team_and_freezes_everyone() {
         assert!(
             world
                 .objects
-                .get_component::<crate::model::components::AdminFlags>(oid)
+                .get_component::<AdminFlags>(oid)
                 .unwrap()
                 .invul
         );
@@ -473,9 +473,7 @@ fn teleport_out_unfreezes_and_tears_down() {
     assert_eq!(world.events.active, None);
     assert!(!world.instances.contains(instance_id));
     for oid in &oids {
-        let flags = world
-            .objects
-            .get_component::<crate::model::components::AdminFlags>(oid);
+        let flags = world.objects.get_component::<AdminFlags>(oid);
         // Invul cleared (either the flag is gone or false).
         assert!(flags.is_none_or(|f| !f.invul));
         assert!(world.objects.get_component::<InstanceId>(oid).is_none());
@@ -854,14 +852,14 @@ fn can_register_honours_every_ported_busy_gate() {
     let cases: &[(&str, Setup)] = &[
         ("in a duel", |w| {
             w.objects
-                .add_components(&100, crate::model::components::DuelRef(1));
+                .add_components(&100, model::components::DuelRef(1));
         }),
         ("in an instance", |w| {
             w.objects.add_components(&100, InstanceId(7));
         }),
         ("inside a siege zone", |w| {
             w.objects
-                .get_component_mut::<crate::model::components::ZoneFlags>(&100)
+                .get_component_mut::<model::components::ZoneFlags>(&100)
                 .unwrap()
                 .mask |= crate::data::zone_data::ZoneKind::Siege.bit();
         }),
@@ -954,7 +952,7 @@ fn end_fight_freezes_players_and_servitors_and_teleport_out_thaws_them() {
     // Skill-locked means *casting* only — Java's `disableAllSkills` does not
     // touch movement, which `setImmobilized` handles separately.
     assert!(
-        crate::game_loop::abnormal::all_skills_disabled(&world, owner),
+        abnormal::all_skills_disabled(&world, owner),
         "the cast gate sees the lock"
     );
 
@@ -982,11 +980,7 @@ fn teleport_to_arena_groups_teams_into_parties_and_ccs() {
     let seq = world.next_request_seq();
     world.parties.insert(
         pre_party,
-        crate::model::party::Party::new(
-            oids[0],
-            crate::model::party::LootRule::FindersKeepers,
-            seq,
-        ),
+        model::party::Party::new(oids[0], LootRule::FindersKeepers, seq),
     );
     world.objects.add_components(&oids[0], PartyRef(pre_party));
     crate::game_loop::party::add_party_member(&mut world, pre_party, oids[1]);
@@ -1012,10 +1006,7 @@ fn teleport_to_arena_groups_teams_into_parties_and_ccs() {
                 .0;
             let party = &world.parties[&pid];
             assert!(party.members.len() <= 7, "parties of at most 7");
-            assert_eq!(
-                party.distribution,
-                crate::model::party::LootRule::FindersKeepers
-            );
+            assert_eq!(party.distribution, LootRule::FindersKeepers);
             if !party_ids.contains(&pid) {
                 party_ids.push(pid);
             }

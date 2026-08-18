@@ -196,7 +196,7 @@ fn relocating_the_priest_leaves_static_spawns_alone() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&NPC_OID)
+            .get_component::<model::npc::Npc>(&NPC_OID)
             .is_some(),
         "the static Priest is never the one deleted"
     );
@@ -283,11 +283,7 @@ const GLUDIO: i32 = 1;
 fn castle_world(
     npc_id: i32,
     npc_pos: (i32, i32, i32),
-) -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+) -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = quest_test_world();
     world.data.zone_data = ZoneData::load_from(DIST);
     world.castles = vec![castle_row(GLUDIO, "Gludio")];
@@ -303,10 +299,7 @@ fn make_castle_lord(world: &mut World, player: i32) {
     let mut clan = mk_test_clan(77, player);
     clan.castle_id = GLUDIO;
     world.clans.insert(77, clan);
-    let p = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&player)
-        .unwrap();
+    let p = world.objects.get_component_mut::<Player>(&player).unwrap();
     p.clan_id = 77;
     p.clan_leader = true; // Java `isClanLeader()` = clan.leaderId == objectId
     p.clan_privs = 0; // the leader holds every privilege regardless
@@ -349,7 +342,7 @@ fn talk_to_npc(world: &mut World, client_id: u32, rx: &mut PktRx) -> String {
         .unwrap_or_default()
 }
 
-type PktRx = tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>;
+type PktRx = UnboundedReceiver<bytes::Bytes>;
 
 /// The blacksmith serves the castle's lord and nobody else (Java `hasRights`).
 #[test]
@@ -389,8 +382,8 @@ fn castle_doorman_opens_the_gates_except_during_a_siege() {
     let (mut world, _db, _l) = castle_world(GLUDIO_DOORMAN_OUTER, DOORMAN_POS);
     // Gludio's outer gate pair, named by the doorman's template parameters.
     let (door1, door2) = (19_210_001, 19_210_002);
-    crate::model::door::spawn_door_for_test(&mut world, test_door(door1, DoorOpenMethod::None));
-    crate::model::door::spawn_door_for_test(&mut world, test_door(door2, DoorOpenMethod::None));
+    model::door::spawn_door_for_test(&mut world, test_door(door1, DoorOpenMethod::None));
+    model::door::spawn_door_for_test(&mut world, test_door(door2, DoorOpenMethod::None));
     {
         let mut t = crate::data::npc_data::default_template(GLUDIO_DOORMAN_OUTER);
         t.type_name = "Folk".into();
@@ -475,10 +468,7 @@ fn doorman_first_talk_needs_the_open_door_privilege() {
     clan.castle_id = GLUDIO;
     world.clans.insert(78, clan);
     {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&8812)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&8812).unwrap();
         p.clan_id = 78;
         p.clan_privs = 0;
     }
@@ -490,7 +480,7 @@ fn doorman_first_talk_needs_the_open_door_privilege() {
 
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&8812)
+        .get_component_mut::<Player>(&8812)
         .unwrap()
         .clan_privs = CS_OPEN_DOOR;
     let allowed = talk_to_npc(&mut world, 1, &mut rx);
@@ -548,10 +538,7 @@ fn mercenary_manager_needs_its_privilege() {
     clan.castle_id = GLUDIO;
     world.clans.insert(79, clan);
     {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&8814)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&8814).unwrap();
         p.clan_id = 79;
         p.clan_privs = 0;
     }
@@ -565,7 +552,7 @@ fn mercenary_manager_needs_its_privilege() {
 
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&8814)
+        .get_component_mut::<Player>(&8814)
         .unwrap()
         .clan_privs = CS_MERCENARIES;
     let allowed = talk_to_npc(&mut world, 1, &mut rx);
@@ -669,7 +656,7 @@ fn mass_teleport_ousts_only_the_restart_territory() {
     drain(&mut rx_in);
     drain(&mut rx_out);
 
-    crate::game_loop::area_npcs::handle_castle_mass_teleport(&mut world, NPC_OID);
+    area_npcs::handle_castle_mass_teleport(&mut world, NPC_OID);
 
     let pos_in = *world
         .objects
@@ -727,8 +714,8 @@ fn castle_teleporter_serves_defenders_during_a_siege() {
     );
 }
 
-fn castle_row(id: i32, name: &str) -> crate::model::castle::Castle {
-    crate::model::castle::Castle {
+fn castle_row(id: i32, name: &str) -> model::castle::Castle {
+    model::castle::Castle {
         show_npc_crest: false,
         id,
         name: name.into(),
@@ -753,7 +740,7 @@ fn npc_count(world: &mut World, npc_id: i32) -> usize {
     let mut n = 0;
     world
         .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Position)>(|(npc, _)| {
+        .for_each_mut::<(&model::npc::Npc, &Position)>(|(npc, _)| {
             if npc.npc_id == npc_id {
                 n += 1;
             }
@@ -795,15 +782,12 @@ fn a_wounded_mob_polymorphs_into_its_next_form() {
     let mut new_oid = 0;
     world
         .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Position)>(|(npc, _)| {
+        .for_each_mut::<(&model::npc::Npc, &Position)>(|(npc, _)| {
             if npc.npc_id == TRANSCENDER_2 {
                 new_oid = npc.object_id;
             }
         });
-    if let Some(aggro) = world
-        .objects
-        .get_component::<crate::model::npc::AggroList>(&new_oid)
-    {
+    if let Some(aggro) = world.objects.get_component::<AggroList>(&new_oid) {
         hating = aggro.0.iter().any(|(oid, _)| *oid == 8830);
     }
     assert!(hating, "the new form is set on the attacker");
@@ -912,16 +896,16 @@ fn an_elpy_flees_from_its_attacker() {
 
     let intention = world
         .objects
-        .get_component::<crate::model::npc::NpcAi>(&NPC_OID)
+        .get_component::<NpcAi>(&NPC_OID)
         .map(|ai| ai.intention);
     assert_eq!(
         intention,
-        Some(crate::model::npc::NpcIntention::MoveTo),
+        Some(NpcIntention::MoveTo),
         "the mob commits to the flight"
     );
     let dest = world
         .objects
-        .get_component::<crate::model::components::Movement>(&NPC_OID)
+        .get_component::<Movement>(&NPC_OID)
         .map(|m| (m.0.dest_x, m.0.dest_y));
     let (dx, _dy) = dest.expect("the mob is walking somewhere");
     assert!(
@@ -987,9 +971,9 @@ fn a_fairy_tree_is_immobile() {
         t.type_name = "Monster".into();
         world.data.npc_data.insert_for_test(t);
     }
-    let oid = crate::model::npc::spawn_npc_at(&mut world, FAIRY_TREE, 0, 0, 0, 0).expect("spawned");
+    let oid = model::npc::spawn_npc_at(&mut world, FAIRY_TREE, 0, 0, 0, 0).expect("spawned");
     assert!(
-        crate::game_loop::abnormal::is_movement_disabled(&world, oid),
+        abnormal::is_movement_disabled(&world, oid),
         "the tree cannot move"
     );
 }
@@ -1005,12 +989,11 @@ fn the_siege_headquarters_ignores_a_lethal_blow() {
         t.type_name = "Npc".into();
         world.data.npc_data.insert_for_test(t);
     }
-    let oid =
-        crate::model::npc::spawn_npc_at(&mut world, HEADQUARTERS, 0, 0, 0, 0).expect("spawned");
+    let oid = model::npc::spawn_npc_at(&mut world, HEADQUARTERS, 0, 0, 0, 0).expect("spawned");
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::NotLethalable>(&oid),
+            .has_component::<model::components::NotLethalable>(&oid),
         "the spawn hook marks it non-lethalable"
     );
 }
@@ -1154,7 +1137,7 @@ fn the_boot_pass_skips_groups_a_script_owns() {
         .spawns
         .push(day_night_test_template(DAY_MOB, NIGHT_MOB));
 
-    crate::model::npc::spawn_all(&mut world);
+    model::npc::spawn_all(&mut world);
 
     assert_eq!(npc_count(&mut world, DAY_MOB), 0, "day half waits");
     assert_eq!(npc_count(&mut world, NIGHT_MOB), 0, "night half waits");
@@ -1222,7 +1205,7 @@ fn no_random_activity_pins_its_npcs_down() {
     world.data.spawn_data.spawns.push(template);
     let template_idx = world.data.spawn_data.spawns.len() - 1;
 
-    let oid = crate::model::npc::spawn_one(&mut world, template_idx, 0, 0).expect("spawned");
+    let oid = model::npc::spawn_one(&mut world, template_idx, 0, 0).expect("spawned");
     assert!(
         !spawn_scripts::random_walk_enabled(&world, oid, true),
         "the guard does not wander"
@@ -1434,14 +1417,12 @@ fn village_guards_stroll_around_their_post() {
         t.base_run_spd = 120.0;
         world.data.npc_data.insert_for_test(t);
     }
-    let oid = crate::model::npc::spawn_npc_at(&mut world, GUARD, 0, 0, 0, 0).expect("spawned");
+    let oid = model::npc::spawn_npc_at(&mut world, GUARD, 0, 0, 0, 0).expect("spawned");
 
     // The spawn hook armed the first stroll; fire it.
-    crate::game_loop::area_npcs::handle_guard_random_walk(&mut world, oid);
+    area_npcs::handle_guard_random_walk(&mut world, oid);
     assert!(
-        world
-            .objects
-            .has_component::<crate::model::components::Movement>(&oid),
+        world.objects.has_component::<Movement>(&oid),
         "the guard set off"
     );
     // And the beat re-armed itself: the spawn hook queued one, firing it
@@ -1478,7 +1459,7 @@ fn choose_body(list_id: i32, entry_id: i32, amount: i64, enchant: i16) -> Vec<u8
 
 /// A world with the real catalogue and the Blacksmith of Mammon in front of
 /// player 8801.
-fn mammon_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn mammon_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     load_real_multisell_data(&mut world, DIST);
     add_test_npc(
@@ -1496,7 +1477,7 @@ fn mammon_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>)
     (world, rx)
 }
 
-fn rows_of(world: &World, player: i32) -> Vec<crate::model::components::PreparedRow> {
+fn rows_of(world: &World, player: i32) -> Vec<model::components::PreparedRow> {
     world
         .objects
         .get_component::<ActiveMultisell>(&player)
@@ -1512,7 +1493,7 @@ fn rows_of(world: &World, player: i32) -> Vec<crate::model::components::Prepared
 #[test]
 fn an_exchange_window_lists_only_the_players_own_items() {
     let (mut world, mut rx) = mammon_world();
-    let oids = super::items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon");
+    let oids = items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon");
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8801) {
         inv.set_item_enchant(oids[0], 5);
     }
@@ -1547,7 +1528,7 @@ fn an_exchange_window_lists_only_the_players_own_items() {
 #[test]
 fn an_equipped_item_is_not_offered() {
     let (mut world, mut rx) = mammon_world();
-    let oids = super::items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon");
+    let oids = items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon");
     {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&8801).unwrap();
@@ -1574,8 +1555,8 @@ fn an_equipped_item_is_not_offered() {
 #[test]
 fn the_exchange_consumes_the_paired_instance() {
     let (mut world, mut rx) = mammon_world();
-    let plain = super::items::add_inventory_item(&mut world, 8801, 4681, 1).expect("first")[0];
-    let enchanted = super::items::add_inventory_item(&mut world, 8801, 4681, 1).expect("second")[0];
+    let plain = items::add_inventory_item(&mut world, 8801, 4681, 1).expect("first")[0];
+    let enchanted = items::add_inventory_item(&mut world, 8801, 4681, 1).expect("second")[0];
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8801) {
         inv.set_item_enchant(enchanted, 5);
     }
@@ -1614,7 +1595,7 @@ fn the_exchange_consumes_the_paired_instance() {
 #[test]
 fn a_mismatched_echo_is_refused() {
     let (mut world, mut rx) = mammon_world();
-    let oid = super::items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon")[0];
+    let oid = items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon")[0];
     drain(&mut rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -1660,8 +1641,7 @@ fn maintain_enchantment_carries_the_enchant_over() {
         let entry = &list.entries[0];
         (entry.ingredients[0].id, entry.products[0].id)
     };
-    let oid = super::items::add_inventory_item(&mut world, 8802, ingredient_id, 1)
-        .expect("ingredient")[0];
+    let oid = items::add_inventory_item(&mut world, 8802, ingredient_id, 1).expect("ingredient")[0];
     // Everything else the entry wants (adena and the like).
     let extras: Vec<(i32, i64)> = {
         let list = world.data.multisells.get(1005).expect("list 1005");
@@ -1673,7 +1653,7 @@ fn maintain_enchantment_carries_the_enchant_over() {
             .collect()
     };
     for (id, count) in extras {
-        super::items::add_inventory_item(&mut world, 8802, id, count);
+        items::add_inventory_item(&mut world, 8802, id, count);
     }
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8802) {
         inv.set_item_enchant(oid, 7);
@@ -1741,10 +1721,7 @@ fn mercenary_ticket_pickup_needs_the_privilege() {
     clan.castle_id = GLUDIO;
     world.clans.insert(79, clan);
     {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&8815)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&8815).unwrap();
         p.clan_id = 79;
         p.clan_privs = CS_MERCENARIES;
     }

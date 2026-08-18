@@ -89,12 +89,8 @@ fn store_trade_points(world: &mut World) {
         if points <= 0 {
             continue;
         }
-        if let Some(v) = world
-            .objects
-            .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
+        if !crate::game_loop::helpers::set_player_var_int(world, oid, UNCLAIMED_POINTS_VAR, points)
         {
-            v.set_int(UNCLAIMED_POINTS_VAR, points);
-        } else {
             let _ = world.db.send(DbCommand::StoreCharVar {
                 char_id: oid,
                 var: UNCLAIMED_POINTS_VAR.to_string(),

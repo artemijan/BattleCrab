@@ -17,14 +17,6 @@ const CUBIC_ID: i32 = 1;
 /// The cubic's attack skill, registered as a plain magical hit.
 const CUBIC_SKILL: i32 = 4049;
 
-fn cubic_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
-    combat_test_world()
-}
-
 /// A one-skill attack cubic: 900 s life, acts every 10 s, always succeeds.
 fn attack_template(level: i32) -> CubicTemplate {
     CubicTemplate {
@@ -52,11 +44,11 @@ fn attack_template(level: i32) -> CubicTemplate {
 
 fn register(world: &mut World, t: CubicTemplate) {
     world.data.cubic_data.insert_for_test(t);
-    let skill = crate::model::skill::Skill {
+    let skill = Skill {
         self_continuous: false,
         id: CUBIC_SKILL,
         level: 1,
-        effects: vec![crate::model::skill::SkillEffect::MagicalAttack { power: 50.0 }],
+        effects: vec![model::skill::SkillEffect::MagicalAttack { power: 50.0 }],
         ..Default::default()
     };
     world.data.skill_data.insert_for_test(skill);
@@ -77,7 +69,7 @@ fn hp(world: &World, oid: i32) -> f64 {
 /// The baseline: summoning attaches a cubic to the player.
 #[test]
 fn summoning_attaches_a_cubic() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
 
@@ -89,13 +81,12 @@ fn summoning_attaches_a_cubic() {
 /// would be targetable, attackable and visible as a creature.
 #[test]
 fn a_cubic_is_not_a_world_object() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
     let count = |w: &mut World| {
         let mut n = 0;
-        w.objects
-            .for_each_mut::<&crate::model::npc::Npc>(|_| n += 1);
+        w.objects.for_each_mut::<&model::npc::Npc>(|_| n += 1);
         n
     };
     let before = count(&mut world);
@@ -107,7 +98,7 @@ fn a_cubic_is_not_a_world_object() {
 /// Re-casting the same cubic replaces it rather than stacking a second copy.
 #[test]
 fn recasting_replaces_rather_than_stacks() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
     register(&mut world, attack_template(2));
@@ -126,7 +117,7 @@ fn recasting_replaces_rather_than_stacks() {
 /// weaker cast must not downgrade it.
 #[test]
 fn a_weaker_recast_does_not_downgrade() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
     register(&mut world, attack_template(2));
@@ -143,13 +134,13 @@ fn a_weaker_recast_does_not_downgrade() {
 /// The action tick casts the cubic's skill at the owner's current target.
 #[test]
 fn the_cubic_attacks_the_owners_target() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
     add_test_npc(&mut world, FOE, 20001, "Monster", 20, 100, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::TargetRef>(&OWNER)
+        .get_component_mut::<TargetRef>(&OWNER)
         .unwrap()
         .0 = Some(FOE);
 
@@ -166,7 +157,7 @@ fn the_cubic_attacks_the_owners_target() {
 /// charge on a cast that never happened.
 #[test]
 fn a_cubic_with_no_target_does_nothing() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
 
@@ -183,7 +174,7 @@ fn a_cubic_with_no_target_does_nothing() {
 /// many times.
 #[test]
 fn a_cubic_expires_after_max_count_actions() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let mut t = attack_template(1);
     t.max_count = 2;
@@ -191,7 +182,7 @@ fn a_cubic_expires_after_max_count_actions() {
     add_test_npc(&mut world, FOE, 20001, "Monster", 20, 100, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::TargetRef>(&OWNER)
+        .get_component_mut::<TargetRef>(&OWNER)
         .unwrap()
         .0 = Some(FOE);
 
@@ -217,7 +208,7 @@ fn a_cubic_expires_after_max_count_actions() {
 /// The cubic stops when its duration runs out.
 #[test]
 fn a_cubic_expires_after_its_duration() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
 
@@ -231,7 +222,7 @@ fn a_cubic_expires_after_its_duration() {
 /// player's attack cubic stops firing.
 #[test]
 fn the_owner_hp_condition_gates_the_cast() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let mut t = attack_template(1);
     t.hp_condition = Some(crate::data::cubic_data::HpCondition {
@@ -242,7 +233,7 @@ fn the_owner_hp_condition_gates_the_cast() {
     add_test_npc(&mut world, FOE, 20001, "Monster", 20, 100, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::TargetRef>(&OWNER)
+        .get_component_mut::<TargetRef>(&OWNER)
         .unwrap()
         .0 = Some(FOE);
     summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
@@ -268,13 +259,13 @@ fn the_owner_hp_condition_gates_the_cast() {
 /// A target beyond `<range>` is not cast at.
 #[test]
 fn a_target_out_of_range_is_skipped() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
     add_test_npc(&mut world, FOE, 20001, "Monster", 20, 100, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::TargetRef>(&OWNER)
+        .get_component_mut::<TargetRef>(&OWNER)
         .unwrap()
         .0 = Some(FOE);
     // Shove the target well past the 1000-unit range.
@@ -289,7 +280,7 @@ fn a_target_out_of_range_is_skipped() {
 /// Cubics do not survive their owner leaving the world.
 #[test]
 fn cubics_do_not_outlive_their_owner() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
     summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
@@ -303,12 +294,12 @@ fn cubics_do_not_outlive_their_owner() {
 /// abnormal-visual bug G19 found.
 #[test]
 fn char_info_carries_the_cubic_ids() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
     summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
 
-    let v = crate::model::PlayerView::of(&world.objects, OWNER).unwrap();
+    let v = model::PlayerView::of(&world.objects, OWNER).unwrap();
     let with = crate::network::server_packets::char_info(&v, &[], &[CUBIC_ID], &Default::default());
     let without = crate::network::server_packets::char_info(&v, &[], &[], &Default::default());
     assert_eq!(
@@ -322,13 +313,13 @@ fn char_info_carries_the_cubic_ids() {
 /// cubic whose target is already dead does not spend a charge.
 #[test]
 fn a_dead_target_costs_no_charge() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
     add_test_npc(&mut world, FOE, 20001, "Monster", 20, 100, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::TargetRef>(&OWNER)
+        .get_component_mut::<TargetRef>(&OWNER)
         .unwrap()
         .0 = Some(FOE);
     summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
@@ -357,7 +348,7 @@ fn a_dead_target_costs_no_charge() {
 #[test]
 fn cubic_damage_scales_off_the_cubic_not_the_owner() {
     let damage_with_owner_matk = |m_atk: f64| {
-        let (mut world, _db, _l) = cubic_world();
+        let (mut world, _db, _l) = combat_test_world();
         let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
         register(&mut world, attack_template(1));
         add_test_npc(&mut world, FOE, 20001, "Monster", 20, 100, 0, 0);
@@ -368,13 +359,13 @@ fn cubic_damage_scales_off_the_cubic_not_the_owner() {
         }
         world
             .objects
-            .get_component_mut::<crate::model::components::TargetRef>(&OWNER)
+            .get_component_mut::<TargetRef>(&OWNER)
             .unwrap()
             .0 = Some(FOE);
         // Give the *owner* wildly different magic attack between runs.
         world
             .objects
-            .get_component_mut::<crate::model::components::CombatStats>(&OWNER)
+            .get_component_mut::<CombatStats>(&OWNER)
             .unwrap()
             .m_atk = m_atk;
 
@@ -400,19 +391,15 @@ fn cubic_damage_scales_off_the_cubic_not_the_owner() {
 /// damage at all.
 #[test]
 fn the_cubic_borrows_its_owners_level() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
     summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
 
     let caster = world.objects.get_component::<Cubics>(&OWNER).unwrap().0[0].caster_oid;
-    let owner_level = world
-        .objects
-        .get_component::<crate::model::Player>(&OWNER)
-        .unwrap()
-        .level;
+    let owner_level = world.objects.get_component::<Player>(&OWNER).unwrap().level;
     assert_eq!(
-        crate::game_loop::skills::effects::creature_level_for_test(&world, caster),
+        effects::creature_level_for_test(&world, caster),
         owner_level,
         "the cubic reports its owner's level"
     );
@@ -421,7 +408,7 @@ fn the_cubic_borrows_its_owners_level() {
 /// The caster entity must die with the cubic, or every summon leaks one.
 #[test]
 fn the_caster_entity_is_cleaned_up() {
-    let (mut world, _db, _l) = cubic_world();
+    let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
     summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
@@ -429,7 +416,7 @@ fn the_caster_entity_is_cleaned_up() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::CombatStats>(&caster)
+            .get_component::<CombatStats>(&caster)
             .is_some()
     );
 
@@ -437,7 +424,7 @@ fn the_caster_entity_is_cleaned_up() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::CombatStats>(&caster)
+            .get_component::<CombatStats>(&caster)
             .is_none(),
         "caster entity despawned with the cubic"
     );

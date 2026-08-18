@@ -205,7 +205,7 @@ pub(crate) fn check_for_test(
     target: i32,
     conds: &[SkillCondition],
 ) -> bool {
-    let skill = crate::model::skill::Skill::default();
+    let skill = Skill::default();
     conds
         .iter()
         .all(|c| eval(world, caster, &skill, target, c).is_ok())
@@ -266,7 +266,7 @@ fn eval(
             }
         }
         // ---- caster state -------------------------------------------------
-        SkillCondition::CanEscape => ok(!super::super::abnormal::cannot_escape(world, caster)),
+        SkillCondition::CanEscape => ok(!super::abnormal::cannot_escape(world, caster)),
         SkillCondition::InsideSiegeZone => ok(in_zone(world, caster, ZoneKind::Siege)),
         SkillCondition::NotInUnderwater => ok(!in_zone(world, caster, ZoneKind::Water)),
         SkillCondition::Mounted { kind } => {
@@ -746,10 +746,8 @@ fn can_untransform(world: &World, caster: i32) -> Result<(), Refusal> {
         return Err(Refusal(None));
     };
     // `isAlikeDead() || isCursedWeaponEquipped()`.
-    if crate::game_loop::helpers::is_dead(world, caster)
-        || crate::game_loop::abnormal::flags_of(world, caster)
-            & crate::model::skill::effect_flag::FAKE_DEATH
-            != 0
+    if is_dead(world, caster)
+        || flags_of(world, caster) & crate::model::skill::effect_flag::FAKE_DEATH != 0
         || p.cursed_weapon_equipped_id != 0
     {
         return Err(Refusal(None));
@@ -757,7 +755,7 @@ fn can_untransform(world: &World, caster: i32) -> Result<(), Refusal> {
     // `isFlyingMounted()` — the wyvern, the one flying mount on this chronicle.
     const MOUNT_WYVERN: u8 = 2;
     if p.mount_type == MOUNT_WYVERN {
-        let over_landing = crate::game_loop::guard::maybe_position(world, caster)
+        let over_landing = maybe_position(world, caster)
             .is_some_and(|pos| world.data.zone_data.in_landing_zone(pos.x, pos.y, pos.z));
         if !over_landing {
             return Err(Refusal(Some(RefusalLine::Sm(
@@ -789,14 +787,13 @@ fn call_pc(world: &World, caster: i32) -> Result<(), Refusal> {
     // `isInsideZone(NO_SUMMON_FRIEND) || isInsideZone(JAIL) || isFlyingMounted()`
     // — plus the jail *punishment* state, which the port tracks separately from
     // the zone and which Java reaches through `PunishmentAffect` instead.
-    let in_blocked_zone =
-        crate::game_loop::guard::maybe_position(world, caster).is_some_and(|pos| {
-            world
-                .data
-                .zone_data
-                .in_no_summon_friend_zone(pos.x, pos.y, pos.z)
-                || world.data.zone_data.in_jail_zone(pos.x, pos.y, pos.z)
-        });
+    let in_blocked_zone = maybe_position(world, caster).is_some_and(|pos| {
+        world
+            .data
+            .zone_data
+            .in_no_summon_friend_zone(pos.x, pos.y, pos.z)
+            || world.data.zone_data.in_jail_zone(pos.x, pos.y, pos.z)
+    });
     if p.jailed || in_blocked_zone {
         return Err(Refusal(Some(RefusalLine::Sm(
             sm_ids::YOU_CANNOT_USE_SUMMONING_OR_TELEPORTING_IN_THIS_AREA,

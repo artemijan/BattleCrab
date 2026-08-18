@@ -15,7 +15,9 @@
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
 use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::helpers::{count_of, is_friend, send_to_client};
+use crate::game_loop::helpers::{
+    count_of, is_friend, player_var_int, send_to_client, send_to_player, set_player_var_int,
+};
 use commons::audit;
 use serde_json::json;
 use tracing::warn;
@@ -270,7 +272,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 return;
             }
             "sellbuff" | "sellbuffs" if world.cfg.sell_buffs.enabled => {
-                super::sell_buffs::handle_voiced_sellbuff(world, client_id, sender_oid);
+                super::sell_buffs::send_sell_menu(world, client_id, sender_oid);
                 return;
             }
             "banchat" | "chatban" | "unbanchat" | "chatunban"
@@ -493,7 +495,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                     .map(|r| r.all_members())
                     .unwrap_or_default();
                 for oid in members {
-                    super::party_room::send_to(world, oid, say.clone());
+                    send_to_player(world, oid, say.clone());
                 }
             }
         }
@@ -669,12 +671,12 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
     // Spend the point, then tell the speaker what is left. Java writes the
     // variable through `setWorldChatUsed`, which the memory-first autosave
     // flushes with the rest of the character.
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::PlayerVariables>(&sender_oid)
-    {
-        v.set_int(crate::model::components::WORLD_CHAT_USED, used + 1);
-    }
+    set_player_var_int(
+        world,
+        sender_oid,
+        crate::model::components::WORLD_CHAT_USED,
+        used + 1,
+    );
     let left = world_chat_points_left(world, sender_oid);
     send_to_client(world, client_id, server_packets::ex_world_chat_cnt(left));
     if interval_secs > 0 {
@@ -799,7 +801,7 @@ fn broadcast_snoop(
     };
     let snoop = server_packets::snoop(speaker, speaker_name, chat_type, speaker_name, text);
     for gm in listeners {
-        super::helpers::send_to_player(world, gm, snoop.clone());
+        send_to_player(world, gm, snoop.clone());
     }
 }
 
@@ -1055,10 +1057,10 @@ fn handle_voiced_chat_admin(
     }
 }
 fn get_used_world_chat(world: &World, player_oid: i32) -> i32 {
-    world
-        .objects
-        .get_component::<crate::model::components::PlayerVariables>(&player_oid)
-        .map_or(0, |v| {
-            v.get_int(crate::model::components::WORLD_CHAT_USED, 0)
-        })
+    player_var_int(
+        world,
+        player_oid,
+        crate::model::components::WORLD_CHAT_USED,
+        0,
+    )
 }

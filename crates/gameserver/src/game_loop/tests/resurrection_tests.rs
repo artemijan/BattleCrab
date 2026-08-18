@@ -25,10 +25,7 @@ fn kill(world: &mut World, oid: i32, lost_exp: i64) {
         .get_component_mut::<Vitals>(&oid)
         .unwrap()
         .dead = true;
-    let p = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&oid)
-        .unwrap();
+    let p = world.objects.get_component_mut::<Player>(&oid).unwrap();
     p.lost_exp_on_death = lost_exp;
     p.exp = 100_000;
 }
@@ -77,7 +74,7 @@ fn a_proposal_does_not_revive_by_itself() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::Player>(&CORPSE)
+            .get_component::<Player>(&CORPSE)
             .unwrap()
             .revive_request
             .is_some(),
@@ -97,13 +94,13 @@ fn a_second_proposal_is_refused_while_one_is_pending() {
     revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
     let first = world
         .objects
-        .get_component::<crate::model::Player>(&CORPSE)
+        .get_component::<Player>(&CORPSE)
         .unwrap()
         .revive_request;
     revive_request(&mut world, REVIVER, CORPSE, 90, 10, 10, 0, 1016, 0);
     let second = world
         .objects
-        .get_component::<crate::model::Player>(&CORPSE)
+        .get_component::<Player>(&CORPSE)
         .unwrap()
         .revive_request;
 
@@ -124,7 +121,7 @@ fn a_living_player_gets_no_proposal() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::Player>(&CORPSE)
+            .get_component::<Player>(&CORPSE)
             .unwrap()
             .revive_request
             .is_none()
@@ -159,10 +156,7 @@ fn accepting_revives_with_the_skills_percentages_and_restores_xp() {
         (v.cur_hp - max_hp * 0.5).abs() < 1e-6,
         "50% HP, not the config default"
     );
-    let p = world
-        .objects
-        .get_component::<crate::model::Player>(&CORPSE)
-        .unwrap();
+    let p = world.objects.get_component::<Player>(&CORPSE).unwrap();
     assert_eq!(
         p.exp,
         100_000 + 4_000,
@@ -188,7 +182,7 @@ fn declining_leaves_the_corpse_dead() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::Player>(&CORPSE)
+            .get_component::<Player>(&CORPSE)
             .unwrap()
             .revive_request
             .is_none(),
@@ -224,19 +218,11 @@ fn accepting_after_already_respawning_does_nothing() {
         .get_component_mut::<Vitals>(&CORPSE)
         .unwrap()
         .dead = false;
-    let exp_before = world
-        .objects
-        .get_component::<crate::model::Player>(&CORPSE)
-        .unwrap()
-        .exp;
+    let exp_before = world.objects.get_component::<Player>(&CORPSE).unwrap().exp;
 
     assert!(handle_revive_answer(&mut world, CORPSE, true), "claimed");
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&CORPSE)
-            .unwrap()
-            .exp,
+        world.objects.get_component::<Player>(&CORPSE).unwrap().exp,
         exp_before,
         "no second helping of XP"
     );
@@ -303,7 +289,7 @@ const SIEGE_CASTLE: i32 = 1;
 
 /// A world with a siege in progress over castle 1 and both actors standing in
 /// its zone.
-fn battlefield() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn battlefield() -> (World, UnboundedReceiver<bytes::Bytes>) {
     use crate::model::siege::{Siege, SiegeClanType};
     let (mut world, _db, _l) = cast_test_world();
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
@@ -311,10 +297,7 @@ fn battlefield() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) 
     let r = ingame_caster(&mut world, CID, REVIVER, x, y);
     let _c = ingame_caster(&mut world, TCID, CORPSE, x, y);
     for oid in [REVIVER, CORPSE] {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::components::Position>(&oid)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Position>(&oid).unwrap();
         p.z = z;
     }
     assert_eq!(
@@ -335,7 +318,7 @@ fn battlefield() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) 
 fn set_clan(world: &mut World, oid: i32, clan_id: i32) {
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&oid)
+        .get_component_mut::<Player>(&oid)
         .unwrap()
         .clan_id = clan_id;
 }
@@ -343,7 +326,7 @@ fn set_clan(world: &mut World, oid: i32, clan_id: i32) {
 fn proposed(world: &World) -> bool {
     world
         .objects
-        .get_component::<crate::model::Player>(&CORPSE)
+        .get_component::<Player>(&CORPSE)
         .unwrap()
         .revive_request
         .is_some()
@@ -450,7 +433,7 @@ fn a_resurrection_outside_a_running_siege_is_untouched() {
     {
         let p = world
             .objects
-            .get_component_mut::<crate::model::components::Position>(&CORPSE)
+            .get_component_mut::<Position>(&CORPSE)
             .unwrap();
         p.x = 0;
         p.y = 0;
@@ -466,8 +449,8 @@ fn a_resurrection_outside_a_running_siege_is_untouched() {
 
 /// Salvation (1410) — the `ResurrectionSpecial` carrier all three tests below
 /// hold, at the dist's 20-minute duration.
-fn salvation_skill() -> crate::model::skill::Skill {
-    crate::model::skill::Skill {
+fn salvation_skill() -> Skill {
+    Skill {
         self_continuous: false,
         id: 1410,
         level: 1,
@@ -486,9 +469,9 @@ fn salvation_skill() -> crate::model::skill::Skill {
 
 /// Register `skill` and land it on [`CORPSE`], who is the caster and the target
 /// both — these are all self-buffs.
-fn self_buff_the_corpse(world: &mut World, skill: &crate::model::skill::Skill) {
+fn self_buff_the_corpse(world: &mut World, skill: &Skill) {
     world.data.skill_data.insert_for_test(skill.clone());
-    crate::game_loop::skills::effects::apply_skill_effects(world, CORPSE, CORPSE, skill);
+    effects::apply_skill_effects(world, CORPSE, CORPSE, skill);
 }
 
 /// **`ResurrectionSpecial`** (Salvation 1410, Soul of the Phoenix 438) is an
@@ -511,7 +494,7 @@ fn salvation_proposes_its_revive_when_death_strips_the_buff() {
 
     // Now die. Death strips the buff, which is what fires `onExit`.
     kill(&mut world, CORPSE, 10_000);
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CORPSE, 1410);
+    effects::handle_buff_expire(&mut world, CORPSE, 1410);
 
     assert!(
         proposed(&world),
@@ -533,7 +516,7 @@ fn salvation_does_not_fire_inside_an_olympiad_match() {
     start_olympiad_match(&mut world, CORPSE, CORPSE + 1);
 
     kill(&mut world, CORPSE, 10_000);
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CORPSE, 1410);
+    effects::handle_buff_expire(&mut world, CORPSE, 1410);
 
     assert!(
         !proposed(&world),
@@ -551,7 +534,7 @@ fn salvation_spares_the_rest_of_the_buffs_through_death() {
     let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
 
     // An ordinary buff that does *not* survive death on its own.
-    let haste = crate::model::skill::Skill {
+    let haste = Skill {
         self_continuous: false,
         id: 9430,
         level: 1,
@@ -559,9 +542,9 @@ fn salvation_spares_the_rest_of_the_buffs_through_death() {
         abnormal_time: 1200,
         abnormal_type: "HASTE".into(),
         effects: vec![SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
-                stat: crate::model::stats::Stat::RunSpeed,
-                mode: crate::model::stats::StatModifierType::Diff,
+            model::skill::StatModifierEffect {
+                stat: Stat::RunSpeed,
+                mode: model::stats::StatModifierType::Diff,
                 amount: 30.0,
                 ..Default::default()
             },

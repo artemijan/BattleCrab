@@ -20,7 +20,7 @@ use super::*;
 pub(crate) fn in_zone(world: &World, object_id: i32, zone: &crate::data::zone_data::Zone) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::Position>(&object_id)
+        .get_component::<model::components::Position>(&object_id)
         .is_some_and(|p| zone.contains(p.x, p.y, p.z))
 }
 
@@ -75,7 +75,7 @@ pub(crate) fn is_dead(world: &World, object_id: i32) -> bool {
 pub(crate) fn is_friend(world: &World, owner_oid: i32, target_oid: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::Friends>(&owner_oid)
+        .get_component::<model::components::Friends>(&owner_oid)
         .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == target_oid))
 }
 
@@ -147,7 +147,7 @@ pub(crate) fn recalculate_player_stats_and_vitals(world: &mut World, object_id: 
 pub(crate) fn vitals_pair(
     world: &World,
     player_oid: i32,
-) -> Option<(Vitals, crate::model::components::PlayerVitals)> {
+) -> Option<(Vitals, model::components::PlayerVitals)> {
     Some((
         world
             .objects
@@ -155,7 +155,7 @@ pub(crate) fn vitals_pair(
             .copied()?,
         world
             .objects
-            .get_component::<crate::model::components::PlayerVitals>(&player_oid)
+            .get_component::<model::components::PlayerVitals>(&player_oid)
             .copied()?,
     ))
 }

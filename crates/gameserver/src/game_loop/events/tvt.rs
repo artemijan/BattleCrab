@@ -717,7 +717,7 @@ pub(crate) fn inactivity_tick(world: &mut World, player: i32, warning: bool, seq
     // the match (their team is now empty) or announce the kick.
     let name = player_name_or_empty(world, player);
     set_team(world, player, 0);
-    crate::game_loop::instances::exit(world, player);
+    instances::exit(world, player);
     world.events.tvt.player_list.retain(|&p| p != player);
     world.events.tvt.scores.remove(&player);
     world.events.tvt.blue_team.retain(|&p| p != player);

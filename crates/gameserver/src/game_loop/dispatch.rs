@@ -732,7 +732,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         }
         // ExRequestAutoFish (IN_GAME): toggle auto-fishing.
         exop::REQUEST_EX_AUTO_FISH => {
-            if let Some(crate::session::ClientSession::InGame(s)) = world.clients.get(&client_id) {
+            if let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) {
                 let player = s.player_object_id();
                 super::fishing::toggle_fishing(world, player);
             }
@@ -966,7 +966,7 @@ fn dispatch_dlg_answer(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     };
     let oid = match world.clients.get(&client_id) {
-        Some(crate::session::ClientSession::InGame(s)) => Some(s.player_object_id()),
+        Some(ClientSession::InGame(s)) => Some(s.player_object_id()),
         _ => None,
     };
     let claimed = oid

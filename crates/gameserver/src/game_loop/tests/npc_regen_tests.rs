@@ -10,11 +10,7 @@ const CID: u32 = 1;
 const MOB_ID: i32 = 43000;
 const RAID_ID: i32 = 43001;
 
-fn regen_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn regen_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for (id, type_name) in [(MOB_ID, "Monster"), (RAID_ID, "RaidBoss")] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -163,11 +159,8 @@ fn regen_continues_during_combat() {
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     let oid = place(&mut world, MOB_ID, 500.0);
     add_hate(&mut world, oid, PLAYER, 100.0, 100.0);
-    if let Some(ai) = world
-        .objects
-        .get_component_mut::<crate::model::npc::NpcAi>(&oid)
-    {
-        ai.intention = crate::model::npc::NpcIntention::Attack;
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&oid) {
+        ai.intention = NpcIntention::Attack;
     }
 
     regen(&mut world, 1);
@@ -188,7 +181,7 @@ fn healing_broadcasts_the_hp_bar() {
     assert!(
         packets
             .iter()
-            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::STATUS_UPDATE)),
+            .any(|p| p.first() == Some(&server_packets::opcodes::STATUS_UPDATE)),
         "nearby clients need the refreshed HP bar"
     );
 }
@@ -218,7 +211,7 @@ fn a_full_hp_mob_broadcasts_nothing() {
     assert!(
         !packets
             .iter()
-            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::STATUS_UPDATE)),
+            .any(|p| p.first() == Some(&server_packets::opcodes::STATUS_UPDATE)),
         "a mob at full HP/MP must be skipped entirely"
     );
 }

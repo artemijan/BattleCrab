@@ -2,7 +2,7 @@
 //!
 //! The Dwarf line's capstone: pick a class path at the
 //! starter, then collect the reward from that path's trainer. No monsters.
-//! Shape and Java citations in [`super::newbie_chain::Capstone`].
+//! Shape and Java citations in [`Capstone`].
 
 use super::newbie_chain::Capstone;
 

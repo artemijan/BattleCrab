@@ -16,7 +16,7 @@ fn link_world() -> (
     World,
     db::CmdTx,
     db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+    UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (mut world, db_tx, db_rx, link_rx) = test_world();
     world.id_pool = 0x2000_0000..0x2000_1000; // object ids for the granted items
@@ -78,8 +78,7 @@ fn a_shift_clicked_item_can_be_inspected_by_the_reader() {
     let (mut world, ..) = link_world();
     let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
-    let item_oid = crate::game_loop::items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1)
-        .expect("granted")[0];
+    let item_oid = items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -121,8 +120,7 @@ fn an_unpublished_item_is_never_answered() {
     let (mut world, ..) = link_world();
     let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
-    let item_oid = crate::game_loop::items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1)
-        .expect("granted")[0];
+    let item_oid = items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -141,8 +139,8 @@ fn linking_an_item_you_do_not_own_drops_the_line() {
     let (mut world, ..) = link_world();
     let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
-    let other_oid = crate::game_loop::items::add_inventory_item(&mut world, 3002, LINKED_ITEM, 1)
-        .expect("granted")[0];
+    let other_oid =
+        items::add_inventory_item(&mut world, 3002, LINKED_ITEM, 1).expect("granted")[0];
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -169,8 +167,7 @@ fn an_item_link_raises_the_chat_length_cap() {
     let (mut world, ..) = link_world();
     let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
-    let item_oid = crate::game_loop::items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1)
-        .expect("granted")[0];
+    let item_oid = items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -212,8 +209,7 @@ fn logging_out_kills_the_publishers_links() {
     let (mut world, ..) = link_world();
     let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
-    let item_oid = crate::game_loop::items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1)
-        .expect("granted")[0];
+    let item_oid = items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
     drain(&mut a_rx);
     drain(&mut b_rx);
     say(
@@ -224,7 +220,7 @@ fn logging_out_kills_the_publishers_links() {
     drain(&mut a_rx);
     drain(&mut b_rx);
 
-    crate::game_loop::net::on_disconnect(&mut world, 1);
+    on_disconnect(&mut world, 1);
 
     assert!(
         !world.published_items.contains_key(&item_oid),

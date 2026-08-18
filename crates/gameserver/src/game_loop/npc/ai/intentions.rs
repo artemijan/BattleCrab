@@ -2,12 +2,11 @@
 //! quests and events (moved from helpers).
 
 use super::*;
-use crate::model;
 
 pub(crate) fn max_hate(world: &World, victim_oid: i32) -> f64 {
     world
         .objects
-        .get_component::<crate::model::npc::AggroList>(&victim_oid)
+        .get_component::<AggroList>(&victim_oid)
         .map(|a| a.0.values().map(|i| i.hate).fold(0.0_f64, f64::max))
         .unwrap_or(0.0)
 }
@@ -19,12 +18,9 @@ pub(crate) fn max_hate(world: &World, victim_oid: i32) -> f64 {
 /// The caller decides whether an NPC already in `Attack` should have its
 /// timeout re-armed; this always re-arms.
 pub(crate) fn set_attack_intention(world: &mut World, npc_oid: i32) {
-    let deadline = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
-    if let Some(ai) = world
-        .objects
-        .get_component_mut::<model::npc::NpcAi>(&npc_oid)
-    {
-        ai.intention = model::npc::NpcIntention::Attack;
+    let deadline = world.tick + ATTACK_TIMEOUT_TICKS;
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
+        ai.intention = NpcIntention::Attack;
         ai.attack_timeout_tick = deadline;
     }
 }
@@ -32,17 +28,14 @@ pub(crate) fn set_attack_intention(world: &mut World, npc_oid: i32) {
 /// The bare half of `setIntention(AI_INTENTION_ACTIVE)` — drop the AI back to
 /// the scan loop and nothing else.
 ///
-/// [`crate::game_loop::npc::ai::set_active`] is the fuller version, which also
+/// [`set_active`] is the fuller version, which also
 /// reverts the move type to walking and broadcasts the `ChangeMoveType` that
 /// goes with it. Callers here want only the intention: a servitor recalled to
 /// its owner keeps whatever move type it was on, and a sown mob is left where
 /// Java's `setIntention(AI_INTENTION_IDLE)` leaves it.
 pub(crate) fn set_active_intention(world: &mut World, npc_oid: i32) {
-    if let Some(ai) = world
-        .objects
-        .get_component_mut::<model::npc::NpcAi>(&npc_oid)
-    {
-        ai.intention = model::npc::NpcIntention::Active;
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
+        ai.intention = NpcIntention::Active;
     }
 }
 
@@ -57,15 +50,12 @@ pub(crate) fn set_active_intention(world: &mut World, npc_oid: i32) {
 /// needs a client id and its own broadcast; callers that may hold either kind
 /// of creature pick between the two.
 ///
-/// [`move_npc_to`]: crate::game_loop::ai::move_npc_to
+/// [`move_npc_to`]: move_npc_to
 pub(crate) fn set_move_to_intention(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32) {
-    if let Some(ai) = world
-        .objects
-        .get_component_mut::<model::npc::NpcAi>(&npc_oid)
-    {
-        ai.intention = model::npc::NpcIntention::MoveTo;
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
+        ai.intention = NpcIntention::MoveTo;
     }
-    crate::game_loop::ai::move_npc_to(world, npc_oid, x, y, z);
+    move_npc_to(world, npc_oid, x, y, z);
 }
 
 /// Java's taunt arithmetic (`Aggression` / `GetAgro`: `getHating(mostHated) -
@@ -73,15 +63,12 @@ pub(crate) fn set_move_to_intention(world: &mut World, npc_oid: i32, x: i32, y: 
 /// most-hated entry rather than at an arbitrary huge constant, so the pull is
 /// dominant but still breakable by the next real tank.
 ///
-/// This *sets* the top of the list; [`crate::game_loop::minions::add_hate`]
+/// This *sets* the top of the list; [`minions::add_hate`]
 /// *accumulates* a given amount. Returns `false` when `npc_oid` has no aggro
 /// list at all (not an attackable — nothing to hate with).
 pub(crate) fn set_top_hate(world: &mut World, npc_oid: i32, target_oid: i32) -> bool {
     let top = max_hate(world, npc_oid);
-    let Some(aggro) = world
-        .objects
-        .get_component_mut::<model::npc::AggroList>(&npc_oid)
-    else {
+    let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) else {
         return false;
     };
     aggro.0.entry(target_oid).or_default().hate = top + 1.0;

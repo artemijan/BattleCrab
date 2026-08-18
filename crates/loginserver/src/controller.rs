@@ -326,8 +326,7 @@ impl ControllerHandle {
                 reply,
             })
             .await;
-        rx.await
-            .unwrap_or(Err(crate::gs_table::login_server_fail::NOT_AUTHED))
+        rx.await.unwrap_or(Err(login_server_fail::NOT_AUTHED))
     }
 
     pub async fn gs_disconnected(&self, server_id: i32) {
@@ -974,7 +973,9 @@ impl Controller {
                     self.record_failed_login_attempt(&ip);
                     return AuthOutcome::AccessFailed;
                 }
-                if let Err(e) = dao::auto_create_account(&self.db, &login, &hash, now, &ip).await {
+                if let Err(e) =
+                    models::repo::accounts::create(&self.db, &login, &hash, now, &ip).await
+                {
                     warn!("Exception while auto creating account for '{login}': {e}");
                     return AuthOutcome::AccessFailed;
                 }

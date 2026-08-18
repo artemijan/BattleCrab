@@ -49,7 +49,7 @@ pub(crate) fn remove_clan_advent(world: &mut World, object_id: i32) {
 ///
 /// All four of `ClanMaster`'s listeners are ported. The other three:
 /// `ON_PLAYER_CLAN_JOIN` and `ON_PLAYER_CLAN_LEFT` in
-/// [`membership`](super::membership), and `ON_PLAYER_PROFESSION_CHANGE`
+/// [`membership`](membership), and `ON_PLAYER_PROFESSION_CHANGE`
 /// through [`reapply_clan_advent_on_profession_change`].
 pub(crate) fn apply_clan_advent_on_login(world: &mut World, clan_id: i32, object_id: i32) {
     let is_leader = world
@@ -353,11 +353,6 @@ pub(crate) fn strip_residential_skills_from_clan(
     for member in online_members(world, clan_id) {
         remove_residential_skills(world, member, residence_id);
     }
-}
-
-/// `//add_clan_skill` (Java `AdminSkill.adminAddClanSkill` -> `Clan.addNewSkill`).
-pub(crate) fn admin_add_clan_skill(world: &mut World, clan_id: i32, skill_id: i32, level: i32) {
-    add_clan_skill(world, clan_id, skill_id, level);
 }
 
 /// Java `Clan.setNewLeader` as `//clan_changeleader` forces it: swap the

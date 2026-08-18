@@ -13,51 +13,10 @@
 
 use commons::network::PacketWriter;
 
-use super::opcodes;
+use super::{PAPERDOLL_ORDER, opcodes};
 use crate::data::GameData;
 use crate::model::PlayerView;
-use crate::model::inventory::{ItemInstance, PaperdollSlot};
-
-/// `ServerPacket.PAPERDOLL_ORDER` — the full 33-slot order, which
-/// `GMViewCharacterInfo` uses because it does **not** override
-/// `getPaperdollOrder()` the way `CharInfo` does. `RHand` appears twice (the
-/// two-handed repeat), and everything past `Brooch` is post-Interlude and
-/// always empty here.
-const PAPERDOLL_ORDER: [PaperdollSlot; 33] = [
-    PaperdollSlot::Under,
-    PaperdollSlot::REar,
-    PaperdollSlot::LEar,
-    PaperdollSlot::Neck,
-    PaperdollSlot::RFinger,
-    PaperdollSlot::LFinger,
-    PaperdollSlot::Head,
-    PaperdollSlot::RHand,
-    PaperdollSlot::LHand,
-    PaperdollSlot::Gloves,
-    PaperdollSlot::Chest,
-    PaperdollSlot::Legs,
-    PaperdollSlot::Feet,
-    PaperdollSlot::Cloak,
-    PaperdollSlot::RHand,
-    PaperdollSlot::Hair,
-    PaperdollSlot::Hair2,
-    PaperdollSlot::RBracelet,
-    PaperdollSlot::LBracelet,
-    PaperdollSlot::Deco1,
-    PaperdollSlot::Deco2,
-    PaperdollSlot::Deco3,
-    PaperdollSlot::Deco4,
-    PaperdollSlot::Deco5,
-    PaperdollSlot::Deco6,
-    PaperdollSlot::Belt,
-    PaperdollSlot::Brooch,
-    PaperdollSlot::BroochJewel1,
-    PaperdollSlot::BroochJewel2,
-    PaperdollSlot::BroochJewel3,
-    PaperdollSlot::BroochJewel4,
-    PaperdollSlot::BroochJewel5,
-    PaperdollSlot::BroochJewel6,
-];
+use crate::model::inventory::ItemInstance;
 
 /// Port of `serverpackets/GMViewCharacterInfo` (0x95) — the GM's read-only
 /// twin of `UserInfo`, flat rather than block-masked.

@@ -42,11 +42,7 @@ fn clan_template(id: i32, clans: &[&str]) -> crate::data::npc_data::NpcTemplate 
     t
 }
 
-fn guard_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn guard_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     world.data.npc_data.insert_for_test(guard_template());
     world
@@ -67,7 +63,7 @@ fn guard_world() -> (
 fn set_reputation(world: &mut World, oid: i32, rep: i32) {
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&oid)
+        .get_component_mut::<Player>(&oid)
         .unwrap()
         .reputation = rep;
 }
@@ -221,7 +217,7 @@ fn a_recruited_clan_mate_runs_rather_than_walks() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::Speeds>(&MATE_OID)
+            .get_component::<Speeds>(&MATE_OID)
             .unwrap()
             .running,
         "an idle mob starts out walking"
@@ -233,7 +229,7 @@ fn a_recruited_clan_mate_runs_rather_than_walks() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Speeds>(&MATE_OID)
+            .get_component::<Speeds>(&MATE_OID)
             .unwrap()
             .running,
         "the recruit must be running"
@@ -243,7 +239,7 @@ fn a_recruited_clan_mate_runs_rather_than_walks() {
     let packets = drain(&mut out);
     assert!(
         packets.iter().any(|p| {
-            p.first() == Some(&crate::network::server_packets::opcodes::CHANGE_MOVE_TYPE)
+            p.first() == Some(&server_packets::opcodes::CHANGE_MOVE_TYPE)
                 && p.get(1..5) == Some(&MATE_OID.to_le_bytes()[..])
         }),
         "ChangeMoveType must reach the client or the recruit still animates as walking"
@@ -438,13 +434,13 @@ fn a_gm_kill_calls_nobody() {
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .get_component_mut::<Player>(&PLAYER)
         .unwrap()
         .access_level = 70;
     assert!(
         world
             .objects
-            .get_component::<crate::model::Player>(&PLAYER)
+            .get_component::<Player>(&PLAYER)
             .unwrap()
             .is_gm(&world.data),
         "fixture precondition: access level 70 is a GM"

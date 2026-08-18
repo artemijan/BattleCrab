@@ -378,7 +378,7 @@ fn player_attack_think(world: &mut World, object_id: i32) {
         .objects
         .has_component::<crate::model::components::QueuedAction>(&object_id)
     {
-        crate::game_loop::helpers::run_queued_action(world, object_id);
+        run_queued_action(world, object_id);
         if world.objects.has_component::<Casting>(&object_id) {
             return;
         }

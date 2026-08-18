@@ -2,7 +2,7 @@
 //!
 //! The Human line's capstone: pick a class path at the
 //! starter, then collect the reward from that path's trainer. No monsters.
-//! Shape and Java citations in [`super::newbie_chain::Capstone`].
+//! Shape and Java citations in [`Capstone`].
 //!
 //! **Java bug, reproduced.** `a_cleric.html` sets cond **5** — the same cond
 //! `a_wizard.html` sets — while Zigaunt, the cleric trainer, answers only at

@@ -131,7 +131,7 @@ pub(crate) fn manor_cost(world: &World, castle_id: i32, next_period: bool) -> i6
         .iter()
         .map(|sp| match world.data.manor.seed_by_id(sp.seed_id) {
             None => 1,
-            Some(_) => i64::from(seed_reference_price(world, sp.seed_id)) * sp.start_amount,
+            Some(_) => i64::from(reference_price(world, sp.seed_id)) * sp.start_amount,
         })
         .sum();
     let crops: i64 = world

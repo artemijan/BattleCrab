@@ -83,7 +83,7 @@ pub(crate) async fn send_boot_events(db: &DatabaseConnection, event_tx: &EventTx
         messages,
         attachments,
         char_ids_by_name: load_char_ids_by_name(db).await,
-        block_lists: crate::db::queries::load_all_block_lists(db).await,
+        block_lists: load_all_block_lists(db).await,
     });
 
     // Active punishments (Java `PunishmentManager.load`, G31) — likewise

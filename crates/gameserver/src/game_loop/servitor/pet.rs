@@ -307,7 +307,7 @@ pub(crate) fn handle_request_pet_get_item(world: &mut World, client_id: u32, bod
     // `CastleManager.getCastle(item)` + `getSiegeGuardByItem(castle, item)` —
     // a mercenary posting ticket lying on castle ground stays where it was
     // dropped, pet or no pet.
-    let on_castle_ticket = crate::game_loop::guard::maybe_position(world, item_oid)
+    let on_castle_ticket = maybe_position(world, item_oid)
         .and_then(|p| world.data.zone_data.siege_castle_at(p.x, p.y, p.z))
         .is_some_and(|castle_id| {
             world
@@ -320,17 +320,17 @@ pub(crate) fn handle_request_pet_get_item(world: &mut World, client_id: u32, bod
         crate::game_loop::helpers::send_action_failed(world, client_id);
         return;
     }
-    if crate::game_loop::helpers::is_dead(world, pet_oid) {
+    if is_dead(world, pet_oid) {
         crate::game_loop::helpers::send_action_failed(world, client_id);
         return;
     }
     // `pet.isUncontrollable()` — a starved pet takes no orders, and this one
     // *does* get told why.
-    if super::is_uncontrollable(world, pet_oid) {
+    if is_uncontrollable(world, pet_oid) {
         crate::game_loop::helpers::send_sm_bare_to_client(
             world,
             client_id,
-            crate::network::server_packets::sm_ids::WHEN_YOUR_PETS_HUNGER_GAUGE_IS_AT_0_YOU_CANNOT_USE_YOUR_PET,
+            server_packets::sm_ids::WHEN_YOUR_PETS_HUNGER_GAUGE_IS_AT_0_YOU_CANNOT_USE_YOUR_PET,
         );
         return;
     }
@@ -338,10 +338,7 @@ pub(crate) fn handle_request_pet_get_item(world: &mut World, client_id: u32, bod
     // `setIntention(AI_INTENTION_PICK_UP, item)`: stop trailing the owner and
     // walk. The follow flag comes back when the errand ends, which is what
     // Java's `getFollowStatus()` save/restore around `doPickupItem` does.
-    if let Some(l) = world
-        .objects
-        .get_component_mut::<crate::model::components::ServitorOf>(&pet_oid)
-    {
+    if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&pet_oid) {
         l.following = false;
     }
     world.objects.add_components(
@@ -372,13 +369,13 @@ pub(crate) fn pet_pickup_think(world: &mut World, pet_oid: i32) -> bool {
     let gone = !world
         .objects
         .has_component::<crate::model::components::GroundItem>(&item_oid);
-    if gone || crate::game_loop::helpers::is_dead(world, pet_oid) {
+    if gone || is_dead(world, pet_oid) {
         end_pickup(world, pet_oid);
         return false;
     }
     let (Some(item_pos), Some(pet_pos)) = (
-        crate::game_loop::guard::maybe_position(world, item_oid),
-        crate::game_loop::guard::maybe_position(world, pet_oid),
+        maybe_position(world, item_oid),
+        maybe_position(world, pet_oid),
     ) else {
         end_pickup(world, pet_oid);
         return false;
@@ -400,10 +397,7 @@ fn end_pickup(world: &mut World, pet_oid: i32) {
     world
         .objects
         .remove_component::<crate::model::components::SummonPickup>(&pet_oid);
-    if let Some(l) = world
-        .objects
-        .get_component_mut::<crate::model::components::ServitorOf>(&pet_oid)
-    {
+    if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&pet_oid) {
         l.following = true;
     }
 }
@@ -418,7 +412,7 @@ fn pet_pickup_item(world: &mut World, pet_oid: i32, item_oid: i32) {
     use crate::model::components::GroundItem;
     let Some(owner_oid) = world
         .objects
-        .get_component::<crate::model::components::ServitorOf>(&pet_oid)
+        .get_component::<ServitorOf>(&pet_oid)
         .map(|l| l.owner_object_id)
     else {
         return;
@@ -443,8 +437,8 @@ fn pet_pickup_item(world: &mut World, pet_oid: i32, item_oid: i32) {
         crate::game_loop::helpers::send_sm_to_client(
             world,
             client_id,
-            crate::network::server_packets::sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1,
-            &[crate::network::server_packets::SmParam::ItemName(g.item_id)],
+            server_packets::sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1,
+            &[server_packets::SmParam::ItemName(g.item_id)],
         );
         return;
     }
@@ -455,11 +449,11 @@ fn pet_pickup_item(world: &mut World, pet_oid: i32, item_oid: i32) {
         crate::game_loop::helpers::send_sm_bare_to_client(
             world,
             client_id,
-            crate::network::server_packets::sm_ids::YOUR_PET_CANNOT_CARRY_ANY_MORE_ITEMS,
+            server_packets::sm_ids::YOUR_PET_CANNOT_CARRY_ANY_MORE_ITEMS,
         );
         return;
     }
-    let Some(region) = crate::game_loop::helpers::region_cell_of(world, item_oid) else {
+    let Some(region) = region_cell_of(world, item_oid) else {
         return;
     };
     crate::game_loop::ground_items::despawn_ground_item(world, item_oid, region);

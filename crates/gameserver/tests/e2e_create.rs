@@ -254,7 +254,7 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
 
     db::spawn(db_url, 1, 7, db_cmd_rx, db_event_tx);
 
-    let geo = std::sync::Arc::new(gameserver::geo::GeoEngine::empty());
+    let geo = Arc::new(gameserver::geo::GeoEngine::empty());
     let (path_tx, path_req_rx) = std::sync::mpsc::channel();
     gameserver::geo::worker::spawn(geo.clone(), Default::default(), path_req_rx, path_event_tx);
 

@@ -23,10 +23,6 @@ const CID: u32 = 1;
 const TCID: u32 = 2;
 const DIST: &str = crate::data::DIST_GAME;
 
-fn dist_skills() -> crate::data::skill_data::SkillData {
-    dist::skills_owned()
-}
-
 fn mp(world: &World, oid: i32) -> f64 {
     world.objects.get_component::<Vitals>(&oid).unwrap().cur_mp
 }
@@ -43,7 +39,7 @@ fn cast(
     let skill = Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: skill_id,
@@ -84,7 +80,7 @@ fn cast(
         ..Default::default()
     };
     world.data.skill_data.insert_for_test(skill.clone());
-    crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
+    effects::apply_skill_effects(world, CASTER, target, &skill);
 }
 
 /// Drain the target so there is headroom to restore into.
@@ -407,7 +403,7 @@ fn percent_restores_scale_off_max_mp() {
 /// visible.
 #[test]
 fn the_recharge_skills_carry_only_the_restore_effect() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     for id in [1013, 1126, 1428] {
         let skill = skills
             .get(id, 1)
@@ -426,7 +422,7 @@ fn the_recharge_skills_carry_only_the_restore_effect() {
 /// Mortal Strike's `ManaHeal` alongside the `FatalBlowRate` it already had.
 #[test]
 fn the_rest_of_the_family_parses() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
 
     for id in [417, 1157] {
         let skill = skills.get(id, 1).unwrap();

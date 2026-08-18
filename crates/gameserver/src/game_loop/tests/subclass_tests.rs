@@ -8,11 +8,7 @@ use crate::model::Player;
 const PLAYER: i32 = 2001;
 const CID: u32 = 1;
 
-fn sub_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn sub_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     // A handful of extra class templates so `add_subclass` has real targets.
     let base = world.data.player_templates.get(0).unwrap().clone();
@@ -264,7 +260,7 @@ fn the_save_carries_every_slots_book() {
     learn_by_hand(&mut world, 8001);
     let _ = drain_db(&mut db);
 
-    crate::game_loop::net::save_all_players(&mut world);
+    save_all_players(&mut world);
 
     let cmds = drain_db(&mut db);
     let save = cmds.iter().find_map(|c| match c {
@@ -305,10 +301,10 @@ fn henna(world: &World, slot: usize) -> Option<i32> {
 }
 
 fn add_shortcut(world: &mut World, slot: i32, id: i32) {
-    let sc = crate::model::shortcut::Shortcut {
+    let sc = Shortcut {
         slot,
         page: 0,
-        kind: crate::model::shortcut::ShortcutType::Skill,
+        kind: ShortcutType::Skill,
         id,
         level: 1,
         character_type: 1,
@@ -384,7 +380,7 @@ fn the_save_carries_hennas_and_shortcuts_for_every_slot() {
     set_active_class(&mut world, PLAYER, 1);
     let _ = drain_db(&mut db);
 
-    crate::game_loop::net::save_all_players(&mut world);
+    save_all_players(&mut world);
 
     let cmds = drain_db(&mut db);
     let save = cmds
@@ -555,7 +551,7 @@ fn a_class_change_broadcasts_the_visual_effect() {
     assert!(
         packets
             .iter()
-            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::MAGIC_SKILL_USE)),
+            .any(|p| p.first() == Some(&server_packets::opcodes::MAGIC_SKILL_USE)),
         "onlookers (and the player) should see the class-change flash"
     );
 }
@@ -575,7 +571,7 @@ fn a_class_switch_clears_skill_cooldowns() {
         &mut world,
         PLAYER,
         1234,
-        crate::model::SkillReuse {
+        model::SkillReuse {
             skill_level: 1,
             until_tick,
             total_ms: 600_000,
@@ -587,7 +583,7 @@ fn a_class_switch_clears_skill_cooldowns() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Reuses>(&PLAYER)
+            .get_component::<Reuses>(&PLAYER)
             .unwrap()
             .0
             .is_empty(),
@@ -606,7 +602,7 @@ fn cooldowns_are_saved_under_the_active_class_index() {
         &mut world,
         PLAYER,
         1234,
-        crate::model::SkillReuse {
+        model::SkillReuse {
             skill_level: 1,
             until_tick,
             total_ms: 600_000,
@@ -614,7 +610,7 @@ fn cooldowns_are_saved_under_the_active_class_index() {
     );
     let _ = drain_db(&mut db);
 
-    crate::game_loop::net::save_all_players(&mut world);
+    save_all_players(&mut world);
 
     let cmds = drain_db(&mut db);
     let save = cmds

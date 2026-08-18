@@ -219,7 +219,7 @@ pub(crate) fn start_casting(
 /// differ deliberately (DEX/WIT for a player, raw `atkSpd/333` for an NPC),
 /// and the sequence counter lives on `Player` for one and `NpcAi` for the
 /// other. `trigger_item_object_id` starts 0 for both; the item-skill path
-/// stamps it right after via [`super::abort::set_cast_trigger_item`].
+/// stamps it right after via [`set_cast_trigger_item`].
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn begin_cast(
     world: &mut World,

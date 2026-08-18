@@ -295,7 +295,7 @@ pub(crate) fn handle_dam_over_time_tick(
 pub(crate) fn expire_buffs_where(
     world: &mut World,
     object_id: i32,
-    matches: impl Fn(&World, &crate::model::skill::ActiveBuff) -> bool,
+    matches: impl Fn(&World, &ActiveBuff) -> bool,
 ) -> usize {
     let skill_ids: Vec<i32> = buffs_snapshot(world, object_id, |buff| {
         matches(world, buff).then_some(buff.skill_id)
@@ -372,7 +372,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
         .get(skill_id, expiring_level)
         .is_some_and(|s| s.effects.iter().any(|e| matches!(e, SkillEffect::Grow)))
     {
-        super::continuous::set_collision_grown(world, player_object_id, false);
+        set_collision_grown(world, player_object_id, false);
     }
 
     // `ResurrectionSpecial.onExit` — the auto-resurrect. The buff does nothing
@@ -426,7 +426,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     }) && !evasions.is_empty()
         && let Some(mods) = world
             .objects
-            .get_component_mut::<crate::model::components::StatModifiers>(&player_object_id)
+            .get_component_mut::<StatModifiers>(&player_object_id)
     {
         for (magic_type, amount) in evasions {
             let entry = mods.skill_evasion.entry(magic_type).or_insert(0.0);
@@ -444,31 +444,25 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     {
         for effect in &effects {
             match effect {
-                SkillEffect::BlockChat => stop_bot_report_punishment(
-                    world,
-                    player_object_id,
-                    crate::model::punishment::PunishmentType::ChatBan,
-                ),
-                SkillEffect::BlockParty => stop_bot_report_punishment(
-                    world,
-                    player_object_id,
-                    crate::model::punishment::PunishmentType::PartyBan,
-                ),
+                SkillEffect::BlockChat => {
+                    stop_bot_report_punishment(world, player_object_id, PunishmentType::ChatBan)
+                }
+                SkillEffect::BlockParty => {
+                    stop_bot_report_punishment(world, player_object_id, PunishmentType::PartyBan)
+                }
                 SkillEffect::BlockAction { blocked_actions } => {
-                    if blocked_actions
-                        .contains(&crate::game_loop::bot_report::PARTY_ACTION_BLOCK_ID)
-                    {
+                    if blocked_actions.contains(&bot_report::PARTY_ACTION_BLOCK_ID) {
                         stop_bot_report_punishment(
                             world,
                             player_object_id,
-                            crate::model::punishment::PunishmentType::PartyBan,
+                            PunishmentType::PartyBan,
                         );
                     }
-                    if blocked_actions.contains(&crate::game_loop::bot_report::CHAT_BLOCK_ID) {
+                    if blocked_actions.contains(&bot_report::CHAT_BLOCK_ID) {
                         stop_bot_report_punishment(
                             world,
                             player_object_id,
-                            crate::model::punishment::PunishmentType::ChatBan,
+                            PunishmentType::ChatBan,
                         );
                     }
                 }

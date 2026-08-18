@@ -8,7 +8,7 @@ use crate::model::components::{AutoPlaySettings, Casting, TargetRef, Vitals};
 
 const PLAYER: i32 = 3001;
 
-fn play_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn play_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.id_pool = 0x4D00_0000..0x4D00_0100;
     world.cfg.auto_play.enabled = true;
@@ -269,7 +269,7 @@ const POTION: i32 = 1540;
 const BUFF_SKILL: i32 = 1204;
 const ATTACK_SKILL: i32 = 3;
 
-fn use_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn use_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, rx) = play_world();
     for (item_id, skill_id) in [(SHOT, 9201), (POTION, 9202)] {
         let mut t = crate::data::item_data::ItemTemplate::default();
@@ -281,16 +281,13 @@ fn use_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
         t.default_action = crate::data::item_data::ActionType::SkillReduce;
         t.immediate_effect = true;
         world.data.item_data.insert_for_test(t);
-        world
-            .data
-            .skill_data
-            .insert_for_test(crate::model::skill::Skill {
-                self_continuous: false,
-                id: skill_id,
-                level: 1,
-                name: format!("Effect {skill_id}"),
-                ..Default::default()
-            });
+        world.data.skill_data.insert_for_test(Skill {
+            self_continuous: false,
+            id: skill_id,
+            level: 1,
+            name: format!("Effect {skill_id}"),
+            ..Default::default()
+        });
     }
     {
         let v = world.objects.get_component_mut::<Vitals>(&PLAYER).unwrap();
@@ -319,7 +316,7 @@ fn supply_items_are_used_and_missing_ones_forgotten() {
         },
     );
 
-    crate::game_loop::auto_use::tick(&mut world);
+    auto_use::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -335,7 +332,7 @@ fn supply_items_are_used_and_missing_ones_forgotten() {
         .get_component_mut::<Inventory>(&PLAYER)
         .unwrap()
         .remove_item(SHOT, 1);
-    crate::game_loop::auto_use::tick(&mut world);
+    auto_use::tick(&mut world);
     assert!(
         auto_use(&world).supply_items.is_empty(),
         "a vanished item is forgotten, not retried"
@@ -361,7 +358,7 @@ fn the_potion_drinks_below_the_threshold() {
     );
 
     // Full HP: nothing happens.
-    crate::game_loop::auto_use::tick(&mut world);
+    auto_use::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -375,7 +372,7 @@ fn the_potion_drinks_below_the_threshold() {
         .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .cur_hp = 500.0;
-    crate::game_loop::auto_use::tick(&mut world);
+    auto_use::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -386,7 +383,7 @@ fn the_potion_drinks_below_the_threshold() {
     );
 
     // With none left, the slot empties itself.
-    crate::game_loop::auto_use::tick(&mut world);
+    auto_use::tick(&mut world);
     assert_eq!(auto_use(&world).potion_item, 0);
 }
 
@@ -396,17 +393,14 @@ fn the_potion_drinks_below_the_threshold() {
 fn a_peace_zone_stops_items_but_not_buffs() {
     let (mut world, _rx) = use_world();
     give_to_player(&mut world, SHOT, 2, 0x4D00_0030, PLAYER);
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: BUFF_SKILL,
-            level: 1,
-            name: "Wind Walk".into(),
-            target_type: crate::model::skill::TargetType::Self_,
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: BUFF_SKILL,
+        level: 1,
+        name: "Wind Walk".into(),
+        target_type: TargetType::Self_,
+        ..Default::default()
+    });
     world
         .objects
         .get_component_mut::<SkillBook>(&PLAYER)
@@ -424,11 +418,11 @@ fn a_peace_zone_stops_items_but_not_buffs() {
     );
     world
         .objects
-        .get_component_mut::<crate::model::components::ZoneFlags>(&PLAYER)
+        .get_component_mut::<model::components::ZoneFlags>(&PLAYER)
         .unwrap()
         .mask |= crate::data::zone_data::ZoneKind::Peace.bit();
 
-    crate::game_loop::auto_use::tick(&mut world);
+    auto_use::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -484,17 +478,14 @@ fn the_skill_page_sorts_buffs_from_attack_skills() {
         (BUFF_SKILL, TargetType::Self_),
         (ATTACK_SKILL, TargetType::Enemy),
     ] {
-        world
-            .data
-            .skill_data
-            .insert_for_test(crate::model::skill::Skill {
-                self_continuous: false,
-                id,
-                level: 1,
-                name: format!("Skill {id}"),
-                target_type: target,
-                ..Default::default()
-            });
+        world.data.skill_data.insert_for_test(Skill {
+            self_continuous: false,
+            id,
+            level: 1,
+            name: format!("Skill {id}"),
+            target_type: target,
+            ..Default::default()
+        });
         world
             .objects
             .get_component_mut::<SkillBook>(&PLAYER)

@@ -78,7 +78,7 @@ fn breath_runs_out_then_drowning_damage_ticks_every_second() {
         v.max_hp = 500;
         v.cur_hp = 500.0;
     }
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     drain(&mut rx);
     assert!(
         !world.objects.has_component::<WaterTask>(&3001),
@@ -91,7 +91,7 @@ fn breath_runs_out_then_drowning_damage_ticks_every_second() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 5500;
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert!(world.objects.has_component::<WaterTask>(&3001));
     let gauge = drain(&mut rx)
         .into_iter()
@@ -130,7 +130,7 @@ fn breath_runs_out_then_drowning_damage_ticks_every_second() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PlayerVitals>(&3001)
+            .get_component::<PlayerVitals>(&3001)
             .unwrap()
             .cur_cp,
         100.0,
@@ -161,7 +161,7 @@ fn breath_runs_out_then_drowning_damage_ticks_every_second() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 0;
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert!(!world.objects.has_component::<WaterTask>(&3001));
     let gauge = drain(&mut rx)
         .into_iter()
@@ -199,7 +199,7 @@ fn death_stops_the_drowning_clock() {
     );
     // And a dead player standing in water is not re-armed by a revalidate
     // (`startWaterTask`'s `!isDead()` guard).
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert!(!world.objects.has_component::<WaterTask>(&3001));
 }
 
@@ -216,7 +216,7 @@ fn allow_water_off_still_slows_you_down() {
         s.run_spd = 120.0;
         s.swim_run_spd = 50.0;
     }
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     let speeds = *world.objects.get_component::<Speeds>(&3001).unwrap();
     assert!(speeds.swimming);
     assert_eq!(speeds.move_speed(), 50.0);
@@ -269,12 +269,12 @@ fn a_long_swim_click_is_clamped_to_700_units() {
         10_000,
     );
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
 
     handle_move_backward_to_location(&mut world, 1, &move_body((3500, 0, -700), (0, 0, 0), 1));
     let mv = world
         .objects
-        .get_component::<crate::model::components::Movement>(&3001)
+        .get_component::<Movement>(&3001)
         .expect("the swim move started");
     assert_eq!(
         (mv.0.dest_x, mv.0.dest_y, mv.0.dest_z),
@@ -299,21 +299,21 @@ fn the_breath_stat_extends_the_gauge() {
     let _rx = ingame_player_access(&mut world, 1, oid, 0);
 
     assert_eq!(
-        crate::game_loop::water::breath_ms(&world, oid),
-        crate::game_loop::water::BREATH_BASE_MS,
+        water::breath_ms(&world, oid),
+        water::BREATH_BASE_MS,
         "60 s unbuffed"
     );
 
     let mut mods = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&oid)
+        .get_component::<model::components::StatModifiers>(&oid)
         .cloned()
         .expect("stat modifiers");
     // Eva's Kiss level 2: `PER 600` → ×7.
     mods.mul.insert(Stat::Breath, 7.0);
     world.objects.add_components(&oid, mods.clone());
     assert_eq!(
-        crate::game_loop::water::breath_ms(&world, oid),
+        water::breath_ms(&world, oid),
         420_000,
         "a PER source multiplies the whole gauge"
     );
@@ -323,7 +323,7 @@ fn the_breath_stat_extends_the_gauge() {
     mods.add.insert(Stat::Breath, 300.0);
     world.objects.add_components(&oid, mods);
     assert_eq!(
-        crate::game_loop::water::breath_ms(&world, oid),
+        water::breath_ms(&world, oid),
         (60_000 + 300) * 7,
         "add lands inside the multiply, not after it"
     );
@@ -331,7 +331,7 @@ fn the_breath_stat_extends_the_gauge() {
     // …and the *drowning task* must use it. Asserting only `breath_ms` leaves
     // the call site free to keep reading the old constant — the first draft of
     // this test did exactly that and survived its own sabotage.
-    crate::game_loop::water::start_water_task(&mut world, oid);
+    water::start_water_task(&mut world, oid);
     let due = world
         .objects
         .get_component::<WaterTask>(&oid)
@@ -363,24 +363,18 @@ fn the_movement_byte_reports_a_player_in_water() {
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
 
     // Dry first: outside the zone the byte must stay 0.
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&3001)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Position>(&3001) {
         p.x = 50_000;
         p.y = 50_000;
     }
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert!(
         !PlayerView::of_world(&world, 3001).unwrap().in_water,
         "out of the zone the movement byte is 0"
     );
 
     // Back into the water.
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&3001)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Position>(&3001) {
         p.x = 0;
         p.y = 0;
     }

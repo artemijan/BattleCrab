@@ -59,10 +59,7 @@ fn open_sell_store(world: &mut World, oid: i32, item_object_id: i32, count: i64,
             packaged: false,
         },
     );
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&oid)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
         p.store_type = 1;
     }
 }
@@ -89,10 +86,7 @@ fn a_logout_with_a_store_open_leaves_the_shop_behind() {
         "the client is disconnected…"
     );
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&5001)
-            .is_some(),
+        world.objects.get_component::<Player>(&5001).is_some(),
         "…but the shop is still standing in the world"
     );
     assert!(
@@ -102,7 +96,7 @@ fn a_logout_with_a_store_open_leaves_the_shop_behind() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&5001)
+            .get_component::<Player>(&5001)
             .unwrap()
             .name_color,
         0x0080_8080,
@@ -148,10 +142,7 @@ fn a_logout_without_a_store_is_an_ordinary_logout() {
     handle_logout(&mut world, 1);
 
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&5001)
-            .is_none(),
+        world.objects.get_component::<Player>(&5001).is_none(),
         "the player left the world"
     );
     assert!(world.offline_traders.is_empty());
@@ -176,10 +167,7 @@ fn the_feature_switch_refuses_the_shop() {
     handle_logout(&mut world, 1);
 
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&5001)
-            .is_none(),
+        world.objects.get_component::<Player>(&5001).is_none(),
         "no shop is left behind when the feature is off"
     );
 }
@@ -198,7 +186,7 @@ fn an_arriving_player_sees_the_unattended_shop() {
     // A second player logs in right next to it.
     let mut buyer_rx = ingame_player(&mut world, 2, 5002, 120, 200, 0);
     drain(&mut buyer_rx);
-    super::visibility::on_enter_world(&world, 2, 5002);
+    visibility::on_enter_world(&world, 2, 5002);
 
     let saw = drain(&mut buyer_rx)
         .into_iter()
@@ -219,8 +207,8 @@ fn buying_out_an_unattended_shop_sends_it_home() {
     world.id_pool = 0x4100_0000..0x4100_0200;
     let _seller_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     let _buyer_rx = ingame_player(&mut world, 2, 5002, 120, 200, 0);
-    super::items::add_inventory_item(&mut world, 5001, 1458, 4).unwrap();
-    super::items::add_inventory_item(&mut world, 5002, 57, 1000).unwrap();
+    items::add_inventory_item(&mut world, 5001, 1458, 4).unwrap();
+    items::add_inventory_item(&mut world, 5002, 57, 1000).unwrap();
     let crystal = world
         .objects
         .get_component::<Inventory>(&5001)
@@ -286,10 +274,7 @@ fn buying_out_an_unattended_shop_sends_it_home() {
         "OfflineDisconnectFinished: a sold-out shop leaves"
     );
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&5001)
-            .is_none(),
+        world.objects.get_component::<Player>(&5001).is_none(),
         "…and the player is out of the world"
     );
     assert!(
@@ -308,21 +293,14 @@ fn an_unattended_shop_takes_no_damage() {
     let _rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     let _rx2 = ingame_player(&mut world, 2, 5002, 120, 200, 0);
     open_sell_store(&mut world, 5001, 4242, 3, 100);
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::Vitals>(&5001)
-    {
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&5001) {
         v.cur_hp = 500.0;
     }
     handle_logout(&mut world, 1);
 
-    super::combat::player_receive_damage(&mut world, 5001, 5002, 300.0);
+    combat::player_receive_damage(&mut world, 5001, 5002, 300.0);
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::components::Vitals>(&5001)
-            .unwrap()
-            .cur_hp,
+        world.objects.get_component::<Vitals>(&5001).unwrap().cur_hp,
         500.0,
         "the hit is nullified"
     );
@@ -332,12 +310,9 @@ fn an_unattended_shop_takes_no_damage() {
     // store type; with `OfflineDisconnectFinished` that takes the whole
     // unattended shop out of the world. So one hit ends it.
     world.cfg.offline_trade.mode_no_damage = false;
-    super::combat::player_receive_damage(&mut world, 5001, 5002, 300.0);
+    combat::player_receive_damage(&mut world, 5001, 5002, 300.0);
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&5001)
-            .is_none(),
+        world.objects.get_component::<Player>(&5001).is_none(),
         "a damageable shop is closed and sent home by the first hit"
     );
     assert!(!world.offline_traders.contains_key(&5001));
@@ -466,7 +441,7 @@ fn stored_shops_come_back_at_boot() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&5001)
+            .get_component::<Player>(&5001)
             .unwrap()
             .store_type,
         1,
@@ -483,10 +458,7 @@ fn stored_shops_come_back_at_boot() {
         "the eight-day-old shop is past OfflineMaxDays"
     );
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&5002)
-            .is_none(),
+        world.objects.get_component::<Player>(&5002).is_none(),
         "…and never enters the world"
     );
     assert!(
@@ -601,10 +573,7 @@ fn teleporting_an_offline_shop_completes_without_a_client() {
         !p.teleporting,
         "the teleport completed inline — no client will ever send Appearing"
     );
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&5001)
-        .unwrap();
+    let pos = world.objects.get_component::<Position>(&5001).unwrap();
     assert_eq!((pos.x, pos.y), (9000, 9000), "and it actually moved");
     assert!(
         !world.teleport_watchdog_due.contains_key(&5001),
@@ -633,7 +602,7 @@ fn an_offline_shop_wears_one_of_the_configured_abnormal_effects() {
         open_sell_store(&mut world, 5001, 4242, 3, 100);
         drain_db(&mut db_rx);
         handle_logout(&mut world, 1);
-        crate::game_loop::abnormal::visual_effects(&world, 5001)
+        abnormal::visual_effects(&world, 5001)
     };
 
     // The zero case first: with the list empty — as this dist ships it — the

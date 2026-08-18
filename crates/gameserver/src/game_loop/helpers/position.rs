@@ -28,7 +28,7 @@ pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
 pub(crate) fn set_position(world: &mut World, object_id: i32, (x, y, z): (i32, i32, i32)) {
     if let Some(p) = world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&object_id)
+        .get_component_mut::<model::components::Position>(&object_id)
     {
         p.x = x;
         p.y = y;
@@ -47,7 +47,7 @@ pub(crate) fn set_position_heading(
 ) {
     if let Some(p) = world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&object_id)
+        .get_component_mut::<model::components::Position>(&object_id)
     {
         p.x = x;
         p.y = y;

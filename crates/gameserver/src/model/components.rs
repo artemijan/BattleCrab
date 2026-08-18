@@ -1201,7 +1201,7 @@ pub struct InMovie {
 #[derive(Component, Debug, Clone, Default)]
 pub struct DefenceTraits {
     /// trait → summed resistance (0.30 = 30 % harder to land).
-    pub resist: std::collections::HashMap<crate::model::skill::TraitType, f64>,
+    pub resist: HashMap<crate::model::skill::TraitType, f64>,
     /// Traits the bearer cannot be affected by at all (Java's XML value ≥ 100).
     pub invulnerable: std::collections::HashSet<crate::model::skill::TraitType>,
 }
@@ -1217,7 +1217,7 @@ pub struct DefenceTraits {
 #[derive(Component, Debug, Clone, Default)]
 pub struct AttackTraits {
     /// trait → `1.0 + Σ(amount / 100)`.
-    pub values: std::collections::HashMap<crate::model::skill::TraitType, f64>,
+    pub values: HashMap<crate::model::skill::TraitType, f64>,
 }
 
 /// Java `CreatureStat._mpConsumeStat` / `_reuseStat` — the per-`magicType`
@@ -1231,9 +1231,9 @@ pub struct AttackTraits {
 #[derive(Component, Debug, Clone, Default)]
 pub struct SkillRateStats {
     /// magicType → MP-consume factor (0.70 = costs 30 % less).
-    pub mp_consume: std::collections::HashMap<i32, f64>,
+    pub mp_consume: HashMap<i32, f64>,
     /// magicType → reuse factor (0.80 = 20 % shorter cooldown).
-    pub reuse: std::collections::HashMap<i32, f64>,
+    pub reuse: HashMap<i32, f64>,
     /// The same two tables for **passive** skills, kept apart from the buff
     /// ones on purpose.
     ///
@@ -1247,8 +1247,8 @@ pub struct SkillRateStats {
     ///
     /// Read multiplicatively with its buff twin, so a song's discount and
     /// Inner Rhythm's compound exactly as Java's stacked effects do.
-    pub passive_mp_consume: std::collections::HashMap<i32, f64>,
-    pub passive_reuse: std::collections::HashMap<i32, f64>,
+    pub passive_mp_consume: HashMap<i32, f64>,
+    pub passive_reuse: HashMap<i32, f64>,
 }
 
 /// Java `Player.setBlockActions(true)` during the 2.5 s sit-down animation.
@@ -1526,14 +1526,14 @@ pub struct Friends(pub Vec<crate::character::FriendInfo>);
 /// Loaded with the character; mutated only through the quest engine
 /// (`game_loop/quests.rs`), which mirrors every change to the DB.
 #[derive(Component, Debug, Clone, Default)]
-pub struct Quests(pub std::collections::HashMap<String, crate::model::quest::QuestState>);
+pub struct Quests(pub HashMap<String, crate::model::quest::QuestState>);
 
 /// Live quest-timer generations, keyed by `(quest name, timer name)` — the
 /// cancellation side of `ScheduledTask::QuestTimer` (a fired task whose seq
 /// no longer matches is stale). Starting a timer bumps the seq; so does
 /// cancelling (Java's `QuestTimer.cancel`). Not persisted, like Java.
 #[derive(Component, Debug, Clone, Default)]
-pub struct QuestTimerSeqs(pub std::collections::HashMap<(&'static str, String), u64>);
+pub struct QuestTimerSeqs(pub HashMap<(&'static str, String), u64>);
 
 /// `AdminDebug`'s per-GM visualizer state (`//debug doors|geodata|movement`):
 /// which draw loops are on, the anchor the last frame was drawn from (redraw

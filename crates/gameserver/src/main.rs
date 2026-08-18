@@ -55,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // "How is the server doing" is a counter question, not a log question —
     // the snapshot lands in the JSON log as one event per interval.
-    gameserver::game_loop::register_metrics();
+    game_loop::register_metrics();
     commons::metrics::spawn_reporter(
         commons::logging::LoggingConfig::load(&datapack_root).metrics_interval_seconds,
     );

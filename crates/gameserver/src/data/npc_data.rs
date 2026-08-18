@@ -221,11 +221,11 @@ pub struct NpcTemplate {
     /// `<parameters><param name value/>` — Java `NpcTemplate.getParameters()`'s
     /// scalar rows (`despawn_time`, `skill_delay`, `cast_time`, …). Read via
     /// [`Self::ai_param_f64`].
-    pub ai_params: std::collections::HashMap<String, String>,
+    pub ai_params: HashMap<String, String>,
     /// `<parameters><skill name id level/>` — the parameter `SkillHolder`s
     /// (`union_skill` on the EffectPoint totems, boss AI skills, …). These are
     /// NOT template skills (`getSkills()`); see `skill_list`'s note.
-    pub ai_skill_params: std::collections::HashMap<String, (i32, i32)>,
+    pub ai_skill_params: HashMap<String, (i32, i32)>,
     /// `<attribute><defence fire water wind earth holy dark/>` — the template
     /// base for the six `Stat.*_RES` values (`AttributeFinalizer`'s
     /// `getBaseValue`), indexed by [`Element::index`](crate::model::stats::Element::index).
@@ -382,7 +382,7 @@ impl NpcData {
         let mut by_id = HashMap::new();
         let dir = format!("{file_path}{NPCS_DIR}");
         {
-            for path in super::xml::xml_files_in(&dir) {
+            for path in xml::xml_files_in(&dir) {
                 parse_file(&path, &mut by_id);
             }
         }
@@ -586,8 +586,8 @@ pub fn default_template(id: i32) -> NpcTemplate {
         aggro_range: 0,
         clan_help_range: 0,
         skill_list: Vec::new(),
-        ai_params: std::collections::HashMap::new(),
-        ai_skill_params: std::collections::HashMap::new(),
+        ai_params: HashMap::new(),
+        ai_skill_params: HashMap::new(),
         base_element_res: [0; 6],
         base_attack_element: None,
     }

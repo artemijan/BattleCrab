@@ -1,7 +1,7 @@
 //! Effect application — Java's `AbstractEffect` implementations.
 //!
 //! `apply_skill_effects` (the instant dispatch) lives here; its fattest arms
-//! are one function apiece in the sibling [`super::instant`] module. The rest
+//! are one function apiece in the sibling [`instant`] module. The rest
 //! is split by role and re-exported, so callers keep saying `effects::foo`:
 //!
 //! - `continuous` — `apply_continuous_effects`: buffs landing as an
@@ -147,14 +147,14 @@ fn skill_evasion_dodges(
     send_sm_to_player(
         world,
         caster_oid,
-        crate::network::server_packets::sm_ids::C1_DODGED_THE_ATTACK,
-        &[crate::network::server_packets::SmParam::Text(target_name)],
+        server_packets::sm_ids::C1_DODGED_THE_ATTACK,
+        &[server_packets::SmParam::Text(target_name)],
     );
     send_sm_to_player(
         world,
         target_oid,
-        crate::network::server_packets::sm_ids::YOU_HAVE_DODGED_C1_S_ATTACK,
-        &[crate::network::server_packets::SmParam::Text(caster_name)],
+        server_packets::sm_ids::YOU_HAVE_DODGED_C1_S_ATTACK,
+        &[server_packets::SmParam::Text(caster_name)],
     );
     true
 }
@@ -259,7 +259,7 @@ pub(crate) fn arm_charge_decay(world: &mut World, player_oid: i32) {
     }
     world.scheduler.schedule(
         world.tick + CHARGE_DECAY_TICKS,
-        crate::scheduler::ScheduledTask::ResetCharges { player_oid, seq },
+        ScheduledTask::ResetCharges { player_oid, seq },
     );
 }
 
@@ -625,7 +625,7 @@ pub(crate) fn apply_skill_effects(
             }
             // `TeleportToTarget.instant` — the caster dashes behind the target.
             SkillEffect::TeleportToTarget => {
-                control::teleport_to_target(world, caster_oid, target_oid);
+                teleport_to_target(world, caster_oid, target_oid);
             }
             // `Escape.instant()` → `teleToLocation(TeleportWhereType)`. Players
             // only — nothing else carries the effect.
@@ -659,7 +659,7 @@ pub(crate) fn apply_skill_effects(
             // stat, so the term is 1:1 with 0 and is not modelled.
             SkillEffect::Hp { amount, percent } => instant::hp(world, &ctx, *amount, *percent),
             SkillEffect::CallPc { item_id, item_count } => {
-                control::call_pc_player(world, caster_oid, target_oid, *item_id, *item_count);
+                call_pc_player(world, caster_oid, target_oid, *item_id, *item_count);
                 call_pc(world, caster_oid, target_oid, skill);
             }
             SkillEffect::GiveRecommendation { amount } => {

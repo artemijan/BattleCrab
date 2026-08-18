@@ -30,13 +30,7 @@ const PLAYER_OID: i32 = 3101;
 
 /// The real item catalog and multisell lists — the lists are the thing under
 /// test's payload, so a synthetic pair would prove nothing about the dist.
-fn shop_world(
-    npc_id: i32,
-) -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-) {
+fn shop_world(npc_id: i32) -> (World, db::CmdRx, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, db_rx, _link_rx) = quest_test_world();
     world.data.item_data = dist::items_owned();
     world.data.multisells = MultisellData::load_from(DIST, &world.data.item_data);
@@ -306,11 +300,11 @@ fn territory_status_names_the_lord_of_an_owned_castle() {
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
     // The NPC sits at (0,0,0); `findNearestCastle` picks whichever that is.
     let castle_id = world.data.zone_data.nearest_castle_at(0, 0, 0).unwrap();
-    world.castles = vec![crate::model::castle::Castle {
+    world.castles = vec![model::castle::Castle {
         show_npc_crest: false,
         id: castle_id,
         name: "Giran".into(),
-        side: crate::model::castle::CastleSide::Neutral,
+        side: model::castle::CastleSide::Neutral,
         ticket_buy_count: 0,
         first_mid_victory: false,
         time_registration_over: true,
@@ -318,7 +312,7 @@ fn territory_status_names_the_lord_of_an_owned_castle() {
         siege_date: 0,
         treasury: 0,
     }];
-    let mut clan = crate::model::clan::Clan {
+    let mut clan = Clan {
         id: 900,
         name: "Holders".into(),
         leader_id: 4242,
@@ -342,7 +336,7 @@ fn territory_status_names_the_lord_of_an_owned_castle() {
         ally_crest_id: 0,
         blood_alliance_count: 0,
     };
-    clan.members.push(crate::model::clan::ClanMember {
+    clan.members.push(model::clan::ClanMember {
         char_id: 4242,
         name: "Lordy".into(),
         level: 80,

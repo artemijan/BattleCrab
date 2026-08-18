@@ -13,11 +13,7 @@ const CUBIC: i32 = 32107;
 /// A stand-in killer id — only used as an aggro key.
 const KILLER: i32 = 500;
 
-fn sailren_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn sailren_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for id in [SAILREN, VELOCIRAPTOR, PTEROSAUR, TREX, CUBIC] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -34,7 +30,7 @@ fn tagged(world: &mut World, npc_id: i32) -> Vec<i32> {
     let mut v = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &SailrenWaveMob)>(|(n, _)| {
+        .for_each_mut::<(&model::npc::Npc, &SailrenWaveMob)>(|(n, _)| {
             if n.npc_id == npc_id {
                 v.push(n.object_id);
             }

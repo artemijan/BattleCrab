@@ -1,12 +1,6 @@
 //! The ex_show_* packet entry builders for seeds and crops.
 
 use super::*;
-/// `Seed.getSeedReferencePrice` — the seed item's reference price (Java `Seed`
-/// resolves this from item data at load; missing item ⇒ 1).
-pub(super) fn seed_reference_price(world: &World, seed_id: i32) -> i32 {
-    reference_price(world, seed_id)
-}
-
 /// `ExShowSeedSetting`'s list — every seed the castle can farm, with its
 /// catalogue limits/prices and the owner's current/next-period settings.
 pub(super) fn seed_setting_entries(world: &World, castle_id: i32) -> Vec<SeedSettingEntry> {
@@ -17,7 +11,7 @@ pub(super) fn seed_setting_entries(world: &World, castle_id: i32) -> Vec<SeedSet
         .seeds_for_castle(castle_id)
         .iter()
         .map(|seed| {
-            let price = seed_reference_price(world, seed.seed_id);
+            let price = reference_price(world, seed.seed_id);
             SeedSettingEntry {
                 seed_id: seed.seed_id,
                 level: seed.level,

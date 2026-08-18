@@ -208,7 +208,7 @@ fn stored_henna_folds_into_base_stats_on_load() {
     world.data.hennas.insert_for_test(test_dye());
     let mut chr = dummy_char(3002, "Reload");
     chr.hennas = vec![(1, DYE_ID)]; // slot 1
-    let bundle = crate::model::Player::from_char(&world.data, &chr);
+    let bundle = Player::from_char(&world.data, &chr);
     // template class-0 base_str 40 (+5 dye), base_con 43 (-2 dye).
     assert_eq!(bundle.base_stats.str_, 45);
     assert_eq!(bundle.base_stats.con, 41);

@@ -132,8 +132,8 @@ fn access_level_colors_applied() {
 
     // Level 0 keeps the client defaults (real-capture parity).
     let user = Player::from_char(&world.data, &dummy_char(6002, "Joe"));
-    assert_eq!(user.player.name_color, crate::model::DEFAULT_NAME_COLOR);
-    assert_eq!(user.player.title_color, crate::model::DEFAULT_TITLE_COLOR);
+    assert_eq!(user.player.name_color, model::DEFAULT_NAME_COLOR);
+    assert_eq!(user.player.title_color, model::DEFAULT_TITLE_COLOR);
 }
 
 /// A `confirmDlg` command (admin_givehero) prompts with a ConfirmDlg and does
@@ -264,7 +264,7 @@ fn gm_startup_applies_invul_and_invisible() {
 
     let f = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&6411)
+        .get_component::<AdminFlags>(&6411)
         .copied()
         .unwrap_or_default();
     assert!(f.invul, "GMStartupInvulnerable applied");
@@ -299,7 +299,7 @@ fn gm_special_skills_are_granted_but_never_persisted() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&6431)
+            .get_component::<SkillBook>(&6431)
             .unwrap()
             .0
             .contains_key(&SUPER_HASTE),
@@ -314,7 +314,7 @@ fn gm_special_skills_are_granted_but_never_persisted() {
     admin::apply_gm_startup(&mut world, 2, 6432);
     let book = world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&6432)
+        .get_component::<SkillBook>(&6432)
         .unwrap()
         .0
         .clone();
@@ -324,7 +324,7 @@ fn gm_special_skills_are_granted_but_never_persisted() {
     // save payload rather than re-asserting the predicate, so a filter that
     // stopped being applied would fail here even though `is_gm_skill` still
     // answered correctly.
-    let saved = crate::game_loop::net::build_save_data(&world, 6432).expect("save data");
+    let saved = build_save_data(&world, 6432).expect("save data");
     for (id, ..) in &saved.skills {
         assert!(
             !world.data.skill_trees.is_gm_skill(*id),
@@ -353,7 +353,7 @@ fn gm_startup_builder_hide_short_circuits() {
 
     let f = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&6421)
+        .get_component::<AdminFlags>(&6421)
         .copied()
         .unwrap_or_default();
     assert!(f.hidden, "builder hide set");
@@ -542,9 +542,7 @@ fn admin_editchar_info_commands_use_html() {
     );
 
     // //character_info (self via target) → charinfo.htm filled with the name.
-    world
-        .objects
-        .add_components(&6432, crate::model::components::TargetRef(Some(6432)));
+    world.objects.add_components(&6432, TargetRef(Some(6432)));
     on_packet(
         &mut world,
         1,
@@ -1064,7 +1062,7 @@ fn user_info_isgm_byte_reflects_access_level() {
     // mask-count(2) + mask(3) + relation(4) + basic_info-len(2) +
     // name-len(2) + name(2·units) — the next byte is isGM.
     let isgm_byte = |world: &World, oid: i32, name: &str| -> u8 {
-        let view = crate::model::PlayerView::of(&world.objects, oid).unwrap();
+        let view = model::PlayerView::of(&world.objects, oid).unwrap();
         let pkt = crate::network::user_info::user_info(&view, &world.data, &world.cfg.character, 0);
         let off = 1 + 4 + 4 + 2 + 3 + 4 + 2 + 2 + name.encode_utf16().count() * 2;
         pkt[off]
@@ -1182,9 +1180,7 @@ fn admin_heal_restores_targeted_player() {
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&7002) {
         v.cur_hp = 1.0;
     }
-    world
-        .objects
-        .add_components(&7001, crate::model::components::TargetRef(Some(7002)));
+    world.objects.add_components(&7001, TargetRef(Some(7002)));
 
     on_packet(
         &mut world,
@@ -1211,9 +1207,7 @@ fn admin_kill_slays_targeted_player() {
     drain(&mut gm_rx);
     drain(&mut victim_rx);
 
-    world
-        .objects
-        .add_components(&7003, crate::model::components::TargetRef(Some(7004)));
+    world.objects.add_components(&7003, TargetRef(Some(7004)));
     on_packet(
         &mut world,
         1,
@@ -1255,9 +1249,7 @@ fn admin_res_revives_and_restores_target() {
         v.cur_hp = 0.0;
         v.dead = true;
     }
-    world
-        .objects
-        .add_components(&7101, crate::model::components::TargetRef(Some(7102)));
+    world.objects.add_components(&7101, TargetRef(Some(7102)));
     on_packet(&mut world, 1, build_admin("res"));
 
     let v = pvit(&world, 7102);
@@ -1283,7 +1275,7 @@ fn admin_gmspeed_sets_move_multiplier() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Speeds>(&7103)
+            .get_component::<Speeds>(&7103)
             .unwrap()
             .move_multiplier,
         3.0,
@@ -1296,7 +1288,7 @@ fn admin_gmspeed_sets_move_multiplier() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Speeds>(&7103)
+            .get_component::<Speeds>(&7103)
             .unwrap()
             .move_multiplier,
         1.0,
@@ -1311,7 +1303,7 @@ fn admin_gmspeed_sets_move_multiplier() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Speeds>(&7103)
+            .get_component::<Speeds>(&7103)
             .unwrap()
             .move_multiplier,
         1.0,
@@ -1331,7 +1323,7 @@ fn admin_gmspeed_rejects_out_of_range() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Speeds>(&7107)
+            .get_component::<Speeds>(&7107)
             .unwrap()
             .move_multiplier,
         1.0,
@@ -1348,10 +1340,7 @@ fn admin_teleport_moves_gm_to_coords() {
     drain(&mut gm_rx);
 
     on_packet(&mut world, 1, build_admin("teleport 100 200 300"));
-    let pos = *world
-        .objects
-        .get_component::<crate::model::components::Position>(&7104)
-        .unwrap();
+    let pos = *world.objects.get_component::<Position>(&7104).unwrap();
     assert_eq!(
         (pos.x, pos.y, pos.z),
         (100, 200, 305),
@@ -1376,10 +1365,7 @@ fn admin_recall_brings_player_to_gm() {
 
     set_position(&mut world, 7105, (500, 600, 700));
     on_packet(&mut world, 1, build_admin("recall P7106"));
-    let pos = *world
-        .objects
-        .get_component::<crate::model::components::Position>(&7106)
-        .unwrap();
+    let pos = *world.objects.get_component::<Position>(&7106).unwrap();
     assert_eq!(
         (pos.x, pos.y, pos.z),
         (500, 600, 705),
@@ -1405,7 +1391,7 @@ fn admin_goto_char_menu_uses_the_named_character_not_the_target() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&7305)
+            .get_component::<TargetRef>(&7305)
             .is_none_or(|t| t.0.is_none()),
         "GM has no target selected"
     );
@@ -1419,9 +1405,7 @@ fn admin_goto_char_menu_uses_the_named_character_not_the_target() {
 
     // A stale target must not win over the name argument either.
     set_position(&mut world, 7306, (2500, 2600, 2700));
-    world
-        .objects
-        .add_components(&7305, crate::model::components::TargetRef(Some(7305)));
+    world.objects.add_components(&7305, TargetRef(Some(7305)));
     on_packet(&mut world, 1, build_admin("goto_char_menu P7306"));
     let pos = *world.objects.get_component::<Position>(&7305).unwrap();
     assert_eq!(
@@ -1444,7 +1428,7 @@ fn admin_create_item_adds_to_gm_inventory() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&7201)
+            .get_component::<Inventory>(&7201)
             .unwrap()
             .count_of(57),
         1000,
@@ -1463,10 +1447,8 @@ fn admin_delete_item_trims_a_stack_by_object_id() {
     drain(&mut gm_rx);
 
     on_packet(&mut world, 1, build_admin("create_item 57 1000"));
-    fn inv(w: &World) -> &crate::model::inventory::Inventory {
-        w.objects
-            .get_component::<crate::model::inventory::Inventory>(&7211)
-            .unwrap()
+    fn inv(w: &World) -> &Inventory {
+        w.objects.get_component::<Inventory>(&7211).unwrap()
     }
     let adena_oid = item_oid(&world, 7211, 57);
 
@@ -1507,7 +1489,7 @@ fn admin_delete_item_rejects_unowned_object_id() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&7212)
+            .get_component::<Inventory>(&7212)
             .unwrap()
             .count_of(57),
         50,
@@ -1530,15 +1512,13 @@ fn admin_delete_quest_item_by_template_id() {
         .unwrap()
         .name
         .clone();
-    world
-        .objects
-        .add_components(&7213, crate::model::components::TargetRef(Some(7214)));
-    crate::game_loop::items::add_inventory_item(&mut world, 7214, 57, 10);
+    world.objects.add_components(&7213, TargetRef(Some(7214)));
+    items::add_inventory_item(&mut world, 7214, 57, 10);
     drain(&mut gm_rx);
 
     let held = |w: &World, oid: i32| {
         w.objects
-            .get_component::<crate::model::inventory::Inventory>(&oid)
+            .get_component::<Inventory>(&oid)
             .map(|i| i.count_of(57))
             .unwrap_or(0)
     };
@@ -1553,7 +1533,7 @@ fn admin_delete_quest_item_by_template_id() {
     assert_eq!(held(&world, 7214), 0, "no count = all of it");
 
     // A trailing name wins over the target: stock the GM, aim at the player.
-    crate::game_loop::items::add_inventory_item(&mut world, 7213, 57, 8);
+    items::add_inventory_item(&mut world, 7213, 57, 8);
     assert_eq!(held(&world, 7213), 8, "GM stocked");
     on_packet(
         &mut world,
@@ -1628,9 +1608,7 @@ fn admin_add_exp_sp_grants_to_target() {
         "/../../dist/game/"
     ));
     let mut gm_rx = ingame_player_access(&mut world, 1, 7301, 100);
-    world
-        .objects
-        .add_components(&7301, crate::model::components::TargetRef(Some(7301)));
+    world.objects.add_components(&7301, TargetRef(Some(7301)));
     drain(&mut gm_rx);
 
     on_packet(&mut world, 1, build_admin("add_exp_sp 1000 500"));
@@ -1647,9 +1625,7 @@ fn admin_add_exp_sp_to_character_opens_menu() {
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7301, 100);
-    world
-        .objects
-        .add_components(&7301, crate::model::components::TargetRef(Some(7301)));
+    world.objects.add_components(&7301, TargetRef(Some(7301)));
     if let Some(p) = world.objects.get_component_mut::<Player>(&7301) {
         p.level = 20;
         p.exp = 123456;
@@ -1697,7 +1673,7 @@ fn admin_character_info_by_name_sets_target() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&7311)
+            .get_component::<TargetRef>(&7311)
             .and_then(|t| t.0),
         Some(7312),
         "the listed character becomes the GM's target"
@@ -1905,9 +1881,7 @@ fn admin_character_disconnect_kicks_target() {
     drain(&mut gm_rx);
     drain(&mut victim_rx);
 
-    world
-        .objects
-        .add_components(&7504, crate::model::components::TargetRef(Some(7505)));
+    world.objects.add_components(&7504, TargetRef(Some(7505)));
     on_packet(&mut world, 1, build_admin("character_disconnect"));
     assert!(!world.clients.contains_key(&2), "victim disconnected");
     assert!(
@@ -1923,8 +1897,8 @@ fn admin_delete_despawns_targeted_npc() {
     let mut gm_rx = ingame_player_access(&mut world, 1, 7601, 100);
     drain(&mut gm_rx);
 
-    let npc_oid = crate::model::npc::FIRST_NPC_OBJECT_ID + 1;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 1, 2, 3, 100, 50);
+    let npc_oid = model::npc::FIRST_NPC_OBJECT_ID + 1;
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 1, 2, 3, 100, 50);
     world
         .npc_regions
         .entry(extra.1.0)
@@ -1933,13 +1907,13 @@ fn admin_delete_despawns_targeted_npc() {
     world.objects.spawn(npc_oid, (npc, extra));
     world
         .objects
-        .add_components(&7601, crate::model::components::TargetRef(Some(npc_oid)));
+        .add_components(&7601, TargetRef(Some(npc_oid)));
 
     on_packet(&mut world, 1, build_admin("delete"));
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .get_component::<model::npc::Npc>(&npc_oid)
             .is_none(),
         "npc despawned by //delete"
     );
@@ -1995,13 +1969,10 @@ fn admin_spawn_creates_npc_at_gm() {
     assert_eq!(world.next_npc_object_id, npc_oid + 1, "one NPC spawned");
     let npc = world
         .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .get_component::<model::npc::Npc>(&npc_oid)
         .expect("npc entity exists");
     assert_eq!(npc.npc_id, 30001);
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&npc_oid)
-        .unwrap();
+    let pos = world.objects.get_component::<Position>(&npc_oid).unwrap();
     assert_eq!((pos.x, pos.y, pos.z), (100, 200, 300), "spawned at the GM");
     assert!(
         drain(&mut gm_rx)
@@ -2024,7 +1995,7 @@ fn admin_target_selects_named_player() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&7701)
+            .get_component::<TargetRef>(&7701)
             .and_then(|t| t.0),
         Some(7702),
         "GM now targets the named player"
@@ -2054,13 +2025,13 @@ fn admin_invul_blocks_damage() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::AdminFlags>(&7801)
+            .get_component::<AdminFlags>(&7801)
             .unwrap()
             .invul
     );
 
     let hp_before = pvit(&world, 7801).cur_hp;
-    super::combat::player_receive_damage(&mut world, 7801, 12345, 50.0);
+    combat::player_receive_damage(&mut world, 7801, 12345, 50.0);
     assert_eq!(
         pvit(&world, 7801).cur_hp,
         hp_before,
@@ -2069,7 +2040,7 @@ fn admin_invul_blocks_damage() {
 
     // Toggle off → damage lands.
     on_packet(&mut world, 1, build_admin("invul"));
-    super::combat::player_receive_damage(&mut world, 7801, 12345, 50.0);
+    combat::player_receive_damage(&mut world, 7801, 12345, 50.0);
     assert!(
         pvit(&world, 7801).cur_hp < hp_before,
         "damage applies once invul is off"
@@ -2089,7 +2060,7 @@ fn admin_undying_floors_hp_at_one() {
     }
 
     on_packet(&mut world, 1, build_admin("undying"));
-    super::combat::player_receive_damage(&mut world, 7802, 12345, 100_000.0);
+    combat::player_receive_damage(&mut world, 7802, 12345, 100_000.0);
     let v = pvit(&world, 7802);
     assert_eq!(v.cur_hp, 1.0, "undying floors HP at 1");
     assert!(!v.dead, "undying player does not die");
@@ -2104,14 +2075,12 @@ fn admin_setinvul_targets_a_player() {
     drain(&mut gm_rx);
     drain(&mut other_rx);
 
-    world
-        .objects
-        .add_components(&7803, crate::model::components::TargetRef(Some(7804)));
+    world.objects.add_components(&7803, TargetRef(Some(7804)));
     on_packet(&mut world, 1, build_admin("setinvul"));
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::AdminFlags>(&7804)
+            .get_component::<AdminFlags>(&7804)
             .unwrap()
             .invul
     );
@@ -2131,7 +2100,7 @@ fn admin_hide_toggles_visibility() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::AdminFlags>(&7901)
+            .get_component::<AdminFlags>(&7901)
             .unwrap()
             .hidden
     );
@@ -2147,7 +2116,7 @@ fn admin_hide_toggles_visibility() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::AdminFlags>(&7901)
+            .get_component::<AdminFlags>(&7901)
             .unwrap()
             .hidden
     );
@@ -2172,7 +2141,7 @@ fn admin_add_and_remove_skill() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&8001)
+            .get_component::<SkillBook>(&8001)
             .unwrap()
             .0
             .get(&1177),
@@ -2188,7 +2157,7 @@ fn admin_add_and_remove_skill() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&8001)
+            .get_component::<SkillBook>(&8001)
             .unwrap()
             .0
             .contains_key(&1177),
@@ -2226,7 +2195,7 @@ fn admin_setew_enchants_equipped_weapon() {
         count: 1,
         enchant_level: 0,
         loc: "PAPERDOLL".into(),
-        loc_data: crate::model::inventory::PaperdollSlot::RHand as i32,
+        loc_data: model::inventory::PaperdollSlot::RHand as i32,
         custom_type1: 0,
         custom_type2: 0,
         mana_left: -1,
@@ -2235,18 +2204,17 @@ fn admin_setew_enchants_equipped_weapon() {
         augment_option1: 0,
         augment_option2: 0,
     };
-    world.objects.add_components(
-        &8101,
-        crate::model::inventory::Inventory::from_rows(&[weapon]),
-    );
+    world
+        .objects
+        .add_components(&8101, Inventory::from_rows(&[weapon]));
 
     on_packet(&mut world, 1, build_admin("setew 10"));
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&8101)
+            .get_component::<Inventory>(&8101)
             .unwrap()
-            .paperdoll_enchant_level(crate::model::inventory::PaperdollSlot::RHand),
+            .paperdoll_enchant_level(model::inventory::PaperdollSlot::RHand),
         10,
         "weapon enchanted to +10"
     );
@@ -2328,7 +2296,7 @@ fn admin_superhaste_applies_and_persists() {
 
     // No BuffExpire was scheduled, so advancing the world keeps it.
     world.tick += 100;
-    crate::game_loop::apply_due_tasks(&mut world);
+    apply_due_tasks(&mut world);
     assert!(
         world
             .objects
@@ -2435,9 +2403,7 @@ fn admin_editchar_field_setters() {
     let mut victim_rx = ingame_player_access(&mut world, 2, 8302, 0);
     drain(&mut gm_rx);
     drain(&mut victim_rx);
-    world
-        .objects
-        .add_components(&8301, crate::model::components::TargetRef(Some(8302)));
+    world.objects.add_components(&8301, TargetRef(Some(8302)));
 
     let p = |w: &World| w.objects.get_component::<Player>(&8302).unwrap().clone();
 
@@ -2564,7 +2530,7 @@ fn admin_stopbuff_removes_one() {
     on_packet(&mut world, 1, build_admin("buff 1068 1"));
     let has = |w: &World| {
         w.objects
-            .get_component::<crate::model::components::Buffs>(&8501)
+            .get_component::<Buffs>(&8501)
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 1068))
     };
     assert!(has(&world), "Might applied");
@@ -2641,10 +2607,7 @@ fn admin_setclass_grants_advanced_class_skills() {
 
     let p = world.objects.get_component::<Player>(&8703).unwrap();
     assert_eq!(p.class_id, 3);
-    let book = world
-        .objects
-        .get_component::<crate::model::components::SkillBook>(&8703)
-        .unwrap();
+    let book = world.objects.get_component::<SkillBook>(&8703).unwrap();
     assert!(book.0.contains_key(&36), "gained Warlord's Whirlwind (36)");
     assert!(
         book.0.contains_key(&239),
@@ -2725,14 +2688,8 @@ fn admin_social_radius_affects_nearby_player() {
     drain(&mut gm_rx);
     drain(&mut other_rx);
     // Place both at the same spot so the other is in range and region-adjacent.
-    let pos = *world
-        .objects
-        .get_component::<crate::model::components::Position>(&8803)
-        .unwrap();
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&8804)
-    {
+    let pos = *world.objects.get_component::<Position>(&8803).unwrap();
+    if let Some(p) = world.objects.get_component_mut::<Position>(&8804) {
         *p = pos;
     }
 
@@ -2829,9 +2786,7 @@ fn admin_effect_broadcasts_msu() {
 fn admin_remove_exp_sp_reduces() {
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8901, 100);
-    world
-        .objects
-        .add_components(&8901, crate::model::components::TargetRef(Some(8901)));
+    world.objects.add_components(&8901, TargetRef(Some(8901)));
     drain(&mut gm_rx);
     if let Some(p) = world.objects.get_component_mut::<Player>(&8901) {
         p.exp = 1000;
@@ -2872,9 +2827,7 @@ fn admin_changename_renames_target() {
     let mut victim_rx = ingame_player_access(&mut world, 2, 8904, 0);
     drain(&mut gm_rx);
     drain(&mut victim_rx);
-    world
-        .objects
-        .add_components(&8903, crate::model::components::TargetRef(Some(8904)));
+    world.objects.add_components(&8903, TargetRef(Some(8904)));
     on_packet(&mut world, 1, build_admin("changename Renamed"));
     assert_eq!(
         world.objects.get_component::<Player>(&8904).unwrap().name,
@@ -2903,9 +2856,7 @@ fn admin_set_vitality_sets_points() {
     let mut victim_rx = ingame_player_access(&mut world, 2, 8908, 0);
     drain(&mut gm_rx);
     drain(&mut victim_rx);
-    world
-        .objects
-        .add_components(&8907, crate::model::components::TargetRef(Some(8908)));
+    world.objects.add_components(&8907, TargetRef(Some(8908)));
     on_packet(&mut world, 1, build_admin("set_vitality 5000"));
     assert_eq!(
         world
@@ -3016,9 +2967,7 @@ fn bare_teleto_still_teleports_to_the_target() {
     drain(&mut gm_rx);
     drain(&mut other_rx);
     set_position(&mut world, 8923, (2500, 2600, 2700));
-    world
-        .objects
-        .add_components(&8922, crate::model::components::TargetRef(Some(8923)));
+    world.objects.add_components(&8922, TargetRef(Some(8923)));
 
     on_packet(&mut world, 1, build_admin("teleto"));
     let pos = *world.objects.get_component::<Position>(&8922).unwrap();
@@ -3098,10 +3047,7 @@ fn admin_create_coin_gives_adena() {
     let mut gm_rx = ingame_player_access(&mut world, 1, 8911, 100);
     drain(&mut gm_rx);
     on_packet(&mut world, 1, build_admin("create_coin adena 100"));
-    let inv = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&8911)
-        .unwrap();
+    let inv = world.objects.get_component::<Inventory>(&8911).unwrap();
     assert_eq!(inv.count_of(57), 100, "adena added");
 }
 
@@ -3119,10 +3065,7 @@ fn admin_spawnat_creates_npc_at_coords() {
         build_admin("spawnat 30001 -84000 244000 -3700"),
     );
     assert_eq!(world.next_npc_object_id, npc_oid + 1, "one NPC spawned");
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&npc_oid)
-        .unwrap();
+    let pos = world.objects.get_component::<Position>(&npc_oid).unwrap();
     assert_eq!(
         (pos.x, pos.y, pos.z),
         (-84000, 244000, -3700),
@@ -3240,7 +3183,7 @@ fn admin_transform_refused_in_water() {
     // Go through `revalidate_zone`, not `check_water_state` directly: since
     // the hot-paths work the latter reads the cached `ZoneFlags` mask that
     // revalidation writes, rather than walking the zone grid itself.
-    crate::game_loop::zones::revalidate_zone(&mut world, 8925, true);
+    zones::revalidate_zone(&mut world, 8925, true);
     assert!(
         crate::game_loop::water::is_drowning_task_active(&world, 8925),
         "fixture must actually be drowning for this to mean anything"
@@ -3258,9 +3201,8 @@ fn admin_transform_refused_in_water() {
         "//transform refused in water"
     );
     assert!(
-        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
-            &crate::network::server_packets::sm_ids::YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER
-        ),
+        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            .contains(&server_packets::sm_ids::YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER),
         "and says why"
     );
 }
@@ -3413,7 +3355,7 @@ fn dismount_skill_reverts_gm_ride_transform() {
         dismount.effects
     );
 
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 8935, 8935, &dismount);
+    effects::apply_skill_effects(&mut world, 8935, 8935, &dismount);
     let p = world.objects.get_component::<Player>(&8935).unwrap();
     assert_eq!(p.transform_id, 0, "transform dispelled");
     assert_eq!(p.transform_display_id, 0, "display cleared");
@@ -3521,7 +3463,7 @@ fn admin_mobgroup_lifecycle() {
         assert_eq!(
             world
                 .objects
-                .get_component::<crate::model::mob_group::Controllable>(&m)
+                .get_component::<model::mob_group::Controllable>(&m)
                 .map(|c| c.group_id),
             Some(1),
             "member tagged Controllable"
@@ -3562,7 +3504,7 @@ fn admin_mobgroup_lifecycle() {
     assert!(
         members
             .iter()
-            .all(|m| !world.objects.has_component::<crate::model::npc::Npc>(m)),
+            .all(|m| !world.objects.has_component::<model::npc::Npc>(m)),
         "members despawned"
     );
 }
@@ -3576,9 +3518,7 @@ fn admin_setparam_fixes_and_clears_a_stat() {
     let mut victim_rx = ingame_player_access(&mut world, 2, 8951, 0);
     drain(&mut gm_rx);
     drain(&mut victim_rx);
-    world
-        .objects
-        .add_components(&8950, crate::model::components::TargetRef(Some(8951)));
+    world.objects.add_components(&8950, TargetRef(Some(8951)));
     let base_p_atk = world
         .objects
         .get_component::<CombatStats>(&8951)
@@ -3598,10 +3538,10 @@ fn admin_setparam_fixes_and_clears_a_stat() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::StatModifiers>(&8951)
+            .get_component::<model::components::StatModifiers>(&8951)
             .unwrap()
             .fixed
-            .get(&crate::model::stats::Stat::PhysicalAttack),
+            .get(&Stat::PhysicalAttack),
         Some(&9999.0)
     );
 
@@ -3621,7 +3561,7 @@ fn admin_setparam_fixes_and_clears_a_stat() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::StatModifiers>(&8951)
+            .get_component::<model::components::StatModifiers>(&8951)
             .unwrap()
             .fixed
             .is_empty()
@@ -3867,7 +3807,7 @@ fn admin_castlemanage_ownership_and_side() {
     assert!(cmds.iter().any(|c| matches!(c, db::DbCommand::UpdateCastleSide { castle_id: 3, side } if side == "NEUTRAL")), "neutral side persisted");
 
     // //castlemanage 3 startSiege → no attackers registered.
-    world.sieges.insert(3, crate::model::siege::Siege::new(3));
+    world.sieges.insert(3, model::siege::Siege::new(3));
     on_packet(
         &mut world,
         1,
@@ -4384,7 +4324,7 @@ fn admin_settargetable_blocks_selection() {
         w.write_u8(0);
         w.into_bytes()
     };
-    crate::game_loop::target::handle_action(&mut world, 2, &click_gm);
+    handle_action(&mut world, 2, &click_gm);
     assert_eq!(
         world
             .objects
@@ -4395,7 +4335,7 @@ fn admin_settargetable_blocks_selection() {
         Some(6493),
         "targetable by default"
     );
-    crate::game_loop::target::set_target(&mut world, 2, 6494, None);
+    set_target(&mut world, 2, 6494, None);
 
     on_packet(
         &mut world,
@@ -4406,7 +4346,7 @@ fn admin_settargetable_blocks_selection() {
         ]
         .concat(),
     );
-    crate::game_loop::target::handle_action(&mut world, 2, &click_gm);
+    handle_action(&mut world, 2, &click_gm);
     assert_eq!(
         world
             .objects
@@ -4427,7 +4367,7 @@ fn admin_settargetable_blocks_selection() {
         ]
         .concat(),
     );
-    crate::game_loop::target::handle_action(&mut world, 2, &click_gm);
+    handle_action(&mut world, 2, &click_gm);
     assert_eq!(
         world
             .objects
@@ -4556,7 +4496,7 @@ fn scan_world() -> (
     World,
     db::CmdTx,
     db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+    UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (mut world, a, b, c) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
@@ -4573,7 +4513,7 @@ fn scan_npc(world: &mut World, oid: i32, gm: i32, dx: i32, dy: i32, dz: i32) {
     }
     let pos = world
         .objects
-        .get_component::<crate::model::components::Position>(&gm)
+        .get_component::<Position>(&gm)
         .copied()
         .unwrap();
     add_test_npc(
@@ -4840,7 +4780,7 @@ fn npc_aggro_ignores_hidden_gm() {
     drain(&mut gm_rx);
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 10, 100, 0, 0);
     assert!(
-        crate::game_loop::ai::notices_target(&world, NPC_OID, 7131),
+        ai::notices_target(&world, NPC_OID, 7131),
         "a visible player is noticed"
     );
     let mut flags = world
@@ -4851,7 +4791,7 @@ fn npc_aggro_ignores_hidden_gm() {
     flags.hidden = true;
     world.objects.add_components(&7131, flags);
     assert!(
-        !crate::game_loop::ai::notices_target(&world, NPC_OID, 7131),
+        !ai::notices_target(&world, NPC_OID, 7131),
         "a hidden GM is never noticed"
     );
 }
@@ -5005,7 +4945,7 @@ fn clan_changeleader_swaps_leader() {
     // Clan 600: 7602 leads, 7603 is a member.
     world.clans.insert(
         600,
-        crate::model::clan::Clan {
+        Clan {
             id: 600,
             name: "Swap".into(),
             leader_id: 7602,
@@ -5092,9 +5032,7 @@ fn unspawnall_and_respawnall() {
 
     on_packet(&mut world, 1, build_admin("unspawnall"));
     assert!(
-        !world
-            .objects
-            .has_component::<crate::model::npc::Npc>(&NPC_OID),
+        !world.objects.has_component::<model::npc::Npc>(&NPC_OID),
         "all NPCs despawned"
     );
 
@@ -5206,7 +5144,7 @@ fn setcharquest_and_menu_roundtrip() {
     assert!(
         to_target
             .iter()
-            .any(|p| p[0] == crate::network::server_packets::opcodes::QUEST_LIST),
+            .any(|p| p[0] == server_packets::opcodes::QUEST_LIST),
         "QuestList pushed to the edited player"
     );
     on_packet(
@@ -5219,11 +5157,11 @@ fn setcharquest_and_menu_roundtrip() {
     {
         let q = world
             .objects
-            .get_component::<crate::model::components::Quests>(&7822)
+            .get_component::<model::components::Quests>(&7822)
             .unwrap();
         let st = q.0.get("Q00101_SwordOfSolidarity").expect("state created");
         assert_eq!(st.vars.get("cond").map(String::as_str), Some("3"));
-        assert_eq!(st.state, crate::model::quest::state::STARTED);
+        assert_eq!(st.state, model::quest::state::STARTED);
     }
     drain(&mut gm_rx);
     on_packet(&mut world, 1, build_admin(&format!("charquestmenu {name}")));
@@ -5247,7 +5185,7 @@ fn setcharquest_and_menu_roundtrip() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::Quests>(&7822)
+            .get_component::<model::components::Quests>(&7822)
             .unwrap()
             .0
             .contains_key("Q00101_SwordOfSolidarity"),
@@ -5276,7 +5214,7 @@ fn getbuffs_follows_an_npc_target_and_a_name_argument() {
     on_packet(&mut world, 1, build_admin("buff 1068 1")); // Might, on self
     world.objects.add_components(
         &NPC_OID,
-        crate::model::components::Buffs(vec![crate::model::skill::ActiveBuff {
+        Buffs(vec![model::skill::ActiveBuff {
             skill_id: 1204, // Wind Walk
             abnormal_type: "WIND_WALK".into(),
             abnormal_level: 1,
@@ -5356,9 +5294,7 @@ fn show_quests_lists_the_target_npcs_scripts() {
 
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
-    world.quests = std::sync::Arc::new(quests::QuestRegistry::new(vec![std::sync::Arc::new(
-        NpcQuestScript,
-    )]));
+    world.quests = Arc::new(quests::QuestRegistry::new(vec![Arc::new(NpcQuestScript)]));
     add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
     let mut gm_rx = ingame_player_access(&mut world, 1, 7830, 100);
     // Select the NPC — Java reads `activeChar.getTarget()`, ignoring the
@@ -5416,7 +5352,7 @@ fn tradeoff_refuses_trade_requests() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::PendingTrade>(&7901),
+            .has_component::<model::components::PendingTrade>(&7901),
         "no trade request while refusing"
     );
     assert!(
@@ -5439,7 +5375,7 @@ fn cond_overrides_and_see_all_players() {
     // GM 7911 hides; watcher 7912 (no override) re-enters — no CharInfo.
     on_packet(&mut world, 1, build_admin("hide"));
     drain(&mut watcher_rx);
-    crate::game_loop::visibility::on_enter_world(&world, 2, 7912);
+    visibility::on_enter_world(&world, 2, 7912);
     assert!(
         !drain(&mut watcher_rx)
             .iter()
@@ -5467,7 +5403,7 @@ fn cond_overrides_and_see_all_players() {
         "override bit set"
     );
     drain(&mut watcher_rx);
-    crate::game_loop::visibility::on_enter_world(&world, 2, 7912);
+    visibility::on_enter_world(&world, 2, 7912);
     assert!(
         drain(&mut watcher_rx)
             .iter()
@@ -5533,15 +5469,12 @@ fn debug_panel_geodata_toggle_draws_grid() {
             .any(|h| h.contains("geodata off")),
         "panel shows the toggle as Disable"
     );
-    assert!(
-        crate::game_loop::admin::debug_draw::flags(&world, 7951).1,
-        "geo flag set"
-    );
+    assert!(admin::debug_draw::flags(&world, 7951).1, "geo flag set");
 
     // Moving > 15 units redraws on the next beat (15 ticks).
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&7951)
+        .get_component_mut::<Position>(&7951)
         .unwrap()
         .x += 100;
     drain(&mut gm_rx);
@@ -5553,7 +5486,7 @@ fn debug_panel_geodata_toggle_draws_grid() {
 
     on_packet(&mut world, 1, build_admin("debug geodata off"));
     assert!(
-        !crate::game_loop::admin::debug_draw::flags(&world, 7951).1,
+        !admin::debug_draw::flags(&world, 7951).1,
         "geo flag cleared"
     );
     assert!(
@@ -5597,14 +5530,14 @@ fn admin_geogrid_draws_and_erases_grid() {
         "full grid frames carry 640 arrow lines: {drawn:?}"
     );
     assert!(
-        !crate::game_loop::admin::debug_draw::flags(&world, 7955).1,
+        !admin::debug_draw::flags(&world, 7955).1,
         "one-shot draw must not set the Debug panel's geodata flag"
     );
 
     // No redraw loop: moving and letting the geo beat (15 ticks) pass is quiet.
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&7955)
+        .get_component_mut::<Position>(&7955)
         .unwrap()
         .x += 500;
     advance_ticks(&mut world, 20);
@@ -5647,7 +5580,7 @@ fn debug_panel_movement_toggle_draws_walk_line() {
     // forward by hand so the beat sees >15 units from its anchor.
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&7961)
+        .get_component_mut::<Position>(&7961)
         .unwrap()
         .x += 100;
     advance_ticks(&mut world, 3);
@@ -5714,12 +5647,10 @@ fn ave_abnormal_without_args_serves_the_paged_effect_list() {
     );
 
     // A name still toggles, so the buttons work.
-    world
-        .objects
-        .add_components(&7501, crate::model::components::TargetRef(Some(7501)));
+    world.objects.add_components(&7501, TargetRef(Some(7501)));
     on_packet(&mut world, 1, build_admin("ave_abnormal AURA_BUFF"));
     assert!(
-        crate::game_loop::abnormal::visual_effects(&world, 7501).contains(&57),
+        abnormal::visual_effects(&world, 7501).contains(&57),
         "clicking a button applies the effect"
     );
 }
@@ -5737,22 +5668,18 @@ fn effects_panel_menu_commands_reserve_their_pages() {
     let (mut world, ..) = admin_world();
     world.data.root = ROOT.to_string();
     let mut rx = ingame_player_access(&mut world, 1, 7510, 100);
-    world
-        .objects
-        .add_components(&7510, crate::model::components::TargetRef(Some(7510)));
+    world.objects.add_components(&7510, TargetRef(Some(7510)));
     drain(&mut rx);
 
-    let click = |world: &mut World,
-                 rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-                 cmd: &str|
-     -> String {
-        on_packet(world, 1, build_admin(cmd));
-        drain(rx)
-            .iter()
-            .filter_map(|p| decode_npc_html(p))
-            .next_back()
-            .unwrap_or_default()
-    };
+    let click =
+        |world: &mut World, rx: &mut UnboundedReceiver<bytes::Bytes>, cmd: &str| -> String {
+            on_packet(world, 1, build_admin(cmd));
+            drain(rx)
+                .iter()
+                .filter_map(|p| decode_npc_html(p))
+                .next_back()
+                .unwrap_or_default()
+        };
 
     assert!(
         click(&mut world, &mut rx, "social_menu 2").contains("Social Menu"),
@@ -5899,7 +5826,7 @@ fn cursed_weapon_skill_not_persisted_after_removal() {
 
     let max_cp_before = world
         .objects
-        .get_component::<crate::model::components::PlayerVitals>(&7009)
+        .get_component::<PlayerVitals>(&7009)
         .unwrap()
         .max_cp;
 
@@ -5927,7 +5854,7 @@ fn cursed_weapon_skill_not_persisted_after_removal() {
 
     let book_has = |w: &World| {
         w.objects
-            .get_component::<crate::model::components::SkillBook>(&7009)
+            .get_component::<SkillBook>(&7009)
             .unwrap()
             .0
             .contains_key(&3629)
@@ -5935,7 +5862,7 @@ fn cursed_weapon_skill_not_persisted_after_removal() {
     assert!(book_has(&world), "cursed passive granted");
     let max_cp_cursed = world
         .objects
-        .get_component::<crate::model::components::PlayerVitals>(&7009)
+        .get_component::<PlayerVitals>(&7009)
         .unwrap()
         .max_cp;
     assert!(
@@ -5956,7 +5883,7 @@ fn cursed_weapon_skill_not_persisted_after_removal() {
     {
         let live: Vec<(i32, i32, i32)> = world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&7009)
+            .get_component::<SkillBook>(&7009)
             .unwrap()
             .0
             .iter()
@@ -5982,7 +5909,7 @@ fn cursed_weapon_skill_not_persisted_after_removal() {
     assert!(!book_has(&world), "cursed passive dropped from the book");
     let max_cp_after = world
         .objects
-        .get_component::<crate::model::components::PlayerVitals>(&7009)
+        .get_component::<PlayerVitals>(&7009)
         .unwrap()
         .max_cp;
     assert_eq!(max_cp_after, max_cp_before, "MaxCp back to normal live");
@@ -6030,7 +5957,7 @@ fn missing_htmls_reports_folk_without_a_page_and_skips_the_three_exclusions() {
         world.data.npc_data.insert_for_test(t);
     }
 
-    let found: Vec<i32> = crate::game_loop::admin::missing_htmls::scan_for_test(&mut world, None)
+    let found: Vec<i32> = admin::missing_htmls::scan_for_test(&mut world, None)
         .into_iter()
         .map(|(id, ..)| id)
         .collect();
@@ -6057,14 +5984,9 @@ fn geomap_missing_htmls_is_scoped_to_the_tile() {
     add_test_npc(&mut world, 7010, 90511, "Folk", 20, 100, 0, 0);
 
     // A box around the near NPC includes it; a far-away box does not.
-    let near = crate::game_loop::admin::missing_htmls::scan_for_test(
-        &mut world,
-        Some((-1000, -1000, 1000, 1000)),
-    );
-    let far = crate::game_loop::admin::missing_htmls::scan_for_test(
-        &mut world,
-        Some((500_000, 500_000, 600_000, 600_000)),
-    );
+    let near = admin::missing_htmls::scan_for_test(&mut world, Some((-1000, -1000, 1000, 1000)));
+    let far =
+        admin::missing_htmls::scan_for_test(&mut world, Some((500_000, 500_000, 600_000, 600_000)));
 
     assert!(
         near.iter().any(|&(id, ..)| id == 90511),
@@ -6277,7 +6199,7 @@ fn admin_instancedestroy_warns_the_players_inside() {
 fn seed_clan(world: &mut World, clan_id: i32, leader_id: i32, members: &[i32]) {
     world.clans.insert(
         clan_id,
-        crate::model::clan::Clan {
+        Clan {
             id: clan_id,
             name: "Tail".into(),
             leader_id,
@@ -6453,7 +6375,7 @@ fn give_clan_skills_refuses_with_javas_two_distinct_messages() {
 fn stop_all_buffs_clears_timed_buffs_and_keeps_passives() {
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7831, 100);
-    let entry = |skill_id: i32, passive: bool| crate::model::skill::ActiveBuff {
+    let entry = |skill_id: i32, passive: bool| model::skill::ActiveBuff {
         displayed: !passive,
         skill_id,
         abnormal_type: format!("T{skill_id}"),
@@ -6464,7 +6386,7 @@ fn stop_all_buffs_clears_timed_buffs_and_keeps_passives() {
     };
     world.objects.add_components(
         &7831,
-        crate::model::components::Buffs(vec![
+        Buffs(vec![
             entry(1204, false), // Wind Walk — timed
             entry(1078, false), // Concentration — timed
             entry(313, true),   // a passive, must survive
@@ -6487,7 +6409,7 @@ fn stop_all_buffs_clears_timed_buffs_and_keeps_passives() {
 
     let left: Vec<(i32, bool)> = world
         .objects
-        .get_component::<crate::model::components::Buffs>(&7831)
+        .get_component::<Buffs>(&7831)
         .map(|b| b.0.iter().map(|x| (x.skill_id, x.passive)).collect())
         .unwrap_or_default();
     assert_eq!(
@@ -6935,7 +6857,7 @@ fn zone_visual_outlines_the_zone_and_clears_it_again() {
         id: 4242,
         name: "test_visual".into(),
         kind: ZoneKind::Peace,
-        territory: crate::data::spawn_data::Territory {
+        territory: Territory {
             form: crate::data::spawn_data::ZoneForm::Cuboid {
                 x1: -100,
                 x2: 100,
@@ -6966,7 +6888,7 @@ fn zone_visual_outlines_the_zone_and_clears_it_again() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&sample),
+            .has_component::<model::components::GroundItem>(&sample),
         "the markers are real ground items"
     );
 
@@ -6976,7 +6898,7 @@ fn zone_visual_outlines_the_zone_and_clears_it_again() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&sample),
+            .has_component::<model::components::GroundItem>(&sample),
         "and the markers are gone from the world"
     );
 }

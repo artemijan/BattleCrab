@@ -661,22 +661,18 @@ fn party_kill_splits_xp_and_sp() {
     let _b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
     make_party(&mut world, &[3001, 3002], LootRule::FindersKeepers);
     for oid in [3001, 3002] {
-        world
-            .objects
-            .get_component_mut::<crate::model::Player>(&oid)
-            .unwrap()
-            .exp = 4000;
+        world.objects.get_component_mut::<Player>(&oid).unwrap().exp = 4000;
     }
 
     let npc_oid = NPC_OID + 21;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -700,27 +696,15 @@ fn party_kill_splits_xp_and_sp() {
         pvit(&world, npc_oid).dead || world.objects.get_component::<Vitals>(&npc_oid).is_none(),
         "monster died"
     );
-    let a_exp = world
-        .objects
-        .get_component::<crate::model::Player>(&3001)
-        .unwrap()
-        .exp;
-    let b_exp = world
-        .objects
-        .get_component::<crate::model::Player>(&3002)
-        .unwrap()
-        .exp;
+    let a_exp = world.objects.get_component::<Player>(&3001).unwrap().exp;
+    let b_exp = world.objects.get_component::<Player>(&3002).unwrap().exp;
     assert_eq!(a_exp, 4000 + 1300, "killer: 2000 × 1.3 bonus × 25/50");
     assert_eq!(
         b_exp,
         4000 + 1300,
         "idle member gets the same equal-level share"
     );
-    let b_sp = world
-        .objects
-        .get_component::<crate::model::Player>(&3002)
-        .unwrap()
-        .sp;
+    let b_sp = world.objects.get_component::<Player>(&3002).unwrap().sp;
     assert_eq!(b_sp, 65, "SP: 100 × 1.3 / 2");
 }
 
@@ -782,7 +766,7 @@ fn party_loot_split_and_rotation() {
     let count_of = |world: &World, oid: i32| {
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&oid)
+            .get_component::<Inventory>(&oid)
             .map(|inv| {
                 inv.items()
                     .iter()
@@ -807,7 +791,7 @@ fn party_loot_split_and_rotation() {
     let has_item = |world: &World, oid: i32| {
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&oid)
+            .get_component::<Inventory>(&oid)
             .is_some_and(|inv| inv.items().iter().any(|i| i.item_id == 1234))
     };
     assert!(has_item(&world, 3002), "first by-turn item");
@@ -1316,14 +1300,14 @@ fn a_boss_spawn_is_announced_server_wide() {
     drain(&mut rx);
 
     // An ordinary mob is silent.
-    crate::model::npc::spawn_npc_at(&mut world, 20001, 0, 0, 0, 0);
+    model::npc::spawn_npc_at(&mut world, 20001, 0, 0, 0, 0);
     assert!(
         drain(&mut rx).iter().all(|p| sysmsg_text(p).is_none()),
         "no line for a plain monster"
     );
 
     // The raid boss announces itself twice: chat + on screen.
-    let boss = crate::model::npc::spawn_npc_at(&mut world, 25001, 0, 0, 0, 0).expect("spawned");
+    let boss = model::npc::spawn_npc_at(&mut world, 25001, 0, 0, 0, 0).expect("spawned");
     let out = drain(&mut rx);
     assert!(
         out.iter().any(|p| p[0] == server_packets::opcodes::SAY2),
@@ -1339,7 +1323,7 @@ fn a_boss_spawn_is_announced_server_wide() {
     // exists (see `spawn_minion_npc_at`).
     let _ = boss;
     drain(&mut rx);
-    crate::model::npc::spawn_minion_npc_at(&mut world, 25001, 0, 0, 0, 0).expect("spawned");
+    model::npc::spawn_minion_npc_at(&mut world, 25001, 0, 0, 0, 0).expect("spawned");
     assert!(
         drain(&mut rx).iter().all(|p| sysmsg_text(p).is_none()),
         "a minion is a reinforcement, not an event"
@@ -1347,7 +1331,7 @@ fn a_boss_spawn_is_announced_server_wide() {
 
     world.cfg.boss_announcements.raidboss_spawn = false;
     drain(&mut rx);
-    crate::model::npc::spawn_npc_at(&mut world, 25001, 0, 0, 0, 0);
+    model::npc::spawn_npc_at(&mut world, 25001, 0, 0, 0, 0);
     assert!(
         drain(&mut rx).iter().all(|p| sysmsg_text(p).is_none()),
         "the flag gates it"
@@ -1379,7 +1363,7 @@ fn a_private_store_needs_room_around_it() {
     // Move it out of range and the store is fine again.
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&4001)
+        .get_component_mut::<Position>(&4001)
         .unwrap()
         .x = 500;
     assert!(can_open_private_store(&world, 1, 3001), "NPC moved away");
@@ -1580,7 +1564,7 @@ fn random_spawns_jitter_only_ordinary_monsters() {
     // admin spawn keeps its coordinates, because Java's `AbstractScript.addSpawn`
     // explicitly restores them for a scripted monster.
     let spawn_at = |world: &mut World, id: i32| -> (i32, i32) {
-        crate::model::npc::randomize_spawn_point(world, id, 1000, 1000, 0, 0)
+        model::npc::randomize_spawn_point(world, id, 1000, 1000, 0, 0)
     };
 
     // An ordinary monster moves (over many spawns, at least one lands off the

@@ -206,7 +206,7 @@ pub struct GameThreadChannels {
     pub login_ready_tx: tokio::sync::oneshot::Sender<()>,
     pub db_tx: db::CmdTx,
     pub data: GameData,
-    pub geo: std::sync::Arc<crate::geo::GeoEngine>,
+    pub geo: Arc<crate::geo::GeoEngine>,
     pub path_tx: crate::geo::worker::PathReqTx,
     pub path_finding: i32,
     /// `GeoEngine.ini`'s pathfinding tuning + geo-editor output dir, for the

@@ -72,13 +72,9 @@ pub const TYPE2_MONEY: i32 = 4;
 pub const TYPE2_OTHER: i32 = 5;
 
 /// `ItemData.SLOTS` — the `bodypart` XML attribute string → slot bitmask table.
-/// Public wrapper for callers outside this module (e.g. the enchant loader,
-/// which resolves `<item slot=…>` strings the same way).
+/// Also serves callers outside this module (the enchant loader resolves
+/// `<item slot=…>` strings the same way).
 pub(crate) fn slot_mask(name: &str) -> i32 {
-    body_part(name)
-}
-
-fn body_part(name: &str) -> i32 {
     match name {
         "shirt" | "underwear" => SLOT_UNDERWEAR,
         "lbracelet" => SLOT_L_BRACELET,
@@ -1000,7 +996,7 @@ impl ItemData {
         let mut icons = HashMap::new();
         let dir = format!("{file_path}{ITEMS_DIR}");
         {
-            for path in super::xml::xml_files_in(&dir) {
+            for path in xml::xml_files_in(&dir) {
                 parse_file(
                     &path,
                     &mut by_id,
@@ -1366,7 +1362,7 @@ fn make_template(
         .get("is_infinite")
         .map(|v| v == "true")
         .unwrap_or(false);
-    let part = body_part(attrs.get("bodypart").map(|s| s.as_str()).unwrap_or("none"));
+    let part = slot_mask(attrs.get("bodypart").map(|s| s.as_str()).unwrap_or("none"));
 
     let (type1, type2) = match kind {
         ItemKind::Weapon => (TYPE1_WEAPON_RING_EARRING_NECKLACE, TYPE2_WEAPON),

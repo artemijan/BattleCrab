@@ -10,11 +10,7 @@ const CID: u32 = 1;
 const PARALYSIS: i32 = 4064;
 const ORFEN_HEAL: i32 = 4516;
 
-fn orfen_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn orfen_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for id in [ORFEN, RIBA_IREN] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -31,28 +27,22 @@ fn orfen_world() -> (
     // The two skills do different things, and giving them the same effect list
     // is how the first draft of `riba_iren_heals_on_its_own_wounds` passed
     // while measuring nothing.
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: PARALYSIS,
-            level: 1,
-            abnormal_time: 60,
-            effects: vec![crate::model::skill::SkillEffect::BlockActions { conditional: false }],
-            ..Default::default()
-        });
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: ORFEN_HEAL,
-            level: 1,
-            magic_type: 1,
-            effects: vec![crate::model::skill::SkillEffect::Heal { power: 1000.0 }],
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: PARALYSIS,
+        level: 1,
+        abnormal_time: 60,
+        effects: vec![model::skill::SkillEffect::BlockActions { conditional: false }],
+        ..Default::default()
+    });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: ORFEN_HEAL,
+        level: 1,
+        magic_type: 1,
+        effects: vec![model::skill::SkillEffect::Heal { power: 1000.0 }],
+        ..Default::default()
+    });
     (world, db, l)
 }
 
@@ -310,7 +300,7 @@ fn riba_faction_call_heals_half_dead_orfen() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 200, 0);
 
     // Healthy Orfen: nothing, no roll consumed.
-    crate::game_loop::ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
+    ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
     assert!(!world.objects.has_component::<Casting>(&riba));
 
     // Half-dead Orfen, roll 9 (>= chance 9): the 1-in-10 miss.
@@ -322,7 +312,7 @@ fn riba_faction_call_heals_half_dead_orfen() {
         v.cur_hp = v.max_hp as f64 * 0.3;
     }
     world.force_roll(9);
-    crate::game_loop::ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
+    ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
     assert!(
         !world.objects.has_component::<Casting>(&riba),
         "roll 9 misses the 9-in-10 chance"
@@ -330,7 +320,7 @@ fn riba_faction_call_heals_half_dead_orfen() {
 
     // Roll 0: the heal fires.
     world.force_roll(0);
-    crate::game_loop::ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
+    ai::on_faction_call_script_for_test(&mut world, riba, ORFEN_OID, PLAYER);
     assert!(
         world.objects.has_component::<Casting>(&riba),
         "the recruited Riba Iren heals the half-dead Orfen"

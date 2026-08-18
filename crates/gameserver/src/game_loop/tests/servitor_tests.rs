@@ -30,11 +30,7 @@ const PANTHER: i32 = 14799;
 const FOE: i32 = NPC_OID + 10;
 const DIST: &str = crate::data::DIST_GAME;
 
-fn servitor_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn servitor_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for id in [PANTHER, PANTHER + 1] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -283,9 +279,7 @@ fn an_idle_servitor_trails_its_owner() {
         .x = 900;
     servitor_follow_tick(&mut world, oid);
 
-    let m = world
-        .objects
-        .get_component::<crate::model::components::Movement>(&oid);
+    let m = world.objects.get_component::<Movement>(&oid);
     assert!(m.is_some(), "the servitor set off after its owner");
 }
 
@@ -303,10 +297,7 @@ fn a_servitor_already_close_does_not_move() {
         .x = 100; // < FOLLOW_RANGE
     servitor_follow_tick(&mut world, oid);
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::components::Movement>(&oid)
-            .is_none(),
+        world.objects.get_component::<Movement>(&oid).is_none(),
         "no pointless walk"
     );
 }
@@ -330,10 +321,7 @@ fn hold_toggles_following() {
         .x = 900;
     servitor_follow_tick(&mut world, oid);
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::components::Movement>(&oid)
-            .is_none(),
+        world.objects.get_component::<Movement>(&oid).is_none(),
         "a holding servitor ignores its owner walking off"
     );
 
@@ -343,12 +331,7 @@ fn hold_toggles_following() {
         "and back to following"
     );
     servitor_follow_tick(&mut world, oid);
-    assert!(
-        world
-            .objects
-            .get_component::<crate::model::components::Movement>(&oid)
-            .is_some()
-    );
+    assert!(world.objects.get_component::<Movement>(&oid).is_some());
 }
 
 /// An ordered attack seeds hate on the target and switches the servitor to the
@@ -367,7 +350,7 @@ fn an_ordered_attack_targets_the_owners_target() {
 
     let hate = world
         .objects
-        .get_component::<crate::model::npc::AggroList>(&oid)
+        .get_component::<AggroList>(&oid)
         .and_then(|a| a.0.get(&FOE))
         .map(|i| i.hate)
         .unwrap_or(0.0);
@@ -375,10 +358,10 @@ fn an_ordered_attack_targets_the_owners_target() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::NpcAi>(&oid)
+            .get_component::<NpcAi>(&oid)
             .unwrap()
             .intention,
-        crate::model::npc::NpcIntention::Attack
+        NpcIntention::Attack
     );
     assert!(
         !world
@@ -412,7 +395,7 @@ fn a_far_target_is_refused_and_the_servitor_keeps_following() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&oid)
+            .get_component::<AggroList>(&oid)
             .map(|a| a.0.len()),
         Some(0),
         "and never took the target"
@@ -432,17 +415,17 @@ fn stop_cancels_the_attack_and_resumes_following() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&oid)
+            .get_component::<AggroList>(&oid)
             .map(|a| a.0.len()),
         Some(0)
     );
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::NpcAi>(&oid)
+            .get_component::<NpcAi>(&oid)
             .unwrap()
             .intention,
-        crate::model::npc::NpcIntention::Active
+        NpcIntention::Active
     );
     assert!(
         world
@@ -469,7 +452,7 @@ fn a_servitor_does_not_pick_its_own_fights() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&oid)
+            .get_component::<AggroList>(&oid)
             .map(|a| a.0.len()),
         Some(0),
         "no unbidden aggro"
@@ -533,7 +516,7 @@ fn summon_info_carries_the_owners_name() {
 
     let owner_name = world
         .objects
-        .get_component::<crate::model::Player>(&OWNER)
+        .get_component::<Player>(&OWNER)
         .unwrap()
         .name
         .clone();
@@ -564,7 +547,7 @@ fn a_servitor_entering_view_is_introduced_as_a_summon() {
     // A second player logs in nearby *after* the summon.
     let mut late_rx = ingame_caster(&mut world, 2, OWNER + 1, 60, 0);
     let _ = drain(&mut late_rx);
-    crate::game_loop::visibility::on_enter_world(&world, 2, OWNER + 1);
+    visibility::on_enter_world(&world, 2, OWNER + 1);
 
     let ops: Vec<u8> = drain(&mut late_rx)
         .iter()
@@ -637,7 +620,7 @@ fn the_upkeep_item_is_consumed_when_due() {
         // Split borrow: the catalog is read while the inventory is written.
         let World { data, objects, .. } = &mut world;
         objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+            .get_component_mut::<Inventory>(&OWNER)
             .unwrap()
             .add_item(&data.item_data, 7_000_001, gemstone, 5);
     }
@@ -823,12 +806,12 @@ fn give_collar(world: &mut World) -> i32 {
         });
     let World { data, objects, .. } = world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component_mut::<Inventory>(&OWNER)
         .unwrap()
         .add_item(&data.item_data, 7_100_001, WOLF_COLLAR, 1);
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component::<Inventory>(&OWNER)
         .unwrap()
         .items()
         .iter()
@@ -840,7 +823,7 @@ fn give_collar(world: &mut World) -> i32 {
 fn park_collar(world: &mut World, collar_oid: i32) {
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&OWNER)
+        .get_component_mut::<Player>(&OWNER)
         .unwrap()
         .pending_pet_collar = Some(collar_oid);
 }
@@ -887,12 +870,7 @@ fn a_pet_follows_like_a_servitor() {
         .unwrap()
         .x = 900;
     servitor_follow_tick(&mut world, pet);
-    assert!(
-        world
-            .objects
-            .get_component::<crate::model::components::Movement>(&pet)
-            .is_some()
-    );
+    assert!(world.objects.get_component::<Movement>(&pet).is_some());
 }
 
 /// The collar is **taken**, not copied — Java's `removeScript`. A second
@@ -908,7 +886,7 @@ fn the_parked_collar_is_consumed_by_the_summon() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::Player>(&OWNER)
+            .get_component::<Player>(&OWNER)
             .unwrap()
             .pending_pet_collar
             .is_none(),
@@ -959,7 +937,7 @@ fn a_collar_not_in_the_inventory_cannot_summon() {
     park_collar(&mut world, collar);
     world
         .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component_mut::<Inventory>(&OWNER)
         .unwrap()
         .remove_item(WOLF_COLLAR, 1);
 
@@ -1016,8 +994,8 @@ fn add_wolf_level_2(world: &mut World) {
     world.data.pet_data.insert_for_test(t);
 }
 
-fn saved_row(collar_oid: i32, level: i32, exp: i64, fed: i32, cur_hp: f64) -> crate::db::PetRow {
-    crate::db::PetRow {
+fn saved_row(collar_oid: i32, level: i32, exp: i64, fed: i32, cur_hp: f64) -> db::PetRow {
+    db::PetRow {
         collar_object_id: collar_oid,
         name: "Wolf".into(),
         level,
@@ -1030,7 +1008,7 @@ fn saved_row(collar_oid: i32, level: i32, exp: i64, fed: i32, cur_hp: f64) -> cr
     }
 }
 
-fn put_saved(world: &mut World, row: crate::db::PetRow) {
+fn put_saved(world: &mut World, row: db::PetRow) {
     world
         .objects
         .get_component_mut::<PlayerPets>(&OWNER)
@@ -1230,7 +1208,7 @@ fn destroying_the_collar_drops_the_saved_pet() {
     let mut body = Vec::new();
     body.extend_from_slice(&collar.to_le_bytes());
     body.extend_from_slice(&1i64.to_le_bytes());
-    crate::game_loop::items::handle_request_destroy_item(&mut world, CID, &body);
+    items::handle_request_destroy_item(&mut world, CID, &body);
 
     assert!(
         pet_of(&world, OWNER).is_none(),
@@ -1268,11 +1246,11 @@ fn register_food(world: &mut World, restores: i32) {
     item.item_skills = vec![(WOLF_FOOD_SKILL, 1)];
     world.data.item_data.insert_for_test(item);
 
-    let skill = crate::model::skill::Skill {
+    let skill = Skill {
         self_continuous: false,
         id: WOLF_FOOD_SKILL,
         level: 1,
-        effects: vec![crate::model::skill::SkillEffect::Feed {
+        effects: vec![SkillEffect::Feed {
             normal: restores,
             ride: 0,
             wyvern: 0,
@@ -1434,7 +1412,7 @@ fn food_transfers_to_the_pet_and_back() {
     let food_oid = {
         let World { data, objects, .. } = &mut world;
         objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+            .get_component_mut::<Inventory>(&OWNER)
             .unwrap()
             .add_item(&data.item_data, 7_300_001, WOLF_FOOD, 5)
     };
@@ -1456,7 +1434,7 @@ fn food_transfers_to_the_pet_and_back() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&OWNER)
+            .get_component::<Inventory>(&OWNER)
             .unwrap()
             .count_of(WOLF_FOOD),
         2,
@@ -1487,7 +1465,7 @@ fn food_transfers_to_the_pet_and_back() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&OWNER)
+            .get_component::<Inventory>(&OWNER)
             .unwrap()
             .count_of(WOLF_FOOD),
         5,
@@ -1617,7 +1595,7 @@ fn the_real_wolf_food_skill_parses_its_feed_value() {
         .effects
         .iter()
         .find_map(|e| match e {
-            crate::model::skill::SkillEffect::Feed { normal, .. } => Some(*normal),
+            SkillEffect::Feed { normal, .. } => Some(*normal),
             _ => None,
         })
         .expect("Wolf Food carries a Feed effect");
@@ -1864,7 +1842,7 @@ fn levelling_stamps_the_pets_level_onto_its_collar() {
     add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
     let enchant = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component::<Inventory>(&OWNER)
         .unwrap()
         .by_object_id(collar)
         .unwrap()
@@ -1890,16 +1868,12 @@ fn the_reward_path_actually_splits_with_the_pet() {
         }
         world
             .objects
-            .get_component_mut::<crate::model::Player>(&OWNER)
+            .get_component_mut::<Player>(&OWNER)
             .unwrap()
             .exp = 0;
         crate::game_loop::death::add_exp_and_sp(&mut world, OWNER, 1000.0, 100.0, false);
         (
-            world
-                .objects
-                .get_component::<crate::model::Player>(&OWNER)
-                .unwrap()
-                .exp,
+            world.objects.get_component::<Player>(&OWNER).unwrap().exp,
             world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp,
         )
     };
@@ -1923,11 +1897,8 @@ fn the_reward_path_actually_splits_with_the_pet() {
 // Pet stats (slice 13)
 // ---------------------------------------------------------------------------
 
-fn combat(world: &World, oid: i32) -> crate::model::components::CombatStats {
-    *world
-        .objects
-        .get_component::<crate::model::components::CombatStats>(&oid)
-        .unwrap()
+fn combat(world: &World, oid: i32) -> CombatStats {
+    *world.objects.get_component::<CombatStats>(&oid).unwrap()
 }
 
 /// A pet's stats come from its **per-level pet row**, not its NPC template.
@@ -2135,7 +2106,7 @@ fn a_duel_death_costs_the_pet_no_experience() {
     // condition Java tests.
     world
         .objects
-        .add_components(&OWNER, crate::model::components::DuelRef(1));
+        .add_components(&OWNER, model::components::DuelRef(1));
     crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
 
     assert_eq!(
@@ -2265,7 +2236,7 @@ fn reviving_a_pet_asks_its_owner() {
 
     let req = world
         .objects
-        .get_component::<crate::model::Player>(&OWNER)
+        .get_component::<Player>(&OWNER)
         .unwrap()
         .revive_request;
     let req = req.expect("the owner holds the proposal, not the pet");
@@ -2328,7 +2299,7 @@ fn declining_leaves_the_pet_dead() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::Player>(&OWNER)
+            .get_component::<Player>(&OWNER)
             .unwrap()
             .revive_request
             .is_none(),
@@ -2349,7 +2320,7 @@ fn a_living_pet_is_not_proposed_for_resurrection() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::Player>(&OWNER)
+            .get_component::<Player>(&OWNER)
             .unwrap()
             .revive_request
             .is_none()
@@ -2397,7 +2368,7 @@ fn a_pet_revival_does_not_revive_the_owner() {
 fn owner_has(world: &World, item_id: i32) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component::<Inventory>(&OWNER)
         .map(|inv| inv.count_of(item_id))
         .unwrap_or(0)
 }
@@ -2636,11 +2607,11 @@ fn register_beast_soulshot(world: &mut World) {
 fn give_owner_shots(world: &mut World, count: i64) {
     let World { data, objects, .. } = world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component_mut::<Inventory>(&OWNER)
         .unwrap()
         .add_item(&data.item_data, 7_500_001, BEAST_SOULSHOT, count);
     objects
-        .get_component_mut::<crate::model::Player>(&OWNER)
+        .get_component_mut::<Player>(&OWNER)
         .unwrap()
         .auto_shots
         .push(BEAST_SOULSHOT);
@@ -2649,7 +2620,7 @@ fn give_owner_shots(world: &mut World, count: i64) {
 fn owner_shot_count(world: &World) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component::<Inventory>(&OWNER)
         .map(|inv| inv.count_of(BEAST_SOULSHOT))
         .unwrap_or(0)
 }
@@ -2676,7 +2647,7 @@ fn a_pet_charges_shots_from_its_owner() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::ChargedShots>(&pet_oid)
+            .get_component::<model::components::ChargedShots>(&pet_oid)
             .unwrap()
             .soulshot
     );
@@ -2749,7 +2720,7 @@ fn a_partial_stack_buys_nothing() {
 fn toggle_is_on(world: &World, item_id: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::Player>(&OWNER)
+        .get_component::<Player>(&OWNER)
         .is_some_and(|p| p.auto_shots.contains(&item_id))
 }
 
@@ -2798,7 +2769,7 @@ fn a_partial_soulshot_stack_retires_the_toggle() {
     let packets = drain(&mut rx);
     assert_eq!(
         auto_shot_echoes(&packets),
-        vec![(BEAST_SOULSHOT, 0, crate::model::ShotType::Soulshots as i32)],
+        vec![(BEAST_SOULSHOT, 0, model::ShotType::Soulshots as i32)],
         "the client is told the toggle went dark"
     );
     assert!(
@@ -2821,7 +2792,7 @@ fn an_exhausted_soulshot_stack_retires_the_toggle_once() {
     // Toggled on, bag empty — the state a player lands in after the last swing.
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&OWNER)
+        .get_component_mut::<Player>(&OWNER)
         .unwrap()
         .auto_shots
         .push(BEAST_SOULSHOT);
@@ -2873,7 +2844,7 @@ fn without_the_toggle_a_pet_charges_nothing() {
     // Shots in the bag, but never toggled on.
     let World { data, objects, .. } = &mut world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component_mut::<Inventory>(&OWNER)
         .unwrap()
         .add_item(&data.item_data, 7_500_002, BEAST_SOULSHOT, 10);
 
@@ -2901,17 +2872,17 @@ fn a_summon_target_skill_reaches_the_servitor() {
         .unwrap()
         .cur_hp = 10.0;
 
-    let skill = crate::model::skill::Skill {
+    let skill = Skill {
         self_continuous: false,
         id: 1127,
         level: 1,
-        target_type: crate::model::skill::TargetType::Summon,
-        effects: vec![crate::model::skill::SkillEffect::Heal { power: 100.0 }],
+        target_type: TargetType::Summon,
+        effects: vec![SkillEffect::Heal { power: 100.0 }],
         ..Default::default()
     };
     world.data.skill_data.insert_for_test(skill.clone());
 
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, OWNER, servitor, &skill);
+    effects::apply_skill_effects(&mut world, OWNER, servitor, &skill);
     assert!(
         world
             .objects
@@ -2974,7 +2945,7 @@ fn the_real_servitor_skills_parse_as_summon_targeted() {
             .unwrap_or_else(|| panic!("skill {id} exists"));
         assert_eq!(
             s.target_type,
-            crate::model::skill::TargetType::Summon,
+            TargetType::Summon,
             "skill {id} ({}) must target the summon",
             s.id
         );
@@ -2995,21 +2966,21 @@ fn a_stat_buff_on_a_servitor_changes_its_stats() {
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
     let before = world
         .objects
-        .get_component::<crate::model::components::Speeds>(&servitor)
+        .get_component::<Speeds>(&servitor)
         .unwrap()
         .run_spd;
 
     // Servitor Wind Walk's shape: a flat speed increase.
-    let skill = crate::model::skill::Skill {
+    let skill = Skill {
         self_continuous: false,
         id: 1144,
         level: 1,
-        target_type: crate::model::skill::TargetType::Summon,
+        target_type: TargetType::Summon,
         abnormal_time: 1200,
-        effects: vec![crate::model::skill::SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
-                stat: crate::model::stats::Stat::RunSpeed,
-                mode: crate::model::stats::StatModifierType::Diff,
+        effects: vec![SkillEffect::StatModifier(
+            model::skill::StatModifierEffect {
+                stat: Stat::RunSpeed,
+                mode: model::stats::StatModifierType::Diff,
                 amount: 50.0,
                 ..Default::default()
             },
@@ -3017,13 +2988,11 @@ fn a_stat_buff_on_a_servitor_changes_its_stats() {
         ..Default::default()
     };
     world.data.skill_data.insert_for_test(skill.clone());
-    crate::game_loop::skills::effects::apply_continuous_effects(
-        &mut world, OWNER, servitor, &skill, None,
-    );
+    effects::apply_continuous_effects(&mut world, OWNER, servitor, &skill, None);
 
     let after = world
         .objects
-        .get_component::<crate::model::components::Speeds>(&servitor)
+        .get_component::<Speeds>(&servitor)
         .unwrap()
         .run_spd;
     assert!(
@@ -3042,25 +3011,23 @@ fn buffing_a_servitor_refreshes_its_client_info() {
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
     while rx.try_recv().is_ok() {} // drain the summon packets
 
-    let skill = crate::model::skill::Skill {
+    let skill = Skill {
         self_continuous: false,
         id: 1144,
         level: 1,
-        target_type: crate::model::skill::TargetType::Summon,
+        target_type: TargetType::Summon,
         abnormal_time: 1200,
-        effects: vec![crate::model::skill::SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
-                stat: crate::model::stats::Stat::RunSpeed,
-                mode: crate::model::stats::StatModifierType::Diff,
+        effects: vec![SkillEffect::StatModifier(
+            model::skill::StatModifierEffect {
+                stat: Stat::RunSpeed,
+                mode: model::stats::StatModifierType::Diff,
                 amount: 50.0,
                 ..Default::default()
             },
         )],
         ..Default::default()
     };
-    crate::game_loop::skills::effects::apply_continuous_effects(
-        &mut world, OWNER, servitor, &skill, None,
-    );
+    effects::apply_continuous_effects(&mut world, OWNER, servitor, &skill, None);
 
     // `PetInfo` is 0xB2 — the packet that carries the summon's speeds.
     let mut saw_pet_info = false;
@@ -3097,7 +3064,7 @@ fn a_summon_attacking_a_player_flags_its_owner() {
 
     let flagged = world
         .objects
-        .get_component::<crate::model::components::PvpState>(&OWNER)
+        .get_component::<model::components::PvpState>(&OWNER)
         .is_some_and(|s| s.flag > 0);
     assert!(flagged, "the owner is flagged for their summon's attack");
 }
@@ -3113,11 +3080,11 @@ fn a_real_summon_swing_flags_the_owner() {
     let _rx2 = ingame_caster(&mut world, CID + 7, victim, 60, 0);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
 
-    crate::game_loop::combat::do_auto_attack(&mut world, servitor, victim);
+    combat::do_auto_attack(&mut world, servitor, victim);
 
     let flagged = world
         .objects
-        .get_component::<crate::model::components::PvpState>(&OWNER)
+        .get_component::<model::components::PvpState>(&OWNER)
         .is_some_and(|s| s.flag > 0);
     assert!(
         flagged,
@@ -3136,13 +3103,13 @@ fn a_summon_swing_puts_its_owner_in_combat_stance() {
     let _rx2 = ingame_caster(&mut world, CID + 7, victim, 60, 0);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
 
-    crate::game_loop::combat::do_auto_attack(&mut world, servitor, victim);
+    combat::do_auto_attack(&mut world, servitor, victim);
 
     let now = world.tick;
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::AttackState>(&OWNER)
+            .get_component::<model::components::AttackState>(&OWNER)
             .is_some_and(|s| s.stance_until_tick > now),
         "the owner is in combat stance"
     );
@@ -3159,19 +3126,19 @@ fn a_monster_attacking_a_player_flags_nobody() {
     let _rx = ingame_caster(&mut world, CID + 7, victim, 60, 0);
     add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 40, 0, 0);
 
-    crate::game_loop::combat::do_auto_attack(&mut world, FOE, victim);
+    combat::do_auto_attack(&mut world, FOE, victim);
 
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::PvpState>(&victim)
+            .get_component::<model::components::PvpState>(&victim)
             .is_none_or(|s| s.flag == 0),
         "the victim is not flagged by being attacked"
     );
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::PvpState>(&FOE)
+            .get_component::<model::components::PvpState>(&FOE)
             .is_none_or(|s| s.flag == 0),
         "and neither is the monster"
     );
@@ -3205,7 +3172,7 @@ fn a_summon_killing_blow_credits_its_owner() {
     // attack timing.
     world
         .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&FOE)
+        .get_component_mut::<AggroList>(&FOE)
         .unwrap()
         .0
         .entry(servitor)
@@ -3213,16 +3180,12 @@ fn a_summon_killing_blow_credits_its_owner() {
         .damage = 500.0;
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&OWNER)
+        .get_component_mut::<Player>(&OWNER)
         .unwrap()
         .exp = 0;
     crate::game_loop::death::npc_do_die(&mut world, FOE, servitor);
 
-    let exp = world
-        .objects
-        .get_component::<crate::model::Player>(&OWNER)
-        .unwrap()
-        .exp;
+    let exp = world.objects.get_component::<Player>(&OWNER).unwrap().exp;
     assert!(
         exp > 0,
         "the owner was credited for their summon's kill (exp {exp})"
@@ -3251,7 +3214,7 @@ fn an_owner_and_their_summon_share_one_slice() {
     {
         let aggro = &mut world
             .objects
-            .get_component_mut::<crate::model::npc::AggroList>(&FOE)
+            .get_component_mut::<AggroList>(&FOE)
             .unwrap()
             .0;
         aggro.entry(OWNER).or_default().damage = 100.0;
@@ -3259,25 +3222,13 @@ fn an_owner_and_their_summon_share_one_slice() {
         aggro.entry(rival).or_default().damage = 200.0;
     }
     for oid in [OWNER, rival] {
-        world
-            .objects
-            .get_component_mut::<crate::model::Player>(&oid)
-            .unwrap()
-            .exp = 0;
+        world.objects.get_component_mut::<Player>(&oid).unwrap().exp = 0;
     }
 
     crate::game_loop::death::npc_do_die(&mut world, FOE, servitor);
 
-    let owner_exp = world
-        .objects
-        .get_component::<crate::model::Player>(&OWNER)
-        .unwrap()
-        .exp;
-    let rival_exp = world
-        .objects
-        .get_component::<crate::model::Player>(&rival)
-        .unwrap()
-        .exp;
+    let owner_exp = world.objects.get_component::<Player>(&OWNER).unwrap().exp;
+    let rival_exp = world.objects.get_component::<Player>(&rival).unwrap().exp;
     assert!(
         owner_exp > 0 && rival_exp > 0,
         "both earned ({owner_exp} / {rival_exp})"
@@ -3305,13 +3256,13 @@ fn a_summon_killing_a_player_gives_its_owner_the_karma() {
 
     let before = world
         .objects
-        .get_component::<crate::model::Player>(&OWNER)
+        .get_component::<Player>(&OWNER)
         .unwrap()
         .pk_kills;
     crate::game_loop::death::player_do_die(&mut world, victim, servitor);
     let after = world
         .objects
-        .get_component::<crate::model::Player>(&OWNER)
+        .get_component::<Player>(&OWNER)
         .unwrap()
         .pk_kills;
 
@@ -3335,10 +3286,10 @@ fn a_summons_blow_cannot_kill_a_duel_opponent() {
     // Put the two players in a duel with each other.
     world
         .objects
-        .add_components(&OWNER, crate::model::components::DuelRef(1));
+        .add_components(&OWNER, model::components::DuelRef(1));
     world
         .objects
-        .add_components(&foe_player, crate::model::components::DuelRef(1));
+        .add_components(&foe_player, model::components::DuelRef(1));
     // The snapshot the end-of-duel restore puts back: both at full.
     let snap = |world: &World, oid: i32| {
         let v = world.objects.get_component::<Vitals>(&oid).unwrap();
@@ -3400,17 +3351,9 @@ fn dying_to_a_war_enemys_summon_still_quarters_the_penalty() {
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
 
     // The exp penalty is measured; give the victim something to lose.
-    let exp_of = |w: &World| {
-        w.objects
-            .get_component::<crate::model::Player>(&victim)
-            .unwrap()
-            .exp
-    };
+    let exp_of = |w: &World| w.objects.get_component::<Player>(&victim).unwrap().exp;
     for oid in [OWNER, victim] {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&oid)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&oid).unwrap();
         p.level = 20;
         p.exp = 1_000_000;
     }
@@ -3445,7 +3388,7 @@ fn a_summon_kill_counts_for_the_clan_war() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::Player>(&OWNER)
+            .get_component::<Player>(&OWNER)
             .unwrap()
             .pk_kills
             > 0,
@@ -3462,19 +3405,19 @@ fn an_npc_records_its_skill_reuse() {
     let (mut world, _db, _l) = servitor_world();
     add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
 
-    let skill = crate::model::skill::Skill {
+    let skill = Skill {
         self_continuous: false,
         id: 4049,
         level: 1,
         reuse_delay: 10_000,
         ..Default::default()
     };
-    crate::game_loop::skills::cast::set_skill_reuse(&mut world, FOE, &skill);
+    set_skill_reuse(&mut world, FOE, &skill);
 
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Reuses>(&FOE)
+            .get_component::<Reuses>(&FOE)
             .is_some_and(|r| !r.0.is_empty()),
         "the NPC's cooldown was recorded"
     );
@@ -3493,7 +3436,7 @@ fn an_npc_skill_on_cooldown_cannot_be_recast() {
         v.max_mp = 1000;
         v.cur_mp = 1000.0;
     }
-    let skill = crate::model::skill::Skill {
+    let skill = Skill {
         self_continuous: false,
         id: 4049,
         level: 1,
@@ -3505,7 +3448,7 @@ fn an_npc_skill_on_cooldown_cannot_be_recast() {
         crate::game_loop::npc::cast::check_use_conditions_for_test(&world, FOE, &skill),
         "ready before the first cast"
     );
-    crate::game_loop::skills::cast::set_skill_reuse(&mut world, FOE, &skill);
+    set_skill_reuse(&mut world, FOE, &skill);
     assert!(
         !crate::game_loop::npc::cast::check_use_conditions_for_test(&world, FOE, &skill),
         "refused while on cooldown"
@@ -3532,10 +3475,10 @@ fn register_pet_armor(world: &mut World) {
     t.kind = crate::data::item_data::ItemKind::Armor;
     t.body_part = crate::data::item_data::SLOT_CHEST;
     world.data.item_data.insert_for_test(t);
-    world.data.item_data.insert_stats_for_test(
-        WOLF_ARMOR,
-        vec![(crate::model::stats::Stat::PhysicalDefence, 31.0)],
-    );
+    world
+        .data
+        .item_data
+        .insert_stats_for_test(WOLF_ARMOR, vec![(Stat::PhysicalDefence, 31.0)]);
 }
 
 fn give_pet_armor(world: &mut World) -> i32 {
@@ -3558,7 +3501,7 @@ fn a_pet_can_wear_armour_and_gains_its_defence() {
 
     let before = world
         .objects
-        .get_component::<crate::model::components::CombatStats>(&pet_oid)
+        .get_component::<CombatStats>(&pet_oid)
         .unwrap()
         .p_def;
     crate::game_loop::servitor::equip_pet_item(&mut world, OWNER, pet_oid, armor);
@@ -3575,7 +3518,7 @@ fn a_pet_can_wear_armour_and_gains_its_defence() {
     );
     let after = world
         .objects
-        .get_component::<crate::model::components::CombatStats>(&pet_oid)
+        .get_component::<CombatStats>(&pet_oid)
         .unwrap()
         .p_def;
     assert!(
@@ -3596,7 +3539,7 @@ fn clicking_worn_pet_armour_takes_it_off() {
 
     let naked = world
         .objects
-        .get_component::<crate::model::components::CombatStats>(&pet_oid)
+        .get_component::<CombatStats>(&pet_oid)
         .unwrap()
         .p_def;
     crate::game_loop::servitor::equip_pet_item(&mut world, OWNER, pet_oid, armor);
@@ -3615,7 +3558,7 @@ fn clicking_worn_pet_armour_takes_it_off() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::CombatStats>(&pet_oid)
+            .get_component::<CombatStats>(&pet_oid)
             .unwrap()
             .p_def,
         naked,
@@ -3655,7 +3598,7 @@ fn pet_equipment_round_trips_through_its_own_location() {
     assert_eq!(carried.loc, "PET", "carried items stay in the bag");
 
     // Back again.
-    let restored = crate::model::inventory::PetInventory::from_rows(&rows);
+    let restored = PetInventory::from_rows(&rows);
     assert!(
         restored.0.paperdoll_slot_of(worn.object_id).is_some(),
         "the pet's armour comes back on, not loose in its bag"
@@ -3753,7 +3696,7 @@ fn a_missing_collar_restores_nothing() {
     // The collar is gone by the time they log back in.
     world
         .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component_mut::<Inventory>(&OWNER)
         .unwrap()
         .remove_by_object_id(collar, 1);
 
@@ -3762,7 +3705,7 @@ fn a_missing_collar_restores_nothing() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::Player>(&OWNER)
+            .get_component::<Player>(&OWNER)
             .unwrap()
             .pending_pet_collar
             .is_none(),
@@ -3795,24 +3738,21 @@ fn a_servitor_that_was_out_at_logout_comes_back() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let summon_skill = 1111;
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: summon_skill,
-            level: 1,
-            effects: vec![SkillEffect::Summon {
-                npc_id: PANTHER,
-                life_time: 1200,
-                consume_item_id: 0,
-                consume_item_count: 0,
-            }],
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: summon_skill,
+        level: 1,
+        effects: vec![SkillEffect::Summon {
+            npc_id: PANTHER,
+            life_time: 1200,
+            consume_item_id: 0,
+            consume_item_count: 0,
+        }],
+        ..Default::default()
+    });
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&OWNER)
+        .get_component_mut::<SkillBook>(&OWNER)
         .unwrap()
         .0
         .insert(summon_skill, 1);
@@ -3865,7 +3805,7 @@ fn a_servitor_dismissed_before_logout_stays_away() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::PlayerSummons>(&OWNER)
+            .get_component::<model::components::PlayerSummons>(&OWNER)
             .unwrap()
             .0
             .is_empty(),
@@ -3890,7 +3830,7 @@ fn an_unlearned_summon_skill_restores_nothing_and_is_not_retried() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::PlayerSummons>(&OWNER)
+            .get_component::<model::components::PlayerSummons>(&OWNER)
             .unwrap()
             .0
             .is_empty(),
@@ -3906,38 +3846,35 @@ fn a_servitors_buffs_survive_a_relog() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let summon_skill = 1111;
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: summon_skill,
-            level: 1,
-            effects: vec![SkillEffect::Summon {
-                npc_id: PANTHER,
-                life_time: 1200,
-                consume_item_id: 0,
-                consume_item_count: 0,
-            }],
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: summon_skill,
+        level: 1,
+        effects: vec![SkillEffect::Summon {
+            npc_id: PANTHER,
+            life_time: 1200,
+            consume_item_id: 0,
+            consume_item_count: 0,
+        }],
+        ..Default::default()
+    });
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&OWNER)
+        .get_component_mut::<SkillBook>(&OWNER)
         .unwrap()
         .0
         .insert(summon_skill, 1);
 
     // Servitor Wind Walk's shape, cast on the servitor.
-    let buff = crate::model::skill::Skill {
+    let buff = Skill {
         self_continuous: false,
         id: 1144,
         level: 1,
         abnormal_time: 1200,
         effects: vec![SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
-                stat: crate::model::stats::Stat::RunSpeed,
-                mode: crate::model::stats::StatModifierType::Diff,
+            model::skill::StatModifierEffect {
+                stat: Stat::RunSpeed,
+                mode: model::stats::StatModifierType::Diff,
                 amount: 50.0,
                 ..Default::default()
             },
@@ -3947,9 +3884,7 @@ fn a_servitors_buffs_survive_a_relog() {
     world.data.skill_data.insert_for_test(buff.clone());
 
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, summon_skill, 1200, 0, 0).unwrap();
-    crate::game_loop::skills::effects::apply_continuous_effects(
-        &mut world, OWNER, servitor, &buff, None,
-    );
+    effects::apply_continuous_effects(&mut world, OWNER, servitor, &buff, None);
     let buffed_speed = world
         .objects
         .get_component::<Speeds>(&servitor)
@@ -3959,7 +3894,7 @@ fn a_servitors_buffs_survive_a_relog() {
     on_owner_leave_world(&mut world, OWNER);
     let saved = world
         .objects
-        .get_component::<crate::model::components::PlayerSummons>(&OWNER)
+        .get_component::<model::components::PlayerSummons>(&OWNER)
         .unwrap()
         .0[0]
         .clone();
@@ -3989,31 +3924,29 @@ fn an_expired_servitor_buff_is_not_saved() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1111, 1200, 0, 0).unwrap();
-    let buff = crate::model::skill::Skill {
+    let buff = Skill {
         self_continuous: false,
         id: 1144,
         level: 1,
         abnormal_time: 10,
         effects: vec![SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
-                stat: crate::model::stats::Stat::RunSpeed,
-                mode: crate::model::stats::StatModifierType::Diff,
+            model::skill::StatModifierEffect {
+                stat: Stat::RunSpeed,
+                mode: model::stats::StatModifierType::Diff,
                 amount: 50.0,
                 ..Default::default()
             },
         )],
         ..Default::default()
     };
-    crate::game_loop::skills::effects::apply_continuous_effects(
-        &mut world, OWNER, servitor, &buff, None,
-    );
+    effects::apply_continuous_effects(&mut world, OWNER, servitor, &buff, None);
 
     world.tick += 20 * 10; // past its 10 s
     crate::game_loop::servitor::sync_summon_row(&mut world, OWNER);
 
     let saved = world
         .objects
-        .get_component::<crate::model::components::PlayerSummons>(&OWNER)
+        .get_component::<model::components::PlayerSummons>(&OWNER)
         .unwrap()
         .0[0]
         .clone();
@@ -4047,17 +3980,14 @@ fn a_servitor_casts_the_skill_its_action_button_names() {
         t.skill_list.push((SKILL, 1));
         world.data.npc_data.insert_for_test(t);
     }
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: SKILL,
-            level: 1,
-            target_type: crate::model::skill::TargetType::Self_,
-            effects: vec![crate::model::skill::SkillEffect::Heal { power: 100.0 }],
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: SKILL,
+        level: 1,
+        target_type: TargetType::Self_,
+        effects: vec![SkillEffect::Heal { power: 100.0 }],
+        ..Default::default()
+    });
 
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
     world
@@ -4101,20 +4031,17 @@ fn an_owner_pet_skill_targets_the_owner_not_their_selection() {
         tpl.skill_list.push((SKILL, 1));
         world.data.npc_data.insert_for_test(tpl);
     }
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: SKILL,
-            level: 1,
-            name: "Master Recharge".into(),
-            target_type: crate::model::skill::TargetType::OwnerPet,
-            cast_range: 400,
-            effect_range: 900,
-            effects: vec![crate::model::skill::SkillEffect::ManaHeal { power: 50.0 }],
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: SKILL,
+        level: 1,
+        name: "Master Recharge".into(),
+        target_type: TargetType::OwnerPet,
+        cast_range: 400,
+        effect_range: 900,
+        effects: vec![SkillEffect::ManaHeal { power: 50.0 }],
+        ..Default::default()
+    });
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
 
     // The owner is short on MP and — the part that used to break it — has
@@ -4131,7 +4058,7 @@ fn an_owner_pet_skill_targets_the_owner_not_their_selection() {
         .cur_mp;
     world
         .objects
-        .add_components(&OWNER, crate::model::components::TargetRef(Some(servitor)));
+        .add_components(&OWNER, TargetRef(Some(servitor)));
 
     crate::game_loop::servitor::use_servitor_skill(&mut world, OWNER, SKILL);
     for _ in 0..40 {
@@ -4158,17 +4085,14 @@ fn a_servitor_refuses_a_skill_it_does_not_have() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     const SKILL: i32 = 4079;
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: SKILL,
-            level: 1,
-            target_type: crate::model::skill::TargetType::Self_,
-            effects: vec![crate::model::skill::SkillEffect::Heal { power: 100.0 }],
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: SKILL,
+        level: 1,
+        target_type: TargetType::Self_,
+        effects: vec![SkillEffect::Heal { power: 100.0 }],
+        ..Default::default()
+    });
     // The Panther template is left without the skill.
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
     world
@@ -4228,11 +4152,11 @@ fn register_beast_spiritshot(world: &mut World) {
     world.data.item_data.insert_for_test(t);
     let World { data, objects, .. } = world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component_mut::<Inventory>(&OWNER)
         .unwrap()
         .add_item(&data.item_data, 7_700_001, BEAST_SPIRITSHOT, 10);
     objects
-        .get_component_mut::<crate::model::Player>(&OWNER)
+        .get_component_mut::<Player>(&OWNER)
         .unwrap()
         .auto_shots
         .push(BEAST_SPIRITSHOT);
@@ -4241,7 +4165,7 @@ fn register_beast_spiritshot(world: &mut World) {
 fn owner_spiritshots(world: &World) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component::<Inventory>(&OWNER)
         .map(|inv| inv.count_of(BEAST_SPIRITSHOT))
         .unwrap_or(0)
 }
@@ -4262,7 +4186,7 @@ fn a_pet_charges_spiritshots_from_its_owner() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::ChargedShots>(&pet_oid)
+            .get_component::<model::components::ChargedShots>(&pet_oid)
             .unwrap()
             .spiritshot
     );
@@ -4282,25 +4206,25 @@ fn a_spiritshot_doubles_a_summons_magic_damage() {
             v.max_hp = 100_000;
             v.cur_hp = 100_000.0;
         }
-        let skill = crate::model::skill::Skill {
+        let skill = Skill {
             self_continuous: false,
             id: 4079,
             level: 1,
             magic_type: 1,
-            effects: vec![crate::model::skill::SkillEffect::MagicalAttack { power: 50.0 }],
+            effects: vec![SkillEffect::MagicalAttack { power: 50.0 }],
             ..Default::default()
         };
         if charged {
             world.objects.add_components(
                 &pet_oid,
-                crate::model::components::ChargedShots {
+                model::components::ChargedShots {
                     soulshot: false,
                     spiritshot: true,
                 },
             );
         }
         let before = world.objects.get_component::<Vitals>(&FOE).unwrap().cur_hp;
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, pet_oid, FOE, &skill);
+        effects::apply_skill_effects(&mut world, pet_oid, FOE, &skill);
         before - world.objects.get_component::<Vitals>(&FOE).unwrap().cur_hp
     };
 
@@ -4342,20 +4266,20 @@ fn a_physical_skill_does_not_spend_a_spiritshot() {
     crate::game_loop::servitor::recharge_spiritshots(&mut world, pet_oid);
     add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
 
-    let physical = crate::model::skill::Skill {
+    let physical = Skill {
         self_continuous: false,
         id: 4080,
         level: 1,
         magic_type: 0,
-        effects: vec![crate::model::skill::SkillEffect::MagicalAttack { power: 10.0 }],
+        effects: vec![SkillEffect::MagicalAttack { power: 10.0 }],
         ..Default::default()
     };
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, pet_oid, FOE, &physical);
+    effects::apply_skill_effects(&mut world, pet_oid, FOE, &physical);
 
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::ChargedShots>(&pet_oid)
+            .get_component::<model::components::ChargedShots>(&pet_oid)
             .unwrap()
             .spiritshot,
         "the magic shot is still charged"
@@ -4375,7 +4299,7 @@ fn a_partial_spiritshot_stack_retires_the_toggle() {
     // Down to one, and a level-1 cast costs two.
     world
         .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component_mut::<Inventory>(&OWNER)
         .unwrap()
         .remove_item(BEAST_SPIRITSHOT, 9);
     drain(&mut rx);
@@ -4392,11 +4316,7 @@ fn a_partial_spiritshot_stack_retires_the_toggle() {
     let packets = drain(&mut rx);
     assert_eq!(
         auto_shot_echoes(&packets),
-        vec![(
-            BEAST_SPIRITSHOT,
-            0,
-            crate::model::ShotType::Spiritshots as i32
-        )],
+        vec![(BEAST_SPIRITSHOT, 0, model::ShotType::Spiritshots as i32)],
         "echoed as a spiritshot toggle, not a soulshot one"
     );
     assert!(has_sm(
@@ -4415,7 +4335,7 @@ fn an_exhausted_spiritshot_stack_retires_the_toggle() {
     register_beast_spiritshot(&mut world);
     world
         .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component_mut::<Inventory>(&OWNER)
         .unwrap()
         .remove_item(BEAST_SPIRITSHOT, 10);
     drain(&mut rx);
@@ -4439,7 +4359,7 @@ fn retiring_one_shot_kind_leaves_the_other_armed() {
     // Soulshots armed but the bag is empty.
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&OWNER)
+        .get_component_mut::<Player>(&OWNER)
         .unwrap()
         .auto_shots
         .push(BEAST_SOULSHOT);
@@ -4458,7 +4378,7 @@ fn retiring_one_shot_kind_leaves_the_other_armed() {
     );
     assert_eq!(
         auto_shot_echoes(&drain(&mut rx)),
-        vec![(BEAST_SOULSHOT, 0, crate::model::ShotType::Soulshots as i32)],
+        vec![(BEAST_SOULSHOT, 0, model::ShotType::Soulshots as i32)],
         "only the dry kind is echoed off"
     );
 }
@@ -4527,14 +4447,14 @@ fn a_servitor_can_be_feared() {
     world.data.skill_data.insert_for_test(fear.clone());
 
     // The servitor is shoved (fear ran → a Movement order was set).
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, OWNER, servitor, &fear);
+    effects::apply_skill_effects(&mut world, OWNER, servitor, &fear);
     assert!(
         world.objects.get_component::<Movement>(&servitor).is_some(),
         "the servitor is feared and shoved"
     );
 
     // The plain non-attackable NPC is not feared.
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, OWNER, 8888, &fear);
+    effects::apply_skill_effects(&mut world, OWNER, 8888, &fear);
     assert!(
         world.objects.get_component::<Movement>(&8888).is_none(),
         "a non-summon non-attackable NPC is not feared"
@@ -4609,7 +4529,7 @@ fn a_qualifying_pet_evolves_and_keeps_its_experience() {
     if let Some(pets) = world.objects.get_component_mut::<PlayerPets>(&OWNER) {
         pets.0.insert(
             collar,
-            crate::db::PetRow {
+            db::PetRow {
                 collar_object_id: collar,
                 name: "Rex".into(),
                 level: EVOLVE_MIN_LEVEL,
@@ -4631,10 +4551,7 @@ fn a_qualifying_pet_evolves_and_keeps_its_experience() {
         &bypass_body(&format!("npc_{}_evolve 1", NPC_OID + 30)),
     );
 
-    let inv = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&OWNER)
-        .unwrap();
+    let inv = world.objects.get_component::<Inventory>(&OWNER).unwrap();
     assert_eq!(inv.count_of(WOLF_COLLAR), 0, "the old collar is destroyed");
     let new_collar = inv
         .items()
@@ -4655,7 +4572,7 @@ fn a_qualifying_pet_evolves_and_keeps_its_experience() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&new_pet)
+            .get_component::<model::npc::Npc>(&new_pet)
             .unwrap()
             .npc_id,
         GREAT_WOLF_NPC
@@ -4729,7 +4646,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
 
     let held = |w: &World| {
         w.objects
-            .get_component::<crate::model::inventory::Inventory>(&OWNER)
+            .get_component::<Inventory>(&OWNER)
             .unwrap()
             .count_of(GREAT_WOLF_COLLAR)
     };
@@ -4799,7 +4716,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&OWNER)
+            .get_component::<Inventory>(&OWNER)
             .unwrap()
             .count_of(10311),
         0,
@@ -4807,10 +4724,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
     );
 
     // Dead pet — Java calls this an exploit attempt.
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::Vitals>(&pet)
-    {
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&pet) {
         v.dead = true;
     }
     drain(&mut rx);
@@ -4839,14 +4753,14 @@ fn a_pet_ticket_exchanges_for_a_collar() {
     pet_evolve::handle_exchange(&mut world, CID, OWNER, 0, "exchange 1");
     let count_of = |w: &World, id: i32| {
         w.objects
-            .get_component::<crate::model::inventory::Inventory>(&OWNER)
+            .get_component::<Inventory>(&OWNER)
             .unwrap()
             .count_of(id)
     };
     assert_eq!(count_of(&world, 6650), 0);
 
     // Kookaburra ticket 7585 → collar 6650.
-    super::items::add_inventory_item(&mut world, OWNER, 7585, 1).unwrap();
+    items::add_inventory_item(&mut world, OWNER, 7585, 1).unwrap();
     pet_evolve::handle_exchange(&mut world, CID, OWNER, 0, "exchange 1");
     assert_eq!(count_of(&world, 7585), 0, "the ticket is taken");
     assert_eq!(count_of(&world, 6650), 1, "the collar is given");
@@ -4890,12 +4804,12 @@ fn restore_reads_the_level_off_the_collar_enchant() {
         });
     let World { data, objects, .. } = &mut world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component_mut::<Inventory>(&OWNER)
         .unwrap()
         .add_item(&data.item_data, 7_100_055, 10307, 1);
     let snow = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .get_component::<Inventory>(&OWNER)
         .unwrap()
         .items()
         .iter()
@@ -4903,19 +4817,13 @@ fn restore_reads_the_level_off_the_collar_enchant() {
         .unwrap()
         .object_id;
     // The collar remembers a level-56 pet.
-    if let Some(inv) = world
-        .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
-    {
+    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&OWNER) {
         inv.set_item_enchant(snow, 56);
     }
 
     pet_evolve::handle_restore(&mut world, CID, OWNER, 0, "restore 1");
 
-    let inv = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&OWNER)
-        .unwrap();
+    let inv = world.objects.get_component::<Inventory>(&OWNER).unwrap();
     assert_eq!(inv.count_of(10307), 0, "the seasonal collar is consumed");
     assert_eq!(inv.count_of(GREAT_WOLF_COLLAR), 1, "the base one is given");
     let pet = pet_of(&world, OWNER).expect("and the pet is summoned");
@@ -4936,8 +4844,8 @@ const SHARED_BUFF: i32 = 9501;
 const PRIVATE_BUFF: i32 = 9502;
 const SHARED_DEBUFF: i32 = 9503;
 
-fn sharing_skill(id: i32, shared: bool, is_debuff: bool) -> crate::model::skill::Skill {
-    crate::model::skill::Skill {
+fn sharing_skill(id: i32, shared: bool, is_debuff: bool) -> Skill {
+    Skill {
         self_continuous: false,
         id,
         level: 1,
@@ -4950,9 +4858,9 @@ fn sharing_skill(id: i32, shared: bool, is_debuff: bool) -> crate::model::skill:
         is_debuff,
         // A stat pump so the buff is a real continuous entry, not a bare flag.
         effects: vec![SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
-                stat: crate::model::stats::Stat::PhysicalAttack,
-                mode: crate::model::stats::StatModifierType::Per,
+            model::skill::StatModifierEffect {
+                stat: Stat::PhysicalAttack,
+                mode: model::stats::StatModifierType::Per,
                 amount: 8.0,
                 armor_condition: 0,
                 weapon_condition: 0,
@@ -4967,7 +4875,7 @@ fn sharing_skill(id: i32, shared: bool, is_debuff: bool) -> crate::model::skill:
 fn buff_ids(world: &World, oid: i32) -> Vec<i32> {
     world
         .objects
-        .get_component::<crate::model::components::Buffs>(&oid)
+        .get_component::<Buffs>(&oid)
         .map(|b| {
             b.0.iter()
                 .filter(|x| !x.passive)
@@ -4977,11 +4885,7 @@ fn buff_ids(world: &World, oid: i32) -> Vec<i32> {
         .unwrap_or_default()
 }
 
-fn sharing_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn sharing_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = servitor_world();
     for (id, shared, debuff) in [
         (SHARED_BUFF, true, false),
@@ -4998,7 +4902,7 @@ fn sharing_world() -> (
 
 fn land_on(world: &mut World, skill_id: i32, target: i32) {
     let skill = skill_by_id(world, skill_id, 1).unwrap();
-    crate::game_loop::skills::effects::apply_skill_effects(world, target, target, &skill);
+    effects::apply_skill_effects(world, target, target, &skill);
 }
 
 /// The headline: buffing yourself also buffs your servitor. Without this every
@@ -5157,7 +5061,7 @@ fn the_summoned_pets_collar_is_not_offered_for_sale() {
     {
         let World { data, objects, .. } = &mut world;
         objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+            .get_component_mut::<Inventory>(&OWNER)
             .unwrap()
             .add_item(&data.item_data, spare, WOLF_COLLAR, 1);
     }
@@ -5170,10 +5074,7 @@ fn the_summoned_pets_collar_is_not_offered_for_sale() {
     // production filter changed nothing — the test only proved it agreed with
     // itself. Sabotage caught it.
     let sell_entry_count = |world: &World, active: Option<i32>| -> i16 {
-        let inv = world
-            .objects
-            .get_component::<crate::model::inventory::Inventory>(&OWNER)
-            .unwrap();
+        let inv = world.objects.get_component::<Inventory>(&OWNER).unwrap();
         let pkt =
             crate::network::trade::ex_buy_sell_list_sell(inv, &[], &world.data, false, active);
         // u8 opcode + i16 ex-opcode + i32 type + i32 slots, then the i16 count.
@@ -5250,14 +5151,12 @@ fn fullfood_fills_a_pet_and_refuses_a_servitor() {
     world.data.admin = crate::data::AdminData::load_from(DIST);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&OWNER)
+        .get_component_mut::<Player>(&OWNER)
         .unwrap()
         // `AdminCommands.xml` puts `admin_fullfood` at accessLevel **100**
         // ("Master"), not 70 — a level-70 GM is refused.
         .access_level = 100;
-    world
-        .objects
-        .add_components(&OWNER, crate::model::components::TargetRef(Some(pet)));
+    world.objects.add_components(&OWNER, TargetRef(Some(pet)));
     crate::game_loop::admin::use_admin_command(&mut world, CID, "admin_fullfood", false);
 
     let p = world.objects.get_component::<PetOf>(&pet).unwrap();
@@ -5267,7 +5166,7 @@ fn fullfood_fills_a_pet_and_refuses_a_servitor() {
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
     world
         .objects
-        .add_components(&OWNER, crate::model::components::TargetRef(Some(servitor)));
+        .add_components(&OWNER, TargetRef(Some(servitor)));
     crate::game_loop::admin::use_admin_command(&mut world, CID, "admin_fullfood", false);
     assert!(
         !world.objects.has_component::<PetOf>(&servitor),
@@ -5280,7 +5179,7 @@ fn fullfood_fills_a_pet_and_refuses_a_servitor() {
 // ---------------------------------------------------------------------------
 
 fn action_use_body(action_id: i32) -> Vec<u8> {
-    let mut w = commons::network::PacketWriter::new();
+    let mut w = PacketWriter::new();
     w.write_i32(action_id);
     w.write_i32(0);
     w.write_i32(0);
@@ -5309,11 +5208,11 @@ fn betray_turns_a_servitor_against_its_owner_and_it_stops_obeying() {
 
     let caster = OWNER + 1;
     let _c = ingame_player(&mut world, CID + 1, caster, 30, 0, 0);
-    let betray = crate::model::skill::Skill {
+    let betray = Skill {
         self_continuous: false,
         id: 9420,
         level: 1,
-        target_type: crate::model::skill::TargetType::EnemyOnly,
+        target_type: TargetType::EnemyOnly,
         abnormal_time: 1200,
         abnormal_type: "BETRAY".into(),
         effects: vec![SkillEffect::Betray],
@@ -5321,12 +5220,11 @@ fn betray_turns_a_servitor_against_its_owner_and_it_stops_obeying() {
     };
     world.data.skill_data.insert_for_test(betray.clone());
     drain(&mut out);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, caster, servitor, &betray);
+    effects::apply_skill_effects(&mut world, caster, servitor, &betray);
 
     // 1. The flag is up.
     assert_ne!(
-        crate::game_loop::abnormal::flags_of(&world, servitor)
-            & crate::model::skill::effect_flag::BETRAYED,
+        abnormal::flags_of(&world, servitor) & model::skill::effect_flag::BETRAYED,
         0,
         "the BETRAYED flag lands"
     );
@@ -5334,15 +5232,15 @@ fn betray_turns_a_servitor_against_its_owner_and_it_stops_obeying() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::NpcAi>(&servitor)
+            .get_component::<NpcAi>(&servitor)
             .map(|ai| ai.intention),
-        Some(crate::model::npc::NpcIntention::Attack),
+        Some(NpcIntention::Attack),
         "and it has turned on someone"
     );
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&servitor)
+            .get_component::<AggroList>(&servitor)
             .and_then(|a| a.0.get(&OWNER).map(|i| i.hate))
             .unwrap_or(0.0)
             > 0.0,
@@ -5384,27 +5282,25 @@ fn servitor_empowerment_roots_the_servitor_until_it_expires() {
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
 
     let immobile = |world: &World| {
-        crate::game_loop::abnormal::flags_of(world, servitor)
-            & crate::model::skill::effect_flag::IMMOBILIZED
-            != 0
+        abnormal::flags_of(world, servitor) & model::skill::effect_flag::IMMOBILIZED != 0
     };
     assert!(!immobile(&world), "free to move before the buff");
 
-    let empower = crate::model::skill::Skill {
+    let empower = Skill {
         self_continuous: false,
         id: 9422,
         level: 1,
-        target_type: crate::model::skill::TargetType::Summon,
+        target_type: TargetType::Summon,
         abnormal_time: 1200,
         abnormal_type: "EMPOWER".into(),
         effects: vec![SkillEffect::ImmobilePetBuff],
         ..Default::default()
     };
     world.data.skill_data.insert_for_test(empower.clone());
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, OWNER, servitor, &empower);
+    effects::apply_skill_effects(&mut world, OWNER, servitor, &empower);
     assert!(immobile(&world), "the buff roots it");
 
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, servitor, 9422);
+    effects::handle_buff_expire(&mut world, servitor, 9422);
     assert!(
         !immobile(&world),
         "and expiry frees it — otherwise the servitor is stuck for good"
@@ -5452,11 +5348,11 @@ fn a_dead_servitor_can_be_resurrected_but_a_live_one_cannot() {
     );
 
     // Resurrection-blocked (Java `isResurrectionBlocked`): refused again.
-    let mut buffs = crate::model::components::Buffs::default();
-    buffs.0.push(crate::model::skill::ActiveBuff {
+    let mut buffs = Buffs::default();
+    buffs.0.push(model::skill::ActiveBuff {
         skill_id: 1,
-        slot: crate::model::skill::BuffSlot::Uncapped,
-        effect_flags: crate::model::skill::effect_flag::BLOCK_RESURRECTION,
+        slot: model::skill::BuffSlot::Uncapped,
+        effect_flags: model::skill::effect_flag::BLOCK_RESURRECTION,
         ..test_buff()
     });
     world.objects.add_components(&pet, buffs);
@@ -5485,10 +5381,7 @@ fn dismount_stores_the_drained_feed_on_the_collar_row() {
 
     crate::game_loop::user_commands::mount(&mut world, CID, OWNER);
     {
-        let p = world
-            .objects
-            .get_component::<crate::model::Player>(&OWNER)
-            .unwrap();
+        let p = world.objects.get_component::<Player>(&OWNER).unwrap();
         assert!(p.is_mounted(), "the wolf was ridden");
         assert_eq!(
             p.mount_collar_object_id, collar,
@@ -5500,15 +5393,12 @@ fn dismount_stores_the_drained_feed_on_the_collar_row() {
     // The ride drains the gauge…
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&OWNER)
+        .get_component_mut::<Player>(&OWNER)
         .unwrap()
         .mount_feed = 37;
     crate::game_loop::admin::mounts::dismount(&mut world, OWNER);
 
-    let p = world
-        .objects
-        .get_component::<crate::model::Player>(&OWNER)
-        .unwrap();
+    let p = world.objects.get_component::<Player>(&OWNER).unwrap();
     assert!(!p.is_mounted());
     assert_eq!(p.mount_collar_object_id, 0, "the link cleared");
     assert_eq!(
@@ -5526,13 +5416,13 @@ use crate::game_loop::servitor::{handle_pet_action, handle_servitor_action};
 
 /// Hit `summon_oid` for 50, as an auto-attack from `attacker`.
 fn hit(world: &mut World, summon_oid: i32, attacker: i32) {
-    crate::game_loop::combat::npc_receive_damage(world, summon_oid, attacker, 50.0, true);
+    combat::npc_receive_damage(world, summon_oid, attacker, 50.0, true);
 }
 
 fn hate_for(world: &World, summon_oid: i32, foe: i32) -> f64 {
     world
         .objects
-        .get_component::<crate::model::npc::AggroList>(&summon_oid)
+        .get_component::<AggroList>(&summon_oid)
         .and_then(|a| a.0.get(&foe))
         .map(|i| i.hate)
         .unwrap_or(0.0)
@@ -5556,17 +5446,17 @@ fn a_passive_summon_does_not_fight_back() {
     assert_ne!(
         world
             .objects
-            .get_component::<crate::model::npc::NpcAi>(&oid)
+            .get_component::<NpcAi>(&oid)
             .unwrap()
             .intention,
-        crate::model::npc::NpcIntention::Attack,
+        NpcIntention::Attack,
         "and it does not switch to attacking"
     );
     // The damage tally is still kept — it is what decides kill credit.
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&oid)
+            .get_component::<AggroList>(&oid)
             .and_then(|a| a.0.get(&FOE))
             .map(|i| i.damage)
             .unwrap_or(0.0)
@@ -5600,10 +5490,10 @@ fn servitor_mode_defending_makes_it_fight_back() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::NpcAi>(&oid)
+            .get_component::<NpcAi>(&oid)
             .unwrap()
             .intention,
-        crate::model::npc::NpcIntention::Attack
+        NpcIntention::Attack
     );
 
     // Option 1 puts it back to passive.
@@ -5642,9 +5532,7 @@ fn the_pet_window_orders_reach_the_pet() {
     park_collar(&mut world, collar);
     let pet = summon_pet(&mut world, OWNER).expect("summoned");
     add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
-    world
-        .objects
-        .add_components(&OWNER, crate::model::components::TargetRef(Some(FOE)));
+    world.objects.add_components(&OWNER, TargetRef(Some(FOE)));
 
     handle_pet_action(&mut world, CID, OWNER, "PetAttack", 0);
     assert!(
@@ -5692,9 +5580,7 @@ fn a_starving_pet_ignores_its_owner() {
     park_collar(&mut world, collar);
     let pet = summon_pet(&mut world, OWNER).expect("summoned");
     add_test_npc(&mut world, FOE, PANTHER, "Monster", 20, 200, 0, 0);
-    world
-        .objects
-        .add_components(&OWNER, crate::model::components::TargetRef(Some(FOE)));
+    world.objects.add_components(&OWNER, TargetRef(Some(FOE)));
     world.objects.get_component_mut::<PetOf>(&pet).unwrap().fed = 0;
     drain(&mut rx);
 
@@ -5722,7 +5608,7 @@ fn unsummoning_a_pet_refuses_in_combat_and_otherwise_stores_it() {
     // In combat stance → refused, pet still out.
     world
         .objects
-        .get_component_mut::<crate::model::components::AttackState>(&pet)
+        .get_component_mut::<model::components::AttackState>(&pet)
         .unwrap()
         .stance_until_tick = world.tick + 100;
     handle_pet_action(&mut world, CID, OWNER, "UnsummonPet", 0);
@@ -5731,7 +5617,7 @@ fn unsummoning_a_pet_refuses_in_combat_and_otherwise_stores_it() {
     // Out of combat → gone, and the fed value reached the owner's saved row.
     world
         .objects
-        .get_component_mut::<crate::model::components::AttackState>(&pet)
+        .get_component_mut::<model::components::AttackState>(&pet)
         .unwrap()
         .stance_until_tick = 0;
     // Above the wolf's 55 % hunger limit — below it the *hungry* refusal fires
@@ -5743,7 +5629,7 @@ fn unsummoning_a_pet_refuses_in_combat_and_otherwise_stores_it() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PlayerPets>(&OWNER)
+            .get_component::<PlayerPets>(&OWNER)
             .and_then(|p| p.0.get(&collar))
             .map(|r| r.fed),
         Some(200),
@@ -5766,13 +5652,13 @@ fn unsummoning_a_pet_refuses_in_combat_and_otherwise_stores_it() {
 #[test]
 fn using_a_collar_item_summons_the_pet() {
     let (mut world, _db, _l) = servitor_world();
-    world.data.item_data = crate::data::dist::items_owned();
-    world.data.skill_data = crate::data::dist::skills_owned();
+    world.data.item_data = dist::items_owned();
+    world.data.skill_data = dist::skills_owned();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let collar = give_collar(&mut world);
 
     assert!(pet_of(&world, OWNER).is_none(), "no pet before the click");
-    crate::game_loop::items::use_equipable_item(&mut world, CID, OWNER, collar);
+    items::use_equipable_item(&mut world, CID, OWNER, collar);
     // Summon Pet (2046) has `hitTime 5000`, so the effect lands 50 ticks out.
     advance_ticks(&mut world, 60);
 
@@ -5787,16 +5673,16 @@ fn using_a_collar_item_summons_the_pet() {
 #[test]
 fn a_second_collar_click_is_refused_while_a_pet_is_out() {
     let (mut world, _db, _l) = servitor_world();
-    world.data.item_data = crate::data::dist::items_owned();
-    world.data.skill_data = crate::data::dist::skills_owned();
+    world.data.item_data = dist::items_owned();
+    world.data.skill_data = dist::skills_owned();
     let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let collar = give_collar(&mut world);
-    crate::game_loop::items::use_equipable_item(&mut world, CID, OWNER, collar);
+    items::use_equipable_item(&mut world, CID, OWNER, collar);
     advance_ticks(&mut world, 60);
     let first = pet_of(&world, OWNER).expect("summoned");
     drain(&mut rx);
 
-    crate::game_loop::items::use_equipable_item(&mut world, CID, OWNER, collar);
+    items::use_equipable_item(&mut world, CID, OWNER, collar);
     advance_ticks(&mut world, 60);
 
     assert_eq!(
@@ -5816,17 +5702,17 @@ fn a_second_collar_click_is_refused_while_a_pet_is_out() {
 #[test]
 fn a_seated_player_cannot_use_a_collar() {
     let (mut world, _db, _l) = servitor_world();
-    world.data.item_data = crate::data::dist::items_owned();
-    world.data.skill_data = crate::data::dist::skills_owned();
+    world.data.item_data = dist::items_owned();
+    world.data.skill_data = dist::skills_owned();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let collar = give_collar(&mut world);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&OWNER)
+        .get_component_mut::<Player>(&OWNER)
         .unwrap()
         .sitting = true;
 
-    crate::game_loop::items::use_equipable_item(&mut world, CID, OWNER, collar);
+    items::use_equipable_item(&mut world, CID, OWNER, collar);
     advance_ticks(&mut world, 60);
 
     assert!(pet_of(&world, OWNER).is_none(), "refused while seated");
@@ -5859,7 +5745,7 @@ fn a_pet_fetches_a_ground_item_into_its_own_bag() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::SummonPickup>(&pet),
+            .has_component::<model::components::SummonPickup>(&pet),
         "the fetch order is pending"
     );
     assert!(
@@ -5871,10 +5757,7 @@ fn a_pet_fetches_a_ground_item_into_its_own_bag() {
         "and the pet stopped following"
     );
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::components::Movement>(&pet)
-            .is_some(),
+        world.objects.get_component::<Movement>(&pet).is_some(),
         "it is walking to the item"
     );
 
@@ -5889,7 +5772,7 @@ fn a_pet_fetches_a_ground_item_into_its_own_bag() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::SummonPickup>(&pet),
+            .has_component::<model::components::SummonPickup>(&pet),
         "the errand is over"
     );
     assert!(
@@ -5903,7 +5786,7 @@ fn a_pet_fetches_a_ground_item_into_its_own_bag() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::PetInventory>(&OWNER)
+            .get_component::<PetInventory>(&OWNER)
             .unwrap()
             .0
             .count_of(57),
@@ -5913,7 +5796,7 @@ fn a_pet_fetches_a_ground_item_into_its_own_bag() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&item),
+            .has_component::<model::components::GroundItem>(&item),
         "and off the floor"
     );
 }
@@ -5929,11 +5812,7 @@ fn a_starving_pet_will_not_fetch() {
     park_collar(&mut world, collar);
     let pet = summon_pet(&mut world, OWNER).unwrap();
     // `isUncontrollable()` — the hunger gauge at zero.
-    world
-        .objects
-        .get_component_mut::<crate::model::components::PetOf>(&pet)
-        .unwrap()
-        .fed = 0;
+    world.objects.get_component_mut::<PetOf>(&pet).unwrap().fed = 0;
     let item = spawn_ground_item(&mut world, 57, 100, 0, 10, 0, 0, 0, DropSource::Npc);
     drain(&mut rx);
 
@@ -5944,7 +5823,7 @@ fn a_starving_pet_will_not_fetch() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::SummonPickup>(&pet),
+            .has_component::<model::components::SummonPickup>(&pet),
         "no errand was taken"
     );
     assert!(

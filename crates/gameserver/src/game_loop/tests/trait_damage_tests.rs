@@ -47,7 +47,7 @@ fn attack_traits_merge_onto_an_identity_of_one() {
     merge_attack_traits(&mut world, ATTACKER, &[(beast, 0.30)]);
     let traits = world
         .objects
-        .get_component::<crate::model::components::AttackTraits>(&ATTACKER)
+        .get_component::<model::components::AttackTraits>(&ATTACKER)
         .expect("the accumulator exists");
     assert!((traits.values[&beast] - 1.30).abs() < 1e-9, "1.0 + 30/100");
 
@@ -56,7 +56,7 @@ fn attack_traits_merge_onto_an_identity_of_one() {
     assert!(
         (world
             .objects
-            .get_component::<crate::model::components::AttackTraits>(&ATTACKER)
+            .get_component::<model::components::AttackTraits>(&ATTACKER)
             .unwrap()
             .values[&beast]
             - 1.50)
@@ -68,7 +68,7 @@ fn attack_traits_merge_onto_an_identity_of_one() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::AttackTraits>(&ATTACKER)
+            .get_component::<model::components::AttackTraits>(&ATTACKER)
             .unwrap()
             .values
             .contains_key(&beast),
@@ -124,9 +124,7 @@ fn a_weapon_defence_trait_softens_that_weapons_hits() {
     );
     {
         let World { objects, data, .. } = &mut world;
-        let inv = objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&ATTACKER)
-            .unwrap();
+        let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5300_0001, 13, 1); // Short Bow
         inv.equip_item(&data.item_data, oid);
     }
@@ -145,9 +143,7 @@ fn a_negative_weapon_trait_is_a_vulnerability_and_the_floor_is_0_22() {
     world.data.item_data = dist::items_owned();
     {
         let World { objects, data, .. } = &mut world;
-        let inv = objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&ATTACKER)
-            .unwrap();
+        let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5300_0002, 13, 1);
         inv.equip_item(&data.item_data, oid);
     }
@@ -259,9 +255,7 @@ fn the_auto_attack_trait_bonus_multiplies_weapon_and_weakness() {
     world.data.item_data = dist::items_owned();
     {
         let World { objects, data, .. } = &mut world;
-        let inv = objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&ATTACKER)
-            .unwrap();
+        let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5300_0003, 13, 1);
         inv.equip_item(&data.item_data, oid);
     }
@@ -291,14 +285,14 @@ fn an_auto_attack_is_softened_by_the_targets_weapon_defence() {
     let mut world = two_players();
     world.data.item_data = dist::items_owned();
     let npc_oid = 0x4000_0333;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -312,9 +306,7 @@ fn an_auto_attack_is_softened_by_the_targets_weapon_defence() {
     );
     {
         let World { objects, data, .. } = &mut world;
-        let inv = objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&ATTACKER)
-            .unwrap();
+        let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5300_0004, 13, 1);
         inv.equip_item(&data.item_data, oid);
     }
@@ -359,15 +351,14 @@ fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
         let mut a_rx = ingame_caster(&mut world, 1, ATTACKER, 0, 0);
         world.data.item_data = dist::items_owned();
         let npc_oid = 0x4000_0444;
-        let (npc, extra) =
-            crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+        let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
         world
             .npc_regions
             .entry(extra.1.0)
             .or_default()
             .push(npc_oid);
         world.objects.spawn(npc_oid, (npc, extra));
-        let cs = crate::model::npc::npc_combat_stats(
+        let cs = model::npc::npc_combat_stats(
             world.data.npc_data.get(40001).unwrap(),
             &world.data.stat_bonus,
         );
@@ -375,9 +366,7 @@ fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
         drain(&mut a_rx);
         {
             let World { objects, data, .. } = &mut world;
-            let inv = objects
-                .get_component_mut::<crate::model::inventory::Inventory>(&ATTACKER)
-                .unwrap();
+            let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
             let oid = inv.add_item(&data.item_data, 0x5300_0005, 1, 1); // Short Sword
             inv.equip_item(&data.item_data, oid);
         }
@@ -405,11 +394,11 @@ fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
         // Order: miss(1000), shield rate(100), shield perfect(100), crit(100).
         world
             .objects
-            .get_component_mut::<crate::model::components::CombatStats>(&ATTACKER)
+            .get_component_mut::<CombatStats>(&ATTACKER)
             .unwrap()
             .random_dmg = 0;
         world.force_rolls([0, 99, 99, 99]);
-        crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, npc_oid);
+        combat::do_auto_attack(&mut world, ATTACKER, npc_oid);
         advance_ticks(&mut world, 40);
         max - world
             .objects
@@ -439,15 +428,14 @@ fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
         let mut a_rx = ingame_caster(&mut world, 1, ATTACKER, 0, 0);
         world.data.item_data = dist::items_owned();
         let npc_oid = 0x4000_0555;
-        let (npc, extra) =
-            crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+        let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
         world
             .npc_regions
             .entry(extra.1.0)
             .or_default()
             .push(npc_oid);
         world.objects.spawn(npc_oid, (npc, extra));
-        let cs = crate::model::npc::npc_combat_stats(
+        let cs = model::npc::npc_combat_stats(
             world.data.npc_data.get(40001).unwrap(),
             &world.data.stat_bonus,
         );
@@ -455,14 +443,12 @@ fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
         drain(&mut a_rx);
         world
             .objects
-            .get_component_mut::<crate::model::components::CombatStats>(&ATTACKER)
+            .get_component_mut::<CombatStats>(&ATTACKER)
             .unwrap()
             .random_dmg = 0;
         {
             let World { objects, data, .. } = &mut world;
-            let inv = objects
-                .get_component_mut::<crate::model::inventory::Inventory>(&ATTACKER)
-                .unwrap();
+            let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
             let oid = inv.add_item(&data.item_data, 0x5300_0006, 13, 1);
             inv.equip_item(&data.item_data, oid);
         }
@@ -497,9 +483,7 @@ fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
             .unwrap()
             .cur_hp = max;
         world.force_rolls([0, 50]);
-        crate::game_loop::skills::effects::apply_skill_effects(
-            &mut world, ATTACKER, npc_oid, &skill,
-        );
+        effects::apply_skill_effects(&mut world, ATTACKER, npc_oid, &skill);
         max - world
             .objects
             .get_component::<Vitals>(&npc_oid)

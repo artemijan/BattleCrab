@@ -15,7 +15,7 @@ fn vitality_world() -> (
     World,
     db::CmdTx,
     db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+    UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (mut world, tx, rx, link) = test_world();
     // `for_test` ships an empty experience table, which caps exp at -1; give
@@ -343,7 +343,7 @@ fn killing_a_monster_drains_vitality() {
     add_hate(&mut world, NPC_OID, OID, 100.0, 100.0);
     world
         .objects
-        .get_component_mut::<crate::model::components::Vitals>(&NPC_OID)
+        .get_component_mut::<Vitals>(&NPC_OID)
         .unwrap()
         .cur_hp = 1.0;
     crate::game_loop::death::npc_do_die(&mut world, NPC_OID, OID);

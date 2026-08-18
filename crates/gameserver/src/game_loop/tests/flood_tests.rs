@@ -178,8 +178,8 @@ fn the_ban_punishment_records_an_account_ban() {
     assert!(
         world.punishments.has_punishment(
             "bob",
-            crate::model::punishment::PunishmentAffect::Account,
-            crate::model::punishment::PunishmentType::Ban,
+            model::punishment::PunishmentAffect::Account,
+            model::punishment::PunishmentType::Ban,
         ),
         "the flooding account is banned"
     );

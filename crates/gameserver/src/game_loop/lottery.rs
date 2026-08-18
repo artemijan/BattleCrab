@@ -270,7 +270,7 @@ pub(crate) fn finish_complete(world: &mut World, round: i32, db_rows: Vec<(i32, 
     world.lottery.number = round + 1;
     world.lottery.prize = newprize;
     // Java schedules a fresh `startLottery` one minute after the draw.
-    schedule_in(world, MILLIS_PER_MINUTE, ScheduledTask::LotteryStart);
+    crate::game_loop::time::schedule_in_ms(world, MILLIS_PER_MINUTE, ScheduledTask::LotteryStart);
 }
 
 /// Java `Lottery.checkTicket(id, enchant, type2)`: the `(tier, prize)` a ticket
@@ -342,11 +342,7 @@ fn match_count(t_enchant: i32, t_type2: i32, d_enchant: i32, d_type2: i32) -> i3
 
 fn schedule_at(world: &mut World, at_millis: i64, task: ScheduledTask) {
     let now = commons::util::now_millis();
-    schedule_in(world, at_millis - now, task);
-}
-
-fn schedule_in(world: &mut World, delay_millis: i64, task: ScheduledTask) {
-    crate::game_loop::time::schedule_in_ms(world, delay_millis, task);
+    crate::game_loop::time::schedule_in_ms(world, at_millis - now, task);
 }
 
 // ---------------------------------------------------------------------------

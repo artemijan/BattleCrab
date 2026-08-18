@@ -781,7 +781,7 @@ mod tests {
     /// the real dist files" convention as the item/skill loaders.
     #[test]
     fn loads_real_dist_geodata() {
-        let path = std::path::Path::new(concat!(
+        let path = Path::new(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/../../dist/game/data/geodata"
         ));

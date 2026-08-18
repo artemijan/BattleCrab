@@ -273,7 +273,7 @@ fn the_attachable_item_list_needs_a_peace_zone() {
         ex_packet(cp::ex_opcodes::REQUEST_POST_ITEM_LIST, &[]),
     );
     assert_eq!(
-        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
+        ids_after_opcode(&drain(&mut rx), opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::YOU_CANNOT_RECEIVE_OR_SEND_MAIL_WITH_ATTACHED_ITEMS_IN_NON_PEACE_ZONE_REGIONS]
     );
 }
@@ -285,11 +285,11 @@ fn the_attachable_item_list_returns_unequipped_non_quest_items_in_a_peace_zone()
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::ZoneFlags>(&3001)
+        .get_component_mut::<model::components::ZoneFlags>(&3001)
         .unwrap()
         .mask = crate::data::zone_data::ZoneKind::Peace.bit();
     world.id_pool = 0x5000_0000..0x5000_0100;
-    crate::game_loop::items::add_inventory_item(&mut world, 3001, 57, 5000);
+    items::add_inventory_item(&mut world, 3001, 57, 5000);
     drain(&mut rx);
 
     on_packet(
@@ -359,8 +359,8 @@ fn the_boot_load_installs_messages_attachments_and_the_name_table() {
 /// an id pool, i.e. able to actually mail each other.
 fn mail_world() -> (
     World,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<bytes::Bytes>,
     db::CmdRx,
 ) {
     let (mut world, _tx, db_rx, _link) = test_world();
@@ -371,7 +371,7 @@ fn mail_world() -> (
     for oid in [3001, 3002] {
         world
             .objects
-            .get_component_mut::<crate::model::components::ZoneFlags>(&oid)
+            .get_component_mut::<model::components::ZoneFlags>(&oid)
             .unwrap()
             .mask = crate::data::zone_data::ZoneKind::Peace.bit();
         crate::game_loop::mail::on_character_created(&mut world, &format!("P{oid}"), oid);
@@ -409,7 +409,7 @@ fn adena_of(world: &World, oid: i32) -> i64 {
 }
 
 fn give_adena(world: &mut World, oid: i32, count: i64) {
-    crate::game_loop::items::add_inventory_item(world, oid, 57, count);
+    items::add_inventory_item(world, oid, 57, count);
 }
 
 #[test]
@@ -437,7 +437,7 @@ fn sending_a_mail_charges_the_flat_fee_and_reaches_the_recipient() {
 
     let a_pkts = drain(&mut a_rx);
     assert!(
-        ids_after_opcode(&a_pkts, server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&a_pkts, opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::MAIL_SUCCESSFULLY_SENT)
     );
     assert!(ex_body_of(&a_pkts, opcodes::EX_REPLY_WRITE_POST).is_some());
@@ -457,7 +457,7 @@ fn sending_a_mail_charges_the_flat_fee_and_reaches_the_recipient() {
 fn each_attachment_slot_adds_a_thousand_adena_to_the_fee() {
     let (mut world, mut a_rx, _b, _db) = mail_world();
     give_adena(&mut world, 3001, 10_000);
-    crate::game_loop::items::add_inventory_item(&mut world, 3001, 1060, 3); // healing potions
+    items::add_inventory_item(&mut world, 3001, 1060, 3); // healing potions
     let potion_oid = item_oid(&world, 3001, 1060);
     drain(&mut a_rx);
 
@@ -506,7 +506,7 @@ fn a_sender_who_cannot_cover_the_fee_is_refused() {
     assert!(world.mail.inbox(3002).is_empty());
     assert_eq!(adena_of(&world, 3001), 50, "nothing is charged on refusal");
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA)
     );
 }
@@ -529,7 +529,7 @@ fn attached_adena_cannot_also_pay_the_fee() {
     );
     assert!(world.mail.inbox(3002).is_empty());
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA)
     );
 }
@@ -549,7 +549,7 @@ fn mail_to_an_unknown_name_or_to_yourself_is_refused() {
         ),
     );
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::WHEN_THE_RECIPIENT_DOESN_T_EXIST_SENDING_MAIL_IS_NOT_POSSIBLE)
     );
 
@@ -562,7 +562,7 @@ fn mail_to_an_unknown_name_or_to_yourself_is_refused() {
         ),
     );
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_SEND_A_MAIL_TO_YOURSELF)
     );
     assert_eq!(adena_of(&world, 3001), 10_000);
@@ -606,7 +606,7 @@ fn a_cod_mail_needs_a_price_and_an_item() {
         ),
     );
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE).contains(
             &sm_ids::WHEN_NOT_ENTERING_THE_AMOUNT_FOR_THE_PAYMENT_REQUEST_YOU_CANNOT_SEND_ANY_MAIL
         )
     );
@@ -620,7 +620,7 @@ fn a_cod_mail_needs_a_price_and_an_item() {
         ),
     );
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::IT_S_A_PAYMENT_REQUEST_TRANSACTION_PLEASE_ATTACH_THE_ITEM)
     );
     assert!(world.mail.inbox(3002).is_empty());
@@ -879,12 +879,12 @@ fn receiving_an_attachment_moves_the_item_and_clears_the_flag() {
     assert!(!world.mail.attachments.contains_key(&77));
 
     let b_pkts = drain(&mut b_rx);
-    let sms = ids_after_opcode(&b_pkts, server_packets::opcodes::SYSTEM_MESSAGE);
+    let sms = ids_after_opcode(&b_pkts, opcodes::SYSTEM_MESSAGE);
     assert!(sms.contains(&sm_ids::YOU_HAVE_ACQUIRED_S2_S1));
     assert!(sms.contains(&sm_ids::MAIL_SUCCESSFULLY_RECEIVED));
     // The sender is told their parcel was collected.
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::S1_ACQUIRED_THE_ATTACHED_ITEM_TO_YOUR_MAIL)
     );
 }
@@ -913,7 +913,7 @@ fn a_cod_receiver_pays_and_the_sender_is_credited() {
         "and paid to the sender"
     );
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::S2_HAS_MADE_A_PAYMENT_OF_S1_ADENA_PER_YOUR_PAYMENT_REQUEST_MAIL)
     );
 }
@@ -935,7 +935,7 @@ fn a_cod_receiver_who_cannot_pay_gets_nothing() {
     assert_eq!(adena_of(&world, 3002), 100, "nothing was charged");
     assert!(world.mail.get(77).unwrap().has_attachments);
     assert!(
-        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut b_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_RECEIVE_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA)
     );
 }
@@ -983,11 +983,11 @@ fn the_sender_can_cancel_and_take_the_items_back() {
     assert_eq!(count_of(&world, 3001, 1060), 3, "items returned to sender");
     assert!(world.mail.get(77).is_none(), "the mail is gone entirely");
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::MAIL_SUCCESSFULLY_CANCELLED)
     );
     assert!(
-        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut b_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::S1_CANCELED_THE_SENT_MAIL)
     );
 }
@@ -1010,7 +1010,7 @@ fn cancelling_after_the_receiver_took_the_items_is_refused() {
         ),
     );
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_CANCEL_SENT_MAIL_SINCE_THE_RECIPIENT_RECEIVED_IT)
     );
     assert_eq!(count_of(&world, 3001, 1060), 0);
@@ -1045,11 +1045,11 @@ fn rejecting_returns_the_parcel_to_the_sender_as_a_new_message() {
     assert_eq!(attached.items()[0].count, 2);
 
     assert!(
-        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut b_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::MAIL_SUCCESSFULLY_RETURNED)
     );
     assert!(
-        ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut a_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::S1_RETURNED_THE_MAIL)
     );
 }
@@ -1060,7 +1060,7 @@ fn attachment_actions_need_a_peace_zone() {
     mail_with_item(&mut world, 77, 3001, 3002, 1060, 1, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::ZoneFlags>(&3002)
+        .get_component_mut::<model::components::ZoneFlags>(&3002)
         .unwrap()
         .mask = 0;
     drain(&mut b_rx);
@@ -1072,7 +1072,7 @@ fn attachment_actions_need_a_peace_zone() {
     );
     assert_eq!(count_of(&world, 3002, 1060), 0);
     assert!(
-        ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
+        ids_after_opcode(&drain(&mut b_rx), opcodes::SYSTEM_MESSAGE)
             .contains(&sm_ids::YOU_CANNOT_RECEIVE_IN_A_NON_PEACE_ZONE_LOCATION)
     );
 }
@@ -1100,7 +1100,7 @@ fn an_expired_mail_is_deleted_and_its_parcel_goes_to_the_senders_warehouse() {
     world.mail.get_mut(77).unwrap().expiration = commons::util::now_millis() - 1;
     world
         .objects
-        .add_components(&3001, crate::model::inventory::Warehouse::default());
+        .add_components(&3001, model::inventory::Warehouse::default());
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -1109,12 +1109,12 @@ fn an_expired_mail_is_deleted_and_its_parcel_goes_to_the_senders_warehouse() {
     assert!(world.mail.get(77).is_none(), "the message is dropped");
     let wh = world
         .objects
-        .get_component::<crate::model::inventory::Warehouse>(&3001)
+        .get_component::<model::inventory::Warehouse>(&3001)
         .unwrap();
     assert_eq!(wh.0.count_of(1060), 4, "the parcel went to the warehouse");
     for rx in [&mut a_rx, &mut b_rx] {
         assert!(
-            ids_after_opcode(&drain(rx), server_packets::opcodes::SYSTEM_MESSAGE)
+            ids_after_opcode(&drain(rx), opcodes::SYSTEM_MESSAGE)
                 .contains(&sm_ids::THE_MAIL_WAS_RETURNED_DUE_TO_THE_EXCEEDED_WAITING_TIME)
         );
     }
@@ -1157,8 +1157,8 @@ fn sending_a_mail_arms_its_expiry_timer() {
 // Custom mail manager (`Custom/CustomMailManager.ini`)
 // ---------------------------------------------------------------------------
 
-fn custom_row(receiver: i32, items: &str) -> crate::db::CustomMailRow {
-    crate::db::CustomMailRow {
+fn custom_row(receiver: i32, items: &str) -> db::CustomMailRow {
+    db::CustomMailRow {
         date: "2026-08-01 12:00:00".into(),
         receiver,
         subject: "A gift".into(),

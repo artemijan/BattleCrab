@@ -12,11 +12,7 @@ const DIST: &str = crate::data::DIST_GAME;
 /// A point inside zone 12010 ("Valakas Boss"), taken from the boss's own lair.
 const IN_LAIR: (i32, i32, i32) = (212_852, -114_842, -1_632);
 
-fn valakas_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn valakas_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     // The real zone data — the whole mechanic is "is the attacker inside it".
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
@@ -27,7 +23,7 @@ fn valakas_world() -> (
     world.data.npc_data.insert_for_test(t);
     world.grand_bosses.insert(
         VALAKAS,
-        crate::model::grand_boss::GrandBoss {
+        model::grand_boss::GrandBoss {
             boss_id: VALAKAS,
             loc_x: IN_LAIR.0,
             loc_y: IN_LAIR.1,
@@ -247,7 +243,7 @@ fn only_players_inside_the_lair_see_the_cinematic() {
 
     crate::game_loop::valakas::handle_cinematic_step(&mut world, VALAKAS_OID, 0);
 
-    let count = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| {
+    let count = |rx: &mut UnboundedReceiver<bytes::Bytes>| {
         let mut n = 0;
         while let Ok(p) = rx.try_recv() {
             if p.first() == Some(&0xD6) {
@@ -295,11 +291,7 @@ use crate::game_loop::valakas::{DORMANT, MAX_PEOPLE, VACUALITE};
 use crate::scheduler::ScheduledTask;
 
 /// A world with a DORMANT, spawned Valakas and the item template registered.
-fn entry_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn entry_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = valakas_world();
     world.grand_bosses.get_mut(&VALAKAS).unwrap().status = DORMANT;
     add_test_npc(
@@ -323,7 +315,7 @@ fn entry_world() -> (
 fn give_stone(world: &mut World, oid: i32) {
     let World { data, objects, .. } = world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&oid)
+        .get_component_mut::<Inventory>(&oid)
         .unwrap()
         .add_item(&data.item_data, 8_100_000 + oid, VACUALITE, 1);
 }
@@ -421,7 +413,7 @@ fn the_first_entry_arms_beginning_and_the_second_does_not() {
     for oid in [PLAYER, PLAYER + 1] {
         world
             .objects
-            .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
+            .get_component_mut::<model::components::PlayerVariables>(&oid)
             .unwrap()
             .0
             .insert("VALAKAS_ALLOW_ENTER".into(), "1".into());
@@ -504,7 +496,7 @@ fn the_bypass_reaches_the_entry_through_the_router() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::PlayerVariables>(&PLAYER)
+        .get_component_mut::<model::components::PlayerVariables>(&PLAYER)
         .unwrap()
         .0
         .insert("VALAKAS_ALLOW_ENTER".into(), "1".into());
@@ -517,13 +509,9 @@ fn the_bypass_reaches_the_entry_through_the_router() {
     add_test_npc(&mut world, heart_oid, 31385, "Folk", 70, 20, 0, 0);
     world
         .objects
-        .add_components(&PLAYER, crate::model::components::LastFolkNpc(heart_oid));
+        .add_components(&PLAYER, LastFolkNpc(heart_oid));
 
-    crate::game_loop::bypass::handle_request_bypass_to_server(
-        &mut world,
-        CID,
-        &bypass_body("Quest ValakasTeleporters"),
-    );
+    handle_request_bypass_to_server(&mut world, CID, &bypass_body("Quest ValakasTeleporters"));
 
     assert_eq!(
         world.valakas_entry_count, 1,
@@ -550,7 +538,7 @@ fn spawned_cubes(world: &World) -> usize {
         .filter(|oid| {
             world
                 .objects
-                .get_component::<crate::model::npc::Npc>(oid)
+                .get_component::<model::npc::Npc>(oid)
                 .is_some_and(|n| n.npc_id == CUBE)
         })
         .count()
@@ -742,16 +730,13 @@ fn a_recently_hit_valakas_keeps_fighting() {
 // ---------------------------------------------------------------------------
 
 fn insert_valakas_skill(world: &mut World, id: i32, cast_range: i32) {
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id,
-            level: 1,
-            cast_range,
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id,
+        level: 1,
+        cast_range,
+        ..Default::default()
+    });
 }
 
 fn full_hp(world: &mut World, oid: i32) {
@@ -793,9 +778,7 @@ fn valakas_casts_a_skill_at_a_lair_target() {
     crate::game_loop::valakas::handle_skill_task(&mut world, VALAKAS_OID);
 
     assert!(
-        world
-            .objects
-            .has_component::<crate::model::components::Casting>(&VALAKAS_OID),
+        world.objects.has_component::<Casting>(&VALAKAS_OID),
         "Valakas cast a breath skill at the lair target"
     );
     assert_eq!(
@@ -830,11 +813,7 @@ fn the_skill_task_stops_when_the_fight_is_over() {
     crate::game_loop::valakas::handle_skill_task(&mut world, VALAKAS_OID);
 
     assert_eq!(world.scheduler.len(), before, "the beat did not re-arm");
-    assert!(
-        !world
-            .objects
-            .has_component::<crate::model::components::Casting>(&VALAKAS_OID)
-    );
+    assert!(!world.objects.has_component::<Casting>(&VALAKAS_OID));
 }
 
 /// **A dead victim is dropped for a living one.** Valakas holds `_actualVictim`

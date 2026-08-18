@@ -173,7 +173,7 @@ pub(crate) async fn run(
                     character_friends::Entity::insert(character_friends::ActiveModel {
                         char_id: Set(owner),
                         friend_id: Set(target),
-                        relation: Set(crate::db::queries::BLOCK_RELATION),
+                        relation: Set(BLOCK_RELATION),
                         memo: NotSet,
                     })
                     .on_conflict(
@@ -193,10 +193,7 @@ pub(crate) async fn run(
                     character_friends::Entity::delete_many()
                         .filter(character_friends::Column::CharId.eq(owner))
                         .filter(character_friends::Column::FriendId.eq(target))
-                        .filter(
-                            character_friends::Column::Relation
-                                .eq(crate::db::queries::BLOCK_RELATION),
-                        )
+                        .filter(character_friends::Column::Relation.eq(BLOCK_RELATION))
                         .exec(&db)
                         .await,
                 );
@@ -2222,7 +2219,7 @@ pub(crate) async fn run(
                 use models::sea_orm::sea_query::ExprTrait as _;
                 // Daily adds a quarter of the cap unless the pool is already
                 // full; weekly refills it outright.
-                fn refill<C: models::sea_orm::ColumnTrait>(col: C, weekly: bool) -> Expr {
+                fn refill<C: ColumnTrait>(col: C, weekly: bool) -> Expr {
                     if weekly {
                         Expr::value(MAX)
                     } else {

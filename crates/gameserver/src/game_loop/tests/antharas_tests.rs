@@ -9,11 +9,7 @@ const ANTHARAS_OID: i32 = NPC_OID + 120;
 const BEHEMOTH: i32 = 29069;
 const TERASQUE: i32 = 29190;
 
-fn antharas_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn antharas_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for (id, kind) in [
         (ANTHARAS, "GrandBoss"),
@@ -31,7 +27,7 @@ fn antharas_world() -> (
 
 fn spawned(world: &mut World) -> usize {
     let mut n = 0;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
+    world.objects.for_each_mut::<&model::npc::Npc>(|x| {
         if x.npc_id == BEHEMOTH || x.npc_id == TERASQUE {
             n += 1;
         }
@@ -150,7 +146,7 @@ fn a_full_lair_spawns_nothing_but_keeps_ticking() {
 // The entry cinematic (slice 17)
 // ---------------------------------------------------------------------------
 
-fn drain(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>, opcode: u8) -> usize {
+fn drain(rx: &mut UnboundedReceiver<bytes::Bytes>, opcode: u8) -> usize {
     let mut n = 0;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&opcode) {
@@ -278,15 +274,11 @@ use crate::game_loop::antharas::{EntryVerdict, PORTAL_STONE};
 const LEADER: i32 = 9940;
 const MEMBER: i32 = 9941;
 
-fn gate_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn gate_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = antharas_world();
     world.grand_bosses.insert(
         ANTHARAS,
-        crate::model::grand_boss::GrandBoss {
+        model::grand_boss::GrandBoss {
             boss_id: ANTHARAS,
             loc_x: 0,
             loc_y: 0,
@@ -309,7 +301,7 @@ fn gate_world() -> (
 fn give_stone(world: &mut World, oid: i32) {
     let World { data, objects, .. } = world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&oid)
+        .get_component_mut::<Inventory>(&oid)
         .unwrap()
         .add_item(&data.item_data, 7_900_000 + oid, PORTAL_STONE, 1);
 }
@@ -461,13 +453,7 @@ const ANTH_NORM_ATTACK: i32 = 4112;
 const ATTACKER: i32 = 9950;
 
 /// Antharas at the origin, and a target placed by hand so the arcs are exact.
-fn skill_world(
-    target_at: (i32, i32),
-) -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn skill_world(target_at: (i32, i32)) -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = antharas_world();
     add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
     add_test_npc(
@@ -641,15 +627,12 @@ fn a_hit_makes_antharas_cast() {
         v.max_mp = 10_000;
         v.cur_mp = 10_000.0;
     }
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: ANTH_TAIL,
-            level: 1,
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: ANTH_TAIL,
+        level: 1,
+        ..Default::default()
+    });
     while rx.try_recv().is_ok() {}
 
     // No jitter, then the tail's opening roll.
@@ -681,16 +664,13 @@ fn a_second_hit_mid_cast_starts_nothing() {
         v.max_mp = 10_000;
         v.cur_mp = 10_000.0;
     }
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: ANTH_TAIL,
-            level: 1,
-            hit_time: 5_000,
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: ANTH_TAIL,
+        level: 1,
+        hit_time: 5_000,
+        ..Default::default()
+    });
     for _ in 0..3 {
         world.force_roll(0);
     }
@@ -891,7 +871,7 @@ fn a_dead_antharas_stores_three_and_still_respawns() {
     // The simple bosses keep the two-state pair.
     world.grand_bosses.insert(
         crate::game_loop::core_boss::CORE,
-        crate::model::grand_boss::GrandBoss {
+        model::grand_boss::GrandBoss {
             boss_id: crate::game_loop::core_boss::CORE,
             loc_x: 0,
             loc_y: 0,
@@ -933,13 +913,9 @@ fn the_enter_bypass_reaches_the_ladder_through_the_router() {
     add_test_npc(&mut world, heart_oid, 13001, "Folk", 80, 20, 0, 0);
     world
         .objects
-        .add_components(&LEADER, crate::model::components::LastFolkNpc(heart_oid));
+        .add_components(&LEADER, LastFolkNpc(heart_oid));
 
-    crate::game_loop::bypass::handle_request_bypass_to_server(
-        &mut world,
-        1,
-        &bypass_body("Quest Antharas enter"),
-    );
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas enter"));
 
     let pos = world
         .objects
@@ -975,14 +951,8 @@ fn the_enter_bypass_reaches_the_ladder_through_the_router() {
         pos.y,
         pos.z,
     );
-    world
-        .objects
-        .add_components(&LEADER, crate::model::components::LastFolkNpc(cube_oid));
-    crate::game_loop::bypass::handle_request_bypass_to_server(
-        &mut world,
-        1,
-        &bypass_body("Quest Antharas teleportOut"),
-    );
+    world.objects.add_components(&LEADER, LastFolkNpc(cube_oid));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas teleportOut"));
     let pos = world
         .objects
         .get_component::<Position>(&LEADER)
@@ -1010,7 +980,7 @@ fn cube_in_lair(world: &World) -> Option<i32> {
     world.npc_regions.values().flatten().copied().find(|oid| {
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(oid)
+            .get_component::<model::npc::Npc>(oid)
             .is_some_and(|n| n.npc_id == CUBE)
             && in_zone(world, *oid, zone)
     })
@@ -1101,14 +1071,8 @@ fn the_death_cube_teleports_out_through_the_router() {
     let cube_oid = cube_in_lair(&world).expect("cube spawned on death");
 
     // The killer stands beside the cube; the named bypass reaches teleportOut.
-    world
-        .objects
-        .add_components(&KILLER, crate::model::components::LastFolkNpc(cube_oid));
-    crate::game_loop::bypass::handle_request_bypass_to_server(
-        &mut world,
-        1,
-        &bypass_body("Quest Antharas teleportOut"),
-    );
+    world.objects.add_components(&KILLER, LastFolkNpc(cube_oid));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas teleportOut"));
 
     let pos = world
         .objects
@@ -1183,7 +1147,7 @@ const AP_PLAYER: i32 = 9700;
 fn fighting_antharas(world: &mut World) {
     world.grand_bosses.insert(
         ANTHARAS,
-        crate::model::grand_boss::GrandBoss {
+        model::grand_boss::GrandBoss {
             boss_id: ANTHARAS,
             loc_x: 0,
             loc_y: 0,
@@ -1200,15 +1164,12 @@ fn fighting_antharas(world: &mut World) {
 fn casting_skill(world: &World, oid: i32) -> Option<i32> {
     world
         .objects
-        .get_component::<crate::model::components::Casting>(&oid)
+        .get_component::<Casting>(&oid)
         .map(|c| c.0.skill_id)
 }
 
 fn give_mp(world: &mut World, oid: i32) {
-    let v = world
-        .objects
-        .get_component_mut::<crate::model::components::Vitals>(&oid)
-        .unwrap();
+    let v = world.objects.get_component_mut::<Vitals>(&oid).unwrap();
     v.max_mp = 100_000;
     v.cur_mp = 100_000.0;
 }
@@ -1229,15 +1190,12 @@ fn antharas_heals_for_his_current_hp_band() {
             ..Default::default()
         },
     );
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: 4240,
-            level: 1,
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: 4240,
+        level: 1,
+        ..Default::default()
+    });
     let before = world.scheduler.len();
 
     crate::game_loop::antharas::handle_set_regen(&mut world, ANTHARAS_OID);
@@ -1299,7 +1257,7 @@ fn a_fifteen_minute_idle_resets_antharas() {
     );
     let p = world
         .objects
-        .get_component::<crate::model::components::Position>(&ANTHARAS_OID)
+        .get_component::<Position>(&ANTHARAS_OID)
         .unwrap();
     assert_eq!(
         (p.x, p.y, p.z),
@@ -1352,18 +1310,15 @@ fn a_strider_rider_is_hindered_by_antharas() {
     let _rx = ingame_player(&mut world, 3, AP_PLAYER, 20, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&AP_PLAYER)
+        .get_component_mut::<Player>(&AP_PLAYER)
         .unwrap()
         .mount_type = 1; // STRIDER
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: 4258,
-            level: 1,
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: 4258,
+        level: 1,
+        ..Default::default()
+    });
 
     crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, AP_PLAYER, 100, true);
 

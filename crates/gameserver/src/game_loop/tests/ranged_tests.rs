@@ -54,11 +54,7 @@ fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i32) -> ItemTem
 }
 
 /// A world with a bow (mp_consume 1, no grade) and matching arrows registered.
-fn bow_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn bow_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
 
     let mut bow = template(
@@ -144,7 +140,7 @@ fn arrow_count(world: &World, arrow_id: i32) -> i64 {
 }
 
 fn shoot(world: &mut World, target: i32) {
-    crate::game_loop::combat::do_auto_attack(world, ARCHER, target);
+    combat::do_auto_attack(world, ARCHER, target);
 }
 
 // ---------------------------------------------------------------------------
@@ -230,9 +226,7 @@ fn out_of_arrows_cancels_the_attack() {
         "the player is told they are out of arrows"
     );
     assert!(
-        !world
-            .objects
-            .has_component::<crate::model::components::Intent>(&ARCHER),
+        !world.objects.has_component::<Intent>(&ARCHER),
         "the attack intention is dropped"
     );
 }

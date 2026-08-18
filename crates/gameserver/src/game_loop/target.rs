@@ -172,7 +172,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         send_sm_and_action_failed(
             world,
             client_id,
-            crate::network::server_packets::sm_ids::FAILED_TO_CHANGE_ENMITY,
+            server_packets::sm_ids::FAILED_TO_CHANGE_ENMITY,
             &[],
         );
         return;
@@ -229,7 +229,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             send_sm_and_action_failed(
                 world,
                 client_id,
-                crate::network::server_packets::sm_ids::YOU_DO_NOT_HAVE_THE_AUTHORITY_TO_CANCEL_MERCENARY_POSITIONING,
+                server_packets::sm_ids::YOU_DO_NOT_HAVE_THE_AUTHORITY_TO_CANCEL_MERCENARY_POSITIONING,
                 &[],
             );
         } else if !world
@@ -787,7 +787,7 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
         && value == 0
         && let Some(file) = super::teleporter::castle_landing_page(world, npc_object_id, viewer_oid)
     {
-        super::teleporter::send_landing_page(world, client_id, npc_object_id, &file);
+        super::teleporter::send_teleporter_html(world, client_id, npc_object_id, &file);
         return;
     }
     let html = load_chat_window_html(&world.data.root, &t.type_name, t.id, value)

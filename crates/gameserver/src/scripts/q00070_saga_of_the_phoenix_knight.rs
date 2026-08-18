@@ -1,5 +1,5 @@
 //! Saga of the Phoenix Knight (70) — Paladin (5) → Phoenix Knight (90). A thin
-//! [`SagaData`](super::saga::SagaData) table over the shared
+//! [`SagaData`](SagaData) table over the shared
 //! [`SagaQuest`](super::saga::SagaQuest) engine; authentic Interlude data from
 //! the C6 datapack (the dist ships the off-chronicle Classic version).
 

@@ -198,7 +198,7 @@ fn buying_a_ticket_charges_adena_pools_the_bet_and_mints_it() {
     world.monster_race.state = RaceState::AcceptingBets;
     add_test_npc(&mut world, 600, 30995, "RaceManager", 70, 0, 0, 0);
     ingame_player(&mut world, 1, 100, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, 100, 57, 10_000);
+    items::add_inventory_item(&mut world, 100, 57, 10_000);
 
     // Pick lane 3, price tier 2 (500 adena), then confirm-buy.
     monster_race::race_bypass(&mut world, 1, 100, 600, "BuyTicket 3");
@@ -232,7 +232,7 @@ fn cashing_a_winning_ticket_pays_out_and_consumes_it() {
     add_test_npc(&mut world, 600, 30995, "RaceManager", 70, 0, 0, 0);
     ingame_player(&mut world, 1, 100, 0, 0, 0);
     // A race-1 ticket on lane 3, 500-adena bet (ct2 = 5).
-    let oid = super::items::add_inventory_item(&mut world, 100, 4443, 1).unwrap()[0];
+    let oid = items::add_inventory_item(&mut world, 100, 4443, 1).unwrap()[0];
     world
         .objects
         .get_component_mut::<Inventory>(&100)

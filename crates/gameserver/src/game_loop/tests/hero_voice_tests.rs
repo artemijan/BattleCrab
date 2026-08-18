@@ -18,8 +18,8 @@ fn hero_body(text: &str) -> Vec<u8> {
 fn two_players(
     world: &mut World,
 ) -> (
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<bytes::Bytes>,
 ) {
     let speaker = ingame_player(world, 1, 2001, 0, 0, 0);
     let listener = ingame_player(world, 2, 2002, 900_000, 900_000, 0);
@@ -73,7 +73,7 @@ fn a_non_hero_is_refused_unless_the_cond_is_overridden() {
 
     chat::handle_say2(&mut world, 1, &hero_body("am I a hero?"));
     assert_eq!(
-        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
+        ids_after_opcode(&drain(&mut rx), opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::ONLY_HEROES_CAN_ENTER_THE_HERO_CHANNEL]
     );
     assert!(drain(&mut listener_rx).is_empty(), "nothing broadcast");
@@ -122,7 +122,7 @@ fn the_ten_second_window_refuses_a_second_line() {
         "a flooded line must not reach anyone"
     );
     assert_eq!(
-        ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
+        ids_after_opcode(&drain(&mut rx), opcodes::SYSTEM_MESSAGE),
         vec![sm_ids::S1_TEXT],
         "refused with Java's literal ten-second line"
     );

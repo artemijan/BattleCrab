@@ -1,6 +1,6 @@
 //! Shilen's Stone Statue (32109) and the Teleport Cube (32107) — the player
 //! side of Sailren (`ai/bosses/Sailren`). The Statue admits a Gazkh-bearing
-//! party leader into the wave fight ([`crate::game_loop::sailren`]); the cube
+//! party leader into the wave fight ([`sailren`]); the cube
 //! sends survivors home. The dist htmls point their buttons at `Quest Sailren
 //! <event>`, so this script's **name is load-bearing**.
 

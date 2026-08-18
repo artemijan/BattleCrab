@@ -13,10 +13,6 @@ use crate::model::stats::Stat;
 const PLAYER: i32 = 9001;
 const CID: u32 = 1;
 
-fn dist_skills() -> crate::data::skill_data::SkillData {
-    dist::skills_owned()
-}
-
 // ---------------------------------------------------------------------------
 // BlockMove
 // ---------------------------------------------------------------------------
@@ -29,13 +25,13 @@ fn block_move_disables_movement() {
     let (mut world, _db, _l) = cast_test_world();
     let _c = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     assert!(
-        !crate::game_loop::abnormal::is_movement_disabled(&world, PLAYER),
+        !abnormal::is_movement_disabled(&world, PLAYER),
         "mobile to begin with"
     );
 
     give_flag_buff(&mut world, PLAYER, 110, effect_flag::IMMOBILIZED);
     assert!(
-        crate::game_loop::abnormal::is_movement_disabled(&world, PLAYER),
+        abnormal::is_movement_disabled(&world, PLAYER),
         "BlockMove pins them in place"
     );
 }
@@ -48,11 +44,9 @@ fn an_immobilised_creature_can_still_act() {
     let _c = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     give_flag_buff(&mut world, PLAYER, 110, effect_flag::IMMOBILIZED);
 
-    assert!(crate::game_loop::abnormal::is_movement_disabled(
-        &world, PLAYER
-    ));
+    assert!(abnormal::is_movement_disabled(&world, PLAYER));
     assert!(
-        !crate::game_loop::abnormal::is_blocked_from_actions(&world, PLAYER),
+        !abnormal::is_blocked_from_actions(&world, PLAYER),
         "immobilise is not a stun — attacking and casting stay available"
     );
 }
@@ -65,7 +59,7 @@ fn an_immobilised_creature_can_still_act() {
 /// `vengeance_block_move_loads_from_its_self_effect_scope` below.
 #[test]
 fn real_dist_block_move_skills_parse() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     // Ultimate Defense 110, Snipe 313.
     for id in [110, 313] {
         let skill = skills
@@ -98,7 +92,7 @@ fn real_dist_block_move_skills_parse() {
 /// the caster rather than the target.
 #[test]
 fn vengeance_block_move_loads_from_its_self_effect_scope() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     let vengeance = skills.get(368, 1).expect("Vengeance loads");
     assert!(
         vengeance
@@ -129,7 +123,7 @@ fn vengeance_block_move_loads_from_its_self_effect_scope() {
 /// `mergeAdd`. Expressed through the ordinary `StatModifier` pipeline.
 #[test]
 fn reflect_skill_folds_into_an_additive_stat() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     // Physical Mirror 350 → the physical stat; Magical Mirror 351 → the magic one.
     let mods_of = |id: i32| {
         skills
@@ -169,7 +163,7 @@ fn reflect_skill_folds_into_an_additive_stat() {
 /// emphasis rather than by kind.
 #[test]
 fn the_mirrors_carry_only_reflect_effects() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     for (id, physical, magic) in [(350, 30.0, 10.0), (351, 10.0, 30.0)] {
         let skill = skills.get(id, 1).unwrap();
         assert!(
@@ -203,7 +197,7 @@ fn the_mirrors_carry_only_reflect_effects() {
 /// which must survive.
 #[test]
 fn riposte_stance_keeps_its_other_effects() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     let riposte = skills.get(340, 1).expect("Riposte Stance loads");
     assert!(
         riposte

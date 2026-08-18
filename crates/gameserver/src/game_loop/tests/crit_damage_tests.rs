@@ -17,10 +17,6 @@ use crate::model::stats::{Stat, StatQualifier};
 
 const DIST: &str = crate::data::DIST_GAME;
 
-fn dist_skills() -> crate::data::skill_data::SkillData {
-    dist::skills_owned()
-}
-
 /// The `(stat, amount)` pairs a skill contributes with no qualifier.
 fn plain_mods(
     skills: &crate::data::skill_data::SkillData,
@@ -196,11 +192,11 @@ fn position_qualified_stats_multiply_from_one() {
         "absent reads as 1.0, not 0.0"
     );
 
-    crate::model::apply_modifier(
+    model::apply_modifier(
         &mut mods,
-        &crate::model::skill::StatModifierEffect {
+        &model::skill::StatModifierEffect {
             stat: Stat::CriticalDamage,
-            mode: crate::model::stats::StatModifierType::Per,
+            mode: model::stats::StatModifierType::Per,
             amount: 30.0,
             armor_condition: 0,
             weapon_condition: 0,
@@ -232,7 +228,7 @@ fn position_qualified_stats_multiply_from_one() {
 /// stat and nothing read it.
 #[test]
 fn death_whisper_grants_a_critical_damage_multiplier() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     let mods = plain_mods(&skills, 1242, 1);
     let crit = mods
         .iter()
@@ -245,7 +241,7 @@ fn death_whisper_grants_a_critical_damage_multiplier() {
 /// reach `Stat::CriticalDamage` (PER) or `CriticalDamageAdd` (DIFF).
 #[test]
 fn learnable_critical_damage_skills_all_reach_a_crit_stat() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     for id in [
         176, 193, 274, 312, 317, 401, 414, 420, 1242, 1253, 1356, 1363,
     ] {
@@ -265,7 +261,7 @@ fn learnable_critical_damage_skills_all_reach_a_crit_stat() {
 /// multiplicative: `-30` becomes ×0.7, not a subtraction.
 #[test]
 fn focus_death_penalises_frontal_crits_and_rewards_backstabs() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     let qualified: Vec<_> = skills
         .get(355, 1)
         .expect("Focus Death loads")
@@ -292,7 +288,7 @@ fn focus_death_penalises_frontal_crits_and_rewards_backstabs() {
     let mut mods = StatModifiers::default();
     for e in &skills.get(355, 1).unwrap().effects {
         if let SkillEffect::StatModifier(m) = e {
-            crate::model::apply_modifier(&mut mods, m);
+            model::apply_modifier(&mut mods, m);
         }
     }
     assert!(
@@ -314,7 +310,7 @@ fn focus_death_penalises_frontal_crits_and_rewards_backstabs() {
 /// besides autoattacks with a real learnable grantor.
 #[test]
 fn prophecy_of_wind_grants_magic_critical_damage() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     let mods = plain_mods(&skills, 1357, 1);
     assert!(
         mods.iter().any(|(s, _)| *s == Stat::MagicCriticalDamage),
@@ -389,7 +385,7 @@ fn a_physical_skill_crit_reads_the_skill_crit_stats_not_the_autoattack_one() {
     let _a = ingame_player_access(&mut world, 1, attacker, 0);
     let _b = ingame_player_access(&mut world, 2, target, 0);
 
-    let base = crate::game_loop::combat::crit_damage_skill(&world, attacker, target, false);
+    let base = combat::crit_damage_skill(&world, attacker, target, false);
     assert_eq!(base, 2.0, "Java's `2 * 1 * 1` with no stats");
 
     let mut mods = world
@@ -403,7 +399,7 @@ fn a_physical_skill_crit_reads_the_skill_crit_stats_not_the_autoattack_one() {
     mods.mul.insert(Stat::CriticalDamage, 9.0);
     world.objects.add_components(&attacker, mods);
     assert_eq!(
-        crate::game_loop::combat::crit_damage_skill(&world, attacker, target, false),
+        combat::crit_damage_skill(&world, attacker, target, false),
         3.0,
         "2 × 1.5 — the skill stat, not CRITICAL_DAMAGE"
     );
@@ -418,14 +414,14 @@ fn a_physical_skill_crit_reads_the_skill_crit_stats_not_the_autoattack_one() {
         .insert(Stat::DefencePhysicalSkillCriticalDamage, 0.5);
     world.objects.add_components(&target, tmods);
     assert_eq!(
-        crate::game_loop::combat::crit_damage_skill(&world, attacker, target, false),
+        combat::crit_damage_skill(&world, attacker, target, false),
         1.5,
         "…and the target's defence twin divides it back down"
     );
 
     // The magic branch is unchanged and still reads its own pair.
     assert_eq!(
-        crate::game_loop::combat::crit_damage_skill(&world, attacker, target, true),
+        combat::crit_damage_skill(&world, attacker, target, true),
         2.0,
         "a magic skill is unaffected by the physical-skill stats"
     );

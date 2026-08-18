@@ -5,7 +5,7 @@ use super::*;
 
 use crate::data::item_auction_data::{AuctionInstanceCfg, AuctionItem, AuctionSchedule};
 use crate::game_loop::item_auction;
-use crate::model::item_auction::{AuctionState, ItemAuction, next_date};
+use crate::model::item_auction::{AuctionState, ExtendState, ItemAuction, next_date};
 use crate::scheduler::ScheduledTask;
 
 const DAY: i64 = 86_400_000;
@@ -193,13 +193,13 @@ fn bidding_world(player: i32, adena: i64) -> World {
     world.item_auctions.auctions.insert(1, a);
     world.item_auctions.instances.insert(
         31113,
-        crate::model::item_auction::InstanceRuntime {
+        model::item_auction::InstanceRuntime {
             current: Some(1),
             next: None,
         },
     );
     ingame_player(&mut world, 1, player, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, player, 57, adena);
+    items::add_inventory_item(&mut world, player, 57, adena);
     world
 }
 
@@ -246,7 +246,7 @@ fn raising_your_own_bid_charges_only_the_delta() {
 fn canceling_a_losing_bid_refunds_the_adena() {
     let mut world = bidding_world(100, 500_000);
     ingame_player(&mut world, 2, 200, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, 200, 57, 500_000);
+    items::add_inventory_item(&mut world, 200, 57, 500_000);
     // 100 bids 150k, then 200 outbids with 200k → 100 is a loser.
     item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
     item_auction::register_bid(&mut world, 31113, 1, 200, 200_000);
@@ -293,10 +293,7 @@ fn a_last_minute_bid_extends_the_ending_time() {
     item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
 
     let a = &world.item_auctions.auctions[&1];
-    assert_eq!(
-        a.extend_state,
-        crate::model::item_auction::ExtendState::ExtendBy5Min
-    );
+    assert_eq!(a.extend_state, ExtendState::ExtendBy5Min);
     assert_eq!(a.ending_time, before + 5 * 60_000);
 }
 
@@ -305,7 +302,7 @@ fn a_last_minute_bid_extends_the_ending_time() {
 fn warehouse_count(world: &World, oid: i32, item_id: i32) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Warehouse>(&oid)
+        .get_component::<model::inventory::Warehouse>(&oid)
         .map_or(0, |wh| wh.0.count_of(item_id))
 }
 
@@ -346,7 +343,7 @@ fn canceled_bids_are_cleared_when_the_auction_finishes() {
     t.item_id = 9901;
     world.data.item_data.insert_for_test(t);
     ingame_player(&mut world, 2, 200, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, 200, 57, 500_000);
+    items::add_inventory_item(&mut world, 200, 57, 500_000);
     // 100 bids, 200 outbids, 100 cancels (a canceled losing bid remains as a row).
     item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
     item_auction::register_bid(&mut world, 31113, 1, 200, 200_000);

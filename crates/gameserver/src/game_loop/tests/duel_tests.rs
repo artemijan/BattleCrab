@@ -16,8 +16,8 @@ const B_CID: u32 = 2;
 fn duelists(
     world: &mut World,
 ) -> (
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<bytes::Bytes>,
 ) {
     let a = ingame_caster(world, A_CID, A, 0, 0);
     let b = ingame_caster(world, B_CID, B, 100, 0);
@@ -238,7 +238,7 @@ fn losing_blow_does_not_kill() {
 
     // A blow far exceeding B's remaining HP.
     let huge = world.objects.get_component::<Vitals>(&B).unwrap().max_hp as f64 * 10.0;
-    crate::game_loop::combat::apply_physical_damage(&mut world, A, B, huge, false, false);
+    combat::apply_physical_damage(&mut world, A, B, huge, false, false);
 
     let v = world.objects.get_component::<Vitals>(&B).unwrap();
     assert!(!v.dead, "the duel loser is not killed");
@@ -349,11 +349,7 @@ fn a_party_duel_fights_in_an_instance_and_returns_everyone() {
         let seq = world.next_request_seq();
         world.parties.insert(
             pid,
-            crate::model::party::Party::new(
-                leader,
-                crate::model::party::LootRule::FindersKeepers,
-                seq,
-            ),
+            model::party::Party::new(leader, LootRule::FindersKeepers, seq),
         );
         world.objects.add_components(&leader, PartyRef(pid));
         crate::game_loop::party::add_party_member(&mut world, pid, member);
@@ -454,7 +450,7 @@ fn a_member_surrender_forfeits_the_whole_party_duel() {
     let seq = world.next_request_seq();
     world.parties.insert(
         pid,
-        crate::model::party::Party::new(2001, crate::model::party::LootRule::FindersKeepers, seq),
+        model::party::Party::new(2001, LootRule::FindersKeepers, seq),
     );
     world.objects.add_components(&2001, PartyRef(pid));
     crate::game_loop::party::add_party_member(&mut world, pid, 2002);
@@ -463,7 +459,7 @@ fn a_member_surrender_forfeits_the_whole_party_duel() {
     let seq2 = world.next_request_seq();
     world.parties.insert(
         pid2,
-        crate::model::party::Party::new(2003, crate::model::party::LootRule::FindersKeepers, seq2),
+        model::party::Party::new(2003, LootRule::FindersKeepers, seq2),
     );
     world.objects.add_components(&2003, PartyRef(pid2));
 

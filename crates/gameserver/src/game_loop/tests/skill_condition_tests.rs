@@ -264,7 +264,7 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
     }
 
     fn flag(world: &mut World, flags: u32) {
-        let mut buffs = crate::model::components::Buffs::default();
+        let mut buffs = Buffs::default();
         buffs.0.push(ActiveBuff {
             skill_id: 1,
             slot: BuffSlot::Uncapped,
@@ -337,7 +337,7 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
     let mut world = world_with_member();
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&MEMBER)
+        .get_component_mut::<Player>(&MEMBER)
         .unwrap()
         .jailed = true;
     let (id, params) = check_summon_target_status(&world, MEMBER).expect("refused");
@@ -352,7 +352,7 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
     let mut world = world_with_member();
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&MEMBER)
+        .get_component_mut::<Player>(&MEMBER)
         .unwrap()
         .mount_type = 2;
     let (id, params) = check_summon_target_status(&world, MEMBER).expect("refused");
@@ -366,7 +366,7 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
     let mut world = world_with_member();
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&MEMBER)
+        .get_component_mut::<Player>(&MEMBER)
         .unwrap()
         .mount_type = 1;
     assert!(

@@ -249,7 +249,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
 
-    let mut message = crate::model::mail::Message::new_player_mail(
+    let mut message = Message::new_player_mail(
         message_id,
         player,
         receiver_id,

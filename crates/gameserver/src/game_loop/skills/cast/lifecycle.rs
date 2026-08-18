@@ -25,7 +25,7 @@ pub(super) fn live_cast_skill(
     world: &World,
     player_object_id: i32,
     cast_seq: u64,
-) -> Option<(crate::model::CastState, crate::model::skill::Skill)> {
+) -> Option<(crate::model::CastState, Skill)> {
     let cast = live_cast(world, player_object_id, cast_seq)?;
     let skill = world
         .data

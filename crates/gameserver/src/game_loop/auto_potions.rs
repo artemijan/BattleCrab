@@ -14,6 +14,7 @@
 //! while a player carrying none is told once a second, forever. Ported
 //! verbatim, because the alternative silently changes what an operator sees.
 
+use crate::game_loop::admin::send_message;
 use crate::game_loop::helpers::hp_pair;
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
@@ -40,17 +41,17 @@ pub(crate) fn handle_voiced(world: &mut World, client_id: u32, player_oid: i32, 
             "You need to be at least {} to use auto potions.",
             cfg.minimum_level
         );
-        message(world, client_id, &text);
+        send_message(world, client_id, &text);
         return;
     }
     match command {
         "apon" | "potionon" => {
             world.auto_potion_players.insert(player_oid);
-            message(world, client_id, "Auto potions is enabled.");
+            send_message(world, client_id, "Auto potions is enabled.");
         }
         _ => {
             world.auto_potion_players.remove(&player_oid);
-            message(world, client_id, "Auto potions is disabled.");
+            send_message(world, client_id, "Auto potions is disabled.");
         }
     }
 }
@@ -115,21 +116,15 @@ fn run_for_player(world: &mut World, player_oid: i32, cfg: &crate::config::AutoP
             if below {
                 super::items::use_item_by_object_id(world, player_oid, item_object_id);
                 if let Some(cid) = client_for_player(world, player_oid) {
-                    message(world, cid, &format!("Auto potion: Restored {label}."));
+                    send_message(world, cid, &format!("Auto potion: Restored {label}."));
                 }
                 break;
             }
         }
     }
     if !carries_any && let Some(cid) = client_for_player(world, player_oid) {
-        message(world, cid, "Auto potion: You are out of potions!");
+        send_message(world, cid, "Auto potion: You are out of potions!");
     }
-}
-
-/// The object id of the first instance of `item_id` the player carries, if any
-/// (Java `getInventory().getItemByItemId`).
-fn message(world: &World, client_id: u32, text: &str) {
-    crate::game_loop::admin::send_message(world, client_id, text);
 }
 
 /// Drop a player from the loop (logout, and anything else that ends a session).

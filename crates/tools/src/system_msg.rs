@@ -20,7 +20,7 @@
 //!
 //! Editing a field in place keeps every other token on the line untouched, so
 //! nothing outside the colour can drift; the file still has to survive
-//! [`crate::dat_pack`]'s verify step before it reaches the client.
+//! [`dat_pack`]'s verify step before it reaches the client.
 
 use crate::dat_schema::{Layout, SchemaSet};
 use crate::{client_dat, dat_pack, dat_text};

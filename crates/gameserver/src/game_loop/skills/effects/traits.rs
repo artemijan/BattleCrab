@@ -33,7 +33,7 @@ pub(crate) fn player_or_npc_level(world: &World, oid: i32) -> i32 {
 pub(crate) fn caster_str_bonus(world: &World, oid: i32) -> f64 {
     world
         .objects
-        .get_component::<crate::model::components::BaseStats>(&oid)
+        .get_component::<BaseStats>(&oid)
         .map(|b| {
             world
                 .data
@@ -215,7 +215,7 @@ pub(crate) fn pvp_pve_bonus(
     let mul = |oid: i32, stat: Stat| -> f64 {
         world
             .objects
-            .get_component::<crate::model::components::StatModifiers>(&oid)
+            .get_component::<StatModifiers>(&oid)
             .map(|m| crate::model::finalize(m, stat, 1.0))
             .unwrap_or(1.0)
     };
@@ -617,11 +617,7 @@ pub(crate) fn mp_consume_for(world: &World, caster_oid: i32, skill: &Skill) -> i
         let dances = world
             .objects
             .get_component::<Buffs>(&caster_oid)
-            .map(|b| {
-                b.0.iter()
-                    .filter(|x| x.slot == crate::model::skill::BuffSlot::Dance)
-                    .count()
-            })
+            .map(|b| b.0.iter().filter(|x| x.slot == BuffSlot::Dance).count())
             .unwrap_or(0);
         if dances > 0 {
             mp_consume += dances as f64 * (skill.mp_consume as f64 / 2.0).ceil();

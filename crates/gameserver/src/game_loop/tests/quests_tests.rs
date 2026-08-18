@@ -34,11 +34,11 @@ fn request_show_mini_map_opens_world_map() {
 fn map_castle_and_fortress_info_requests_answered() {
     let (mut world, ..) = cast_test_world();
     world.castles = (1..=9)
-        .map(|id| crate::model::castle::Castle {
+        .map(|id| model::castle::Castle {
             show_npc_crest: false,
             id,
             name: format!("Castle{id}"),
-            side: crate::model::castle::CastleSide::Neutral,
+            side: model::castle::CastleSide::Neutral,
             ticket_buy_count: 0,
             first_mid_victory: false,
             time_registration_over: true,
@@ -209,10 +209,10 @@ fn quest_q00258_accept_collect_turn_in() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         let qs = &quests.0["Q00258_BringWolfPelts"];
-        assert_eq!(qs.state, crate::model::quest::state::STARTED);
+        assert_eq!(qs.state, model::quest::state::STARTED);
         assert_eq!(qs.cond(), 1);
     }
     assert!(
@@ -234,13 +234,13 @@ fn quest_q00258_accept_collect_turn_in() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         let qs = &quests.0["Q00258_BringWolfPelts"];
         assert_eq!(qs.cond(), 1, "cond set in memory");
         assert_eq!(
             qs.state,
-            crate::model::quest::state::STARTED,
+            model::quest::state::STARTED,
             "state Started in memory"
         );
     }
@@ -253,7 +253,7 @@ fn quest_q00258_accept_collect_turn_in() {
     let inv_count = |world: &World| {
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .get_component::<Inventory>(&3001)
             .unwrap()
             .count_of(702)
     };
@@ -293,7 +293,7 @@ fn quest_q00258_accept_collect_turn_in() {
     assert!(sound_names(&pkts).contains(&"ItemSound.quest_itemget".to_string()));
 
     // 38 more pelts, then the 40th kill flips cond 2 (+ mark + middle).
-    super::items::add_inventory_item(&mut world, 3001, 702, 38).unwrap();
+    items::add_inventory_item(&mut world, 3001, 702, 38).unwrap();
     let wolf2 = NPC_OID + 2;
     add_test_npc(&mut world, wolf2, 20442, "Monster", 5, 30, 0, 0);
     death::npc_do_die(&mut world, wolf2, 3001);
@@ -302,7 +302,7 @@ fn quest_q00258_accept_collect_turn_in() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert_eq!(quests.0["Q00258_BringWolfPelts"].cond(), 2);
     }
@@ -346,7 +346,7 @@ fn quest_q00258_accept_collect_turn_in() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .get_component::<Inventory>(&3001)
             .unwrap()
             .count_of(41),
         1,
@@ -355,7 +355,7 @@ fn quest_q00258_accept_collect_turn_in() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap()
             .0
             .contains_key("Q00258_BringWolfPelts"),
@@ -416,7 +416,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     let count_of = |world: &World, id: i32| {
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .get_component::<Inventory>(&3001)
             .unwrap()
             .count_of(id)
     };
@@ -431,7 +431,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     drain(&mut rx);
 
     // 9 bones banked, the 10th caps the collection: cond 2 + middle sound.
-    super::items::add_inventory_item(&mut world, 3001, 809, 8).unwrap();
+    items::add_inventory_item(&mut world, 3001, 809, 8).unwrap();
     let skel3 = NPC_OID + 3;
     add_test_npc(&mut world, skel3, 20517, "Monster", 5, 30, 0, 0);
     world.force_roll(0);
@@ -441,7 +441,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert_eq!(quests.0["Q00320_BonesTellTheFuture"].cond(), 2);
     }
@@ -466,7 +466,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap()
             .0
             .contains_key("Q00320_BonesTellTheFuture")
@@ -494,7 +494,7 @@ fn quest_abort_wipes_state_and_items() {
             "npc_{NPC_OID}_Quest Q00258_BringWolfPelts 30001-03.html"
         )),
     );
-    super::items::add_inventory_item(&mut world, 3001, 702, 5).unwrap();
+    items::add_inventory_item(&mut world, 3001, 702, 5).unwrap();
     drain(&mut rx);
     drain_db(&mut db_rx);
 
@@ -510,7 +510,7 @@ fn quest_abort_wipes_state_and_items() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap()
             .0
             .contains_key("Q00258_BringWolfPelts"),
@@ -519,7 +519,7 @@ fn quest_abort_wipes_state_and_items() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .get_component::<Inventory>(&3001)
             .unwrap()
             .count_of(702),
         0,
@@ -579,9 +579,7 @@ fn quest_timer_fires_once_and_cancels() {
     }
 
     let (mut world, _db_rx, _link_rx) = quest_test_world();
-    world.quests = std::sync::Arc::new(quests::QuestRegistry::new(vec![std::sync::Arc::new(
-        TimerTestScript,
-    )]));
+    world.quests = Arc::new(quests::QuestRegistry::new(vec![Arc::new(TimerTestScript)]));
     add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
@@ -750,13 +748,13 @@ fn sell_list_hides_unsellable_and_refund_round_trips() {
                 ..Default::default()
             });
     }
-    super::items::add_inventory_item(&mut world, 3001, 9001, 1);
-    super::items::add_inventory_item(&mut world, 3001, 9002, 1);
-    super::items::add_inventory_item(&mut world, 3001, 9003, 10);
+    items::add_inventory_item(&mut world, 3001, 9001, 1);
+    items::add_inventory_item(&mut world, 3001, 9002, 1);
+    items::add_inventory_item(&mut world, 3001, 9003, 10);
     let obj_of = |world: &World, item_id: i32| {
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .get_component::<Inventory>(&3001)
             .unwrap()
             .items()
             .iter()
@@ -767,7 +765,7 @@ fn sell_list_hides_unsellable_and_refund_round_trips() {
     let sword_oid = obj_of(&world, 9002);
     world
         .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+        .get_component_mut::<Inventory>(&3001)
         .unwrap()
         .set_item_enchant(sword_oid, 5);
     drain(&mut rx);
@@ -828,10 +826,7 @@ fn sell_list_hides_unsellable_and_refund_round_trips() {
     shop::handle_request_refund_item(&mut world, 1, &refund_body(3, &[0]));
     assert_eq!(adena_of(&world, 3001), 1000);
     assert_eq!(count_of_item(&world, 3001, 9002), 1);
-    let inv = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&3001)
-        .unwrap();
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
     let sword = inv
         .items()
         .iter()
@@ -872,10 +867,10 @@ fn refund_container_caps_at_twelve() {
             price: 60,
             ..Default::default()
         });
-    super::items::add_inventory_item(&mut world, 3001, 9003, 20);
+    items::add_inventory_item(&mut world, 3001, 9003, 20);
     let potion_oid = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&3001)
+        .get_component::<Inventory>(&3001)
         .unwrap()
         .items()
         .iter()
@@ -1132,7 +1127,7 @@ fn quest_q00109_multi_cond_one_time() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
     }
@@ -1199,7 +1194,7 @@ fn orc_change1_first_class_transfer() {
         p.class_id = 44; // Orc Fighter
         p.base_class_id = 44;
     }
-    super::items::add_inventory_item(&mut world, 3001, 1592, 1);
+    items::add_inventory_item(&mut world, 3001, 1592, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -1285,7 +1280,7 @@ fn teleport_with_charm_consumes_token() {
     );
 
     // With a token: teleport + consumption.
-    super::items::add_inventory_item(&mut world, 3001, 1659, 1);
+    items::add_inventory_item(&mut world, 3001, 1659, 1);
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
     assert_eq!(item_count(&world, 3001, 1659), 0, "token consumed");
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
@@ -1345,7 +1340,7 @@ fn teleport_to_race_track_round_trips_via_monster_return() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PlayerVariables>(&3001)
+            .get_component::<model::components::PlayerVariables>(&3001)
             .unwrap()
             .get_int("MONSTER_RETURN", -1),
         30059,
@@ -1376,7 +1371,7 @@ fn teleport_to_race_track_round_trips_via_monster_return() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PlayerVariables>(&3001)
+            .get_component::<model::components::PlayerVariables>(&3001)
             .unwrap()
             .get_int("MONSTER_RETURN", -1),
         -1,
@@ -1453,7 +1448,7 @@ fn request_sell_item_pays_adena() {
             enchant_limit: 0,
             is_magic_weapon: false,
         });
-    super::items::add_inventory_item(&mut world, 3001, 5000, 10).expect("trophies");
+    items::add_inventory_item(&mut world, 3001, 5000, 10).expect("trophies");
     let oid = item_oid(&world, 3001, 5000);
     drain(&mut rx);
 
@@ -1531,7 +1526,7 @@ fn newbie_guide_turns_away_other_races() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&3001)
+        .get_component_mut::<Player>(&3001)
         .unwrap()
         .race = 1; // ELF
     drain(&mut rx);
@@ -1693,7 +1688,7 @@ fn dwarf_warehouse_change1_first_class_transfer() {
         p.class_id = 53;
         p.base_class_id = 53;
     }
-    super::items::add_inventory_item(&mut world, 3001, 1642, 1);
+    items::add_inventory_item(&mut world, 3001, 1642, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -1749,7 +1744,7 @@ fn dwarf_change1_refuses_below_level_20() {
         p.class_id = 53;
         p.base_class_id = 53;
     }
-    super::items::add_inventory_item(&mut world, 3001, 1635, 1);
+    items::add_inventory_item(&mut world, 3001, 1635, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -1902,7 +1897,7 @@ fn elf_human_fighter_change1_transfers_by_race() {
         p.class_id = 0; // Fighter
         p.base_class_id = 0;
     }
-    super::items::add_inventory_item(&mut world, 3001, 1145, 1);
+    items::add_inventory_item(&mut world, 3001, 1145, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -1973,7 +1968,7 @@ fn elf_human_wizard_change1_elf_branch() {
         p.class_id = 25; // Elven Mage
         p.base_class_id = 25;
     }
-    super::items::add_inventory_item(&mut world, 3001, 1235, 1);
+    items::add_inventory_item(&mut world, 3001, 1235, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -2069,7 +2064,7 @@ fn dark_elf_change1_transfers_by_row_index() {
         p.class_id = 31; // Dark Fighter
         p.base_class_id = 31;
     }
-    super::items::add_inventory_item(&mut world, 3001, 1244, 1);
+    items::add_inventory_item(&mut world, 3001, 1244, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -2107,7 +2102,7 @@ fn dark_elf_change1_rejects_the_wrong_source_class() {
         p.class_id = 38; // Dark MAGE asking for the fighter row
         p.base_class_id = 38;
     }
-    super::items::add_inventory_item(&mut world, 3001, 1244, 1);
+    items::add_inventory_item(&mut world, 3001, 1244, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -2393,7 +2388,7 @@ fn dwarf_change2_second_class_transfer() {
         p.base_class_id = 56;
     }
     for id in [3119, 3238, 2867] {
-        super::items::add_inventory_item(&mut world, 3001, id, 1);
+        items::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2449,8 +2444,8 @@ fn dwarf_change2_requires_all_three_marks() {
         p.base_class_id = 56;
     }
     // Two of the three.
-    super::items::add_inventory_item(&mut world, 3001, 3119, 1);
-    super::items::add_inventory_item(&mut world, 3001, 3238, 1);
+    items::add_inventory_item(&mut world, 3001, 3119, 1);
+    items::add_inventory_item(&mut world, 3001, 3238, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -2512,7 +2507,7 @@ fn dwarf_change2_requires_level_40() {
         p.base_class_id = 54;
     }
     for id in [3119, 3238, 2809] {
-        super::items::add_inventory_item(&mut world, 3001, id, 1);
+        items::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2600,7 +2595,7 @@ fn orc_change2_transfer_pays_coupons() {
         p.base_class_id = 45;
     }
     for id in [2627, 3203, 3276] {
-        super::items::add_inventory_item(&mut world, 3001, id, 1);
+        items::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2652,7 +2647,7 @@ fn dark_elf_change2_uses_row_index_and_pays_nothing() {
         p.base_class_id = 32;
     }
     for id in [2633, 3172, 3307] {
-        super::items::add_inventory_item(&mut world, 3001, id, 1);
+        items::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2709,7 +2704,7 @@ fn change2_scripts_require_all_three_marks() {
         p.class_id = 45;
         p.base_class_id = 45;
     }
-    super::items::add_inventory_item(&mut world, 3001, 2627, 1); // one of three
+    items::add_inventory_item(&mut world, 3001, 2627, 1); // one of three
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -2814,7 +2809,7 @@ fn elf_human_change2_second_class_transfer() {
         p.base_class_id = 1;
     }
     for id in [2627, 2734, 2762] {
-        super::items::add_inventory_item(&mut world, 3001, id, 1);
+        items::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2872,7 +2867,7 @@ fn elf_human_change2_rejects_the_wrong_source_class() {
         p.base_class_id = 4;
     }
     for id in [2633, 3140, 2820] {
-        super::items::add_inventory_item(&mut world, 3001, id, 1);
+        items::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2928,7 +2923,7 @@ fn elf_human_change2_requires_all_three_marks() {
         p.base_class_id = 15;
     }
     for id in [2721, 2734] {
-        super::items::add_inventory_item(&mut world, 3001, id, 1); // two of three
+        items::add_inventory_item(&mut world, 3001, id, 1); // two of three
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -3440,7 +3435,7 @@ fn quest_q00406_full_chain_awards_the_brooch() {
         // rather than being deleted (that would let it be repeated).
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(
             quests.0["Q00406_PathOfTheElvenKnight"].is_completed(),
@@ -3622,7 +3617,7 @@ fn equip_weapon_row(world: &mut World, player: i32, item_id: i32) {
         count: 1,
         enchant_level: 0,
         loc: "PAPERDOLL".into(),
-        loc_data: crate::model::inventory::PaperdollSlot::RHand as i32,
+        loc_data: model::inventory::PaperdollSlot::RHand as i32,
         custom_type1: 0,
         custom_type2: 0,
         mana_left: -1,
@@ -3631,10 +3626,9 @@ fn equip_weapon_row(world: &mut World, player: i32, item_id: i32) {
         augment_option1: 0,
         augment_option2: 0,
     };
-    world.objects.add_components(
-        &player,
-        crate::model::inventory::Inventory::from_rows(&[row]),
-    );
+    world
+        .objects
+        .add_components(&player, Inventory::from_rows(&[row]));
 }
 
 /// Accept Q00401 and return the world to "quest started".
@@ -3736,7 +3730,7 @@ fn quest_q00401_rusted_sword_chance_is_out_of_ten() {
         }
         drain_db(&mut db_rx);
         accept_q401(&mut world);
-        super::items::add_inventory_item(&mut world, 3001, 1139, 1); // guild mark
+        items::add_inventory_item(&mut world, 3001, 1139, 1); // guild mark
         drain(&mut rx);
 
         let mob = NPC_OID + 1;
@@ -3869,7 +3863,7 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
             "npc_{NPC_OID}_Quest Q00403_PathOfTheRogue 30379-06.htm"
         )),
     );
-    super::items::add_inventory_item(&mut world, 3001, 1185, 1); // the most-wanted list
+    items::add_inventory_item(&mut world, 3001, 1185, 1); // the most-wanted list
     drain(&mut rx);
 
     let bandit = NPC_OID + 1;
@@ -3973,9 +3967,7 @@ const Q402: &str = "Q00402_PathOfTheHumanKnight";
 
 /// Q00402 world: Vasper at NPC_OID, quest accepted, `coins` Coins of Lords
 /// already in the bag.
-fn q402_world_with_coins(
-    coins: usize,
-) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn q402_world_with_coins(coins: usize) -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![
         (1271, "Squire's Mark", true),
@@ -4015,7 +4007,7 @@ fn q402_world_with_coins(
         &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-08.htm")),
     );
     for id in [1162, 1163, 1164, 1165, 1166, 1167].iter().take(coins) {
-        super::items::add_inventory_item(&mut world, 3001, *id, 1);
+        items::add_inventory_item(&mut world, 3001, *id, 1);
     }
     drain(&mut rx);
     (world, rx)
@@ -4051,7 +4043,7 @@ fn quest_q00402_three_coins_needs_the_confirm_button() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(
             quests.0[Q402].is_completed(),
@@ -4088,7 +4080,7 @@ fn quest_q00402_six_coins_completes_on_talk_without_a_confirm() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q402].is_completed());
     }
@@ -4248,7 +4240,7 @@ const Q404: &str = "Q00404_PathOfTheHumanWizard";
 const Q405: &str = "Q00405_PathOfTheCleric";
 
 /// A mage at Parina with Q00404 accepted.
-fn q404_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn q404_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![(1292, "Bead of Season", false)];
     for id in 1280..=1291 {
@@ -4303,9 +4295,9 @@ fn quest_window_drops_a_finished_quest_with_nothing_to_say() {
     {
         let quests = world
             .objects
-            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .get_component_mut::<model::components::Quests>(&3001)
             .unwrap();
-        quests.0.entry(Q404.to_string()).or_default().state = crate::model::quest::state::COMPLETED;
+        quests.0.entry(Q404.to_string()).or_default().state = model::quest::state::COMPLETED;
     }
     drain(&mut rx);
 
@@ -4334,7 +4326,7 @@ fn quest_window_drops_a_finished_quest_with_nothing_to_say() {
 fn quest_window_probe_does_not_consume_the_turn_in_items() {
     let (mut world, mut rx) = q404_world();
     for id in TRINKETS_Q404 {
-        super::items::add_inventory_item(&mut world, 3001, id, 1);
+        items::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain(&mut rx);
 
@@ -4355,11 +4347,11 @@ fn quest_window_probe_does_not_consume_the_turn_in_items() {
     }
     let state = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .and_then(|q| q.0.get(Q404).map(|qs| qs.state));
     assert_eq!(
         state,
-        Some(crate::model::quest::state::COMPLETED),
+        Some(model::quest::state::COMPLETED),
         "quest finished"
     );
 }
@@ -4516,7 +4508,7 @@ fn quest_q00404_branches_are_gated_on_the_previous_trinket() {
 }
 
 /// A Q00405 world with the quest accepted (ACCEPT issues the first letter).
-fn q405_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn q405_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![(1201, "Mark of Faith", false)];
     for id in 1191..=1200 {
@@ -4638,7 +4630,7 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
     // Jump the first errand by granting the 2nd letter directly. Zigaunt's
     // 1st-letter branch is only reached when the 2nd is absent, so leaving
     // the 1st in the bag doesn't change any path under test.
-    super::items::add_inventory_item(&mut world, 3001, 1192, 1);
+    items::add_inventory_item(&mut world, 3001, 1192, 1);
     drain(&mut rx);
 
     handle_request_bypass_to_server(
@@ -4676,7 +4668,7 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q405].is_completed());
     }
@@ -4743,7 +4735,7 @@ fn wizard_cleric_quest_pages_exist_in_dist() {
 const Q409: &str = "Q00409_PathOfTheElvenOracle";
 
 /// An Elven Mage with Q00409 accepted, plus Allana and Perrin placed.
-fn q409_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn q409_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![(1235, "Leaf of Oracle", false)];
     for id in [1231, 1232, 1233, 1234, 1236, 1275] {
@@ -4785,7 +4777,7 @@ fn q409_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
 /// Object ids of every live NPC with `npc_id`.
 fn npcs_of(world: &mut World, npc_id: i32) -> Vec<i32> {
     let mut out = Vec::new();
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+    world.objects.for_each_mut::<&model::npc::Npc>(|n| {
         if n.npc_id == npc_id {
             out.push(n.object_id);
         }
@@ -4825,7 +4817,7 @@ fn quest_q00409_allana_spawns_three_ambushers_that_aggro() {
         assert!(
             world
                 .objects
-                .get_component::<crate::model::npc::AggroList>(&spawned[0])
+                .get_component::<AggroList>(&spawned[0])
                 .is_some_and(|a| a.0.contains_key(&3001)),
             "ambusher {id} was set on the player"
         );
@@ -4902,7 +4894,7 @@ fn quest_q00409_memo_state_rewinds_independently_of_cond() {
 fn quest_memo(world: &World, player: i32, quest: &str) -> i32 {
     world
         .objects
-        .get_component::<crate::model::components::Quests>(&player)
+        .get_component::<model::components::Quests>(&player)
         .and_then(|q| q.0.get(quest))
         .and_then(|qs| qs.vars.get("memoState"))
         .and_then(|v| v.parse::<i32>().ok())
@@ -4948,7 +4940,7 @@ fn elven_oracle_quest_pages_exist_in_dist() {
 const Q408: &str = "Q00408_PathOfTheElvenWizard";
 
 /// An Elven Mage with Q00408 accepted (Rossela at `NPC_OID`).
-fn q408_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn q408_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![(1230, "Eternity Diamond", false)];
     for id in [
@@ -5080,7 +5072,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q408].is_completed());
     }
@@ -5158,7 +5150,7 @@ fn dark_elf_quest_world(
     accept_page: Option<&str>,
     items: &[i32],
     mobs: &[i32],
-) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+) -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = items.iter().map(|id| (*id, "Q item", true)).collect();
     add_quest_items(&mut world, &rows);
@@ -5273,7 +5265,7 @@ fn quest_q00410_full_chain_awards_the_gaze_of_abyss() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q410].is_completed());
     }
@@ -5391,7 +5383,7 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q411].is_completed());
     }
@@ -5539,7 +5531,7 @@ fn dark_mage_quest_world(
     accept_page: Option<&str>,
     items: &[i32],
     mobs: &[i32],
-) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+) -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = items.iter().map(|id| (*id, "Q item", true)).collect();
     add_quest_items(&mut world, &rows);
@@ -5656,7 +5648,7 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q412].is_completed());
     }
@@ -5808,7 +5800,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q413].is_completed());
     }
@@ -5822,7 +5814,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
 const Q414: &str = "Q00414_PathOfTheOrcRaider";
 
 /// An Orc Fighter with Q00414 accepted (Karukia at NPC_OID).
-fn q414_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn q414_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = [1578, 1579, 1580, 1589, 1590, 1591, 1592, 8544]
         .iter()
@@ -5885,7 +5877,7 @@ fn quest_q00414_green_blood_is_a_summon_meter() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&summoned[0])
+            .get_component::<AggroList>(&summoned[0])
             .is_some_and(|a| a.0.contains_key(&3001)),
         "and set on the player"
     );
@@ -5919,7 +5911,7 @@ fn quest_q00414_teeth_come_from_kuruka_and_reset_the_meter() {
 fn quest_q00414_umbar_heads_spend_the_reports() {
     let (mut world, _rx) = q414_world();
     for _ in 0..10 {
-        super::items::add_inventory_item(&mut world, 3001, 1580, 1); // 10 teeth
+        items::add_inventory_item(&mut world, 3001, 1580, 1); // 10 teeth
     }
     handle_request_bypass_to_server(
         &mut world,
@@ -5968,7 +5960,7 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q414].is_completed());
     }
@@ -6026,7 +6018,7 @@ const Q415: &str = "Q00415_PathOfTheOrcMonk";
 
 /// An Orc Fighter with Q00415 accepted (Gantaki at NPC_OID). `weapon` is put
 /// straight into the RHand paperdoll when given.
-fn q415_world(weapon: Option<i32>) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn q415_world(weapon: Option<i32>) -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let ids = [
         1593, 1594, 1595, 1596, 1597, 1598, 1599, 1600, 1601, 1602, 1603, 1604, 1605, 1606, 1607,
@@ -6165,7 +6157,7 @@ fn quest_q00415_pouch_takes_five_kills_not_four() {
 #[test]
 fn quest_q00415_fourth_pouch_converts_on_the_twelfth_kill() {
     let (mut world, _rx) = q415_world(None);
-    super::items::add_inventory_item(&mut world, 3001, 1607, 1); // the 4th pouch
+    items::add_inventory_item(&mut world, 3001, 1607, 1); // the 4th pouch
     let mut oid = NPC_OID + 300;
     let mobs = [(20014, 1612), (20017, 1609), (20024, 1611), (20359, 1610)];
     let mut killed = 0;
@@ -6268,7 +6260,7 @@ fn orc_monk_quest_pages_exist_in_dist() {
 const Q416: &str = "Q00416_PathOfTheOrcShaman";
 
 /// An Orc Mage with Q00416 accepted (Tataru at NPC_OID).
-fn q416_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn q416_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = (1616..=1631).map(|id| (id, "Q416", true)).collect();
     add_quest_items(&mut world, &rows);
@@ -6327,7 +6319,7 @@ fn quest_q00416_holder_count_is_a_cond_gate_not_a_quantity() {
 
     // Advance to cond 6 the short way: hand the player the flame charm and set
     // the cond, mirroring Umos' hand-over.
-    super::items::add_inventory_item(&mut world, 3001, 1624, 1);
+    items::add_inventory_item(&mut world, 3001, 1624, 1);
     set_quest_cond(&mut world, 3001, Q416, 6);
     let mob = NPC_OID + 101;
     add_test_npc(&mut world, mob, 20335, "Monster", 20, 30, 0, 0);
@@ -6378,7 +6370,7 @@ fn quest_q00416_first_stage_needs_one_of_each_trophy() {
 #[test]
 fn quest_q00416_durka_meter_summons_without_aggro() {
     let (mut world, _rx) = q416_world();
-    super::items::add_inventory_item(&mut world, 3001, 1627, 1); // spirit net
+    items::add_inventory_item(&mut world, 3001, 1627, 1); // spirit net
     set_quest_cond(&mut world, 3001, Q416, 9);
 
     // Below the threshold the kill just pays a parasite.
@@ -6390,7 +6382,7 @@ fn quest_q00416_durka_meter_summons_without_aggro() {
 
     // Eight parasites makes the summon certain.
     for _ in 0..7 {
-        super::items::add_inventory_item(&mut world, 3001, 1629, 1);
+        items::add_inventory_item(&mut world, 3001, 1629, 1);
     }
     assert_eq!(item_count(&world, 3001, 1629), 8);
     let mob2 = NPC_OID + 301;
@@ -6402,7 +6394,7 @@ fn quest_q00416_durka_meter_summons_without_aggro() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&spirits[0])
+            .get_component::<AggroList>(&spirits[0])
             .is_none_or(|a| !a.0.contains_key(&3001)),
         "and is NOT set on the player, unlike quest 414's Kuruka"
     );
@@ -6420,7 +6412,7 @@ fn quest_q00416_finish_awards_the_mask_of_medium() {
     let (umos, duda) = (NPC_OID + 20, NPC_OID + 21);
     add_test_npc(&mut world, umos, 30502, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, duda, 30593, "Folk", 5, 100, 0, 0);
-    super::items::add_inventory_item(&mut world, 3001, 1628, 1); // bound spirit
+    items::add_inventory_item(&mut world, 3001, 1628, 1); // bound spirit
     set_quest_cond(&mut world, 3001, Q416, 9);
     drain(&mut rx);
 
@@ -6445,7 +6437,7 @@ fn quest_q00416_finish_awards_the_mask_of_medium() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q416].is_completed());
     }
@@ -6525,7 +6517,7 @@ fn orc_shaman_quest_pages_exist_in_dist() {
 fn set_quest_cond(world: &mut World, player: i32, quest: &str, cond: i32) {
     if let Some(q) = world
         .objects
-        .get_component_mut::<crate::model::components::Quests>(&player)
+        .get_component_mut::<model::components::Quests>(&player)
         && let Some(qs) = q.0.get_mut(quest)
     {
         qs.vars.insert("cond".to_string(), cond.to_string());
@@ -6535,7 +6527,7 @@ fn set_quest_cond(world: &mut World, player: i32, quest: &str, cond: i32) {
 const Q418: &str = "Q00418_PathOfTheArtisan";
 
 /// A Dwarven Fighter with Q00418 accepted (Silvera at NPC_OID).
-fn q418_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn q418_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = (1632..=1641).map(|id| (id, "Q418", true)).collect();
     add_quest_items(&mut world, &rows);
@@ -6638,10 +6630,10 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     add_test_npc(&mut world, pinter, 30298, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, kluto, 30317, "Folk", 5, 100, 0, 0);
     for _ in 0..10 {
-        super::items::add_inventory_item(&mut world, 3001, 1636, 1);
+        items::add_inventory_item(&mut world, 3001, 1636, 1);
     }
     for _ in 0..2 {
-        super::items::add_inventory_item(&mut world, 3001, 1637, 1);
+        items::add_inventory_item(&mut world, 3001, 1637, 1);
     }
 
     handle_request_bypass_to_server(
@@ -6699,7 +6691,7 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q418].is_completed());
     }
@@ -6747,7 +6739,7 @@ fn artisan_dead_branch_is_dead_at_both_ends() {
 const Q417: &str = "Q00417_PathOfTheScavenger";
 
 /// A Dwarven Fighter with Q00417 accepted (Pipi at NPC_OID).
-fn q417_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn q417_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let rows: Vec<(i32, &str, bool)> = (1642..=1657).map(|id| (id, "Q417", true)).collect();
     add_quest_items(&mut world, &rows);
@@ -6785,10 +6777,7 @@ fn q417_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
 
 /// Mark `npc_oid` as spoiled by `player`, the way the Spoil effect would.
 fn mark_spoiled(world: &mut World, npc_oid: i32, player: i32) {
-    if let Some(n) = world
-        .objects
-        .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
-    {
+    if let Some(n) = world.objects.get_component_mut::<model::npc::Npc>(&npc_oid) {
         n.spoiler_object_id = player;
     }
 }
@@ -6799,7 +6788,7 @@ fn mark_spoiled(world: &mut World, npc_oid: i32, player: i32) {
 fn quest_q00417_payout_requires_a_spoiled_corpse() {
     for (spoil, expected) in [(false, 0), (true, 1)] {
         let (mut world, _rx) = q417_world();
-        super::items::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
+        items::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
         let bear = NPC_OID + 100;
         add_test_npc(&mut world, bear, 27058, "Monster", 20, 30, 0, 0);
         combat::npc_receive_damage(&mut world, bear, 3001, 10.0, false);
@@ -6824,7 +6813,7 @@ fn quest_q00417_payout_requires_a_spoiled_corpse() {
 #[test]
 fn quest_q00417_drop_chance_fifty_means_always() {
     let (mut world, _rx) = q417_world();
-    super::items::add_inventory_item(&mut world, 3001, 1654, 1); // tarantula picture
+    items::add_inventory_item(&mut world, 3001, 1654, 1); // tarantula picture
     for i in 0..6 {
         let mob = NPC_OID + 200 + i;
         add_test_npc(&mut world, mob, 20403, "Monster", 20, 30, 0, 0);
@@ -6844,7 +6833,7 @@ fn quest_q00417_drop_chance_fifty_means_always() {
 #[test]
 fn quest_q00417_honey_bear_summon_meter_escalates() {
     let (mut world, _rx) = q417_world();
-    super::items::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
+    items::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
 
     // First kill: flag is 0, so no roll happens at all — it just rises.
     let b1 = NPC_OID + 300;
@@ -6877,7 +6866,7 @@ fn quest_q00417_deliveries_bump_the_tens_digit() {
     let shari = NPC_OID + 20;
     add_test_npc(&mut world, shari, 30517, "Folk", 5, 100, 0, 0);
 
-    super::items::add_inventory_item(&mut world, 3001, 1648, 1); // Shari's axe
+    items::add_inventory_item(&mut world, 3001, 1648, 1); // Shari's axe
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -6894,14 +6883,14 @@ fn quest_q00417_deliveries_bump_the_tens_digit() {
         "not promoted on the first"
     );
 
-    super::items::add_inventory_item(&mut world, 3001, 1648, 1);
+    items::add_inventory_item(&mut world, 3001, 1648, 1);
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!("npc_{shari}_Quest {Q417}")),
     );
     assert_eq!(quest_memo_ex(&world, 3001, Q417, 1), 20);
-    super::items::add_inventory_item(&mut world, 3001, 1648, 1);
+    items::add_inventory_item(&mut world, 3001, 1648, 1);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -6922,7 +6911,7 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
     let (torai, raut) = (NPC_OID + 30, NPC_OID + 31);
     add_test_npc(&mut world, torai, 30557, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, raut, 30316, "Folk", 5, 100, 0, 0);
-    super::items::add_inventory_item(&mut world, 3001, 1644, 1); // teleport scroll
+    items::add_inventory_item(&mut world, 3001, 1644, 1); // teleport scroll
 
     handle_request_bypass_to_server(
         &mut world,
@@ -6934,7 +6923,7 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&torai)
+            .get_component::<model::npc::Npc>(&torai)
             .is_none(),
         "Torai deleted himself"
     );
@@ -6949,7 +6938,7 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
     {
         let quests = world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q417].is_completed());
     }
@@ -6963,7 +6952,7 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
 fn quest_memo_ex(world: &World, player: i32, quest: &str, slot: i32) -> i32 {
     world
         .objects
-        .get_component::<crate::model::components::Quests>(&player)
+        .get_component::<model::components::Quests>(&player)
         .and_then(|q| q.0.get(quest))
         .and_then(|qs| qs.vars.get(&format!("memoStateEx{slot}")))
         .and_then(|v| v.parse::<i32>().ok())
@@ -7052,7 +7041,7 @@ fn quest_q00210_wolf_pet_chain() {
     assert_eq!(item_count(&world, 3001, 2375), 1, "Wolf Collar rewarded");
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
 }
@@ -7103,7 +7092,7 @@ fn quest_q00210_refused_below_level_15() {
     // the gate keeps it un-started (cond 0, never `startQuest`).
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(!quests.0[q].is_started(), "the quest never started");
 }
@@ -7182,7 +7171,7 @@ fn quest_q00261_collectors_dream_loop() {
     // it persists, so the credit survives until the newbie-guide UI lands.
     let guide_var = |w: &World| {
         w.objects
-            .get_component::<crate::model::components::PlayerVariables>(&3001)
+            .get_component::<model::components::PlayerVariables>(&3001)
             .and_then(|v| v.0.get("GUIDE_MISSION").cloned())
     };
     assert_eq!(
@@ -7196,12 +7185,7 @@ fn quest_q00261_collectors_dream_loop() {
     // since Java writes the literal only when npcString == -1.
     let banner = |pkts: &[Vec<u8>]| -> Vec<i32> {
         pkts.iter()
-            .filter(|p| {
-                is_ex(
-                    p,
-                    crate::network::server_packets::opcodes::EX_SHOW_SCREEN_MESSAGE,
-                )
-            })
+            .filter(|p| is_ex(p, server_packets::opcodes::EX_SHOW_SCREEN_MESSAGE))
             .map(|p| {
                 let mut r = commons::network::PacketReader::new(&p[3..]);
                 for _ in 0..10 {
@@ -7709,7 +7693,7 @@ fn quest_q00293_race_gate() {
     drain(&mut dwarf_rx);
     drain(&mut human_rx);
 
-    fn quest_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> String {
+    fn quest_html(rx: &mut UnboundedReceiver<bytes::Bytes>) -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
@@ -7895,7 +7879,7 @@ fn quest_q00300_reward_skin_and_bone() {
         {
             let World { objects, data, .. } = &mut world;
             objects
-                .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+                .get_component_mut::<Inventory>(&3001)
                 .unwrap()
                 .add_item(&data.item_data, obj, 7139, 60);
         }
@@ -8128,7 +8112,7 @@ fn quest_q00266_pixies_loop() {
     {
         let World { objects, data, .. } = &mut world;
         objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+            .get_component_mut::<Inventory>(&3001)
             .unwrap()
             .add_item(&data.item_data, 0x5100_0000, 1334, 93);
     }
@@ -8199,7 +8183,7 @@ fn quest_q00266_reward_buckets() {
         {
             let World { objects, data, .. } = &mut world;
             objects
-                .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+                .get_component_mut::<Inventory>(&3001)
                 .unwrap()
                 .add_item(&data.item_data, obj, 1334, 98);
         }
@@ -8251,7 +8235,7 @@ fn quest_q00266_race_and_level_gates() {
     drain(&mut human_rx);
 
     let q = "Q00266_PleasOfPixies";
-    let quest_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> String {
+    let quest_html = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
@@ -8357,7 +8341,7 @@ fn quest_q00271_proof_of_valor_loop() {
     {
         let World { objects, data, .. } = &mut world;
         objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+            .get_component_mut::<Inventory>(&3001)
             .unwrap()
             .add_item(&data.item_data, 0x5300_0000, 1473, 46);
     }
@@ -8411,7 +8395,7 @@ fn quest_q00271_gates_and_necklace_page() {
         // Player 3002 already owns the necklace.
         let World { objects, data, .. } = &mut world;
         objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&3002)
+            .get_component_mut::<Inventory>(&3002)
             .unwrap()
             .add_item(&data.item_data, 0x5400_0000, 1507, 1);
     }
@@ -8420,7 +8404,7 @@ fn quest_q00271_gates_and_necklace_page() {
     }
 
     let q = "Q00271_ProofOfValor";
-    let page = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> String {
+    let page = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
@@ -8521,7 +8505,7 @@ fn quest_q00277_gatekeepers_offering_loop() {
     {
         let World { objects, data, .. } = &mut world;
         objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+            .get_component_mut::<Inventory>(&3001)
             .unwrap()
             .add_item(&data.item_data, 0x5500_0000, 1572, 19);
     }
@@ -8654,7 +8638,7 @@ fn quest_q00295_dreaming_loop() {
         {
             let World { objects, data, .. } = world;
             objects
-                .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+                .get_component_mut::<Inventory>(&3001)
                 .unwrap()
                 .add_item(&data.item_data, *obj, 1492, 48);
         }
@@ -8782,7 +8766,7 @@ fn quest_q00262_ivory_tower_loop() {
     {
         let World { objects, data, .. } = &mut world;
         objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+            .get_component_mut::<Inventory>(&3001)
             .unwrap()
             .add_item(&data.item_data, 0x5700_0000, 707, 7);
     }
@@ -8937,7 +8921,7 @@ fn quest_q00267_race_and_level_gates() {
     drain(&mut human_rx);
 
     let q = "Q00267_WrathOfVerdure";
-    let page = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> String {
+    let page = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
@@ -8992,7 +8976,7 @@ fn quest_q00267_race_and_level_gates() {
 fn inject(world: &mut World, oid: i32, obj: i32, item: i32, count: i64) {
     let World { objects, data, .. } = world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&oid)
+        .get_component_mut::<Inventory>(&oid)
         .unwrap()
         .add_item(&data.item_data, obj, item, count);
 }
@@ -11962,10 +11946,7 @@ fn quest_q00231_test_of_the_maestro() {
     // The errand teleported the player to Cruma; walk back to the NPCs so the
     // bypass interaction-distance guard lets the remaining turn-ins through.
     {
-        let pos = world
-            .objects
-            .get_component_mut::<crate::model::components::Position>(&3001)
-            .unwrap();
+        let pos = world.objects.get_component_mut::<Position>(&3001).unwrap();
         pos.x = 100;
         pos.y = 0;
         pos.z = 0;
@@ -12527,7 +12508,7 @@ fn quest_q00225_test_of_the_searcher() {
     }
     let conjured = world
         .objects
-        .get_component::<crate::model::components::SummonedNpcs>(&tree)
+        .get_component::<model::components::SummonedNpcs>(&tree)
         .map(|l| l.0.len())
         .unwrap_or(0);
     assert_eq!(
@@ -12542,10 +12523,7 @@ fn quest_q00225_test_of_the_searcher() {
         5,
         "one key per allowed spawn"
     );
-    if let Some(inv) = world
-        .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&3001)
-    {
+    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&3001) {
         inv.remove_item(2806, 4);
     }
     talk(&mut world, chest);
@@ -15088,12 +15066,12 @@ fn quest_q00227_test_of_the_reformer() {
         let wolf = npcs_of(&mut world, 27131)[0];
         let hate_on_decoy = world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&wolf)
+            .get_component::<AggroList>(&wolf)
             .is_some_and(|a| {
                 a.0.keys().any(|t| {
                     world
                         .objects
-                        .get_component::<crate::model::npc::Npc>(t)
+                        .get_component::<model::npc::Npc>(t)
                         .is_some_and(|n| n.npc_id == 30732)
                 })
             });
@@ -15231,9 +15209,7 @@ fn servitor_arcana_duel_round_trip() {
     }
 
     let (mut world, _db, _l) = quest_test_world();
-    world.quests = std::sync::Arc::new(quests::QuestRegistry::new(vec![std::sync::Arc::new(
-        ArcanaBattleTest,
-    )]));
+    world.quests = Arc::new(quests::QuestRegistry::new(vec![Arc::new(ArcanaBattleTest)]));
     add_quest_items(
         &mut world,
         &[
@@ -15284,7 +15260,7 @@ fn servitor_arcana_duel_round_trip() {
     // The rival was set on the servitor (make_npc_attack seeded its aggro).
     let seeded = world
         .objects
-        .get_component::<crate::model::npc::AggroList>(&opponent)
+        .get_component::<AggroList>(&opponent)
         .is_some_and(|a| a.0.contains_key(&servitor));
     assert!(seeded, "the rival strikes back at the servitor");
 
@@ -15445,21 +15421,20 @@ fn quest_q00230_test_of_the_summoner() {
 
     // Grab the first HTML from a talk, whether it went out as a `.html`
     // (`NpcHtmlMessage`) or a `.htm` (`ExNpcQuestHtmlMessage`).
-    let grab_html =
-        |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> Option<String> {
-            drain(rx).iter().find_map(|p| {
-                if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
-                    decode_npc_html(p)
-                } else if p[0] == crate::network::server_packets::opcodes::EX {
-                    let mut r = commons::network::PacketReader::new(&p[1..]);
-                    r.read_i16()?; // ex opcode
-                    r.read_i32()?; // npc oid
-                    r.read_string()
-                } else {
-                    None
-                }
-            })
-        };
+    let grab_html = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> Option<String> {
+        drain(rx).iter().find_map(|p| {
+            if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
+                decode_npc_html(p)
+            } else if p[0] == server_packets::opcodes::EX {
+                let mut r = commons::network::PacketReader::new(&p[1..]);
+                r.read_i16()?; // ex opcode
+                r.read_i32()?; // npc oid
+                r.read_string()
+            } else {
+                None
+            }
+        })
+    };
 
     // --- Class / level gate on the start NPC. ---
     talk(&mut world, galatea);
@@ -15688,7 +15663,7 @@ fn quest_q00230_test_of_the_summoner() {
     );
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
 }
@@ -15788,21 +15763,20 @@ fn quest_q00234_fates_whisper() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab_html =
-        |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> Option<String> {
-            drain(rx).iter().find_map(|p| {
-                if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
-                    decode_npc_html(p)
-                } else if p[0] == crate::network::server_packets::opcodes::EX {
-                    let mut r = commons::network::PacketReader::new(&p[1..]);
-                    r.read_i16()?;
-                    r.read_i32()?;
-                    r.read_string()
-                } else {
-                    None
-                }
-            })
-        };
+    let grab_html = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> Option<String> {
+        drain(rx).iter().find_map(|p| {
+            if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
+                decode_npc_html(p)
+            } else if p[0] == server_packets::opcodes::EX {
+                let mut r = commons::network::PacketReader::new(&p[1..]);
+                r.read_i16()?;
+                r.read_i32()?;
+                r.read_string()
+            } else {
+                None
+            }
+        })
+    };
 
     // --- Level gate: below 75 is refused (the 31002-01 page has no start link). ---
     talk(&mut world, reorin);
@@ -15987,7 +15961,7 @@ fn quest_q00234_fates_whisper() {
     );
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "quest completes on the upgrade");
 }
@@ -16049,21 +16023,20 @@ fn run_help_quest(p: HelpQuest) {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab_html =
-        |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> Option<String> {
-            drain(rx).iter().find_map(|pkt| {
-                if pkt[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
-                    decode_npc_html(pkt)
-                } else if pkt[0] == crate::network::server_packets::opcodes::EX {
-                    let mut r = commons::network::PacketReader::new(&pkt[1..]);
-                    r.read_i16()?;
-                    r.read_i32()?;
-                    r.read_string()
-                } else {
-                    None
-                }
-            })
-        };
+    let grab_html = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> Option<String> {
+        drain(rx).iter().find_map(|pkt| {
+            if pkt[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
+                decode_npc_html(pkt)
+            } else if pkt[0] == server_packets::opcodes::EX {
+                let mut r = commons::network::PacketReader::new(&pkt[1..]);
+                r.read_i16()?;
+                r.read_i32()?;
+                r.read_string()
+            } else {
+                None
+            }
+        })
+    };
 
     // --- Level gate: the refusal page carries no accept button. ---
     talk(&mut world, start);
@@ -16159,7 +16132,7 @@ fn run_help_quest(p: HelpQuest) {
     );
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "{q}: completed on reward");
 }
@@ -16233,10 +16206,10 @@ fn quest_q00044_help_the_son() {
 fn seed_formal_wear(world: &mut World, player: i32, cond: i32) {
     let q = world
         .objects
-        .get_component_mut::<crate::model::components::Quests>(&player)
+        .get_component_mut::<model::components::Quests>(&player)
         .unwrap();
     let qs = q.0.entry("Q00037_MakeFormalWear".to_string()).or_default();
-    qs.state = crate::model::quest::state::STARTED;
+    qs.state = model::quest::state::STARTED;
     qs.vars.insert("cond".to_string(), cond.to_string());
 }
 
@@ -16295,21 +16268,20 @@ fn quest_q00037_make_formal_wear() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab_html =
-        |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> Option<String> {
-            drain(rx).iter().find_map(|p| {
-                if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
-                    decode_npc_html(p)
-                } else if p[0] == crate::network::server_packets::opcodes::EX {
-                    let mut r = commons::network::PacketReader::new(&p[1..]);
-                    r.read_i16()?;
-                    r.read_i32()?;
-                    r.read_string()
-                } else {
-                    None
-                }
-            })
-        };
+    let grab_html = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> Option<String> {
+        drain(rx).iter().find_map(|p| {
+            if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
+                decode_npc_html(p)
+            } else if p[0] == server_packets::opcodes::EX {
+                let mut r = commons::network::PacketReader::new(&p[1..]);
+                r.read_i16()?;
+                r.read_i32()?;
+                r.read_string()
+            } else {
+                None
+            }
+        })
+    };
 
     // Level gate: 59 is refused (no accept button to 30842-03).
     talk(&mut world, alexis);
@@ -16370,7 +16342,7 @@ fn quest_q00037_make_formal_wear() {
     );
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(
         quests.0[q].is_completed(),
@@ -16418,13 +16390,13 @@ fn quest_q00036_make_a_sewing_kit() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> String {
+    let grab = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
-                if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
                     decode_npc_html(p)
-                } else if p[0] == crate::network::server_packets::opcodes::EX {
+                } else if p[0] == server_packets::opcodes::EX {
                     let mut r = commons::network::PacketReader::new(&p[1..]);
                     r.read_i16()?;
                     r.read_i32()?;
@@ -16492,7 +16464,7 @@ fn quest_q00036_make_a_sewing_kit() {
     );
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed());
 }
@@ -16568,7 +16540,7 @@ fn quest_q00035_find_glittering_jewelry() {
     assert_eq!(item_count(&world, 3001, THONS), 0, "thons consumed");
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed());
 }
@@ -16663,7 +16635,7 @@ fn quest_q00034_in_search_of_cloth() {
     );
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed());
 }
@@ -16743,7 +16715,7 @@ fn quest_q00033_make_a_pair_of_dress_shoes() {
     assert_eq!(item_count(&world, 3001, ADENA), 0, "200k paid to Woodley");
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed());
 }
@@ -16794,11 +16766,11 @@ fn quest_q00642_a_powerful_primeval_creature() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap()
             .0[q]
             .state,
-        crate::model::quest::state::STARTED,
+        model::quest::state::STARTED,
         "started"
     );
 
@@ -16875,13 +16847,13 @@ fn quest_q00641_attack_sailren() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>| -> String {
+    let grab = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> String {
         drain(rx)
             .iter()
             .find_map(|p| {
-                if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
                     decode_npc_html(p)
-                } else if p[0] == crate::network::server_packets::opcodes::EX {
+                } else if p[0] == server_packets::opcodes::EX {
                     let mut r = commons::network::PacketReader::new(&p[1..]);
                     r.read_i16()?;
                     r.read_i32()?;
@@ -16906,13 +16878,13 @@ fn quest_q00641_attack_sailren() {
     {
         let quests = world
             .objects
-            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .get_component_mut::<model::components::Quests>(&3001)
             .unwrap();
         let qs = quests
             .0
             .entry("Q00126_TheNameOfEvil2".to_string())
             .or_default();
-        qs.state = crate::model::quest::state::COMPLETED;
+        qs.state = model::quest::state::COMPLETED;
     }
     talk(&mut world, statue);
     let html = grab(&mut rx);
@@ -17021,13 +16993,13 @@ fn quest_q00125_the_name_of_evil_1() {
     {
         let quests = world
             .objects
-            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .get_component_mut::<model::components::Quests>(&3001)
             .unwrap();
         quests
             .0
             .entry("Q00124_MeetingTheElroki".to_string())
             .or_default()
-            .state = crate::model::quest::state::COMPLETED;
+            .state = model::quest::state::COMPLETED;
     }
 
     // Accept → Gazkh Fragment → Karakawei sends hunting.
@@ -17064,7 +17036,7 @@ fn quest_q00125_the_name_of_evil_1() {
     // The puzzle sets the "Memo" quest var only on the full correct word.
     let memo = |w: &World| -> i32 {
         w.objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap()
             .0[q]
             .get_int("Memo")
@@ -17114,7 +17086,7 @@ fn quest_q00125_the_name_of_evil_1() {
     talk(&mut world, mushika);
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "completed at Mushika");
 }
@@ -17182,13 +17154,13 @@ fn quest_q00126_the_name_of_evil_2() {
     {
         let quests = world
             .objects
-            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .get_component_mut::<model::components::Quests>(&3001)
             .unwrap();
         quests
             .0
             .entry("Q00125_TheNameOfEvil1".to_string())
             .or_default()
-            .state = crate::model::quest::state::COMPLETED;
+            .state = model::quest::state::COMPLETED;
     }
 
     // Accept and walk the singing-Kaimu ladder (cond 1 → 11).
@@ -17272,7 +17244,7 @@ fn quest_q00126_the_name_of_evil_2() {
     );
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "The Name of Evil - 2 complete");
 }
@@ -17455,10 +17427,10 @@ fn quest_q00420_little_wing() {
     {
         let quests = w2
             .objects
-            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .get_component_mut::<model::components::Quests>(&3001)
             .unwrap();
         let qs = quests.0.entry(q.to_string()).or_default();
-        qs.state = crate::model::quest::state::STARTED;
+        qs.state = model::quest::state::STARTED;
         qs.vars.insert("cond".to_string(), "6".to_string());
     }
     inject(&mut w2, 3001, 0x0420_9000, DELUXE_FAIRY_STONE, 1);
@@ -17725,7 +17697,7 @@ fn quest_q00032_an_obvious_lie() {
     assert_eq!(item_count(&world, 3001, THREAD), 0, "thread consumed");
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "one-time quest completes");
 }
@@ -17896,7 +17868,7 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
     // skill id alone cannot tell the two apart.
     let transfer_cast = drain(&mut rx)
         .into_iter()
-        .filter(|p| p[0] == crate::network::server_packets::opcodes::MAGIC_SKILL_USE)
+        .filter(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE)
         .map(|p| {
             let mut r = commons::network::PacketReader::new(&p[1..]);
             r.read_i32().unwrap(); // cast bar
@@ -17921,7 +17893,7 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
     );
     let quests = world
         .objects
-        .get_component::<crate::model::components::Quests>(&3001)
+        .get_component::<model::components::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "Saga completes on the transfer");
 }
@@ -18383,9 +18355,9 @@ fn saga_shared_htmls_substitute_questname() {
     let html = drain(&mut rx)
         .iter()
         .find_map(|p| {
-            if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+            if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
                 decode_npc_html(p)
-            } else if p[0] == crate::network::server_packets::opcodes::EX {
+            } else if p[0] == server_packets::opcodes::EX {
                 let mut r = commons::network::PacketReader::new(&p[1..]);
                 r.read_i16()?;
                 r.read_i32()?;
@@ -18438,10 +18410,10 @@ fn saga_finale_boss_retreats_after_15_hits() {
     {
         let quests = world
             .objects
-            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .get_component_mut::<model::components::Quests>(&3001)
             .unwrap();
         let qs = quests.0.entry(q.to_string()).or_default();
-        qs.state = crate::model::quest::state::STARTED;
+        qs.state = model::quest::state::STARTED;
         qs.vars.insert("cond".to_string(), "17".to_string());
     }
     let ev = |w: &mut World, npc: i32, e: &str| {
@@ -18458,11 +18430,11 @@ fn saga_finale_boss_retreats_after_15_hits() {
     // Choreography: the boss and its companion set upon each other.
     let boss_targets_companion = world
         .objects
-        .get_component::<crate::model::npc::AggroList>(&boss)
+        .get_component::<AggroList>(&boss)
         .is_some_and(|a| a.0.contains_key(&companion));
     let companion_targets_boss = world
         .objects
-        .get_component::<crate::model::npc::AggroList>(&companion)
+        .get_component::<AggroList>(&companion)
         .is_some_and(|a| a.0.contains_key(&boss));
     assert!(boss_targets_companion, "the boss duels the companion");
     assert!(companion_targets_boss, "the companion duels the boss");
@@ -18476,7 +18448,7 @@ fn saga_finale_boss_retreats_after_15_hits() {
     let before = drain(&mut rx)
         .iter()
         .find_map(|p| {
-            if p[0] == crate::network::server_packets::opcodes::EX {
+            if p[0] == server_packets::opcodes::EX {
                 let mut r = commons::network::PacketReader::new(&p[1..]);
                 r.read_i16()?;
                 r.read_i32()?;
@@ -18532,10 +18504,10 @@ fn saga_progression_casts_visual_fx() {
     {
         let quests = world
             .objects
-            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .get_component_mut::<model::components::Quests>(&3001)
             .unwrap();
         let qs = quests.0.entry(q.to_string()).or_default();
-        qs.state = crate::model::quest::state::STARTED;
+        qs.state = model::quest::state::STARTED;
         qs.vars.insert("cond".to_string(), "5".to_string());
     }
     inject(&mut world, 3001, 0x0070_4000, I4, 1);
@@ -18548,7 +18520,7 @@ fn saga_progression_casts_visual_fx() {
     );
     let skill_of = |p: &[u8]| -> Option<i32> {
         // MAGIC_SKILL_USE: op, i32 castbar, i32 caster, i32 target, i32 skillId..
-        if p.first() != Some(&crate::network::server_packets::opcodes::MAGIC_SKILL_USE) {
+        if p.first() != Some(&server_packets::opcodes::MAGIC_SKILL_USE) {
             return None;
         }
         let mut r = commons::network::PacketReader::new(&p[1..]);
@@ -18592,7 +18564,7 @@ fn saga_finale_companion_taunt_cadence() {
     let q = "Q00070_SagaOfThePhoenixKnight";
     let set_var = |w: &mut World, key: &str, val: &str| {
         w.objects
-            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .get_component_mut::<model::components::Quests>(&3001)
             .unwrap()
             .0
             .entry(q.to_string())
@@ -18603,12 +18575,12 @@ fn saga_finale_companion_taunt_cadence() {
     set_var(&mut world, "cond", "17");
     world
         .objects
-        .get_component_mut::<crate::model::components::Quests>(&3001)
+        .get_component_mut::<model::components::Quests>(&3001)
         .unwrap()
         .0
         .get_mut(q)
         .unwrap()
-        .state = crate::model::quest::state::STARTED;
+        .state = model::quest::state::STARTED;
 
     // Summon the finale (starts the taunt timer).
     handle_request_bypass_to_server(
@@ -18625,7 +18597,7 @@ fn saga_finale_companion_taunt_cadence() {
 
     // Decode NpcSay-text (op 0x30): oid, chatType, 1_000_000+npcId, -1, string.
     let taunt_from = |p: &[u8], oid: i32| -> Option<String> {
-        if p.first() != Some(&crate::network::server_packets::opcodes::NPC_SAY) {
+        if p.first() != Some(&server_packets::opcodes::NPC_SAY) {
             return None;
         }
         let mut r = commons::network::PacketReader::new(&p[1..]);
@@ -18750,7 +18722,7 @@ fn quest_q00421_little_wings_big_adventure() {
         w.objects
             .get_component::<Quests>(&3001)
             .and_then(|qc| qc.0.get(q))
-            .is_some_and(|qs| qs.state == crate::model::quest::state::STARTED)
+            .is_some_and(|qs| qs.state == model::quest::state::STARTED)
     };
     let set_hits = |w: &mut World, n: i32| {
         w.objects
@@ -18929,7 +18901,7 @@ fn quest_q00421_guardian_ambush_despawns() {
     {
         let quests = world.objects.get_component_mut::<Quests>(&3001).unwrap();
         let qs = quests.0.entry(q.to_string()).or_default();
-        qs.state = crate::model::quest::state::STARTED;
+        qs.state = model::quest::state::STARTED;
         qs.vars.insert("cond".to_string(), "2".to_string());
     }
 
@@ -19026,7 +18998,7 @@ fn quest_q00605_alliance_with_ketra_orcs() {
         w.objects
             .get_component::<Quests>(&3001)
             .and_then(|qc| qc.0.get(q))
-            .is_some_and(|qs| qs.state == crate::model::quest::state::STARTED)
+            .is_some_and(|qs| qs.state == model::quest::state::STARTED)
     };
     let event = |w: &mut World, e: &str| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{wahkan}_Quest {q} {e}")));
@@ -19131,7 +19103,7 @@ fn quest_q00611_varka_mirror_and_exclusion() {
         w.objects
             .get_component::<Quests>(&3001)
             .and_then(|qc| qc.0.get(q))
-            .is_some_and(|qs| qs.state == crate::model::quest::state::STARTED)
+            .is_some_and(|qs| qs.state == model::quest::state::STARTED)
     };
     let event = |w: &mut World, e: &str| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{naran}_Quest {q} {e}")));
@@ -19153,7 +19125,7 @@ fn quest_q00611_varka_mirror_and_exclusion() {
     // --- Drop the Ketra mark and the mirror starts and drops its own badges. ---
     world
         .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+        .get_component_mut::<Inventory>(&3001)
         .unwrap()
         .remove_item(KETRA_MARK1, 1);
     event(&mut world, "31378-04.htm");
@@ -19207,7 +19179,7 @@ fn quest_q00350_enhance_your_weapon() {
             chance: 100,
         },
     );
-    world.quests = std::sync::Arc::new(crate::scripts::build_registry(vec![MOB]));
+    world.quests = Arc::new(crate::scripts::build_registry(vec![MOB]));
 
     add_quest_items(
         &mut world,
@@ -19388,7 +19360,7 @@ fn quest_q00640_the_zero_hour() {
             .0
             .entry("Q00109_InSearchOfTheNest".to_string())
             .or_default();
-        qs.state = crate::model::quest::state::COMPLETED;
+        qs.state = model::quest::state::COMPLETED;
     }
 
     let event = |w: &mut World, e: &str| {
@@ -19532,9 +19504,9 @@ fn quest_q00370_an_elder_sows_seeds() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .and_then(|qc| qc.0.get(q))
-            .is_some_and(|qs| qs.state == crate::model::quest::state::STARTED),
+            .is_some_and(|qs| qs.state == model::quest::state::STARTED),
         "started"
     );
 
@@ -19628,9 +19600,9 @@ fn quest_q00327_recover_the_farmland() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .and_then(|qc| qc.0.get(q))
-            .is_some_and(|qs| qs.state == crate::model::quest::state::STARTED),
+            .is_some_and(|qs| qs.state == model::quest::state::STARTED),
         "started"
     );
 
@@ -20211,7 +20183,7 @@ fn fishing_cast_hook_and_land_a_fish() {
     // --- Away from any fishing zone, the cast can't start. ---
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&3001)
+        .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 50_000; // out of the synthetic zones
     crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // stop (was still fishing)
@@ -20231,7 +20203,7 @@ fn item_row(
     object_id: i32,
     item_id: i32,
     count: i64,
-    slot: crate::model::inventory::PaperdollSlot,
+    slot: model::inventory::PaperdollSlot,
 ) -> crate::character::ItemRow {
     crate::character::ItemRow {
         object_id,
@@ -20527,7 +20499,7 @@ fn fishing_zone_toggles_auto_fish_available() {
     };
 
     // Outside the zone: no availability packet (it was never lit).
-    crate::game_loop::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert_eq!(read_avail(&mut rx), None, "no packet while outside");
 
     // Move into the fishing zone → YES.
@@ -20536,7 +20508,7 @@ fn fishing_zone_toggles_auto_fish_available() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 500;
-    crate::game_loop::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert_eq!(
         read_avail(&mut rx),
         Some(true),
@@ -20549,7 +20521,7 @@ fn fishing_zone_toggles_auto_fish_available() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 100;
-    crate::game_loop::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert_eq!(read_avail(&mut rx), Some(false), "leaving dims it");
 }
 
@@ -20605,7 +20577,7 @@ fn ferry_ride_board_travel_disembark() {
 
     // Weigh anchor (skip the dwell) and sail to dock B (two 400-unit legs at
     // speed 200 ≈ 40 ticks).
-    crate::game_loop::boats::handle_depart(&mut world, boat);
+    crate::game_loop::boats::depart(&mut world, boat);
     advance_ticks(&mut world, 45);
     assert_eq!(ppos(&world), (1800, 1000), "the passenger rode to dock B");
 
@@ -20626,7 +20598,7 @@ fn request_quest_list_resends_the_journal() {
     let mut rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     world
         .objects
-        .add_components(&5001, crate::model::components::Quests(Default::default()));
+        .add_components(&5001, model::components::Quests(Default::default()));
     drain(&mut rx);
 
     on_packet(&mut world, 1, vec![cop::REQUEST_QUEST_LIST]);
@@ -20649,7 +20621,7 @@ const BLUE_GEM: i32 = 6353;
 fn tutorial_memo(world: &World, player: i32) -> i32 {
     world
         .objects
-        .get_component::<crate::model::components::Quests>(&player)
+        .get_component::<model::components::Quests>(&player)
         .and_then(|q| q.0.get(TUTORIAL))
         .map(|qs| qs.get_int("memoState"))
         .unwrap_or(-1)
@@ -20822,7 +20794,7 @@ fn tutorial_gremlin_gem_drop_and_pickup() {
         .find(|oid| {
             world
                 .objects
-                .get_component::<crate::model::components::GroundItem>(oid)
+                .get_component::<model::components::GroundItem>(oid)
                 .is_some_and(|g| g.item_id == BLUE_GEM)
         })
         .expect("gem dropped");
@@ -20893,7 +20865,7 @@ fn quest_kill_credit_reaches_a_party_member() {
     let seq = world.next_request_seq();
     world.parties.insert(
         party_id,
-        crate::model::party::Party::new(3001, crate::model::party::LootRule::FindersKeepers, seq),
+        model::party::Party::new(3001, LootRule::FindersKeepers, seq),
     );
     world.objects.add_components(&3001, PartyRef(party_id));
     crate::game_loop::party::add_party_member(&mut world, party_id, 3005);
@@ -20914,7 +20886,7 @@ fn quest_kill_credit_reaches_a_party_member() {
     // Across the map (past AltPartyRange 1500), the mate collects nothing.
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&3005)
+        .get_component_mut::<Position>(&3005)
         .unwrap()
         .x = 99_999;
     add_test_npc(&mut world, mob + 1, 20361, "Monster", 11, 30, 0, 0);
@@ -21254,12 +21226,12 @@ fn quest_q11006_future_people_class_paths() {
     // The prerequisite quest, marked complete.
     world
         .objects
-        .get_component_mut::<crate::model::components::Quests>(&3001)
+        .get_component_mut::<model::components::Quests>(&3001)
         .unwrap()
         .0
         .entry("Q11005_PerfectLeatherArmor3".to_string())
         .or_default()
-        .state = crate::model::quest::state::COMPLETED;
+        .state = model::quest::state::COMPLETED;
 
     handle_request_bypass_to_server(
         &mut world,
@@ -21283,7 +21255,7 @@ fn quest_q11006_future_people_class_paths() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Quests>(&3001)
+            .get_component::<model::components::Quests>(&3001)
             .unwrap()
             .0[q]
             .is_completed(),

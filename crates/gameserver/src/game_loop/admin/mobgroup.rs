@@ -1,7 +1,7 @@
 //! `AdminMobGroup` — GM-controlled mob groups (`//mobgroup_*`). Groups are
 //! registered in [`World::mob_groups`](crate::world::World::mob_groups); their
 //! members are ordinary runtime-spawned NPCs tagged with
-//! [`Controllable`](crate::model::mob_group::Controllable) and steered by the
+//! [`Controllable`](Controllable) and steered by the
 //! group's [`MobGroupState`] in `npc_ai::controllable_think`.
 
 use crate::game_loop::guard;

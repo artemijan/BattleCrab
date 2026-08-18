@@ -60,7 +60,7 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
         crate::game_loop::player_info::broadcast_user_info(world, target);
     } else if let Some(pkt) = crate::game_loop::visibility::npc_info_bytes(world, target) {
         // Java `broadcastInfo()` for a non-player creature.
-        crate::game_loop::helpers::broadcast_including_self(world, target, &pkt);
+        helpers::broadcast_including_self(world, target, &pkt);
     }
     send_message(
         world,
@@ -190,19 +190,11 @@ pub(super) fn admin_teleportto(world: &mut World, client_id: u32, object_id: i32
         return;
     }
     let Some(target) = find_online_player(world, name.trim()) else {
-        send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::INVALID_TARGET,
-        );
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     if target == object_id {
-        send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF,
-        );
+        send_sm(world, client_id, sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF);
         return;
     }
     let target_name = player_name_or_empty(world, target);
@@ -281,7 +273,7 @@ fn goto_char(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -
     } else if super::death::teleport_to_object(world, object_id, target) {
         // The confirmation stays gated on the teleport actually happening: a
         // target with no position is silently skipped, exactly as before.
-        let name = helpers::player_name_or_empty(world, target);
+        let name = player_name_or_empty(world, target);
         send_message(
             world,
             client_id,

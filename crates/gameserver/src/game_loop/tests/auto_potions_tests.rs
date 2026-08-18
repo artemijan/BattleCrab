@@ -13,7 +13,7 @@ const HP_CHEAP: i32 = 1061;
 const MP_POTION: i32 = 728;
 
 /// A world with the loop configured and the player holding potions.
-fn potion_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn potion_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.id_pool = 0x4B00_0000..0x4B00_0100;
     let cfg = &mut world.cfg.auto_potions;
@@ -40,16 +40,13 @@ fn potion_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>)
         t.default_action = crate::data::item_data::ActionType::SkillReduce;
         t.immediate_effect = true;
         world.data.item_data.insert_for_test(t);
-        world
-            .data
-            .skill_data
-            .insert_for_test(crate::model::skill::Skill {
-                self_continuous: false,
-                id: skill_id,
-                level: 1,
-                name: format!("Restore {item_id}"),
-                ..Default::default()
-            });
+        world.data.skill_data.insert_for_test(Skill {
+            self_continuous: false,
+            id: skill_id,
+            level: 1,
+            name: format!("Restore {item_id}"),
+            ..Default::default()
+        });
     }
 
     let rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
@@ -269,16 +266,13 @@ fn cp_has_its_own_pool() {
     t.default_action = crate::data::item_data::ActionType::SkillReduce;
     t.immediate_effect = true;
     world.data.item_data.insert_for_test(t);
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: 9104,
-            level: 1,
-            name: "Restore CP".into(),
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: 9104,
+        level: 1,
+        name: "Restore CP".into(),
+        ..Default::default()
+    });
     world.cfg.auto_potions.cp.enabled = true;
     world.cfg.auto_potions.cp.percentage = 70;
     world.cfg.auto_potions.cp.item_ids = vec![CP_POTION];

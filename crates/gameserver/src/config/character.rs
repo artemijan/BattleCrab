@@ -541,7 +541,7 @@ pub struct CharacterConfig {
     /// neither half can fire. The list is parsed so a value put there is
     /// visible; honouring it would go in `Skill`'s reuse lookup.
     pub enable_modify_skill_reuse: bool,
-    pub skill_reuse_list: std::collections::HashMap<i32, i32>,
+    pub skill_reuse_list: HashMap<i32, i32>,
     /// `SubclassStoreSkillCooltime` — Java's `setActiveClass` calls
     /// `store(SUBCLASS_STORE_SKILL_COOLTIME)` to flush cooldowns *before*
     /// `resetTimeStamps()` wipes them. The port saves memory-first on its own
@@ -842,7 +842,7 @@ impl Default for CharacterConfig {
             item_equip_active_skill_reuse_ms: 300_000,
             store_ui_settings: true,
             enable_modify_skill_reuse: false,
-            skill_reuse_list: std::collections::HashMap::new(),
+            skill_reuse_list: HashMap::new(),
             subclass_store_skill_cooltime: true,
             summon_store_skill_cooltime: true,
             store_recipe_shop_list: false,
@@ -1241,7 +1241,7 @@ impl CharacterConfig {
             enable_modify_skill_reuse: p
                 .get_bool("EnableModifySkillReuse", d.enable_modify_skill_reuse),
             // Same `id,value;…` shape the Olympiad items list uses.
-            skill_reuse_list: super::common::parse_tuples_separated_by_semicolon(
+            skill_reuse_list: parse_tuples_separated_by_semicolon(
                 &p.get_string("SkillReuseList", ""),
             ),
             subclass_store_skill_cooltime: p.get_bool(

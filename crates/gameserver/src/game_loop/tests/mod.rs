@@ -451,7 +451,7 @@ fn add_hate(world: &mut World, npc: i32, attacker: i32, hate: f64, damage: f64) 
         .get_component_mut::<AggroList>(&npc)
         .unwrap()
         .0
-        .insert(attacker, crate::model::npc::AggroInfo { hate, damage });
+        .insert(attacker, model::npc::AggroInfo { hate, damage });
 }
 fn pbuffs(world: &World, oid: i32) -> usize {
     world
@@ -1148,7 +1148,7 @@ fn give_flag_buff(world: &mut World, oid: i32, skill_id: i32, flags: u32) {
 
 /// The `(trait, value)` pairs a skill's `DefenceTrait` effect carries — the
 /// per-trait resistances — or `None` when the skill has no such effect.
-fn defence_traits(skill: &model::skill::Skill) -> Option<&[(model::skill::TraitType, f64)]> {
+fn defence_traits(skill: &Skill) -> Option<&[(model::skill::TraitType, f64)]> {
     skill.effects.iter().find_map(|e| match e {
         model::skill::SkillEffect::DefenceTrait { traits } => Some(traits.as_slice()),
         _ => None,
@@ -1157,7 +1157,7 @@ fn defence_traits(skill: &model::skill::Skill) -> Option<&[(model::skill::TraitT
 
 /// The attacker-side twin of [`defence_traits`]: what an `AttackTrait` effect
 /// declares the wielder is strong against.
-fn attack_traits(skill: &model::skill::Skill) -> Option<&[(model::skill::TraitType, f64)]> {
+fn attack_traits(skill: &Skill) -> Option<&[(model::skill::TraitType, f64)]> {
     skill.effects.iter().find_map(|e| match e {
         model::skill::SkillEffect::AttackTrait { traits } => Some(traits.as_slice()),
         _ => None,
@@ -1172,7 +1172,7 @@ fn attack_traits(skill: &model::skill::Skill) -> Option<&[(model::skill::TraitTy
 fn arm_reuse(world: &mut World, oid: i32, key: i32, reuse: model::SkillReuse) {
     world
         .objects
-        .get_component_mut::<model::components::Reuses>(&oid)
+        .get_component_mut::<Reuses>(&oid)
         .expect("target has a Reuses component")
         .0
         .insert(key, reuse);
@@ -1732,18 +1732,15 @@ fn make_party(world: &mut World, members: &[i32], rule: LootRule) -> u32 {
 /// participants matters to those gates, so the arena, instance and return
 /// points are left at zero and the match never times out.
 fn start_olympiad_match(world: &mut World, oid: i32, opponent: i32) {
-    world
-        .olympiad
-        .matches
-        .push(crate::model::olympiad::OlympiadMatch {
-            arena: 0,
-            player_a: oid,
-            player_b: opponent,
-            instance_id: 0,
-            deadline_tick: u64::MAX,
-            return_a: (0, 0, 0),
-            return_b: (0, 0, 0),
-        });
+    world.olympiad.matches.push(model::olympiad::OlympiadMatch {
+        arena: 0,
+        player_a: oid,
+        player_b: opponent,
+        instance_id: 0,
+        deadline_tick: u64::MAX,
+        return_a: (0, 0, 0),
+        return_b: (0, 0, 0),
+    });
 }
 
 fn acquire_skill_body(skill_id: i32, skill_level: i32, acquire_type: i32) -> Vec<u8> {
@@ -2252,11 +2249,7 @@ fn adena_of(world: &World, oid: i32) -> i64 {
 
 /// `oid`'s first inventory row holding `item_id`, for the tests that want a
 /// field other than the object id — or that assert the row is gone.
-fn inv_item(
-    world: &World,
-    oid: i32,
-    item_id: i32,
-) -> Option<&crate::model::inventory::ItemInstance> {
+fn inv_item(world: &World, oid: i32, item_id: i32) -> Option<&model::inventory::ItemInstance> {
     world
         .objects
         .get_component::<Inventory>(&oid)?

@@ -4428,9 +4428,9 @@ fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
         .clear();
     world
         .objects
-        .get_component_mut::<model::npc::NpcAi>(&near)
+        .get_component_mut::<NpcAi>(&near)
         .unwrap()
-        .intention = model::npc::NpcIntention::Active;
+        .intention = NpcIntention::Active;
     {
         let v = world.objects.get_component_mut::<Vitals>(&3001).unwrap();
         v.cur_hp = v.max_hp as f64;
@@ -5066,10 +5066,7 @@ fn assassination_passive_raises_blow_rate_stat() {
     let bare = dummy_char(5501, "Bare");
     let bare_bundle = Player::from_char(&world.data, &bare);
     assert_eq!(
-        bare_bundle
-            .stat_modifiers
-            .mul
-            .get(&model::stats::Stat::BlowRate),
+        bare_bundle.stat_modifiers.mul.get(&Stat::BlowRate),
         None,
         "no skill: no modifier at all"
     );
@@ -5080,7 +5077,7 @@ fn assassination_passive_raises_blow_rate_stat() {
     let mul = assassin_bundle
         .stat_modifiers
         .mul
-        .get(&model::stats::Stat::BlowRate)
+        .get(&Stat::BlowRate)
         .copied()
         .unwrap_or(0.0);
     assert!(
@@ -5114,7 +5111,7 @@ fn enlarge_slot_expand_inventory_raises_reported_cap() {
     let bare_view = bare_bundle.view();
     let bare_limit = model::finalize(
         bare_view.mods,
-        model::stats::Stat::InventoryNormal,
+        Stat::InventoryNormal,
         cfg.inventory_limit(0) as f64,
     ) as i32;
     assert_eq!(
@@ -5130,7 +5127,7 @@ fn enlarge_slot_expand_inventory_raises_reported_cap() {
     let expanded_view = expanded_bundle.view();
     let expanded_limit = model::finalize(
         expanded_view.mods,
-        model::stats::Stat::InventoryNormal,
+        Stat::InventoryNormal,
         cfg.inventory_limit(0) as f64,
     ) as i32;
     assert_eq!(
@@ -5720,8 +5717,7 @@ fn a_lethal_cast_counters_twice_because_java_rolls_it_from_both_sites() {
             .get_component::<model::components::StatModifiers>(&5622)
             .cloned()
             .unwrap_or_default();
-        mods.add
-            .insert(model::stats::Stat::VengeanceSkillPhysicalDamage, 100.0);
+        mods.add.insert(Stat::VengeanceSkillPhysicalDamage, 100.0);
         world.objects.add_components(&5622, mods);
     }
 

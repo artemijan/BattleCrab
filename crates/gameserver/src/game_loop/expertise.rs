@@ -77,10 +77,18 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
             ctx.remove(WEAPON_GRADE_PENALTY);
             ctx.remove(ARMOR_GRADE_PENALTY);
             if let Some((level, effects)) = weapon_effects {
-                ctx.apply(passive_penalty_buff(WEAPON_GRADE_PENALTY, level, effects));
+                ctx.apply(ActiveBuff::passive_pump(
+                    WEAPON_GRADE_PENALTY,
+                    level,
+                    effects,
+                ));
             }
             if let Some((level, effects)) = armor_effects {
-                ctx.apply(passive_penalty_buff(ARMOR_GRADE_PENALTY, level, effects));
+                ctx.apply(ActiveBuff::passive_pump(
+                    ARMOR_GRADE_PENALTY,
+                    level,
+                    effects,
+                ));
             }
         });
         if applied.is_none() {
@@ -167,12 +175,6 @@ fn penalty_effects(
     }
     let skill = world.data.skill_data.get(skill_id, level)?;
     Some((level, skill.stat_modifier_effects()))
-}
-
-/// A grade-penalty `ActiveBuff`: `passive` (hidden from `AbnormalStatusUpdate`,
-/// never scheduled to expire) and permanent while the gear stays equipped.
-fn passive_penalty_buff(skill_id: i32, level: i32, effects: Vec<StatModifierEffect>) -> ActiveBuff {
-    ActiveBuff::passive_pump(skill_id, level, effects)
 }
 
 #[cfg(test)]

@@ -12,7 +12,7 @@ use crate::game_loop::basic_property::{
 };
 use crate::model::skill::BasicProperty;
 
-const MOB: i32 = crate::model::npc::FIRST_NPC_OBJECT_ID + 7701;
+const MOB: i32 = model::npc::FIRST_NPC_OBJECT_ID + 7701;
 const PLAYER: i32 = 5801;
 
 fn world_with_mob() -> World {
@@ -198,7 +198,7 @@ fn a_landed_stun_accrues_and_a_resisted_one_does_not() {
     // the land rate is clamped to at most 90, and `resisted = rate <= roll`,
     // so a 99 resists wherever in the sequence it lands.
     world.force_rolls([99; 8]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, PLAYER, MOB, &skill);
+    effects::apply_skill_effects(&mut world, PLAYER, MOB, &skill);
     assert_eq!(
         resist_level(&world, MOB, BasicProperty::Physical),
         0,
@@ -208,7 +208,7 @@ fn a_landed_stun_accrues_and_a_resisted_one_does_not() {
     // Same trick inverted: the rate is floored at 10, so a 0 never resists.
     world.clear_forced_rolls();
     world.force_rolls([0; 8]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, PLAYER, MOB, &skill);
+    effects::apply_skill_effects(&mut world, PLAYER, MOB, &skill);
     assert_eq!(
         resist_level(&world, MOB, BasicProperty::Physical),
         1,

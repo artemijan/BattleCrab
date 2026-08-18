@@ -27,7 +27,7 @@ fn siege_zone(castle_id: i32) -> Zone {
         id: 0,
         name: format!("test_siege_{castle_id}"),
         kind: ZoneKind::Siege,
-        territory: crate::data::spawn_data::Territory {
+        territory: Territory {
             form: crate::data::spawn_data::ZoneForm::Cuboid {
                 x1: -2000,
                 x2: 2000,
@@ -49,7 +49,7 @@ fn siege_zone(castle_id: i32) -> Zone {
 
 /// A castle owned by `CLAN`, its siege zone, one guard row, and a lord standing
 /// inside with a ticket and the `CS_MERCENARIES` privilege.
-fn merc_world(max_npc_amount: i32) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn merc_world(max_npc_amount: i32) -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.data.item_data = dist::items_owned();
     world.id_pool = 0x4600_0000..0x4600_0200;
@@ -155,7 +155,7 @@ fn a_confirmed_ticket_posts_a_mercenary() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&LORD)
+            .get_component::<Inventory>(&LORD)
             .unwrap()
             .count_of(TICKET),
         4,
@@ -177,7 +177,7 @@ fn a_declined_ticket_is_kept() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&LORD)
+            .get_component::<Inventory>(&LORD)
             .unwrap()
             .count_of(TICKET),
         5,
@@ -201,10 +201,7 @@ fn mercenaries_cannot_be_posted_on_top_of_each_other() {
     );
 
     // 30 units away → accepted.
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&LORD)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Position>(&LORD) {
         p.x = 30;
     }
     place(&mut world);
@@ -218,10 +215,7 @@ fn the_guard_row_caps_how_many_can_be_posted() {
     let (mut world, _rx) = merc_world(1);
     place(&mut world);
 
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&LORD)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Position>(&LORD) {
         p.x = 500;
     }
     place(&mut world);
@@ -259,7 +253,7 @@ fn an_outsider_cannot_post_mercenaries() {
 #[test]
 fn mercenaries_cannot_be_posted_once_the_siege_starts() {
     let (mut world, _rx) = merc_world(5);
-    let mut siege = crate::model::siege::Siege::new(CASTLE);
+    let mut siege = model::siege::Siege::new(CASTLE);
     siege.in_progress = true;
     world.sieges.insert(CASTLE, siege);
 
@@ -283,27 +277,15 @@ fn posted_mercenaries_spawn_when_the_siege_starts() {
     // `start_siege` is a no-op without a registered siege for the castle.
     world
         .sieges
-        .insert(CASTLE, crate::model::siege::Siege::new(CASTLE));
+        .insert(CASTLE, model::siege::Siege::new(CASTLE));
     place(&mut world);
-    let spot = *world
-        .objects
-        .get_component::<crate::model::components::Position>(&LORD)
-        .unwrap();
+    let spot = *world.objects.get_component::<Position>(&LORD).unwrap();
 
-    let count = |w: &mut World| {
-        let mut n = 0;
-        w.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
-            if x.npc_id == GUARD_NPC {
-                n += 1;
-            }
-        });
-        n
-    };
-    let before = count(&mut world);
+    let before = npc_count(&mut world, GUARD_NPC);
     crate::game_loop::siege::start_siege(&mut world, CASTLE);
 
     assert_eq!(
-        count(&mut world),
+        npc_count(&mut world, GUARD_NPC),
         before + 1,
         "the hired mercenary is on the field"
     );
@@ -311,13 +293,11 @@ fn posted_mercenaries_spawn_when_the_siege_starts() {
     let mut placed = None;
     world
         .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &crate::model::components::Position)>(
-            |(npc, pos)| {
-                if npc.npc_id == GUARD_NPC {
-                    placed = Some(*pos);
-                }
-            },
-        );
+        .for_each_mut::<(&model::npc::Npc, &Position)>(|(npc, pos)| {
+            if npc.npc_id == GUARD_NPC {
+                placed = Some(*pos);
+            }
+        });
     let placed = placed.expect("spawned");
     assert_eq!(
         (placed.x, placed.y),
@@ -338,7 +318,7 @@ fn a_change_of_ownership_clears_the_postings() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&ticket_ground_oid),
+            .has_component::<model::components::GroundItem>(&ticket_ground_oid),
         "the ticket is on the ground"
     );
 
@@ -351,7 +331,7 @@ fn a_change_of_ownership_clears_the_postings() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::GroundItem>(&ticket_ground_oid),
+            .has_component::<model::components::GroundItem>(&ticket_ground_oid),
         "and the ticket with them"
     );
 }

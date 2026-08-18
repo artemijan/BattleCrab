@@ -305,7 +305,7 @@ fn add_clan_skill(world: &mut World, client_id: u32, object_id: i32, args: &[&st
         .is_some_and(|c| c.leader_id == target)
         .then_some(())
         .or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
-    crate::game_loop::clans::admin_add_clan_skill(world, clan_id, skill_id, level);
+    crate::game_loop::clans::add_clan_skill(world, clan_id, skill_id, level);
     send_message(world, client_id, "Clan skill added.");
     Ok(())
 }

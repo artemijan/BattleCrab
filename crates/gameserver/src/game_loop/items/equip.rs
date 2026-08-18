@@ -310,7 +310,7 @@ pub(crate) fn refresh_after_paperdoll_change(world: &mut World, object_id: i32) 
 /// before the destroy's own `InventoryUpdate` goes out. Here the paperdoll is
 /// a plain data component that cannot reach the client, so each destroy path
 /// has to call this with the object ids the removal unequipped — snapshot
-/// [`crate::model::inventory::Inventory::equipped_object_ids`] before the
+/// [`Inventory::equipped_object_ids`] before the
 /// removal and intersect it with the removal's result via
 /// [`unequipped_by_removal`].
 ///

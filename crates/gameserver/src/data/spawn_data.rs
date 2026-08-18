@@ -226,7 +226,7 @@ impl SpawnData {
     pub fn load_from(file_path: &str) -> Self {
         let mut spawns = Vec::new();
         let dir = std::path::PathBuf::from(format!("{file_path}{SPAWNS_DIR}"));
-        for path in &super::xml::xml_files_under(&dir) {
+        for path in &xml::xml_files_under(&dir) {
             parse_file(path, &relative_spawn_path(&dir, path), &mut spawns);
         }
         info!(

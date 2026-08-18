@@ -548,10 +548,6 @@ pub(crate) fn on_baium_damage(
     manage_and_cast(world, baium_oid);
 }
 
-pub(crate) fn on_baium_attacked(world: &mut World, baium_oid: i32, attacker_oid: i32) {
-    super::combat::anti_strider(world, baium_oid, attacker_oid);
-}
-
 // ---------------------------------------------------------------------------
 // Skill selection (`manageSkills`)
 // ---------------------------------------------------------------------------
@@ -691,11 +687,6 @@ pub(crate) fn on_baium_killed(world: &mut World) {
         .schedule(world.tick + CLEAR_ZONE_TICKS, ScheduledTask::BaiumClearZone);
 }
 
-/// The post-kill `CLEAR_ZONE` timer firing — empty the lair.
-pub(crate) fn handle_clear_zone(world: &mut World) {
-    clear_zone(world);
-}
-
 // ---------------------------------------------------------------------------
 // CHECK_ATTACK — the inactivity reset and the self-heal
 // ---------------------------------------------------------------------------
@@ -748,8 +739,9 @@ fn wounded_below(world: &World, oid: i32, fraction: f64) -> bool {
 }
 
 /// Java `CLEAR_ZONE`: empty the lair — despawn every NPC inside it (Baium and
-/// his angels) and scatter any players back to the surface.
-fn clear_zone(world: &mut World) {
+/// his angels) and scatter any players back to the surface. Fired by the
+/// post-kill `BaiumClearZone` task.
+pub(crate) fn clear_zone(world: &mut World) {
     let mut npcs = Vec::new();
     world
         .objects

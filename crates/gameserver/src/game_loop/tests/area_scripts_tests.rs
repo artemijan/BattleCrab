@@ -48,7 +48,7 @@ fn elroki_teleporter_refuses_combat_then_ferries() {
     // In combat: no teleport.
     world.objects.add_components(
         &5001,
-        crate::model::components::AttackState {
+        model::components::AttackState {
             attack_end_tick: 0,
             stance_until_tick: world.tick + 150,
             swing_seq: 0,
@@ -65,7 +65,7 @@ fn elroki_teleporter_refuses_combat_then_ferries() {
     // Stance over: ferried to the island.
     world
         .objects
-        .get_component_mut::<crate::model::components::AttackState>(&5001)
+        .get_component_mut::<model::components::AttackState>(&5001)
         .unwrap()
         .stance_until_tick = 0;
     handle_request_bypass_to_server(
@@ -89,7 +89,7 @@ fn pagan_gatekeeper_opens_the_door_and_it_closes_itself() {
     let (mut world, _db, _l) = combat_test_world();
     const GATEKEEPER_OUT: i32 = 32035;
     const OUTER_DOOR: i32 = 19_160_001;
-    crate::model::door::spawn_door_for_test(
+    model::door::spawn_door_for_test(
         &mut world,
         crate::data::door_data::DoorTemplate {
             id: OUTER_DOOR,
@@ -190,7 +190,7 @@ fn tunatun_hands_out_one_whip_at_level_82() {
     // Level 82: whip granted — once.
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&5001)
+        .get_component_mut::<Player>(&5001)
         .unwrap()
         .level = 82;
     handle_request_bypass_to_server(
@@ -213,7 +213,7 @@ fn tunatun_hands_out_one_whip_at_level_82() {
 
 fn count_npcs(world: &mut World, npc_id: i32) -> usize {
     let mut n = 0;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
+    world.objects.for_each_mut::<&model::npc::Npc>(|x| {
         if x.npc_id == npc_id {
             n += 1;
         }
@@ -299,7 +299,7 @@ fn pagan_keys_honor_auto_loot() {
     let mut ground = None;
     world
         .objects
-        .for_each_mut::<&crate::model::components::GroundItem>(|g| {
+        .for_each_mut::<&model::components::GroundItem>(|g| {
             if g.item_id == ANTEROOM_KEY {
                 ground = Some((g.owner_id, g.count));
             }
@@ -341,7 +341,7 @@ fn plains_of_dion_calls_the_clan() {
     quests::notify_attack(&mut world, 5001, NPC_OID, SUPPLIER, None, false);
     let helper_hates = world
         .objects
-        .get_component::<crate::model::npc::AggroList>(&(NPC_OID + 1))
+        .get_component::<AggroList>(&(NPC_OID + 1))
         .is_some_and(|a| a.0.contains_key(&5001));
     assert!(helper_hates, "the idle clansman joins in");
 }
@@ -366,10 +366,10 @@ fn eilhalder_walks_at_night_and_vanishes_by_day() {
     // Night again, but this time he is fighting at daybreak.
     area_npcs::eilhalder_on_day_night_change(&mut world, true);
     let oid = find_npc_object_id(&mut world, EILHALDER).unwrap();
-    let mut aggro = crate::model::npc::AggroList::default();
+    let mut aggro = AggroList::default();
     aggro.0.insert(
         5001,
-        crate::model::npc::AggroInfo {
+        model::npc::AggroInfo {
             hate: 100.0,
             damage: 0.0,
         },
@@ -381,7 +381,7 @@ fn eilhalder_walks_at_night_and_vanishes_by_day() {
     // Fight over → the retry removes him.
     world
         .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&oid)
+        .get_component_mut::<AggroList>(&oid)
         .unwrap()
         .0
         .clear();
@@ -420,19 +420,17 @@ fn hot_springs_disease_escalates_with_the_victims_level() {
     quests::notify_attack(&mut world, 5001, NPC_OID, ATROX, None, false);
     let cast = world
         .objects
-        .get_component::<crate::model::components::Casting>(&NPC_OID)
+        .get_component::<Casting>(&NPC_OID)
         .map(|c| (c.0.skill_id, c.0.skill_level));
     assert_eq!(cast, Some((MALARIA, 1)), "fresh victim gets level 1");
 
     // Victim already carries level 3 → the next proc casts level 4.
-    world
-        .objects
-        .remove_component::<crate::model::components::Casting>(&NPC_OID);
-    let mut buffs = crate::model::components::Buffs::default();
-    buffs.0.push(crate::model::skill::ActiveBuff {
+    world.objects.remove_component::<Casting>(&NPC_OID);
+    let mut buffs = Buffs::default();
+    buffs.0.push(model::skill::ActiveBuff {
         skill_id: MALARIA,
         skill_level: 3,
-        slot: crate::model::skill::BuffSlot::Uncapped,
+        slot: model::skill::BuffSlot::Uncapped,
         ..test_buff()
     });
     world.objects.add_components(&5001, buffs);
@@ -441,7 +439,7 @@ fn hot_springs_disease_escalates_with_the_victims_level() {
     quests::notify_attack(&mut world, 5001, NPC_OID, ATROX, None, false);
     let cast = world
         .objects
-        .get_component::<crate::model::components::Casting>(&NPC_OID)
+        .get_component::<Casting>(&NPC_OID)
         .map(|c| (c.0.skill_id, c.0.skill_level));
     assert_eq!(cast, Some((MALARIA, 4)), "level 3 victim gets level 4");
 }
@@ -482,7 +480,7 @@ fn ragna_commander_picks_named_escort_groups() {
             .insert_for_test(crate::data::npc_data::default_template(id));
     }
 
-    crate::model::npc::spawn_npc_at(&mut world, COMMANDER, 0, 0, 0, 0);
+    model::npc::spawn_npc_at(&mut world, COMMANDER, 0, 0, 0, 0);
     let p1 = count_npcs(&mut world, 22695);
     let extra = count_npcs(&mut world, 22693) + count_npcs(&mut world, 22697);
     assert_eq!(p1, 1, "Privates1 always comes out");
@@ -521,7 +519,7 @@ fn frightened_orc_bribe_pays_out_and_he_vanishes() {
     let mut total = 0i64;
     world
         .objects
-        .for_each_mut::<&crate::model::components::GroundItem>(|g| {
+        .for_each_mut::<&model::components::GroundItem>(|g| {
             if g.item_id == 57 && g.owner_id == 5001 {
                 stacks += 1;
                 total += g.count;
@@ -542,7 +540,7 @@ fn frightened_orc_bribe_pays_out_and_he_vanishes() {
 fn give_test_item(world: &mut World, player: i32, item_id: i32, count: i64) {
     let World { data, objects, .. } = world;
     objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&player)
+        .get_component_mut::<Inventory>(&player)
         .unwrap()
         .add_item(&data.item_data, 8_100_000 + item_id, item_id, count);
 }
@@ -575,24 +573,19 @@ fn ketra_buffer_charges_horns_for_buffs() {
     assert_eq!(item_count(&world, 5001, HORN), 0, "three horns spent");
     let cast = world
         .objects
-        .get_component::<crate::model::components::Casting>(&NPC_OID)
+        .get_component::<Casting>(&NPC_OID)
         .map(|c| c.0.skill_id);
     assert_eq!(cast, Some(MIGHT), "Asefa casts Might on the visitor");
 
     // Broke: no cast, no debt.
-    world
-        .objects
-        .remove_component::<crate::model::components::Casting>(&NPC_OID);
+    world.objects.remove_component::<Casting>(&NPC_OID);
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!("npc_{NPC_OID}_Quest KetraOrcSupport 3")),
     );
     assert!(
-        world
-            .objects
-            .get_component::<crate::model::components::Casting>(&NPC_OID)
-            .is_none(),
+        world.objects.get_component::<Casting>(&NPC_OID).is_none(),
         "no horns, no buff"
     );
 }
@@ -680,7 +673,7 @@ fn forge_kill_streak_erupts_a_lavasaurus_and_refresh_cools_it() {
     assert_eq!(count_npcs(&mut world, NEWBORN), 1, "the forge answers");
 
     // The refresh beat resets the streak: the next lucky kill is kill #1.
-    crate::game_loop::area_npcs::handle_fog_refresh(&mut world);
+    area_npcs::handle_fog_refresh(&mut world);
     world.force_roll(5);
     quests::notify_kill(&mut world, 5001, w(3), WORKER, false);
     assert_eq!(
@@ -716,7 +709,7 @@ fn an_expiring_lavasaurus_dies_rather_than_vanishing() {
         quests::notify_kill(&mut world, 5001, w(i), WORKER, false);
     }
     let mut beast = 0;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+    world.objects.for_each_mut::<&model::npc::Npc>(|n| {
         if n.npc_id == NEWBORN {
             beast = n.object_id;
         }
@@ -788,7 +781,7 @@ fn spice_grows_the_beast_and_wrong_spice_does_not() {
     // Stage one eats ONLY golden spice — crystal is consumed with no effect.
     let grown = {
         let mut found = 0;
-        world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+        world.objects.for_each_mut::<&model::npc::Npc>(|n| {
             if n.npc_id == GOLD_STAGE_1 {
                 found = n.object_id;
             }
@@ -827,14 +820,13 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
     assert_eq!(count_npcs(&mut world, TOP), 0, "the wild one is gone");
     let beast = {
         let mut found = None;
-        world.objects.for_each_mut::<(
-            &crate::model::npc::Npc,
-            &crate::model::components::TamedBeastOf,
-        )>(|(n, t)| {
-            if n.npc_id == TAMED_FIGHTER {
-                found = Some((n.object_id, t.owner, t.food_skill));
-            }
-        });
+        world
+            .objects
+            .for_each_mut::<(&model::npc::Npc, &model::components::TamedBeastOf)>(|(n, t)| {
+                if n.npc_id == TAMED_FIGHTER {
+                    found = Some((n.object_id, t.owner, t.food_skill));
+                }
+            });
         found
     };
     let (beast_oid, owner, food) = beast.expect("a tamed beast spawned");
@@ -847,7 +839,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
     // Feeding the tamed beast extends its stay (capped at 20 min).
     world
         .objects
-        .get_component_mut::<crate::model::components::TamedBeastOf>(&beast_oid)
+        .get_component_mut::<model::components::TamedBeastOf>(&beast_oid)
         .unwrap()
         .remaining_ticks = 5000;
     world.force_roll(7); // bark pick (2031, no $s1)
@@ -855,7 +847,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::TamedBeastOf>(&beast_oid)
+            .get_component::<model::components::TamedBeastOf>(&beast_oid)
             .unwrap()
             .remaining_ticks,
         5200,
@@ -869,7 +861,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::TamedBeastOf>(&beast_oid)
+            .get_component::<model::components::TamedBeastOf>(&beast_oid)
             .unwrap()
             .remaining_ticks,
         5000 - 600 + 200 + 200,
@@ -914,7 +906,7 @@ fn trex_sizes_you_up_before_charging() {
     advance_world(&mut world, 130);
     let sv = world
         .objects
-        .get_component::<crate::model::npc::Npc>(&(NPC_OID + 700))
+        .get_component::<model::npc::Npc>(&(NPC_OID + 700))
         .unwrap()
         .script_value;
     assert_eq!(sv, 1, "noticed — and paused, not charging");
@@ -924,11 +916,11 @@ fn trex_sizes_you_up_before_charging() {
     let (sv, hate) = {
         let n = world
             .objects
-            .get_component::<crate::model::npc::Npc>(&(NPC_OID + 700))
+            .get_component::<model::npc::Npc>(&(NPC_OID + 700))
             .unwrap();
         let h = world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&(NPC_OID + 700))
+            .get_component::<AggroList>(&(NPC_OID + 700))
             .and_then(|a| a.0.get(&5001).map(|i| i.hate))
             .unwrap_or(0.0);
         (n.script_value, h)
@@ -952,10 +944,10 @@ fn trex_berserk_locks_the_ladder() {
             .unwrap();
         v.cur_hp = v.max_hp as f64 * 0.4;
     }
-    let mut aggro = crate::model::npc::AggroList::default();
+    let mut aggro = AggroList::default();
     aggro.0.insert(
         5001,
-        crate::model::npc::AggroInfo {
+        model::npc::AggroInfo {
             hate: 100.0,
             damage: 0.0,
         },
@@ -965,14 +957,14 @@ fn trex_berserk_locks_the_ladder() {
     quests::notify_spell_finished(&mut world, NPC_OID + 700, 22215, 5087, NPC_OID + 700);
     let n = world
         .objects
-        .get_component::<crate::model::npc::Npc>(&(NPC_OID + 700))
+        .get_component::<model::npc::Npc>(&(NPC_OID + 700))
         .unwrap();
     assert_eq!(n.script_value, 3, "ladder locked");
     // The +555 lands, then `seed_attack` (the port's addAttackPlayerDesire)
     // stacks its own attack-desire hate on top — the floor is what matters.
     let hate = world
         .objects
-        .get_component::<crate::model::npc::AggroList>(&(NPC_OID + 700))
+        .get_component::<AggroList>(&(NPC_OID + 700))
         .unwrap()
         .0[&5001]
         .hate;
@@ -1004,7 +996,7 @@ fn ancient_egg_wakes_the_jungle() {
     let hates = |world: &World, oid: i32| {
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&oid)
+            .get_component::<AggroList>(&oid)
             .is_some_and(|a| a.0.contains_key(&5001))
     };
     assert!(hates(&world, NPC_OID + 701), "the jungle answers");
@@ -1037,7 +1029,7 @@ fn sprigant_casts_its_trap() {
     crate::scripts::primeval_isle::handle_sprigant_trap(&mut world, NPC_OID + 700);
     let cast = world
         .objects
-        .get_component::<crate::model::components::Casting>(&(NPC_OID + 700))
+        .get_component::<Casting>(&(NPC_OID + 700))
         .map(|c| c.0.skill_id);
     assert_eq!(cast, Some(5085), "the trap fires");
 }
@@ -1049,18 +1041,14 @@ fn sprigant_casts_its_trap() {
 /// The hall coordinates the test zone must cover (sepulcher 1).
 const FS_HALL: (i32, i32) = (182000, -85500);
 
-fn fs_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn fs_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     // Sepulcher 1's script zone, generously covering the whole hall strip.
     world.data.zone_data.insert(crate::data::zone_data::Zone {
         id: 200221,
         name: "royal_rush_script_1".into(),
         kind: crate::data::zone_data::ZoneKind::Script,
-        territory: crate::data::spawn_data::Territory {
+        territory: Territory {
             form: crate::data::spawn_data::ZoneForm::Cuboid {
                 x1: 179000,
                 x2: 192000,
@@ -1107,10 +1095,7 @@ fn fs_world() -> (
     (world, db, l)
 }
 
-fn fs_party(
-    world: &mut World,
-    oids: [i32; 4],
-) -> Vec<tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>> {
+fn fs_party(world: &mut World, oids: [i32; 4]) -> Vec<UnboundedReceiver<bytes::Bytes>> {
     let mut rxs = Vec::new();
     for (i, oid) in oids.into_iter().enumerate() {
         rxs.push(ingame_player(
@@ -1121,18 +1106,16 @@ fn fs_party(
             0,
             0,
         ));
-        let mut quests = crate::model::components::Quests::default();
+        let mut quests = model::components::Quests::default();
         quests.0.insert(
             "Q00620_FourGoblets".into(),
-            crate::model::quest::QuestState {
-                state: crate::model::quest::state::STARTED,
+            model::quest::QuestState {
+                state: model::quest::state::STARTED,
                 vars: Default::default(),
             },
         );
         world.objects.add_components(&oid, quests);
-        world
-            .objects
-            .add_components(&oid, crate::model::components::PartyRef(77));
+        world.objects.add_components(&oid, PartyRef(77));
         give_test_item(
             world,
             oid,
@@ -1140,8 +1123,7 @@ fn fs_party(
             1,
         );
     }
-    let mut party =
-        crate::model::party::Party::new(oids[0], crate::model::party::LootRule::FindersKeepers, 1);
+    let mut party = model::party::Party::new(oids[0], LootRule::FindersKeepers, 1);
     party.members = oids.to_vec();
     world.parties.insert(77, party);
     rxs
@@ -1203,7 +1185,7 @@ fn four_sepulchers_admission_and_first_wave() {
     // Clearing the wave pays a key chest at the last corpse.
     let mob = {
         let mut found = 0;
-        world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+        world.objects.for_each_mut::<&model::npc::Npc>(|n| {
             if n.npc_id == 18120 {
                 found = n.object_id;
             }
@@ -1323,7 +1305,7 @@ fn a_summons_kill_points_the_avenger_at_the_summon() {
     let servitor = NPC_OID + 5;
     world.objects.add_components(
         &5001,
-        crate::model::components::SummonRef {
+        model::components::SummonRef {
             servitor: Some(servitor),
             pet: None,
         },
@@ -1334,7 +1316,7 @@ fn a_summons_kill_points_the_avenger_at_the_summon() {
 
     let oids_of = |world: &mut World, npc_id: i32| {
         let mut out = Vec::new();
-        world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+        world.objects.for_each_mut::<&model::npc::Npc>(|n| {
             if n.npc_id == npc_id {
                 out.push(n.object_id);
             }
@@ -1505,7 +1487,7 @@ fn creature_see_spooks_the_ornithomimus_once() {
     let sv = |world: &World| {
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&(NPC_OID + 700))
+            .get_component::<model::npc::Npc>(&(NPC_OID + 700))
             .unwrap()
             .script_value
     };
@@ -1513,7 +1495,7 @@ fn creature_see_spooks_the_ornithomimus_once() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Speeds>(&(NPC_OID + 700))
+            .get_component::<Speeds>(&(NPC_OID + 700))
             .unwrap()
             .running,
         "and it runs"
@@ -1522,7 +1504,7 @@ fn creature_see_spooks_the_ornithomimus_once() {
     // Same player, second sweep: already seen — the flee arm must not re-fire.
     if let Some(n) = world
         .objects
-        .get_component_mut::<crate::model::npc::Npc>(&(NPC_OID + 700))
+        .get_component_mut::<model::npc::Npc>(&(NPC_OID + 700))
     {
         n.script_value = 0;
     }
@@ -1547,7 +1529,7 @@ fn trex_hunts_a_herbivore_on_sight() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&(NPC_OID + 700))
+            .get_component::<AggroList>(&(NPC_OID + 700))
             .is_some_and(|a| a.0.contains_key(&(NPC_OID + 701))),
         "the Trex charges the herbivore"
     );
@@ -1583,7 +1565,7 @@ fn dinosaur_low_hp_pops_the_selfbuff_once() {
         v.cur_hp = 250.0; // 25% — under both bands
     }
     // Seed some hate so `getMostHated` resolves to the striker.
-    crate::game_loop::ai::seed_attack(&mut world, NPC_OID + 700, 5001);
+    ai::seed_attack(&mut world, NPC_OID + 700, 5001);
 
     // Both specials miss their rolls (99 > prob × 2).
     world.force_roll(99);
@@ -1593,7 +1575,7 @@ fn dinosaur_low_hp_pops_the_selfbuff_once() {
     let var = |world: &World, name: &str| {
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&(NPC_OID + 700))
+            .get_component::<model::npc::Npc>(&(NPC_OID + 700))
             .and_then(|n| n.vars.get(name).copied())
             .unwrap_or(0)
     };

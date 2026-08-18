@@ -655,7 +655,7 @@ pub(crate) fn handle_request_link_html(world: &mut World, client_id: u32, body: 
         .objects
         .get_component::<LastFolkNpc>(&player)
         .map_or(0, |&LastFolkNpc(oid)| oid);
-    if npc_object_id > 0 && !super::target::can_interact(world, player, npc_object_id) {
+    if npc_object_id > 0 && !can_interact(world, player, npc_object_id) {
         // Java logs nothing here — "this could be a common case".
         return;
     }
@@ -665,9 +665,9 @@ pub(crate) fn handle_request_link_html(world: &mut World, client_id: u32, body: 
         return;
     };
     let html = html.replace("%objectId%", &npc_object_id.to_string());
-    crate::game_loop::helpers::send_to_client(
+    send_to_client(
         world,
         client_id,
-        crate::network::server_packets::npc_html_message(npc_object_id, &html),
+        server_packets::npc_html_message(npc_object_id, &html),
     );
 }

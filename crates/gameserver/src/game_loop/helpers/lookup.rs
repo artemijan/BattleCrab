@@ -39,11 +39,7 @@ pub(crate) fn object_name(world: &World, oid: i32) -> String {
 ///
 /// Enchanted sub-levels go through `SkillData::get_enchanted` instead — they
 /// are a different lookup, not a defaulted argument.
-pub(crate) fn skill_by_id(
-    world: &World,
-    id: i32,
-    level: i32,
-) -> Option<crate::model::skill::Skill> {
+pub(crate) fn skill_by_id(world: &World, id: i32, level: i32) -> Option<model::skill::Skill> {
     world.data.skill_data.get(id, level).cloned()
 }
 
@@ -54,7 +50,7 @@ pub(crate) fn skill_by_id(
 /// packet handler — Java reaches the same state through `GameClient.getPlayer()`.
 pub(crate) fn player_of(world: &World, client_id: u32) -> Option<i32> {
     match world.clients.get(&client_id) {
-        Some(crate::session::ClientSession::InGame(s)) => Some(s.player_object_id()),
+        Some(ClientSession::InGame(s)) => Some(s.player_object_id()),
         _ => None,
     }
 }
@@ -115,7 +111,7 @@ pub(crate) fn is_gm(world: &World, object_id: i32) -> bool {
         .is_some_and(|p| p.is_gm(&world.data))
 }
 
-/// Read-modify-write one object's [`AdminFlags`](crate::model::components::AdminFlags),
+/// Read-modify-write one object's [`AdminFlags`](model::components::AdminFlags),
 /// creating the component from its all-false default when absent.
 ///
 /// The systems' half of the GM flags: olympiad observer mode, TvT's freeze and
@@ -129,15 +125,109 @@ pub(crate) fn is_gm(world: &World, object_id: i32) -> bool {
 pub(crate) fn update_admin_flags(
     world: &mut World,
     object_id: i32,
-    edit: impl FnOnce(&mut crate::model::components::AdminFlags),
+    edit: impl FnOnce(&mut model::components::AdminFlags),
 ) {
     let mut flags = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .get_component::<model::components::AdminFlags>(&object_id)
         .copied()
         .unwrap_or_default();
     edit(&mut flags);
     world.objects.add_components(&object_id, flags);
+}
+
+/// One object's [`Reuses`](model::components::Reuses) for writing,
+/// attaching an empty map first when the object has none. `None` only for an
+/// id that has left the world, like `add_components` itself.
+///
+/// The attach is the point. Players are given `Reuses` at load but **NPCs are
+/// not** — the map is attached on first stamp rather than at spawn, so only
+/// the creatures that actually cast pay for it (this world holds ~34.9k NPCs,
+/// the vast majority of which never cast anything). A plain
+/// `get_component_mut` write is therefore a silent no-op on an NPC, and the
+/// reuse check reads an absent component as "ready", so the cooldown would
+/// never apply at all and a mob could re-cast as fast as its AI ticked.
+pub(crate) fn reuses_mut(
+    world: &mut World,
+    object_id: i32,
+) -> Option<&mut model::components::Reuses> {
+    if world
+        .objects
+        .get_component::<model::components::Reuses>(&object_id)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&object_id, model::components::Reuses::default());
+    }
+    world
+        .objects
+        .get_component_mut::<model::components::Reuses>(&object_id)
+}
+
+/// One entry of a character's [`PlayerVariables`](model::components::PlayerVariables)
+/// store — Java `player.getVariables().getString(key, null)`.
+///
+/// The raw string, so a caller can tell **absent** from a stored `"0"`;
+/// [`player_var_int`] folds both into its default. `None` also covers "not in
+/// the world", which every reader treats as absent.
+pub(crate) fn player_var<'a>(world: &'a World, object_id: i32, key: &str) -> Option<&'a str> {
+    world
+        .objects
+        .get_component::<model::components::PlayerVariables>(&object_id)
+        .and_then(|v| v.0.get(key))
+        .map(String::as_str)
+}
+
+/// Java `player.getVariables().getInt(key, default)` — `default` for an absent
+/// character, an absent key, or a value that does not parse.
+pub(crate) fn player_var_int(world: &World, object_id: i32, key: &str, default: i32) -> i32 {
+    world
+        .objects
+        .get_component::<model::components::PlayerVariables>(&object_id)
+        .map_or(default, |v| v.get_int(key, default))
+}
+
+/// Java `player.getVariables().set(key, value)`, memory-first: the map is
+/// flushed with the rest of the character by the autosave, so there is no
+/// `storeMe` half to call.
+///
+/// `false` when the character is not in the world — the write went nowhere, and
+/// a caller that must land it anyway (the olympiad season roll, which pays
+/// offline nobles too) can fall back to a direct `StoreCharVar`.
+pub(crate) fn set_player_var(
+    world: &mut World,
+    object_id: i32,
+    key: &str,
+    value: impl Into<String>,
+) -> bool {
+    match world
+        .objects
+        .get_component_mut::<model::components::PlayerVariables>(&object_id)
+    {
+        Some(v) => {
+            v.0.insert(key.to_string(), value.into());
+            true
+        }
+        None => false,
+    }
+}
+
+/// [`set_player_var`] for the numeric keys — Java stores them as their decimal
+/// string, which is what [`player_var_int`] parses back.
+pub(crate) fn set_player_var_int(world: &mut World, object_id: i32, key: &str, value: i32) -> bool {
+    set_player_var(world, object_id, key, value.to_string())
+}
+
+/// Java `player.getVariables().remove(key)`. A no-op for a character who is
+/// not in the world, which no caller distinguishes from "the key was not set".
+pub(crate) fn unset_player_var(world: &mut World, object_id: i32, key: &str) {
+    if let Some(v) = world
+        .objects
+        .get_component_mut::<model::components::PlayerVariables>(&object_id)
+    {
+        v.0.remove(key);
+    }
 }
 
 /// The datapack template behind an NPC object — Java `Npc.getTemplate()`.
@@ -176,15 +266,13 @@ pub(crate) fn is_raid_npc(world: &World, object_id: i32) -> bool {
 /// component probes belong in one place rather than being re-spelled per call
 /// site.
 pub(crate) fn is_playable(world: &World, object_id: i32) -> bool {
-    world
-        .objects
-        .has_component::<crate::model::Player>(&object_id)
+    world.objects.has_component::<Player>(&object_id)
         || world
             .objects
-            .has_component::<crate::model::components::PetOf>(&object_id)
+            .has_component::<model::components::PetOf>(&object_id)
         || world
             .objects
-            .has_component::<crate::model::components::ServitorOf>(&object_id)
+            .has_component::<model::components::ServitorOf>(&object_id)
 }
 
 /// An NPC's template name, empty when the object is gone or has no template.
@@ -276,7 +364,7 @@ pub(crate) fn level_of(world: &World, object_id: i32) -> Option<i32> {
 pub(crate) fn lvl_of_npc(world: &World, object_id: i32) -> Option<i32> {
     world
         .objects
-        .get_component::<crate::model::npc::Npc>(&object_id)
+        .get_component::<Npc>(&object_id)
         .and_then(|n| world.data.npc_data.get(n.npc_id))
         .map(|t| t.level)
 }
@@ -315,6 +403,6 @@ pub(crate) fn npc_id_of(world: &World, object_id: i32) -> Option<i32> {
 pub(crate) fn instance_of(world: &World, object_id: i32) -> i32 {
     world
         .objects
-        .get_component::<crate::model::components::InstanceId>(&object_id)
+        .get_component::<model::components::InstanceId>(&object_id)
         .map_or(0, |i| i.0)
 }

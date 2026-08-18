@@ -246,7 +246,7 @@ pub(crate) fn show_buy_window_taxed(
     // borrows `world.data` — and the ordering is unobservable, since the flag
     // gates the client's *next* packet, which cannot arrive until this handler
     // has returned.
-    super::helpers::block_inventory(world, player);
+    helpers::block_inventory(world, player);
 }
 
 /// Port of `clientpackets/RequestBuyItem.runImpl`, minus the karma gate and
@@ -544,9 +544,7 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
         }
         let sell = count.min(inst.count);
         total_price = total_price.saturating_add(unit_price * sell).min(MAX_ADENA);
-        if let Some(change) =
-            super::helpers::remove_inventory_item_change(world, player, obj_id, sell)
-        {
+        if let Some(change) = helpers::remove_inventory_item_change(world, player, obj_id, sell) {
             // The refund entry is the sold chunk. A full removal keeps the
             // instance's identity; a partial one (stackables) leaves the
             // original in the inventory, so the split gets a fresh object id
@@ -795,8 +793,7 @@ pub(crate) fn handle_request_preview_item(world: &mut World, client_id: u32, bod
         // Anything that does not go in a paperdoll slot is silently skipped,
         // not refused — Java `continue`s, so a potion in the list costs
         // nothing and shows nothing.
-        let Some(slot) = crate::model::inventory::Inventory::primary_slot(template.body_part)
-        else {
+        let Some(slot) = Inventory::primary_slot(template.body_part) else {
             continue;
         };
         if outfit.contains_key(&slot) {

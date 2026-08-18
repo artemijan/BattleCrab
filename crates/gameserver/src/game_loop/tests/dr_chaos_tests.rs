@@ -9,11 +9,7 @@ use crate::model::components::{DrChaosGolem, DrChaosState};
 const CID: u32 = 1;
 const PLAYER: i32 = 9970;
 
-fn chaos_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn chaos_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for (id, kind) in [(DOCTOR_CHAOS, "Folk"), (CHAOS_GOLEM, "GrandBoss")] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -24,7 +20,7 @@ fn chaos_world() -> (
     }
     world.grand_bosses.insert(
         CHAOS_GOLEM,
-        crate::model::grand_boss::GrandBoss {
+        model::grand_boss::GrandBoss {
             boss_id: CHAOS_GOLEM,
             loc_x: 96_080,
             loc_y: -110_822,
@@ -314,7 +310,7 @@ fn killing_the_golem_through_the_death_path_marks_it_dead() {
 /// `broadcastSay(type, String)` variant DrChaos's barks use).
 #[test]
 fn npc_say_text_writes_the_literal_string() {
-    let pkt = crate::network::server_packets::npc_say_text(500, DOCTOR_CHAOS, "Fools!");
+    let pkt = server_packets::npc_say_text(500, DOCTOR_CHAOS, "Fools!");
     // opcode, objId(4), chat(4), npcId+1000000(4), then -1(4), then string.
     let npc_string = i32::from_le_bytes([pkt[13], pkt[14], pkt[15], pkt[16]]);
     assert_eq!(npc_string, -1, "literal-string marker");

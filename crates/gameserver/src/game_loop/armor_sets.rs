@@ -231,20 +231,8 @@ fn stamp_equip_reuse(world: &mut World, oid: i32, granted: &[(i32, i32)]) {
     if stamps.is_empty() {
         return;
     }
-    if world
-        .objects
-        .get_component::<crate::model::components::Reuses>(&oid)
-        .is_none()
-    {
-        world
-            .objects
-            .add_components(&oid, crate::model::components::Reuses::default());
-    }
     let now = world.tick;
-    if let Some(reuses) = world
-        .objects
-        .get_component_mut::<crate::model::components::Reuses>(&oid)
-    {
+    if let Some(reuses) = crate::game_loop::helpers::reuses_mut(world, oid) {
         for (key, level, delay_ms) in stamps {
             reuses.0.insert(
                 key,

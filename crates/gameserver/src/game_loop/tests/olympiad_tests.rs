@@ -19,7 +19,7 @@ fn make_noble(
     world: &mut World,
     client_id: u32,
     object_id: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
+) -> UnboundedReceiver<bytes::Bytes> {
     // Gladiator (class 2) is in the 3rd-class group; the test data has no
     // categories, so seed the one the eligibility gate reads.
     world
@@ -71,7 +71,7 @@ fn noble_registers_for_the_1v1_list() {
     assert!(
         got_sm(
             &drain(&mut rx),
-            crate::network::server_packets::sm_ids::YOU_ARE_CURRENTLY_REGISTERED_FOR_A_1V1_CLASS_IRRELEVANT_MATCH
+            server_packets::sm_ids::YOU_ARE_CURRENTLY_REGISTERED_FOR_A_1V1_CLASS_IRRELEVANT_MATCH
         ),
         "confirmation message sent"
     );
@@ -515,7 +515,7 @@ fn stage_match(
     b: i32,
     pts_a: i32,
     pts_b: i32,
-) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
+) -> UnboundedReceiver<bytes::Bytes> {
     use crate::model::olympiad::{NobleStats, OlympiadMatch};
     let rx_a = ingame_player(world, a as u32, a, 500, 500, 0);
     let _rb = ingame_player(world, b as u32, b, 600, 600, 0);
@@ -649,7 +649,7 @@ fn a_match_resolves_on_death_with_scoring() {
     assert!(
         got_sm(
             &drain(&mut rx),
-            crate::network::server_packets::sm_ids::CONGRATULATIONS_C1_YOU_WIN_THE_MATCH
+            server_packets::sm_ids::CONGRATULATIONS_C1_YOU_WIN_THE_MATCH
         ),
         "winner congratulated"
     );
@@ -992,7 +992,7 @@ fn round_end_announces_to_online_players() {
     assert!(
         got_sm(
             &drain(&mut rx),
-            crate::network::server_packets::sm_ids::ROUND_S1_OF_THE_OLYMPIAD_GAMES_HAS_NOW_ENDED
+            server_packets::sm_ids::ROUND_S1_OF_THE_OLYMPIAD_GAMES_HAS_NOW_ENDED
         ),
         "the round-ended announcement reaches online players"
     );
@@ -1047,7 +1047,7 @@ fn point_exchange_refused_when_inventory_over_80_percent() {
     );
     assert!(got_sm(
         &drain(&mut rx),
-        crate::network::server_packets::sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT
+        server_packets::sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT
     ));
 }
 
@@ -1072,8 +1072,8 @@ fn a_fighting_noble_cannot_register() {
 fn monument_world() -> (
     World,
     db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<LoginLinkCommand>,
+    UnboundedReceiver<bytes::Bytes>,
 ) {
     let (mut world, db_rx, link) = quest_test_world();
     add_test_npc(&mut world, 701, 31690, "Folk", 70, 0, 0, 0);
@@ -1094,7 +1094,7 @@ fn monument_world() -> (
 fn inv_count(world: &World, item_id: i32) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&100)
+        .get_component::<Inventory>(&100)
         .map_or(0, |inv| inv.count_of(item_id))
 }
 
@@ -1277,7 +1277,7 @@ fn monument_hero_list_sends_ex_hero_list() {
     world.olympiad.hero_counts.insert(555, 3);
     world.olympiad.hero_info.insert(
         555,
-        crate::model::olympiad::HeroInfo {
+        model::olympiad::HeroInfo {
             name: "Aragorn".into(),
             clan_id: 0,
             message: String::new(),
@@ -1313,7 +1313,7 @@ fn hero_diary_window_renders_with_the_deed_list() {
     world.olympiad.heroes.push((100, 88));
     world.olympiad.hero_info.insert(
         100,
-        crate::model::olympiad::HeroInfo {
+        model::olympiad::HeroInfo {
             name: "Aragorn".into(),
             message: "For Gondor".into(),
             clan_id: 0,
@@ -1321,7 +1321,7 @@ fn hero_diary_window_renders_with_the_deed_list() {
     );
     world.olympiad.hero_diary.insert(
         100,
-        vec![crate::model::olympiad::DiaryEntry {
+        vec![model::olympiad::DiaryEntry {
             time: 1_700_000_000_000,
             action: 2,
             param: 0,
@@ -1401,8 +1401,7 @@ fn a_crowned_hero_has_no_status_until_they_claim_it() {
     );
     let out = drain(&mut rx);
     assert!(
-        out.iter()
-            .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION),
+        out.iter().any(|p| p[0] == opcodes::SOCIAL_ACTION),
         "the hero animation is broadcast"
     );
 }
@@ -1412,14 +1411,14 @@ fn hero_clan(world: &mut World, member: i32, level: i32) -> i32 {
     let clan_id = 0x4200_0001;
     world.clans.insert(
         clan_id,
-        crate::model::clan::Clan {
+        Clan {
             id: clan_id,
             name: "Heroes".into(),
             leader_id: member,
             level,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![crate::model::clan::ClanMember {
+            members: vec![model::clan::ClanMember {
                 char_id: member,
                 name: format!("P{member}"),
                 level: 80,
@@ -1612,7 +1611,7 @@ fn start_points_and_weekly_cap_follow_the_config() {
         "the record is created with the configured points"
     );
 
-    let mut state = crate::model::olympiad::OlympiadState::default();
+    let mut state = model::olympiad::OlympiadState::default();
     state
         .nobles
         .insert(700, NobleStats::fresh(2, "N".into(), 10));

@@ -560,10 +560,9 @@ pub(crate) fn handle_creature_see_sweep(world: &mut World) {
             }
         }
     }
-    world.scheduler.schedule(
-        world.tick + 10,
-        crate::scheduler::ScheduledTask::CreatureSeeSweep,
-    );
+    world
+        .scheduler
+        .schedule(world.tick + 10, ScheduledTask::CreatureSeeSweep);
 }
 
 pub(crate) fn notify_spawn(world: &mut World, npc_oid: i32, npc_id: i32) {

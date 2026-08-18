@@ -374,11 +374,7 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
                     .to_string()
             })
             .replace("%max%", &limit.to_string());
-            send_to_client(
-                world,
-                client_id,
-                crate::network::server_packets::npc_html_message(0, &html),
-            );
+            send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
             return;
         }
     }
@@ -583,7 +579,8 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         bundle
             .variables
             .0
-            .get(crate::model::components::UI_KEY_MAPPING),
+            .get(crate::model::components::UI_KEY_MAPPING)
+            .map(String::as_str),
     );
     session.send(server_packets::ex_ui_setting(&key_mapping));
     // `MacroList.sendAllMacros` — one packet per stored macro (or one empty
@@ -800,11 +797,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         // Java re-sends the same `Die` the death itself built, so a character
         // who logged out dead comes back to the *same* restart buttons.
         let opts = super::death::die_options(world, object_id);
-        send_to_client(
-            world,
-            client_id,
-            crate::network::server_packets::die(object_id, opts),
-        );
+        send_to_client(world, client_id, server_packets::die(object_id, opts));
     }
 }
 
@@ -869,9 +862,5 @@ fn show_clan_notice_at_login(world: &mut World, client_id: u32, object_id: i32) 
         "%notice_text%",
         &text.replace("\r\n", "<br>").replace('\n', "<br>"),
     );
-    send_to_client(
-        world,
-        client_id,
-        crate::network::server_packets::npc_html_message(0, &html),
-    );
+    send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
 }

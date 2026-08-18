@@ -31,14 +31,14 @@ fn spawn_gremlin(world: &mut World, npc_oid: i32, x: i32) {
 /// [`spawn_gremlin`] with a height difference, for the `moveToLocation` z
 /// compensation.
 fn spawn_gremlin_at(world: &mut World, npc_oid: i32, x: i32, z: i32) {
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, x, 0, z, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, x, 0, z, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -159,7 +159,7 @@ fn a_moving_pawn_is_chased_100_units_deeper() {
         if target_moving {
             world.objects.add_components(
                 &npc_oid,
-                Movement(crate::model::movement::MoveData {
+                Movement(model::movement::MoveData {
                     start_x: 1000,
                     start_y: 0,
                     start_z: 0,
@@ -525,9 +525,7 @@ fn a_shift_cast_refuses_without_collision_radii() {
             magic_skill_use_body(1177, false)
         };
         handle_request_magic_skill_use(&mut world, 1, &body);
-        let casting = world
-            .objects
-            .has_component::<crate::model::components::Casting>(&3001);
+        let casting = world.objects.has_component::<Casting>(&3001);
         let walking = world.objects.has_component::<Movement>(&3001);
         (casting, walking, drain(&mut rx))
     }

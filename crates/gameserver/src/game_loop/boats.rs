@@ -460,8 +460,8 @@ fn next_dock(world: &World, boat_oid: i32) -> Option<(i32, i32)> {
 
 /// One stage of a harbor's dwell schedule: broadcast its announcements (to this
 /// harbor and the destination harbor), then schedule the next stage — or depart
-/// after the last one.
-fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize) {
+/// after the last one. Driven by the `BoatDwellStage` scheduler task.
+pub(crate) fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize) {
     let Some(boat) = world.objects.get_component::<Boat>(&boat_oid) else {
         return;
     };
@@ -502,11 +502,6 @@ fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize) {
     }
 }
 
-/// The `BoatDwellStage` task: run the next announcement stage of a dwell.
-pub(crate) fn handle_dwell_stage(world: &mut World, boat_oid: i32, stage: usize) {
-    run_dwell_stage(world, boat_oid, stage);
-}
-
 fn schedule_depart(world: &mut World, boat_oid: i32) {
     let fire_at = world.tick + DWELL_MS.div_ceil(100);
     world.scheduler.schedule(
@@ -520,8 +515,9 @@ fn schedule_depart(world: &mut World, boat_oid: i32) {
 /// Weigh anchor: collect the fare from everyone aboard, then advance to the
 /// next leg of the cycle and set sail. The fare is charged while still docked
 /// (before `move_to_next` sets `moving`), matching Java's `payForRide` in the
-/// same `case` that departs.
-fn depart(world: &mut World, boat_oid: i32) {
+/// same `case` that departs. Driven by the last dwell stage, or by the
+/// `BoatDepart` task when the harbor has no announcements to make.
+pub(crate) fn depart(world: &mut World, boat_oid: i32) {
     // Capture the departing dock's fare and voyage shout delays (by schedule
     // index, for the scheduler tasks) before advancing off it.
     let dock_info: Option<(u16, Fare, Vec<u64>)> = world
@@ -618,7 +614,7 @@ fn pay_for_ride(world: &mut World, boat_oid: i32, fare: Fare) {
             .unwrap_or_default();
         if changes.is_empty() {
             // No ticket: Java sends the message and teleports them off.
-            send_boat_sm(
+            send_sm_bare_to_player(
                 world,
                 player,
                 sp::sm_ids::YOU_DO_NOT_POSSESS_THE_CORRECT_TICKET,
@@ -650,16 +646,6 @@ fn oust_rider(world: &mut World, player: i32, boat_oid: i32, fare: Fare) {
     let off = sp::get_off_vehicle(player, boat_oid, fare.oust_x, fare.oust_y, fare.oust_z);
     crate::game_loop::helpers::broadcast_including_self(world, player, &off);
     crate::game_loop::death::teleport_player(world, player, fare.oust_x, fare.oust_y, fare.oust_z);
-}
-
-/// Send a bare system message to a player if online.
-fn send_boat_sm(world: &World, player: i32, sm_id: i16) {
-    send_sm_bare_to_player(world, player, sm_id);
-}
-
-/// The `BoatDepart` task (silent-dwell fallback): weigh anchor and sail on.
-pub(crate) fn handle_depart(world: &mut World, boat_oid: i32) {
-    depart(world, boat_oid);
 }
 
 /// `Boat.moveToNextRoutePoint`: head for the current waypoint — face it,

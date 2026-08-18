@@ -179,11 +179,7 @@ pub(super) fn magical_attack_range(
         }
     };
     if shield != formulas::SHIELD_NONE {
-        send_sm_bare_to_player(
-            world,
-            target_oid,
-            crate::network::server_packets::sm_ids::SHIELD_DEFENSE_SUCCEEDED,
-        );
+        send_sm_bare_to_player(world, target_oid, sm_ids::SHIELD_DEFENSE_SUCCEEDED);
     }
     let caster_name = caster_display_name(world, caster_oid);
     let damage = if shield == formulas::SHIELD_PERFECT {

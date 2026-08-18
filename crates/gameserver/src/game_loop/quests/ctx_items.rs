@@ -29,7 +29,7 @@ impl<'w> QuestCtx<'w> {
         // here keeps quest scripts honest without touching the other give
         // paths (loot, admin, lottery…), whose fixtures rely on the leniency.
         if self.world.data.item_data.get(item_id).is_none() {
-            tracing::warn!("Invalid ItemId ({item_id}) requested by quest give_items");
+            warn!("Invalid ItemId ({item_id}) requested by quest give_items");
             return;
         }
         give_item_with_earned_message(self.world, self.client_id, self.player, item_id, count);

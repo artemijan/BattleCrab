@@ -17,6 +17,7 @@
 //! A seller too low on MP is refused with a message rather than the cast
 //! silently failing.
 
+use crate::game_loop::admin::send_message;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
@@ -34,14 +35,9 @@ const STORE_TYPE_PACKAGE_SELL: u8 = 8;
 /// The html these pages live in.
 const HTML_FOLDER: &str = "data/html/mods/SellBuffs/";
 
-/// `.sellbuff` / `.sellbuffs` — open the shop's own menu, which is one of two
-/// pages depending on whether the shop is already running.
-pub(crate) fn handle_voiced_sellbuff(world: &mut World, client_id: u32, player_oid: i32) {
-    send_sell_menu(world, client_id, player_oid);
-}
-
-/// `SellBuffsManager.sendSellMenu`.
-fn send_sell_menu(world: &World, client_id: u32, player_oid: i32) {
+/// `SellBuffsManager.sendSellMenu` — also the `.sellbuff` / `.sellbuffs` voiced
+/// command. One of two pages, depending on whether the shop is already running.
+pub(crate) fn send_sell_menu(world: &World, client_id: u32, player_oid: i32) {
     let selling = is_selling(world, player_oid);
     let page = if selling {
         "BuffMenu_already.html"
@@ -100,7 +96,7 @@ fn start(world: &mut World, client_id: u32, player_oid: i32, args: &[&str]) {
         return;
     }
     if sell_list(world, player_oid).is_empty() {
-        message(
+        send_message(
             world,
             client_id,
             "Your list of buffs is empty, please add some buffs first!",
@@ -111,7 +107,7 @@ fn start(world: &mut World, client_id: u32, player_oid: i32, args: &[&str]) {
     // characters — the message says 29 because the prefix is 11 long.
     let title = format!("BUFF SELL: {}", args.join(" "));
     if title.chars().count() > 40 {
-        message(
+        send_message(
             world,
             client_id,
             "Your title cannot exceed 29 characters in length. Please try again.",
@@ -151,7 +147,7 @@ fn stop(world: &mut World, client_id: u32, player_oid: i32) {
 /// Two of Java's legs have no port equivalent and are noted at the site.
 fn can_start(world: &World, client_id: u32, player_oid: i32) -> bool {
     let refuse = |text: &str| {
-        message(world, client_id, text);
+        send_message(world, client_id, text);
         false
     };
     let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
@@ -258,7 +254,7 @@ fn add_skill(world: &mut World, client_id: u32, player_oid: i32, args: &[&str]) 
     }
     let cfg = world.cfg.sell_buffs.clone();
     if price < cfg.min_price {
-        message(
+        send_message(
             world,
             client_id,
             &format!("Too small price! Minimum price is {}", cfg.min_price),
@@ -266,7 +262,7 @@ fn add_skill(world: &mut World, client_id: u32, player_oid: i32, args: &[&str]) 
         return;
     }
     if price > cfg.max_price {
-        message(
+        send_message(
             world,
             client_id,
             &format!("Too big price! Maximum price is {}", cfg.max_price),
@@ -274,7 +270,7 @@ fn add_skill(world: &mut World, client_id: u32, player_oid: i32, args: &[&str]) 
         return;
     }
     if sell_list(world, player_oid).len() >= cfg.max_buffs {
-        message(
+        send_message(
             world,
             client_id,
             &format!(
@@ -295,7 +291,7 @@ fn add_skill(world: &mut World, client_id: u32, player_oid: i32, args: &[&str]) 
     }
     let level = known_level(world, player_oid, skill_id).unwrap_or(1);
     let name = skill_name(world, skill_id, level);
-    message(world, client_id, &format!("{name} has been added!"));
+    send_message(world, client_id, &format!("{name} has been added!"));
     send_buff_choice_menu(world, client_id, player_oid, 0);
 }
 
@@ -326,7 +322,7 @@ fn change_price(world: &mut World, client_id: u32, player_oid: i32, args: &[&str
         .is_some();
     if found {
         let name = skill_name(world, skill_id, level);
-        message(
+        send_message(
             world,
             client_id,
             &format!("Price of {name} has been changed to {price}!"),
@@ -357,7 +353,7 @@ fn remove_skill(world: &mut World, client_id: u32, player_oid: i32, args: &[&str
         .unwrap_or(false);
     if removed {
         let name = skill_name(world, skill_id, level);
-        message(world, client_id, &format!("Skill {name} has been removed!"));
+        send_message(world, client_id, &format!("Skill {name} has been removed!"));
         send_buff_edit_menu(world, client_id, player_oid);
     }
 }
@@ -446,7 +442,7 @@ fn buy_skill(world: &mut World, client_id: u32, buyer_oid: i32, args: &[&str]) {
         .map_or(0.0, |v| v.cur_mp);
     if seller_mp < mp_cost {
         let seller_name = player_name_or_empty(world, seller_oid);
-        message(
+        send_message(
             world,
             client_id,
             &format!("{seller_name} has no enough mana for {}!", skill.name),
@@ -471,7 +467,7 @@ fn buy_skill(world: &mut World, client_id: u32, buyer_oid: i32, args: &[&str]) {
         } else {
             format!("Not enough {item_name}!")
         };
-        message(world, client_id, &text);
+        send_message(world, client_id, &text);
         send_buff_menu(world, client_id, buyer_oid, seller_oid, index);
         return;
     }
@@ -562,10 +558,6 @@ fn pager(bypass: &str, index: usize, total: usize) -> String {
 fn read_page(world: &World, file: &str) -> String {
     crate::data::htm_cache::read_htm(format!("{}{HTML_FOLDER}{file}", world.data.root))
         .unwrap_or_else(|| "<html><body>%list%</body></html>".to_string())
-}
-
-fn message(world: &World, client_id: u32, text: &str) {
-    crate::game_loop::admin::send_message(world, client_id, text);
 }
 
 /// Java `Player.onActionRequest`'s sell-buff branch: clicking a seller opens

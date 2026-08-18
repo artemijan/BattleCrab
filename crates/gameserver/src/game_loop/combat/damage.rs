@@ -125,7 +125,7 @@ fn absorb_damage_to_hp(
         return;
     }
     absorb_into_hp(world, attacker, absorbed);
-    crate::game_loop::skills::effects::broadcast_vitals_for(world, attacker);
+    crate::game_loop::skills::effects::broadcast_vitals(world, attacker);
 }
 
 /// `Creature.reduceCurrentHp`'s "Absorb MP from the damage inflicted" block —
@@ -196,7 +196,7 @@ fn absorb_damage_to_mp(
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&attacker) {
         v.cur_mp = (v.cur_mp + absorbed).min(v.max_mp as f64);
     }
-    crate::game_loop::skills::effects::broadcast_vitals_for(world, attacker);
+    crate::game_loop::skills::effects::broadcast_vitals(world, attacker);
 }
 
 /// `Creature.doAttack`'s reflect block: the target bounces
@@ -464,7 +464,7 @@ pub(crate) fn npc_receive_damage(
             crate::game_loop::core_boss::on_core_attacked(world, npc_oid);
         }
         if npc_id == crate::game_loop::baium::BAIUM {
-            crate::game_loop::baium::on_baium_attacked(world, npc_oid, attacker_oid);
+            crate::game_loop::bosses::combat::anti_strider(world, npc_oid, attacker_oid);
             // A physical swing is Java's `skill == null` branch — the ×1000
             // melee weighting.
             crate::game_loop::baium::on_baium_damage(

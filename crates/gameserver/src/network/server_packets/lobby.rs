@@ -4,7 +4,7 @@
 
 use commons::network::PacketWriter;
 
-use super::opcodes;
+use super::{PAPERDOLL_ORDER, opcodes};
 use crate::model::inventory::PaperdollSlot;
 
 /// Port of `serverpackets/KeyPacket` — the reply to `ProtocolVersion`. Hands the
@@ -47,45 +47,6 @@ pub fn login_fail(success: i32, reason: i32) -> Vec<u8> {
 pub fn login_success() -> Vec<u8> {
     login_fail(-1, 0)
 }
-
-/// Java `ServerPacket.PAPERDOLL_ORDER` — the 33-int equipment write order the
-/// client expects (the `InventorySlot` wire order mapped to paperdoll slots;
-/// `RHand` repeats where the LRHAND display component sits).
-pub const PAPERDOLL_ORDER: [PaperdollSlot; 33] = [
-    PaperdollSlot::Under,
-    PaperdollSlot::REar,
-    PaperdollSlot::LEar,
-    PaperdollSlot::Neck,
-    PaperdollSlot::RFinger,
-    PaperdollSlot::LFinger,
-    PaperdollSlot::Head,
-    PaperdollSlot::RHand,
-    PaperdollSlot::LHand,
-    PaperdollSlot::Gloves,
-    PaperdollSlot::Chest,
-    PaperdollSlot::Legs,
-    PaperdollSlot::Feet,
-    PaperdollSlot::Cloak,
-    PaperdollSlot::RHand,
-    PaperdollSlot::Hair,
-    PaperdollSlot::Hair2,
-    PaperdollSlot::RBracelet,
-    PaperdollSlot::LBracelet,
-    PaperdollSlot::Deco1,
-    PaperdollSlot::Deco2,
-    PaperdollSlot::Deco3,
-    PaperdollSlot::Deco4,
-    PaperdollSlot::Deco5,
-    PaperdollSlot::Deco6,
-    PaperdollSlot::Belt,
-    PaperdollSlot::Brooch,
-    PaperdollSlot::BroochJewel1,
-    PaperdollSlot::BroochJewel2,
-    PaperdollSlot::BroochJewel3,
-    PaperdollSlot::BroochJewel4,
-    PaperdollSlot::BroochJewel5,
-    PaperdollSlot::BroochJewel6,
-];
 
 /// `CharSelectionInfo.PAPERDOLL_ORDER_VISUAL_ID` — this packet overrides the
 /// `ServerPacket` default with its own 9-slot visual-id order.

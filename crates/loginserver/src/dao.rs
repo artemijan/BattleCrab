@@ -5,7 +5,7 @@
 //! the dashboard read the same table, and one shared temporary-ban rule beats
 //! three copies of it.
 
-use models::sea_orm::{ConnectionTrait, DbErr};
+use models::sea_orm::ConnectionTrait;
 
 use crate::session::AccountInfo;
 
@@ -30,16 +30,6 @@ pub async fn select_account_info<C: ConnectionTrait>(
         access_level: row.effective_access_level,
         last_server: row.model.last_server.unwrap_or_default(),
     })
-}
-
-pub async fn auto_create_account<C: ConnectionTrait>(
-    db: &C,
-    login: &str,
-    pass_hash: &str,
-    now_millis: i64,
-    ip: &str,
-) -> Result<(), DbErr> {
-    models::repo::accounts::create(db, login, pass_hash, now_millis, ip).await
 }
 
 pub async fn update_account_info<C: ConnectionTrait>(

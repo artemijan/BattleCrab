@@ -34,7 +34,7 @@ fn instant(id: i32, effect: SkillEffect) -> Skill {
 }
 
 fn land(world: &mut World, skill: &Skill, caster: i32, target: i32) {
-    crate::game_loop::skills::effects::apply_skill_effects(world, caster, target, skill);
+    effects::apply_skill_effects(world, caster, target, skill);
 }
 
 // ---------------------------------------------------------------------------
@@ -42,16 +42,12 @@ fn land(world: &mut World, skill: &Skill, caster: i32, target: i32) {
 // ---------------------------------------------------------------------------
 
 /// A hall owned by `owner_id`, restarting at `owner_restart`.
-fn hall(
-    id: i32,
-    owner_id: i32,
-    owner_restart: (i32, i32, i32),
-) -> crate::model::clan_hall::ClanHall {
-    crate::model::clan_hall::ClanHall {
+fn hall(id: i32, owner_id: i32, owner_restart: (i32, i32, i32)) -> model::clan_hall::ClanHall {
+    model::clan_hall::ClanHall {
         id,
         name: format!("Hall {id}"),
-        grade: crate::model::clan_hall::ClanHallGrade::None,
-        hall_type: crate::model::clan_hall::ClanHallType::Auctionable,
+        grade: model::clan_hall::ClanHallGrade::None,
+        hall_type: model::clan_hall::ClanHallType::Auctionable,
         min_bid: 0,
         lease: 0,
         deposit: 0,
@@ -65,8 +61,8 @@ fn hall(
 }
 
 /// The bare minimum clan these tests read: an id and a castle.
-fn clan_owning(id: i32, castle_id: i32) -> crate::model::clan::Clan {
-    crate::model::clan::Clan {
+fn clan_owning(id: i32, castle_id: i32) -> Clan {
+    Clan {
         id,
         name: format!("C{id}"),
         leader_id: 0,
@@ -107,7 +103,7 @@ fn clan_hall_escape_lands_at_the_owned_halls_restart_point() {
     let _rx = ingame_player(&mut world, CID, CASTER, 0, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&CASTER)
+        .get_component_mut::<Player>(&CASTER)
         .unwrap()
         .clan_id = 77;
     world
@@ -157,10 +153,7 @@ fn castle_escape_honours_ownership_and_reputation() {
         with_town(&mut world);
         let _rx = ingame_player(&mut world, CID, CASTER, 0, 0, 0);
         {
-            let p = world
-                .objects
-                .get_component_mut::<crate::model::Player>(&CASTER)
-                .unwrap();
+            let p = world.objects.get_component_mut::<Player>(&CASTER).unwrap();
             p.clan_id = 77;
             p.reputation = reputation;
         }
@@ -251,20 +244,12 @@ fn dispel_all_strips_every_buff_but_spares_the_irreplacable_ones() {
 fn give_sp_credits_the_caster() {
     let (mut world, ..) = cast_test_world();
     let _rx = ingame_player(&mut world, CID, CASTER, 0, 0, 0);
-    let before = world
-        .objects
-        .get_component::<crate::model::Player>(&CASTER)
-        .unwrap()
-        .sp;
+    let before = world.objects.get_component::<Player>(&CASTER).unwrap().sp;
 
     let skill = instant(2167, SkillEffect::GiveSp { sp: 5_000 });
     land(&mut world, &skill, CASTER, CASTER);
 
-    let after = world
-        .objects
-        .get_component::<crate::model::Player>(&CASTER)
-        .unwrap()
-        .sp;
+    let after = world.objects.get_component::<Player>(&CASTER).unwrap().sp;
     assert_eq!(after - before, 5_000, "the scroll's flat SP grant");
 }
 
@@ -279,21 +264,13 @@ fn give_sp_pays_nothing_when_the_target_is_dead() {
         .get_component_mut::<Vitals>(&CASTER)
         .unwrap()
         .dead = true;
-    let before = world
-        .objects
-        .get_component::<crate::model::Player>(&CASTER)
-        .unwrap()
-        .sp;
+    let before = world.objects.get_component::<Player>(&CASTER).unwrap().sp;
 
     let skill = instant(2167, SkillEffect::GiveSp { sp: 5_000 });
     land(&mut world, &skill, CASTER, CASTER);
 
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::Player>(&CASTER)
-            .unwrap()
-            .sp,
+        world.objects.get_component::<Player>(&CASTER).unwrap().sp,
         before
     );
 }
@@ -348,7 +325,7 @@ fn set_skill_grants_the_skill_and_never_downgrades_it() {
 // ---------------------------------------------------------------------------
 
 fn refuses(world: &World, caster: i32, skill: &Skill, target: i32) -> bool {
-    crate::game_loop::skills::conditions::check_cast(world, caster, skill, target).is_err()
+    conditions::check_cast(world, caster, skill, target).is_err()
 }
 
 /// `OpHome` is the blessed scrolls' gate: unlike the plain scroll they refuse
@@ -371,7 +348,7 @@ fn op_home_gates_on_actually_owning_the_residence() {
 
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&CASTER)
+        .get_component_mut::<Player>(&CASTER)
         .unwrap()
         .clan_id = 77;
     assert!(
@@ -401,14 +378,14 @@ fn op_alignment_reads_the_casters_reputation() {
         },
     );
     lawful.conditions = vec![SkillCondition::Alignment {
-        affect: crate::model::skill::AffectType::Caster,
+        affect: model::skill::AffectType::Caster,
         chaotic: false,
     }];
 
     assert!(!refuses(&world, CASTER, &lawful, CASTER), "clean player");
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&CASTER)
+        .get_component_mut::<Player>(&CASTER)
         .unwrap()
         .reputation = -1;
     assert!(refuses(&world, CASTER, &lawful, CASTER), "a PK is refused");
@@ -487,7 +464,7 @@ fn grow_swaps_the_npc_collision_cylinder_and_restores_it() {
     const NPC: i32 = 20588;
     // NPC object ids live above `FIRST_NPC_OBJECT_ID`; a player-range id
     // makes `is_npc_oid` take the player branch and the buff never lands.
-    const MOB: i32 = crate::model::npc::FIRST_NPC_OBJECT_ID + 501;
+    const MOB: i32 = model::npc::FIRST_NPC_OBJECT_ID + 501;
     {
         let mut tpl = crate::data::npc_data::default_template(NPC);
         tpl.type_name = "Monster".into();
@@ -523,7 +500,7 @@ fn grow_swaps_the_npc_collision_cylinder_and_restores_it() {
     let c = *world.objects.get_component::<Collision>(&MOB).unwrap();
     assert_eq!((c.radius, c.height), (14.5, 28.8), "grown while buffed");
 
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, MOB, 4028);
+    effects::handle_buff_expire(&mut world, MOB, 4028);
     let c = *world.objects.get_component::<Collision>(&MOB).unwrap();
     assert_eq!((c.radius, c.height), (12.0, 24.0), "restored on exit");
 }
@@ -538,7 +515,7 @@ fn grow_swaps_the_npc_collision_cylinder_and_restores_it() {
 #[test]
 fn teleport_to_target_puts_the_caster_behind_its_target() {
     let (mut world, ..) = cast_test_world();
-    const MOB: i32 = crate::model::npc::FIRST_NPC_OBJECT_ID + 601;
+    const MOB: i32 = model::npc::FIRST_NPC_OBJECT_ID + 601;
     add_test_npc(&mut world, MOB, 21524, "Monster", 60, 3000, 0, 0);
     let _rx = ingame_player(&mut world, CID, CASTER, 0, 0, 0);
     // Heading 0 = facing +x, so "behind" is -x.

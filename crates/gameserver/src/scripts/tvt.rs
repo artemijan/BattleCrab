@@ -1,6 +1,6 @@
 //! The Team vs Team event manager's player-facing hooks (NPC 70010) — the
 //! registration talk window and the register/cancel/buff bypass buttons. The
-//! lifecycle and runtime live in [`crate::game_loop::events::tvt`]; this is the
+//! lifecycle and runtime live in [`tvt`]; this is the
 //! thin `QuestScript` that routes the manager's `onFirstTalk`/`onEvent` (Java
 //! `custom/events/TeamVsTeam/TvT`). G28.
 

@@ -625,7 +625,7 @@ fn check_special_ingredient(
         world,
         client_id,
         sm_ids::S1_POINTS_HAVE_BEEN_DEDUCTED_FROM_THE_CLAN_REPUTATION,
-        &[crate::network::server_packets::SmParam::Long(total)],
+        &[SmParam::Long(total)],
     );
     true
 }

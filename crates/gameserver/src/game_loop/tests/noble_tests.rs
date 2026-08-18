@@ -18,11 +18,7 @@ fn is_noble(world: &World) -> bool {
 
 /// Register a two-skill noble tree so the grant/remove is observable without
 /// depending on the datapack.
-fn noble_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn noble_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     world
         .data
@@ -104,7 +100,7 @@ fn nobless_is_written_to_the_save() {
     crate::game_loop::admin::hero::set_noble(&mut world, PLAYER, true);
     let _ = drain_db(&mut db);
 
-    crate::game_loop::net::save_all_players(&mut world);
+    save_all_players(&mut world);
 
     let cmds = drain_db(&mut db);
     let saved = cmds.iter().find_map(|c| match c {

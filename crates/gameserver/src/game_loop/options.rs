@@ -20,8 +20,8 @@
 //! [`crate::model::components::SkillBook`], because Java grants them with
 //! `store = false` and this port persists the whole book — an option skill
 //! filed there would outlive the item. See
-//! [`crate::model::components::OptionSkills`] /
-//! [`crate::model::components::OptionTriggers`].
+//! [`OptionSkills`] /
+//! [`OptionTriggers`].
 
 use crate::game_loop::stat_ctx::with_stat_ctx;
 use crate::model::components::{OptionSkills, OptionTriggers};

@@ -63,11 +63,6 @@ pub(crate) fn try_enter(world: &mut World, player_oid: i32) -> bool {
     true
 }
 
-/// CUBE talk: send the player back out (Java `teleportPlayerOut`).
-pub(crate) fn exit(world: &mut World, player_oid: i32) {
-    instances::exit(world, player_oid);
-}
-
 /// Java `onKill` for the crawl monsters — advance the room progression. Only the
 /// dungeon status machine (0→4) is handled here; the boss-fight kill branches
 /// (Scarlet2, demons, portraits) arrive with slice 4.

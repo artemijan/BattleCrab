@@ -14,6 +14,10 @@
 use super::helpers::{
     get_others_in_matching_room, send_sm_to_player as send_sm, send_to_player as send,
 };
+// Called on every room membership change, because Java's
+// `broadcastUserInfo(UserInfoType.CLAN)` carries the `isInMatchingRoom` flag in
+// the CLAN block.
+use super::player_info::broadcast_user_info;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
 use crate::model::components::{InMatchingRoom, PartyRef, PendingRequest, Position, RequestKind};
@@ -42,10 +46,6 @@ fn level_of(world: &World, object_id: i32) -> i32 {
         .objects
         .get_component::<Player>(&object_id)
         .map_or(0, |p| p.level)
-}
-
-pub(crate) fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
-    send(world, object_id, packet);
 }
 
 /// `PartyMatchingRoom.getMemberType` — a member is a `PARTY_MEMBER` only when
@@ -126,12 +126,6 @@ fn broadcast_room_info(world: &World, room_id: i32) {
             send(world, oid, pkt.clone());
         }
     }
-}
-
-/// Java calls `broadcastUserInfo(UserInfoType.CLAN)` on every room membership
-/// change, because the CLAN block carries the `isInMatchingRoom` flag.
-fn broadcast_user_info(world: &mut World, object_id: i32) {
-    super::player_info::broadcast_user_info(world, object_id);
 }
 
 /// Maintain the [`InMatchingRoom`] display mirror. The registry stays the

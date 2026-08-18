@@ -55,7 +55,7 @@ fn cast_damage(world: &mut World, caster: i32, target: i32, skill: &Skill) -> f6
     let before = hp_of(world, target);
     world.clear_forced_rolls();
     world.force_rolls([0, 0, 0, 0, 0, 0]);
-    crate::game_loop::skills::effects::apply_skill_effects(world, caster, target, skill);
+    effects::apply_skill_effects(world, caster, target, skill);
     world.clear_forced_rolls();
     before - hp_of(world, target)
 }
@@ -78,30 +78,10 @@ fn attribute_bonus_curve_and_caps() {
 
     // The land-rate element factor: a fire debuff vs a fire-weak target
     // (element_mod > 1) lands more often than vs a resistant one.
-    let weak = crate::model::formulas::calc_effect_land_rate(
-        40,
-        50,
-        0,
-        40,
-        1.0,
-        1.2,
-        1.0,
-        0.0,
-        1.0,
-        Default::default(),
-    );
-    let strong = crate::model::formulas::calc_effect_land_rate(
-        40,
-        50,
-        0,
-        40,
-        1.0,
-        0.8,
-        1.0,
-        0.0,
-        1.0,
-        Default::default(),
-    );
+    let weak =
+        formulas::calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.2, 1.0, 0.0, 1.0, Default::default());
+    let strong =
+        formulas::calc_effect_land_rate(40, 50, 0, 40, 1.0, 0.8, 1.0, 0.0, 1.0, Default::default());
     assert!(weak > strong);
 }
 

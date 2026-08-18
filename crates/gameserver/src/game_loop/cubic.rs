@@ -333,7 +333,7 @@ fn choose_skill(world: &mut World, template: &CubicTemplate) -> Option<CubicSkil
 
 /// The owner's target, but only while it is still alive.
 ///
-/// Deliberately **not** [`crate::game_loop::guard::target`], which answers the
+/// Deliberately **not** [`guard::target`], which answers the
 /// raw selection: a cubic that fires at a corpse wastes its cast and its reuse.
 /// The name says `live_` so the next reader does not "collapse" it into the
 /// plain resolver the way the identical-looking copies elsewhere were.

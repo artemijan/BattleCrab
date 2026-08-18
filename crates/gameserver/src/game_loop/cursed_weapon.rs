@@ -637,7 +637,7 @@ pub(crate) fn handle_request_list(world: &World, client_id: u32) {
     send_to_client(
         world,
         client_id,
-        crate::network::server_packets::ex_cursed_weapon_list(&ids),
+        server_packets::ex_cursed_weapon_list(&ids),
     );
 }
 
@@ -671,6 +671,6 @@ pub(crate) fn handle_request_location(world: &World, client_id: u32) {
     send_to_client(
         world,
         client_id,
-        crate::network::server_packets::ex_cursed_weapon_location(&entries),
+        server_packets::ex_cursed_weapon_location(&entries),
     );
 }

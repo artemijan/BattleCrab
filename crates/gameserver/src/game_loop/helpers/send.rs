@@ -142,7 +142,7 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
         .map_or(0, |p| p.charges);
     let wp = world
         .objects
-        .get_component::<crate::model::components::WeightPenalty>(&object_id)
+        .get_component::<model::components::WeightPenalty>(&object_id)
         .map_or(0, |w| w.level);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::enter_world::etc_status_update(
@@ -154,7 +154,7 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
 /// The clean logout teardown for a player (Java `Disconnection.of`): persist,
 /// despawn, drop the session.
 pub(crate) fn disconnect_player(world: &mut World, target: i32) {
-    let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) else {
+    let Some(tcid) = client_for_player(world, target) else {
         return;
     };
     if let Some(ClientSession::InGame(session)) = world.clients.remove(&tcid) {

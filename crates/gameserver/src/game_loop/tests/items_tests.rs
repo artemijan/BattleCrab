@@ -5339,7 +5339,7 @@ fn a_book_opens_its_help_page_and_survives() {
     let obj = item_oid(&world, 8801, BOOK);
     drain(&mut rx);
 
-    crate::game_loop::items::use_equipable_item(&mut world, 1, 8801, obj);
+    items::use_equipable_item(&mut world, 1, 8801, obj);
 
     let html = drain(&mut rx)
         .into_iter()
@@ -5349,7 +5349,7 @@ fn a_book_opens_its_help_page_and_survives() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&8801)
+            .get_component::<Inventory>(&8801)
             .unwrap()
             .count_of(BOOK),
         1,
@@ -5372,7 +5372,7 @@ fn rolling_a_die_broadcasts_the_result() {
     drain(&mut rx);
     drain(&mut bystander);
 
-    crate::game_loop::items::use_equipable_item(&mut world, 1, 8802, obj);
+    items::use_equipable_item(&mut world, 1, 8802, obj);
 
     let rolled = drain(&mut rx);
     let dice = rolled
@@ -5435,21 +5435,14 @@ fn enchanted_armour_adds_its_max_hp_bonus() {
 
     items::add_inventory_item(&mut world, 8901, CHEST, 1).unwrap();
     let obj = item_oid(&world, 8901, CHEST);
-    crate::game_loop::items::use_equipable_item(&mut world, 1, 8901, obj);
+    items::use_equipable_item(&mut world, 1, 8901, obj);
 
     let max_hp_at = |world: &mut World, enchant: i32| -> f64 {
-        if let Some(inv) = world
-            .objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&8901)
-        {
+        if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8901) {
             inv.set_enchant_level(obj, enchant);
         }
         crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, 8901);
-        world
-            .objects
-            .get_component::<crate::model::components::Vitals>(&8901)
-            .unwrap()
-            .max_hp as f64
+        world.objects.get_component::<Vitals>(&8901).unwrap().max_hp as f64
     };
 
     let plain = max_hp_at(&mut world, 0);
@@ -5494,26 +5487,15 @@ fn enchanted_jewellery_pays_no_hp_bonus() {
 
     items::add_inventory_item(&mut world, 8902, NECKLACE, 1).unwrap();
     let obj = item_oid(&world, 8902, NECKLACE);
-    crate::game_loop::items::use_equipable_item(&mut world, 1, 8902, obj);
+    items::use_equipable_item(&mut world, 1, 8902, obj);
     crate::game_loop::helpers::recalculate_player_stats_and_vitals(&mut world, 8902);
-    let plain = world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&8902)
-        .unwrap()
-        .max_hp;
+    let plain = world.objects.get_component::<Vitals>(&8902).unwrap().max_hp;
 
-    if let Some(inv) = world
-        .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&8902)
-    {
+    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8902) {
         inv.set_enchant_level(obj, 12);
     }
     crate::game_loop::helpers::recalculate_player_stats_and_vitals(&mut world, 8902);
-    let enchanted = world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&8902)
-        .unwrap()
-        .max_hp;
+    let enchanted = world.objects.get_component::<Vitals>(&8902).unwrap().max_hp;
 
     assert_eq!(plain, enchanted, "a +12 necklace grants no HP");
 }

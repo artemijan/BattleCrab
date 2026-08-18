@@ -1,6 +1,6 @@
 //! The seven-component borrow every buff change needs, resolved once.
 //!
-//! [`crate::model::Player::apply_buff`] and `remove_buff` rebuild the modifier
+//! [`Player::apply_buff`] and `remove_buff` rebuild the modifier
 //! maps from scratch, so they need the player, their base stats, the modifier
 //! maps, the inventory, the buff list, and the speed and combat blocks — seven
 //! components plus [`GameData`]. Eight call sites across the game loop used to

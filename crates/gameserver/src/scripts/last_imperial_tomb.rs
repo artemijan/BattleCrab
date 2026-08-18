@@ -1,6 +1,6 @@
 //! The Frintezza instance's player-facing hooks — the Guide (32011) who admits
 //! a scroll-holder and the Teleport Cube (29061) that sends winners out — plus
-//! the crawl kill notifications, all wired to [`crate::game_loop::frintezza`].
+//! the crawl kill notifications, all wired to [`frintezza`].
 //! Port of `ai/bosses/Frintezza/LastImperialTomb`'s `onTalk`/`onKill`.
 
 use crate::game_loop::frintezza::{self, CUBE, GUIDE, SCARLET1, SCARLET2};
@@ -79,7 +79,8 @@ impl QuestScript for LastImperialTomb {
             }
         } else if ctx.npc_id == CUBE {
             let player = ctx.player;
-            frintezza::exit(ctx.world, player);
+            // CUBE talk: send the player back out (Java `teleportPlayerOut`).
+            crate::game_loop::instances::exit(ctx.world, player);
         }
         // Both actions teleport; no chat window is shown.
         None

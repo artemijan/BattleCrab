@@ -89,7 +89,7 @@ fn shield_world() -> (World, i32) {
     // below aligned and every hit exactly reproducible.
     world
         .objects
-        .get_component_mut::<crate::model::components::CombatStats>(&CASTER)
+        .get_component_mut::<CombatStats>(&CASTER)
         .unwrap()
         .random_dmg = 0;
     (world, victim)
@@ -115,7 +115,7 @@ fn hit_for(world: &mut World, victim: i32, skill: &Skill, rolls: &[i32]) -> f64 
         .unwrap()
         .cur_hp = full;
     world.force_rolls(rolls.iter().copied());
-    crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, victim, skill);
+    effects::apply_skill_effects(world, CASTER, victim, skill);
     full - world
         .objects
         .get_component::<Vitals>(&victim)
@@ -127,13 +127,13 @@ fn hit_for(world: &mut World, victim: i32, skill: &Skill, rolls: &[i32]) -> f64 
 fn equip_shield(world: &mut World, oid: i32) {
     let World { objects, data, .. } = world;
     let inv = objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&oid)
+        .get_component_mut::<Inventory>(&oid)
         .expect("a player target");
     let oid = inv.add_item(&data.item_data, 0x5100_0001, SHIELD_ID, 1);
     let changed = inv.equip_item(&data.item_data, oid);
     assert!(!changed.is_empty(), "the shield equipped (oid {oid})");
     assert!(
-        inv.paperdoll_item(crate::model::inventory::PaperdollSlot::LHand)
+        inv.paperdoll_item(model::inventory::PaperdollSlot::LHand)
             .is_some(),
         "…into the left hand"
     );
@@ -176,7 +176,7 @@ fn a_bow_switches_the_skill_to_the_ranged_formula() {
     world.data.item_data = dist::items_owned();
     world
         .objects
-        .get_component_mut::<crate::model::components::CombatStats>(&CASTER)
+        .get_component_mut::<CombatStats>(&CASTER)
         .unwrap()
         .random_dmg = 0;
     let victim = spawn_mob(&mut world, &mut a_rx);
@@ -188,9 +188,7 @@ fn a_bow_switches_the_skill_to_the_ranged_formula() {
     assert!(melee > 0.0, "the melee hit lands for something");
     {
         let World { objects, data, .. } = &mut world;
-        let inv = objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&CASTER)
-            .unwrap();
+        let inv = objects.get_component_mut::<Inventory>(&CASTER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5100_0009, 13, 1);
         inv.equip_item(&data.item_data, oid);
     }
@@ -211,19 +209,16 @@ fn a_bow_switches_the_skill_to_the_ranged_formula() {
 /// The mob helper the ranged test needs — a `combat_test_world` Monster with a
 /// real HP pool. (`shield_world`'s victim must be a player; this one must not
 /// be, because player-on-player skill damage is gated by the PvP rules.)
-fn spawn_mob(
-    world: &mut World,
-    a_rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-) -> i32 {
+fn spawn_mob(world: &mut World, a_rx: &mut UnboundedReceiver<bytes::Bytes>) -> i32 {
     let npc_oid = 0x4000_0111;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -314,7 +309,7 @@ fn the_physical_attack_path_consults_the_shield_switch() {
     let victim = spawn_mob(&mut world, &mut a_rx);
     world
         .objects
-        .get_component_mut::<crate::model::components::CombatStats>(&CASTER)
+        .get_component_mut::<CombatStats>(&CASTER)
         .unwrap()
         .random_dmg = 0;
 
@@ -399,7 +394,7 @@ fn the_blow_and_energy_paths_consult_the_shield_switch_too() {
     {
         let cs = world
             .objects
-            .get_component_mut::<crate::model::components::CombatStats>(&CASTER)
+            .get_component_mut::<CombatStats>(&CASTER)
             .unwrap();
         cs.random_dmg = 0;
         cs.crit_hit = 500.0; // `calcBlowSuccess` is seeded from the crit rate
@@ -475,10 +470,7 @@ fn magical_attack_range_consults_the_shield() {
     // Face the caster (heading 32768 = -x, caster at the origin) from 50
     // units out — sharing a spot computes as a back attack, which is
     // shield-exempt.
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::components::Position>(&victim)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Position>(&victim) {
         p.x = 50;
         p.heading = 32768;
     }
@@ -495,10 +487,7 @@ fn magical_attack_range_consults_the_shield() {
     // A magic hit on a player drains CP before HP; empty the pool so
     // `hit_for`'s HP delta measures the whole hit.
     let zero_cp = |world: &mut World| {
-        if let Some(pv) = world
-            .objects
-            .get_component_mut::<crate::model::components::PlayerVitals>(&victim)
-        {
+        if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&victim) {
             pv.cur_cp = 0.0;
         }
     };

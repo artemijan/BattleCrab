@@ -31,11 +31,7 @@ fn aggressive_template(id: i32, type_name: &str) -> crate::data::npc_data::NpcTe
     t
 }
 
-fn stealth_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn stealth_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     world
         .data
@@ -141,7 +137,7 @@ fn a_stealthed_pk_slips_past_a_guard() {
     add_test_npc(&mut world, MOB_OID, 45002, "Guard", 20, 300, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .get_component_mut::<Player>(&PLAYER)
         .unwrap()
         .reputation = -500;
 
@@ -162,7 +158,7 @@ fn a_stealthed_pk_slips_past_a_guard() {
     add_test_npc(&mut world, MOB_OID, 45002, "Guard", 20, 300, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .get_component_mut::<Player>(&PLAYER)
         .unwrap()
         .reputation = -500;
     give_flag_buff(&mut world, PLAYER, 411, effect_flag::SILENT_MOVE);
@@ -189,17 +185,15 @@ fn damage_breaks_fake_death() {
     add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 20, 300, 0, 0);
     give_flag_buff(&mut world, PLAYER, 60, effect_flag::FAKE_DEATH);
     assert_ne!(
-        crate::game_loop::abnormal::flags_of(&world, PLAYER) & effect_flag::FAKE_DEATH,
+        abnormal::flags_of(&world, PLAYER) & effect_flag::FAKE_DEATH,
         0,
         "playing dead to begin with"
     );
 
-    crate::game_loop::combat::apply_physical_damage(
-        &mut world, MOB_OID, PLAYER, 10.0, false, false,
-    );
+    combat::apply_physical_damage(&mut world, MOB_OID, PLAYER, 10.0, false, false);
 
     assert_eq!(
-        crate::game_loop::abnormal::flags_of(&world, PLAYER) & effect_flag::FAKE_DEATH,
+        abnormal::flags_of(&world, PLAYER) & effect_flag::FAKE_DEATH,
         0,
         "one hit and the act is over"
     );
@@ -214,10 +208,10 @@ fn a_zero_damage_hit_does_not_break_fake_death() {
     add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 20, 300, 0, 0);
     give_flag_buff(&mut world, PLAYER, 60, effect_flag::FAKE_DEATH);
 
-    crate::game_loop::combat::apply_physical_damage(&mut world, MOB_OID, PLAYER, 0.0, false, false);
+    combat::apply_physical_damage(&mut world, MOB_OID, PLAYER, 0.0, false, false);
 
     assert_ne!(
-        crate::game_loop::abnormal::flags_of(&world, PLAYER) & effect_flag::FAKE_DEATH,
+        abnormal::flags_of(&world, PLAYER) & effect_flag::FAKE_DEATH,
         0,
         "a 0-damage event leaves the act running"
     );
@@ -232,7 +226,7 @@ fn standing_up_sends_change_wait_type_and_revive() {
     give_flag_buff(&mut world, PLAYER, 60, effect_flag::FAKE_DEATH);
     let _ = drain(&mut out);
 
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, PLAYER, 60);
+    effects::handle_buff_expire(&mut world, PLAYER, 60);
 
     let opcodes: Vec<u8> = drain(&mut out)
         .iter()

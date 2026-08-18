@@ -8,10 +8,6 @@
 use crate::model::skill::SkillEffect;
 use crate::model::stats::Stat;
 
-fn dist_skills() -> crate::data::skill_data::SkillData {
-    super::dist::skills_owned()
-}
-
 /// The `(stat, weapon_mask_set, two_handed)` triples a skill contributes.
 fn conditioned(
     skills: &crate::data::skill_data::SkillData,
@@ -41,7 +37,7 @@ fn conditioned(
 /// accuracy.
 #[test]
 fn the_three_carriers_produce_two_handed_modifiers() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     // Level 2: Rage 94's `pAtkAmount` is **0** at level 1 (see
     // `rage_grants_nothing_at_level_one`), so level 1 would prove nothing.
     for id in [94, 176, 293] {
@@ -76,7 +72,7 @@ fn the_three_carriers_produce_two_handed_modifiers() {
 /// effect list honest.
 #[test]
 fn rage_grants_nothing_at_level_one() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     assert!(conditioned(&skills, 94, 1).is_empty(), "level 1 is a no-op");
     assert!(
         !conditioned(&skills, 94, 2).is_empty(),
@@ -89,7 +85,7 @@ fn rage_grants_nothing_at_level_one() {
 /// cluster count read 5 when only 3 distinct skills are involved.)
 #[test]
 fn rage_and_frenzy_cover_both_weapon_families() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     for id in [94, 176] {
         let masks: Vec<u32> = skills
             .get(id, 2)
@@ -113,7 +109,7 @@ fn rage_and_frenzy_cover_both_weapon_families() {
 /// the two-handed flag is set, rather than one standing in for the other.
 #[test]
 fn the_weapon_and_slot_conditions_are_separate_axes() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     let effects: Vec<_> = skills
         .get(293, 1)
         .unwrap()
@@ -160,7 +156,7 @@ fn the_slot_condition_reads_the_weapon_bodypart() {
 /// vast majority of the datapack, and the case that must not regress.
 #[test]
 fn an_unconditioned_modifier_is_not_two_handed_gated() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     // Death Whisper 1242: a plain crit-damage buff, no conditions at all.
     let dw = skills.get(1242, 1).expect("Death Whisper loads");
     assert!(

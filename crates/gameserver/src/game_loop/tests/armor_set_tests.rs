@@ -33,11 +33,7 @@ fn oid_of(item_id: i32) -> i32 {
     9000 + item_id
 }
 
-fn armor_set_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn armor_set_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     let root = crate::data::DIST_GAME;
     world.data.item_data = dist::items_owned();
@@ -51,11 +47,7 @@ fn armor_set_world() -> (
 }
 
 /// Put `item_id` in the bag and equip it through the real item path.
-fn equip(
-    world: &mut World,
-    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-    item_id: i32,
-) {
+fn equip(world: &mut World, rx: &mut UnboundedReceiver<bytes::Bytes>, item_id: i32) {
     let oid = oid_of(item_id);
     {
         let World { objects, data, .. } = world;
@@ -67,11 +59,7 @@ fn equip(
 }
 
 /// Unequip a worn piece through the real item path (`UseItem` toggles).
-fn unequip(
-    world: &mut World,
-    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-    item_id: i32,
-) {
+fn unequip(world: &mut World, rx: &mut UnboundedReceiver<bytes::Bytes>, item_id: i32) {
     drain(rx);
     items::handle_use_item(world, CID, &use_item_body(oid_of(item_id)));
 }
@@ -289,7 +277,7 @@ fn set_skills_never_reach_the_persisted_skill_book() {
         "and the persistence filter recognises it"
     );
 
-    let saved = crate::game_loop::net::build_save_data(&world, PLAYER).expect("save data");
+    let saved = build_save_data(&world, PLAYER).expect("save data");
     assert!(
         !saved.skills.iter().any(|&(id, _, _)| id == SKILL_PLAIN_A),
         "a set-granted skill is absent from what gets flushed"

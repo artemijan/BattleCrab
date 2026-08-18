@@ -19,7 +19,7 @@ impl<'w> QuestCtx<'w> {
             .and_then(|q| q.0.get(quest_name))
             .map(|qs| {
                 if qs.is_started() {
-                    qs.get_int(crate::model::quest::MEMO_VAR)
+                    qs.get_int(quest::MEMO_VAR)
                 } else {
                     0
                 }

@@ -1216,8 +1216,7 @@ pub(crate) fn handle_request_recipe_shop_manage_prev(world: &mut World, client_i
         .0;
     // `isAlikeDead() || getTarget() == null || !getTarget().isPlayer()`.
     let target = target.filter(|t| world.objects.has_component::<crate::model::Player>(t));
-    let Some(manufacturer) = target.filter(|_| !crate::game_loop::helpers::is_dead(world, player))
-    else {
+    let Some(manufacturer) = target.filter(|_| !is_dead(world, player)) else {
         crate::game_loop::helpers::send_action_failed(world, client_id);
         return;
     };

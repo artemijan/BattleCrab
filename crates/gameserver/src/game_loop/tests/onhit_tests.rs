@@ -41,14 +41,14 @@ fn onhit_world() -> (World, i32) {
     let (mut world, _db, _l) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, CID, ATTACKER, 0, 0);
     let npc_oid = 0x4000_0222;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -112,7 +112,7 @@ fn a_melee_hit_absorbs_hp_for_the_attacker() {
 
     // The absorb rolls `roll_f64` (< chance); 0 always wins.
     world.force_rolls([0]);
-    crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(hp(&world, ATTACKER), 30.0, "50% of 40 damage came back");
 }
 
@@ -127,15 +127,13 @@ fn a_ranged_weapon_absorbs_nothing() {
     set_hp(&mut world, ATTACKER, 10.0);
     {
         let World { objects, data, .. } = &mut world;
-        let inv = objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&ATTACKER)
-            .unwrap();
+        let inv = objects.get_component_mut::<Inventory>(&ATTACKER).unwrap();
         let oid = inv.add_item(&data.item_data, 0x5200_0001, 13, 1); // Short Bow
         inv.equip_item(&data.item_data, oid);
     }
 
     world.force_rolls([0]);
-    crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(hp(&world, ATTACKER), 10.0, "a bow feeds no vampire");
 }
 
@@ -150,27 +148,13 @@ fn a_skill_hit_absorbs_nothing_on_this_dists_config() {
     set_hp(&mut world, ATTACKER, 10.0);
 
     world.force_rolls([0]);
-    crate::game_loop::combat::apply_attack_damage(
-        &mut world,
-        ATTACKER,
-        mob,
-        40.0,
-        false,
-        Some(false),
-    );
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, Some(false));
     assert_eq!(hp(&world, ATTACKER), 10.0);
 
     // Flip the config and the same skill hit does feed.
     world.cfg.character.vampiric_attack_works_with_skills = true;
     world.force_rolls([0]);
-    crate::game_loop::combat::apply_attack_damage(
-        &mut world,
-        ATTACKER,
-        mob,
-        40.0,
-        false,
-        Some(false),
-    );
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, Some(false));
     assert_eq!(hp(&world, ATTACKER), 30.0);
 }
 
@@ -194,14 +178,14 @@ fn the_absorb_never_overheals_and_is_capped_by_the_victim() {
         .max_hp as f64;
     set_hp(&mut world, ATTACKER, max - 3.0);
     world.force_rolls([0]);
-    crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 100.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100.0, false, None);
     assert_eq!(hp(&world, ATTACKER), max, "no overheal");
 
     // Victim down to 2 HP: a 100-damage swing can only take those 2.
     set_hp(&mut world, ATTACKER, 10.0);
     set_hp(&mut world, mob, 2.0);
     world.force_rolls([0]);
-    crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 100.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100.0, false, None);
     assert_eq!(hp(&world, ATTACKER), 12.0, "capped at the victim's HP");
 }
 
@@ -243,7 +227,7 @@ fn a_shielded_target_reflects_damage_at_its_attacker() {
     add_stat(&mut world, mob, Stat::ReflectDamagePercent, 25.0);
     let before = hp(&world, ATTACKER);
 
-    crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(
         before - hp(&world, ATTACKER),
         10.0,
@@ -261,7 +245,7 @@ fn a_reflected_hit_does_not_bounce_back() {
     let attacker_before = hp(&world, ATTACKER);
     let mob_before = hp(&world, mob);
 
-    crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(attacker_before - hp(&world, ATTACKER), 20.0, "one bounce");
     assert_eq!(
         mob_before - hp(&world, mob),
@@ -279,18 +263,11 @@ fn a_dead_target_and_a_dot_reflect_nothing() {
 
     // DoT: no bounce.
     let before = hp(&world, ATTACKER);
-    crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 20.0, true, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 20.0, true, None);
     assert_eq!(hp(&world, ATTACKER), before, "a DoT tick never reflects");
 
     // Killing blow: no bounce either.
-    crate::game_loop::combat::apply_attack_damage(
-        &mut world,
-        ATTACKER,
-        mob,
-        1_000_000.0,
-        false,
-        None,
-    );
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 1_000_000.0, false, None);
     assert!(
         world.objects.get_component::<Vitals>(&mob).unwrap().dead,
         "the mob died"
@@ -321,23 +298,14 @@ fn the_reflected_amount_is_capped_by_the_reflectors_defence() {
 
     // A huge physical hit bounces back at most `pDef`.
     let before = hp(&world, ATTACKER);
-    crate::game_loop::combat::apply_attack_damage(
-        &mut world, ATTACKER, mob, 100_000.0, false, None,
-    );
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100_000.0, false, None);
     assert_eq!(before - hp(&world, ATTACKER), p_def.trunc());
 
     // The same through a *magic* skill caps at `mDef * 1.5` instead.
     let (mut world, mob) = onhit_world();
     add_stat(&mut world, mob, Stat::ReflectDamagePercent, 100.0);
     let before = hp(&world, ATTACKER);
-    crate::game_loop::combat::apply_attack_damage(
-        &mut world,
-        ATTACKER,
-        mob,
-        100_000.0,
-        false,
-        Some(true),
-    );
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 100_000.0, false, Some(true));
     assert_eq!(before - hp(&world, ATTACKER), (m_def * 1.5).trunc());
 }
 
@@ -351,7 +319,7 @@ fn the_reflect_percentage_is_clamped_by_its_config_limit() {
     world.cfg.character.non_player_reflect_percent_limit = 50.0;
     let before = hp(&world, ATTACKER);
 
-    crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(
         before - hp(&world, ATTACKER),
         20.0,
@@ -388,11 +356,11 @@ fn the_absorb_rolls_its_chance() {
 
     // `roll_f64` reads a forced value as `v / 1_000_000`: 0.6 loses the 0.5 roll.
     world.force_rolls([600_000]);
-    crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(hp(&world, ATTACKER), 10.0, "the roll was lost");
 
     // 0.4 wins it.
     world.force_rolls([400_000]);
-    crate::game_loop::combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
     assert_eq!(hp(&world, ATTACKER), 30.0, "and won on the next swing");
 }

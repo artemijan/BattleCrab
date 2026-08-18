@@ -1,7 +1,7 @@
 //! `l2r-tools spawn-pockets` — report spawn rows buried under the floor by
 //! geodata layer snapping.
 //!
-//! See [`tools::spawn_pockets`] for how a burial is detected and why the
+//! See [`spawn_pockets`] for how a burial is detected and why the
 //! obvious detectors do not work; this module is only flags and output.
 
 use gameserver::geo::GeoEngine;

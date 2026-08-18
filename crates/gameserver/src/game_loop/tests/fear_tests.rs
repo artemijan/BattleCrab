@@ -24,7 +24,7 @@ fn fear_skill(id: i32) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -386,7 +386,7 @@ fn real_dist_fear_skills_parse_a_fear_effect() {
             "skill {id} still carries its BlockControl too"
         );
         assert!(
-            skill.effect_flags() & crate::model::skill::effect_flag::FEAR != 0,
+            skill.effect_flags() & model::skill::effect_flag::FEAR != 0,
             "skill {id} contributes the FEAR flag"
         );
     }

@@ -40,10 +40,10 @@ fn ownership_overlays_at_boot() {
     world.data.clan_halls = load_clan_halls(DIST);
     assert!(world.clan_halls.is_empty(), "nothing until the rows arrive");
 
-    crate::game_loop::net::handle_db_event(
+    handle_db_event(
         &mut world,
-        crate::db::DbEvent::ClanHallsLoaded {
-            rows: vec![crate::db::ClanHallRow {
+        DbEvent::ClanHallsLoaded {
+            rows: vec![db::ClanHallRow {
                 id: 27,
                 owner_id: 500,
                 paid_until: 1_700_000_000_000,
@@ -65,10 +65,10 @@ fn ownership_overlays_at_boot() {
 fn a_clan_can_be_found_by_the_hall_it_owns() {
     let (mut world, _db, _l) = combat_test_world();
     world.data.clan_halls = load_clan_halls(DIST);
-    crate::game_loop::net::handle_db_event(
+    handle_db_event(
         &mut world,
-        crate::db::DbEvent::ClanHallsLoaded {
-            rows: vec![crate::db::ClanHallRow {
+        DbEvent::ClanHallsLoaded {
+            rows: vec![db::ClanHallRow {
                 id: 27,
                 owner_id: 777,
                 paid_until: 0,
@@ -359,10 +359,10 @@ fn bids_are_restored_at_boot() {
     assert!(world.clan_hall_bids.is_empty());
 
     let before = world.scheduler.len();
-    crate::game_loop::net::handle_db_event(
+    handle_db_event(
         &mut world,
-        crate::db::DbEvent::ClanHallBiddersLoaded {
-            rows: vec![crate::db::ClanHallBidRow {
+        DbEvent::ClanHallBiddersLoaded {
+            rows: vec![db::ClanHallBidRow {
                 hall_id: ONYX,
                 clan_id: 10,
                 bid: 5_000_000,
@@ -523,8 +523,8 @@ fn the_owning_clan_hears_about_the_overdue_lease() {
 }
 
 /// A roster entry for the broadcast tests.
-fn member(char_id: i32) -> crate::model::clan::ClanMember {
-    crate::model::clan::ClanMember {
+fn member(char_id: i32) -> model::clan::ClanMember {
+    model::clan::ClanMember {
         char_id,
         name: format!("P{char_id}"),
         level: 20,
@@ -562,7 +562,7 @@ fn opening_a_halls_doors_toggles_them() {
     let (mut world, _db, _l) = combat_test_world();
     world.clan_halls = load_clan_halls(DIST);
     let door_id = 24190001;
-    crate::model::door::spawn_door_for_test(&mut world, test_door(door_id, DoorOpenMethod::None));
+    model::door::spawn_door_for_test(&mut world, test_door(door_id, DoorOpenMethod::None));
     // Pretend Onyx Hall's door is this test door.
     world.clan_halls.get_mut(&ONYX).unwrap().doors = vec![door_id];
 
@@ -764,26 +764,20 @@ fn banish_ejects_outsiders_but_not_members() {
     let _r2 = ingame_player(&mut world, 12, member, inside.0, inside.1, inside.2);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&outsider)
+        .get_component_mut::<Player>(&outsider)
         .unwrap()
         .clan_id = 999;
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&member)
+        .get_component_mut::<Player>(&member)
         .unwrap()
         .clan_id = 100;
 
     crate::game_loop::clans::hall_auction::banish_others(&mut world, 23);
 
-    let op = world
-        .objects
-        .get_component::<crate::model::components::Position>(&outsider)
-        .unwrap();
+    let op = world.objects.get_component::<Position>(&outsider).unwrap();
     assert_eq!((op.x, op.y), (-14684, 125655), "the outsider was banished");
-    let mp = world
-        .objects
-        .get_component::<crate::model::components::Position>(&member)
-        .unwrap();
+    let mp = world.objects.get_component::<Position>(&member).unwrap();
     assert_eq!((mp.x, mp.y), (inside.0, inside.1), "the member stayed put");
 }
 
@@ -829,7 +823,7 @@ fn a_member_in_their_own_hall_is_boosted() {
     let _r = ingame_player(&mut world, 13, member, inside.0, inside.1, inside.2);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&member)
+        .get_component_mut::<Player>(&member)
         .unwrap()
         .clan_id = 100;
 
@@ -849,7 +843,7 @@ fn an_outsider_in_the_hall_is_not_boosted() {
     let _r = ingame_player(&mut world, 14, outsider, inside.0, inside.1, inside.2);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&outsider)
+        .get_component_mut::<Player>(&outsider)
         .unwrap()
         .clan_id = 999; // not the owner
 
@@ -891,10 +885,7 @@ fn a_hall_teleport_moves_the_player() {
 
     crate::game_loop::teleporter::do_teleport(&mut world, 15, player, npc, "tel1", Some(0));
 
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&player)
-        .unwrap();
+    let pos = world.objects.get_component::<Position>(&player).unwrap();
     // x/y land exactly; z snaps to ground geometry.
     assert_eq!(
         (pos.x, pos.y),
@@ -918,7 +909,7 @@ fn buff_world(
 ) -> (
     World,
     db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+    UnboundedReceiver<LoginLinkCommand>,
     i32,
     i32,
 ) {
@@ -1105,10 +1096,7 @@ fn respawn_at_hall(restore_level: i32, exp: i64, lost: i64) -> (i64, i64, (i32, 
     let player = 8900;
     let _rx = ingame_player(&mut world, 18, player, 100, 100, 0);
     {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&player)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&player).unwrap();
         p.clan_id = 42;
         p.exp = exp;
         p.lost_exp_on_death = lost;
@@ -1121,14 +1109,8 @@ fn respawn_at_hall(restore_level: i32, exp: i64, lost: i64) -> (i64, i64, (i32, 
 
     handle_request_restart_point(&mut world, 18, &1i32.to_le_bytes());
 
-    let p = world
-        .objects
-        .get_component::<crate::model::Player>(&player)
-        .unwrap();
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&player)
-        .unwrap();
+    let p = world.objects.get_component::<Player>(&player).unwrap();
+    let pos = world.objects.get_component::<Position>(&player).unwrap();
     (p.exp, p.lost_exp_on_death, (pos.x, pos.y, pos.z))
 }
 

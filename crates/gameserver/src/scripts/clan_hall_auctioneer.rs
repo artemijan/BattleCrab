@@ -1,7 +1,7 @@
 //! The Clan Hall Auctioneer (NPC 30767) — the player side of clan-hall auctions
 //! (`ai/others/ClanHallAuctioneer`). A clan leader browses the free halls, reads
 //! a hall's auction info, bids on / cancels bids for it, and lists the current
-//! bidders; the auction logic lives in [`crate::game_loop::clans::hall_auction`].
+//! bidders; the auction logic lives in [`hall_auction`].
 //!
 //! The dynamic dist htmls are templated here: the hall list (`%agitList%`), the
 //! per-hall info page, the bid form (`%clanAdena%`/`%minBid%`), the bidder list

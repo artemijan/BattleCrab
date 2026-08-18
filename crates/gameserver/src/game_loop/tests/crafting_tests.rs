@@ -469,7 +469,7 @@ fn user_info_advertises_the_craft_window_to_a_crafter() {
     const OID: i32 = 7401;
 
     let build = |world: &World| {
-        let v = crate::model::PlayerView::of(&world.objects, OID).expect("a live player");
+        let v = model::PlayerView::of(&world.objects, OID).expect("a live player");
         crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, 0)
     };
 
@@ -511,7 +511,7 @@ fn user_info_carries_the_crest_raid_points_and_cursed_stage() {
     const OID: i32 = 7402;
 
     let build = |world: &World| {
-        let v = crate::model::PlayerView::of_world(world, OID).expect("a live player");
+        let v = model::PlayerView::of_world(world, OID).expect("a live player");
         crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, 0)
     };
     let one_byte_diff = |before: &[u8], after: &[u8]| -> Vec<usize> {
@@ -667,9 +667,7 @@ fn the_manufacture_browse_back_button_resends_the_list() {
         }],
     );
     // The customer is targeting the shop owner, which is what Java reads.
-    world
-        .objects
-        .add_components(&3002, crate::model::components::TargetRef(Some(3001)));
+    world.objects.add_components(&3002, TargetRef(Some(3001)));
     drain(&mut c_rx);
 
     on_packet(&mut world, 2, vec![cop::REQUEST_RECIPE_SHOP_MANAGE_PREV]);

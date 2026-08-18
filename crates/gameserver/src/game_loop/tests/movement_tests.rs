@@ -86,14 +86,14 @@ fn move_click_mid_swing_defers_to_swing_end() {
     let (mut world, ..) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 21;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -105,7 +105,7 @@ fn move_click_mid_swing_defers_to_swing_end() {
     drain(&mut a_rx);
     let swing_end = world
         .objects
-        .get_component::<crate::model::components::AttackState>(&3001)
+        .get_component::<model::components::AttackState>(&3001)
         .unwrap()
         .attack_end_tick;
 
@@ -186,14 +186,14 @@ fn move_backward_to_location_interpolates_and_arrives() {
 
     // Half way: linear interpolation.
     world.tick += total_ticks / 2;
-    crate::model::movement::tick(&mut world);
+    model::movement::tick(&mut world);
     let pos = world.objects.get_component::<Position>(&4001).unwrap();
     assert_eq!((pos.x, pos.y, pos.z), (500, 0, 0));
     assert!(world.objects.has_component::<Movement>(&4001));
 
     // Arrival: snapped exactly, move_data cleared, no StopMove needed.
     world.tick += total_ticks / 2;
-    crate::model::movement::tick(&mut world);
+    model::movement::tick(&mut world);
     let pos = world.objects.get_component::<Position>(&4001).unwrap();
     assert_eq!((pos.x, pos.y, pos.z), (1000, 0, 0));
     assert!(!world.objects.has_component::<Movement>(&4001));
@@ -251,7 +251,7 @@ fn move_blocked_by_wall_defers_to_path_worker() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::PathWait>(&4001)
+            .has_component::<model::components::PathWait>(&4001)
     );
     assert!(
         mover_rx.try_recv().is_err(),
@@ -310,7 +310,7 @@ fn path_worker_round_trip_walks_around_wall() {
     let (mut world, ..) = test_world();
     // Mid-region wall at cell x == 10 with a gap at y ∈ [1010, 1014) — far
     // from region edges so the search can't skirt through unloaded void.
-    std::sync::Arc::get_mut(&mut world.geo)
+    Arc::get_mut(&mut world.geo)
         .expect("geo Arc not shared yet")
         .set_region(20, 18, synthetic_region(wall_column_with_gap(1010..1014)));
     let (req_tx, req_rx) = std::sync::mpsc::channel();
@@ -335,7 +335,7 @@ fn path_worker_round_trip_walks_around_wall() {
 
     // The reply normally lands via the unified event channel.
     let ev = match ev_rx
-        .recv_timeout(std::time::Duration::from_secs(10))
+        .recv_timeout(Duration::from_secs(10))
         .expect("worker reply")
     {
         crate::events::GameEvent::Path(ev) => ev,
@@ -438,7 +438,7 @@ fn validate_position_reconciles_client_and_server() {
     }
     // The enter-world revalidate pushes the initial compass code; do it here
     // so the reconciliation branches below are packet-exact.
-    super::zones::revalidate_zone(&mut world, 4001, true);
+    zones::revalidate_zone(&mut world, 4001, true);
     drain(&mut rx);
 
     // Climb: z 0 → 300 with matching client-z history — trusted, silent.
@@ -689,10 +689,10 @@ fn retarget_mid_walk_keeps_cast_intent() {
     // a target cancel followed by the new select click.
     advance_world(&mut world, 2);
     let npc_b = NPC_OID + 61;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_b, 40001, 300, 300, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_b, 40001, 300, 300, 0, 5000, 30);
     world.npc_regions.entry(extra.1.0).or_default().push(npc_b);
     world.objects.spawn(npc_b, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -745,10 +745,10 @@ fn retarget_mid_walk_to_far_target_keeps_cast_intent() {
     // (well beyond castRange 600 from the walking player).
     advance_world(&mut world, 2);
     let npc_b = NPC_OID + 63;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_b, 40001, 700, 1500, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_b, 40001, 700, 1500, 0, 5000, 30);
     world.npc_regions.entry(extra.1.0).or_default().push(npc_b);
     world.objects.spawn(npc_b, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -792,14 +792,14 @@ fn walk_to_cast_boundary_rounding_still_casts() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 64;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 500, 500, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 500, 500, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -865,14 +865,14 @@ fn idle_monster_without_random_walk_stays_put() {
     // 40001 already has random_walk = false in the base test template.
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 9;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -916,7 +916,7 @@ fn a_client_stuck_report_stops_the_walk_where_it_says() {
     assert!(world.objects.has_component::<Movement>(&3001), "walking");
     world.objects.add_components(
         &3001,
-        Intent(crate::model::PlayerIntent::Cast {
+        Intent(model::PlayerIntent::Cast {
             skill_id: 1177,
             ctrl: false,
             shift: false,
@@ -999,15 +999,14 @@ fn sitting_down_and_standing_up_each_take_an_animation() {
     // and the fixture world ships an empty one — without the row the packet
     // finds no handler and the assertions below would pass against a player
     // who never sat down.
-    world.data.action_data.insert_row_for_test(
-        crate::game_loop::player_actions::action::SIT_STAND,
-        "SitStand",
-        0,
-    );
+    world
+        .data
+        .action_data
+        .insert_row_for_test(player_actions::action::SIT_STAND, "SitStand", 0);
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     drain(&mut rx);
     let seated = |w: &World| crate::game_loop::sit_stand::is_sitting(w, 3001);
-    let blocked = |w: &World| crate::game_loop::abnormal::is_blocked_from_actions(w, 3001);
+    let blocked = |w: &World| abnormal::is_blocked_from_actions(w, 3001);
 
     player_actions::handle_request_action_use(&mut world, 1, &sit_action_body(0));
     assert!(seated(&world), "seated the instant the toggle is used");
@@ -1068,17 +1067,14 @@ fn taking_a_hit_stands_a_seated_player_up() {
     let (mut world, ..) = cast_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let _rx2 = ingame_caster(&mut world, 2, 3002, 60, 0);
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::Vitals>(&3001)
-    {
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&3001) {
         v.cur_hp = 500.0;
     }
     crate::game_loop::sit_stand::sit_down(&mut world, 3001);
     advance_ticks(&mut world, 26);
     assert!(crate::game_loop::sit_stand::is_sitting(&world, 3001));
 
-    crate::game_loop::combat::player_receive_damage(&mut world, 3001, 3002, 50.0);
+    combat::player_receive_damage(&mut world, 3001, 3002, 50.0);
     // The stand-up is scheduled, as any other is.
     advance_ticks(&mut world, 26);
     assert!(
@@ -1098,7 +1094,7 @@ fn a_shopkeeper_cannot_stand_while_the_store_is_open() {
     advance_ticks(&mut world, 26);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&3001)
+        .get_component_mut::<Player>(&3001)
         .unwrap()
         .store_type = 1;
 
@@ -1112,7 +1108,7 @@ fn a_shopkeeper_cannot_stand_while_the_store_is_open() {
     // Close the store and they can get up.
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&3001)
+        .get_component_mut::<Player>(&3001)
         .unwrap()
         .store_type = 0;
     crate::game_loop::sit_stand::stand_up(&mut world, 3001);
@@ -1138,14 +1134,14 @@ fn a_seated_player_cannot_cast_attack_or_move_once_the_animation_lapses() {
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
     let npc_oid = NPC_OID + 22;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1155,7 +1151,7 @@ fn a_seated_player_cannot_cast_attack_or_move_once_the_animation_lapses() {
     advance_ticks(&mut world, 26); // past the 2.5 s sit animation
     assert!(crate::game_loop::sit_stand::is_sitting(&world, 3001));
     assert!(
-        !crate::game_loop::abnormal::is_blocked_from_actions(&world, 3001),
+        !abnormal::is_blocked_from_actions(&world, 3001),
         "the animation block has lapsed — only the seated state is left to say no"
     );
     drain(&mut rx);
@@ -1231,14 +1227,14 @@ fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
     let (mut world, ..) = combat_test_world();
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 23;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1248,7 +1244,7 @@ fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
     world.force_rolls([0, 99, 10]);
     handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
     assert!(
-        crate::game_loop::combat::has_attack_stance(&world, 3001),
+        combat::has_attack_stance(&world, 3001),
         "swinging draws the sword"
     );
 
@@ -1256,14 +1252,14 @@ fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
     world.objects.remove_component::<Casting>(&3001);
     if let Some(st) = world
         .objects
-        .get_component_mut::<crate::model::components::AttackState>(&3001)
+        .get_component_mut::<model::components::AttackState>(&3001)
     {
         st.attack_end_tick = 0; // let the sit request past `isAttackingNow()`
     }
     crate::game_loop::sit_stand::sit_down(&mut world, 3001);
     assert!(crate::game_loop::sit_stand::is_sitting(&world, 3001));
     assert!(
-        crate::game_loop::combat::has_attack_stance(&world, 3001),
+        combat::has_attack_stance(&world, 3001),
         "sitting does not sheathe the sword — Java's breakAttack only ends the swing"
     );
     drain(&mut rx);
@@ -1273,13 +1269,10 @@ fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
     // full world tick the monster swings back, and every hit it lands re-arms
     // the stance (and stands its victim up) — which is precisely the state this
     // assertion must not be measuring.
-    advance_ticks(
-        &mut world,
-        crate::game_loop::combat::COMBAT_STANCE_TICKS + 1,
-    );
-    crate::game_loop::combat::stance_tick(&mut world);
+    advance_ticks(&mut world, combat::COMBAT_STANCE_TICKS + 1);
+    combat::stance_tick(&mut world);
     assert!(
-        !crate::game_loop::combat::has_attack_stance(&world, 3001),
+        !combat::has_attack_stance(&world, 3001),
         "the stance expires on schedule instead of hanging forever"
     );
     assert!(

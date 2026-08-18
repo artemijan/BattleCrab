@@ -259,12 +259,12 @@ fn spoil_uses_the_flat_premium_spoil_rates() {
 /// Decode the `NpcHtmlMessage` a voiced command produced, if any.
 fn voiced_html(pkts: &[Vec<u8>]) -> Option<String> {
     pkts.iter()
-        .find(|p| p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE)
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
         .and_then(|p| decode_npc_html(p))
 }
 
 fn say(world: &mut World, text: &str) {
-    let mut w = commons::network::PacketWriter::new();
+    let mut w = PacketWriter::new();
     w.write_string(text);
     w.write_i32(0); // ChatType::General
     crate::game_loop::chat::handle_say2(world, CID, &w.into_bytes());

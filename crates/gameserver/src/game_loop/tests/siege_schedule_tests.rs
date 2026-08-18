@@ -69,11 +69,7 @@ fn the_dist_schedule_loads_all_nine_castles() {
     assert_eq!(sched.get(&2).unwrap().hour, 20);
 }
 
-fn schedule_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn schedule_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     world.castles = vec![
         Castle {
@@ -187,7 +183,7 @@ fn the_auto_task_ladder_starts_only_once_the_date_passes() {
         10_000 - 1,
     ] {
         let (mut w, _d, _l) = schedule_world();
-        w.sieges.insert(1, crate::model::siege::Siege::new(1));
+        w.sieges.insert(1, Siege::new(1));
         // The stored date is what the chain reads; boot stamps it in
         // production, and this test drives `run_auto_task` directly.
         w.castles.iter_mut().find(|c| c.id == 1).unwrap().siege_date = siege_at;
@@ -359,8 +355,8 @@ fn castle_info_overlay_carries_owner_tax_and_siege() {
 }
 
 /// A minimal clan holding `castle_id` — enough for the overlay's owner lookup.
-fn owning_clan(id: i32, castle_id: i32) -> crate::model::clan::Clan {
-    crate::model::clan::Clan {
+fn owning_clan(id: i32, castle_id: i32) -> Clan {
+    Clan {
         id,
         name: format!("Clan{id}"),
         leader_id: id * 10,
@@ -421,28 +417,23 @@ fn a_participant_standing_in_the_siege_zone_earns_fame_until_they_leave() {
         let rx = ingame_caster(&mut world, CID, PLAYER, POS.0, POS.1);
         world
             .objects
-            .get_component_mut::<crate::model::components::Position>(&PLAYER)
+            .get_component_mut::<Position>(&PLAYER)
             .unwrap()
             .z = POS.2;
         world
             .objects
-            .get_component_mut::<crate::model::Player>(&PLAYER)
+            .get_component_mut::<Player>(&PLAYER)
             .unwrap()
             .clan_id = 700;
         let mut siege = Siege::new(CASTLE);
         siege.in_progress = true;
         siege.add_clan(700, SiegeClanType::Attacker);
         world.sieges.insert(CASTLE, siege);
-        crate::game_loop::zones::revalidate_zone(&mut world, PLAYER, true);
+        zones::revalidate_zone(&mut world, PLAYER, true);
         (world, rx)
     };
 
-    let fame = |w: &World| {
-        w.objects
-            .get_component::<crate::model::Player>(&PLAYER)
-            .unwrap()
-            .fame
-    };
+    let fame = |w: &World| w.objects.get_component::<Player>(&PLAYER).unwrap().fame;
 
     // Entering the zone arms the task; it pays on the configured cadence.
     let (mut world, mut rx) = build();
@@ -467,7 +458,7 @@ fn a_participant_standing_in_the_siege_zone_earns_fame_until_they_leave() {
     let (mut world, _rx) = build();
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&PLAYER)
+        .get_component_mut::<Position>(&PLAYER)
         .unwrap()
         .x = 0;
     advance_world(&mut world, 3001);
@@ -482,14 +473,14 @@ fn a_participant_standing_in_the_siege_zone_earns_fame_until_they_leave() {
     let (mut world, _rx) = build();
     world
         .objects
-        .get_component_mut::<crate::model::components::Vitals>(&PLAYER)
+        .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .dead = true;
     advance_world(&mut world, 3001);
     assert_eq!(fame(&world), 0, "a corpse earns nothing…");
     world
         .objects
-        .get_component_mut::<crate::model::components::Vitals>(&PLAYER)
+        .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .dead = false;
     advance_world(&mut world, 3001);

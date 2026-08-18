@@ -49,11 +49,7 @@ fn mk_clan(id: i32, level: i32, castle_id: i32, ally_id: i32) -> Clan {
 }
 
 /// A world with two Sunday@16:00 castles and their (empty) sieges.
-fn siege_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn siege_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     world.castles = vec![
         Castle {
@@ -273,7 +269,7 @@ const LEADER: i32 = 8100;
 
 /// Build a `RequestJoinSiege` body: castleId, isAttacker, isJoining.
 fn join_body(castle_id: i32, attacker: i32, joining: i32) -> Vec<u8> {
-    let mut w = commons::network::PacketWriter::new();
+    let mut w = PacketWriter::new();
     w.write_i32(castle_id);
     w.write_i32(attacker);
     w.write_i32(joining);
@@ -290,7 +286,7 @@ fn keep_registration_open(world: &mut World) {
 }
 
 /// A clan leader with `world`, a `SiegeInfo`-capable clan and an ingame session.
-fn world_with_leader() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn world_with_leader() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, _db, _l) = siege_world();
     keep_registration_open(&mut world);
     world.clans.insert(10, mk_clan(10, 5, 0, 0));
@@ -304,7 +300,7 @@ fn world_with_leader() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::By
     (world, rx)
 }
 
-fn sent_opcode(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>, opcode: u8) -> bool {
+fn sent_opcode(rx: &mut UnboundedReceiver<bytes::Bytes>, opcode: u8) -> bool {
     let mut found = false;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&opcode) {
@@ -368,7 +364,7 @@ fn a_member_without_the_privilege_is_refused() {
 
 /// Build a `RequestConfirmSiegeWaitingList` body: castleId, clanId, approved.
 fn confirm_body(castle_id: i32, clan_id: i32, approved: i32) -> Vec<u8> {
-    let mut w = commons::network::PacketWriter::new();
+    let mut w = PacketWriter::new();
     w.write_i32(castle_id);
     w.write_i32(clan_id);
     w.write_i32(approved);
@@ -497,10 +493,7 @@ fn list_body(castle_id: i32) -> Vec<u8> {
 }
 
 /// Drain `rx` and return the last packet with the given opcode, if any.
-fn take_packet(
-    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-    opcode: u8,
-) -> Option<Vec<u8>> {
+fn take_packet(rx: &mut UnboundedReceiver<bytes::Bytes>, opcode: u8) -> Option<Vec<u8>> {
     let mut found = None;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&opcode) {
@@ -569,7 +562,7 @@ fn set_time_body(castle_id: i32, time_secs: i32) -> Vec<u8> {
 }
 
 /// The owner leader of CASTLE with the time-registration window open, ingame.
-fn world_with_castle_owner() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn world_with_castle_owner() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, _db, _l) = siege_world();
     world.clans.insert(10, mk_clan(10, 5, CASTLE, 0)); // clan 10 owns CASTLE
     world.clans.get_mut(&10).unwrap().leader_id = LEADER;
@@ -705,11 +698,7 @@ fn the_death_window_offers_the_siege_restart_buttons() {
     let _d = ingame_player(&mut world, 1, DEF, x, y, z);
     let _a = ingame_player(&mut world, 2, ATK, x, y, z);
     for oid in [DEF, ATK] {
-        world
-            .objects
-            .get_component_mut::<crate::model::components::Position>(&oid)
-            .unwrap()
-            .z = z;
+        world.objects.get_component_mut::<Position>(&oid).unwrap().z = z;
     }
     world
         .objects
@@ -770,7 +759,7 @@ fn the_death_window_offers_the_ordinary_restart_buttons() {
         .objects
         .get_component_mut::<Player>(&OID)
         .unwrap()
-        .revive_request = Some(crate::model::ReviveRequest {
+        .revive_request = Some(model::ReviveRequest {
         reviver: 1,
         restore_percent: 50.0,
         hp_percent: 70,
@@ -835,7 +824,7 @@ fn a_spoiled_corpse_is_marked_sweepable_in_its_die_packet() {
         if spoiled {
             world
                 .objects
-                .get_component_mut::<crate::model::npc::Npc>(&MOB)
+                .get_component_mut::<model::npc::Npc>(&MOB)
                 .unwrap()
                 .spoiler_object_id = KILLER;
         }
@@ -865,7 +854,7 @@ fn a_headquarters_needs_an_hq_zone() {
             id: 0,
             name: name.into(),
             kind,
-            territory: crate::data::spawn_data::Territory {
+            territory: Territory {
                 form: crate::data::spawn_data::ZoneForm::Cuboid {
                     x1,
                     x2,
@@ -933,7 +922,7 @@ fn a_headquarters_needs_an_hq_zone() {
     // Step onto the patch (x = 200) and it goes up.
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&LEADER)
+        .get_component_mut::<Position>(&LEADER)
         .unwrap()
         .x = 200;
     assert!(crate::game_loop::siege::place_siege_flag(

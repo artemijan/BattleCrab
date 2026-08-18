@@ -11,7 +11,7 @@
 //! **The dropped ticket is the record, in Java and here.** `SiegeGuardManager`
 //! keeps the `Item` objects in `_droppedTickets` and reads them back for the
 //! spacing rule and the per-guard cap; this port keeps
-//! [`Mercenary`](crate::model::siege::Mercenary) rows in `World::mercenaries`
+//! [`Mercenary`](Mercenary) rows in `World::mercenaries`
 //! and drops the ticket alongside, because the ground item is player-visible
 //! and `ItemAction`'s pickup refusal already expects to find one there.
 //!

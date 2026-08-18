@@ -807,7 +807,7 @@ pub(crate) fn handle_start_rotating(world: &mut World, client_id: u32, body: &[u
     };
     // `broadcastPacket` — onlookers only; the turning client is already
     // drawing its own rotation.
-    super::helpers::broadcast_to_others(
+    broadcast_to_others(
         world,
         object_id,
         &server_packets::start_rotation(object_id, degree, side, 0),
@@ -832,7 +832,7 @@ pub(crate) fn handle_finish_rotating(world: &mut World, client_id: u32, body: &[
     if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
         pos.heading = degree;
     }
-    super::helpers::broadcast_to_others(
+    broadcast_to_others(
         world,
         object_id,
         &server_packets::stop_rotation(object_id, degree, 0),
@@ -878,7 +878,7 @@ pub(crate) fn handle_cannot_move_anymore_in_vehicle(
     if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
         pos.heading = heading;
     }
-    super::helpers::broadcast_including_self(
+    broadcast_including_self(
         world,
         object_id,
         &server_packets::stop_move_in_vehicle(object_id, boat_id, x, y, z, heading),

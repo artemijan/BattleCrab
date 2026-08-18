@@ -384,12 +384,16 @@ pub(super) fn set_debug(world: &mut World, client_id: u32, object_id: i32, kind:
     }
 }
 
-/// The per-kind redraw beats. Each reschedules itself while its flag is on
-/// and the player is still in world; a logged-out player simply drops the
-/// component and the chain ends (Java's `isOnline` branch).
+/// The client to draw into, or `None` once the GM has left the world — the
+/// gate every redraw beat below opens with (Java's `isOnline` branch).
 fn tick_client(world: &World, object_id: i32) -> Option<u32> {
     super::helpers::client_for_player(world, object_id)
 }
+
+// The three per-kind redraw beats. Each arms the next one only while its own
+// flag is on and the player is still in world, so flipping the flag off or
+// logging out ends the chain by simply not rescheduling. The redraw itself is
+// skipped until the GM has moved far enough from where the last one was drawn.
 
 pub(crate) fn door_tick(world: &mut World, object_id: i32) {
     let (doors, ..) = flags(world, object_id);

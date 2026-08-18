@@ -12,7 +12,7 @@
 //!
 //! Edits themselves live in the engine's override map (the region files stay
 //! mmap'd read-only, unlike Java's mutable block objects); `//geosave` folds
-//! them back into the on-disk format — see [`crate::geo::region::Region::write_to`].
+//! them back into the on-disk format — see [`geo::region::Region::write_to`].
 
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::nth_arg;

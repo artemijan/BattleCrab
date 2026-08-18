@@ -246,9 +246,7 @@ pub(crate) fn give_item_with_earned_message_enchanted(
     count: i64,
     enchant: i32,
 ) {
-    let Some(added) =
-        crate::game_loop::items::add_inventory_item_tracked(world, player, item_id, count)
-    else {
+    let Some(added) = add_inventory_item_tracked(world, player, item_id, count) else {
         warn!("quest give_items: object-id pool exhausted, dropping {item_id}×{count}");
         return;
     };
@@ -306,7 +304,7 @@ pub(crate) fn take_items(
         // `exitQuest` sweep destroys it while it is still in the player's hand.
         let equipped_before = inv.equipped_object_ids();
         let changes = inv.remove_item(item_id, count);
-        let unequipped = crate::game_loop::items::unequipped_by_removal(&equipped_before, &changes);
+        let unequipped = unequipped_by_removal(&equipped_before, &changes);
         (changes, unequipped)
     };
     if changes.is_empty() {
@@ -318,7 +316,7 @@ pub(crate) fn take_items(
     // Java unequips *before* the destroy's `InventoryUpdate` goes out (the
     // `ExUserInfoEquipSlot` comes from inside `setPaperdollItem`), so this
     // runs first — without it the client keeps rendering a destroyed weapon.
-    crate::game_loop::items::finish_equipped_item_destroyed(world, client_id, player, &unequipped);
+    finish_equipped_item_destroyed(world, client_id, player, &unequipped);
     // As in `give_item_with_earned_message`, no bare `ExQuestItemList` — Java's
     // `takeItems` → `destroyItemByItemId` sends only the `InventoryUpdate`, and
     // the change-type-3 entries below are what retire the client's rows.

@@ -210,7 +210,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 2099,
@@ -247,8 +247,8 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
-        effects: vec![crate::model::skill::SkillEffect::Escape {
-            dest: crate::model::skill::EscapeDest::Town,
+        effects: vec![model::skill::SkillEffect::Escape {
+            dest: model::skill::EscapeDest::Town,
         }],
         ..Default::default()
     });
@@ -345,8 +345,8 @@ fn unstuck_says_nothing_when_the_cast_is_refused() {
         magic_type: 2, // static: the forced hit time is used verbatim
         hit_time: 300_000,
         mp_initial_consume: 50,
-        effects: vec![crate::model::skill::SkillEffect::Escape {
-            dest: crate::model::skill::EscapeDest::Town,
+        effects: vec![model::skill::SkillEffect::Escape {
+            dest: model::skill::EscapeDest::Town,
         }],
         ..Default::default()
     });
@@ -543,7 +543,7 @@ fn a_besieged_destination_is_refused() {
             }],
         },
     );
-    let mut siege = crate::model::siege::Siege::new(1);
+    let mut siege = model::siege::Siege::new(1);
     siege.in_progress = true;
     world.sieges.insert(1, siege);
 
@@ -577,7 +577,7 @@ fn a_ward_carrier_cannot_teleport() {
     flag.item_id = 9819;
     flag.name = "Combat Flag".into();
     world.data.item_data.insert_for_test(flag);
-    super::items::add_inventory_item(&mut world, 3001, 9819, 1);
+    items::add_inventory_item(&mut world, 3001, 9819, 1);
     drain(&mut rx);
 
     handle_request_bypass_to_server(
@@ -684,7 +684,7 @@ fn town_gatekeeper_is_not_on_castle_ground() {
         "Roxxy stands in no castle's siege zone: Java falls through to super.showChatWindow"
     );
 
-    crate::game_loop::target::show_chat_window(&mut world, 1, roxxy, 0);
+    show_chat_window(&mut world, 1, roxxy, 0);
     let page = drain(&mut rx)
         .iter()
         .find_map(|p| decode_npc_html(p))
@@ -743,7 +743,7 @@ fn a_criminal_is_refused_by_merchants_that_have_a_pk_page() {
 
     let page = |w: &mut World, rx: &mut _, npc: i32| {
         drain(rx);
-        crate::game_loop::target::show_chat_window(w, 1, npc, 0);
+        show_chat_window(w, 1, npc, 0);
         drain(rx).iter().find_map(|p| decode_npc_html(p))
     };
 
@@ -757,7 +757,7 @@ fn a_criminal_is_refused_by_merchants_that_have_a_pk_page() {
     // Karma: the refusal page.
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&3001)
+        .get_component_mut::<Player>(&3001)
         .unwrap()
         .reputation = -500;
     let refused = page(&mut world, &mut rx, lector).expect("a page");

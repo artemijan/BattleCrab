@@ -54,10 +54,7 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
     else {
         return;
     };
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&object_id)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.pending_revive = true;
     }
     teleport_player(world, object_id, x, y, z);
@@ -81,7 +78,7 @@ pub(crate) fn die_options(world: &World, player_oid: i32) -> server_packets::Die
     let mut opts = server_packets::DieOptions {
         to_village: world
             .objects
-            .get_component::<crate::model::Player>(&player_oid)
+            .get_component::<Player>(&player_oid)
             .is_some_and(|p| p.revive_request.is_none()),
         ..Default::default()
     };
@@ -134,13 +131,7 @@ fn clanhall_restart_location(
     if point_type != 1 {
         return None;
     }
-    let clan_id = world
-        .objects
-        .get_component::<crate::model::Player>(&player_oid)?
-        .clan_id;
-    if clan_id == 0 {
-        return None;
-    }
+    let clan_id = clan_of(world, player_oid)?;
     world
         .clan_halls
         .values()
@@ -154,11 +145,7 @@ fn clanhall_restart_location(
 /// `lost_exp_on_death` (as the resurrection path does), so this reads it
 /// directly rather than `_expBeforeDeath - getExp()`.
 fn restore_clanhall_exp(world: &mut World, player_oid: i32) {
-    let Some(clan_id) = world
-        .objects
-        .get_component::<crate::model::Player>(&player_oid)
-        .map(|p| p.clan_id)
-    else {
+    let Some(clan_id) = clan_of(world, player_oid) else {
         return;
     };
     let Some(hall_id) = world
@@ -187,10 +174,7 @@ fn restore_clanhall_exp(world: &mut World, player_oid: i32) {
 /// `FUNC_RESTORE_EXP` one, which differ only in where the percent comes from.
 fn restore_lost_exp(world: &mut World, player_oid: i32, percent: f64) {
     let restored = {
-        let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&player_oid)
-        else {
+        let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else {
             return;
         };
         if p.lost_exp_on_death <= 0 {
@@ -255,10 +239,7 @@ fn siege_restart_location(
     pick: usize,
 ) -> Option<(i32, i32, i32)> {
     use crate::model::siege::SiegeClanType;
-    let clan_id = world
-        .objects
-        .get_component::<crate::model::Player>(&player_oid)?
-        .clan_id;
+    let clan_id = world.objects.get_component::<Player>(&player_oid)?.clan_id;
     if clan_id == 0 {
         return None;
     }
@@ -287,7 +268,7 @@ fn siege_restart_location(
             let pts = world.data.castle_restart_points.get(&castle_id)?;
             let chaotic = world
                 .objects
-                .get_component::<crate::model::Player>(&player_oid)
+                .get_component::<Player>(&player_oid)
                 .is_some_and(|p| p.reputation < 0);
             pts.pick(chaotic, pick)
         }
@@ -313,7 +294,7 @@ fn siege_restart_location(
 /// front instead, so every member lands on the same coordinates even if the
 /// anchor were to move mid-loop.
 pub(crate) fn teleport_to_object(world: &mut World, subject: i32, anchor: i32) -> bool {
-    let Some(pos) = crate::game_loop::guard::maybe_position(world, anchor) else {
+    let Some(pos) = maybe_position(world, anchor) else {
         return false;
     };
     teleport_player(world, subject, pos.x, pos.y, pos.z);
@@ -330,7 +311,7 @@ pub(crate) fn teleport_to_object(world: &mut World, subject: i32, anchor: i32) -
 ///
 /// [`MapRegion::town_respawn`]: crate::data::map_region::MapRegion::town_respawn
 pub(crate) fn teleport_to_town(world: &mut World, player_oid: i32, pick: usize) {
-    let Some(pos) = crate::game_loop::guard::maybe_position(world, player_oid) else {
+    let Some(pos) = maybe_position(world, player_oid) else {
         return;
     };
     let race = crate::game_loop::helpers::player_race_or_human(world, player_oid);
@@ -369,11 +350,7 @@ pub(crate) fn teleport_player_scattered(
 }
 
 pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32, z: i32) {
-    if world
-        .objects
-        .get_component::<crate::model::Player>(&player_oid)
-        .is_none()
-    {
+    if world.objects.get_component::<Player>(&player_oid).is_none() {
         return;
     }
     // Java grounds the z on the geodata (`GeoEngine.getHeight`, non-flying)
@@ -408,10 +385,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     // `decayMe`: DeleteObject to everyone who could see the old position
     // (also drops their dangling targets).
     crate::game_loop::visibility::on_leave_world(world, player_oid);
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&player_oid)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.teleporting = true;
     }
     // Java `Player.setTeleporting(true)` arms the watchdog here.
@@ -449,7 +423,7 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
     };
     if !world
         .objects
-        .get_component::<crate::model::Player>(&object_id)
+        .get_component::<Player>(&object_id)
         .is_some_and(|p| p.teleporting)
     {
         return;
@@ -476,15 +450,12 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
 fn on_teleported(world: &mut World, client_id: Option<u32>, object_id: i32) {
     // Java `setTeleporting(false)` — which also cancels the watchdog.
     world.teleport_watchdog_due.remove(&object_id);
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&object_id)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.teleporting = false;
     }
     if world
         .objects
-        .get_component::<crate::model::Player>(&object_id)
+        .get_component::<Player>(&object_id)
         .is_some_and(|p| p.pending_revive)
     {
         do_revive(world, object_id);
@@ -562,7 +533,7 @@ pub(crate) fn teleport_watchdog_tick(world: &mut World) {
         world.teleport_watchdog_due.remove(&oid);
         if !world
             .objects
-            .get_component::<crate::model::Player>(&oid)
+            .get_component::<Player>(&oid)
             .is_some_and(|p| p.teleporting)
         {
             continue; // Java's `_player == null || !isTeleporting()` bail.

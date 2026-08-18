@@ -308,7 +308,7 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
     });
     // Java `RequestAnswerJoinPledge`: an academy invite also stamps the level
     // the recruit joined at — the graduation reward scales off it.
-    crate::game_loop::clans::academy::on_join(world, player_oid, pledge_type);
+    academy::on_join(world, player_oid, pledge_type);
 
     send_sm_with(world, player_oid, sm_ids::ENTERED_THE_CLAN, &[]);
     let joined = server_packets::system_message_with(
@@ -384,7 +384,7 @@ pub(crate) fn remove_clan_member(
     // Java `Player.setClan(null)` clears `lvlJoinedAcademy` + the mentorship
     // pair; run it first, while the member is still on the roster (the
     // mentorship lookup reads it).
-    crate::game_loop::clans::academy::on_leave_clan(world, member_oid);
+    academy::on_leave_clan(world, member_oid);
     // `CastleManager.removeCirclet(exMember, getCastleId())` — before the
     // roster edit below, while the clan still reports its castle. A clan with
     // no castle has id 0, which `circlet_of` maps to "no circlet".
@@ -413,7 +413,7 @@ pub(crate) fn remove_clan_member(
         })
         .collect();
     for (pledge_type, name) in vacated {
-        let _ = world.db.send(crate::db::DbCommand::UpdateSubPledge {
+        let _ = world.db.send(DbCommand::UpdateSubPledge {
             clan_id,
             pledge_type,
             name,
@@ -421,7 +421,7 @@ pub(crate) fn remove_clan_member(
         });
     }
     // Read before the mutable borrow below.
-    let create_cooldown_ms = super::clan_create_cooldown_ms(world);
+    let create_cooldown_ms = clan_create_cooldown_ms(world);
     let Some(clan) = world.clans.get_mut(&clan_id) else {
         return;
     };
@@ -496,7 +496,7 @@ pub(crate) fn handle_request_withdrawal_pledge(world: &mut World, client_id: u32
         return;
     };
     let clan_id = p.clan_id;
-    if super::refuse_if_clanless(world, player, clan_id) {
+    if refuse_if_clanless(world, player, clan_id) {
         return;
     }
     if p.clan_leader {
@@ -519,7 +519,7 @@ pub(crate) fn handle_request_withdrawal_pledge(world: &mut World, client_id: u32
     }
 
     let name = player_name_or_empty(world, player);
-    let penalty = now_millis() + super::clan_join_penalty_ms(world);
+    let penalty = now_millis() + clan_join_penalty_ms(world);
     remove_clan_member(world, clan_id, player, penalty);
 
     let withdrew = server_packets::system_message_with(
@@ -562,7 +562,7 @@ pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u3
     let Some((clan_id, privs)) = crate::game_loop::guard::clan_and_privs(world, player) else {
         return;
     };
-    if super::refuse_if_clanless(world, player, clan_id) {
+    if refuse_if_clanless(world, player, clan_id) {
         return;
     }
     let Some(clan) = world.clans.get(&clan_id) else {
@@ -596,7 +596,7 @@ pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u3
         return;
     }
 
-    let penalty_until = now_millis() + super::clan_join_penalty_ms(world);
+    let penalty_until = now_millis() + clan_join_penalty_ms(world);
     remove_clan_member(world, clan_id, member.char_id, penalty_until);
     let dissolving = world
         .clans
@@ -713,7 +713,7 @@ pub(crate) fn handle_dissolve_clan(world: &mut World, client_id: u32, player_oid
         return;
     }
 
-    let due = now_millis() + super::clan_dissolve_delay_ms(world);
+    let due = now_millis() + clan_dissolve_delay_ms(world);
     let char_penalty = clan.char_penalty_expiry_time;
     if let Some(c) = world.clans.get_mut(&clan_id) {
         c.dissolving_expiry_time = due;

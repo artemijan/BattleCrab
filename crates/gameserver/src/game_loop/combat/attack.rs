@@ -58,7 +58,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
     // Two-handed timing needs the weapon's body part — item kinds are parsed
     // (G5), so check the equipped right hand for SLOT_LR_HAND.
-    let two_handed = super::wields_two_handed(world, attacker_oid);
+    let two_handed = wields_two_handed(world, attacker_oid);
     let time_to_hit = formulas::calculate_time_to_hit(time_atk, two_handed);
 
     // Face the target (Java `setHeading(calculateHeadingFrom(...))`).
@@ -479,7 +479,7 @@ pub(crate) fn handle_attack_hit(
         .has_component::<crate::model::door::Door>(&target)
     {
         if crate::game_loop::siege::attackable_door(world, target) {
-            super::intent::apply_door_damage(world, target, damage);
+            apply_door_damage(world, target, damage);
         }
         return;
     }
@@ -540,7 +540,9 @@ pub(crate) fn handle_attack_hit(
             .expect("player")
             .name
             .clone();
-        let target_name = target_display_param(world, target);
+        // How the *target* shows up in the attacker's damage messages ($c2)
+        // — the same name rule the attacker gets in the target's messages.
+        let target_name = attacker_display_name(world, target);
         // `Player.sendDamageMessage`: an invul / HP-blocked target silently
         // absorbs the hit — the attacker is told "The attack has been blocked",
         // NOT the damage line (which would falsely claim damage that never
@@ -607,9 +609,4 @@ pub(crate) fn attacker_display_name(world: &World, attacker: i32) -> SmParam {
     } else {
         SmParam::Text(String::new())
     }
-}
-
-/// How a target shows up in the *attacker's* damage messages ($c2).
-fn target_display_param(world: &World, target: i32) -> SmParam {
-    attacker_display_name(world, target)
 }

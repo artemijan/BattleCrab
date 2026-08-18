@@ -33,11 +33,7 @@ fn mob_template(id: i32, clans: &[&str]) -> crate::data::npc_data::NpcTemplate {
     t
 }
 
-fn confuse_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn confuse_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     world
         .data
@@ -78,7 +74,7 @@ fn cast(
     let skill = Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: skill_id,
@@ -119,7 +115,7 @@ fn cast(
         ..Default::default()
     };
     world.data.skill_data.insert_for_test(skill.clone());
-    crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
+    effects::apply_skill_effects(world, CASTER, target, &skill);
 }
 
 // ---------------------------------------------------------------------------
@@ -224,10 +220,10 @@ fn a_confused_mob_turns_on_a_bystander() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::NpcAi>(&VICTIM_OID)
+            .get_component::<NpcAi>(&VICTIM_OID)
             .unwrap()
             .intention,
-        crate::model::npc::NpcIntention::Attack,
+        NpcIntention::Attack,
         "and the mob is woken into an attack"
     );
 }

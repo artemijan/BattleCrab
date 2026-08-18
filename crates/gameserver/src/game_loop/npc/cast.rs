@@ -224,7 +224,7 @@ fn pick(
 /// quietly does nothing on failure, so a caller that ignores the result matches
 /// it.
 ///
-/// [`ServitorSkillUse`]: crate::game_loop::servitor::use_servitor_skill
+/// [`ServitorSkillUse`]: servitor::use_servitor_skill
 pub(crate) fn cast_checked(
     world: &mut World,
     npc_oid: i32,

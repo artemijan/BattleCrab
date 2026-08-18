@@ -183,7 +183,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
 
     // "Retail dice position land calculation": 40 units along the heading,
     // then geo-validated so the die cannot land through a wall.
-    let Some(pos) = crate::game_loop::guard::maybe_position(world, object_id) else {
+    let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
     let radian = (pos.heading as f64) * (360.0 / 65536.0) * std::f64::consts::PI / 180.0;
@@ -205,10 +205,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
     let name = crate::game_loop::helpers::player_name(world, object_id).unwrap_or_default();
     let sm = server_packets::system_message_with(
         sm_ids::C1_HAS_ROLLED_A_S2,
-        &[
-            server_packets::SmParam::Text(name),
-            server_packets::SmParam::Int(number),
-        ],
+        &[SmParam::Text(name), SmParam::Int(number)],
     );
     send_to_client(world, client_id, sm.clone());
     let in_peace = world
@@ -251,12 +248,12 @@ fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id
             world,
             object_id,
             sm_ids::S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS,
-            &[server_packets::SmParam::ItemName(item_id)],
+            &[SmParam::ItemName(item_id)],
         );
         return;
     }
     // `player.destroyItem("Consume", objectId, 1, null, false)`.
-    let changes = crate::game_loop::items::destroy_item_by_id(world, object_id, item_id, 1);
+    let changes = destroy_item_by_id(world, object_id, item_id, 1);
     if changes.is_empty() {
         return;
     }
@@ -422,10 +419,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     {
         let is_collar = item_id_of(world, object_id, item_object_id)
             .is_some_and(|item_id| world.data.pet_data.is_pet_collar(item_id));
-        if let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&object_id)
-        {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
             p.pending_pet_collar = if is_collar {
                 Some(item_object_id)
             } else {

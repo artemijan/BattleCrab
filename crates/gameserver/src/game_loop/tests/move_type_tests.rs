@@ -24,11 +24,7 @@ const DIST: &str = crate::data::DIST_GAME;
 /// loaded. Required for anything asserting on a regen *rate*: the synthetic
 /// `GameData::for_test` templates have a zero `baseHpRegen`, so every rate
 /// would be 0 and the multiplier assertions below would pass vacuously.
-fn regen_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn regen_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     world.data.player_templates = dist::player_templates_owned();
     world.data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
@@ -265,7 +261,7 @@ fn move_type_effects_route_to_their_own_map() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
 
     let mut mods = StatModifiers::default();
-    crate::model::apply_modifier(
+    model::apply_modifier(
         &mut mods,
         &StatModifierEffect {
             stat: Stat::RegenerateHpRate,
@@ -273,9 +269,7 @@ fn move_type_effects_route_to_their_own_map() {
             amount: 1.9,
             armor_condition: 0,
             weapon_condition: 0,
-            qualifier: Some(crate::model::stats::StatQualifier::MoveType(
-                MoveType::Running,
-            )),
+            qualifier: Some(model::stats::StatQualifier::MoveType(MoveType::Running)),
             two_handed: false,
         },
     );
@@ -349,9 +343,7 @@ fn real_dist_stat_by_move_type_skills_parse() {
             .iter()
             .filter_map(|e| match e {
                 SkillEffect::StatModifier(m) => match m.qualifier {
-                    Some(crate::model::stats::StatQualifier::MoveType(mt)) => {
-                        Some((m.stat, mt, m.amount))
-                    }
+                    Some(model::stats::StatQualifier::MoveType(mt)) => Some((m.stat, mt, m.amount)),
                     _ => None,
                 },
                 _ => None,

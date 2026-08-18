@@ -170,7 +170,7 @@ pub(super) fn notify_owner(
     world: &World,
     owner_oid: i32,
     sm: i16,
-    params: &[crate::network::server_packets::SmParam],
+    params: &[server_packets::SmParam],
 ) {
     send_sm_to_player(world, owner_oid, sm, params);
 }

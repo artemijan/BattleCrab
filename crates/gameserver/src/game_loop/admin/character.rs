@@ -31,7 +31,7 @@ fn add_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) 
         // Java only applies + messages when at least one value is non-zero.
         (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
             let name = helpers::player_name_or_empty(world, target);
-            if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
+            if let Some(tcid) = helpers::client_for_player(world, target) {
                 send_message(
                     world,
                     tcid,
@@ -71,7 +71,7 @@ fn remove_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str
     match (args.len(), nth_arg::<i64>(args, 0), nth_arg::<i64>(args, 1)) {
         (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
             let name = helpers::player_name_or_empty(world, target);
-            if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
+            if let Some(tcid) = helpers::client_for_player(world, target) {
                 send_message(
                     world,
                     tcid,

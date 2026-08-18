@@ -8,9 +8,7 @@ use crate::game_loop::admin::moderation::{characters_from_ip, dualbox_ips};
 use crate::loginlink::LoginLinkCommand;
 
 /// Drain the pending game→login commands.
-fn drain_link(
-    rx: &mut tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) -> Vec<LoginLinkCommand> {
+fn drain_link(rx: &mut UnboundedReceiver<LoginLinkCommand>) -> Vec<LoginLinkCommand> {
     let mut out = Vec::new();
     while let Ok(c) = rx.try_recv() {
         out.push(c);

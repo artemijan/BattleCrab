@@ -130,10 +130,7 @@ fn shutdown_saves_all_online_players() {
     let _o1 = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     let _o2 = ingame_player(&mut world, 2, 5002, 300, 400, 0);
     {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&5001)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&5001).unwrap();
         p.level = 7;
         p.exp = 9999;
     }
@@ -183,7 +180,7 @@ fn restart_then_reenter_world() {
     );
     handle_enter_world(&mut world, 1);
     assert!(
-        world.objects.has_component::<crate::model::Player>(&5001),
+        world.objects.has_component::<Player>(&5001),
         "player re-entered the world"
     );
     assert!(matches!(
@@ -202,7 +199,7 @@ fn restart_blocked_while_in_combat_stance() {
     // In stance until 15 s from now (AttackStanceTaskManager.addAttackStanceTask).
     world
         .objects
-        .get_component_mut::<crate::model::components::AttackState>(&5001)
+        .get_component_mut::<model::components::AttackState>(&5001)
         .unwrap()
         .stance_until_tick = world.tick + 1;
 
@@ -235,7 +232,7 @@ fn logout_blocked_while_in_combat_stance() {
     let mut out_rx = ingame_player(&mut world, 1, 5002, 100, 200, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::AttackState>(&5002)
+        .get_component_mut::<model::components::AttackState>(&5002)
         .unwrap()
         .stance_until_tick = world.tick + 1;
 
@@ -352,7 +349,7 @@ fn enter_world_replays_the_saved_key_layout() {
     let mut ch = dummy_char(5001, "P5001");
     // 200 stored the way Java stores it: as the signed byte -56.
     ch.variables = vec![(
-        crate::model::components::UI_KEY_MAPPING.to_string(),
+        model::components::UI_KEY_MAPPING.to_string(),
         "7\t0\t-56".to_string(),
     )];
     on_characters_loaded(&mut world, 1, "bob".into(), vec![ch], true);

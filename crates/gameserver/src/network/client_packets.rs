@@ -2076,7 +2076,7 @@ pub struct RequestActionUse {
 
 impl RequestActionUse {
     pub fn read(body: &[u8]) -> Option<Self> {
-        let mut r = commons::network::PacketReader::new(body);
+        let mut r = PacketReader::new(body);
         let action_id = r.read_i32()?;
         let ctrl_pressed = r.read_i32()? == 1;
         let shift_pressed = r.read_u8()? == 1;

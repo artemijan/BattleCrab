@@ -9,7 +9,7 @@ use crate::data::zone_data::{Zone, ZoneKind};
 use crate::db::DbCommand;
 use crate::game_loop::punishment;
 use crate::model::components::Position;
-use crate::model::punishment::{PunishmentAffect, PunishmentType};
+use crate::model::punishment as punishment_models;
 use crate::scheduler::ScheduledTask;
 
 // Java `JailZone` locations.
@@ -82,8 +82,8 @@ fn jail_teleports_marks_and_persists() {
     // Registered and persisted.
     assert!(world.punishments.has_punishment(
         "3001",
-        PunishmentAffect::Character,
-        PunishmentType::Jail
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::Jail
     ));
     let cmds = drain_db(&mut db_rx);
     assert_eq!(store_punishment_cmds(&cmds), 1, "one StorePunishment sent");
@@ -128,8 +128,8 @@ fn unjail_releases_teleports_out_and_deletes() {
     assert_eq!(pos_xy(&world, 3001), JAIL_OUT);
     assert!(!world.punishments.has_punishment(
         "3001",
-        PunishmentAffect::Character,
-        PunishmentType::Jail
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::Jail
     ));
     let cmds = drain_db(&mut db_rx);
     assert!(
@@ -159,8 +159,8 @@ fn a_timed_jail_expires_and_releases_the_player() {
     assert_eq!(pos_xy(&world, 3001), JAIL_OUT);
     assert!(!world.punishments.has_punishment(
         "3001",
-        PunishmentAffect::Character,
-        PunishmentType::Jail
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::Jail
     ));
     assert!(
         drain_db(&mut db_rx)
@@ -209,11 +209,11 @@ fn keep_in_ignores_a_free_player() {
 fn boot_load_registers_and_re_arms_a_timed_jail() {
     let (mut world, _tx, _rx, _link) = test_world();
     let now = commons::util::now_millis();
-    let task = crate::model::punishment::Punishment {
+    let task = model::punishment::Punishment {
         id: 7,
         key: "3001".into(),
-        affect: PunishmentAffect::Character,
-        ptype: PunishmentType::Jail,
+        affect: punishment_models::PunishmentAffect::Character,
+        ptype: punishment_models::PunishmentType::Jail,
         expiration: now + 60_000,
         reason: "r".into(),
         punished_by: "gm".into(),
@@ -223,8 +223,8 @@ fn boot_load_registers_and_re_arms_a_timed_jail() {
     // Registered, allocator seeded, and an expiry timer queued.
     assert!(world.punishments.has_punishment(
         "3001",
-        PunishmentAffect::Character,
-        PunishmentType::Jail
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::Jail
     ));
     assert_eq!(world.punishments.next_id, 8);
     assert!(
@@ -245,11 +245,11 @@ fn on_enter_world_reapplies_jail_to_a_returning_inmate() {
     punishment::on_loaded(
         &mut world,
         1,
-        vec![crate::model::punishment::Punishment {
+        vec![punishment_models::Punishment {
             id: 1,
             key: "3001".into(),
-            affect: PunishmentAffect::Character,
-            ptype: PunishmentType::Jail,
+            affect: punishment_models::PunishmentAffect::Character,
+            ptype: punishment_models::PunishmentType::Jail,
             expiration: now + 3_600_000,
             reason: "r".into(),
             punished_by: "gm".into(),
@@ -266,7 +266,12 @@ fn on_enter_world_reapplies_jail_to_a_returning_inmate() {
 
 use crate::model::components::PendingRequest;
 
-fn ban(world: &mut World, key: &str, affect: PunishmentAffect, ptype: PunishmentType) -> bool {
+fn ban(
+    world: &mut World,
+    key: &str,
+    affect: punishment_models::PunishmentAffect,
+    ptype: punishment_models::PunishmentType,
+) -> bool {
     punishment::start_punishment(
         world,
         key.to_string(),
@@ -284,31 +289,31 @@ fn start_punishment_guards_duplicates_and_stop_lifts() {
     assert!(ban(
         &mut world,
         "acc1",
-        PunishmentAffect::Account,
-        PunishmentType::Ban
+        punishment_models::PunishmentAffect::Account,
+        punishment_models::PunishmentType::Ban
     ));
     // Same (key, affect, type) again → Java's "already affected" guard.
     assert!(!ban(
         &mut world,
         "acc1",
-        PunishmentAffect::Account,
-        PunishmentType::Ban
+        punishment_models::PunishmentAffect::Account,
+        punishment_models::PunishmentType::Ban
     ));
     assert!(world.punishments.has_punishment(
         "acc1",
-        PunishmentAffect::Account,
-        PunishmentType::Ban
+        punishment_models::PunishmentAffect::Account,
+        punishment_models::PunishmentType::Ban
     ));
     assert!(punishment::stop_punishment(
         &mut world,
         "acc1",
-        PunishmentAffect::Account,
-        PunishmentType::Ban
+        punishment_models::PunishmentAffect::Account,
+        punishment_models::PunishmentType::Ban
     ));
     assert!(!world.punishments.has_punishment(
         "acc1",
-        PunishmentAffect::Account,
-        PunishmentType::Ban
+        punishment_models::PunishmentAffect::Account,
+        punishment_models::PunishmentType::Ban
     ));
 }
 
@@ -320,8 +325,8 @@ fn ban_disconnects_the_online_player_and_flags_them() {
     ban(
         &mut world,
         "3001",
-        PunishmentAffect::Character,
-        PunishmentType::Ban,
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::Ban,
     );
 
     // Java `BanHandler.onStart` → Disconnection: session dropped + player despawned.
@@ -351,8 +356,8 @@ fn character_select_refuses_a_banned_character() {
     ban(
         &mut world,
         "5001",
-        PunishmentAffect::Character,
-        PunishmentType::Ban,
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::Ban,
     );
 
     let mut w = PacketWriter::new();
@@ -374,8 +379,8 @@ fn chat_ban_blocks_chat_but_a_dot_command_slips_through() {
     ban(
         &mut world,
         "3001",
-        PunishmentAffect::Character,
-        PunishmentType::ChatBan,
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::ChatBan,
     );
     assert!(punishment::is_chat_banned(&world, 3001));
     drain(&mut a_rx);
@@ -404,8 +409,8 @@ fn chat_ban_blocks_chat_but_a_dot_command_slips_through() {
     assert!(punishment::stop_punishment(
         &mut world,
         "3001",
-        PunishmentAffect::Character,
-        PunishmentType::ChatBan
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::ChatBan
     ));
     assert!(!punishment::is_chat_banned(&world, 3001));
     drain(&mut a_rx);
@@ -426,8 +431,8 @@ fn party_ban_blocks_a_banned_requestor_and_a_banned_target() {
     ban(
         &mut world,
         "3001",
-        PunishmentAffect::Character,
-        PunishmentType::PartyBan,
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::PartyBan,
     );
     assert!(punishment::is_party_banned(&world, 3001));
 
@@ -447,8 +452,8 @@ fn party_ban_blocks_a_banned_requestor_and_a_banned_target() {
     ban(
         &mut world,
         "3002",
-        PunishmentAffect::Character,
-        PunishmentType::PartyBan,
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::PartyBan,
     );
     let mut w = PacketWriter::new();
     w.write_string("P3002");
@@ -513,8 +518,8 @@ fn illegal_action_jail_books_a_timed_jail_punishment() {
     assert_near_jail(&world, 3001);
     assert!(world.punishments.has_punishment(
         "3001",
-        PunishmentAffect::Character,
-        PunishmentType::Jail
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::Jail
     ));
 }
 
@@ -556,8 +561,8 @@ fn illegal_action_kickban_drops_access_bans_and_disconnects() {
     advance_ticks(&mut world, 51);
     assert!(world.punishments.has_punishment(
         "3001",
-        PunishmentAffect::Character,
-        PunishmentType::Ban
+        punishment_models::PunishmentAffect::Character,
+        punishment_models::PunishmentType::Ban
     ));
     assert!(!world.clients.contains_key(&1), "kicked with the ban");
 }
@@ -591,7 +596,7 @@ fn destroy_item_negative_count_trips_the_default_punish() {
     let mut body = Vec::new();
     body.extend_from_slice(&999_i32.to_le_bytes()); // any object id
     body.extend_from_slice(&(-5_i64).to_le_bytes()); // negative count
-    crate::game_loop::items::handle_request_destroy_item(&mut world, 1, &body);
+    items::handle_request_destroy_item(&mut world, 1, &body);
 
     assert!(world.clients.contains_key(&1));
     advance_ticks(&mut world, 51);

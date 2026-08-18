@@ -489,7 +489,7 @@ fn gm_npc_info_names_the_spawn_file() {
     // resolve off that template.
     world
         .objects
-        .get_component_mut::<crate::model::npc::Npc>(&NPC_OID)
+        .get_component_mut::<model::npc::Npc>(&NPC_OID)
         .unwrap()
         .spawn_ref = (template_idx, 0, 0);
     handle_action(&mut world, 1, &action_body(NPC_OID, 1));
@@ -534,17 +534,14 @@ fn non_gm_shift_click_gets_player_view_not_admin_window() {
 fn npc_view_skills_page_lists_the_npcs_skills() {
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
-    world
-        .data
-        .skill_data
-        .insert_for_test(crate::model::skill::Skill {
-            self_continuous: false,
-            id: 4045,
-            level: 1,
-            name: "Resist Shock".into(),
-            icon: "icon.skill4045".into(),
-            ..Default::default()
-        });
+    world.data.skill_data.insert_for_test(Skill {
+        self_continuous: false,
+        id: 4045,
+        level: 1,
+        name: "Resist Shock".into(),
+        icon: "icon.skill4045".into(),
+        ..Default::default()
+    });
     let mut t = crate::data::npc_data::default_template(30001);
     t.name = "Test Mob".into();
     t.type_name = "Monster".into();
@@ -1016,14 +1013,14 @@ fn shift_click_via_action_packet_is_not_an_attack_at_all() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 34;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1089,11 +1086,11 @@ fn npc_weapon_glow_rolls_per_instance_when_enabled() {
 
     // Config off → the template value, verbatim.
     world.cfg.npc.enable_random_enchant_effect = false;
-    let plain = crate::model::npc::spawn_npc_at(&mut world, GLOWY, 0, 0, 0, 0).expect("spawned");
+    let plain = model::npc::spawn_npc_at(&mut world, GLOWY, 0, 0, 0, 0).expect("spawned");
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&plain)
+            .get_component::<model::npc::Npc>(&plain)
             .unwrap()
             .enchant_effect,
         3,
@@ -1104,10 +1101,10 @@ fn npc_weapon_glow_rolls_per_instance_when_enabled() {
     world.cfg.npc.enable_random_enchant_effect = true;
     let mut seen = std::collections::HashSet::new();
     for _ in 0..60 {
-        let oid = crate::model::npc::spawn_npc_at(&mut world, GLOWY, 0, 0, 0, 0).expect("spawned");
+        let oid = model::npc::spawn_npc_at(&mut world, GLOWY, 0, 0, 0, 0).expect("spawned");
         let e = world
             .objects
-            .get_component::<crate::model::npc::Npc>(&oid)
+            .get_component::<model::npc::Npc>(&oid)
             .unwrap()
             .enchant_effect;
         assert!(

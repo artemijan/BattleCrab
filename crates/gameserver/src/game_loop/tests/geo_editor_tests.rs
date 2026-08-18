@@ -15,7 +15,7 @@ const DIST: &str = crate::data::DIST_GAME;
 /// local cell column x == 10 walled off (no exits at all), so the panels have
 /// both open and blocked cells to render.
 fn install_region(world: &mut World) {
-    std::sync::Arc::get_mut(&mut world.geo)
+    Arc::get_mut(&mut world.geo)
         .expect("geo Arc not shared yet")
         .set_region(
             20,
@@ -25,13 +25,7 @@ fn install_region(world: &mut World) {
 }
 
 /// A GM with geodata under them and the dist htmls reachable.
-fn geo_world(
-    heading: i32,
-) -> (
-    World,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-    (i32, i32),
-) {
+fn geo_world(heading: i32) -> (World, UnboundedReceiver<bytes::Bytes>, (i32, i32)) {
     let (mut world, ..) = admin_world();
     world.data.root = DIST.to_string();
     install_region(&mut world);

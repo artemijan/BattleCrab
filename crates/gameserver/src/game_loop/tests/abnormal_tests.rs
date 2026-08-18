@@ -27,7 +27,7 @@ fn cc_skill(id: i32, effect: SkillEffect, abnormal: &str) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -73,14 +73,10 @@ fn cc_skill(id: i32, effect: SkillEffect, abnormal: &str) -> Skill {
 /// the affect/cast tests already cover) so these cases isolate the state.
 fn land(world: &mut World, skill_id: i32, target: i32) {
     let skill = skill_by_id(world, skill_id, 1).expect("registered");
-    crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
+    effects::apply_skill_effects(world, CASTER, target, &skill);
 }
 
-fn cc_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn cc_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     world.data.skill_data.insert_for_test(cc_skill(
         STUN_ID,
@@ -146,7 +142,7 @@ fn flags_clear_when_the_buff_ends() {
     land(&mut world, STUN_ID, VICTIM);
     assert!(abnormal::is_blocked_from_actions(&world, VICTIM));
 
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, VICTIM, STUN_ID);
+    effects::handle_buff_expire(&mut world, VICTIM, STUN_ID);
     assert_eq!(
         abnormal::flags_of(&world, VICTIM),
         0,
@@ -229,16 +225,16 @@ fn stun_blocks_casting_but_root_does_not() {
     drain(&mut vout);
 
     land(&mut world, STUN_ID, VICTIM);
-    crate::game_loop::skills::cast::use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
+    use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
     assert!(
         !world.objects.has_component::<Casting>(&VICTIM),
         "a stunned player cannot cast"
     );
 
     // Clear the stun, root instead: casting works again.
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, VICTIM, STUN_ID);
+    effects::handle_buff_expire(&mut world, VICTIM, STUN_ID);
     land(&mut world, ROOT_ID, VICTIM);
-    crate::game_loop::skills::cast::use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
+    use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
     assert!(
         world.objects.has_component::<Casting>(&VICTIM),
         "a rooted player can still cast"
@@ -256,7 +252,7 @@ fn stun_interrupts_an_in_flight_cast_and_movement() {
     drain(&mut vout);
 
     // Victim starts casting and moving.
-    crate::game_loop::skills::cast::use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
+    use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
     handle_move_backward_to_location(
         &mut world,
         VICTIM_CID,
@@ -344,9 +340,7 @@ fn a_stun_mid_swing_drops_the_hit_that_was_already_in_flight() {
 fn canceled_ids(packets: &[Vec<u8>]) -> Vec<i32> {
     packets
         .iter()
-        .filter(|p| {
-            p.first() == Some(&crate::network::server_packets::opcodes::MAGIC_SKILL_CANCELED)
-        })
+        .filter(|p| p.first() == Some(&server_packets::opcodes::MAGIC_SKILL_CANCELED))
         .map(|p| i32::from_le_bytes([p[1], p[2], p[3], p[4]]))
         .collect()
 }
@@ -364,7 +358,7 @@ fn a_stun_broadcasts_magic_skill_canceled_to_stop_the_animation() {
     let mut vout = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
 
     // A player victim, mid-cast.
-    crate::game_loop::skills::cast::use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
+    use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
     assert!(world.objects.has_component::<Casting>(&VICTIM));
     drain(&mut out);
     drain(&mut vout);
@@ -422,7 +416,7 @@ fn stunned_monster_stops_acting() {
         "a stunned mob neither chases nor wanders"
     );
 
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, NPC_OID, STUN_ID);
+    effects::handle_buff_expire(&mut world, NPC_OID, STUN_ID);
     assert!(
         !abnormal::is_blocked_from_actions(&world, NPC_OID),
         "and it recovers when the stun ends"
@@ -449,7 +443,7 @@ fn aoe_stun_blocks_the_whole_cluster() {
     let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&CASTER)
+        .get_component_mut::<SkillBook>(&CASTER)
         .unwrap()
         .0
         .insert(9302, 1);
@@ -461,7 +455,7 @@ fn aoe_stun_blocks_the_whole_cluster() {
     add_test_npc(&mut world, far, 20001, "Monster", 5, 5000, 0, 0);
     drain(&mut out);
 
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9302, false, false);
+    use_magic(&mut world, CID, CASTER, 9302, false, false);
     advance_ticks(&mut world, 60);
 
     assert!(
@@ -488,11 +482,7 @@ const DBLOCK_ID: i32 = 9312;
 const CBLOCK_ID: i32 = 9313;
 const TCANCEL_ID: i32 = 9314;
 
-fn cc2_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn cc2_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     // Builds on `cc_world` so the stun/root fixtures are available too — the
     // debuff-block case needs a real debuff to refuse.
     let (mut world, db, l) = cc_world();
@@ -534,24 +524,24 @@ fn mute_blocks_magic_and_physical_mute_blocks_the_rest() {
 
     // Silenced: the magic self-buff is refused.
     land(&mut world, MUTE_ID, CASTER);
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 91, false, false);
+    use_magic(&mut world, CID, CASTER, 91, false, false);
     assert!(
         !world.objects.has_component::<Casting>(&CASTER),
         "a silenced caster can't cast magic"
     );
 
     // Clear it and confirm the same cast now works.
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CASTER, MUTE_ID);
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 91, false, false);
+    effects::handle_buff_expire(&mut world, CASTER, MUTE_ID);
+    use_magic(&mut world, CID, CASTER, 91, false, false);
     assert!(
         world.objects.has_component::<Casting>(&CASTER),
         "and can once the silence ends"
     );
-    crate::game_loop::skills::cast::stop_casting(&mut world, CASTER);
+    stop_casting(&mut world, CASTER);
 
     // A *physical* mute leaves the magic skill alone.
     land(&mut world, PMUTE_ID, CASTER);
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 91, false, false);
+    use_magic(&mut world, CID, CASTER, 91, false, false);
     assert!(
         world.objects.has_component::<Casting>(&CASTER),
         "physical mute must not block a magic skill"
@@ -565,7 +555,7 @@ fn mute_interrupts_an_in_flight_cast() {
     let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     drain(&mut out);
 
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 91, false, false);
+    use_magic(&mut world, CID, CASTER, 91, false, false);
     assert!(world.objects.has_component::<Casting>(&CASTER));
     land(&mut world, MUTE_ID, CASTER);
     assert!(
@@ -612,7 +602,7 @@ fn debuff_block_refuses_incoming_debuffs() {
     // Baseline: the stun lands.
     land(&mut world, STUN_ID, VICTIM);
     assert!(abnormal::is_blocked_from_actions(&world, VICTIM));
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, VICTIM, STUN_ID);
+    effects::handle_buff_expire(&mut world, VICTIM, STUN_ID);
 
     // Under debuff block it does not.
     land(&mut world, DBLOCK_ID, VICTIM);
@@ -624,7 +614,7 @@ fn debuff_block_refuses_incoming_debuffs() {
 
     // A *buff* still lands (1068 is the Might-like buff, not a debuff).
     let buff = skill_by_id(&world, 1068, 1).expect("might");
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &buff);
+    effects::apply_skill_effects(&mut world, CASTER, VICTIM, &buff);
     assert!(
         has_buff(&world, VICTIM, 1068),
         "debuff block does not stop buffs"
@@ -641,7 +631,7 @@ fn control_block_refuses_item_use() {
     land(&mut world, CBLOCK_ID, CASTER);
     // A bogus item object id is fine: the gate must reject before any lookup,
     // so the only reply is ActionFailed.
-    crate::game_loop::items::handle_use_item(&mut world, CID, &use_item_body(1234));
+    items::handle_use_item(&mut world, CID, &use_item_body(1234));
     let pkts = drain(&mut out);
     assert!(
         pkts.iter()
@@ -661,10 +651,10 @@ fn target_cancel_clears_the_target_and_aborts() {
     // The victim is targeting the mob and casting.
     world
         .objects
-        .get_component_mut::<crate::model::components::TargetRef>(&VICTIM)
+        .get_component_mut::<TargetRef>(&VICTIM)
         .unwrap()
         .0 = Some(NPC_OID);
-    crate::game_loop::skills::cast::use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
+    use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
     assert!(world.objects.has_component::<Casting>(&VICTIM));
     drain(&mut vout);
 
@@ -675,11 +665,7 @@ fn target_cancel_clears_the_target_and_aborts() {
     world.force_rolls([0, 0]);
     land(&mut world, TCANCEL_ID, VICTIM);
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::components::TargetRef>(&VICTIM)
-            .unwrap()
-            .0,
+        world.objects.get_component::<TargetRef>(&VICTIM).unwrap().0,
         None,
         "the target is dropped"
     );
@@ -704,16 +690,12 @@ fn zero_chance_target_cancel_does_nothing() {
 
     world
         .objects
-        .get_component_mut::<crate::model::components::TargetRef>(&VICTIM)
+        .get_component_mut::<TargetRef>(&VICTIM)
         .unwrap()
         .0 = Some(NPC_OID);
     land(&mut world, 9315, VICTIM);
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::components::TargetRef>(&VICTIM)
-            .unwrap()
-            .0,
+        world.objects.get_component::<TargetRef>(&VICTIM).unwrap().0,
         Some(NPC_OID),
         "a 0% target-cancel leaves the target alone"
     );
@@ -773,7 +755,7 @@ fn visual_effects_fold_over_buffs_and_clear() {
     );
 
     // Clearing the stun leaves the poison tint behind.
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, VICTIM, 9320);
+    effects::handle_buff_expire(&mut world, VICTIM, 9320);
     let vis = visual_effects(&world, VICTIM);
     assert!(
         !vis.contains(&7) && vis.contains(&2),
@@ -797,10 +779,10 @@ fn char_info_carries_the_visual_list() {
     let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
 
     let visuals_of = |world: &World| {
-        let v = crate::model::PlayerView::of(&world.objects, VICTIM).expect("view");
+        let v = model::PlayerView::of(&world.objects, VICTIM).expect("view");
         server_packets::char_info(
             &v,
-            &crate::game_loop::abnormal::visual_effects(world, VICTIM),
+            &abnormal::visual_effects(world, VICTIM),
             &[],
             &Default::default(),
         )
@@ -827,7 +809,7 @@ fn buffs_without_a_visual_send_no_visual_packet() {
 
     // 1068 is the Might-like stat buff from `cast_test_world` — no visual.
     let buff = skill_by_id(&world, 1068, 1).expect("might");
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &buff);
+    effects::apply_skill_effects(&mut world, CASTER, VICTIM, &buff);
 
     let pkts = drain(&mut vout);
     let ave_pkts = pkts
@@ -862,7 +844,7 @@ fn an_invincible_target_ignores_target_cancel() {
         add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
         world
             .objects
-            .get_component_mut::<crate::model::components::TargetRef>(&VICTIM)
+            .get_component_mut::<TargetRef>(&VICTIM)
             .unwrap()
             .0 = Some(NPC_OID);
 
@@ -875,11 +857,7 @@ fn an_invincible_target_ignores_target_cancel() {
 
         land(&mut world, TCANCEL_ID, VICTIM);
         assert_eq!(
-            world
-                .objects
-                .get_component::<crate::model::components::TargetRef>(&VICTIM)
-                .unwrap()
-                .0,
+            world.objects.get_component::<TargetRef>(&VICTIM).unwrap().0,
             Some(NPC_OID),
             "{abnormal} vetoes the cancel"
         );
@@ -898,24 +876,20 @@ fn target_cancel_slides_off_a_much_higher_level_target() {
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::TargetRef>(&VICTIM)
+        .get_component_mut::<TargetRef>(&VICTIM)
         .unwrap()
         .0 = Some(NPC_OID);
     // `cc_skill` carries `magic_level: 0` and the fixture chance is 100, so the
     // threshold is `0 + 100 - level`: put the victim past it.
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&VICTIM)
+        .get_component_mut::<Player>(&VICTIM)
         .unwrap()
         .level = 100;
 
     land(&mut world, TCANCEL_ID, VICTIM);
     assert_eq!(
-        world
-            .objects
-            .get_component::<crate::model::components::TargetRef>(&VICTIM)
-            .unwrap()
-            .0,
+        world.objects.get_component::<TargetRef>(&VICTIM).unwrap().0,
         Some(NPC_OID),
         "a level-100 target keeps its mark against a magic-level-0 skill"
     );
@@ -937,7 +911,7 @@ fn a_trait_resistance_lowers_the_target_cancel_chance() {
         add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
         world
             .objects
-            .get_component_mut::<crate::model::components::TargetRef>(&VICTIM)
+            .get_component_mut::<TargetRef>(&VICTIM)
             .unwrap()
             .0 = Some(NPC_OID);
         // Give the cancel a trait the victim can resist.
@@ -945,21 +919,13 @@ fn a_trait_resistance_lowers_the_target_cancel_chance() {
         skill.trait_type = TraitType::Shock;
         world.data.skill_data.insert_for_test(skill.clone());
         if resist {
-            crate::game_loop::skills::effects::merge_defence_traits(
-                &mut world,
-                VICTIM,
-                &[(TraitType::Shock, 0.5)],
-            );
+            effects::merge_defence_traits(&mut world, VICTIM, &[(TraitType::Shock, 0.5)]);
         }
         // Threshold is `0 + 100 - level` (~99 here); halve it and a 60 roll
         // stops landing.
         world.force_rolls([0, 60]);
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &skill);
-        world
-            .objects
-            .get_component::<crate::model::components::TargetRef>(&VICTIM)
-            .unwrap()
-            .0
+        effects::apply_skill_effects(&mut world, CASTER, VICTIM, &skill);
+        world.objects.get_component::<TargetRef>(&VICTIM).unwrap().0
     };
 
     assert_eq!(cancel(false), None, "unresisted, the cancel lands");
@@ -983,7 +949,7 @@ fn an_element_resistance_lowers_the_target_cancel_chance() {
         add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
         world
             .objects
-            .get_component_mut::<crate::model::components::TargetRef>(&VICTIM)
+            .get_component_mut::<TargetRef>(&VICTIM)
             .unwrap()
             .0 = Some(NPC_OID);
         let mut skill = world.data.skill_data.get(TCANCEL_ID, 1).unwrap().clone();
@@ -994,19 +960,15 @@ fn an_element_resistance_lowers_the_target_cancel_chance() {
             // A heavy fire resistance drags `calcAttributeBonus` below 1.
             let mods = world
                 .objects
-                .get_component_mut::<crate::model::components::StatModifiers>(&VICTIM)
+                .get_component_mut::<model::components::StatModifiers>(&VICTIM)
                 .unwrap();
             *mods.add.entry(Stat::FireRes).or_insert(0.0) += 300.0;
         }
         // `calcAttributeBonus` floors at 0.75, so the resisted threshold is
         // ~74 against ~99 unresisted — a roll of 80 separates them.
         world.force_rolls([0, 80]);
-        crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &skill);
-        world
-            .objects
-            .get_component::<crate::model::components::TargetRef>(&VICTIM)
-            .unwrap()
-            .0
+        effects::apply_skill_effects(&mut world, CASTER, VICTIM, &skill);
+        world.objects.get_component::<TargetRef>(&VICTIM).unwrap().0
     };
 
     assert_eq!(cancel(false), None, "unresisted, the cancel lands");
@@ -1032,12 +994,12 @@ fn npc_info_carries_the_mobs_abnormal_visuals() {
     let build = |world: &World| {
         let v = NpcView::of(&world.objects, NPC_OID).expect("a live mob");
         let t = v.npc.template(world).expect("its template");
-        crate::network::server_packets::npc_info(
+        server_packets::npc_info(
             &v,
             t,
             &world.cfg.npc,
             &world.cfg.champion,
-            &crate::game_loop::abnormal::visual_effects(world, NPC_OID),
+            &abnormal::visual_effects(world, NPC_OID),
             None,
         )
     };
@@ -1052,7 +1014,7 @@ fn npc_info_carries_the_mobs_abnormal_visuals() {
     });
     land(&mut world, 9330, NPC_OID);
     assert_eq!(
-        crate::game_loop::abnormal::visual_effects(&world, NPC_OID),
+        abnormal::visual_effects(&world, NPC_OID),
         vec![1],
         "the mob really is carrying a visual"
     );
@@ -1078,10 +1040,10 @@ fn npc_info_carries_the_mobs_abnormal_visuals() {
     // that same packet rather than a bare one.
     let mut rx = ingame_caster(&mut world, 9, 3099, 0, 0);
     drain(&mut rx);
-    crate::game_loop::visibility::on_enter_world(&world, 9, 3099);
+    visibility::on_enter_world(&world, 9, 3099);
     let sent = drain(&mut rx)
         .into_iter()
-        .find(|p| p[0] == crate::network::server_packets::opcodes::NPC_INFO)
+        .find(|p| p[0] == server_packets::opcodes::NPC_INFO)
         .expect("the observer was told about the mob");
     assert_eq!(
         sent.len(),
@@ -1105,14 +1067,7 @@ fn npc_info_carries_the_team_and_display_effect() {
     let build = |world: &World| {
         let v = NpcView::of(&world.objects, NPC_OID).expect("a live mob");
         let t = v.npc.template(world).expect("its template");
-        crate::network::server_packets::npc_info(
-            &v,
-            t,
-            &world.cfg.npc,
-            &world.cfg.champion,
-            &[],
-            None,
-        )
+        server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &[], None)
     };
     let clean = build(&world);
 
@@ -1155,10 +1110,10 @@ fn npc_info_carries_the_team_and_display_effect() {
     }
     let mut rx = ingame_caster(&mut world, 9, 3098, 0, 0);
     drain(&mut rx);
-    crate::game_loop::visibility::on_enter_world(&world, 9, 3098);
+    visibility::on_enter_world(&world, 9, 3098);
     let sent = drain(&mut rx)
         .into_iter()
-        .find(|p| p[0] == crate::network::server_packets::opcodes::NPC_INFO)
+        .find(|p| p[0] == server_packets::opcodes::NPC_INFO)
         .expect("the observer was told about the mob");
     assert_eq!(
         sent.len(),
@@ -1175,11 +1130,7 @@ const SLEEP_ID: i32 = 9310;
 
 /// A sleep: `BlockActions` like a stun, but carrying the `<removedOnDamage>`
 /// tag every real `Sleep` (1069, 1072, 4046, …) declares.
-fn sleep_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn sleep_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cc_world();
     let mut sleep = cc_skill(
         SLEEP_ID,
@@ -1210,7 +1161,7 @@ fn a_hit_wakes_a_slept_player_but_leaves_a_stun_alone() {
         "the sleep landed"
     );
 
-    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false, false);
+    combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false, false);
     assert!(
         !abnormal::is_blocked_from_actions(&world, VICTIM),
         "one hit wakes the sleeper"
@@ -1235,7 +1186,7 @@ fn a_hit_wakes_a_slept_player_but_leaves_a_stun_alone() {
     // on, it would make the assertion below fail one time in fourteen.
     world.cfg.character.alt_game_stun_break = false;
     land(&mut world, STUN_ID, VICTIM);
-    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false, false);
+    combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false, false);
     assert!(
         abnormal::is_blocked_from_actions(&world, VICTIM),
         "a stun is not `removedOnDamage` — hitting a stunned target does not \
@@ -1257,7 +1208,7 @@ fn a_hit_wakes_a_slept_monster() {
         "the mob is asleep"
     );
 
-    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, NPC_OID, 5.0, false, false);
+    combat::apply_physical_damage(&mut world, CASTER, NPC_OID, 5.0, false, false);
     assert!(
         !abnormal::is_blocked_from_actions(&world, NPC_OID),
         "and it wakes on the first blow"
@@ -1278,8 +1229,8 @@ fn a_dot_tick_wakes_a_slept_player_but_not_a_slept_mob() {
     land(&mut world, SLEEP_ID, VICTIM);
     land(&mut world, SLEEP_ID, NPC_OID);
 
-    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, VICTIM, 3.0, true, false);
-    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, NPC_OID, 3.0, true, false);
+    combat::apply_physical_damage(&mut world, CASTER, VICTIM, 3.0, true, false);
+    combat::apply_physical_damage(&mut world, CASTER, NPC_OID, 3.0, true, false);
 
     assert!(
         !abnormal::is_blocked_from_actions(&world, VICTIM),
@@ -1323,10 +1274,7 @@ fn buff_block_refuses_buffs_and_lets_debuffs_through() {
 
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     land(&mut world, BUFFBLOCK_ID, CASTER);
-    assert!(
-        crate::game_loop::abnormal::is_buff_blocked(&world, CASTER),
-        "the flag is up"
-    );
+    assert!(abnormal::is_buff_blocked(&world, CASTER), "the flag is up");
 
     land(&mut world, 9324, CASTER);
     assert!(
@@ -1357,17 +1305,17 @@ fn the_passive_flag_pacifies_an_aggressive_monster() {
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
 
     assert!(
-        !crate::game_loop::abnormal::is_pacified(&world, NPC_OID),
+        !abnormal::is_pacified(&world, NPC_OID),
         "not pacified to begin with"
     );
     land(&mut world, PACIFY_ID, NPC_OID);
     assert!(
-        crate::game_loop::abnormal::is_pacified(&world, NPC_OID),
+        abnormal::is_pacified(&world, NPC_OID),
         "the mob is pacified while the buff is up"
     );
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, NPC_OID, PACIFY_ID);
+    effects::handle_buff_expire(&mut world, NPC_OID, PACIFY_ID);
     assert!(
-        !crate::game_loop::abnormal::is_pacified(&world, NPC_OID),
+        !abnormal::is_pacified(&world, NPC_OID),
         "and aggressive again when it drops"
     );
 }
@@ -1388,17 +1336,14 @@ fn physical_attack_mute_blocks_attacking_not_casting() {
 
     land(&mut world, ATKMUTE_ID, CASTER);
     assert!(
-        crate::game_loop::abnormal::is_physical_attack_muted(&world, CASTER),
+        abnormal::is_physical_attack_muted(&world, CASTER),
         "the auto-attack lock is up"
     );
     assert!(
-        !crate::game_loop::abnormal::is_physical_muted(&world, CASTER),
+        !abnormal::is_physical_muted(&world, CASTER),
         "…and it is NOT the skill lock — two distinct flags"
     );
-    assert!(
-        !crate::game_loop::abnormal::is_muted(&world, CASTER),
-        "…nor the magic one"
-    );
+    assert!(!abnormal::is_muted(&world, CASTER), "…nor the magic one");
 }
 
 /// `UNTARGETABLE` and `TARGETING_DISABLED` are the two halves of Java's one
@@ -1423,18 +1368,16 @@ fn untargetable_sits_on_the_target_and_targeting_disabled_on_the_clicker() {
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
 
     land(&mut world, 9325, NPC_OID);
-    assert!(crate::game_loop::abnormal::is_untargetable(&world, NPC_OID));
+    assert!(abnormal::is_untargetable(&world, NPC_OID));
     assert!(
-        !crate::game_loop::abnormal::is_targeting_disabled(&world, NPC_OID),
+        !abnormal::is_targeting_disabled(&world, NPC_OID),
         "being unclickable does not stop you clicking"
     );
 
     land(&mut world, 9326, CASTER);
-    assert!(crate::game_loop::abnormal::is_targeting_disabled(
-        &world, CASTER
-    ));
+    assert!(abnormal::is_targeting_disabled(&world, CASTER));
     assert!(
-        !crate::game_loop::abnormal::is_untargetable(&world, CASTER),
+        !abnormal::is_untargetable(&world, CASTER),
         "being unable to click does not make you unclickable"
     );
 }
@@ -1452,12 +1395,10 @@ fn the_shield_angle_flag_lets_a_shield_block_from_behind() {
     ));
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
-    assert!(!crate::game_loop::abnormal::shields_from_all_angles(
-        &world, CASTER
-    ));
+    assert!(!abnormal::shields_from_all_angles(&world, CASTER));
     land(&mut world, 9327, CASTER);
     assert!(
-        crate::game_loop::abnormal::shields_from_all_angles(&world, CASTER),
+        abnormal::shields_from_all_angles(&world, CASTER),
         "the 360° arc is up while the stance holds"
     );
 
@@ -1525,7 +1466,7 @@ fn target_me_locks_a_playable_and_ignores_a_monster() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::LockedTarget>(&NPC_OID),
+            .has_component::<model::components::LockedTarget>(&NPC_OID),
         "Java's isPlayable() guard means a mob is never locked by TargetMe"
     );
 
@@ -1534,7 +1475,7 @@ fn target_me_locks_a_playable_and_ignores_a_monster() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&victim)
+            .get_component::<TargetRef>(&victim)
             .and_then(|t| t.0),
         Some(CASTER),
         "the victim's selection is dragged onto the taunter"
@@ -1542,18 +1483,18 @@ fn target_me_locks_a_playable_and_ignores_a_monster() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::LockedTarget>(&victim)
+            .get_component::<model::components::LockedTarget>(&victim)
             .map(|l| l.0),
         Some(CASTER),
         "…and locked"
     );
 
     // `TargetMe.onExit` — the lock goes with the buff.
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, victim, 9331);
+    effects::handle_buff_expire(&mut world, victim, 9331);
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::LockedTarget>(&victim),
+            .has_component::<model::components::LockedTarget>(&victim),
         "the lock must not outlive the taunt"
     );
 }
@@ -1577,9 +1518,9 @@ fn a_locked_target_cannot_click_a_different_npc() {
     // Lock the caster onto the first mob, then try to click the second.
     world
         .objects
-        .add_components(&CASTER, crate::model::components::LockedTarget(NPC_OID));
+        .add_components(&CASTER, model::components::LockedTarget(NPC_OID));
     drain(&mut out);
-    crate::game_loop::target::handle_action(&mut world, CID, &action_body(other_npc, 0));
+    handle_action(&mut world, CID, &action_body(other_npc, 0));
     let pkts = drain(&mut out);
     assert!(
         has_system_message(&pkts, server_packets::sm_ids::FAILED_TO_CHANGE_ENMITY),
@@ -1588,18 +1529,18 @@ fn a_locked_target_cannot_click_a_different_npc() {
     assert_ne!(
         world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&CASTER)
+            .get_component::<TargetRef>(&CASTER)
             .and_then(|t| t.0),
         Some(other_npc),
         "and the selection did not move"
     );
 
     // The locked NPC itself is still clickable.
-    crate::game_loop::target::handle_action(&mut world, CID, &action_body(NPC_OID, 0));
+    handle_action(&mut world, CID, &action_body(NPC_OID, 0));
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&CASTER)
+            .get_component::<TargetRef>(&CASTER)
             .and_then(|t| t.0),
         Some(NPC_OID),
         "the taunter is exactly who you are allowed to click"
@@ -1622,26 +1563,26 @@ fn hate_attack_scales_auto_attack_hate_only() {
     let hate_of = |world: &World| {
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&NPC_OID)
+            .get_component::<AggroList>(&NPC_OID)
             .and_then(|a| a.0.get(&CASTER).map(|i| i.hate))
             .unwrap_or(0.0)
     };
 
     // Unbuffed auto-attack: the plain `damage·100 / (level + 7)`.
-    crate::game_loop::combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, true);
+    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, true);
     let plain = hate_of(&world);
     assert!(plain > 0.0, "baseline hate: {plain}");
 
     let mut mods = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&CASTER)
+        .get_component::<model::components::StatModifiers>(&CASTER)
         .cloned()
         .expect("modifiers");
     mods.mul.insert(Stat::HateAttack, 3.0);
     world.objects.add_components(&CASTER, mods);
 
     // Same damage, now tripled…
-    crate::game_loop::combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, true);
+    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, true);
     let after_auto = hate_of(&world) - plain;
     assert!(
         (after_auto - plain * 3.0).abs() < 1e-6,
@@ -1650,7 +1591,7 @@ fn hate_attack_scales_auto_attack_hate_only() {
 
     // …but a *skill*'s hate is untouched, which is Java's `skill == null` gate.
     let before = hate_of(&world);
-    crate::game_loop::combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, false);
+    combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, false);
     let after_skill = hate_of(&world) - before;
     assert!(
         (after_skill - plain).abs() < 1e-6,
@@ -1682,7 +1623,7 @@ fn skill_evasion_dodges_only_its_own_magic_type() {
     let evasion = |world: &World, bucket: i32| {
         world
             .objects
-            .get_component::<crate::model::components::StatModifiers>(&NPC_OID)
+            .get_component::<model::components::StatModifiers>(&NPC_OID)
             .and_then(|m| m.skill_evasion.get(&bucket).copied())
             .unwrap_or(0.0)
     };
@@ -1727,7 +1668,7 @@ fn skill_evasion_dodges_only_its_own_magic_type() {
 
     // `onExit` unmerges: a per-bucket map has no `Stat` recompute to fall back
     // on, so without it Ultimate Evasion's dodge would be permanent.
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, NPC_OID, 9341);
+    effects::handle_buff_expire(&mut world, NPC_OID, 9341);
     assert_eq!(
         evasion(&world, 0),
         0.0,
@@ -1759,7 +1700,7 @@ fn skill_turning_breaks_the_targets_cast_but_not_a_raids() {
     // Against another caster it breaks the cast.
     world.objects.add_components(
         &victim,
-        Casting(crate::model::CastState {
+        Casting(model::CastState {
             skill_id: 1177,
             skill_level: 1,
             skill_sub_level: 0,
@@ -1796,15 +1737,12 @@ fn counter_physical_skill_answers_melee_skills_only() {
     // 100 % counter on the mob, and enough P.Atk for the counter to bite.
     let mut mods = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&NPC_OID)
+        .get_component::<model::components::StatModifiers>(&NPC_OID)
         .cloned()
         .unwrap_or_default();
     mods.add.insert(Stat::VengeanceSkillPhysicalDamage, 100.0);
     world.objects.add_components(&NPC_OID, mods);
-    if let Some(cs) = world
-        .objects
-        .get_component_mut::<crate::model::components::CombatStats>(&NPC_OID)
-    {
+    if let Some(cs) = world.objects.get_component_mut::<CombatStats>(&NPC_OID) {
         cs.p_atk = 500.0;
     }
 
@@ -1822,11 +1760,11 @@ fn counter_physical_skill_answers_melee_skills_only() {
     melee.cast_range = 40;
     world.data.skill_data.insert_for_test(melee);
     let before = caster_hp(&world);
-    crate::game_loop::skills::effects::apply_skill_damage(
+    effects::apply_skill_damage(
         &mut world,
         CASTER,
         NPC_OID,
-        crate::game_loop::skills::effects::SkillHit {
+        effects::SkillHit {
             damage: 1.0,
             caster_name: "c",
             skill_id: 9351,
@@ -1845,11 +1783,11 @@ fn counter_physical_skill_answers_melee_skills_only() {
     magic.cast_range = 40;
     world.data.skill_data.insert_for_test(magic);
     let before = caster_hp(&world);
-    crate::game_loop::skills::effects::apply_skill_damage(
+    effects::apply_skill_damage(
         &mut world,
         CASTER,
         NPC_OID,
-        crate::game_loop::skills::effects::SkillHit {
+        effects::SkillHit {
             damage: 1.0,
             is_magic: true,
             caster_name: "c",
@@ -1869,11 +1807,11 @@ fn counter_physical_skill_answers_melee_skills_only() {
     ranged.cast_range = 600;
     world.data.skill_data.insert_for_test(ranged);
     let before = caster_hp(&world);
-    crate::game_loop::skills::effects::apply_skill_damage(
+    effects::apply_skill_damage(
         &mut world,
         CASTER,
         NPC_OID,
-        crate::game_loop::skills::effects::SkillHit {
+        effects::SkillHit {
             damage: 1.0,
             caster_name: "c",
             skill_id: 9353,
@@ -1903,7 +1841,7 @@ fn enlarge_abnormal_slot_raises_the_buff_cap_and_gives_it_back() {
     world.data.combat_caps.max_buff_count = 2; // small enough to observe
     let mut boost = cc_skill(9361, SkillEffect::Root, "SLOT_BOOST");
     boost.effects = vec![SkillEffect::StatModifier(
-        crate::model::skill::StatModifierEffect {
+        model::skill::StatModifierEffect {
             stat: Stat::MaxBuffSlots,
             mode: StatModifierType::Diff,
             amount: 2.0,
@@ -2045,7 +1983,7 @@ fn skill_mastery_collapses_the_cooldown_and_reads_the_right_base_stat() {
         world.objects.add_components(&CASTER, mods);
         world.clear_forced_rolls();
         world.force_roll(roll);
-        crate::game_loop::skills::effects::calc_skill_mastery(world, CASTER)
+        effects::calc_skill_mastery(world, CASTER)
     };
 
     assert!(
@@ -2068,7 +2006,7 @@ fn skill_mastery_collapses_the_cooldown_and_reads_the_right_base_stat() {
     world.clear_forced_rolls();
     world.force_roll(0);
     assert!(
-        !crate::game_loop::skills::effects::calc_skill_mastery(&mut world, CASTER),
+        !effects::calc_skill_mastery(&mut world, CASTER),
         "Java's `getAdd(SKILL_MASTERY, -1) == -1` bail"
     );
 }
@@ -2090,10 +2028,7 @@ fn lucky_exempts_a_newbie_from_the_death_exp_penalty() {
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
     let set_level = |world: &mut World, level: i32| {
-        if let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&CASTER)
-        {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&CASTER) {
             p.level = level;
         }
     };
@@ -2137,7 +2072,7 @@ fn mp_vampiric_drains_on_skills_not_melee() {
     // draft of this test fail 70 % of the time.)
     let mut mods = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&CASTER)
+        .get_component::<model::components::StatModifiers>(&CASTER)
         .cloned()
         .unwrap_or_default();
     mods.add.insert(Stat::AbsorbManaDamagePercent, 0.1);
@@ -2163,7 +2098,7 @@ fn mp_vampiric_drains_on_skills_not_melee() {
     };
 
     // A melee swing (`skill_magic == None`) drains nothing on this dist.
-    crate::game_loop::combat::apply_attack_damage(&mut world, CASTER, NPC_OID, 500.0, false, None);
+    combat::apply_attack_damage(&mut world, CASTER, NPC_OID, 500.0, false, None);
     assert_eq!(
         mp(&world),
         0.0,
@@ -2172,14 +2107,7 @@ fn mp_vampiric_drains_on_skills_not_melee() {
 
     // A skill hit does. `apply_physical_damage`'s `from_skill` is the same
     // discriminator, so drive it through the skill-damage entry point.
-    crate::game_loop::combat::apply_attack_damage(
-        &mut world,
-        CASTER,
-        NPC_OID,
-        500.0,
-        false,
-        Some(false),
-    );
+    combat::apply_attack_damage(&mut world, CASTER, NPC_OID, 500.0, false, Some(false));
     assert!(
         mp(&world) > 0.0,
         "a skill hit drains 10 % of the damage into MP: {}",
@@ -2226,7 +2154,7 @@ fn limit_hp_caps_how_far_a_heal_can_restore() {
     // Noblesse Harmony's `PER −30` → `mul` 0.7 on MAX_RECOVERABLE_HP.
     let mut mods = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&CASTER)
+        .get_component::<model::components::StatModifiers>(&CASTER)
         .cloned()
         .unwrap_or_default();
     mods.mul.insert(Stat::MaxRecoverableHp, 0.7);
@@ -2269,10 +2197,7 @@ fn cp_heal_percent_and_hp_by_level_hit_the_right_pools() {
     world.data.skill_data.insert_for_test(drain);
 
     // CP heal lands on the *target*.
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::PlayerVitals>(&victim)
-    {
+    if let Some(v) = world.objects.get_component_mut::<PlayerVitals>(&victim) {
         v.max_cp = 1000;
         v.cur_cp = 0.0;
     }
@@ -2280,7 +2205,7 @@ fn cp_heal_percent_and_hp_by_level_hit_the_right_pools() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::PlayerVitals>(&victim)
+            .get_component::<PlayerVitals>(&victim)
             .map(|v| v.cur_cp),
         Some(200.0),
         "20 % of max CP"
@@ -2384,16 +2309,13 @@ fn bluff_turns_the_target_but_not_a_raid_boss() {
     let heading_of = |world: &World, oid: i32| {
         world
             .objects
-            .get_component::<crate::model::components::Position>(&oid)
+            .get_component::<Position>(&oid)
             .map(|p| p.heading)
             .unwrap_or(0)
     };
     // Give the caster a distinctive heading and the targets another.
     for (oid, h) in [(CASTER, 12_000), (NPC_OID, 0), (boss_oid, 0)] {
-        if let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::components::Position>(&oid)
-        {
+        if let Some(p) = world.objects.get_component_mut::<Position>(&oid) {
             p.heading = h;
         }
     }
@@ -2436,13 +2358,11 @@ fn unlock_picks_a_by_skill_door_and_refuses_the_rest() {
         },
         "NONE",
     ));
-    let pickable = crate::model::door::spawn_door_for_test(
-        &mut world,
-        test_door(9901, DoorOpenMethod::BySkill),
-    );
+    let pickable =
+        model::door::spawn_door_for_test(&mut world, test_door(9901, DoorOpenMethod::BySkill));
     let mut plain = test_door(9902, DoorOpenMethod::ByClick);
     plain.x = 400;
-    let plain_oid = crate::model::door::spawn_door_for_test(&mut world, plain);
+    let plain_oid = model::door::spawn_door_for_test(&mut world, plain);
 
     // A `BY_CLICK` door: refused outright, with its own message, and the roll
     // is never reached.
@@ -2504,12 +2424,9 @@ fn unlocking_a_chest_depends_on_the_level_band() {
     // here, which is also the honest reading: the band is a gap, not a floor.
     add_test_npc(&mut world, in_band, 18265, "Chest", 25, 100, 0, 0);
     add_test_npc(&mut world, out_of_band, 18265, "Chest", 25, 150, 0, 0);
-    let chest_level = crate::game_loop::skills::effects::creature_level_for_test(&world, in_band);
+    let chest_level = effects::creature_level_for_test(&world, in_band);
     let set_caster_level = |world: &mut World, level: i32| {
-        if let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&CASTER)
-        {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&CASTER) {
             p.level = level;
         }
     };
@@ -2526,7 +2443,7 @@ fn unlocking_a_chest_depends_on_the_level_band() {
     );
     let npc = world
         .objects
-        .get_component::<crate::model::npc::Npc>(&in_band)
+        .get_component::<model::npc::Npc>(&in_band)
         .expect("chest");
     assert!(npc.special_drop, "and it rolls its own drop list");
     assert!(!npc.must_reward_exp_sp, "but pays no exp/sp");
@@ -2544,7 +2461,7 @@ fn unlocking_a_chest_depends_on_the_level_band() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&out_of_band)
+            .get_component::<AggroList>(&out_of_band)
             .and_then(|a| a.0.get(&CASTER).map(|i| i.hate))
             .unwrap_or(0.0)
             > 0.0,
@@ -2621,14 +2538,11 @@ fn a_smashed_chest_and_an_unlocked_one_do_not_share_a_drop_table() {
     // Unlock it, and the swap stops applying at all.
     let exp_before = world
         .objects
-        .get_component::<crate::model::Player>(&CASTER)
+        .get_component::<Player>(&CASTER)
         .map(|p| p.exp)
         .unwrap_or(0);
-    let chest_level = crate::game_loop::skills::effects::creature_level_for_test(&world, chest);
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&CASTER)
-    {
+    let chest_level = effects::creature_level_for_test(&world, chest);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&CASTER) {
         p.level = chest_level;
     }
     land(&mut world, 9405, chest);
@@ -2639,7 +2553,7 @@ fn a_smashed_chest_and_an_unlocked_one_do_not_share_a_drop_table() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&CASTER)
+            .get_component::<Player>(&CASTER)
             .map(|p| p.exp)
             .unwrap_or(0),
         exp_before,
@@ -2661,11 +2575,7 @@ fn balance_life_averages_the_party_and_costs_the_healthy() {
     let mut skill = cc_skill(9406, SkillEffect::RebalanceHp, "NONE");
     skill.affect_range = 900;
     world.data.skill_data.insert_for_test(skill);
-    crate::game_loop::tests::make_party(
-        &mut world,
-        &[CASTER, ally],
-        crate::model::party::LootRule::Random,
-    );
+    make_party(&mut world, &[CASTER, ally], LootRule::Random);
 
     // Same pool, wildly different fills: 100 % and 20 % → a 60 % average.
     for (oid, cur) in [(CASTER, 1000.0), (ally, 200.0)] {
@@ -2720,7 +2630,7 @@ fn balance_life_without_a_party_does_nothing() {
     add_test_npc(&mut world, pet, 20001, "Monster", 20, 60, 0, 0);
     world.objects.add_components(
         &CASTER,
-        crate::model::components::SummonRef {
+        model::components::SummonRef {
             servitor: None,
             pet: Some(pet),
         },
@@ -2771,15 +2681,13 @@ fn pvp_damage_bonus_is_a_difference_of_multipliers_not_a_product() {
     let victim = CASTER + 1;
     let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
 
-    let bonus = |world: &World| {
-        crate::game_loop::skills::effects::pvp_pve_bonus_for_test(world, CASTER, victim, None)
-    };
+    let bonus = |world: &World| effects::pvp_pve_bonus_for_test(world, CASTER, victim, None);
     assert_eq!(bonus(&world), 1.0, "no stats granted: no change");
 
     // Attacker +50 % PvP auto-attack damage.
     if let Some(m) = world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<model::components::StatModifiers>(&CASTER)
     {
         *m.mul.entry(Stat::PvpPhysicalAttackDamage).or_insert(1.0) *= 1.5;
     }
@@ -2788,7 +2696,7 @@ fn pvp_damage_bonus_is_a_difference_of_multipliers_not_a_product() {
     // Victim +50 % PvP auto-attack *defence* — the two cancel exactly.
     if let Some(m) = world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&victim)
+        .get_component_mut::<model::components::StatModifiers>(&victim)
     {
         *m.mul.entry(Stat::PvpPhysicalAttackDefence).or_insert(1.0) *= 1.5;
     }
@@ -2819,13 +2727,13 @@ fn the_pvp_bonus_reads_a_different_stat_pair_per_delivery() {
     // Only the *magical skill* stat is granted.
     if let Some(m) = world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<model::components::StatModifiers>(&CASTER)
     {
         *m.mul.entry(Stat::PvpMagicalSkillDamage).or_insert(1.0) *= 1.5;
     }
 
     let bonus = |world: &World, skill: Option<&Skill>| {
-        crate::game_loop::skills::effects::pvp_pve_bonus_for_test(world, CASTER, victim, skill)
+        effects::pvp_pve_bonus_for_test(world, CASTER, victim, skill)
     };
     assert_eq!(
         bonus(&world, Some(&magical)),
@@ -2849,10 +2757,7 @@ fn the_pvp_bonus_reads_a_different_stat_pair_per_delivery() {
 fn the_pve_penalty_bites_on_high_level_mobs_and_spares_raids() {
     let (mut world, _db, _l) = cc2_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&CASTER)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&CASTER) {
         p.level = 78;
     }
     let mob = NPC_OID;
@@ -2864,9 +2769,8 @@ fn the_pve_penalty_bites_on_high_level_mobs_and_spares_raids() {
     add_test_npc(&mut world, mob, 90001, "Monster", 85, 100, 0, 0);
     add_test_npc(&mut world, boss, 90002, "RaidBoss", 85, 150, 0, 0);
 
-    let bonus = |world: &World, target: i32| {
-        crate::game_loop::skills::effects::pvp_pve_bonus_for_test(world, CASTER, target, None)
-    };
+    let bonus =
+        |world: &World, target: i32| effects::pvp_pve_bonus_for_test(world, CASTER, target, None);
     assert!(
         bonus(&world, mob) < 1.0,
         "a level-85 mob against a level-78 player is penalised, got {}",
@@ -2919,7 +2823,7 @@ fn the_pvp_bonus_actually_reaches_a_nukes_damage() {
     // The *victim* takes a magical-skill PvP defence buff.
     if let Some(m) = world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&victim)
+        .get_component_mut::<model::components::StatModifiers>(&victim)
     {
         *m.mul.entry(Stat::PvpMagicalSkillDefence).or_insert(1.0) *= 1.5;
     }
@@ -3004,14 +2908,14 @@ fn focus_attack_grants_the_single_target_stat_and_gives_it_back() {
     let (mut world, _db, _l) = cc2_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let mut focus = cc_skill(9414, SkillEffect::PolearmSingleTarget, "NONE");
-    focus.target_type = crate::model::skill::TargetType::Self_;
+    focus.target_type = TargetType::Self_;
     world.data.skill_data.insert_for_test(focus);
 
     let stat = |world: &World| {
         world
             .objects
-            .get_component::<crate::model::components::StatModifiers>(&CASTER)
-            .map(|m| crate::model::finalize(m, Stat::PhysicalPolearmTargetSingle, 0.0))
+            .get_component::<model::components::StatModifiers>(&CASTER)
+            .map(|m| model::finalize(m, Stat::PhysicalPolearmTargetSingle, 0.0))
             .unwrap_or(0.0)
     };
     assert_eq!(stat(&world), 0.0, "nothing before the toggle");
@@ -3023,7 +2927,7 @@ fn focus_attack_grants_the_single_target_stat_and_gives_it_back() {
         stat(&world)
     );
 
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CASTER, 9414);
+    effects::handle_buff_expire(&mut world, CASTER, 9414);
     assert_eq!(
         stat(&world),
         0.0,
@@ -3067,7 +2971,7 @@ fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
         },
         "NONE",
     );
-    carrier.target_type = crate::model::skill::TargetType::Self_;
+    carrier.target_type = TargetType::Self_;
     world.data.skill_data.insert_for_test(carrier);
 
     let has = |world: &World, oid: i32| has_buff(world, oid, 9416);
@@ -3075,19 +2979,19 @@ fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
     // Not cast yet: nothing to listen, so nothing triggers. (Java attaches the
     // listener to the *buff*, which is why this is the meaningful negative —
     // knowing Mirage and being under it are different things.)
-    crate::game_loop::combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, None);
+    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, None);
     assert!(!has(&world, attacker), "no Mirage buff up, no counter-cast");
 
     // Now put it up. A *monster* hitting us must still not set it off.
     land(&mut world, 9415, CASTER);
-    crate::game_loop::combat::apply_attack_damage(&mut world, NPC_OID, CASTER, 50.0, false, None);
+    combat::apply_attack_damage(&mut world, NPC_OID, CASTER, 50.0, false, None);
     assert!(
         !has(&world, NPC_OID),
         "attackerType=Playable: a monster never triggers it"
     );
 
     // A player hitting us does.
-    crate::game_loop::combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, None);
+    combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, None);
     assert!(
         has(&world, attacker),
         "a playable attacker takes the counter-cast"
@@ -3118,18 +3022,18 @@ fn dance_of_shadows_cancels_itself_on_a_listed_magic_type() {
         },
         "NONE",
     );
-    carrier.target_type = crate::model::skill::TargetType::Self_;
+    carrier.target_type = TargetType::Self_;
     world.data.skill_data.insert_for_test(carrier);
     land(&mut world, 9417, CASTER);
 
     let has = |world: &World| has_buff(world, CASTER, 9418);
 
     // A cast whose magicType is *not* listed changes nothing.
-    crate::game_loop::skills::effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 7);
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 7);
     assert!(!has(&world), "an unlisted magicType does not fire it");
 
     // One that is listed does.
-    crate::game_loop::skills::effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 2);
+    effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 2);
     assert!(has(&world), "a listed magicType fires the trigger");
 }
 
@@ -3147,23 +3051,19 @@ fn chant_of_gate_recalls_the_party_but_not_someone_in_combat() {
     let _w = ingame_player(&mut world, CID + 1, willing, 0, 0, 0);
     let _f = ingame_player(&mut world, CID + 2, fighting, 50, 50, 0);
     let mut skill = cc_skill(9421, SkillEffect::CallParty, "NONE");
-    skill.target_type = crate::model::skill::TargetType::Self_;
+    skill.target_type = TargetType::Self_;
     world.data.skill_data.insert_for_test(skill);
-    crate::game_loop::tests::make_party(
-        &mut world,
-        &[CASTER, willing, fighting],
-        crate::model::party::LootRule::Random,
-    );
+    make_party(&mut world, &[CASTER, willing, fighting], LootRule::Random);
 
     // One member is in combat — `isInCombat()` is the attack stance.
-    crate::game_loop::combat::refresh_attack_stance(&mut world, fighting);
+    combat::refresh_attack_stance(&mut world, fighting);
 
     land(&mut world, 9421, CASTER);
 
     let pos = |world: &World, oid: i32| {
         world
             .objects
-            .get_component::<crate::model::components::Position>(&oid)
+            .get_component::<Position>(&oid)
             .map(|p| (p.x, p.y))
             .unwrap()
     };
@@ -3206,10 +3106,7 @@ fn residence_death_fortune_softens_a_mob_death_but_not_a_pvp_one() {
     let _k = ingame_player(&mut world, CID + 1, killer_player, 50, 0, 0);
 
     let lost_against = |world: &mut World, killer: i32| -> i64 {
-        if let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&CASTER)
-        {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&CASTER) {
             p.level = 4;
             p.exp = 50_000;
         }
@@ -3217,7 +3114,7 @@ fn residence_death_fortune_softens_a_mob_death_but_not_a_pvp_one() {
         50_000
             - world
                 .objects
-                .get_component::<crate::model::Player>(&CASTER)
+                .get_component::<Player>(&CASTER)
                 .map(|p| p.exp)
                 .unwrap_or(0)
     };
@@ -3229,7 +3126,7 @@ fn residence_death_fortune_softens_a_mob_death_but_not_a_pvp_one() {
     // Grant the *mob* reduction only.
     if let Some(m) = world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<model::components::StatModifiers>(&CASTER)
     {
         *m.mul.entry(Stat::ReduceExpLostByMob).or_insert(1.0) *= 0.88;
     }
@@ -3260,11 +3157,11 @@ fn shadow_sense_grants_its_accuracy_only_at_night() {
         SkillEffect::NightStatModify {
             stat: Stat::AccuracyCombat,
             amount: 3.0,
-            mode: crate::model::stats::StatModifierType::Diff,
+            mode: model::stats::StatModifierType::Diff,
         },
         "SHADOW_SENSE",
     );
-    sense.target_type = crate::model::skill::TargetType::Self_;
+    sense.target_type = TargetType::Self_;
     world.data.skill_data.insert_for_test(sense);
 
     let accuracy = |world: &World| stat_add(world, CASTER, Stat::AccuracyCombat);
@@ -3343,12 +3240,7 @@ fn an_undead_aura_spares_the_living_and_the_caster() {
     }
 
     let passes = |world: &World, oid: i32| {
-        crate::game_loop::skills::affect::passes_affect_object(
-            world,
-            CASTER,
-            oid,
-            crate::model::skill::AffectObject::UndeadRealEnemy,
-        )
+        affect::passes_affect_object(world, CASTER, oid, AffectObject::UndeadRealEnemy)
     };
 
     assert!(
@@ -3371,7 +3263,7 @@ fn the_others_target_type_refuses_the_caster_with_its_own_message() {
     let skills = dist::skills();
     assert_eq!(
         skills.get(426, 1).unwrap().target_type,
-        crate::model::skill::TargetType::Others,
+        TargetType::Others,
         "Battle Stance is an OTHERS skill, not an unparsed fallback"
     );
 }
@@ -3509,7 +3401,7 @@ fn an_elixir_honours_the_recoverable_ceiling() {
     // Noblesse Harmony's shape: heals may only reach 70 % of the pool.
     if let Some(m) = world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<model::components::StatModifiers>(&CASTER)
     {
         *m.mul.entry(Stat::MaxRecoverableHp).or_insert(1.0) *= 0.7;
     }
@@ -3563,23 +3455,21 @@ fn finishing_a_next_action_cast_starts_the_attack_intent() {
     add_test_npc(&mut world, mob, 20001, "Monster", 20, 60, 0, 0);
 
     let mut strike = cc_skill(9450, SkillEffect::Root, "ROOT");
-    strike.next_action = crate::model::skill::NextAction::Attack;
+    strike.next_action = model::skill::NextAction::Attack;
     world.data.skill_data.insert_for_test(strike.clone());
 
     let intent_target = |world: &World| {
         world
             .objects
-            .get_component::<crate::model::components::Intent>(&CASTER)
+            .get_component::<Intent>(&CASTER)
             .and_then(|i| match i.0 {
-                crate::model::PlayerIntent::Attack { target_object_id } => Some(target_object_id),
+                model::PlayerIntent::Attack { target_object_id } => Some(target_object_id),
                 _ => None,
             })
     };
     assert_eq!(intent_target(&world), None, "not attacking to begin with");
 
-    crate::game_loop::skills::cast::resume_action_after_cast_for_test(
-        &mut world, CASTER, mob, 9450, 1,
-    );
+    resume_action_after_cast_for_test(&mut world, CASTER, mob, 9450, 1);
 
     assert_eq!(
         intent_target(&world),
@@ -3618,14 +3508,14 @@ fn a_caster_shrugs_off_an_abnormal_its_own_cast_resists() {
     // Not casting: the stun lands.
     world.clear_forced_rolls();
     world.force_rolls([0; 8]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, victim, &stun);
+    effects::apply_skill_effects(&mut world, CASTER, victim, &stun);
     assert!(stunned(&world), "an idle target takes the stun");
 
     // Mid-ritual: shrugged off before any roll.
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, victim, 9452);
+    effects::handle_buff_expire(&mut world, victim, 9452);
     world.objects.add_components(
         &victim,
-        Casting(crate::model::CastState {
+        Casting(model::CastState {
             skill_id: 9451,
             skill_level: 1,
             skill_sub_level: 0,
@@ -3639,7 +3529,7 @@ fn a_caster_shrugs_off_an_abnormal_its_own_cast_resists() {
     );
     world.clear_forced_rolls();
     world.force_rolls([0; 8]);
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, victim, &stun);
+    effects::apply_skill_effects(&mut world, CASTER, victim, &stun);
     assert!(
         !stunned(&world),
         "mid-ritual the same stun is resisted outright"
@@ -3698,11 +3588,11 @@ fn an_end_effect_call_skill_lands_on_expiry() {
 
     let has = |world: &World, id: i32| has_buff(world, victim, id);
 
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, victim, &first);
+    effects::apply_skill_effects(&mut world, CASTER, victim, &first);
     assert!(has(&world, 9460), "the first stage is up");
     assert!(!has(&world, 9461), "the second has not fired yet");
 
-    crate::game_loop::skills::effects::handle_buff_expire(&mut world, victim, 9460);
+    effects::handle_buff_expire(&mut world, victim, 9460);
 
     assert!(!has(&world, 9460), "the first stage is gone");
     assert!(
@@ -3817,11 +3707,10 @@ fn a_hit_can_break_a_stun_but_only_on_the_one_in_fourteen_roll() {
     let _caster = ingame_caster(&mut world, CID, 3001, 0, 0);
     let _victim = ingame_caster(&mut world, VICTIM_CID, 3002, 40, 0);
 
-    let stunned =
-        |w: &World| crate::game_loop::abnormal::flags_of(w, 3002) & effect_flag::BLOCK_ACTIONS != 0;
+    let stunned = |w: &World| abnormal::flags_of(w, 3002) & effect_flag::BLOCK_ACTIONS != 0;
     let stun = |w: &mut World| {
         let skill = w.data.skill_data.get(STUN_ID, 1).expect("stun").clone();
-        crate::game_loop::skills::effects::apply_skill_effects(w, 3001, 3002, &skill);
+        effects::apply_skill_effects(w, 3001, 3002, &skill);
         assert!(stunned(w), "the victim is stunned to begin with");
     };
 
@@ -3874,8 +3763,8 @@ fn breaking_a_stun_leaves_other_block_actions_debuffs_alone() {
         .get(SLEEP_ID, 1)
         .expect("sleep")
         .clone();
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, 3002, &skill);
-    assert!(crate::game_loop::abnormal::flags_of(&world, 3002) & effect_flag::BLOCK_ACTIONS != 0);
+    effects::apply_skill_effects(&mut world, 3001, 3002, &skill);
+    assert!(abnormal::flags_of(&world, 3002) & effect_flag::BLOCK_ACTIONS != 0);
 
     // Force the *winning* roll every time: even then the sleep must survive,
     // because the filter is the abnormal type and not the flag.
@@ -3884,7 +3773,7 @@ fn breaking_a_stun_leaves_other_block_actions_debuffs_alone() {
         try_break_stun(&mut world, 3002);
     }
     assert!(
-        crate::game_loop::abnormal::flags_of(&world, 3002) & effect_flag::BLOCK_ACTIONS != 0,
+        abnormal::flags_of(&world, 3002) & effect_flag::BLOCK_ACTIONS != 0,
         "a sleep is not a stun and must not be shaken off"
     );
 }

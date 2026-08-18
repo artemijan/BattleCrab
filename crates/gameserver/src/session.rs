@@ -614,7 +614,7 @@ mod size_guards {
     /// bundle-sized field, not to pin the exact layout.
     #[test]
     fn client_session_stays_small() {
-        let size = std::mem::size_of::<ClientSession>();
+        let size = size_of::<ClientSession>();
         assert!(
             size <= 512,
             "ClientSession grew to {size} B — an enum costs its largest \

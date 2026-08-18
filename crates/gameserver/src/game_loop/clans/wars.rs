@@ -401,7 +401,7 @@ pub(crate) fn handle_request_surrender_pledge_war(world: &mut World, client_id: 
     let Some((clan_id, privs)) = crate::game_loop::guard::clan_and_privs(world, player) else {
         return;
     };
-    let player_name = crate::game_loop::helpers::player_name_or_empty(world, player);
+    let player_name = player_name_or_empty(world, player);
     if clan_id == 0 {
         return;
     }
@@ -606,8 +606,8 @@ pub(crate) fn clan_war_on_kill(world: &mut World, killer_oid: i32, victim_oid: i
         return;
     }
     // Java `Player.doDie`: `!isAcademyMember() && !pk.isAcademyMember()`.
-    if crate::game_loop::clans::academy::is_academy_member(world, killer_oid)
-        || crate::game_loop::clans::academy::is_academy_member(world, victim_oid)
+    if academy::is_academy_member(world, killer_oid)
+        || academy::is_academy_member(world, victim_oid)
     {
         return;
     }

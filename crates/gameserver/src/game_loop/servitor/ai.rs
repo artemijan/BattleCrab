@@ -336,7 +336,7 @@ pub(crate) fn handle_pet_action(
         return;
     };
     // `Pet.isUncontrollable()` — the hunger gauge is at 0.
-    if super::feeding::is_uncontrollable(world, pet_oid) {
+    if is_uncontrollable(world, pet_oid) {
         send_sm_and_action_failed(
             world,
             client_id,
@@ -398,7 +398,7 @@ pub(crate) fn handle_pet_action(
 /// then `Pet.unSummon`.
 fn unsummon_pet(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32) {
     use crate::network::server_packets::sm_ids;
-    if crate::game_loop::helpers::is_dead(world, pet_oid) {
+    if is_dead(world, pet_oid) {
         send_sm_and_action_failed(
             world,
             client_id,
@@ -416,7 +416,7 @@ fn unsummon_pet(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32)
         );
         return;
     }
-    if super::feeding::is_hungry(world, pet_oid) {
+    if is_hungry(world, pet_oid) {
         send_sm_and_action_failed(
             world,
             client_id,

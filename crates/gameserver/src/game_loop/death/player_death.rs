@@ -22,7 +22,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         // it is fetched and not read.
         let Some((_player, mut vitals)) = world
             .objects
-            .get_many_mut::<(&mut crate::model::Player, &mut Vitals)>(&player_oid)
+            .get_many_mut::<(&mut Player, &mut Vitals)>(&player_oid)
         else {
             return;
         };
@@ -58,10 +58,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
 
     // `Player.doDie`'s reputation block: a player killer takes the PvP/PK
     // consequences (counters, karma) for this death.
-    if world
-        .objects
-        .has_component::<crate::model::Player>(&killer_oid)
-    {
+    if world.objects.has_component::<Player>(&killer_oid) {
         crate::game_loop::pvp::on_kill_update_pvp_reputation(world, killer_oid, player_oid);
         // `Player.doDie`'s pvp/pk item reward (`Custom/PvpRewardItem.ini`),
         // paid to the killer and chosen by whether the victim was flagged. Its
@@ -75,7 +72,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // (or it vanishes on the disappear roll) and never scatters their bag.
     let was_cursed = world
         .objects
-        .get_component::<crate::model::Player>(&player_oid)
+        .get_component::<Player>(&player_oid)
         .is_some_and(|p| p.cursed_weapon_equipped_id != 0);
     if was_cursed {
         crate::game_loop::cursed_weapon::on_wielder_death(world, player_oid, killer_oid);
@@ -100,11 +97,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
             f.contains(crate::data::zone_data::ZoneKind::Pvp)
                 || f.contains(crate::data::zone_data::ZoneKind::Siege)
         });
-    if !in_free_death_zone
-        && world
-            .objects
-            .has_component::<crate::model::Player>(&killer_oid)
-    {
+    if !in_free_death_zone && world.objects.has_component::<Player>(&killer_oid) {
         crate::game_loop::clans::clan_war_on_kill(world, killer_oid, player_oid);
     }
     if !in_free_death_zone {
@@ -192,7 +185,7 @@ pub(crate) fn is_lucky(world: &World, player_oid: i32) -> bool {
     const LUCKY_SKILL_ID: i32 = 194;
     world
         .objects
-        .get_component::<crate::model::Player>(&player_oid)
+        .get_component::<Player>(&player_oid)
         .is_some_and(|p| p.level <= 9)
         && has_buff(world, player_oid, LUCKY_SKILL_ID)
 }
@@ -222,7 +215,7 @@ fn reduce_exp_lost_mul(world: &World, player_oid: i32, killer_oid: Option<i32>) 
     };
     world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&player_oid)
+        .get_component::<StatModifiers>(&player_oid)
         .map(|m| crate::model::finalize(m, stat, 1.0))
         .unwrap_or(1.0)
 }
@@ -250,10 +243,7 @@ pub(crate) fn apply_death_exp_penalty_ex(
         return;
     }
     let (level, exp) = {
-        let Some(p) = world
-            .objects
-            .get_component::<crate::model::Player>(&player_oid)
-        else {
+        let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
             return;
         };
         (p.level, p.exp)
@@ -279,7 +269,7 @@ pub(crate) fn apply_death_exp_penalty_ex(
     // a PK can be made to lose more (or less) than everyone else. 1 here.
     if world
         .objects
-        .get_component::<crate::model::Player>(&player_oid)
+        .get_component::<Player>(&player_oid)
         .is_some_and(|p| p.reputation < 0)
     {
         percent *= world.cfg.rates.rate_karma_exp_lost;
@@ -302,10 +292,7 @@ pub(crate) fn apply_death_exp_penalty_ex(
     }
 
     let new_exp = exp - lost;
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&player_oid)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.exp = new_exp;
         // Java keeps `_expBeforeDeath` and subtracts; the difference is the
         // only thing a resurrection reads, so record that directly.

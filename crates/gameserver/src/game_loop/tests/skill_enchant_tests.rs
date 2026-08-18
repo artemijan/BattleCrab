@@ -65,7 +65,7 @@ fn install_enchant_data(world: &mut World) {
 }
 
 /// A 3rd-class caster who knows the skill, with SP and reagents.
-fn enchanter(world: &mut World) -> tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes> {
+fn enchanter(world: &mut World) -> UnboundedReceiver<bytes::Bytes> {
     let out = ingame_caster(world, CID, CASTER, 0, 0);
     install_enchant_data(world);
     // The gate reads `FOURTH_CLASS_GROUP` off CategoryData; the fixture
@@ -81,7 +81,7 @@ fn enchanter(world: &mut World) -> tokio::sync::mpsc::UnboundedReceiver<bytes::B
         .insert_for_test("FOURTH_CLASS_GROUP", &[class_id]);
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&CASTER)
+        .get_component_mut::<SkillBook>(&CASTER)
         .unwrap()
         .0
         .insert(SKILL, 40);
@@ -90,9 +90,7 @@ fn enchanter(world: &mut World) -> tokio::sync::mpsc::UnboundedReceiver<bytes::B
     }
     {
         let World { objects, data, .. } = world;
-        let inv = objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&CASTER)
-            .unwrap();
+        let inv = objects.get_component_mut::<Inventory>(&CASTER).unwrap();
         inv.add_item(&data.item_data, 990_101, CODEX, 5);
         inv.add_item(&data.item_data, 990_102, ADENA, 100_000);
     }
@@ -119,7 +117,7 @@ fn sub_of(world: &World, oid: i32, skill: i32) -> i32 {
 fn count_of(world: &World, oid: i32, item: i32) -> i64 {
     world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .get_component::<Inventory>(&oid)
         .map(|i| i.count_of(item))
         .unwrap_or(0)
 }
@@ -127,11 +125,7 @@ fn count_of(world: &World, oid: i32, item: i32) -> i64 {
 fn enchant(world: &mut World, ty: i32, sub: i16, roll: i32) {
     world.clear_forced_rolls();
     world.force_roll(roll);
-    crate::game_loop::skills::enchant::handle_request_enchant_skill(
-        world,
-        CID,
-        &enchant_body(ty, SKILL, 40, sub),
-    );
+    enchant::handle_request_enchant_skill(world, CID, &enchant_body(ty, SKILL, 40, sub));
     world.clear_forced_rolls();
 }
 
@@ -156,7 +150,7 @@ fn a_successful_enchant_applies_and_casts_stronger() {
     let hp0 = world.objects.get_component::<Vitals>(&mob).unwrap().cur_hp;
     world.force_rolls([0, 0, 0, 0]);
     let plain = world.data.skill_data.get(SKILL, 40).unwrap().clone();
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, mob, &plain);
+    effects::apply_skill_effects(&mut world, CASTER, mob, &plain);
     world.clear_forced_rolls();
     let base_damage = hp0 - world.objects.get_component::<Vitals>(&mob).unwrap().cur_hp;
 
@@ -181,15 +175,7 @@ fn a_successful_enchant_applies_and_casts_stronger() {
     // The cast pipeline resolves the +1 variant: same tape, bigger hit.
     let hp1 = world.objects.get_component::<Vitals>(&mob).unwrap().cur_hp;
     world.force_rolls([0, 0, 0, 0]);
-    crate::game_loop::skills::cast::use_magic_on(
-        &mut world,
-        CID,
-        CASTER,
-        SKILL,
-        false,
-        false,
-        Some(mob),
-    );
+    use_magic_on(&mut world, CID, CASTER, SKILL, false, false, Some(mob));
     // The nuke has hit_time 0 → launch/finish next ticks.
     advance_ticks(&mut world, 12);
     world.clear_forced_rolls();
@@ -303,7 +289,7 @@ fn the_class_gate_refuses_lower_classes() {
     // No FOURTH_CLASS_GROUP membership registered for this class.
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&CASTER)
+        .get_component_mut::<SkillBook>(&CASTER)
         .unwrap()
         .0
         .insert(SKILL, 40);
@@ -328,8 +314,8 @@ fn enchants_survive_the_load_path() {
     let pkt = crate::network::enter_world::skill_list(
         &player.skills,
         &player.skill_enchants,
-        &crate::model::components::ClanSkills::default(),
-        &crate::model::components::OptionSkills::default(),
+        &model::components::ClanSkills::default(),
+        &model::components::OptionSkills::default(),
         &world.data,
     );
     // Entry layout: d passive, h level, h sub, d id, … — find our skill's id
@@ -401,7 +387,7 @@ fn enchant_rekeys_the_running_cooldown() {
         let mut map = std::collections::HashMap::new();
         map.insert(
             SKILL,
-            crate::model::SkillReuse {
+            model::SkillReuse {
                 skill_level: 40,
                 until_tick: until,
                 total_ms: 60_000,

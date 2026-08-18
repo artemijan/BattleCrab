@@ -1,8 +1,8 @@
 use super::*;
 use crate::game_loop::helpers::vitals_pair;
 use crate::game_loop::helpers::{
-    send_sm_bare_to_client, send_sm_bare_to_player, send_sm_to_client, send_sm_to_player,
-    send_to_client,
+    player_var_int, send_sm_bare_to_client, send_sm_bare_to_player, send_sm_to_client,
+    send_sm_to_player, send_to_client, set_player_var_int,
 };
 
 /// `Attackable.calculateOverhitExp` — the bonus XP a killing `<overHit>` blow
@@ -127,7 +127,7 @@ pub(crate) fn add_exp_and_sp(
     // stops you at `N - 1`.
     let reachable = if world
         .objects
-        .get_component::<crate::model::Player>(&player_oid)
+        .get_component::<Player>(&player_oid)
         .is_some_and(|p| p.class_index != 0)
     {
         world
@@ -141,10 +141,7 @@ pub(crate) fn add_exp_and_sp(
     let cap = world.data.experience.exp_for_level(reachable + 1) - 1;
     let sp_ceiling = world.cfg.character.sp_ceiling();
     let (old_level, new_exp) = {
-        let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&player_oid)
-        else {
+        let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else {
             return;
         };
         p.exp = (p.exp + exp.max(0)).min(cap);
@@ -198,7 +195,7 @@ pub(crate) fn add_exp_and_sp(
 fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
     let Some((reputation, level, cursed)) = world
         .objects
-        .get_component::<crate::model::Player>(&player_oid)
+        .get_component::<Player>(&player_oid)
         .map(|p| (p.reputation, p.level, p.cursed_weapon_equipped_id != 0))
     else {
         return;
@@ -218,10 +215,7 @@ fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
     // `Player.setReputation`'s ceiling (`Config.MAX_REPUTATION`, 0 here) — a
     // PK working their karma off stops at it rather than going positive.
     let max_reputation = world.cfg.pvp.max_reputation;
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&player_oid)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.reputation = (p.reputation + karma_lost).min(max_reputation);
     }
     // The karma flag and name colour other clients draw come off the
@@ -268,10 +262,7 @@ pub(crate) fn calculate_karma_lost(world: &World, level: i32, final_exp: f64) ->
 pub(crate) fn remove_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp: i64) {
     let max_level = world.data.experience.max_level as i32;
     let (old_level, new_exp) = {
-        let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&player_oid)
-        else {
+        let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else {
             return;
         };
         p.exp = (p.exp - exp.max(0)).max(0);
@@ -318,12 +309,7 @@ const LAST_PLEDGE_REPUTATION_LEVEL: &str = "LAST_PLEDGE_REPUTATION_LEVEL";
 /// goes out either. It is implemented rather than stubbed because the config
 /// is the only thing making it inert.
 fn add_reputation_to_clan_for_levels(world: &mut World, player_oid: i32, new_level: i32) {
-    let Some(clan_id) = world
-        .objects
-        .get_component::<crate::model::Player>(&player_oid)
-        .map(|p| p.clan_id)
-        .filter(|&id| id != 0)
-    else {
+    let Some(clan_id) = crate::game_loop::guard::clan_of(world, player_oid) else {
         return;
     };
     // "When a character from clan level 3 or above increases its level, CRP
@@ -331,10 +317,7 @@ fn add_reputation_to_clan_for_levels(world: &mut World, player_oid: i32, new_lev
     if world.clans.get(&clan_id).is_none_or(|c| c.level < 3) {
         return;
     }
-    let last_paid = world
-        .objects
-        .get_component::<crate::model::components::PlayerVariables>(&player_oid)
-        .map_or(0, |v| v.get_int(LAST_PLEDGE_REPUTATION_LEVEL, 0));
+    let last_paid = player_var_int(world, player_oid, LAST_PLEDGE_REPUTATION_LEVEL, 0);
     if last_paid >= new_level {
         return;
     }
@@ -344,22 +327,14 @@ fn add_reputation_to_clan_for_levels(world: &mut World, player_oid: i32, new_lev
         .map(|level| f.reputation_for_level(level))
         .sum();
     let multiplier = f.level_obtained_reputation_multiplier;
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::PlayerVariables>(&player_oid)
-    {
-        v.0.insert(
-            LAST_PLEDGE_REPUTATION_LEVEL.to_string(),
-            new_level.to_string(),
-        );
-    }
+    set_player_var_int(world, player_oid, LAST_PLEDGE_REPUTATION_LEVEL, new_level);
     if raw == 0 {
         return;
     }
     let reputation = (f64::from(raw) * multiplier).ceil() as i32;
     crate::game_loop::clans::add_clan_reputation(world, clan_id, reputation);
     // Java tells every online member what the clan just earned.
-    let msg = crate::network::server_packets::system_message_with(
+    let msg = server_packets::system_message_with(
         sm_ids::YOUR_CLAN_HAS_ADDED_S1_POINTS_TO_ITS_CLAN_REPUTATION,
         &[SmParam::Int(reputation)],
     );
@@ -384,10 +359,7 @@ pub(crate) fn level_for_exp(world: &World, exp: i64, max_level: i32) -> i32 {
 /// autoGet skills, broadcast the level-up flourish.
 pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     let leveled_up = {
-        let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&player_oid)
-        else {
+        let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else {
             return;
         };
         let up = new_level > p.level;
@@ -399,7 +371,7 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
         let data = &world.data;
         let Some((p, mut vitals, mut pvitals, base, mods, inventory, mut speeds, mut combat)) =
             world.objects.get_many_mut::<(
-                &mut crate::model::Player,
+                &mut Player,
                 &mut Vitals,
                 &mut PlayerVitals,
                 &BaseStats,
@@ -535,10 +507,7 @@ pub(crate) fn reward_skill_grants(
 /// notice.
 pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
     let (class_id, level, known, is_gm) = {
-        let Some(p) = world
-            .objects
-            .get_component::<crate::model::Player>(&player_oid)
-        else {
+        let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
             return;
         };
         let skills = world

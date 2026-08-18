@@ -13,11 +13,7 @@ const CID: u32 = 1;
 const ANTI_STRIDER: i32 = 4258;
 const MOUNT_STRIDER: u8 = 1;
 
-fn baium_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn baium_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for (id, kind) in [
         (BAIUM, "GrandBoss"),
@@ -37,10 +33,10 @@ fn baium_world() -> (
         id: ANTI_STRIDER,
         level: 1,
         abnormal_time: 60,
-        effects: vec![crate::model::skill::SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
-                stat: crate::model::stats::Stat::RunSpeed,
-                mode: crate::model::stats::StatModifierType::Diff,
+        effects: vec![model::skill::SkillEffect::StatModifier(
+            model::skill::StatModifierEffect {
+                stat: Stat::RunSpeed,
+                mode: model::stats::StatModifierType::Diff,
                 amount: -50.0,
                 ..Default::default()
             },
@@ -83,7 +79,7 @@ fn a_strider_rider_is_hindered() {
         .unwrap()
         .mount_type = MOUNT_STRIDER;
 
-    baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
+    crate::game_loop::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -98,7 +94,7 @@ fn an_unmounted_attacker_is_not_hindered() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
 
-    baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
+    crate::game_loop::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -126,7 +122,7 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
         .unwrap()
         .mount_type = MOUNT_STRIDER;
 
-    baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
+    crate::game_loop::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -134,7 +130,7 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
     while rx.try_recv().is_ok() {}
 
     // A second hit while it still holds must start no new cast.
-    baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
+    crate::game_loop::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
     let mut casts = 0;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&0x48) {
@@ -519,7 +515,7 @@ use crate::game_loop::baium::{BAIUM_STONE, BaiumWaker};
 fn insert_baium(world: &mut World, status: i32) {
     world.grand_bosses.insert(
         BAIUM,
-        crate::model::grand_boss::GrandBoss {
+        model::grand_boss::GrandBoss {
             boss_id: BAIUM,
             loc_x: 116_033,
             loc_y: 17_447,
@@ -634,7 +630,7 @@ fn the_final_beat_spawns_archangels_and_engages() {
     );
     world
         .objects
-        .add_components(&BAIUM_OID, crate::model::components::Immobilized);
+        .add_components(&BAIUM_OID, model::components::Immobilized);
     world
         .objects
         .add_components(&BAIUM_OID, BaiumWaker { player_oid: PLAYER });
@@ -646,7 +642,7 @@ fn the_final_beat_spawns_archangels_and_engages() {
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::Immobilized>(&BAIUM_OID),
+            .has_component::<model::components::Immobilized>(&BAIUM_OID),
         "Baium is free to move — his AI is back"
     );
     let hate = hate_of(&world, BAIUM_OID, PLAYER);
@@ -736,7 +732,7 @@ fn an_archangel_abandons_a_target_that_left_the_zone() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&601)
+            .get_component::<AggroList>(&601)
             .and_then(|a| a.0.get(&500))
             .is_some(),
         "engaged while inside"
@@ -748,7 +744,7 @@ fn an_archangel_abandons_a_target_that_left_the_zone() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&601)
+            .get_component::<AggroList>(&601)
             .and_then(|a| a.0.get(&500))
             .is_none(),
         "the departed player's hate entry is dropped"
@@ -975,7 +971,7 @@ fn the_lair_is_emptied_after_the_kill() {
     world.force_roll(0); // exit point 0
     world.force_roll(0); // x jitter
     world.force_roll(0); // y jitter
-    baium::handle_clear_zone(&mut world);
+    baium::clear_zone(&mut world);
 
     assert_eq!(npc_count(&mut world, TELE_CUBE), 0, "the cube despawned");
     let p = world.objects.get_component::<Position>(&PLAYER).unwrap();
@@ -984,7 +980,7 @@ fn the_lair_is_emptied_after_the_kill() {
 fn hate_of(world: &World, of: i32, to: i32) -> f64 {
     world
         .objects
-        .get_component::<crate::model::npc::AggroList>(&of)
+        .get_component::<AggroList>(&of)
         .and_then(|a| a.0.get(&to))
         .map(|h| h.hate)
         .unwrap_or(0.0)
@@ -995,7 +991,7 @@ fn insert_zone(world: &mut World) {
         id: 70051,
         name: "baium_no_restart".into(),
         kind: crate::data::zone_data::ZoneKind::NoRestart,
-        territory: crate::data::spawn_data::Territory {
+        territory: Territory {
             form: crate::data::spawn_data::ZoneForm::Cuboid {
                 x1: 113_000,
                 x2: 118_000,

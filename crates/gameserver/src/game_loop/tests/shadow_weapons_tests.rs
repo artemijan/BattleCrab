@@ -34,7 +34,7 @@ fn shadow_test_world() -> (World, db::CmdRx) {
 }
 
 fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
-    let mut w = commons::network::PacketWriter::new();
+    let mut w = PacketWriter::new();
     w.write_i32(list_id);
     w.write_i32(entry_id);
     w.write_i64(amount);
@@ -77,10 +77,10 @@ fn the_desk_offers_the_page_matching_the_coupons_held() {
         let (mut world, _db_rx) = shadow_test_world();
         let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
         if d > 0 {
-            super::items::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, d);
+            items::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, d);
         }
         if c > 0 {
-            super::items::add_inventory_item(&mut world, PLAYER_OID, COUPON_C, c);
+            items::add_inventory_item(&mut world, PLAYER_OID, COUPON_C, c);
         }
         drain(&mut rx);
 
@@ -118,7 +118,7 @@ fn the_desk_offers_the_page_matching_the_coupons_held() {
 fn a_coupon_buys_a_shadow_weapon_charged_with_its_duration() {
     let (mut world, _db_rx) = shadow_test_world();
     let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, 15);
+    items::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, 15);
     drain(&mut rx);
 
     talk_shadow_desk(&mut world);
@@ -166,7 +166,7 @@ fn a_coupon_buys_a_shadow_weapon_charged_with_its_duration() {
 fn the_c_grade_exchange_refuses_a_d_grade_coupon() {
     let (mut world, _db_rx) = shadow_test_world();
     let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, 15);
+    items::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, 15);
     drain(&mut rx);
 
     crate::game_loop::multisell::separate_and_send(
@@ -202,13 +202,10 @@ fn the_c_grade_exchange_refuses_a_d_grade_coupon() {
 
 /// Give the player a shadow weapon straight from the catalog and equip it.
 /// Returns its object id.
-fn equip_shadow_weapon(
-    world: &mut World,
-    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-) -> i32 {
-    let oid = super::items::add_inventory_item(world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD, 1)
+fn equip_shadow_weapon(world: &mut World, rx: &mut UnboundedReceiver<bytes::Bytes>) -> i32 {
+    let oid = items::add_inventory_item(world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD, 1)
         .expect("granted")[0];
-    super::items::use_equipable_item(world, 1, PLAYER_OID, oid);
+    items::use_equipable_item(world, 1, PLAYER_OID, oid);
     drain(rx);
     oid
 }
@@ -261,7 +258,7 @@ fn a_worn_shadow_weapon_burns_one_mana_per_minute() {
 fn an_unworn_shadow_weapon_does_not_burn_mana() {
     let (mut world, _db_rx) = shadow_test_world();
     let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD, 1);
+    items::add_inventory_item(&mut world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD, 1);
     drain(&mut rx);
 
     advance_world(
@@ -384,20 +381,20 @@ fn a_shadow_weapon_cannot_be_crystallized() {
     world.data.item_data.insert_for_test(template);
 
     let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
-    let item_oid = super::items::add_inventory_item(&mut world, PLAYER_OID, BASTARD_SWORD, 1)
-        .expect("granted")[0];
+    let item_oid =
+        items::add_inventory_item(&mut world, PLAYER_OID, BASTARD_SWORD, 1).expect("granted")[0];
     // The Crystallize skill above the D-grade requirement, so only the shadow
     // guard can refuse this.
     world.objects.add_components(
         &PLAYER_OID,
-        crate::model::components::SkillBook(std::collections::HashMap::from([(248, 5)])),
+        SkillBook(std::collections::HashMap::from([(248, 5)])),
     );
     drain(&mut rx);
 
-    let mut w = commons::network::PacketWriter::new();
+    let mut w = PacketWriter::new();
     w.write_i32(item_oid);
     w.write_i64(1);
-    super::items::handle_request_crystallize_item(&mut world, 1, &w.into_bytes());
+    items::handle_request_crystallize_item(&mut world, 1, &w.into_bytes());
 
     assert_eq!(
         item_count(&world, PLAYER_OID, BASTARD_SWORD),
@@ -429,7 +426,7 @@ fn each_equip_spends_one_point_and_taking_it_off_spends_none() {
     );
 
     // Off again — Java's unequip branch never reaches `decreaseMana`.
-    super::items::use_equipable_item(&mut world, 1, PLAYER_OID, item_oid);
+    items::use_equipable_item(&mut world, 1, PLAYER_OID, item_oid);
     drain(&mut rx);
     assert_eq!(
         mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
@@ -438,7 +435,7 @@ fn each_equip_spends_one_point_and_taking_it_off_spends_none() {
     );
 
     // …and back on: one more point, not two.
-    super::items::use_equipable_item(&mut world, 1, PLAYER_OID, item_oid);
+    items::use_equipable_item(&mut world, 1, PLAYER_OID, item_oid);
     drain(&mut rx);
     assert_eq!(
         mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
@@ -461,7 +458,7 @@ fn refreshing_a_worn_shadow_weapon_spends_no_mana() {
 
     // Exactly what `enchant::apply_success` does to a worn item.
     for _ in 0..3 {
-        super::items::finish_equip_change(&mut world, 1, PLAYER_OID, &[item_oid]);
+        items::finish_equip_change(&mut world, 1, PLAYER_OID, &[item_oid]);
     }
     drain(&mut rx);
 

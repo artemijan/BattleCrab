@@ -68,10 +68,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
         let player_oid = crate::game_loop::pvp::acting_player(world, dealer_oid);
         // Only players earn. A summon resolves to its owner; a mob to itself,
         // which is not a player and so is skipped as before.
-        if !world
-            .objects
-            .has_component::<crate::model::Player>(&player_oid)
-        {
+        if !world.objects.has_component::<Player>(&player_oid) {
             continue;
         }
         // Range is measured from the **earner**, as Java does — a pet fighting
@@ -119,7 +116,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
     let looter = max_dealer.map(|(id, _)| id).or_else(|| {
         world
             .objects
-            .has_component::<crate::model::Player>(&killer_oid)
+            .has_component::<Player>(&killer_oid)
             .then_some(killer_oid)
     });
     if let Some(looter) = looter {
@@ -242,10 +239,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
             .map(|r| r.0);
         let Some(party_id) = party_id else {
             // Solo branch (unchanged from G9).
-            let Some(p) = world
-                .objects
-                .get_component::<crate::model::Player>(&player_oid)
-            else {
+            let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
                 continue;
             };
             let Some(pregion) = region_cell_of(world, player_oid) else {
@@ -318,7 +312,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
                 m,
                 world
                     .objects
-                    .get_component::<crate::model::Player>(&m)
+                    .get_component::<Player>(&m)
                     .map(|p| p.level)
                     .unwrap_or(0),
             ));
@@ -436,10 +430,7 @@ fn roll_drops(
     killer_oid: i32,
     champion: bool,
 ) -> Vec<(i32, i64)> {
-    let Some(killer) = world
-        .objects
-        .get_component::<crate::model::Player>(&killer_oid)
-    else {
+    let Some(killer) = world.objects.get_component::<Player>(&killer_oid) else {
         return Vec::new();
     };
     let killer_level = killer.level;
@@ -695,10 +686,7 @@ fn roll_spoil_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<
     if t.drop_list_spoil.is_empty() {
         return Vec::new();
     }
-    let Some(killer) = world
-        .objects
-        .get_component::<crate::model::Player>(&killer_oid)
-    else {
+    let Some(killer) = world.objects.get_component::<Player>(&killer_oid) else {
         return Vec::new();
     };
     let level_diff = (t.level - killer.level) as f64;
@@ -772,10 +760,10 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
             &[SmParam::Long(count)],
         );
     } else {
-        crate::game_loop::helpers::send_to_client(
+        send_to_client(
             world,
             client_id,
-            crate::network::server_packets::obtained_item_sm(item_id, count),
+            server_packets::obtained_item_sm(item_id, count),
         );
     }
     // Java `Player.addItem` funnels through `PlayerInventory.addItem` →
@@ -826,7 +814,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
         let pk = crate::game_loop::pvp::acting_player(world, killer_oid);
         let vc = world
             .objects
-            .get_component::<crate::model::Player>(&victim_oid)
+            .get_component::<Player>(&victim_oid)
             .map(|p| (p.reputation, p.clan_id));
         let kc = clan_of_or_zero(world, pk);
         if let Some((rep, victim_clan)) = vc
@@ -836,9 +824,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
             return;
         }
     }
-    let killer_is_player = world
-        .objects
-        .has_component::<crate::model::Player>(&killer_oid);
+    let killer_is_player = world.objects.has_component::<Player>(&killer_oid);
     // Arena deaths cost nothing when another player did it.
     if killer_is_player
         && world
@@ -848,10 +834,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
     {
         return;
     }
-    let Some(victim) = world
-        .objects
-        .get_component::<crate::model::Player>(&victim_oid)
-    else {
+    let Some(victim) = world.objects.get_component::<Player>(&victim_oid) else {
         return;
     };
     // `!isGM() || Config.KARMA_DROP_GM` — a GM's corpse drops only when the
@@ -931,7 +914,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
         // through the snapshot rather than read off the template — 295 shadow
         // items are reachable on this chronicle, and without this a Shadow
         // weapon scattered on a karma death.
-        if item_id == item_data::ADENA_ID
+        if item_id == ADENA_ID
             || t.is_quest_item
             || t.type2 == item_data::TYPE2_QUEST
             || !t.is_dropable()

@@ -53,11 +53,7 @@ fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTem
     }
 }
 
-fn melee_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn melee_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     // Real geometry: a polearm reaches 66 with a 120° arc; a sword 40/120.
     world
@@ -156,7 +152,7 @@ fn dual_weapon_strikes_twice_with_independent_rolls() {
     // Per hit: miss(1000), shield(100)×2, crit(100), random-damage. Hit 1
     // crits (roll 0), hit 2 doesn't (roll 99); everything else identical.
     world.force_rolls([0, 99, 99, 0, 0, 0, 99, 99, 99, 0]);
-    crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
+    combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
     world.clear_forced_rolls();
     let hits = attack_hits(&drain(&mut out));
 
@@ -181,7 +177,7 @@ fn single_weapon_strikes_once() {
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 40, 0, 0);
     drain(&mut out);
 
-    crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
+    combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
     assert_eq!(attack_hits(&drain(&mut out)).len(), 1);
 }
 
@@ -196,7 +192,7 @@ fn polearm_without_mastery_hits_one_target() {
     add_test_npc(&mut world, NPC_OID + 1, 20001, "Monster", 5, 50, 0, 0);
     drain(&mut out);
 
-    crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
+    combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
     assert_eq!(
         attack_hits(&drain(&mut out)).len(),
         1,
@@ -225,7 +221,7 @@ fn polearm_with_mastery_sweeps_neighbours() {
         .heading = 0;
     drain(&mut out);
 
-    crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
+    combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
     let hits = attack_hits(&drain(&mut out));
     let targets: Vec<i32> = hits.iter().map(|(t, _)| *t).collect();
 
@@ -268,7 +264,7 @@ fn sweep_is_capped_by_attack_count() {
         .heading = 0;
     drain(&mut out);
 
-    crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
+    combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
     assert_eq!(
         attack_hits(&drain(&mut out)).len(),
         2,
@@ -293,7 +289,7 @@ fn sweep_respects_the_attack_angle() {
         .heading = 0; // facing +x
     drain(&mut out);
 
-    crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
+    combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
     let targets: Vec<i32> = attack_hits(&drain(&mut out))
         .iter()
         .map(|(t, _)| *t)
@@ -333,7 +329,7 @@ fn focus_attack_gives_up_the_polearm_sweep() {
         .insert(Stat::PhysicalPolearmTargetSingle, 1.0);
     drain(&mut out);
 
-    crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
+    combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
     let hits = attack_hits(&drain(&mut out));
     let targets: Vec<i32> = hits.iter().map(|(t, _)| *t).collect();
 

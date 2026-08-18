@@ -55,7 +55,7 @@ impl ActionData {
         for event in xml::events(&content) {
             match event {
                 Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"action" => {
-                    let attr = |key: &[u8]| super::xml::attr_str(&e, key);
+                    let attr = |key: &[u8]| xml::attr_str(&e, key);
                     let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
                         continue;
                     };

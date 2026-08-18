@@ -140,17 +140,17 @@ fn champion_stat_multipliers_scale_attack_but_not_max_hp() {
     t.base_hp_max = 1000.0;
     world.data.npc_data.insert_for_test(t.clone());
 
-    let plain = crate::model::npc_finalized_stats(
+    let plain = model::npc_finalized_stats(
         &world.data,
         &t,
         &Buffs::default(),
-        crate::model::NpcStatMods::default(),
+        model::NpcStatMods::default(),
     );
-    let champ = crate::model::npc_finalized_stats(
+    let champ = model::npc_finalized_stats(
         &world.data,
         &t,
         &Buffs::default(),
-        crate::model::NpcStatMods::of(&world.cfg, true, false),
+        model::NpcStatMods::of(&world.cfg, true, false),
     );
 
     assert!(
@@ -187,8 +187,8 @@ fn a_stat_recompute_keeps_the_champion_multipliers() {
     t.base_p_atk = 100.0;
     world.data.npc_data.insert_for_test(t.clone());
 
-    let mods = crate::model::NpcStatMods::of(&world.cfg, true, false);
-    let before = crate::model::npc_finalized_stats(&world.data, &t, &Buffs::default(), mods);
+    let mods = model::NpcStatMods::of(&world.cfg, true, false);
+    let before = model::npc_finalized_stats(&world.data, &t, &Buffs::default(), mods);
 
     let mut combat = before.0;
     let mut speeds = before.1;
@@ -199,7 +199,7 @@ fn a_stat_recompute_keeps_the_champion_multipliers() {
         cur_mp: before.3,
         dead: false,
     };
-    crate::model::recompute_npc_stats_from_buffs(
+    model::recompute_npc_stats_from_buffs(
         &world.data,
         &t,
         &Buffs::default(),
@@ -230,7 +230,7 @@ fn incoming_damage_is_divided_by_champion_hp() {
     let full = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
 
     // Plain mob first: 50 damage removes 50 HP.
-    crate::game_loop::combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, false);
+    combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, false);
     let plain_after = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
     assert!(
         (full - plain_after - 50.0).abs() < 0.001,
@@ -243,7 +243,7 @@ fn incoming_damage_is_divided_by_champion_hp() {
         .get_component_mut::<Npc>(&MOB)
         .unwrap()
         .champion = true;
-    crate::game_loop::combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, false);
+    combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, false);
     let champ_after = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
     assert!(
         (plain_after - champ_after - 5.0).abs() < 0.001,
@@ -268,7 +268,7 @@ fn the_damage_divisor_respects_the_master_gate() {
         .champion = true;
 
     let before = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
-    crate::game_loop::combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, false);
+    combat::npc_receive_damage(&mut world, MOB, KILLER, 50.0, false);
     let after = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
     assert!(
         (before - after - 50.0).abs() < 0.001,
@@ -291,7 +291,7 @@ fn a_zero_champion_hp_disables_the_division() {
         .champion = true;
 
     let before = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
-    crate::game_loop::combat::npc_receive_damage(&mut world, MOB, KILLER, 30.0, false);
+    combat::npc_receive_damage(&mut world, MOB, KILLER, 30.0, false);
     let after = world.objects.get_component::<Vitals>(&MOB).unwrap().cur_hp;
     assert!(
         (before - after - 30.0).abs() < 0.001 && after.is_finite(),
@@ -349,16 +349,9 @@ fn npc_info_carries_the_red_team_only_with_the_aura_on() {
     add_test_npc(&mut world, MOB, 90_020, "Monster", 40, 0, 0, 0);
 
     let build = |world: &World| {
-        let v = crate::model::npc::NpcView::of(&world.objects, MOB).expect("a live mob");
+        let v = model::npc::NpcView::of(&world.objects, MOB).expect("a live mob");
         let t = v.npc.template(world).expect("its template");
-        crate::network::server_packets::npc_info(
-            &v,
-            t,
-            &world.cfg.npc,
-            &world.cfg.champion,
-            &[],
-            None,
-        )
+        server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &[], None)
     };
 
     let plain = build(&world);
@@ -414,16 +407,9 @@ fn npc_info_title_survives_with_the_show_npc_decorations_on() {
         .unwrap()
         .champion = true;
 
-    let v = crate::model::npc::NpcView::of(&world.objects, MOB).expect("a live mob");
+    let v = model::npc::NpcView::of(&world.objects, MOB).expect("a live mob");
     let t = v.npc.template(&world).expect("its template");
-    let pkt = crate::network::server_packets::npc_info(
-        &v,
-        t,
-        &world.cfg.npc,
-        &world.cfg.champion,
-        &[],
-        None,
-    );
+    let pkt = server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &[], None);
     assert!(
         contains_utf16(&pkt, "Champion Lv 40"),
         "the decorated branch prefixes CHAMP_TITLE onto \"Lv 40\""
@@ -459,15 +445,15 @@ fn champion_passive_stops_the_aggro_scan() {
     // The scan only runs once the spawn-calm counter has run out.
     world
         .objects
-        .get_component_mut::<crate::model::npc::NpcAi>(&MOB)
+        .get_component_mut::<NpcAi>(&MOB)
         .unwrap()
         .global_aggro = 0;
 
     // Aggressive and not a champion: hate is seeded.
-    crate::game_loop::ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
     let hated = world
         .objects
-        .get_component::<crate::model::npc::AggroList>(&MOB)
+        .get_component::<AggroList>(&MOB)
         .is_some_and(|a| !a.0.is_empty());
     assert!(hated, "an ordinary aggressive mob seeds hate on the player");
 
@@ -480,7 +466,7 @@ fn champion_passive_stops_the_aggro_scan() {
     // sabotage run caught it.)
     world
         .objects
-        .get_component_mut::<crate::model::npc::AggroList>(&MOB)
+        .get_component_mut::<AggroList>(&MOB)
         .unwrap()
         .0
         .clear();
@@ -490,18 +476,15 @@ fn champion_passive_stops_the_aggro_scan() {
         .unwrap()
         .champion = true;
     {
-        let ai = world
-            .objects
-            .get_component_mut::<crate::model::npc::NpcAi>(&MOB)
-            .unwrap();
+        let ai = world.objects.get_component_mut::<NpcAi>(&MOB).unwrap();
         ai.global_aggro = 0;
-        ai.intention = crate::model::npc::NpcIntention::Active;
+        ai.intention = NpcIntention::Active;
     }
-    crate::game_loop::ai::npc_ai_tick(&mut world);
+    ai::npc_ai_tick(&mut world);
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::AggroList>(&MOB)
+            .get_component::<AggroList>(&MOB)
             .is_some_and(|a| a.0.is_empty()),
         "ChampionPassive = True → a champion stands still until attacked"
     );
@@ -719,8 +702,7 @@ fn the_spawn_path_rolls_the_lottery_and_applies_the_multipliers() {
     t.base_p_atk = 100.0;
     world.data.npc_data.insert_for_test(t.clone());
 
-    let oid =
-        crate::model::npc::spawn_npc_at(&mut world, 90_500, 0, 0, 0, 0).expect("the mob spawned");
+    let oid = model::npc::spawn_npc_at(&mut world, 90_500, 0, 0, 0, 0).expect("the mob spawned");
     assert!(
         world
             .objects
@@ -734,11 +716,11 @@ fn the_spawn_path_rolls_the_lottery_and_applies_the_multipliers() {
         .get_component::<CombatStats>(&oid)
         .expect("its stats")
         .p_atk;
-    let plain = crate::model::npc_finalized_stats(
+    let plain = model::npc_finalized_stats(
         &world.data,
         &t,
         &Buffs::default(),
-        crate::model::NpcStatMods::default(),
+        model::NpcStatMods::default(),
     )
     .0
     .p_atk;
@@ -751,8 +733,8 @@ fn the_spawn_path_rolls_the_lottery_and_applies_the_multipliers() {
     // …and a zero frequency leaves the same spawn plain, so the assertion above
     // is reading the roll rather than an unconditional flag.
     world.cfg.champion.frequency = 0;
-    let plain_oid = crate::model::npc::spawn_npc_at(&mut world, 90_500, 0, 0, 0, 0)
-        .expect("the second mob spawned");
+    let plain_oid =
+        model::npc::spawn_npc_at(&mut world, 90_500, 0, 0, 0, 0).expect("the second mob spawned");
     assert!(
         !world
             .objects
@@ -797,19 +779,19 @@ fn npc_weapon_mastery_needs_the_template_weapon() {
     let mut bare = armed.clone();
     bare.rhand = 0;
 
-    let with_sword = crate::model::npc_finalized_stats(
+    let with_sword = model::npc_finalized_stats(
         &world.data,
         &armed,
         &Buffs::default(),
-        crate::model::NpcStatMods::default(),
+        model::NpcStatMods::default(),
     )
     .0
     .p_atk;
-    let barehanded = crate::model::npc_finalized_stats(
+    let barehanded = model::npc_finalized_stats(
         &world.data,
         &bare,
         &Buffs::default(),
-        crate::model::NpcStatMods::default(),
+        model::NpcStatMods::default(),
     )
     .0
     .p_atk;

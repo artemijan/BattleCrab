@@ -81,12 +81,12 @@ fn reset_world_chat_points(world: &mut World) {
     // is the whole persistence story.
     let online: Vec<i32> = world.in_game_player_oids().collect();
     for oid in online {
-        if let Some(v) = world
-            .objects
-            .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
-        {
-            v.set_int(crate::model::components::WORLD_CHAT_USED, 0);
-        }
+        super::helpers::set_player_var_int(
+            world,
+            oid,
+            crate::model::components::WORLD_CHAT_USED,
+            0,
+        );
         let left = super::chat::world_chat_points_left(world, oid);
         super::helpers::send_to_player(
             world,

@@ -539,7 +539,7 @@ pub(crate) fn update_pvp_flag(world: &mut World, object_id: i32, value: u8) {
         let Some(client_id) = client_for_player(world, viewer) else {
             continue;
         };
-        super::helpers::send_to_client(
+        send_to_client(
             world,
             client_id,
             server_packets::relation_changed(
@@ -775,10 +775,10 @@ pub(crate) fn pay_kill_reward(world: &mut World, killer_oid: i32, victim_oid: i3
         send_sm_to_player(
             world,
             killer_oid,
-            crate::network::server_packets::sm_ids::YOU_HAVE_OBTAINED_S2_S1,
+            server_packets::sm_ids::YOU_HAVE_OBTAINED_S2_S1,
             &[
-                crate::network::server_packets::SmParam::ItemName(item_id),
-                crate::network::server_packets::SmParam::Long(amount),
+                server_packets::SmParam::ItemName(item_id),
+                server_packets::SmParam::Long(amount),
             ],
         );
     }

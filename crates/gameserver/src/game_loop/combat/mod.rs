@@ -225,7 +225,7 @@ pub(crate) fn defence_crit_rate(world: &World, target_oid: i32) -> (f64, f64) {
 pub(crate) fn crit_rate_position_mul(
     world: &World,
     object_id: i32,
-    position: crate::model::movement::Position,
+    position: movement::Position,
 ) -> f64 {
     world
         .objects
@@ -244,7 +244,7 @@ pub(crate) fn crit_damage_auto(
     world: &World,
     attacker_oid: i32,
     target_oid: i32,
-    position: crate::model::movement::Position,
+    position: movement::Position,
 ) -> formulas::CritDamage {
     use crate::model::components::StatModifiers;
     use crate::model::stats::Stat;
@@ -332,10 +332,7 @@ pub(crate) fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
     let Some(base) = world.objects.get_component::<BaseStats>(&object_id) else {
         return (0.0, 0.0, 1.0);
     };
-    let con_bonus = world
-        .data
-        .stat_bonus
-        .bonus(crate::model::stats::BaseStat::Con, base.con);
+    let con_bonus = world.data.stat_bonus.bonus(BaseStat::Con, base.con);
     let shield = world
         .objects
         .get_component::<Inventory>(&object_id)

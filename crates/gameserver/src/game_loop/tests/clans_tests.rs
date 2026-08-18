@@ -86,7 +86,7 @@ fn clan_create_guards_and_success() {
     let clan_id = p.clan_id;
     assert_ne!(clan_id, 0);
     assert!(p.clan_leader);
-    assert_eq!(p.clan_privs, crate::model::clan::ALL_CLAN_PRIVILEGES);
+    assert_eq!(p.clan_privs, model::clan::ALL_CLAN_PRIVILEGES);
     let clan = &world.clans[&clan_id];
     assert_eq!(
         (clan.name.as_str(), clan.leader_id, clan.members.len()),
@@ -210,7 +210,7 @@ fn clan_roster_notifications_and_chat() {
     // A clan with A (leader, online) and B — installed directly; invites
     // are deferred past G11.
     let clan_id = 5000;
-    let member = |char_id: i32, name: &str| crate::model::clan::ClanMember {
+    let member = |char_id: i32, name: &str| model::clan::ClanMember {
         char_id,
         name: name.into(),
         level: 1,
@@ -225,7 +225,7 @@ fn clan_roster_notifications_and_chat() {
     };
     world.clans.insert(
         clan_id,
-        crate::model::clan::Clan {
+        Clan {
             id: clan_id,
             name: "Testers".into(),
             leader_id: 3001,
@@ -380,12 +380,12 @@ fn clan_warehouse_withdrawal_is_leader_only_at_the_shipped_setting() {
         .objects
         .get_component_mut::<Player>(&3001)
         .unwrap()
-        .clan_privs = crate::model::clan::ALL_CLAN_PRIVILEGES;
+        .clan_privs = model::clan::ALL_CLAN_PRIVILEGES;
     world
         .objects
         .get_component_mut::<Player>(&3002)
         .unwrap()
-        .clan_privs = crate::model::clan::CL_VIEW_WAREHOUSE;
+        .clan_privs = model::clan::CL_VIEW_WAREHOUSE;
 
     let opened = |world: &mut World, client: u32, oid: i32| {
         world.objects.remove_component::<ActiveWarehouse>(&oid);
@@ -471,7 +471,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
         .objects
         .get_component_mut::<Player>(&3001)
         .unwrap()
-        .clan_privs = crate::model::clan::ALL_CLAN_PRIVILEGES;
+        .clan_privs = model::clan::ALL_CLAN_PRIVILEGES;
     world
         .objects
         .get_component_mut::<Player>(&3002)
@@ -479,7 +479,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
         .clan_privs = 0;
 
     // Leader deposits 500 adena into the shared clan warehouse.
-    super::items::add_inventory_item(&mut world, 3001, 57, 500).unwrap();
+    items::add_inventory_item(&mut world, 3001, 57, 500).unwrap();
     let adena_oid = item_oid(&world, 3001, 57);
     warehouse::open_clan(&mut world, 1, 3001, false); // keeper bypass → active = clan
     let deposit = {
@@ -647,7 +647,7 @@ fn set_clan_level_updates_leader_pledge_class_and_rebroadcasts() {
     );
     drain(&mut a_rx);
 
-    crate::game_loop::clans::set_clan_level(&mut world, clan_id, 5);
+    clans::set_clan_level(&mut world, clan_id, 5);
     assert_eq!(
         world
             .objects
@@ -736,7 +736,7 @@ fn clan_advent_aura_tracks_leader_online_state() {
     let has_advent = |world: &World, oid: i32| has_buff(world, oid, 19009);
 
     // Leader logs in → the aura lands on every online member (leader + 3002).
-    crate::game_loop::clans::on_enter_world(&mut world, 1, 3001);
+    clans::on_enter_world(&mut world, 1, 3001);
     assert!(
         has_advent(&world, 3001),
         "leader gets Clan Advent on their own login"
@@ -747,7 +747,7 @@ fn clan_advent_aura_tracks_leader_online_state() {
     );
 
     // Leader logs out → the aura drops from the remaining online member.
-    crate::game_loop::clans::on_leave_world(&mut world, 3001, clan_id);
+    clans::on_leave_world(&mut world, 3001, clan_id);
     assert!(
         !has_advent(&world, 3002),
         "Clan Advent removed when the leader logs out"
@@ -757,7 +757,7 @@ fn clan_advent_aura_tracks_leader_online_state() {
     // login must NOT re-light the aura.
     world.clients.remove(&1);
     world.objects.despawn(&3001);
-    crate::game_loop::clans::on_enter_world(&mut world, 2, 3002);
+    clans::on_enter_world(&mut world, 2, 3002);
     assert!(
         !has_advent(&world, 3002),
         "no aura while the leader is offline"
@@ -836,7 +836,7 @@ fn the_profession_change_listener_honours_javas_leader_gate() {
     }
     let has_advent = |world: &World, oid: i32| has_buff(world, oid, 19009);
     let relight = |world: &mut World, oid: i32| {
-        crate::game_loop::clans::skills::reapply_clan_advent_on_profession_change(world, oid)
+        clans::skills::reapply_clan_advent_on_profession_change(world, oid)
     };
 
     // Leader online → a member's profession change re-lights the aura.
@@ -848,7 +848,7 @@ fn the_profession_change_listener_honours_javas_leader_gate() {
     );
 
     // Leader offline → it does not.
-    crate::game_loop::clans::skills::remove_clan_advent(&mut world, 3002);
+    clans::skills::remove_clan_advent(&mut world, 3002);
     world.clients.remove(&1);
     world.objects.despawn(&3001);
     relight(&mut world, 3002);
@@ -974,7 +974,7 @@ fn give_clan_skills_grants_gates_and_persists() {
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == id && x.passive))
     };
 
-    let count = crate::game_loop::clans::give_clan_skills(&mut world, clan_id, false);
+    let count = clans::give_clan_skills(&mut world, clan_id, false);
     assert_eq!(
         count, 2,
         "clan learns both level-3 pledge skills at clan level 8"
@@ -1023,7 +1023,7 @@ fn give_clan_skills_grants_gates_and_persists() {
     );
 
     // Dispersing the clan strips the clan skills from the (still-online) members.
-    crate::game_loop::clans::destroy_clan(&mut world, clan_id);
+    clans::destroy_clan(&mut world, clan_id);
     assert!(
         !clan_skill(&world, 3001, 370) && !clan_skill(&world, 3001, 371),
         "leader clan skills cleared on disperse"
@@ -1142,7 +1142,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
         ClanSkills(std::collections::HashMap::from([(590, 1)])),
     );
 
-    let count = crate::game_loop::clans::give_clan_skills(&mut world, clan_id, false);
+    let count = clans::give_clan_skills(&mut world, clan_id, false);
 
     // Residence skill purged from the clan and the member; real skill re-applied.
     assert!(
@@ -1190,9 +1190,9 @@ fn max_vitals_finalizers_apply_buff_modifiers() {
     let mp_base = t.base_mp_max(80) * world.data.stat_bonus.men_bonus(t.base_men);
     let cp_base = t.base_cp_max(80) * world.data.stat_bonus.con_bonus(t.base_con);
 
-    let hp = crate::model::calc_max_hp(&world.data, &t, 80, None, &mods);
-    let mp = crate::model::calc_max_mp(&world.data, &t, 80, None, &mods);
-    let cp = crate::model::calc_max_cp(&world.data, &t, 80, &mods);
+    let hp = model::calc_max_hp(&world.data, &t, 80, None, &mods);
+    let mp = model::calc_max_mp(&world.data, &t, 80, None, &mods);
+    let cp = model::calc_max_cp(&world.data, &t, 80, &mods);
     assert!(
         (hp - (1.5 * hp_base + 100.0)).abs() < 1e-6,
         "MaxHp = mul*base + add"
@@ -1201,7 +1201,7 @@ fn max_vitals_finalizers_apply_buff_modifiers() {
     assert!((cp - (1.2 * cp_base)).abs() < 1e-6, "MaxCp = mul*base");
     // Empty mods leave the base untouched (mul=1, add=0).
     let none = StatModifiers::default();
-    assert!((crate::model::calc_max_hp(&world.data, &t, 80, None, &none) - hp_base).abs() < 1e-6);
+    assert!((model::calc_max_hp(&world.data, &t, 80, None, &none) - hp_base).abs() < 1e-6);
 }
 
 /// The admin `//superhaste 4` case (Super Haste 7029 L4, a toggle): its
@@ -1224,7 +1224,7 @@ fn superhaste_maxmp_doubles_mp() {
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let base_mp = world.objects.get_component::<Vitals>(&3001).unwrap().max_mp;
 
-    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, 3001, &sh);
+    effects::apply_skill_effects(&mut world, 3001, 3001, &sh);
 
     let after = world.objects.get_component::<Vitals>(&3001).unwrap().max_mp;
     assert!(
@@ -1260,7 +1260,7 @@ fn passive_max_mp_skill_boosts_mp_at_login() {
     world.data.skill_data.insert_for_test(s);
 
     let t = world.data.player_templates.get(0).cloned().unwrap();
-    let base_mp = crate::model::calc_max_mp(&world.data, &t, 1, None, &StatModifiers::default());
+    let base_mp = model::calc_max_mp(&world.data, &t, 1, None, &StatModifiers::default());
 
     let mut chr = dummy_char(7001, "Mage");
     chr.skills = vec![(9001, 1, 0)];
@@ -1346,15 +1346,12 @@ fn clan_skills_move_max_hp_mp_cp() {
             .get(p.class_id)
             .cloned()
             .unwrap();
-        let inv = world
-            .objects
-            .get_component::<crate::model::inventory::Inventory>(&3001)
-            .unwrap();
+        let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
         let none = StatModifiers::default();
         (
-            crate::model::calc_max_hp(&world.data, &t, p.level, Some(inv), &none),
-            crate::model::calc_max_mp(&world.data, &t, p.level, Some(inv), &none),
-            crate::model::calc_max_cp(&world.data, &t, p.level, &none),
+            model::calc_max_hp(&world.data, &t, p.level, Some(inv), &none),
+            model::calc_max_mp(&world.data, &t, p.level, Some(inv), &none),
+            model::calc_max_cp(&world.data, &t, p.level, &none),
         )
     };
 
@@ -1405,7 +1402,7 @@ fn clan_skills_move_max_hp_mp_cp() {
         .unwrap()
         .clan_id = clan_id;
 
-    crate::game_loop::clans::give_clan_skills(&mut world, clan_id, false);
+    clans::give_clan_skills(&mut world, clan_id, false);
 
     let v = *world.objects.get_component::<Vitals>(&3001).unwrap();
     let pv = *world.objects.get_component::<PlayerVitals>(&3001).unwrap();
@@ -1495,14 +1492,14 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
     };
 
     // Level 4: below the siege min level — the leader gets no siege skills.
-    crate::game_loop::clans::on_enter_world(&mut world, 1, 3001);
+    clans::on_enter_world(&mut world, 1, 3001);
     assert!(
         !has(&world, 3001, 247),
         "no siege skills below clan level 5"
     );
 
     // Reaching level 5 grants the three core siege skills to the online leader.
-    crate::game_loop::clans::set_clan_level(&mut world, clan_id, 5);
+    clans::set_clan_level(&mut world, clan_id, 5);
     for id in [247, 19034, 19035] {
         assert!(
             has(&world, 3001, id),
@@ -1515,7 +1512,7 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
         "Outpost skills need a castle"
     );
     // A regular member never gets siege skills.
-    crate::game_loop::clans::on_enter_world(&mut world, 2, 3002);
+    clans::on_enter_world(&mut world, 2, 3002);
     assert!(
         !has(&world, 3002, 247),
         "non-leader member gets no siege skills"
@@ -1523,7 +1520,7 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
 
     // Owning a castle adds the two Outpost skills on the leader's next login.
     world.clans.get_mut(&clan_id).unwrap().castle_id = 3;
-    crate::game_loop::clans::on_enter_world(&mut world, 1, 3001);
+    clans::on_enter_world(&mut world, 1, 3001);
     assert!(
         has(&world, 3001, 844) && has(&world, 3001, 845),
         "castle owner gets Outpost skills"
@@ -1608,7 +1605,7 @@ fn clan_skills_reapply_on_member_login() {
         .clan_id = clan_id;
 
     // Simulate the leader's login → clan skills re-applied from the clan.
-    crate::game_loop::clans::on_enter_world(&mut world, 1, 3001);
+    clans::on_enter_world(&mut world, 1, 3001);
     assert!(
         world
             .objects
@@ -1620,7 +1617,7 @@ fn clan_skills_reapply_on_member_login() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&3001)
+            .get_component::<SkillBook>(&3001)
             .is_some_and(|b| !b.0.contains_key(&370)),
         "clan skill is transient — never in the persisted SkillBook"
     );
@@ -1750,7 +1747,7 @@ fn clan_recruit_board_search() {
 /// the members' Player clan fields — the fixture every lifecycle test starts
 /// from.
 fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
-    let cm = |char_id: i32| crate::model::clan::ClanMember {
+    let cm = |char_id: i32| model::clan::ClanMember {
         char_id,
         name: format!("P{char_id}"),
         level: 1,
@@ -1765,7 +1762,7 @@ fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
     };
     world.clans.insert(
         clan_id,
-        crate::model::clan::Clan {
+        Clan {
             id: clan_id,
             name: format!("Clan{clan_id}"),
             leader_id: member_oids[0],
@@ -1804,7 +1801,7 @@ fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
             p.clan_id = clan_id;
             p.clan_leader = i == 0;
             p.clan_privs = if i == 0 {
-                crate::model::clan::ALL_CLAN_PRIVILEGES
+                model::clan::ALL_CLAN_PRIVILEGES
             } else {
                 0
             };
@@ -1912,7 +1909,7 @@ fn clan_invite_guards_decline_and_accept() {
 
     // Clan full (level 1 main pledge caps at 15).
     for i in 0..14 {
-        let cm = crate::model::clan::ClanMember {
+        let cm = model::clan::ClanMember {
             char_id: 8000 + i,
             name: format!("F{i}"),
             level: 1,
@@ -1947,16 +1944,8 @@ fn clan_invite_guards_decline_and_accept() {
         pkts.iter()
             .any(|p| p[0] == server_packets::opcodes::ASK_JOIN_PLEDGE)
     );
-    assert!(
-        world
-            .objects
-            .has_component::<crate::model::components::PendingRequest>(&3001)
-    );
-    assert!(
-        world
-            .objects
-            .has_component::<crate::model::components::PendingRequest>(&3002)
-    );
+    assert!(world.objects.has_component::<PendingRequest>(&3001));
+    assert!(world.objects.has_component::<PendingRequest>(&3002));
 
     // A second invite while the slot is busy → "on another task".
     clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
@@ -1975,16 +1964,8 @@ fn clan_invite_guards_decline_and_accept() {
             &server_packets::sm_ids::S1_DID_NOT_RESPOND_INVITATION_TO_THE_CLAN_HAS_BEEN_CANCELLED
         )
     );
-    assert!(
-        !world
-            .objects
-            .has_component::<crate::model::components::PendingRequest>(&3001)
-    );
-    assert!(
-        !world
-            .objects
-            .has_component::<crate::model::components::PendingRequest>(&3002)
-    );
+    assert!(!world.objects.has_component::<PendingRequest>(&3001));
+    assert!(!world.objects.has_component::<PendingRequest>(&3002));
 
     // Accept: the join burst.
     world
@@ -2074,7 +2055,7 @@ fn clan_withdraw_and_oust() {
     );
 
     // A member in combat cannot withdraw / be dismissed.
-    super::combat::refresh_attack_stance(&mut world, 3002);
+    combat::refresh_attack_stance(&mut world, 3002);
     clans::handle_request_withdrawal_pledge(&mut world, 2);
     assert!(
         ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
@@ -2134,7 +2115,7 @@ fn clan_withdraw_and_oust() {
         .get_mut(&5000)
         .unwrap()
         .members
-        .push(crate::model::clan::ClanMember {
+        .push(model::clan::ClanMember {
             char_id: 3005,
             name: "P3005".into(),
             level: 1,
@@ -2311,7 +2292,7 @@ fn clan_level_up_ladder() {
     }
     world
         .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+        .get_component_mut::<Inventory>(&3001)
         .unwrap()
         .add_item(&world.data.item_data, 900_001, 57, 200_000);
     bypass(&mut world, 1);
@@ -2350,7 +2331,7 @@ fn clan_level_up_ladder() {
     }
     world
         .objects
-        .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+        .get_component_mut::<Inventory>(&3001)
         .unwrap()
         .add_item(&world.data.item_data, 900_002, 1419, 150);
     bypass(&mut world, 1);
@@ -2491,7 +2472,7 @@ fn pledge_skill_learning_spends_reputation() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::ClanSkills>(&3002)
+            .get_component::<model::components::ClanSkills>(&3002)
             .is_some_and(|c| c.0.get(&370) == Some(&1))
     );
 
@@ -2541,7 +2522,7 @@ fn rank_privs_edit_and_refresh() {
     );
 
     // The leader stores rank 5 → the online grade-5 member gets the mask.
-    let privs = crate::model::clan::CL_JOIN_CLAN | crate::model::clan::CL_VIEW_WAREHOUSE;
+    let privs = model::clan::CL_JOIN_CLAN | model::clan::CL_VIEW_WAREHOUSE;
     clans::handle_request_pledge_power(&mut world, 1, &pledge_power_body(5, 2, Some(privs)));
     assert_eq!(world.clans[&5000].rank_privs_of(5), privs);
     assert_eq!(
@@ -2566,7 +2547,7 @@ fn rank_privs_edit_and_refresh() {
     clans::handle_request_pledge_power(&mut world, 1, &pledge_power_body(9, 2, Some(-1)));
     assert_eq!(
         world.clans[&5000].rank_privs_of(9),
-        crate::model::clan::RANK9_PRIVS_MASK
+        model::clan::RANK9_PRIVS_MASK
     );
 
     // The grade list answers all 9 ranks.
@@ -2706,7 +2687,7 @@ fn enter_world_derives_privs_from_rank_table() {
     let l = world.objects.get_component::<Player>(&3001).unwrap();
     assert_eq!(
         (l.clan_privs, l.power_grade),
-        (crate::model::clan::ALL_CLAN_PRIVILEGES, 1)
+        (model::clan::ALL_CLAN_PRIVILEGES, 1)
     );
     let p = world.objects.get_component::<Player>(&3002).unwrap();
     assert_eq!((p.clan_privs, p.power_grade), (0x0C, 5));
@@ -2783,7 +2764,7 @@ fn pad_clan(world: &mut World, clan_id: i32, to: usize) {
     let c = world.clans.get_mut(&clan_id).unwrap();
     let mut i = 0;
     while c.members.len() < to {
-        c.members.push(crate::model::clan::ClanMember {
+        c.members.push(model::clan::ClanMember {
             char_id: 90_000 + clan_id + i,
             name: format!("Pad{clan_id}x{i}"),
             level: 40,
@@ -2856,10 +2837,7 @@ fn clan_war_declare_and_mutual() {
     // Declare: a BLOOD_DECLARATION war with both sides' messages.
     clans::handle_request_start_pledge_war(&mut world, 1, &name_body("Clan5001"));
     let war = clans::war_between(&world, 5000, 5001).expect("war created");
-    assert_eq!(
-        war.state,
-        crate::model::clan::ClanWarState::BloodDeclaration
-    );
+    assert_eq!(war.state, model::clan::ClanWarState::BloodDeclaration);
     assert_eq!(war.attacker_id, 5000);
     let a_pkts = drain(&mut a_rx);
     assert!(
@@ -2897,7 +2875,7 @@ fn clan_war_declare_and_mutual() {
     // The attacked side declares back → MUTUAL.
     clans::handle_request_start_pledge_war(&mut world, 2, &name_body("Clan5000"));
     let war = clans::war_between(&world, 5000, 5001).expect("war kept");
-    assert_eq!(war.state, crate::model::clan::ClanWarState::Mutual);
+    assert_eq!(war.state, model::clan::ClanWarState::Mutual);
     assert!(
         ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CLAN_WAR_STARTED_WITH_CLAN_S1)
@@ -2931,10 +2909,10 @@ fn clan_war_kills_drive_state_and_reputation() {
     let mut b_rx = ingame_player(&mut world, 2, 3003, 0, 0, 0); // attacked clan member
     install_clan(&mut world, 5000, &[3001]);
     install_clan(&mut world, 5001, &[3003]);
-    world.clan_wars.push(crate::model::clan::ClanWar {
+    world.clan_wars.push(model::clan::ClanWar {
         attacker_id: 5000,
         attacked_id: 5001,
-        state: crate::model::clan::ClanWarState::BloodDeclaration,
+        state: model::clan::ClanWarState::BloodDeclaration,
         winner_id: 0,
         start_time: 1,
         end_time: 0,
@@ -2950,7 +2928,7 @@ fn clan_war_kills_drive_state_and_reputation() {
     let war = clans::war_between(&world, 5000, 5001).unwrap();
     assert_eq!(
         (war.state, war.attacked_kills),
-        (crate::model::clan::ClanWarState::BloodDeclaration, 4)
+        (model::clan::ClanWarState::BloodDeclaration, 4)
     );
     assert!(
         ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
@@ -2961,7 +2939,7 @@ fn clan_war_kills_drive_state_and_reputation() {
     clans::clan_war_on_kill(&mut world, 3003, 3001);
     assert_eq!(
         clans::war_between(&world, 5000, 5001).unwrap().state,
-        crate::model::clan::ClanWarState::Mutual
+        model::clan::ClanWarState::Mutual
     );
     assert!(
         ids_after_opcode(&drain(&mut b_rx), server_packets::opcodes::SYSTEM_MESSAGE)
@@ -3009,10 +2987,10 @@ fn clan_war_stop_surrender_timeout() {
     let mut b_rx = ingame_player(&mut world, 2, 3003, 0, 0, 0);
     install_clan(&mut world, 5000, &[3001]);
     install_clan(&mut world, 5001, &[3003]);
-    let mutual_war = || crate::model::clan::ClanWar {
+    let mutual_war = || model::clan::ClanWar {
         attacker_id: 5000,
         attacked_id: 5001,
-        state: crate::model::clan::ClanWarState::Mutual,
+        state: model::clan::ClanWarState::Mutual,
         winner_id: 0,
         start_time: 1,
         end_time: 0,
@@ -3062,14 +3040,14 @@ fn clan_war_stop_surrender_timeout() {
 
     // Surrender: refused during BLOOD_DECLARATION, accepted in MUTUAL.
     let mut blood = mutual_war();
-    blood.state = crate::model::clan::ClanWarState::BloodDeclaration;
+    blood.state = model::clan::ClanWarState::BloodDeclaration;
     world.clan_wars.push(blood);
     clans::handle_request_surrender_pledge_war(&mut world, 1, &name_body("Clan5001"));
     assert!(
         ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
             .contains(&server_packets::sm_ids::CANNOT_DECLARE_DEFEAT_BEFORE_7_DAYS_WITH_CLAN_S1)
     );
-    world.clan_wars.last_mut().unwrap().state = crate::model::clan::ClanWarState::Mutual;
+    world.clan_wars.last_mut().unwrap().state = model::clan::ClanWarState::Mutual;
     world.clans.get_mut(&5000).unwrap().reputation_score = 1_000;
     clans::handle_request_surrender_pledge_war(&mut world, 1, &name_body("Clan5001"));
     let war = clans::war_between(&world, 5000, 5001).expect("kept until the delete task");
@@ -3108,11 +3086,11 @@ fn clan_war_stop_surrender_timeout() {
 
     // Timeout: a blood declaration goes TIE; mutual is untouched.
     let mut blood = mutual_war();
-    blood.state = crate::model::clan::ClanWarState::BloodDeclaration;
+    blood.state = model::clan::ClanWarState::BloodDeclaration;
     world.clan_wars.push(blood);
     clans::handle_clan_war_timeout(&mut world, 5000, 5001);
     let war = clans::war_between(&world, 5000, 5001).unwrap();
-    assert_eq!(war.state, crate::model::clan::ClanWarState::Tie);
+    assert_eq!(war.state, model::clan::ClanWarState::Tie);
     assert!(
         ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
             &server_packets::sm_ids::BECAUSE_CLAN_S1_DID_NOT_FIGHT_BACK_THE_WAR_WAS_CANCELLED
@@ -3127,7 +3105,7 @@ fn clan_war_stop_surrender_timeout() {
     clans::handle_clan_war_timeout(&mut world, 5000, 5001);
     assert_eq!(
         clans::war_between(&world, 5000, 5001).unwrap().state,
-        crate::model::clan::ClanWarState::Mutual
+        model::clan::ClanWarState::Mutual
     );
 }
 
@@ -3212,10 +3190,10 @@ fn ally_create_join_and_interlocks() {
     );
 
     // At war → no invite.
-    world.clan_wars.push(crate::model::clan::ClanWar {
+    world.clan_wars.push(model::clan::ClanWar {
         attacker_id: 5000,
         attacked_id: 5001,
-        state: crate::model::clan::ClanWarState::Mutual,
+        state: model::clan::ClanWarState::Mutual,
         winner_id: 0,
         start_time: 1,
         end_time: 0,
@@ -3344,7 +3322,7 @@ fn ally_leave_dismiss_dissolve_penalties() {
     assert_eq!(b.ally_id, 0);
     assert_eq!(
         b.ally_penalty_type,
-        crate::model::clan::ALLY_PENALTY_TYPE_CLAN_LEAVED
+        model::clan::ALLY_PENALTY_TYPE_CLAN_LEAVED
     );
     assert!(b.ally_penalty_expiry_time > 0);
     assert!(
@@ -3371,11 +3349,11 @@ fn ally_leave_dismiss_dissolve_penalties() {
     assert_eq!(world.clans[&5001].ally_id, 0);
     assert_eq!(
         world.clans[&5001].ally_penalty_type,
-        crate::model::clan::ALLY_PENALTY_TYPE_CLAN_DISMISSED
+        model::clan::ALLY_PENALTY_TYPE_CLAN_DISMISSED
     );
     assert_eq!(
         world.clans[&5000].ally_penalty_type,
-        crate::model::clan::ALLY_PENALTY_TYPE_DISMISS_CLAN
+        model::clan::ALLY_PENALTY_TYPE_DISMISS_CLAN
     );
     assert!(
         ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
@@ -3410,7 +3388,7 @@ fn ally_leave_dismiss_dissolve_penalties() {
     assert_eq!(world.clans[&5001].ally_id, 0);
     assert_eq!(
         world.clans[&5000].ally_penalty_type,
-        crate::model::clan::ALLY_PENALTY_TYPE_DISSOLVE_ALLY
+        model::clan::ALLY_PENALTY_TYPE_DISSOLVE_ALLY
     );
     assert!(
         ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)
@@ -3480,7 +3458,7 @@ fn academy_create_and_join() {
     assert!(
         world.clans[&5000]
             .sub_pledges
-            .contains_key(&crate::model::clan::SUBUNIT_ACADEMY)
+            .contains_key(&model::clan::SUBUNIT_ACADEMY)
     );
     assert!(
         ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE).contains(
@@ -3516,18 +3494,18 @@ fn academy_create_and_join() {
     clans::handle_request_join_pledge(
         &mut world,
         1,
-        &invite_body(3003, crate::model::clan::SUBUNIT_ACADEMY),
+        &invite_body(3003, model::clan::SUBUNIT_ACADEMY),
     );
     drain(&mut b_rx);
     clans::handle_request_answer_join_pledge(&mut world, 2, &answer_body(1));
     let b = world.objects.get_component::<Player>(&3003).unwrap();
     assert_eq!(
         (b.pledge_type, b.power_grade, b.pledge_class),
-        (crate::model::clan::SUBUNIT_ACADEMY, 9, 1)
+        (model::clan::SUBUNIT_ACADEMY, 9, 1)
     );
     assert_eq!(
         world.clans[&5000].member(3003).unwrap().pledge_type,
-        crate::model::clan::SUBUNIT_ACADEMY
+        model::clan::SUBUNIT_ACADEMY
     );
     assert!(drain_db(&mut db_rx).iter().any(|c| matches!(
         c,
@@ -3539,7 +3517,7 @@ fn academy_create_and_join() {
 
     // The academy's own 20-member cap is now real (not the main pledge's).
     assert_eq!(
-        world.clans[&5000].sub_pledge_members_count(crate::model::clan::SUBUNIT_ACADEMY),
+        world.clans[&5000].sub_pledge_members_count(model::clan::SUBUNIT_ACADEMY),
         1
     );
 }
@@ -4327,7 +4305,7 @@ fn recruit_open_joining_sign_in() {
     // recruit entry directly for 5001, since only 3001 has a client here.
     world.recruit_clans.insert(
         5001,
-        crate::model::clan_entry::PledgeRecruitInfo {
+        model::clan_entry::PledgeRecruitInfo {
             clan_id: 5001,
             karma: 0,
             information: "Full".into(),
@@ -4361,7 +4339,7 @@ const DIST_RES: &str = crate::data::DIST_GAME;
 
 /// Build a clan that owns `castle` with a single online member `leader`.
 #[cfg(test)]
-fn owner_clan(id: i32, leader: i32, castle: i32) -> crate::model::clan::Clan {
+fn owner_clan(id: i32, leader: i32, castle: i32) -> Clan {
     use crate::model::clan::{Clan, ClanMember};
     Clan {
         id,
@@ -4419,7 +4397,7 @@ fn residence_learn() -> crate::data::pledge_skill_tree::PledgeSkillLearn {
 fn has_clan_skill(world: &World, oid: i32, id: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::ClanSkills>(&oid)
+        .get_component::<model::components::ClanSkills>(&oid)
         .is_some_and(|c| c.0.contains_key(&id))
 }
 
@@ -4467,13 +4445,13 @@ fn residential_skills_granted_on_login_and_stripped() {
         .unwrap()
         .clan_id = clan_id;
 
-    crate::game_loop::clans::apply_clan_skills_to_member(&mut world, clan_id, 3001);
+    clans::apply_clan_skills_to_member(&mut world, clan_id, 3001);
     assert!(
         has_clan_skill(&world, 3001, 593),
         "a castle-owning clan member gets the residential skill on login"
     );
 
-    crate::game_loop::clans::remove_residential_skills(&mut world, 3001, 3);
+    clans::remove_residential_skills(&mut world, 3001, 3);
     assert!(
         !has_clan_skill(&world, 3001, 593),
         "losing the castle strips the residential skill"
@@ -4513,7 +4491,7 @@ fn capturing_a_castle_moves_residential_skills() {
             .clan_id = cid;
     }
     // The defender already holds the skill (granted while owning).
-    crate::game_loop::clans::give_residential_skills(&mut world, 8002, 3, 500);
+    clans::give_residential_skills(&mut world, 8002, 3, 500);
     assert!(
         has_clan_skill(&world, 8002, 593),
         "defender holds it pre-capture"
@@ -4539,11 +4517,11 @@ fn put_in_academy(world: &mut World, oid: i32, joined_level: i32) {
     if let Some(c) = world.clans.get_mut(&5000)
         && let Some(m) = c.members.iter_mut().find(|m| m.char_id == oid)
     {
-        m.pledge_type = crate::model::clan::SUBUNIT_ACADEMY;
+        m.pledge_type = model::clan::SUBUNIT_ACADEMY;
         m.power_grade = 9;
     }
     if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
-        p.pledge_type = crate::model::clan::SUBUNIT_ACADEMY;
+        p.pledge_type = model::clan::SUBUNIT_ACADEMY;
         p.power_grade = 9;
         p.lvl_joined_academy = joined_level;
     }
@@ -4572,7 +4550,7 @@ fn joining_the_academy_records_the_joining_level() {
     clans::handle_request_join_pledge(
         &mut world,
         1,
-        &invite_body(3003, crate::model::clan::SUBUNIT_ACADEMY),
+        &invite_body(3003, model::clan::SUBUNIT_ACADEMY),
     );
     drain(&mut b_rx);
     clans::handle_request_answer_join_pledge(&mut world, 2, &answer_body(1));
@@ -4657,7 +4635,7 @@ fn graduating_pays_the_clan_and_frees_the_graduate() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&3003)
+            .get_component::<Inventory>(&3003)
             .unwrap()
             .count_of(8181),
         1,
@@ -4981,12 +4959,12 @@ fn leaving_a_castle_owning_clan_takes_the_circlet() {
     world.cfg.character.remove_castle_circlets = true;
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     add_quest_items(&mut world, &[(GLUDIO_CIRCLET, "Circlet of Gludio", false)]);
-    crate::game_loop::items::add_inventory_item(&mut world, 3001, GLUDIO_CIRCLET, 1);
+    items::add_inventory_item(&mut world, 3001, GLUDIO_CIRCLET, 1);
 
     // A clan that owns Gludio, with 3001 on the roster.
     let mut clan = castle_owning_clan(700);
     clan.castle_id = 1;
-    clan.members.push(crate::model::clan::ClanMember {
+    clan.members.push(model::clan::ClanMember {
         char_id: 3001,
         name: "P3001".into(),
         level: 20,
@@ -5008,7 +4986,7 @@ fn leaving_a_castle_owning_clan_takes_the_circlet() {
         "worn before leaving"
     );
 
-    crate::game_loop::clans::remove_clan_member(&mut world, 700, 3001, 0);
+    clans::remove_clan_member(&mut world, 700, 3001, 0);
     assert_eq!(
         item_count(&world, 3001, GLUDIO_CIRCLET),
         0,
@@ -5024,11 +5002,11 @@ fn the_circlet_survives_when_the_config_says_so() {
     world.cfg.character.remove_castle_circlets = false;
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     add_quest_items(&mut world, &[(GLUDIO_CIRCLET, "Circlet of Gludio", false)]);
-    crate::game_loop::items::add_inventory_item(&mut world, 3001, GLUDIO_CIRCLET, 1);
+    items::add_inventory_item(&mut world, 3001, GLUDIO_CIRCLET, 1);
 
     let mut clan = castle_owning_clan(701);
     clan.castle_id = 1;
-    clan.members.push(crate::model::clan::ClanMember {
+    clan.members.push(model::clan::ClanMember {
         char_id: 3001,
         name: "P3001".into(),
         level: 20,
@@ -5043,7 +5021,7 @@ fn the_circlet_survives_when_the_config_says_so() {
     });
     world.clans.insert(701, clan);
 
-    crate::game_loop::clans::remove_clan_member(&mut world, 701, 3001, 0);
+    clans::remove_clan_member(&mut world, 701, 3001, 0);
     assert_eq!(
         item_count(&world, 3001, GLUDIO_CIRCLET),
         1,
@@ -5068,8 +5046,8 @@ fn a_castleless_clan_takes_nothing() {
 }
 
 /// A minimal clan for the circlet tests.
-fn castle_owning_clan(id: i32) -> crate::model::clan::Clan {
-    crate::model::clan::Clan {
+fn castle_owning_clan(id: i32) -> Clan {
+    Clan {
         id,
         name: format!("Clan{id}"),
         leader_id: 3001,

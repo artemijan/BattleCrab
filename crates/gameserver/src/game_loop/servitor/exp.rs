@@ -155,7 +155,7 @@ fn level_up_pet(world: &mut World, owner_oid: i32, pet_oid: i32, max_level: i32)
     }
     if levelled {
         // Java sends no system message for a pet level — just the animation.
-        let pkt = crate::network::server_packets::social_action(pet_oid, SOCIAL_LEVEL_UP);
+        let pkt = server_packets::social_action(pet_oid, SOCIAL_LEVEL_UP);
         crate::game_loop::helpers::broadcast_including_self(world, owner_oid, &pkt);
         sync_collar_enchant(world, owner_oid, pet_oid);
     }
@@ -164,12 +164,7 @@ fn level_up_pet(world: &mut World, owner_oid: i32, pet_oid: i32, max_level: i32)
 /// `getControlItem().setEnchantLevel(getLevel())` — the collar's enchant level
 /// *is* the pet's level, which is how the client shows "Wolf Collar +12" and
 /// how a traded pet advertises what it is without being summoned.
-/// Admin entry (`//summon_setlvl`) for the collar-enchant sync below.
-pub(crate) fn sync_collar_enchant_for_admin(world: &mut World, owner_oid: i32, pet_oid: i32) {
-    sync_collar_enchant(world, owner_oid, pet_oid);
-}
-
-fn sync_collar_enchant(world: &mut World, owner_oid: i32, pet_oid: i32) {
+pub(crate) fn sync_collar_enchant(world: &mut World, owner_oid: i32, pet_oid: i32) {
     let Some(pet) = world
         .objects
         .get_component::<crate::model::components::PetOf>(&pet_oid)

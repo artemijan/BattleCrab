@@ -1,7 +1,7 @@
 //! `l2r-tools icon-atlas` — pack every datapack-referenced item icon into one
 //! sprite sheet for the web dashboard.
 //!
-//! See [`tools::icon_atlas`] for what goes on the sheet and why; this module
+//! See [`icon_atlas`] for what goes on the sheet and why; this module
 //! is only flags and the two output files.
 
 use std::path::PathBuf;

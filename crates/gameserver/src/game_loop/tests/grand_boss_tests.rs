@@ -8,11 +8,7 @@ use crate::game_loop::grand_boss::{ALIVE, DEAD};
 const QUEEN: i32 = 29001;
 const QUEEN_OID: i32 = NPC_OID + 60;
 
-fn boss_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn boss_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(QUEEN);
     t.type_name = "GrandBoss".into();
@@ -21,7 +17,7 @@ fn boss_world() -> (
     world.data.npc_data.insert_for_test(t);
     world.grand_bosses.insert(
         QUEEN,
-        crate::model::grand_boss::GrandBoss {
+        model::grand_boss::GrandBoss {
             boss_id: QUEEN,
             loc_x: -21610,
             loc_y: 181594,
@@ -38,7 +34,7 @@ fn boss_world() -> (
 
 fn boss_alive_in_world(world: &mut World) -> bool {
     let mut found = false;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+    world.objects.for_each_mut::<&model::npc::Npc>(|n| {
         if n.npc_id == QUEEN {
             found = true;
         }
@@ -64,10 +60,10 @@ fn grand_bosses_spawn_when_their_data_arrives() {
 
     // The DB delivers the row; handling the event both loads it *and* resolves
     // the boot spawn.
-    crate::game_loop::net::handle_db_event(
+    handle_db_event(
         &mut world,
-        crate::db::DbEvent::GrandBossesLoaded {
-            bosses: vec![crate::model::grand_boss::GrandBoss {
+        DbEvent::GrandBossesLoaded {
+            bosses: vec![model::grand_boss::GrandBoss {
                 boss_id: QUEEN,
                 loc_x: -21610,
                 loc_y: 181594,
@@ -149,18 +145,10 @@ fn the_respawn_timer_brings_the_boss_back() {
 fn respawning_an_already_alive_boss_is_a_no_op() {
     let (mut world, _db, _l) = boss_world();
     crate::game_loop::grand_boss::handle_grand_boss_respawn(&mut world, QUEEN);
-    let count = |w: &mut World| {
-        let mut n = 0;
-        w.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
-            if x.npc_id == QUEEN {
-                n += 1;
-            }
-        });
-        n
-    };
-    let before = count(&mut world);
+
+    let before = npc_count(&mut world, QUEEN);
     crate::game_loop::grand_boss::handle_grand_boss_respawn(&mut world, QUEEN);
-    assert_eq!(count(&mut world), before, "no second boss");
+    assert_eq!(npc_count(&mut world, QUEEN), before, "no second boss");
 }
 
 /// Boot with a boss **alive**: it is placed at its stored location, with its
@@ -175,7 +163,7 @@ fn boot_spawns_a_living_boss_with_its_stored_hp() {
     let mut hp = None;
     world
         .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
+        .for_each_mut::<(&model::npc::Npc, &Vitals)>(|(n, v)| {
             if n.npc_id == QUEEN {
                 hp = Some(v.cur_hp);
             }
@@ -228,11 +216,7 @@ fn boot_leaves_a_pending_boss_dead() {
 /// the generic paths *is* the boss.
 const ZAKEN: i32 = 29022;
 
-fn zaken_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn zaken_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(ZAKEN);
     t.type_name = "GrandBoss".into();
@@ -241,7 +225,7 @@ fn zaken_world() -> (
     world.data.npc_data.insert_for_test(t);
     world.grand_bosses.insert(
         ZAKEN,
-        crate::model::grand_boss::GrandBoss {
+        model::grand_boss::GrandBoss {
             boss_id: ZAKEN,
             loc_x: 52207,
             loc_y: 217230,
@@ -272,7 +256,7 @@ fn zaken_lives_and_dies_on_the_generic_lifecycle() {
     let mut at = None;
     world
         .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Position)>(|(n, p)| {
+        .for_each_mut::<(&model::npc::Npc, &Position)>(|(n, p)| {
             if n.npc_id == ZAKEN {
                 at = Some((p.x, p.y, p.z));
             }
@@ -323,7 +307,7 @@ fn a_cinematic_boss_spawns_silently() {
     world.data.npc_data.insert_for_test(t);
     world.grand_bosses.insert(
         ANTHARAS,
-        crate::model::grand_boss::GrandBoss {
+        model::grand_boss::GrandBoss {
             boss_id: ANTHARAS,
             loc_x: 185708,
             loc_y: 114298,

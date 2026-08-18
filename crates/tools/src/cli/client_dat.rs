@@ -7,8 +7,8 @@
 //! ```
 //!
 //! One directory each side, original filenames, no binary halfway stage. See
-//! [`tools::client_files`] for how each type is handled and
-//! [`tools::dat_roundtrip`] for what `roundtrip` proves; this module is only
+//! [`client_files`] for how each type is handled and
+//! [`dat_roundtrip`] for what `roundtrip` proves; this module is only
 //! flags and output.
 
 use std::path::PathBuf;

@@ -21,7 +21,7 @@ fn melee_player_in_peace_zone_is_refused() {
         .unwrap()
         .mask = crate::data::zone_data::ZoneKind::Peace.bit();
     // Select first, then the attack-click.
-    super::combat::start_attack_intent(&mut world, 1, 5001, 5002);
+    combat::start_attack_intent(&mut world, 1, 5001, 5002);
 
     assert!(
         !world.objects.has_component::<Intent>(&5001),
@@ -47,7 +47,7 @@ fn melee_player_outside_peace_zone_starts_attack() {
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
 
-    super::combat::start_attack_intent(&mut world, 1, 5001, 5002);
+    combat::start_attack_intent(&mut world, 1, 5001, 5002);
 
     assert!(
         matches!(
@@ -76,8 +76,8 @@ fn peace_zone_blocks_hostile_casts_between_players() {
     );
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
-    super::zones::revalidate_zone(&mut world, 3001, true);
-    super::zones::revalidate_zone(&mut world, 3002, true);
+    zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3002, true);
 
     // The initial revalidate reports the peace compass code.
     let a_pkts = drain(&mut a_rx);
@@ -133,8 +133,8 @@ fn peace_zone_gate_checks_both_sides() {
     );
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0); // outside
     let _b_rx = ingame_caster(&mut world, 2, 3002, 100, 0); // inside
-    super::zones::revalidate_zone(&mut world, 3001, true);
-    super::zones::revalidate_zone(&mut world, 3002, true);
+    zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3002, true);
 
     handle_action(&mut world, 1, &action_body(3002, 0));
     drain(&mut a_rx);
@@ -151,7 +151,7 @@ fn peace_zone_gate_checks_both_sides() {
         .get_component_mut::<Position>(&3002)
         .unwrap()
         .x = 30;
-    super::zones::revalidate_zone(&mut world, 3002, true);
+    zones::revalidate_zone(&mut world, 3002, true);
     drain(&mut a_rx);
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
     assert!(world.objects.has_component::<Casting>(&3001));
@@ -177,7 +177,7 @@ fn water_zone_flips_swim_state_and_speeds() {
         speeds.run_spd = 120.0;
         speeds.swim_run_spd = 50.0;
     }
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     let pkts = drain(&mut rx);
     assert_eq!(
         pkts.iter()
@@ -202,7 +202,7 @@ fn water_zone_flips_swim_state_and_speeds() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 5500;
-    super::zones::revalidate_zone(&mut world, 3001, false);
+    zones::revalidate_zone(&mut world, 3001, false);
     let speeds = *world.objects.get_component::<Speeds>(&3001).unwrap();
     assert!(speeds.swimming);
     assert_eq!(speeds.move_speed(), 50.0);
@@ -222,7 +222,7 @@ fn water_zone_flips_swim_state_and_speeds() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 0;
-    super::zones::revalidate_zone(&mut world, 3001, false);
+    zones::revalidate_zone(&mut world, 3001, false);
     let speeds = *world.objects.get_component::<Speeds>(&3001).unwrap();
     assert!(!speeds.swimming);
     assert_eq!(speeds.move_speed(), 120.0);
@@ -244,7 +244,7 @@ fn siege_zone_combat_messages_and_leave_flag() {
         s
     });
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0); // outside
-    super::zones::revalidate_zone(&mut world, 3001, true); // baseline, no transition
+    zones::revalidate_zone(&mut world, 3001, true); // baseline, no transition
     drain(&mut rx);
 
     // Enter the active siege zone → combat-zone message, still unflagged.
@@ -253,7 +253,7 @@ fn siege_zone_combat_messages_and_leave_flag() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 5500;
-    super::zones::revalidate_zone(&mut world, 3001, false);
+    zones::revalidate_zone(&mut world, 3001, false);
     assert!(
         world
             .objects
@@ -278,7 +278,7 @@ fn siege_zone_combat_messages_and_leave_flag() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 0;
-    super::zones::revalidate_zone(&mut world, 3001, false);
+    zones::revalidate_zone(&mut world, 3001, false);
     assert!(
         !world
             .objects
@@ -321,9 +321,9 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
         s
     });
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 5500, 0); // already inside
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 0, 0); // outside
-    super::zones::revalidate_zone(&mut world, 3002, true);
+    zones::revalidate_zone(&mut world, 3002, true);
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -334,7 +334,7 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
         .unwrap()
         .x = 5500;
     world.set_player_region(3002, crate::world::region_of(5500, 0));
-    super::zones::revalidate_zone(&mut world, 3002, false);
+    zones::revalidate_zone(&mut world, 3002, false);
 
     // (auto-attackable, relation bits) for the RelationChanged about `about`.
     let rc = |pkts: &[Vec<u8>], about: i32| -> Option<(u8, i32)> {
@@ -359,12 +359,12 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
     // because the states differ, and ATTACKER on the besieger's own crown.
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&3001)
+        .get_component_mut::<Player>(&3001)
         .unwrap()
         .siege_state = 2;
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&3002)
+        .get_component_mut::<Player>(&3002)
         .unwrap()
         .siege_state = 1;
     pvp::broadcast_siege_relation(&world, 3002);
@@ -397,9 +397,9 @@ fn siege_relation_carries_clan_leader_crown_bit() {
         p.clan_id = 42;
         p.clan_leader = true;
     }
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 0, 0); // outside
-    super::zones::revalidate_zone(&mut world, 3002, true);
+    zones::revalidate_zone(&mut world, 3002, true);
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -411,7 +411,7 @@ fn siege_relation_carries_clan_leader_crown_bit() {
         .unwrap()
         .x = 5500;
     world.set_player_region(3002, crate::world::region_of(5500, 0));
-    super::zones::revalidate_zone(&mut world, 3002, false);
+    zones::revalidate_zone(&mut world, 3002, false);
 
     let leader_crown_rc = drain(&mut b_rx).iter().any(|p| {
         p[0] == server_packets::opcodes::RELATION_CHANGED
@@ -491,7 +491,7 @@ fn zone_revalidation_distance_filter() {
         500,
     );
     let _rx = ingame_caster(&mut world, 1, 3001, 5990, 0);
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert!(
         world
             .objects
@@ -506,7 +506,7 @@ fn zone_revalidation_distance_filter() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 6040;
-    super::zones::revalidate_zone(&mut world, 3001, false);
+    zones::revalidate_zone(&mut world, 3001, false);
     assert!(
         world
             .objects
@@ -515,7 +515,7 @@ fn zone_revalidation_distance_filter() {
             .swimming,
         "filtered — still stale"
     );
-    super::zones::revalidate_zone(&mut world, 3001, true);
+    zones::revalidate_zone(&mut world, 3001, true);
     assert!(
         !world
             .objects
@@ -531,14 +531,14 @@ fn zone_revalidation_distance_filter() {
 #[test]
 fn enter_world_sends_door_info_for_nearby_doors() {
     let (mut world, ..) = test_world();
-    crate::model::door::spawn_door_for_test(
+    model::door::spawn_door_for_test(
         &mut world,
         test_door(9001, crate::data::door_data::DoorOpenMethod::None),
     );
     let mut far = test_door(9002, crate::data::door_data::DoorOpenMethod::None);
     far.x = 50_000;
     far.node_x = [49_998, 50_002, 50_002, 49_998];
-    crate::model::door::spawn_door_for_test(&mut world, far);
+    model::door::spawn_door_for_test(&mut world, far);
 
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     visibility::on_enter_world(&world, 1, 3001);
@@ -557,7 +557,7 @@ fn enter_world_sends_door_info_for_nearby_doors() {
 #[test]
 fn closed_door_blocks_cast_los_until_opened() {
     let (mut world, ..) = cast_test_world();
-    let door_oid = crate::model::door::spawn_door_for_test(
+    let door_oid = model::door::spawn_door_for_test(
         &mut world,
         test_door(9001, crate::data::door_data::DoorOpenMethod::None),
     );
@@ -595,7 +595,7 @@ fn closed_door_blocks_cast_los_until_opened() {
 #[test]
 fn opened_door_auto_closes_after_close_time() {
     let (mut world, ..) = test_world();
-    let door_oid = crate::model::door::spawn_door_for_test(
+    let door_oid = model::door::spawn_door_for_test(
         &mut world,
         test_door(9001, crate::data::door_data::DoorOpenMethod::None),
     );
@@ -669,7 +669,7 @@ fn enter_world_sends_static_object_info_nearby() {
             z: 0,
         },
     );
-    crate::model::static_object::spawn_static_objects(&mut world);
+    model::static_object::spawn_static_objects(&mut world);
 
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     visibility::on_enter_world(&world, 1, 3001);

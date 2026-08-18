@@ -53,7 +53,7 @@ fn the_retail_timer_pays_on_every_period_and_keeps_going() {
         "the single-point message, not the double one"
     );
     assert!(
-        has_opcode(&msgs, crate::network::server_packets::opcodes::EX),
+        has_opcode(&msgs, server_packets::opcodes::EX),
         "and an ExPCCafePointInfo to refresh the counter"
     );
 
@@ -126,7 +126,7 @@ fn logging_in_arms_the_timer() {
     world.cfg.premium.pc_cafe_enabled = true;
     world.cfg.premium.pc_cafe_retail_like = true;
 
-    crate::game_loop::lobby::handle_enter_world(&mut world, CID);
+    handle_enter_world(&mut world, CID);
     assert!(
         world
             .scheduler
@@ -378,7 +378,7 @@ fn a_real_kill_pays_pa_points_even_with_vitality_off() {
         add_hate(&mut world, NPC_OID, PLAYER, 100.0, 100.0);
         world
             .objects
-            .get_component_mut::<crate::model::components::Vitals>(&NPC_OID)
+            .get_component_mut::<Vitals>(&NPC_OID)
             .unwrap()
             .cur_hp = 1.0;
         crate::game_loop::death::npc_do_die(&mut world, NPC_OID, PLAYER);

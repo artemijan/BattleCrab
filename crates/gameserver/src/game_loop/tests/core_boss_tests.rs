@@ -8,11 +8,7 @@ use crate::game_loop::grand_boss::{ALIVE, DEAD};
 const DEATH_KNIGHT: i32 = 29007;
 const CORE_OID: i32 = NPC_OID + 80;
 
-fn core_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn core_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for (id, kind) in [
         (CORE, "GrandBoss"),
@@ -28,7 +24,7 @@ fn core_world() -> (
     }
     world.grand_bosses.insert(
         CORE,
-        crate::model::grand_boss::GrandBoss {
+        model::grand_boss::GrandBoss {
             boss_id: CORE,
             loc_x: 17726,
             loc_y: 108299,
@@ -45,7 +41,7 @@ fn core_world() -> (
 
 fn count_of(world: &mut World, npc_id: i32) -> usize {
     let mut n = 0;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
+    world.objects.for_each_mut::<&model::npc::Npc>(|x| {
         if x.npc_id == npc_id {
             n += 1;
         }
@@ -55,7 +51,7 @@ fn count_of(world: &mut World, npc_id: i32) -> usize {
 
 fn total_minions(world: &mut World) -> usize {
     let mut n = 0;
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
+    world.objects.for_each_mut::<&model::npc::Npc>(|x| {
         if crate::game_loop::core_boss::is_core_minion(x.npc_id) {
             n += 1;
         }
@@ -87,11 +83,11 @@ fn core_is_immobilized_but_can_still_act() {
     crate::game_loop::core_boss::on_core_spawned(&mut world, CORE_OID);
 
     assert!(
-        crate::game_loop::abnormal::is_movement_disabled(&world, CORE_OID),
+        abnormal::is_movement_disabled(&world, CORE_OID),
         "Core is rooted to its spawn"
     );
     assert!(
-        !crate::game_loop::abnormal::is_control_blocked(&world, CORE_OID),
+        !abnormal::is_control_blocked(&world, CORE_OID),
         "but it can still fight"
     );
 }
@@ -174,7 +170,7 @@ fn an_unrelated_npc_is_not_a_core_minion() {
 // ---------------------------------------------------------------------------
 
 /// `NpcSay` is opcode 0x30 — the packet Core's lines ride on.
-fn count_npc_say(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> usize {
+fn count_npc_say(rx: &mut UnboundedReceiver<bytes::Bytes>) -> usize {
     let mut n = 0;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&0x30) {

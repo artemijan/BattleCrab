@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::{death, skills};
+use crate::game_loop::death;
 
 /// `Action` on a monster tints `MyTargetSelected` with the level gap; a second
 /// click on the already-targeted (out-of-range) monster starts the attack and
@@ -11,7 +11,7 @@ fn action_on_monster_colors_target_and_never_talks() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&3001)
+        .get_component_mut::<Player>(&3001)
         .unwrap()
         .level = 8;
 
@@ -182,7 +182,7 @@ fn flagged_or_pk_player_is_auto_attackable() {
 
     world
         .objects
-        .get_component_mut::<crate::model::components::PvpState>(&5002)
+        .get_component_mut::<model::components::PvpState>(&5002)
         .unwrap()
         .flag = 0;
     world
@@ -240,21 +240,18 @@ fn melee_kill_rewards_and_decay() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     {
         // Level 5 exactly at its threshold +500 (table: L5 = 4000, L6 = 5000).
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&3001)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
         p.exp = 4500;
     }
     let npc_oid = NPC_OID + 7;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -289,7 +286,7 @@ fn melee_kill_rewards_and_decay() {
     let expected = formulas::calc_auto_attack_damage(
         p_atk,
         1.0,
-        crate::model::movement::Position::Back,
+        model::movement::Position::Back,
         p_def,
         false,
         formulas::CritDamage::default(),
@@ -318,7 +315,7 @@ fn melee_kill_rewards_and_decay() {
     // XP: 2000 × share 1.0 × gap 1.0 (same level) → 4500 + 2000 = 6500 ⇒ level 6.
     let p = &world
         .objects
-        .get_component::<crate::model::Player>(&3001)
+        .get_component::<Player>(&3001)
         .expect("player");
     assert_eq!(p.exp, 6500);
     assert_eq!(p.level, 6);
@@ -349,10 +346,7 @@ fn melee_kill_rewards_and_decay() {
         "level-up message"
     );
     // Auto-loot: 5 adena in the inventory, SM 28, persisted via InsertItem.
-    let inv = world
-        .objects
-        .get_component::<crate::model::inventory::Inventory>(&3001)
-        .unwrap();
+    let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
     let adena = inv
         .items()
         .iter()
@@ -374,11 +368,11 @@ fn melee_kill_rewards_and_decay() {
         "auto-loot InventoryUpdate"
     );
     assert!(
-        packets.iter().any(|p| super::is_ex(p, 0x13E)),
+        packets.iter().any(|p| is_ex(p, 0x13E)),
         "auto-loot refreshes the status-bar adena counter (ExAdenaInvenCount)"
     );
     assert!(
-        packets.iter().any(|p| super::is_ex(p, 0x166)),
+        packets.iter().any(|p| is_ex(p, 0x166)),
         "auto-loot refreshes the weight bar (ExUserInfoInvenWeight)"
     );
     // Memory-first: loot lands in the Inventory component (adena count asserted
@@ -391,11 +385,7 @@ fn melee_kill_rewards_and_decay() {
     // Decay after the 2 s corpse time: DeleteObject, corpse gone, no respawn
     // scheduled (respawn_secs == 0).
     advance_world(&mut world, 20);
-    assert!(
-        !world
-            .objects
-            .has_component::<crate::model::npc::Npc>(&npc_oid)
-    );
+    assert!(!world.objects.has_component::<model::npc::Npc>(&npc_oid));
     let packets = drain(&mut a_rx);
     assert!(
         packets
@@ -496,14 +486,14 @@ fn ctrl_click_opcode_0x01_switches_target_and_attacks() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 30;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 20, 0, 0, 100_000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 20, 0, 0, 100_000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -552,14 +542,14 @@ fn shift_attack_request_chases_because_java_discards_the_flag() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 33;
     // 200 units away — beyond reach 20 + 0 + 10 = 30.
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -624,14 +614,14 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
     let npc_oid = NPC_OID + 8;
     // 200 units away — beyond reach 20 + 0 + 10 = 30; big HP pool so the
     // monster survives and hits back.
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -677,10 +667,10 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::NpcAi>(&npc_oid)
+            .get_component::<NpcAi>(&npc_oid)
             .unwrap()
             .intention,
-        crate::model::npc::NpcIntention::Attack
+        NpcIntention::Attack
     );
     assert!(
         world
@@ -733,14 +723,14 @@ fn idle_monster_random_walks_near_spawn() {
     // A player keeps the spawn region active so `npc_ai_tick` visits the mob.
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 9;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -782,14 +772,14 @@ fn idle_npc_plays_random_social_animation() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 9;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -798,7 +788,7 @@ fn idle_npc_plays_random_social_animation() {
     world.tick = 100;
     world
         .objects
-        .get_component_mut::<crate::model::npc::NpcAi>(&npc_oid)
+        .get_component_mut::<NpcAi>(&npc_oid)
         .unwrap()
         .next_animation_tick = Some(50);
     drain(&mut a_rx);
@@ -816,10 +806,7 @@ fn idle_npc_plays_random_social_animation() {
         "random idle animation is 2 or 3, got {action_id}"
     );
     // The 6 s throttle is now armed and the next attempt was rescheduled out.
-    let ai = world
-        .objects
-        .get_component::<crate::model::npc::NpcAi>(&npc_oid)
-        .unwrap();
+    let ai = world.objects.get_component::<NpcAi>(&npc_oid).unwrap();
     assert_eq!(ai.last_social_tick, 100);
     assert!(
         ai.next_animation_tick.unwrap() > 100,
@@ -834,14 +821,14 @@ fn moving_npc_skips_random_animation() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 9;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -849,13 +836,13 @@ fn moving_npc_skips_random_animation() {
     world.tick = 100;
     world
         .objects
-        .get_component_mut::<crate::model::npc::NpcAi>(&npc_oid)
+        .get_component_mut::<NpcAi>(&npc_oid)
         .unwrap()
         .next_animation_tick = Some(50);
     // Currently walking somewhere (`isMoving()`), so no idle animation.
     world.objects.add_components(
         &npc_oid,
-        Movement(crate::model::movement::MoveData {
+        Movement(model::movement::MoveData {
             start_x: 0,
             start_y: 0,
             start_z: 0,
@@ -879,10 +866,7 @@ fn moving_npc_skips_random_animation() {
         "a walking NPC plays no idle animation"
     );
     // Still rescheduled, but the throttle stayed unarmed (nothing broadcast).
-    let ai = world
-        .objects
-        .get_component::<crate::model::npc::NpcAi>(&npc_oid)
-        .unwrap();
+    let ai = world.objects.get_component::<NpcAi>(&npc_oid).unwrap();
     assert_eq!(ai.last_social_tick, 0);
     assert!(ai.next_animation_tick.unwrap() > 100);
 }
@@ -902,14 +886,14 @@ fn aggressive_monster_aggros_idle_player() {
     }
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 9;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 150, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 150, 0, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -918,10 +902,7 @@ fn aggressive_monster_aggros_idle_player() {
     // weapon rate (not once per 1 s AI think), so a 100 HP player would be dead
     // — and its target-cleared AI back to ACTIVE — before the 140-tick window
     // ends. The deep pool keeps the fight going so we can observe the lock-on.
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::Vitals>(&3001)
-    {
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&3001) {
         v.max_hp = 5000;
         v.cur_hp = 5000.0;
     }
@@ -935,10 +916,10 @@ fn aggressive_monster_aggros_idle_player() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::NpcAi>(&npc_oid)
+            .get_component::<NpcAi>(&npc_oid)
             .unwrap()
             .intention,
-        crate::model::npc::NpcIntention::Attack
+        NpcIntention::Attack
     );
     let packets = drain(&mut a_rx);
     assert!(
@@ -968,10 +949,7 @@ fn player_death_penalty_and_revive_to_village() {
         }]);
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     {
-        let p = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&3001)
-            .unwrap();
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
         p.exp = 4500; // level 5 (threshold 4000) + 500 into the level
         p.level = 5;
     }
@@ -986,14 +964,14 @@ fn player_death_penalty_and_revive_to_village() {
         .unwrap()
         .cur_cp = 0.0;
     let npc_oid = NPC_OID + 10;
-    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 5000, 30);
+    let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 5000, 30);
     world
         .npc_regions
         .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(
+    let cs = model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1013,7 +991,7 @@ fn player_death_penalty_and_revive_to_village() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::Player>(&3001)
+            .get_component::<Player>(&3001)
             .expect("player")
             .exp,
         4490
@@ -1051,7 +1029,7 @@ fn player_death_penalty_and_revive_to_village() {
     );
     let p = &world
         .objects
-        .get_component::<crate::model::Player>(&3001)
+        .get_component::<Player>(&3001)
         .expect("player");
     assert!(p.teleporting && p.pending_revive && pvit(&world, 3001).dead);
     let packets = drain(&mut a_rx);
@@ -1065,7 +1043,7 @@ fn player_death_penalty_and_revive_to_village() {
     on_packet(&mut world, 1, vec![cp::opcodes::APPEARING]);
     let p = &world
         .objects
-        .get_component::<crate::model::Player>(&3001)
+        .get_component::<Player>(&3001)
         .expect("player");
     assert!(!pvit(&world, 3001).dead && !p.teleporting && !p.pending_revive);
     let v = pvit(&world, 3001);
@@ -1113,7 +1091,7 @@ fn dead_monster_decays_and_respawns() {
         }],
     };
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    let npc_oid = crate::model::npc::spawn_one(&mut world, 0, 0, 0).expect("spawned");
+    let npc_oid = model::npc::spawn_one(&mut world, 0, 0, 0).expect("spawned");
     world
         .objects
         .get_component_mut::<TargetRef>(&3001)
@@ -1129,11 +1107,7 @@ fn dead_monster_decays_and_respawns() {
     // Decay at +2 s: corpse gone, DeleteObject seen, dangling target dropped,
     // respawn pending.
     advance_world(&mut world, 21);
-    assert!(
-        !world
-            .objects
-            .has_component::<crate::model::npc::Npc>(&npc_oid)
-    );
+    assert!(!world.objects.has_component::<model::npc::Npc>(&npc_oid));
     assert_eq!(
         world.objects.get_component::<TargetRef>(&3001).unwrap().0,
         None
@@ -1148,7 +1122,7 @@ fn dead_monster_decays_and_respawns() {
     // Respawn at +3 s more: a fresh NPC on the same spawn line, announced.
     advance_world(&mut world, 31);
     let mut respawned_ids: Vec<i32> = Vec::new();
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+    world.objects.for_each_mut::<&model::npc::Npc>(|n| {
         if n.npc_id == 40001 {
             respawned_ids.push(n.object_id);
         }
@@ -1202,8 +1176,8 @@ fn on_spawn_hook_fires_for_registered_npcs() {
         }
     }
     let (mut world, _db_rx, _link_rx) = combat_test_world();
-    world.quests = std::sync::Arc::new(crate::game_loop::quests::QuestRegistry::new(vec![
-        std::sync::Arc::new(SpawnStamp),
+    world.quests = Arc::new(crate::game_loop::quests::QuestRegistry::new(vec![
+        Arc::new(SpawnStamp),
     ]));
     // Spawn through the real spawn line (template 40001 registered by
     // combat_test_world's spawn_data? — spawn directly via spawn_one needs
@@ -1213,7 +1187,7 @@ fn on_spawn_hook_fires_for_registered_npcs() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&NPC_OID)
+            .get_component::<model::npc::Npc>(&NPC_OID)
             .unwrap()
             .script_value,
         7
@@ -1227,7 +1201,7 @@ fn siege_zone_makes_participants_attackable_only_during_siege() {
     let (mut world, ..) = test_world();
     // Siege zone for castle 3 covering (0,0)..(1000,1000).
     insert_siege_zone(&mut world, 3, 0, 1000, 0, 1000);
-    world.sieges.insert(3, crate::model::siege::Siege::new(3));
+    world.sieges.insert(3, model::siege::Siege::new(3));
     let _a = ingame_player(&mut world, 1, 4001, 500, 500, 0);
     let _b = ingame_player(&mut world, 2, 4002, 510, 510, 0);
     let attackable = |w: &World| crate::game_loop::pvp::is_player_auto_attackable(w, 4001, 4002);
@@ -1343,11 +1317,7 @@ fn siege_start_evicts_non_owners_to_town() {
 
 /// Castle 3 with clan 500 owning it and clan 700 registered as an attacker —
 /// the shape both the capture test and the reputation-settlement tests want.
-fn siege_world_for_capture() -> (
-    World,
-    tokio::sync::mpsc::UnboundedReceiver<db::DbCommand>,
-    (),
-) {
+fn siege_world_for_capture() -> (World, UnboundedReceiver<db::DbCommand>, ()) {
     use crate::model::castle::{Castle, CastleSide};
     use crate::model::clan::{Clan, ClanMember};
     use crate::model::siege::{Siege, SiegeClanType};
@@ -1591,7 +1561,7 @@ fn a_successful_defence_pays_castle_defended_points() {
 /// A siege-end helper world: castle 3 (with `tickets` placed) owned by clan
 /// 500, attacker clan 700, siege started so `first_owner_clan_id == 500`.
 #[cfg(test)]
-fn siege_end_world(tickets: i32) -> (World, tokio::sync::mpsc::UnboundedReceiver<db::DbCommand>) {
+fn siege_end_world(tickets: i32) -> (World, UnboundedReceiver<db::DbCommand>) {
     use crate::model::castle::{Castle, CastleSide};
     use crate::model::clan::{Clan, ClanMember};
     use crate::model::siege::{Siege, SiegeClanType};
@@ -1773,10 +1743,8 @@ fn siege_doors_close_on_start_and_breach_on_damage() {
     let (mut world, ..) = test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000); // covers the door at (100, 0)
     world.sieges.insert(3, Siege::new(3));
-    let door = crate::model::door::spawn_door_for_test(
-        &mut world,
-        test_door(24190001, DoorOpenMethod::None),
-    ); // closed, hp 1000
+    let door =
+        model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None)); // closed, hp 1000
     crate::game_loop::doors::open_door(&mut world, door);
     assert!(world.geo.doors.is_open(24190001), "door starts open");
 
@@ -1863,7 +1831,7 @@ fn siege_spawns_and_despawns_the_stationed_guards() {
     assert!(
         guard_oids
             .iter()
-            .all(|oid| world.objects.has_component::<crate::model::npc::Npc>(oid)),
+            .all(|oid| world.objects.has_component::<model::npc::Npc>(oid)),
         "guards are live NPCs"
     );
 
@@ -1876,7 +1844,7 @@ fn siege_spawns_and_despawns_the_stationed_guards() {
     assert!(
         guard_oids
             .iter()
-            .all(|oid| !world.objects.has_component::<crate::model::npc::Npc>(oid)),
+            .all(|oid| !world.objects.has_component::<model::npc::Npc>(oid)),
         "guards despawned"
     );
 }
@@ -1894,10 +1862,8 @@ fn siege_door_can_be_targeted_and_breached_by_attack() {
     let mut siege = Siege::new(3);
     siege.in_progress = true;
     world.sieges.insert(3, siege);
-    let door = crate::model::door::spawn_door_for_test(
-        &mut world,
-        test_door(24190001, DoorOpenMethod::None),
-    );
+    let door =
+        model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None));
     world
         .objects
         .get_component_mut::<Door>(&door)
@@ -1967,10 +1933,8 @@ fn siege_door_out_of_reach_chases_and_breaches() {
     let mut siege = Siege::new(3);
     siege.in_progress = true;
     world.sieges.insert(3, siege);
-    let door = crate::model::door::spawn_door_for_test(
-        &mut world,
-        test_door(24190001, DoorOpenMethod::None),
-    );
+    let door =
+        model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None));
     world
         .objects
         .get_component_mut::<Door>(&door)
@@ -2037,10 +2001,8 @@ fn siege_door_second_action_click_starts_attack() {
     let mut siege = Siege::new(3);
     siege.in_progress = true;
     world.sieges.insert(3, siege);
-    let door = crate::model::door::spawn_door_for_test(
-        &mut world,
-        test_door(24190001, DoorOpenMethod::None),
-    );
+    let door =
+        model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None));
     world
         .objects
         .get_component_mut::<Door>(&door)
@@ -2104,10 +2066,8 @@ fn door_click_does_not_attack_outside_siege() {
     use crate::model::door::Door;
     let (mut world, ..) = combat_test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000); // zone present, but no active siege
-    let door = crate::model::door::spawn_door_for_test(
-        &mut world,
-        test_door(24190001, DoorOpenMethod::None),
-    );
+    let door =
+        model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None));
     world
         .objects
         .get_component_mut::<Door>(&door)
@@ -2257,7 +2217,7 @@ fn siege_control_tower_destruction_decrements_the_count() {
     );
 
     // Destroy it → the count drops.
-    crate::game_loop::death::npc_do_die(&mut world, tower, 0);
+    death::npc_do_die(&mut world, tower, 0);
     assert_eq!(
         world.sieges[&3].control_tower_count, 0,
         "destruction decremented the count"
@@ -2474,7 +2434,7 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
     );
 
     // A defender destroys the flag → it stops being a respawn point.
-    crate::game_loop::death::npc_do_die(&mut world, flag, 0);
+    death::npc_do_die(&mut world, flag, 0);
     assert_eq!(world.sieges[&3].flag_of(700), None, "killed flag removed");
     assert!(!crate::game_loop::siege::attackable_siege_flag(
         &world, flag
@@ -2705,7 +2665,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     let make = |id: i32, target_type, magic_level, effects| Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -2754,11 +2714,11 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     );
 
     // Cast Spoil → the mob is marked as spoiled by the caster.
-    skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &spoil);
+    effects::apply_skill_effects(&mut world, 3001, npc_oid, &spoil);
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .get_component::<model::npc::Npc>(&npc_oid)
             .unwrap()
             .spoiler_object_id,
         3001,
@@ -2770,7 +2730,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .get_component::<model::npc::Npc>(&npc_oid)
             .unwrap()
             .sweep_items
             .as_deref(),
@@ -2783,16 +2743,14 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .get_component::<Inventory>(&3001)
             .unwrap()
             .count_of(1871),
         3,
         "sweep loot handed to the sweeper"
     );
     assert!(
-        !world
-            .objects
-            .has_component::<crate::model::npc::Npc>(&npc_oid),
+        !world.objects.has_component::<model::npc::Npc>(&npc_oid),
         "ConsumeBody decayed the corpse immediately"
     );
 }
@@ -2803,8 +2761,8 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
 /// the given siege roles. Returns the world ready for an attackability check.
 #[cfg(test)]
 fn siege_sides_world(
-    a_kind: crate::model::siege::SiegeClanType,
-    b_kind: crate::model::siege::SiegeClanType,
+    a_kind: model::siege::SiegeClanType,
+    b_kind: model::siege::SiegeClanType,
 ) -> World {
     use crate::model::castle::{Castle, CastleSide};
     use crate::model::clan::Clan;
@@ -2837,7 +2795,7 @@ fn siege_sides_world(
             level: 5,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![crate::model::clan::ClanMember {
+            members: vec![model::clan::ClanMember {
                 char_id: leader,
                 name: format!("P{leader}"),
                 level: 40,
@@ -2872,12 +2830,12 @@ fn siege_sides_world(
     let _b = ingame_player(&mut world, 2, 4002, 510, 510, 0);
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&4001)
+        .get_component_mut::<Player>(&4001)
         .unwrap()
         .clan_id = 500;
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&4002)
+        .get_component_mut::<Player>(&4002)
         .unwrap()
         .clan_id = 700;
     world
@@ -2935,7 +2893,7 @@ fn a_siege_stamps_and_clears_each_members_side() {
     // The fixture pre-set `in_progress`; run the real start-of-siege update.
     let state = |w: &World, oid: i32| {
         w.objects
-            .get_component::<crate::model::Player>(&oid)
+            .get_component::<Player>(&oid)
             .map(|p| (p.siege_state, p.siege_side))
             .unwrap()
     };
@@ -3151,7 +3109,7 @@ fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
         id: 0,
         name: format!("test_tax_{castle_id}"),
         kind: ZoneKind::Tax,
-        territory: crate::data::spawn_data::Territory {
+        territory: Territory {
             form: crate::data::spawn_data::ZoneForm::Cuboid {
                 x1: -500,
                 x2: 500,
@@ -3183,7 +3141,7 @@ fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
         siege_date: 0,
         treasury: 0,
     }];
-    let clan = crate::model::clan::Clan {
+    let clan = Clan {
         id: 500,
         name: "Owners".into(),
         leader_id: 5000,
@@ -3212,29 +3170,29 @@ fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
     t.type_name = "Folk".into();
     world.data.npc_data.insert_for_test(t);
 
-    let npc = crate::model::npc::spawn_npc_at(&mut world, 30099, 0, 0, 0, 0).unwrap();
+    let npc = model::npc::spawn_npc_at(&mut world, 30099, 0, 0, 0, 0).unwrap();
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&npc)
+            .get_component::<model::npc::Npc>(&npc)
             .unwrap()
             .crest_clan_id,
         500,
         "the tax-zone spawn recorded the owner clan"
     );
     assert_eq!(
-        crate::game_loop::visibility::npc_clan_block(&world, npc),
+        visibility::npc_clan_block(&world, npc),
         Some([500, 11, 12, 77, 13]),
         "NpcInfo's CLAN block resolves the crest ids"
     );
 
     // The dist default: display off → nothing recorded at spawn.
     world.castles[0].show_npc_crest = false;
-    let plain = crate::model::npc::spawn_npc_at(&mut world, 30099, 10, 10, 0, 0).unwrap();
+    let plain = model::npc::spawn_npc_at(&mut world, 30099, 10, 10, 0, 0).unwrap();
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&plain)
+            .get_component::<model::npc::Npc>(&plain)
             .unwrap()
             .crest_clan_id,
         0,
@@ -3243,7 +3201,7 @@ fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
 
     // A change of hands resets the flag, like `Castle.setOwner`.
     world.castles[0].show_npc_crest = true;
-    let mut siege = crate::model::siege::Siege::new(3);
+    let mut siege = model::siege::Siege::new(3);
     siege.in_progress = true;
     world.sieges.insert(3, siege);
     crate::game_loop::siege::capture(&mut world, 3, 500);

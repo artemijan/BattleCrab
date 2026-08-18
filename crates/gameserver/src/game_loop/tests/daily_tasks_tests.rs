@@ -136,12 +136,12 @@ fn a_pending_clan_leader_transfer_applies_on_the_weekly_reset() {
     let clan_id = pending_transfer_clan(&mut world, 3001, 3002);
 
     // A non-Wednesday reset leaves the stamp alone.
-    crate::game_loop::daily_tasks::run_reset(&mut world, false);
+    daily_tasks::run_reset(&mut world, false);
     assert_eq!(world.clans[&clan_id].leader_id, 3001, "daily reset: no-op");
     assert_eq!(world.clans[&clan_id].new_leader_id, 3002, "stamp survives");
 
     // Wednesday applies it and clears the stamp.
-    crate::game_loop::daily_tasks::run_reset(&mut world, true);
+    daily_tasks::run_reset(&mut world, true);
     assert_eq!(world.clans[&clan_id].leader_id, 3002, "leadership moved");
     assert_eq!(world.clans[&clan_id].new_leader_id, 0, "stamp cleared");
     assert!(
@@ -169,7 +169,7 @@ fn a_transfer_to_a_departed_member_is_skipped_not_cleared() {
         .members
         .retain(|m| m.char_id != 3002);
 
-    crate::game_loop::daily_tasks::run_reset(&mut world, true);
+    daily_tasks::run_reset(&mut world, true);
 
     assert_eq!(
         world.clans[&clan_id].leader_id, 3001,
@@ -184,7 +184,7 @@ fn a_transfer_to_a_departed_member_is_skipped_not_cleared() {
 /// A clan carrying a pending transfer, leader `leader` and nominee `nominee`.
 fn pending_transfer_clan(world: &mut World, leader: i32, nominee: i32) -> i32 {
     let clan_id = 0x4100_0001;
-    let member = |char_id: i32| crate::model::clan::ClanMember {
+    let member = |char_id: i32| model::clan::ClanMember {
         char_id,
         name: format!("P{char_id}"),
         level: 1,
@@ -199,7 +199,7 @@ fn pending_transfer_clan(world: &mut World, leader: i32, nominee: i32) -> i32 {
     };
     world.clans.insert(
         clan_id,
-        crate::model::clan::Clan {
+        Clan {
             id: clan_id,
             name: "Pending".into(),
             leader_id: leader,

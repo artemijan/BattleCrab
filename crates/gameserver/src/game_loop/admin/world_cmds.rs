@@ -291,22 +291,14 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
 /// level, member count).
 pub(super) fn admin_clan_info(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = guard::player_target(world, object_id) else {
-        send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::INVALID_TARGET,
-        );
+        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };
     let name = player_name_or_empty(world, target);
     let Some(clan_id) = guard::clan_of(world, target) else {
         // Java sends THE_TARGET_MUST_BE_A_CLAN_MEMBER; that sysstring id isn't
         // in the ported table yet, so fall back to INVALID_TARGET.
-        send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::INVALID_TARGET,
-        );
+        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };
     // The clan hall this clan owns, if any (Java `ClanHall.getOwner()` reverse).
@@ -367,11 +359,7 @@ pub(super) fn admin_geo_pos(world: &mut World, client_id: u32, object_id: i32, s
 
 pub(super) fn admin_geo_can_see(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = guard::target(world, object_id) else {
-        send_sm(
-            world,
-            client_id,
-            crate::network::server_packets::sm_ids::INVALID_TARGET,
-        );
+        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };
     let (Some(a), Some(b)) = (

@@ -207,9 +207,7 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
             send(world, sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR_FOR_AUTO_USE, &[]);
             return;
         }
-        if let Some(p) = world
-            .objects
-            .get_component_mut::<crate::model::Player>(&object_id)
+        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id)
             && !p.auto_shots.contains(&item_id)
         {
             p.auto_shots.push(item_id);

@@ -36,7 +36,7 @@ const RETAIL_ENTRANCE_SECOND_FLOOR: (i32, i32, i32) = (17664, 108288, -9056);
 
 /// `teleporter_world` + the real dist html root and teleport lists, with Ian
 /// and Carsus spawned alongside the fixture gatekeeper.
-fn cruma_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn cruma_world(adena: i64) -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, mut rx) = teleporter_world(adena);
     world.data.root = DIST.to_string();
     world.data.teleporters = crate::data::teleporter_data::TeleporterData::load_from(DIST);

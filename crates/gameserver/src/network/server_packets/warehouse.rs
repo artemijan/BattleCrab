@@ -1,7 +1,7 @@
 //! Warehouse window packets: `WareHouseDepositList` (the player's inventory
 //! items available to deposit) and `WareHouseWithdrawalList` (the warehouse
 //! contents). Both reuse the shared item-block writer
-//! ([`write_item_entry`](crate::network::enter_world::write_item_entry)). Only
+//! ([`write_item_entry`](write_item_entry)). Only
 //! the personal warehouse (`whType = PRIVATE = 1`) is wired.
 
 use commons::network::PacketWriter;

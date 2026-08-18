@@ -24,7 +24,7 @@
 //! gap as the Saga htmls. The quest logic is complete and tested against a
 //! bound pet regardless.
 //!
-//! [`QuestCtx::attack_is_summon`]: crate::game_loop::quests::QuestCtx::attack_is_summon
+//! [`QuestCtx::attack_is_summon`]: QuestCtx::attack_is_summon
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;

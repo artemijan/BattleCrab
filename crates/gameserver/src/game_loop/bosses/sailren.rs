@@ -13,7 +13,7 @@
 //! Gazkh + party teleport-in ([`crate::scripts::sailren_altar`]). The zone
 //! time-out/decay and the respawn lock remain a later slice.
 //!
-//! [`SailrenWaveMob`]: crate::model::components::SailrenWaveMob
+//! [`SailrenWaveMob`]: SailrenWaveMob
 use crate::game_loop::common::near_leader;
 use crate::model::components::{AdminFlags, Immobilized, SailrenWaveMob, Vitals};
 use crate::scheduler::ScheduledTask;

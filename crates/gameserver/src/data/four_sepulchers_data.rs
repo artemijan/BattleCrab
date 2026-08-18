@@ -40,7 +40,7 @@ impl FourSepulchersData {
                 quick_xml::events::Event::Empty(e) | quick_xml::events::Event::Start(e)
                     if e.name().as_ref() == b"spawn" =>
                 {
-                    let attr = |key: &[u8]| super::xml::attr_i32(&e, key).unwrap_or(0);
+                    let attr = |key: &[u8]| xml::attr_i32(&e, key).unwrap_or(0);
                     out.spawns.push(FsSpawn {
                         sepulcher: attr(b"sepulcherId"),
                         wave: attr(b"wave"),

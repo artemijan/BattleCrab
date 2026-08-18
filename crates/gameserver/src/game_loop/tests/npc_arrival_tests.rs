@@ -46,7 +46,7 @@ fn is_swinging(world: &World) -> bool {
 /// so anything the mob does here came from the arrival hook, not the 1 s think.
 fn movement_only_tick(world: &mut World) {
     world.tick += 1;
-    super::super::visibility::movement_tick(world);
+    visibility::movement_tick(world);
 }
 
 /// Walk the chase out on movement ticks alone. Returns the tick the mob
@@ -128,7 +128,7 @@ fn arrival_does_not_think_while_the_mob_is_casting() {
 
     world.objects.add_components(
         &MOB,
-        Casting(crate::model::CastState {
+        Casting(model::CastState {
             skill_id: 1,
             skill_level: 1,
             skill_sub_level: 0,

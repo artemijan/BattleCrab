@@ -5,7 +5,7 @@
 //! template is flagged `usingServerSideName`. So renaming an NPC in the
 //! datapack changes nothing on screen until `to-client` has run, and
 //! `to-datapack` is how the strings only the client knows come back the other
-//! way. See [`tools::npc_sync`] for what each writes and what neither does.
+//! way. See [`npc_sync`] for what each writes and what neither does.
 //!
 //! This module is only flags and output; the whole diff is computed before
 //! anything is printed, so the progress bar never has to share the line.

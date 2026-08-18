@@ -5,7 +5,7 @@
 //! <event>`, so this script's **name is load-bearing**.
 //!
 //! The boss-side machinery (spawn/awakening/combat) lives in
-//! [`crate::game_loop::baium`].
+//! [`baium`].
 
 use crate::game_loop::baium::{self, ANG_VORTEX, BAIUM_STONE, FABRIC, TELE_CUBE};
 use crate::game_loop::quests::{QuestCtx, QuestScript};

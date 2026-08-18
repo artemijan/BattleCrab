@@ -18,7 +18,7 @@ fn nuke(id: i32, power: f64, over_hit: bool) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -60,11 +60,7 @@ fn nuke(id: i32, power: f64, over_hit: bool) -> Skill {
     }
 }
 
-fn overhit_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn overhit_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     world.data.experience = crate::data::ExperienceData::from_table(
         vec![
@@ -119,7 +115,7 @@ fn cast(world: &mut World, skill_id: i32, target: i32) {
     // damage to 1, which would leave the wounded mob alive and trip the
     // must-kill assertion in `kill_for_exp`.
     world.force_rolls([999, 0]);
-    crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
+    effects::apply_skill_effects(world, CASTER, target, &skill);
 }
 
 // ---------------------------------------------------------------------------

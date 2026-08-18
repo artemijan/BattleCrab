@@ -34,11 +34,7 @@ fn route(style: RepeatStyle, repeat: bool) -> WalkRoute {
 fn walker_world(
     style: RepeatStyle,
     repeat: bool,
-) -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+) -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(WALKER_ID);
     t.type_name = "Folk".into();

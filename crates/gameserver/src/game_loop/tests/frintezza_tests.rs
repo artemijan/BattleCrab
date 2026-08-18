@@ -263,7 +263,7 @@ fn the_intro_freezes_players_then_spawns_the_ensemble_and_hands_control_back() {
     let paralyzed = |world: &World| {
         world
             .objects
-            .get_component::<crate::model::components::AdminFlags>(&100)
+            .get_component::<AdminFlags>(&100)
             .map(|f| f.paralyzed)
             .unwrap_or(false)
     };
@@ -279,7 +279,7 @@ fn the_intro_freezes_players_then_spawns_the_ensemble_and_hands_control_back() {
         frintezza_oid != 0
             && world
                 .objects
-                .get_component::<crate::model::npc::Npc>(&frintezza_oid)
+                .get_component::<model::npc::Npc>(&frintezza_oid)
                 .is_some(),
         "Frintezza is on the field"
     );
@@ -293,7 +293,7 @@ fn the_intro_freezes_players_then_spawns_the_ensemble_and_hands_control_back() {
         scarlet != 0
             && world
                 .objects
-                .get_component::<crate::model::npc::Npc>(&scarlet)
+                .get_component::<model::npc::Npc>(&scarlet)
                 .is_some(),
         "Scarlet is fightable"
     );
@@ -312,9 +312,7 @@ fn the_intro_freezes_players_then_spawns_the_ensemble_and_hands_control_back() {
 
 /// Drive the crawl + intro so Scarlet1 is on the field, returning `(iid,
 /// scarlet1_oid)`.
-fn arena_with_scarlet(
-    world: &mut World,
-) -> (i32, i32, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn arena_with_scarlet(world: &mut World) -> (i32, i32, UnboundedReceiver<bytes::Bytes>) {
     seed_frintezza(world);
     let rx = ingame_player(world, 1, 100, 1000, 1000, 0);
     frintezza::try_enter(world, 100);
@@ -329,7 +327,7 @@ fn arena_with_scarlet(
 /// Skill ids of every `MagicSkillUse` in a drained batch.
 fn cast_ids(pkts: &[Vec<u8>]) -> Vec<i32> {
     pkts.iter()
-        .filter(|p| p[0] == crate::network::server_packets::opcodes::MAGIC_SKILL_USE)
+        .filter(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE)
         .filter_map(|p| {
             let mut r = commons::network::PacketReader::new(&p[1..]);
             r.read_i32()?; // cast bar
@@ -341,10 +339,7 @@ fn cast_ids(pkts: &[Vec<u8>]) -> Vec<i32> {
 }
 
 fn set_hp_fraction(world: &mut World, oid: i32, frac: f64) {
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::Vitals>(&oid)
-    {
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
         v.cur_hp = v.max_hp as f64 * frac;
     }
 }
@@ -352,7 +347,7 @@ fn set_hp_fraction(world: &mut World, oid: i32, frac: f64) {
 fn npc_id_of(world: &World, oid: i32) -> i32 {
     world
         .objects
-        .get_component::<crate::model::npc::Npc>(&oid)
+        .get_component::<model::npc::Npc>(&oid)
         .map_or(0, |n| n.npc_id)
 }
 
@@ -368,7 +363,7 @@ fn scarlet_morphs_at_eighty_then_twenty_percent_into_its_final_form() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&scarlet1)
+            .get_component::<model::npc::Npc>(&scarlet1)
             .unwrap()
             .script_value,
         0,
@@ -381,7 +376,7 @@ fn scarlet_morphs_at_eighty_then_twenty_percent_into_its_final_form() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&scarlet1)
+            .get_component::<model::npc::Npc>(&scarlet1)
             .unwrap()
             .script_value,
         1
@@ -418,7 +413,7 @@ fn scarlet_morphs_at_eighty_then_twenty_percent_into_its_final_form() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&scarlet1)
+            .get_component::<model::npc::Npc>(&scarlet1)
             .is_none(),
         "the first form was despawned"
     );
@@ -428,7 +423,7 @@ fn scarlet_morphs_at_eighty_then_twenty_percent_into_its_final_form() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::AdminFlags>(&scarlet2)
+            .get_component::<AdminFlags>(&scarlet2)
             .map(|f| f.invul)
             .unwrap_or(false),
         "Scarlet2 is killable once control returns"
@@ -493,7 +488,7 @@ fn the_dewdrop_of_destruction_makes_a_portrait_suicide() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::Vitals>(&portrait0)
+            .get_component::<Vitals>(&portrait0)
             .unwrap()
             .dead
     );
@@ -501,7 +496,7 @@ fn the_dewdrop_of_destruction_makes_a_portrait_suicide() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Vitals>(&portrait0)
+            .get_component::<Vitals>(&portrait0)
             .unwrap()
             .dead,
         "the Dewdrop made the portrait suicide"
@@ -532,10 +527,7 @@ fn scarlet_wakes_its_skill_ai_when_struck_and_stops_it_when_slain() {
     assert_eq!(world.instances.get_var(iid, "scarletAi"), 1, "AI armed");
 
     // Once Scarlet is dead, the tick shuts the AI down.
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::Vitals>(&scarlet1)
-    {
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&scarlet1) {
         v.dead = true;
     }
     frintezza::handle_scarlet_skill(&mut world, iid);
@@ -600,7 +592,7 @@ fn killing_the_final_form_runs_the_finish_cinematic() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&frintezza_oid)
+            .get_component::<model::npc::Npc>(&frintezza_oid)
             .is_some(),
         "Frintezza still stands during the opening shot"
     );
@@ -610,7 +602,7 @@ fn killing_the_final_form_runs_the_finish_cinematic() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&frintezza_oid)
+            .get_component::<model::npc::Npc>(&frintezza_oid)
             .is_none(),
         "Frintezza fell with its guardian"
     );

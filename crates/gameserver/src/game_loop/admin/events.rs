@@ -2,7 +2,7 @@
 //! (G28). This dist ships the TvT `config.xml` schedule commented out, so
 //! there is no auto-start; a GM opens and cancels the event by hand. There is
 //! no direct Java analogue command (Java relies on the schedule), so this is a
-//! port-side operator convenience over [`crate::game_loop::events`].
+//! port-side operator convenience over [`events`].
 
 use super::send_message;
 use crate::game_loop::events;

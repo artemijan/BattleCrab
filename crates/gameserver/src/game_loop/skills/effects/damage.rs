@@ -114,7 +114,7 @@ pub(crate) fn attribute_mod(world: &World, caster_oid: i32, target_oid: i32, ski
         }
     };
     let defence = element_stat(world, target_oid, element, true);
-    crate::model::formulas::calc_attribute_bonus(attack, defence)
+    formulas::calc_attribute_bonus(attack, defence)
 }
 
 /// One element stat (`*_POWER` / `*_RES`) read the `AttributeFinalizer` way:
@@ -141,10 +141,7 @@ fn element_stat(
             }
         })
         .unwrap_or(0.0);
-    if let Some(mods) = world
-        .objects
-        .get_component::<crate::model::components::StatModifiers>(&oid)
-    {
+    if let Some(mods) = world.objects.get_component::<StatModifiers>(&oid) {
         return base * mods.mul.get(&stat).copied().unwrap_or(1.0)
             + mods.add.get(&stat).copied().unwrap_or(0.0);
     }
@@ -526,12 +523,10 @@ pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
             .is_some_and(|n| n.champion),
         t.is_raid() || crate::game_loop::minions::is_raid_minion(world, target_oid),
     );
-    if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
-        &Buffs,
-        &mut CombatStats,
-        &mut Speeds,
-        &mut crate::model::components::Vitals,
-    )>(&target_oid)
+    if let Some((buffs, mut combat, mut speeds, mut vitals)) =
+        world
+            .objects
+            .get_many_mut::<(&Buffs, &mut CombatStats, &mut Speeds, &mut Vitals)>(&target_oid)
     {
         crate::model::recompute_npc_stats_from_buffs(
             &world.data,
@@ -658,12 +653,6 @@ pub(crate) fn schedule_dam_over_time(
             skill_level: skill.level,
         },
     );
-}
-
-/// Push a periodic tick's HP/MP change to the owner and their party — the
-/// `broadcastStatusUpdate(effector)` every `onActionTime` ends with.
-pub(crate) fn broadcast_vitals_for(world: &World, target_oid: i32) {
-    broadcast_vitals(world, target_oid);
 }
 
 pub(crate) fn broadcast_vitals(world: &World, target_oid: i32) {

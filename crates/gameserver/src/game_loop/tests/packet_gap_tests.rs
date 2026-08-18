@@ -55,8 +55,8 @@ fn a_skill_list_request_for_another_player_is_refused() {
     );
 }
 
-fn member(char_id: i32, name: &str) -> crate::model::clan::ClanMember {
-    crate::model::clan::ClanMember {
+fn member(char_id: i32, name: &str) -> model::clan::ClanMember {
+    model::clan::ClanMember {
         char_id,
         name: name.into(),
         level: 1,
@@ -74,7 +74,7 @@ fn member(char_id: i32, name: &str) -> crate::model::clan::ClanMember {
 fn with_clan(world: &mut World, clan_id: i32, members: &[i32]) {
     world.clans.insert(
         clan_id,
-        crate::model::clan::Clan {
+        Clan {
             id: clan_id,
             name: "Testers".into(),
             leader_id: members[0],
@@ -228,7 +228,7 @@ fn a_keyboard_turn_commits_the_heading_and_is_broadcast() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Position>(&3001)
+            .get_component::<Position>(&3001)
             .unwrap()
             .heading,
         32_000,
@@ -250,7 +250,7 @@ fn the_opening_half_of_a_turn_moves_no_heading() {
     let mut watcher_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
     let before = world
         .objects
-        .get_component::<crate::model::components::Position>(&3001)
+        .get_component::<Position>(&3001)
         .unwrap()
         .heading;
     drain(&mut watcher_rx);
@@ -263,7 +263,7 @@ fn the_opening_half_of_a_turn_moves_no_heading() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Position>(&3001)
+            .get_component::<Position>(&3001)
             .unwrap()
             .heading,
         before,
@@ -293,7 +293,7 @@ fn rotation_packets_are_inert_when_keyboard_movement_is_off() {
     assert_ne!(
         world
             .objects
-            .get_component::<crate::model::components::Position>(&3001)
+            .get_component::<Position>(&3001)
             .unwrap()
             .heading,
         32_000,
@@ -543,7 +543,7 @@ fn trying_items_on_charges_per_slot_and_previews_them() {
     let before = adena_of(&world, 3001);
     let inv_before = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&3001)
+        .get_component::<Inventory>(&3001)
         .unwrap()
         .items()
         .len();
@@ -571,7 +571,7 @@ fn trying_items_on_charges_per_slot_and_previews_them() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .get_component::<Inventory>(&3001)
             .unwrap()
             .items()
             .len(),

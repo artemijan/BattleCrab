@@ -13,11 +13,7 @@ const DIST: &str = crate::data::DIST_GAME;
 /// A heavy, stackable, non-quest item to load the character up with.
 const BRICK: i32 = 9600;
 
-fn weight_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn weight_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     let mut t = crate::data::item_data::ItemTemplate::default();
     t.item_id = BRICK;
@@ -201,7 +197,7 @@ fn a_dieting_gm_is_never_overloaded() {
 
     let mut flags = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&PLAYER)
+        .get_component::<AdminFlags>(&PLAYER)
         .copied()
         .unwrap_or_default();
     flags.diet = true;
@@ -261,7 +257,7 @@ fn being_overloaded_disables_movement() {
     let (mut world, _db, _l) = weight_world();
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     assert!(
-        !crate::game_loop::abnormal::is_movement_disabled(&world, PLAYER),
+        !abnormal::is_movement_disabled(&world, PLAYER),
         "baseline: an unloaded character may move"
     );
 
@@ -269,7 +265,7 @@ fn being_overloaded_disables_movement() {
     carry(&mut world, (max as i64 / 1000) + 1);
 
     assert!(
-        crate::game_loop::abnormal::is_movement_disabled(&world, PLAYER),
+        abnormal::is_movement_disabled(&world, PLAYER),
         "over the limit, movement is disabled"
     );
 }
@@ -290,19 +286,19 @@ fn the_weight_stats_scale_the_cap_and_discount_the_load() {
     let oid = 6101;
     let _rx = ingame_player_access(&mut world, 1, oid, 0);
 
-    let base_max = crate::game_loop::weight::max_load(&world, oid);
+    let base_max = weight::max_load(&world, oid);
     assert!(base_max > 0, "a CON-derived cap to scale");
 
     // `WeightLimit` is `PER` on every source: Weight Limit 3 is +300 %, i.e. ×4.
     let mut mods = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&oid)
+        .get_component::<model::components::StatModifiers>(&oid)
         .cloned()
         .expect("stat modifiers");
     mods.mul.insert(Stat::WeightLimit, 4.0);
     world.objects.add_components(&oid, mods.clone());
     assert_eq!(
-        crate::game_loop::weight::max_load(&world, oid),
+        weight::max_load(&world, oid),
         base_max * 4,
         "the cap scales with the stat"
     );
@@ -310,14 +306,14 @@ fn the_weight_stats_scale_the_cap_and_discount_the_load() {
     // `WeightPenalty` is `DIFF`, and it discounts weight — base 1 with no
     // skill, so the unbuffed discount is 1.
     assert_eq!(
-        crate::game_loop::weight::bonus_weight_penalty(&world, oid),
+        weight::bonus_weight_penalty(&world, oid),
         1,
         "Java's base is 1, not 0"
     );
     mods.add.insert(Stat::WeightPenalty, 9000.0);
     world.objects.add_components(&oid, mods);
     assert_eq!(
-        crate::game_loop::weight::bonus_weight_penalty(&world, oid),
+        weight::bonus_weight_penalty(&world, oid),
         9001,
         "Decrease Weight 3 discounts 9000 units of carried weight"
     );

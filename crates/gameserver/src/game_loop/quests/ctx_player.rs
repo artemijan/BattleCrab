@@ -222,11 +222,7 @@ impl<'w> QuestCtx<'w> {
     /// the `ai/others` behaviors use to remember something about a player
     /// (TeleportToRaceTrack's return point).
     pub fn player_var_int(&self, key: &str, default: i32) -> i32 {
-        self.world
-            .objects
-            .get_component::<crate::model::components::PlayerVariables>(&self.player)
-            .map(|v| v.get_int(key, default))
-            .unwrap_or(default)
+        crate::game_loop::helpers::player_var_int(self.world, self.player, key, default)
     }
 
     /// `player.getVariables().getString(key, null)` — the raw value, so a
@@ -239,10 +235,7 @@ impl<'w> QuestCtx<'w> {
     ///
     /// [`player_var_int`]: QuestCtx::player_var_int
     pub fn player_var(&self, key: &str) -> Option<String> {
-        self.world
-            .objects
-            .get_component::<crate::model::components::PlayerVariables>(&self.player)
-            .and_then(|v| v.0.get(key).cloned())
+        crate::game_loop::helpers::player_var(self.world, self.player, key).map(str::to_string)
     }
 
     /// `player.getVariables().set(key, value)` (memory-first — flushed with
@@ -251,13 +244,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return;
         }
-        if let Some(v) = self
-            .world
-            .objects
-            .get_component_mut::<crate::model::components::PlayerVariables>(&self.player)
-        {
-            v.set_int(key, value);
-        }
+        crate::game_loop::helpers::set_player_var_int(self.world, self.player, key, value);
     }
 
     /// `player.getVariables().remove(key)`.
@@ -265,13 +252,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return;
         }
-        if let Some(v) = self
-            .world
-            .objects
-            .get_component_mut::<crate::model::components::PlayerVariables>(&self.player)
-        {
-            v.0.remove(key);
-        }
+        crate::game_loop::helpers::unset_player_var(self.world, self.player, key);
     }
 
     /// The involved NPC's per-instance scratch value (Java

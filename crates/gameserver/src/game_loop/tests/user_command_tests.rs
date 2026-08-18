@@ -62,11 +62,10 @@ fn time_reports_the_game_clock() {
     // The day/night split and the clock math, on fixed instants: an in-game day
     // is 4 real hours from the epoch, and night is in-game 00:00–06:00.
     const IG_DAY_MS: i64 = 14_400_000;
-    let (day_id, hour, minute) =
-        crate::game_loop::user_commands::time_message(IG_DAY_MS / 2 + 610_000);
+    let (day_id, hour, minute) = user_commands::time_message(IG_DAY_MS / 2 + 610_000);
     assert_eq!(day_id, server_packets::sm_ids::THE_CURRENT_TIME_IS_S1_S2);
     assert_eq!((hour.as_str(), minute.as_str()), ("13", "01"));
-    let (night_id, hour, _) = crate::game_loop::user_commands::time_message(60_000);
+    let (night_id, hour, _) = user_commands::time_message(60_000);
     assert_eq!(
         night_id,
         server_packets::sm_ids::THE_CURRENT_TIME_IS_S1_S2_NIGHT,
@@ -97,11 +96,9 @@ fn party_info_reports_the_loot_rule() {
     let party_id = 7;
     world.parties.insert(
         party_id,
-        crate::model::party::Party::new(3001, LootRule::Random, 0),
+        model::party::Party::new(3001, LootRule::Random, 0),
     );
-    world
-        .objects
-        .add_components(&3001, crate::model::components::PartyRef(party_id));
+    world.objects.add_components(&3001, PartyRef(party_id));
     cmd(&mut world, 1, 81);
     assert_eq!(
         ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
@@ -247,9 +244,7 @@ fn olympiad_stat_needs_a_second_class_target() {
         .get_component_mut::<Player>(&3002)
         .unwrap()
         .class_id = 88;
-    world
-        .objects
-        .add_components(&3001, crate::model::components::TargetRef(Some(3002)));
+    world.objects.add_components(&3001, TargetRef(Some(3002)));
     cmd(&mut world, 1, 109);
     assert_eq!(
         ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
@@ -278,11 +273,11 @@ fn siege_status_needs_a_noble_leader_in_a_siege() {
     // Give the clan a running siege it is attacking.
     world.clans.insert(10, mk_clan(10, "Mine", 0, ""));
     world.data.root = crate::data::DIST_GAME.to_string();
-    let mut siege = crate::model::siege::Siege::new(1);
+    let mut siege = model::siege::Siege::new(1);
     siege.in_progress = true;
-    siege.clans.push(crate::model::siege::SiegeClan {
+    siege.clans.push(model::siege::SiegeClan {
         clan_id: 10,
-        kind: crate::model::siege::SiegeClanType::Attacker,
+        kind: model::siege::SiegeClanType::Attacker,
     });
     world.sieges.insert(1, siege);
     {

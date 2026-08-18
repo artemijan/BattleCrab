@@ -21,7 +21,7 @@ fn zone_at_origin(kind: ZoneKind, mother_tree: Option<MotherTreeParams>) -> Zone
         id: 0,
         name: format!("test_{kind:?}"),
         kind,
-        territory: crate::data::spawn_data::Territory {
+        territory: Territory {
             form: crate::data::spawn_data::ZoneForm::Cuboid {
                 x1: -1000,
                 x2: 1000,
@@ -135,14 +135,7 @@ fn a_no_summon_friend_zone_blocks_summon_friend() {
     use crate::model::skill::SkillCondition;
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
-    let ok = |w: &World| {
-        crate::game_loop::skills::conditions::check_for_test(
-            w,
-            PLAYER,
-            PLAYER,
-            &[SkillCondition::CallPc],
-        )
-    };
+    let ok = |w: &World| conditions::check_for_test(w, PLAYER, PLAYER, &[SkillCondition::CallPc]);
     assert!(ok(&world), "castable on open ground");
 
     world
@@ -166,12 +159,7 @@ fn a_wyvern_rider_may_only_untransform_over_a_landing_zone() {
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
     let ok = |w: &World| {
-        crate::game_loop::skills::conditions::check_for_test(
-            w,
-            PLAYER,
-            PLAYER,
-            &[SkillCondition::CanUntransform],
-        )
+        conditions::check_for_test(w, PLAYER, PLAYER, &[SkillCondition::CanUntransform])
     };
     assert!(ok(&world), "on foot, anywhere");
 
@@ -208,12 +196,7 @@ fn the_landing_zone_is_geometric() {
         .zone_data
         .insert(zone_at_origin(ZoneKind::Landing, None));
     let ok = |w: &World| {
-        crate::game_loop::skills::conditions::check_for_test(
-            w,
-            PLAYER,
-            PLAYER,
-            &[SkillCondition::CanUntransform],
-        )
+        conditions::check_for_test(w, PLAYER, PLAYER, &[SkillCondition::CanUntransform])
     };
     assert!(ok(&world), "inside");
 

@@ -1,6 +1,6 @@
 //! `l2r-tools export-icon` — pull item icons out of the client as PNGs.
 //!
-//! See [`tools::utx`] for the package format; this module is only flags,
+//! See [`utx`] for the package format; this module is only flags,
 //! grouping by package so each `.utx` is opened once, and file writing.
 //! Output names are lowercased — Unreal treats names case-insensitively, so
 //! nothing collides, and the dashboard gets stable paths to link against.

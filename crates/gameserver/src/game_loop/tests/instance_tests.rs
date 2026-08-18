@@ -33,7 +33,7 @@ fn players_share_visibility_only_within_an_instance() {
     let _rx_b = ingame_player(&mut world, 2, 200, 1000, 1000, 0);
 
     // Same instance (both overworld) → they see each other on enter.
-    crate::game_loop::visibility::on_enter_world(&world, 1, 100);
+    visibility::on_enter_world(&world, 1, 100);
     assert!(
         saw_char_info(&drain(&mut rx_a)),
         "same instance: CharInfo exchanged"
@@ -41,7 +41,7 @@ fn players_share_visibility_only_within_an_instance() {
 
     // Move A into a private instance → no cross-instance CharInfo.
     world.objects.add_components(&100, InstanceId(7));
-    crate::game_loop::visibility::on_enter_world(&world, 1, 100);
+    visibility::on_enter_world(&world, 1, 100);
     assert!(
         !saw_char_info(&drain(&mut rx_a)),
         "different instances: invisible to each other"
@@ -62,7 +62,7 @@ fn npcs_are_visible_only_within_their_instance() {
 
     // Player in a private instance, NPC in the overworld → NPC hidden.
     world.objects.add_components(&100, InstanceId(3));
-    crate::game_loop::visibility::on_enter_world(&world, 1, 100);
+    visibility::on_enter_world(&world, 1, 100);
     assert!(
         !saw_npc_info(&drain(&mut rx)),
         "an instanced player doesn't see overworld NPCs"
@@ -70,7 +70,7 @@ fn npcs_are_visible_only_within_their_instance() {
 
     // Move the NPC into the same instance → now visible.
     world.objects.add_components(&800, InstanceId(3));
-    crate::game_loop::visibility::on_enter_world(&world, 1, 100);
+    visibility::on_enter_world(&world, 1, 100);
     assert!(
         saw_npc_info(&drain(&mut rx)),
         "a same-instance NPC is visible"
@@ -324,7 +324,7 @@ fn destroy_ousts_members_and_despawns_npcs() {
     assert!(
         world
             .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .get_component::<model::npc::Npc>(&npc_oid)
             .is_none(),
         "the instance's NPC was despawned"
     );
@@ -353,7 +353,7 @@ fn instanced_npc_despawn_reaches_only_the_instance() {
 
     let region = world
         .objects
-        .get_component::<crate::model::components::RegionCell>(&800)
+        .get_component::<model::components::RegionCell>(&800)
         .expect("npc region")
         .0;
     crate::game_loop::death::despawn_npc(&mut world, 800, region);

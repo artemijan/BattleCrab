@@ -17,8 +17,8 @@ fn line(ty: ChatType, text: &str) -> Vec<u8> {
 fn two_players(
     world: &mut World,
 ) -> (
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<bytes::Bytes>,
 ) {
     let speaker = ingame_player(world, 1, 2001, 0, 0, 0);
     let listener = ingame_player(world, 2, 2002, 0, 0, 0);
@@ -30,7 +30,7 @@ fn two_players(
             .level = 40;
         world
             .objects
-            .add_components(&oid, crate::model::components::PlayerVariables::default());
+            .add_components(&oid, model::components::PlayerVariables::default());
     }
     (speaker, listener)
 }
@@ -71,7 +71,7 @@ fn jail_silences_four_channels_and_leaves_the_rest_open() {
         // Java answers with `sendMessage(String)`, which is SM `S1_TEXT` — not
         // one of the prohibition SystemMessages the chat-ban path sends.
         assert_eq!(
-            ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
+            ids_after_opcode(&drain(&mut rx), opcodes::SYSTEM_MESSAGE),
             vec![sm_ids::S1_TEXT],
             "{ty:?} refused with Java's literal jail line"
         );
@@ -134,7 +134,7 @@ fn the_olympiad_gate_silences_every_channel() {
             "{ty:?} must not reach anyone while registered"
         );
         assert_eq!(
-            ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
+            ids_after_opcode(&drain(&mut rx), opcodes::SYSTEM_MESSAGE),
             vec![sm_ids::YOU_CANNOT_CHAT_WHILE_PARTICIPATING_IN_THE_OLYMPIAD],
             "{ty:?} refused with the olympiad line"
         );

@@ -26,7 +26,7 @@ fn buff_skill(id: i32, effects: Vec<SkillEffect>, stay_after_death: bool) -> Ski
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -70,7 +70,7 @@ fn buff_skill(id: i32, effects: Vec<SkillEffect>, stay_after_death: bool) -> Ski
 
 fn death_buff_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
-    let pump = SkillEffect::StatModifier(crate::model::skill::StatModifierEffect {
+    let pump = SkillEffect::StatModifier(model::skill::StatModifierEffect {
         stat: Stat::PhysicalAttack,
         mode: StatModifierType::Per,
         amount: 8.0,

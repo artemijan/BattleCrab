@@ -337,11 +337,7 @@ fn a_taxed_multisell_feeds_the_treasury() {
         "the window latched the rate it displayed"
     );
 
-    crate::game_loop::multisell::handle_multi_sell_choose(
-        &mut world,
-        1,
-        &multisell_choose_body(9001, 1, 1),
-    );
+    multisell::handle_multi_sell_choose(&mut world, 1, &multisell_choose_body(9001, 1, 1));
 
     assert_eq!(
         adena_of(&world, 3001),
@@ -364,12 +360,8 @@ fn a_multisell_without_apply_taxes_is_untaxed() {
     insert_tax_zone(&mut world, GLUDIO);
     insert_taxed_multisell(&mut world, 9002, 100, false);
 
-    crate::game_loop::multisell::separate_and_send(&mut world, 1, 3001, Some(NPC_OID), 9002, false);
-    crate::game_loop::multisell::handle_multi_sell_choose(
-        &mut world,
-        1,
-        &multisell_choose_body(9002, 1, 1),
-    );
+    multisell::separate_and_send(&mut world, 1, 3001, Some(NPC_OID), 9002, false);
+    multisell::handle_multi_sell_choose(&mut world, 1, &multisell_choose_body(9002, 1, 1));
 
     assert_eq!(adena_of(&world, 3001), 900, "the bare ingredient count");
     assert_eq!(treasury(&world, GLUDIO), 0);
@@ -379,7 +371,7 @@ fn a_multisell_without_apply_taxes_is_untaxed() {
 
 /// A world with Gludio's chamberlain (35100, object 701) and player 100 in
 /// front of it.
-fn chamberlain_vault_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn chamberlain_vault_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, _db, _link) = quest_test_world();
     with_castles(&mut world);
     add_test_npc(&mut world, 701, 35100, "Merchant", 75, 0, 0, 0);
@@ -392,10 +384,7 @@ fn chamberlain_vault_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<byt
 fn own_as_leader(world: &mut World, castle_id: i32, clan_id: i32) {
     own(world, castle_id, clan_id);
     world.clans.get_mut(&clan_id).unwrap().leader_id = 100;
-    let p = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&100)
-        .unwrap();
+    let p = world.objects.get_component_mut::<Player>(&100).unwrap();
     p.clan_id = clan_id;
 }
 
@@ -414,7 +403,7 @@ fn chamberlain(world: &mut World, event: &str) {
 fn the_chamberlain_deposits_and_withdraws() {
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, GLUDIO, 500);
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 200_000);
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 200_000);
     drain(&mut rx);
 
     chamberlain(&mut world, "deposit 150000");
@@ -465,7 +454,7 @@ fn withdrawing_over_the_balance_is_refused() {
 fn depositing_more_than_you_hold_is_refused() {
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, GLUDIO, 500);
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 100);
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 100);
     drain(&mut rx);
 
     chamberlain(&mut world, "deposit 5000");
@@ -486,7 +475,7 @@ fn the_vault_gates_on_ownership() {
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, 2, 500); // Dion, not Gludio
     own(&mut world, GLUDIO, 501); // Gludio belongs to someone else
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000);
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000);
     drain(&mut rx);
 
     chamberlain(&mut world, "deposit 5000");
@@ -507,7 +496,7 @@ fn castle_functions_buy_renew_and_lapse() {
     use crate::model::castle::FUNC_RESTORE_HP;
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, GLUDIO, 500);
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 50_000);
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 50_000);
     drain(&mut rx);
 
     // Buy HP-regen level 300 (fee 12,000 from Feature.ini defaults).
@@ -554,7 +543,7 @@ fn castle_functions_buy_renew_and_lapse() {
 fn the_buffer_needs_the_rented_support_function() {
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, GLUDIO, 500);
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 100_000);
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 100_000);
     drain(&mut rx);
 
     chamberlain(&mut world, "buffer");
@@ -564,12 +553,8 @@ fn the_buffer_needs_the_rented_support_function() {
         "the function-disabled page: {page}"
     );
     assert!(
-        crate::game_loop::castle::castle_function(
-            &world,
-            GLUDIO,
-            crate::model::castle::FUNC_SUPPORT
-        )
-        .is_none()
+        crate::game_loop::castle::castle_function(&world, GLUDIO, model::castle::FUNC_SUPPORT)
+            .is_none()
     );
 
     // Rent support level 5 (49,000) and ask again.
@@ -590,7 +575,7 @@ fn the_buffer_needs_the_rented_support_function() {
 fn trap_upgrade_pays_once_and_remembers_the_level() {
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, GLUDIO, 500);
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000_000);
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000_000);
     drain(&mut rx);
 
     chamberlain(&mut world, "upgrade_trap_confirm 0 2");
@@ -650,7 +635,7 @@ fn castle_regen_multiplier_keeps_javas_integer_division() {
     crate::game_loop::castle::update_castle_function(
         &mut world,
         GLUDIO,
-        crate::model::castle::FUNC_RESTORE_HP,
+        model::castle::FUNC_RESTORE_HP,
         300,
         12_000,
         604_800_000,
@@ -658,7 +643,7 @@ fn castle_regen_multiplier_keeps_javas_integer_division() {
     crate::game_loop::castle::update_castle_function(
         &mut world,
         GLUDIO,
-        crate::model::castle::FUNC_RESTORE_MP,
+        model::castle::FUNC_RESTORE_MP,
         40,
         45_000,
         604_800_000,
@@ -680,7 +665,7 @@ fn the_crown_is_granted_once() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&100)
+            .get_component::<Inventory>(&100)
             .unwrap()
             .count_of(6841),
         1,
@@ -690,7 +675,7 @@ fn the_crown_is_granted_once() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::inventory::Inventory>(&100)
+            .get_component::<Inventory>(&100)
             .unwrap()
             .count_of(6841),
         1,
@@ -711,7 +696,7 @@ fn a_purchase_that_does_not_fit_is_refused_before_charging() {
     // Squeeze the bag shut: one free slot short of what the buy needs.
     let used = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&3001)
+        .get_component::<Inventory>(&3001)
         .unwrap()
         .non_quest_size(&world.data.item_data) as i32;
     world.cfg.character.inventory_max_no_dwarf = used;

@@ -934,7 +934,7 @@ pub enum DbCommand {
     /// Persist a whole mail message (Java `Message.getStatement` INSERT) —
     /// G30. Attachments are separate `items` rows, written by `StoreMailItems`.
     StoreMail {
-        message: crate::db::MailRow,
+        message: MailRow,
     },
     /// Flip one of the message's boolean columns (Java's four one-column
     /// UPDATEs on `messages`), or delete the row when `delete` is set.
@@ -955,14 +955,14 @@ pub enum DbCommand {
     /// the owner's other warehouse rows are untouched.
     StoreOfflineWarehouseItems {
         owner_id: i32,
-        items: Vec<crate::character::ItemRow>,
+        items: Vec<ItemRow>,
     },
     /// Replace the `loc = 'MAIL'` item rows of one message (delete-then-insert,
     /// the house style for a whole container).
     StoreMailItems {
         message_id: i32,
         owner_id: i32,
-        items: Vec<crate::character::ItemRow>,
+        items: Vec<ItemRow>,
     },
     StoreLottery {
         idnr: i32,
@@ -1229,7 +1229,7 @@ pub enum DbEvent {
     /// + `CharInfoTable`, G30). Pushed unprompted at boot.
     MailLoaded {
         messages: Vec<crate::model::mail::Message>,
-        attachments: Vec<(i32, Vec<crate::character::ItemRow>)>,
+        attachments: Vec<(i32, Vec<ItemRow>)>,
         char_ids_by_name: Vec<(String, i32)>,
         /// Every character's ignore list (Java `BlockList`). Rides this event
         /// because it is wanted at the same moment and for the same reason as
@@ -1498,7 +1498,7 @@ mod size_guards {
     /// Boxing that one field brought the enum to 200 B.
     #[test]
     fn db_command_stays_small() {
-        let size = std::mem::size_of::<DbCommand>();
+        let size = size_of::<DbCommand>();
         assert!(
             size <= 256,
             "DbCommand grew to {size} B — every queued command, however small, \

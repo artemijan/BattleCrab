@@ -235,7 +235,7 @@ pub struct Player {
     /// Inactive indices' worn hennas — dyes are per-subclass.
     pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
     /// Inactive indices' shortcut bars.
-    pub shortcuts_by_index: std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>>,
+    pub shortcuts_by_index: std::collections::HashMap<i32, Vec<shortcut::Shortcut>>,
     pub base_level: i32,
     pub base_exp: i64,
     pub base_sp: i64,
@@ -1836,11 +1836,7 @@ impl Player {
         // `EnlargeAbnormalSlot` (Divine Inspiration 1405) raises the *good
         // buff* cap only — Java's `setMaxBuffCount`, which `EffectList` reads
         // for the buff pool and never for dances (G34 S4).
-        let bonus_slots = mods
-            .add
-            .get(&crate::model::stats::Stat::MaxBuffSlots)
-            .copied()
-            .unwrap_or(0.0) as i32;
+        let bonus_slots = mods.add.get(&Stat::MaxBuffSlots).copied().unwrap_or(0.0) as i32;
         let cap = match buff.slot {
             BuffSlot::Buff => Some(data.combat_caps.max_buff_count + bonus_slots),
             BuffSlot::Dance => Some(data.combat_caps.max_dance_count),
@@ -2259,10 +2255,7 @@ pub(crate) fn weapon_condition_passes(
 /// new flat base-stat source belongs here and nowhere else.
 ///
 /// `None` when the object has no `Player`, i.e. nothing to compose for.
-pub(crate) fn compose_base_stats(
-    world: &crate::world::World,
-    oid: i32,
-) -> Option<components::BaseStats> {
+pub(crate) fn compose_base_stats(world: &crate::world::World, oid: i32) -> Option<BaseStats> {
     let (class_id, base_class_id) = world
         .objects
         .get_component::<Player>(&oid)
@@ -2283,7 +2276,7 @@ pub(crate) fn compose_base_stats(
     // Java sums the set bonus as a double into the finalizer's base value and
     // the consumer truncates; every `<stat val>` on this dist is a whole
     // number, so the cast is exact rather than lossy.
-    Some(components::BaseStats {
+    Some(BaseStats {
         str_: t.base_str + hs.str_ + sets.str_ as i32,
         dex: t.base_dex + hs.dex + sets.dex as i32,
         con: t.base_con + hs.con + sets.con as i32,

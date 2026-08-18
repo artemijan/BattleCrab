@@ -18,7 +18,7 @@ fn aoe_skill(id: i32, scope: AffectScope, object: AffectObject, range: i32) -> S
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -336,27 +336,25 @@ fn toggle_switches_on_and_off() {
     let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&CASTER)
+        .get_component_mut::<SkillBook>(&CASTER)
         .unwrap()
         .0
         .insert(9100, 1);
     drain(&mut out);
 
     // On: toggles are instant, so the buff is live without advancing any ticks.
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9100, false, false);
+    use_magic(&mut world, CID, CASTER, 9100, false, false);
     assert!(
         has_buff(&world, CASTER, 9100),
         "first use switches the toggle on"
     );
     assert!(
-        !world
-            .objects
-            .has_component::<crate::model::components::Casting>(&CASTER),
+        !world.objects.has_component::<Casting>(&CASTER),
         "a toggle is an instant cast — it never occupies the cast bar"
     );
 
     // Off: the recast strips it.
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9100, false, false);
+    use_magic(&mut world, CID, CASTER, 9100, false, false);
     assert!(
         !has_buff(&world, CASTER, 9100),
         "second use switches it back off"
@@ -374,18 +372,18 @@ fn toggles_in_a_group_are_mutually_exclusive() {
     {
         let book = world
             .objects
-            .get_component_mut::<crate::model::components::SkillBook>(&CASTER)
+            .get_component_mut::<SkillBook>(&CASTER)
             .unwrap();
         book.0.insert(9101, 1);
         book.0.insert(9102, 1);
     }
     drain(&mut out);
 
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9101, false, false);
+    use_magic(&mut world, CID, CASTER, 9101, false, false);
     assert!(has_buff(&world, CASTER, 9101));
 
     // The sibling replaces it rather than stacking.
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9102, false, false);
+    use_magic(&mut world, CID, CASTER, 9102, false, false);
     assert!(
         has_buff(&world, CASTER, 9102),
         "the newly toggled skill is on"
@@ -416,7 +414,7 @@ fn aoe_nuke_damages_the_whole_cluster() {
     let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&CASTER)
+        .get_component_mut::<SkillBook>(&CASTER)
         .unwrap()
         .0
         .insert(9200, 1);
@@ -436,7 +434,7 @@ fn aoe_nuke_damages_the_whole_cluster() {
     );
     drain(&mut out);
 
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9200, true, false);
+    use_magic(&mut world, CID, CASTER, 9200, true, false);
     // The cast is phased (not a toggle), so let it run to the finish.
     advance_ticks(&mut world, 60);
 
@@ -476,19 +474,19 @@ fn dead_pledge_scope_gathers_only_the_clans_corpses() {
     for oid in [CASTER, dead_mate, live_mate] {
         world
             .objects
-            .get_component_mut::<crate::model::Player>(&oid)
+            .get_component_mut::<Player>(&oid)
             .unwrap()
             .clan_id = 77;
     }
     world
         .objects
-        .get_component_mut::<crate::model::Player>(&dead_outsider)
+        .get_component_mut::<Player>(&dead_outsider)
         .unwrap()
         .clan_id = 88;
     for oid in [dead_mate, dead_outsider] {
         world
             .objects
-            .get_component_mut::<crate::model::components::Vitals>(&oid)
+            .get_component_mut::<Vitals>(&oid)
             .unwrap()
             .dead = true;
     }
@@ -508,7 +506,7 @@ fn dead_pledge_scope_gathers_only_the_clans_corpses() {
     // Out of range → nothing at all, and the caster is still not in the list.
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&dead_mate)
+        .get_component_mut::<Position>(&dead_mate)
         .unwrap()
         .x = 5000;
     assert!(
@@ -543,7 +541,7 @@ fn dead_party_scope_respects_the_affect_limit() {
     for oid in [a, b] {
         world
             .objects
-            .get_component_mut::<crate::model::components::Vitals>(&oid)
+            .get_component_mut::<Vitals>(&oid)
             .unwrap()
             .dead = true;
     }

@@ -53,7 +53,7 @@ pub struct TvtState {
     pub arena_managers: Vec<i32>,
     /// Per-player generation of the inactivity clock (Java cancels the
     /// `KickPlayer<oid>` timers by name; the port bumps this instead).
-    pub inactivity_seq: std::collections::HashMap<i32, u64>,
+    pub inactivity_seq: HashMap<i32, u64>,
     /// Generation of the running countdown chain (Java cancels its `"10"`…`"1"`
     /// timers by name; the port bumps this instead). Ticks carrying a stale
     /// value are dropped.

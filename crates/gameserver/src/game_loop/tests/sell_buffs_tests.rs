@@ -16,8 +16,8 @@ const BUFF: i32 = 1204;
 /// A world with the feature on, both players in range, and one sellable buff.
 fn sell_world() -> (
     World,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-    tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<bytes::Bytes>,
+    UnboundedReceiver<bytes::Bytes>,
 ) {
     let (mut world, ..) = test_world();
     world.id_pool = 0x4A00_0000..0x4A00_0100;
@@ -35,7 +35,7 @@ fn sell_world() -> (
     adena.is_stackable = true;
     world.data.item_data.insert_for_test(adena);
 
-    let mut skill = crate::model::skill::Skill {
+    let mut skill = Skill {
         self_continuous: false,
         id: BUFF,
         level: 1,
@@ -58,7 +58,7 @@ fn sell_world() -> (
     for oid in [SELLER, BUYER] {
         world
             .objects
-            .get_component_mut::<crate::model::components::ZoneFlags>(&oid)
+            .get_component_mut::<model::components::ZoneFlags>(&oid)
             .unwrap()
             .mask |= crate::data::zone_data::ZoneKind::Peace.bit();
     }
@@ -217,7 +217,7 @@ fn a_distant_buyer_cannot_reach_the_shop() {
     }
     world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&BUYER)
+        .get_component_mut::<Position>(&BUYER)
         .unwrap()
         .x = 5000;
 

@@ -175,14 +175,14 @@ fn teleport_action_moves_player_and_hides_board() {
     assert!(
         world
             .objects
-            .has_component::<crate::model::components::SkillsDisabled>(&7004),
+            .has_component::<model::components::SkillsDisabled>(&7004),
         "skills are locked around the teleport"
     );
     advance_ticks(&mut world, 31);
     assert!(
         !world
             .objects
-            .has_component::<crate::model::components::SkillsDisabled>(&7004),
+            .has_component::<model::components::SkillsDisabled>(&7004),
         "the 3 s window re-enables them"
     );
 }
@@ -788,7 +788,7 @@ fn npc_trace_marks_a_live_spawn() {
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7301, 0, 0, 0);
     // A live NPC (template 12345) spawned at a known location.
-    let (npc, extra) = crate::model::npc::Npc::for_test(9001, 12345, 111, 222, 333, 100, 100);
+    let (npc, extra) = model::npc::Npc::for_test(9001, 12345, 111, 222, 333, 100, 100);
     world.objects.spawn(9001, (npc, extra));
     drain(&mut rx);
 
@@ -899,7 +899,7 @@ fn the_combat_check_refuses_a_custom_action_in_a_duel() {
     // path attaches.
     world
         .objects
-        .add_components(&7101, crate::model::components::DuelRef(1));
+        .add_components(&7101, model::components::DuelRef(1));
 
     handle_parse_command(&mut world, 1, "_bbsheal;");
     assert_eq!(
@@ -922,7 +922,7 @@ fn the_combat_check_refuses_a_custom_action_in_a_siege_zone() {
     }
     world
         .objects
-        .get_component_mut::<crate::model::components::ZoneFlags>(&7103)
+        .get_component_mut::<model::components::ZoneFlags>(&7103)
         .unwrap()
         .mask |= crate::data::zone_data::ZoneKind::Siege.bit();
     drain(&mut rx);
@@ -1096,7 +1096,7 @@ fn cb_test_clan(id: i32, name: &str, leader: i32, level: i32, castle_id: i32) ->
         level,
         reputation_score: 0,
         castle_id,
-        members: vec![crate::model::clan::ClanMember {
+        members: vec![model::clan::ClanMember {
             char_id: leader,
             name: format!("P{leader}"),
             level: 1,
@@ -1126,7 +1126,7 @@ fn cb_test_clan(id: i32, name: &str, leader: i32, level: i32, castle_id: i32) ->
         blood_alliance_count: 0,
     }
 }
-fn filter_show_board_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) -> String {
+fn filter_show_board_html(rx: &mut UnboundedReceiver<bytes::Bytes>) -> String {
     filter_show_board_html_from_bytes(drain(rx))
 }
 fn filter_show_board_html_from_bytes(data: Vec<Vec<u8>>) -> String {
@@ -1200,7 +1200,7 @@ fn region_board_renders_the_castles() {
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7001, 0, 0, 0);
     world.castles = (1..=9)
-        .map(|id| crate::model::castle::Castle {
+        .map(|id| model::castle::Castle {
             id,
             name: format!("C{id}"),
             side: castle::CastleSide::Neutral,

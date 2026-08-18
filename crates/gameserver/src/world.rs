@@ -114,7 +114,7 @@ pub struct World {
     /// `Player._inventoryDisable`), by object id.
     ///
     /// Set when a shop / warehouse / wear window opens and cleared 1500 ms
-    /// later by [`crate::scheduler::ScheduledTask::InventoryEnable`]. The
+    /// later by [`ScheduledTask::InventoryEnable`]. The
     /// client emits spurious `RequestItemList`s while such a window is coming
     /// up, and answering them clobbers the window it just drew.
     pub inventory_blocked: std::collections::HashSet<i32>,
@@ -177,7 +177,7 @@ pub struct World {
     /// cannot give us: Java's flag dies with the `Item` instance at logout, so
     /// a beat left in flight by a previous session must not be mistaken for
     /// this one's. See [`crate::game_loop::item_mana`].
-    pub item_mana_consuming: std::collections::HashMap<i32, u64>,
+    pub item_mana_consuming: HashMap<i32, u64>,
     /// Items shift-clicked into a chat line, as item object id → the object id
     /// of the player who linked it — Java's per-`Item` `_published` flag, set
     /// by `Say2.parseAndPublishItem` and read by `RequestExRqItemLink` before
@@ -427,7 +427,7 @@ pub struct World {
     /// Offline character name -> object id, loaded once at boot (Java
     /// `CharInfoTable`). Mail is addressed by name to characters who need not
     /// be online, which is the only reason this exists. Keys are lowercased.
-    pub char_ids_by_name: std::collections::HashMap<String, i32>,
+    pub char_ids_by_name: HashMap<String, i32>,
 
     /// Every character's ignore list — owner id → blocked ids (Java
     /// `BlockList`, the `relation = 1` rows of `character_friends`).
@@ -443,7 +443,7 @@ pub struct World {
     /// Holds only the `isInBlockList` half of Java's `isBlocked`; the
     /// `isBlockAll` half is the live message-refusal flag. Always ask through
     /// `game_loop::block_list::is_blocked`.
-    pub block_lists: std::collections::HashMap<i32, std::collections::HashSet<i32>>,
+    pub block_lists: HashMap<i32, std::collections::HashSet<i32>>,
 
     /// The Monster Race Track runtime (G26.5).
     pub monster_race: crate::model::monster_race::MonsterRaceState,
@@ -613,7 +613,7 @@ impl World {
             npcs_by_id: rustc_hash::FxHashMap::default(),
             player_regions: rustc_hash::FxHashMap::default(),
             effect_zone_next_tick: HashMap::new(),
-            item_mana_consuming: std::collections::HashMap::new(),
+            item_mana_consuming: HashMap::new(),
             published_items: HashMap::new(),
             world_chat_reuse: HashMap::new(),
             minions_placed: 0,
@@ -676,8 +676,8 @@ impl World {
             item_auctions: crate::model::item_auction::ItemAuctionManager::default(),
             matching_rooms: crate::model::matching_room::MatchingRoomManager::default(),
             mail: crate::model::mail::MailManager::default(),
-            char_ids_by_name: std::collections::HashMap::new(),
-            block_lists: std::collections::HashMap::new(),
+            char_ids_by_name: HashMap::new(),
+            block_lists: HashMap::new(),
             monster_race: crate::model::monster_race::MonsterRaceState::default(),
             punishments: crate::model::punishment::PunishmentManager::default(),
             petitions: crate::model::petition::PetitionManager::default(),
@@ -1044,8 +1044,8 @@ impl World {
         const LOW_WATER: i64 = 200;
         let remaining = self.id_pool.end - self.id_pool.start;
         if remaining == LOW_WATER {
-            let _ = self.db.send(crate::db::DbCommand::ReserveIds {
-                count: crate::db::ID_BLOCK_SIZE,
+            let _ = self.db.send(db::DbCommand::ReserveIds {
+                count: db::ID_BLOCK_SIZE,
             });
         }
         self.id_pool.next().map(|id| id as i32)

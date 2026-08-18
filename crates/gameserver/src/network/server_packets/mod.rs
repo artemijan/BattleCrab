@@ -88,6 +88,55 @@ pub use variation::*;
 pub use vehicle::*;
 pub use warehouse::*;
 
+/// Java `ServerPacket.PAPERDOLL_ORDER` — the 33-slot equipment write order the
+/// client expects, mapped from the `InventorySlot` wire order.
+///
+/// It is the base-class default, so it lives here rather than in either packet
+/// that inherits it: `CharSelectionInfo` (`lobby`) and `GMViewCharacterInfo`
+/// (`gm_view`) both write it because neither overrides `getPaperdollOrder()`
+/// the way `CharInfo` does — those overrides stay private to their own files.
+///
+/// `RHand` appears twice (the slot the LRHAND display component reads), and
+/// everything past `Brooch` is post-Interlude and always empty here.
+pub const PAPERDOLL_ORDER: [crate::model::inventory::PaperdollSlot; 33] = {
+    use crate::model::inventory::PaperdollSlot;
+    [
+        PaperdollSlot::Under,
+        PaperdollSlot::REar,
+        PaperdollSlot::LEar,
+        PaperdollSlot::Neck,
+        PaperdollSlot::RFinger,
+        PaperdollSlot::LFinger,
+        PaperdollSlot::Head,
+        PaperdollSlot::RHand,
+        PaperdollSlot::LHand,
+        PaperdollSlot::Gloves,
+        PaperdollSlot::Chest,
+        PaperdollSlot::Legs,
+        PaperdollSlot::Feet,
+        PaperdollSlot::Cloak,
+        PaperdollSlot::RHand,
+        PaperdollSlot::Hair,
+        PaperdollSlot::Hair2,
+        PaperdollSlot::RBracelet,
+        PaperdollSlot::LBracelet,
+        PaperdollSlot::Deco1,
+        PaperdollSlot::Deco2,
+        PaperdollSlot::Deco3,
+        PaperdollSlot::Deco4,
+        PaperdollSlot::Deco5,
+        PaperdollSlot::Deco6,
+        PaperdollSlot::Belt,
+        PaperdollSlot::Brooch,
+        PaperdollSlot::BroochJewel1,
+        PaperdollSlot::BroochJewel2,
+        PaperdollSlot::BroochJewel3,
+        PaperdollSlot::BroochJewel4,
+        PaperdollSlot::BroochJewel5,
+        PaperdollSlot::BroochJewel6,
+    ]
+};
+
 /// An extended packet's header: the `0xFE` opcode plus its sub-opcode, ready
 /// for the builder to append its own body. Every `Ex…` builder starts here, so
 /// it lives beside the submodules rather than being redefined in each of them.

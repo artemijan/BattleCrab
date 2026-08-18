@@ -1006,8 +1006,8 @@ pub(crate) fn randomize_spawn_point(
     }
     let range = cfg.max_range;
     let (rx, ry) = (
-        x + commons::util::rnd::get_range(-range, range),
-        y + commons::util::rnd::get_range(-range, range),
+        x + rnd::get_range(-range, range),
+        y + rnd::get_range(-range, range),
     );
     // `canMoveToTarget && canSeeTarget` — keep the mob out of geometry.
     if world.geo.can_move_to_target(x, y, z, rx, ry, z)

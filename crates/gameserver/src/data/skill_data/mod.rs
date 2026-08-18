@@ -869,8 +869,7 @@ fn declared_sub_ranges(
     // Rows within one route are often fragmented (`1001–1005`, `1006–1006`,
     // …), so merge by the route bucket (`sub / 1000`) — the registry's unit
     // is the route, and instances are built over the merged span.
-    let mut buckets: std::collections::BTreeMap<i32, (i32, i32)> =
-        std::collections::BTreeMap::new();
+    let mut buckets: BTreeMap<i32, (i32, i32)> = BTreeMap::new();
     let mut add = |from_sub: i32, to_sub: i32| {
         let e = buckets.entry(from_sub / 1000).or_insert((from_sub, to_sub));
         e.0 = e.0.min(from_sub);

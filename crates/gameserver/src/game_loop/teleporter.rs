@@ -402,7 +402,7 @@ pub(crate) fn do_teleport(
 
 /// `Teleporter.sendHtmlMessage`: a fixed page from `data/html/teleporter/`
 /// with the `%objectId%`/`%npcname%` replacements.
-fn send_teleporter_html(world: &World, client_id: u32, npc_object_id: i32, file: &str) {
+pub(crate) fn send_teleporter_html(world: &World, client_id: u32, npc_object_id: i32, file: &str) {
     let name = npc_name_or_empty(world, npc_object_id);
     let html =
         crate::data::htm_cache::read_htm(format!("{}data/html/teleporter/{file}", world.data.root))
@@ -466,10 +466,4 @@ pub(crate) fn castle_landing_page(
     } else {
         "castleteleporter-no.htm".to_string()
     })
-}
-
-/// Send one of the fixed `data/html/teleporter/` pages (the castle landing
-/// pages), with Java's `%objectId%`/`%npcname%` replacements.
-pub(crate) fn send_landing_page(world: &World, client_id: u32, npc_object_id: i32, file: &str) {
-    send_teleporter_html(world, client_id, npc_object_id, file);
 }

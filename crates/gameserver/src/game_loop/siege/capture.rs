@@ -59,7 +59,7 @@ pub(super) fn increase_blood_alliance(world: &mut World, clan_id: i32) {
 pub(super) fn reset_castle_ticket_count(world: &mut World, castle_id: i32) {
     // The postings themselves are cleared regardless of the counter: a castle
     // restored from the DB has mercenaries but no live buy count.
-    super::mercenaries::clear_castle(world, castle_id);
+    mercenaries::clear_castle(world, castle_id);
     let Some(castle) = world.castle_mut(castle_id) else {
         return;
     };

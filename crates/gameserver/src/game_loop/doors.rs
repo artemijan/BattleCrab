@@ -110,7 +110,7 @@ pub(crate) fn open_door_timed(world: &mut World, door_id: i32, close_ticks: u64)
     {
         world.scheduler.schedule(
             world.tick + close_ticks,
-            crate::scheduler::ScheduledTask::DoorAutoClose {
+            ScheduledTask::DoorAutoClose {
                 door_object_id: oid,
                 seq,
             },

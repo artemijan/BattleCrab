@@ -243,23 +243,19 @@ pub(crate) fn handle_request_gm_list(world: &mut World, client_id: u32) {
         .collect();
     names.sort();
     if names.is_empty() {
-        crate::game_loop::helpers::send_sm_bare_to_client(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
-            server_packets::sm_ids::THERE_ARE_NO_GMS_CURRENTLY_VISIBLE,
+            sm_ids::THERE_ARE_NO_GMS_CURRENTLY_VISIBLE,
         );
         return;
     }
-    crate::game_loop::helpers::send_sm_bare_to_client(
-        world,
-        client_id,
-        server_packets::sm_ids::GM_LIST,
-    );
+    helpers::send_sm_bare_to_client(world, client_id, sm_ids::GM_LIST);
     for name in names {
-        crate::game_loop::helpers::send_sm_to_client(
+        helpers::send_sm_to_client(
             world,
             client_id,
-            server_packets::sm_ids::GM_C1,
+            sm_ids::GM_C1,
             &[server_packets::SmParam::Text(name)],
         );
     }
@@ -302,7 +298,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         }
         "admin_serverinfo" => admin_serverinfo(world, client_id),
         // `AdminManor` — the manor status page (`game_menu.htm`'s "Manor info").
-        "admin_manor" => castle::admin_manor(world, client_id),
+        "admin_manor" => admin_manor(world, client_id),
         // Instances (G27) — the `AdminInstance` panel: overview, template list /
         // detail, and create / teleport / destroy.
         "admin_instance" | "admin_instances" => admin_instance_panel(world, client_id),
@@ -325,7 +321,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Super-haste movement buff (self).
         "admin_superhaste" | "admin_speed" => admin_superhaste(world, client_id, object_id, &args),
         "admin_superhaste_menu" | "admin_speed_menu" => {
-            menu::show_admin_html(world, client_id, "gm_menu.htm")
+            show_admin_html(world, client_id, "gm_menu.htm")
         }
         // Directional self-nudge.
         "admin_gonorth" => admin_go(world, client_id, object_id, "north", &args),
@@ -345,9 +341,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             admin_teleport_menu(world, client_id, command)
         }
         // AdminRide — strider/wolf/wyvern are mounts; horse/bike are transforms.
-        "admin_ride_strider" => admin_ride(world, client_id, object_id, mounts::Mount::Strider),
-        "admin_ride_wolf" => admin_ride(world, client_id, object_id, mounts::Mount::Wolf),
-        "admin_ride_wyvern" => admin_ride(world, client_id, object_id, mounts::Mount::Wyvern),
+        "admin_ride_strider" => admin_ride(world, client_id, object_id, Mount::Strider),
+        "admin_ride_wolf" => admin_ride(world, client_id, object_id, Mount::Wolf),
+        "admin_ride_wyvern" => admin_ride(world, client_id, object_id, Mount::Wyvern),
         "admin_ride_horse" => admin_ride_transform(world, client_id, object_id, 106),
         "admin_ride_bike" => admin_ride_transform(world, client_id, object_id, 20001),
         "admin_unride" | "admin_unride_strider" | "admin_unride_wolf" | "admin_unride_wyvern" => {
@@ -359,7 +355,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // `AdminTransform`: the Effects panel's "Transform" button opens the
         // transform sub-page, not the main GM menu (Java
         // `AdminHtml.showAdminHtml(activeChar, "transform.htm")`).
-        "admin_transform_menu" => menu::show_admin_html(world, client_id, "transform.htm"),
+        "admin_transform_menu" => show_admin_html(world, client_id, "transform.htm"),
         // "Teleport" main-menu button: coords → teleport, empty → teleports.htm.
         "admin_move_to" => admin_move_to(world, client_id, object_id, &args),
         // Self-teleport to explicit coordinates.
@@ -529,7 +525,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Toggle the GM's visibility to other players.
         "admin_hide" => admin_hide(world, client_id, object_id),
         // Toggle an abnormal visual effect on the target (or a radius).
-        "admin_ave_abnormal" => flags::admin_ave_abnormal(world, client_id, object_id, &args),
+        "admin_ave_abnormal" => admin_ave_abnormal(world, client_id, object_id, &args),
         // Toggle message-refusal (chat block) mode.
         "admin_silence" => admin_silence(world, client_id, object_id),
         // Grant / remove a skill on the targeted player (or self).
@@ -554,7 +550,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             let target = guard::target(world, object_id)
                 .filter(|oid| world.objects.has_component::<Player>(oid))
                 .unwrap_or(object_id);
-            skills::show_char_skills(world, client_id, target)
+            show_char_skills(world, client_id, target)
         }
         // Skill catalog HTML menus (browse skills to add).
         "admin_skill_list" | "admin_skill_index" | "admin_remove_skills" => {
@@ -621,10 +617,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_set_mp" => set_vital(world, client_id, object_id, Vital::Mp, &args),
         "admin_set_cp" => set_vital(world, client_id, object_id, Vital::Cp, &args),
         "admin_setclass" => admin_setclass(world, client_id, object_id, &args),
-        "admin_setsubclass" => character::admin_setsubclass(world, client_id, object_id, &args),
-        "admin_changesubclass" => {
-            character::admin_changesubclass(world, client_id, object_id, &args)
-        }
+        "admin_setsubclass" => admin_setsubclass(world, client_id, object_id, &args),
+        "admin_changesubclass" => admin_changesubclass(world, client_id, object_id, &args),
 
         // AdminEditChar breadth — info/search, rename, party, pvp-flag, clan penalty.
         "admin_current_player" => admin_character_info(world, client_id, object_id, &args, true),
@@ -661,7 +655,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_debug" => admin_debug(world, client_id, object_id, &args),
         "admin_stats" => admin_stats(world, client_id),
         "admin_kick_non_gm" => admin_kick_non_gm(world, client_id),
-        "admin_gmchat_menu" => menu::show_admin_html(world, client_id, "gm_menu.htm"),
+        "admin_gmchat_menu" => show_admin_html(world, client_id, "gm_menu.htm"),
         // --- AdminMenu action buttons — delegate to the underlying handlers ---
         "admin_char_manage" => admin_character_info(world, client_id, object_id, &args, false),
         "admin_goto_char_menu" => admin_goto_char(world, client_id, object_id, &args),
@@ -670,9 +664,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_recall_clan_menu" => admin_recall_clan(world, client_id, object_id, &args),
         "admin_kick_menu" => admin_kick(world, client_id, object_id, &args),
         "admin_kill_menu" => admin_kill(world, client_id, object_id, &args, false),
-        "admin_teleport_character_to_menu" => {
-            menu::show_admin_html(world, client_id, "teleports.htm")
-        }
+        "admin_teleport_character_to_menu" => show_admin_html(world, client_id, "teleports.htm"),
 
         // --- AdminDoorControl / AdminZone / AdminShop / AdminClan (B6) ---
         "admin_open" => admin_door(world, client_id, object_id, true, false, &args),
@@ -680,16 +672,16 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_openall" => admin_door(world, client_id, object_id, true, true, &args),
         "admin_closeall" => admin_door(world, client_id, object_id, false, true, &args),
         "admin_zones" | "admin_zone_check" => admin_zones(world, client_id, object_id),
-        "admin_zone_visual" => world_cmds::admin_zone_visual(world, client_id, object_id, &args),
-        "admin_zone_visual_clear" => world_cmds::admin_zone_visual_clear(world, client_id),
+        "admin_zone_visual" => admin_zone_visual(world, client_id, object_id, &args),
+        "admin_zone_visual_clear" => admin_zone_visual_clear(world, client_id),
         "admin_buy" => admin_buy(world, client_id, object_id, &args),
-        "admin_gmshop" => menu::show_admin_html(world, client_id, "gmshops.htm"),
+        "admin_gmshop" => show_admin_html(world, client_id, "gmshops.htm"),
         "admin_clan_info" => admin_clan_info(world, client_id, object_id),
         // AdminPledge — the Game panel's "Clan Related" buttons (create / info /
         // setlevel / dismiss / rep), plus AdminClan's pending-leader listing.
         "admin_pledge" => admin_pledge(world, client_id, object_id, &args),
         "admin_clan_show_pending" => admin_clan_show_pending(world, client_id),
-        "admin_clan_force_pending" => pledge::admin_clan_force_pending(world, client_id, &args),
+        "admin_clan_force_pending" => admin_clan_force_pending(world, client_id, &args),
         // AdminGrandBoss — the Game panel's "Grand Boss Info" button. Status
         // display is live; the skip/respawn/minions/abort actions await the
         // grand-boss AI (G21).
@@ -708,7 +700,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // AdminAdmin hero commands — the Game panel's "Set Hero" / "Give
         // unclaimed Hero" buttons.
         "admin_sethero" => admin_sethero(world, client_id, object_id),
-        "admin_setnoble" => hero::admin_setnoble(world, client_id, object_id),
+        "admin_setnoble" => admin_setnoble(world, client_id, object_id),
         "admin_givehero" => admin_givehero(world, client_id, object_id),
         // AdminCastle — the Game panel's "Castle" button (siege actions deferred).
         "admin_castlemanage" => admin_castlemanage(world, client_id, object_id, &args),
@@ -860,70 +852,60 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_atmosphere" | "admin_atmosphere_menu" => admin_atmosphere(world, client_id, &args),
         "admin_play_sound" => admin_play_sound(world, client_id, object_id, &args),
         // AdminEffects' G19 tail (see effects.rs).
-        "admin_setteam" => effects::admin_setteam(world, client_id, object_id, &args, false),
-        "admin_setteam_close" => effects::admin_setteam(world, client_id, object_id, &args, true),
-        "admin_clearteams" => effects::admin_clearteams(world, client_id, object_id),
-        "admin_settargetable" => effects::admin_settargetable(world, client_id, object_id),
+        "admin_setteam" => admin_setteam(world, client_id, object_id, &args, false),
+        "admin_setteam_close" => admin_setteam(world, client_id, object_id, &args, true),
+        "admin_clearteams" => admin_clearteams(world, client_id, object_id),
+        "admin_settargetable" => admin_settargetable(world, client_id, object_id),
         "admin_para" | "admin_para_menu" => {
-            effects::admin_para(world, client_id, object_id, &args, true, false)
+            admin_para(world, client_id, object_id, &args, true, false)
         }
         "admin_unpara" | "admin_unpara_menu" => {
-            effects::admin_para(world, client_id, object_id, &args, false, false)
+            admin_para(world, client_id, object_id, &args, false, false)
         }
         "admin_para_all" | "admin_para_all_menu" => {
-            effects::admin_para(world, client_id, object_id, &args, true, true)
+            admin_para(world, client_id, object_id, &args, true, true)
         }
         "admin_unpara_all" | "admin_unpara_all_menu" => {
-            effects::admin_para(world, client_id, object_id, &args, false, true)
+            admin_para(world, client_id, object_id, &args, false, true)
         }
-        "admin_bighead" => effects::admin_bighead(world, client_id, object_id, true),
-        "admin_shrinkhead" => effects::admin_bighead(world, client_id, object_id, false),
-        "admin_playmovie" => effects::admin_playmovie(world, client_id, &args),
-        "admin_event_trigger" => effects::admin_event_trigger(world, client_id, object_id, &args),
+        "admin_bighead" => admin_bighead(world, client_id, object_id, true),
+        "admin_shrinkhead" => admin_bighead(world, client_id, object_id, false),
+        "admin_playmovie" => admin_playmovie(world, client_id, &args),
+        "admin_event_trigger" => admin_event_trigger(world, client_id, object_id, &args),
         "admin_set_displayeffect" | "admin_set_displayeffect_menu" => {
-            effects::admin_set_displayeffect(world, client_id, object_id, &args)
+            admin_set_displayeffect(world, client_id, object_id, &args)
         }
         // `AdminEffects`' invisibility family: `//invis` *sets* hidden,
         // `//vis` *sets* visible (never toggles), `//setinvis` toggles the
         // targeted player, and the gm_menu "Invis" button toggles + re-serves
         // the panel.
-        "admin_invis" | "admin_invisible" => {
-            flags::admin_set_hidden(world, client_id, object_id, true)
-        }
-        "admin_vis" | "admin_visible" => {
-            flags::admin_set_hidden(world, client_id, object_id, false)
-        }
-        "admin_setinvis" => flags::admin_setinvis(world, client_id, object_id),
+        "admin_invis" | "admin_invisible" => set_hidden(world, client_id, object_id, true),
+        "admin_vis" | "admin_visible" => set_hidden(world, client_id, object_id, false),
+        "admin_setinvis" => admin_setinvis(world, client_id, object_id),
         // `AdminEditChar` pet/summon subcommands + `//rec` (category-4 sweep).
-        "admin_rec" => editchar::admin_rec(world, client_id, object_id, &args),
-        "admin_unsummon" => editchar::admin_unsummon(world, client_id, object_id),
-        "admin_summon_info" => editchar::admin_summon_info(world, client_id, object_id),
-        "admin_summon_setlvl" => editchar::admin_summon_setlvl(world, client_id, object_id, &args),
-        "admin_show_pet_inv" => editchar::admin_show_pet_inv(world, client_id, object_id, &args),
+        "admin_rec" => admin_rec(world, client_id, object_id, &args),
+        "admin_unsummon" => admin_unsummon(world, client_id, object_id),
+        "admin_summon_info" => admin_summon_info(world, client_id, object_id),
+        "admin_summon_setlvl" => admin_summon_setlvl(world, client_id, object_id, &args),
+        "admin_show_pet_inv" => admin_show_pet_inv(world, client_id, object_id, &args),
         // Strict = plain dualbox grouping: Java narrows by IP+tracert pack,
         // and no per-client tracert is recorded in this port.
-        "admin_strict_find_dualbox" => moderation::admin_find_dualbox(world, client_id, &args),
+        "admin_strict_find_dualbox" => admin_find_dualbox(world, client_id, &args),
         // `AdminPunishment` console + `AdminMenu` ban wrappers + `//force_peti`.
-        "admin_punishment" => moderation::admin_punishment(world, client_id, object_id, &args),
-        "admin_punishment_add" => {
-            moderation::admin_punishment_add(world, client_id, object_id, &args)
-        }
-        "admin_punishment_remove" => moderation::admin_punishment_remove(world, client_id, &args),
-        "admin_ban_menu" => moderation::admin_ban_menu(world, client_id, object_id, &args),
+        "admin_punishment" => admin_punishment(world, client_id, object_id, &args),
+        "admin_punishment_add" => admin_punishment_add(world, client_id, object_id, &args),
+        "admin_punishment_remove" => admin_punishment_remove(world, client_id, &args),
+        "admin_ban_menu" => admin_ban_menu(world, client_id, object_id, &args),
         // Category-4 sweep: spawns / clans / panels.
         // Server control (`AdminShutdown` / `AdminLogin`).
-        "admin_server_shutdown" => {
-            world_cmds::admin_server_shutdown(world, client_id, &args, false)
-        }
-        "admin_server_restart" => world_cmds::admin_server_shutdown(world, client_id, &args, true),
-        "admin_server_abort" => world_cmds::admin_server_abort(world, client_id),
+        "admin_server_shutdown" => admin_server_shutdown(world, client_id, &args, false),
+        "admin_server_restart" => admin_server_shutdown(world, client_id, &args, true),
+        "admin_server_abort" => admin_server_abort(world, client_id),
         "admin_server_gm_only"
         | "admin_server_all"
         | "admin_server_max_player"
         | "admin_server_list_age"
-        | "admin_server_list_type" => {
-            world_cmds::admin_server_status(world, client_id, command, &args)
-        }
+        | "admin_server_list_type" => admin_server_status(world, client_id, command, &args),
         // Olympiad manual controls (`AdminAdmin`).
         "admin_endolympiad" => {
             super::olympiad::handle_olympiad_end(world);
@@ -937,43 +919,39 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // `Player._trueHero`, a separate flag with its own `100 : 0` byte in
         // both CharInfo and UserInfo (`isTrueHero()`), and touches neither the
         // hero skill tree nor the `isHero()` glow byte.
-        "admin_settruehero" => hero::admin_settruehero(world, client_id, object_id),
+        "admin_settruehero" => admin_settruehero(world, client_id, object_id),
         // Quest admin. Two *different* Java handlers, aliased here until the
         // shift-click NPC window's `Quests` button exposed the difference:
         // `AdminShowQuests`' `//charquestmenu` edits a **player's** quest
         // states, `AdminQuest`'s `//show_quests` lists the scripts registered
         // on the current **target**.
-        "admin_charquestmenu" => editchar::admin_charquestmenu(world, client_id, object_id, &args),
-        "admin_show_quests" => gm_util::admin_show_quests(world, client_id, object_id),
-        "admin_setcharquest" => editchar::admin_setcharquest(world, client_id, &args),
+        "admin_charquestmenu" => admin_charquestmenu(world, client_id, object_id, &args),
+        "admin_show_quests" => admin_show_quests(world, client_id, object_id),
+        "admin_setcharquest" => admin_setcharquest(world, client_id, &args),
         // Tail polish: tradeoff / cond overrides / quest info / clan halls /
         // reload / gm-buff switch.
-        "admin_tradeoff" => gm_util::admin_tradeoff(world, client_id, object_id, &args),
-        "admin_exceptions" => gm_util::admin_exceptions(world, client_id, object_id),
-        "admin_set_exception" => gm_util::admin_set_exception(world, client_id, object_id, &args),
-        "admin_quest_info" => gm_util::admin_quest_info(world, client_id, &args),
-        "admin_clanhall" => gm_util::admin_clanhall(world, client_id, object_id, &args),
-        "admin_reload" => gm_util::admin_reload(world, client_id, &args),
-        "admin_switch_gm_buffs" => gm_util::admin_switch_gm_buffs(world, client_id),
+        "admin_tradeoff" => admin_tradeoff(world, client_id, object_id, &args),
+        "admin_exceptions" => admin_exceptions(world, client_id, object_id),
+        "admin_set_exception" => admin_set_exception(world, client_id, object_id, &args),
+        "admin_quest_info" => admin_quest_info(world, client_id, &args),
+        "admin_clanhall" => admin_clanhall(world, client_id, object_id, &args),
+        "admin_reload" => admin_reload(world, client_id, &args),
+        "admin_switch_gm_buffs" => admin_switch_gm_buffs(world, client_id),
 
-        "admin_unspawnall" => spawn::admin_unspawnall(world, client_id),
-        "admin_respawnall" => spawn::admin_respawnall(world, client_id),
-        "admin_spawn_reload" => spawn::admin_spawn_reload(world, client_id),
-        "admin_clan_changeleader" => {
-            pledge::admin_clan_changeleader(world, client_id, object_id, &args)
-        }
-        "admin_add_clan_skill" => pledge::admin_add_clan_skill(world, client_id, object_id, &args),
-        "admin_play_sounds" => gm_util::admin_play_sounds(world, client_id, &args),
-        "admin_effect_menu" => gm_util::admin_effect_menu(world, client_id),
+        "admin_unspawnall" => admin_unspawnall(world, client_id),
+        "admin_respawnall" => admin_respawnall(world, client_id),
+        "admin_spawn_reload" => admin_spawn_reload(world, client_id),
+        "admin_clan_changeleader" => admin_clan_changeleader(world, client_id, object_id, &args),
+        "admin_add_clan_skill" => admin_add_clan_skill(world, client_id, object_id, &args),
+        "admin_play_sounds" => admin_play_sounds(world, client_id, &args),
+        "admin_effect_menu" => admin_effect_menu(world, client_id),
         "admin_event_menu" | "admin_event_start_menu" | "admin_event_stop_menu" => {
-            gm_util::admin_event_menu(world, client_id)
+            admin_event_menu(world, client_id)
         }
-        "admin_bbs" => gm_util::admin_bbs(world, client_id, object_id),
-        "admin_viewblockedeffects" => {
-            gm_util::admin_viewblockedeffects(world, client_id, object_id)
-        }
+        "admin_bbs" => admin_bbs(world, client_id, object_id),
+        "admin_viewblockedeffects" => admin_viewblockedeffects(world, client_id, object_id),
 
-        "admin_unban_menu" => moderation::admin_unban_menu(world, client_id, &args),
+        "admin_unban_menu" => admin_unban_menu(world, client_id, &args),
         "admin_force_peti" => {
             let text = args.join(" ");
             match guard::player_target(world, object_id) {
@@ -987,7 +965,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             }
         }
 
-        "admin_invis_menu" => flags::admin_invis_menu(world, client_id, object_id),
+        "admin_invis_menu" => admin_invis_menu(world, client_id, object_id),
         _ => return false,
     }
     show_effects_main_page(world, client_id, command);
@@ -1030,7 +1008,7 @@ fn show_effects_main_page(world: &mut World, client_id: u32, command: &str) {
     } else {
         "effects_menu.htm"
     };
-    menu::show_admin_html(world, client_id, file);
+    show_admin_html(world, client_id, file);
 }
 
 /// EditChar target = the current target if it's a player, else the GM.
@@ -1161,12 +1139,7 @@ pub(crate) fn handle_request_gm_command(world: &mut World, client_id: u32, body:
         // Player clan.
         2 => {
             let Some(t) = target else { return };
-            let Some(cid) = world
-                .objects
-                .get_component::<Player>(&t)
-                .map(|p| p.clan_id)
-                .filter(|&id| id != 0)
-            else {
+            let Some(cid) = guard::clan_of(world, t) else {
                 return;
             };
             let Some(clan) = world.clans.get(&cid) else {

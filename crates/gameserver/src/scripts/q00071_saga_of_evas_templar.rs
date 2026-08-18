@@ -1,5 +1,5 @@
 //! Saga of Eva's Templar (71) — Temple Knight (20) → Eva's Templar (99).
-//! A [`SagaData`](super::saga::SagaData) table over the shared Saga engine.
+//! A [`SagaData`](SagaData) table over the shared Saga engine.
 use super::saga::SagaData;
 pub fn saga() -> SagaData {
     SagaData {

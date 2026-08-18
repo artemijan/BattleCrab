@@ -105,7 +105,7 @@ pub struct TeleporterData {
 impl TeleporterData {
     pub fn load_from(file_path: &str) -> Self {
         let mut teleporters = HashMap::new();
-        for path in &super::xml::xml_files_under(format!("{file_path}{TELEPORTERS_DIR}")) {
+        for path in &xml::xml_files_under(format!("{file_path}{TELEPORTERS_DIR}")) {
             parse_file(path, &mut teleporters);
         }
         info!(

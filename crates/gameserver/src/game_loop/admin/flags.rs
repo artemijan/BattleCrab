@@ -1,5 +1,5 @@
 //! GM flag toggles — `AdminInvul`/`AdminUndying`/`AdminHide`. Each flips a bit
-//! in [`AdminFlags`](crate::model::components::AdminFlags) on the GM or the
+//! in [`AdminFlags`](AdminFlags) on the GM or the
 //! targeted player.
 
 use crate::game_loop::guard;
@@ -79,14 +79,6 @@ pub(super) fn admin_hide(world: &mut World, client_id: u32, object_id: i32) {
     set_hidden(world, client_id, object_id, hidden);
 }
 
-/// `AdminEffects`' `admin_invis`/`admin_invisible` (`hidden = true`) and
-/// `admin_vis`/`admin_visible` (`hidden = false`) — Java *sets* the state
-/// rather than toggling, so `//vis` while visible must stay visible (the old
-/// toggle alias here hid you instead).
-pub(super) fn admin_set_hidden(world: &mut World, client_id: u32, object_id: i32, hidden: bool) {
-    set_hidden(world, client_id, object_id, hidden);
-}
-
 /// The gm_menu "Invis" button (`admin_invis_menu`): Java toggles on the
 /// current state and re-serves `gm_menu.htm` so the panel stays up
 /// (`AdminEffects` → `AdminHtml.showAdminHtml("gm_menu.htm")`).
@@ -121,7 +113,12 @@ pub(super) fn admin_setinvis(world: &mut World, client_id: u32, object_id: i32) 
 /// the CharInfo, and NPC aggro skips the GM (`notices_target`). Java also
 /// aborts observers' in-flight attacks/casts and idles NPC AI on hide; the
 /// port's mobs re-validate through `notices_target` instead.
-fn set_hidden(world: &mut World, client_id: u32, object_id: i32, hidden: bool) {
+///
+/// Reached directly by `AdminEffects`' `admin_invis`/`admin_invisible`
+/// (`hidden = true`) and `admin_vis`/`admin_visible` (`hidden = false`): Java
+/// *sets* the state rather than toggling, so `//vis` while visible must stay
+/// visible (the old toggle alias here hid you instead).
+pub(super) fn set_hidden(world: &mut World, client_id: u32, object_id: i32, hidden: bool) {
     let mut flags = world
         .objects
         .get_component::<AdminFlags>(&object_id)
@@ -446,7 +443,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
         }
         out
     } else {
-        vec![crate::game_loop::guard::target(world, object_id).unwrap_or(object_id)]
+        vec![guard::target(world, object_id).unwrap_or(object_id)]
     };
 
     let mut toggled_on = 0;

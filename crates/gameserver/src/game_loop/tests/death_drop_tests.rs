@@ -14,11 +14,7 @@ const KILLER_CID: u32 = 2;
 const LOOT_ITEM: i32 = 8400;
 
 /// Certain drops: every rate at 100 so the rolls can't hide a wiring bug.
-fn drop_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn drop_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     {
         let r = &mut world.cfg.rates;
@@ -332,7 +328,7 @@ fn pvp_zone_death_drops_nothing() {
     pk_victim(&mut world, 1);
     world
         .objects
-        .get_component_mut::<crate::model::components::ZoneFlags>(&VICTIM)
+        .get_component_mut::<model::components::ZoneFlags>(&VICTIM)
         .unwrap()
         .mask = crate::data::zone_data::ZoneKind::Pvp.bit();
 

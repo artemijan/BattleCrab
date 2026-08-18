@@ -207,7 +207,7 @@ fn pay_sender(world: &mut World, sender_id: i32, adena: i64) {
     let Some(message_id) = world.alloc_object_id() else {
         return;
     };
-    let mut msg = crate::model::mail::Message::new_system_mail(
+    let mut msg = Message::new_system_mail(
         message_id,
         sender_id,
         "Payment received".to_string(),
@@ -358,7 +358,7 @@ pub(crate) fn handle_reject_post_attachment(world: &mut World, client_id: u32, b
     let Some(return_id) = world.alloc_object_id() else {
         return;
     };
-    let mut returned = crate::model::mail::Message::new_player_mail(
+    let mut returned = Message::new_player_mail(
         return_id,
         sender_id,
         sender_id,

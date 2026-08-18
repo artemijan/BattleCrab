@@ -23,7 +23,7 @@ const SOCIAL_HELLO: i32 = 2;
 const ACTION_RUN_WALK: i32 = 1;
 
 fn action_use_body(action_id: i32) -> Vec<u8> {
-    let mut w = commons::network::PacketWriter::new();
+    let mut w = PacketWriter::new();
     w.write_i32(action_id);
     w.write_i32(0); // ctrl
     w.write_u8(0); // shift
@@ -105,9 +105,7 @@ fn an_emote_is_refused_while_the_player_is_moving() {
         .running = true;
     handle_move_backward_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
     assert!(
-        world
-            .objects
-            .has_component::<crate::model::components::Movement>(&7003),
+        world.objects.has_component::<Movement>(&7003),
         "the fixture has to actually be moving or the test proves nothing"
     );
     drain(&mut rx);
@@ -132,10 +130,7 @@ fn a_dead_player_gets_action_failed_rather_than_silence() {
         .insert_row_for_test(ACTION_HELLO, "SocialAction", SOCIAL_HELLO);
     let mut rx = ingame_player(&mut world, 1, 7004, 0, 0, 0);
     {
-        let v = world
-            .objects
-            .get_component_mut::<crate::model::components::Vitals>(&7004)
-            .unwrap();
+        let v = world.objects.get_component_mut::<Vitals>(&7004).unwrap();
         v.cur_hp = 0.0;
         v.dead = true;
     }

@@ -14,10 +14,6 @@
 use crate::model::skill::SkillEffect;
 use crate::model::stats::Stat;
 
-fn dist_skills() -> crate::data::skill_data::SkillData {
-    super::dist::skills_owned()
-}
-
 /// How many modifiers for `stat` this skill level carries.
 ///
 /// A *count*, not a presence check: Frenzy 176 has three **ungated** `PAtk`
@@ -49,7 +45,7 @@ fn count_stat(
 /// level 1, silently over-buffing every low-level Frenzy.
 #[test]
 fn frenzy_gains_its_extra_patk_effects_only_from_level_six() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     let low_patk = count_stat(&skills, 176, 1, Stat::PhysicalAttack);
     let low_crit = count_stat(&skills, 176, 1, Stat::CriticalRate);
     assert!(
@@ -87,7 +83,7 @@ fn frenzy_gains_its_extra_patk_effects_only_from_level_six() {
 /// which is where an off-by-one would hide.
 #[test]
 fn the_level_range_is_inclusive_at_both_ends() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     let base = count_stat(&skills, 176, 1, Stat::PhysicalAttack);
     assert_eq!(
         count_stat(&skills, 176, 5, Stat::PhysicalAttack),
@@ -110,7 +106,7 @@ fn the_level_range_is_inclusive_at_both_ends() {
 /// majority of the datapack, and the case that must not regress.
 #[test]
 fn an_ungated_effect_still_applies_at_every_level() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     // Death Whisper 1242: a plain `CriticalDamage`, no level attributes.
     let max = (1..=15).filter(|l| skills.get(1242, *l).is_some()).count();
     assert!(max > 1, "sanity: Death Whisper has several levels");
@@ -141,7 +137,7 @@ fn an_ungated_effect_still_applies_at_every_level() {
 /// sub-level clause rejects it.
 #[test]
 fn enchant_only_effects_never_apply_to_an_unenchanted_skill() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     for level in 1..=9 {
         let Some(skill) = skills.get(176, level) else {
             continue;
@@ -162,7 +158,7 @@ fn enchant_only_effects_never_apply_to_an_unenchanted_skill() {
 /// effect must survive while the enchant-only one is dropped.
 #[test]
 fn guts_keeps_its_ungated_effect_and_drops_the_enchant_only_one() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     let guts = skills.get(139, 1).expect("Guts loads");
     assert!(
         guts.effects.iter().any(
@@ -194,7 +190,7 @@ fn guts_keeps_its_ungated_effect_and_drops_the_enchant_only_one() {
 /// *count* of effects differs across the boundary — the gate ran.)
 #[test]
 fn weapon_mastery_effect_count_changes_at_its_boundary() {
-    let skills = dist_skills();
+    let skills = super::dist::skills_owned();
     for id in [205, 209] {
         let below = skills.get(id, 8).map(|s| s.effects.len());
         let at = skills.get(id, 9).map(|s| s.effects.len());

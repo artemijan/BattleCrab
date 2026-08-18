@@ -535,23 +535,14 @@ fn loads_real_dist_files() {
     // Shield Stun 92 / Arrest 402 — the crowd-control pair. Neither carries
     // a stat modifier: the whole mechanic is the abnormal-state flag.
     let shield_stun = sd.get(92, 1).expect("Shield Stun lvl 1");
-    assert_eq!(
-        shield_stun.effect_flags(),
-        crate::model::skill::effect_flag::BLOCK_ACTIONS
-    );
+    assert_eq!(shield_stun.effect_flags(), effect_flag::BLOCK_ACTIONS);
     assert_eq!(shield_stun.abnormal_type, "STUN");
     assert!(shield_stun.stat_modifier_effects().is_empty());
     let arrest = sd.get(402, 1).expect("Arrest lvl 1");
-    assert_eq!(
-        arrest.effect_flags(),
-        crate::model::skill::effect_flag::ROOTED
-    );
+    assert_eq!(arrest.effect_flags(), effect_flag::ROOTED);
     assert_eq!(arrest.abnormal_type, "ROOT_PHYSICALLY");
     // A root does NOT block actions — only movement.
-    assert_eq!(
-        arrest.effect_flags() & crate::model::skill::effect_flag::BLOCK_ACTIONS,
-        0
-    );
+    assert_eq!(arrest.effect_flags() & effect_flag::BLOCK_ACTIONS, 0);
     // An ordinary buff contributes no state flags at all.
     assert_eq!(sd.get(1068, 1).expect("Might").effect_flags(), 0);
 
@@ -565,10 +556,7 @@ fn loads_real_dist_files() {
     assert_eq!(thunder_storm.affect_range, 150);
     // ...and it is *also* a stun, so it exercises both G19 slices at once:
     // a caster-centred sweep that block-actions everything it catches.
-    assert_eq!(
-        thunder_storm.effect_flags(),
-        crate::model::skill::effect_flag::BLOCK_ACTIONS
-    );
+    assert_eq!(thunder_storm.effect_flags(), effect_flag::BLOCK_ACTIONS);
     // A skill with no `<activateRate>` defaults to -1 (always lands): the
     // buff Might 1068.
     let might = sd.get(1068, 1).expect("Might lvl 1");
@@ -1453,7 +1441,7 @@ fn every_datapack_abnormal_visual_name_resolves() {
     use crate::model::skill::abnormal_visual_client_id;
     const ROOT: &str = crate::data::DIST_GAME;
     let dir = format!("{ROOT}data/stats/skills");
-    let mut names = std::collections::BTreeSet::new();
+    let mut names = BTreeSet::new();
     for entry in std::fs::read_dir(&dir).expect("skills dir").flatten() {
         let path = entry.path();
         if path.extension().and_then(|e| e.to_str()) != Some("xml") {

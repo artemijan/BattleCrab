@@ -128,10 +128,7 @@ pub(crate) async fn load_mdt_bets(db: &DatabaseConnection) -> Vec<(i32, i64)> {
 /// Tolerates the tables being absent (a minimal test schema has neither).
 pub(crate) async fn load_mail(
     db: &DatabaseConnection,
-) -> (
-    Vec<crate::model::mail::Message>,
-    Vec<(i32, Vec<crate::character::ItemRow>)>,
-) {
+) -> (Vec<crate::model::mail::Message>, Vec<(i32, Vec<ItemRow>)>) {
     use crate::model::mail::{MailType, Message};
 
     // The flag columns are enum('true','false') text; older rows may carry '1'.
@@ -159,7 +156,7 @@ pub(crate) async fn load_mail(
         })
         .collect();
 
-    let mut by_message: std::collections::HashMap<i32, Vec<crate::character::ItemRow>> =
+    let mut by_message: std::collections::HashMap<i32, Vec<ItemRow>> =
         std::collections::HashMap::new();
     for r in items::Entity::find()
         .filter(items::Column::Loc.eq("MAIL"))
@@ -169,24 +166,21 @@ pub(crate) async fn load_mail(
     {
         // Attachments hang off the message through `loc_data`.
         let message_id = r.loc_data.unwrap_or(0);
-        by_message
-            .entry(message_id)
-            .or_default()
-            .push(crate::character::ItemRow {
-                object_id: r.object_id,
-                item_id: r.item_id.unwrap_or(0),
-                count: r.count,
-                enchant_level: r.enchant_level.unwrap_or(0),
-                loc: "MAIL".to_string(),
-                loc_data: message_id,
-                custom_type1: r.custom_type1.unwrap_or(0),
-                custom_type2: r.custom_type2.unwrap_or(0),
-                mana_left: r.mana_left,
-                time: r.time as i32,
-                augment_mineral: 0,
-                augment_option1: 0,
-                augment_option2: 0,
-            });
+        by_message.entry(message_id).or_default().push(ItemRow {
+            object_id: r.object_id,
+            item_id: r.item_id.unwrap_or(0),
+            count: r.count,
+            enchant_level: r.enchant_level.unwrap_or(0),
+            loc: "MAIL".to_string(),
+            loc_data: message_id,
+            custom_type1: r.custom_type1.unwrap_or(0),
+            custom_type2: r.custom_type2.unwrap_or(0),
+            mana_left: r.mana_left,
+            time: r.time as i32,
+            augment_mineral: 0,
+            augment_option1: 0,
+            augment_option2: 0,
+        });
     }
     (messages, by_message.into_iter().collect())
 }
@@ -266,7 +260,7 @@ pub(crate) async fn load_punishments(
 ) -> (i32, Vec<crate::model::punishment::Punishment>) {
     use crate::model::punishment::{Punishment, PunishmentAffect, PunishmentType};
 
-    let now = commons::util::now_millis();
+    let now = now_millis();
     let all = punishments::Entity::find()
         .all(db)
         .await
@@ -1666,7 +1660,7 @@ pub(crate) async fn name_exists(db: &DatabaseConnection, name: &str) -> bool {
     // differ only by case — and sea-query cannot attach a collation, so the
     // comparison stays a bound custom expression.
     characters::Entity::find()
-        .filter(models::sea_orm::sea_query::Expr::cust_with_values(
+        .filter(Expr::cust_with_values(
             "char_name = ? COLLATE NOCASE",
             [name],
         ))
@@ -1679,12 +1673,12 @@ pub(crate) async fn name_exists(db: &DatabaseConnection, name: &str) -> bool {
 /// `characters.createDate` is a `date` column SQLite fills with `date('now')`;
 /// the entity carries it as text, so the value is formatted here.
 fn today() -> String {
-    commons::util::format_date(commons::util::now_millis())
+    commons::util::format_date(now_millis())
 }
 
 /// Runs an insert that the caller treats as best-effort, logging a failure the
 /// way the old `exec` helper did.
-async fn insert_or_warn<A: models::sea_orm::ActiveModelTrait>(
+async fn insert_or_warn<A: ActiveModelTrait>(
     db: &DatabaseConnection,
     insert: models::sea_orm::Insert<A>,
 ) {

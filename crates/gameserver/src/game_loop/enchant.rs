@@ -342,7 +342,7 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
         send(
             world,
             client_id,
-            enchant_result(sp::enchant_result::ERROR, 0, 0, 0),
+            enchant_result(enchant_result::ERROR, 0, 0, 0),
         );
     };
 
@@ -467,7 +467,7 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
         send(
             world,
             client_id,
-            enchant_result(sp::enchant_result::ERROR, 0, 0, 0),
+            enchant_result(enchant_result::ERROR, 0, 0, 0),
         );
         return;
     }
@@ -625,7 +625,7 @@ fn apply_success(
     send(
         world,
         client_id,
-        enchant_result(sp::enchant_result::SUCCESS, 0, 0, new_level),
+        enchant_result(enchant_result::SUCCESS, 0, 0, new_level),
     );
     // If the item is equipped, its enchant glow + stat bonus must refresh.
     if world
@@ -653,7 +653,7 @@ fn apply_failure(
         send(
             world,
             client_id,
-            enchant_result(sp::enchant_result::SAFE_FAIL, 0, 0, current),
+            enchant_result(enchant_result::SAFE_FAIL, 0, 0, current),
         );
         return;
     }
@@ -675,7 +675,7 @@ fn apply_failure(
         send(
             world,
             client_id,
-            enchant_result(sp::enchant_result::BLESSED_FAIL, 0, 0, 0),
+            enchant_result(enchant_result::BLESSED_FAIL, 0, 0, 0),
         );
         return;
     }
@@ -701,13 +701,13 @@ fn apply_failure(
             send(
                 world,
                 client_id,
-                enchant_result(sp::enchant_result::FAIL, cid, n, 0),
+                enchant_result(enchant_result::FAIL, cid, n, 0),
             );
         }
         _ => send(
             world,
             client_id,
-            enchant_result(sp::enchant_result::NO_CRYSTAL, 0, 0, 0),
+            enchant_result(enchant_result::NO_CRYSTAL, 0, 0, 0),
         ),
     }
 }

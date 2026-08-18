@@ -28,11 +28,11 @@ fn add_manor_manager(world: &mut World, oid: i32, npc_id: i32, manor_id: i32) {
 
 /// Put Gludio (castle 1) on the world so the manor sale has a vault to pay.
 fn add_gludio(world: &mut World) {
-    world.castles = vec![crate::model::castle::Castle {
+    world.castles = vec![model::castle::Castle {
         show_npc_crest: false,
         id: 1,
         name: "Gludio".into(),
-        side: crate::model::castle::CastleSide::Neutral,
+        side: model::castle::CastleSide::Neutral,
         ticket_buy_count: 0,
         first_mid_victory: false,
         time_registration_over: true,
@@ -93,12 +93,12 @@ fn sow_then_harvest_yields_the_crop() {
         let pkts = drain(&mut rx);
         assert!(
             ids_after_opcode(&pkts, server_packets::opcodes::SYSTEM_MESSAGE)
-                .contains(&crate::network::server_packets::sm_ids::THE_SEED_WAS_SUCCESSFULLY_SOWN),
+                .contains(&server_packets::sm_ids::THE_SEED_WAS_SUCCESSFULLY_SOWN),
             "the sower is told the seed took"
         );
         assert!(
             pkts.iter()
-                .any(|p| p[0] == crate::network::server_packets::opcodes::PLAY_SOUND),
+                .any(|p| p[0] == server_packets::opcodes::PLAY_SOUND),
             "ITEMSOUND_QUEST_ITEMGET accompanies a successful sow"
         );
     }
@@ -171,7 +171,7 @@ fn harvest_refused_when_not_the_seeder() {
     assert_eq!(inv_count(&world, 5073), 0, "a non-seeder harvests nothing");
     assert!(
         ids_after_opcode(&drain(&mut rx2), server_packets::opcodes::SYSTEM_MESSAGE)
-            .contains(&crate::network::server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_HARVEST),
+            .contains(&server_packets::sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_HARVEST),
         "Java tells the interloper why nothing happened"
     );
     assert!(
@@ -224,7 +224,7 @@ fn buy_seed_trades_adena_for_seeds_and_decrements_stock() {
             start_amount: 500,
         }],
     );
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
 
     // Buy 5 of seed 5016 (price 10 → 50 adena).
     let mut w = PacketWriter::new();
@@ -268,7 +268,7 @@ fn buy_seed_at_an_unowned_castle_banks_nothing() {
             start_amount: 500,
         }],
     );
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
 
     let mut w = PacketWriter::new();
     w.write_i32(1);
@@ -299,7 +299,7 @@ fn buy_seed_refused_without_adena() {
             start_amount: 500,
         }],
     );
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 10); // far short of 50
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 10); // far short of 50
 
     let mut w = PacketWriter::new();
     w.write_i32(1);
@@ -335,7 +335,7 @@ fn buy_seed_refused_when_overdrawing_stock() {
             start_amount: 500,
         }],
     );
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
 
     let mut w = PacketWriter::new();
     w.write_i32(1);
@@ -376,8 +376,8 @@ fn sell_crop_same_manor_pays_reward_without_fee() {
             reward_type: 1,
         }],
     );
-    let crop_oid = super::items::add_inventory_item(&mut world, 100, 5073, 20).unwrap()[0];
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000);
+    let crop_oid = items::add_inventory_item(&mut world, 100, 5073, 20).unwrap()[0];
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000);
 
     // Sell 10 crops registered at manor 1.
     let mut w = PacketWriter::new();
@@ -424,8 +424,8 @@ fn sell_crop_cross_manor_charges_five_percent_fee() {
             reward_type: 1,
         }],
     );
-    let crop_oid = super::items::add_inventory_item(&mut world, 100, 5073, 20).unwrap()[0];
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000_000);
+    let crop_oid = items::add_inventory_item(&mut world, 100, 5073, 20).unwrap()[0];
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000_000);
 
     // Sell 10 crops registered at manor 2 → price 10,000,000 → fee 500,000.
     let mut w = PacketWriter::new();
@@ -488,7 +488,7 @@ fn sell_crop_rejected_when_item_missing() {
 
 /// Gludio's Chamberlain of Light (35100) at the origin, plus an in-game player
 /// standing on it. Returns the world and the player's packet receiver.
-fn chamberlain_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn chamberlain_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, _db, _link) = quest_test_world();
     add_test_npc(&mut world, 701, 35100, "Merchant", 75, 0, 0, 0);
     let rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
@@ -695,12 +695,12 @@ fn manor_state_loads_at_boot() {
     let (mut world, _db, _l) = quest_test_world();
     world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
 
-    crate::game_loop::net::handle_db_event(
+    handle_db_event(
         &mut world,
-        crate::db::DbEvent::ManorLoaded {
+        DbEvent::ManorLoaded {
             production: vec![
                 // Known seed, current period.
-                crate::db::ManorProductionRow {
+                db::ManorProductionRow {
                     castle_id: 1,
                     seed_id: 5016,
                     amount: 500,
@@ -709,7 +709,7 @@ fn manor_state_loads_at_boot() {
                     next_period: false,
                 },
                 // Unknown seed → dropped.
-                crate::db::ManorProductionRow {
+                db::ManorProductionRow {
                     castle_id: 1,
                     seed_id: 999_999,
                     amount: 1,
@@ -720,7 +720,7 @@ fn manor_state_loads_at_boot() {
             ],
             procure: vec![
                 // Known crop, next period.
-                crate::db::ManorProcureRow {
+                db::ManorProcureRow {
                     castle_id: 1,
                     crop_id: 5073,
                     amount: 20,
@@ -730,7 +730,7 @@ fn manor_state_loads_at_boot() {
                     next_period: true,
                 },
                 // Unknown crop → dropped.
-                crate::db::ManorProcureRow {
+                db::ManorProcureRow {
                     castle_id: 1,
                     crop_id: 999_998,
                     amount: 1,
@@ -973,18 +973,13 @@ fn request_set_seed_refused_when_not_modifiable() {
 
 /// Find the `ExShowManorDefaultInfo` packet (EX 0xFE, sub-op 0x25) among the
 /// drained output.
-fn default_info_packet(
-    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-) -> Option<Vec<u8>> {
+fn default_info_packet(rx: &mut UnboundedReceiver<bytes::Bytes>) -> Option<Vec<u8>> {
     ex_packet(rx, 0x25)
 }
 
 /// Find an EX packet (0xFE) with the given single-byte sub-op among the drained
 /// output.
-fn ex_packet(
-    rx: &mut tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>,
-    subop: u8,
-) -> Option<Vec<u8>> {
+fn ex_packet(rx: &mut UnboundedReceiver<bytes::Bytes>, subop: u8) -> Option<Vec<u8>> {
     drain(rx)
         .into_iter()
         .find(|p| p.len() >= 8 && p[0] == 0xFE && p[1] == subop && p[2] == 0x00)
@@ -1011,14 +1006,12 @@ fn sowing_is_gated_on_the_seeds_own_territory() {
     }
     // Give the player the seed item and target the mob.
     let seed_oid =
-        super::items::add_inventory_item(&mut world, 100, 5016, 1).expect("the seed was added")[0];
-    world
-        .objects
-        .add_components(&100, crate::model::components::TargetRef(Some(NPC_OID)));
+        items::add_inventory_item(&mut world, 100, 5016, 1).expect("the seed was added")[0];
+    world.objects.add_components(&100, TargetRef(Some(NPC_OID)));
 
     // The mob stands in *Dion's* tax territory — wrong castle, refused.
     insert_tax_zone_for(&mut world, 2);
-    crate::game_loop::items::handle_use_item(&mut world, 1, &use_item_body(seed_oid));
+    items::handle_use_item(&mut world, 1, &use_item_body(seed_oid));
     assert_eq!(
         world
             .objects
@@ -1031,7 +1024,7 @@ fn sowing_is_gated_on_the_seeds_own_territory() {
     // Re-home the zone to Gludio: the same use now flags the mob.
     world.data.zone_data = crate::data::zone_data::ZoneData::empty();
     insert_tax_zone_for(&mut world, 1);
-    crate::game_loop::items::handle_use_item(&mut world, 1, &use_item_body(seed_oid));
+    items::handle_use_item(&mut world, 1, &use_item_body(seed_oid));
     assert_eq!(
         world
             .objects
@@ -1073,11 +1066,7 @@ fn seed_with_mature(castle_id: i32, seed_id: i32, crop_id: i32) -> Seed {
 
 /// A world holding Gludio (owned by player 100's clan), the mature-crop item
 /// template, and a closing period whose crops were partly sold.
-fn settlement_world(
-    sold: i64,
-    left: i64,
-    price: i64,
-) -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn settlement_world(sold: i64, left: i64, price: i64) -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, rx) = chamberlain_world();
     world.cfg.general.allow_manor = true;
     add_gludio(&mut world);
@@ -1341,11 +1330,11 @@ fn the_manor_admin_page_reports_the_period_and_the_costs() {
     world.data.root = crate::data::DIST_GAME.to_string();
     world.cfg.general.allow_manor = true;
     // Two castles, deliberately inserted out of id order.
-    let castle = |id: i32, name: &str| crate::model::castle::Castle {
+    let castle = |id: i32, name: &str| model::castle::Castle {
         show_npc_crest: false,
         id,
         name: name.into(),
-        side: crate::model::castle::CastleSide::Neutral,
+        side: model::castle::CastleSide::Neutral,
         ticket_buy_count: 0,
         first_mid_victory: false,
         time_registration_over: true,
@@ -1444,7 +1433,7 @@ fn buy_seed_refused_when_it_would_exceed_the_weight_limit() {
         t.is_stackable = true;
         world.data.item_data.insert_for_test(t);
     }
-    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000_000);
+    items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000_000);
     drain(&mut rx);
 
     let mut w = PacketWriter::new();
@@ -1462,7 +1451,7 @@ fn buy_seed_refused_when_it_would_exceed_the_weight_limit() {
     );
     assert!(
         ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE)
-            .contains(&crate::network::server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_WEIGHT_LIMIT),
+            .contains(&server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_WEIGHT_LIMIT),
         "the buyer is told it is the weight, not the money"
     );
 }

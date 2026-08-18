@@ -47,7 +47,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             world.id_pool = start..end;
         }
         DbEvent::GlobalVariablesLoaded { entries } => {
-            tracing::info!("GameLoop: loaded {} global variables.", entries.len());
+            info!("GameLoop: loaded {} global variables.", entries.len());
             world.global_vars = entries.into_iter().collect();
             crate::game_loop::four_sepulchers::restore_entry_times(world);
             // Re-derive upgraded castle-door HP now that the ratios are known
@@ -56,7 +56,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             crate::game_loop::castle::apply_door_upgrades_at_boot(world);
         }
         DbEvent::PremiumLoaded { entries } => {
-            tracing::info!("GameLoop: loaded {} premium accounts.", entries.len());
+            info!("GameLoop: loaded {} premium accounts.", entries.len());
             world.premium = entries.into_iter().collect();
         }
         DbEvent::LotteryLoaded { row, draws } => {
@@ -116,7 +116,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                     .or_default()
                     .push((scheme_name, skills));
             }
-            tracing::info!(
+            info!(
                 "GameLoop: loaded buffer schemes for {} characters.",
                 world.buffer_schemes.len()
             );
@@ -139,7 +139,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                     });
             }
             world.next_fav_id = max_id + 1;
-            tracing::info!(
+            info!(
                 "GameLoop: loaded favorites for {} characters.",
                 world.bbs_favorites.len()
             );
@@ -162,7 +162,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                 .filter(|b| world.data.npc_data.get(b.boss_id).is_some())
                 .map(|b| (b.boss_id, b))
                 .collect();
-            tracing::info!(
+            info!(
                 "GameLoop: loaded {} grand bosses.",
                 world.grand_bosses.len()
             );
@@ -193,7 +193,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                     cw.is_activated = true;
                 }
             }
-            tracing::info!("GameLoop: loaded {} cursed weapons.", weapons.len());
+            info!("GameLoop: loaded {} cursed weapons.", weapons.len());
             world.cursed_weapons = weapons;
             // Java `restore()` → `reActivate()`: a weapon that survived a
             // restart gets its `RemoveTask` armed again. Without this the
@@ -209,7 +209,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             }
         }
         DbEvent::CastlesLoaded { castles } => {
-            tracing::info!("GameLoop: loaded {} castles.", castles.len());
+            info!("GameLoop: loaded {} castles.", castles.len());
             world.castles = castles;
         }
         DbEvent::SiegesLoaded { rows } => {
@@ -229,7 +229,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                     siege.add_clan(row.clan_id, kind);
                 }
             }
-            tracing::info!(
+            info!(
                 "GameLoop: loaded sieges for {} castles ({} registered clans).",
                 sieges.len(),
                 rows.len()
@@ -287,7 +287,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             for ((castle_id, next), list) in proc {
                 manor.set_crop_procure(castle_id, next, list);
             }
-            tracing::info!(
+            info!(
                 "GameLoop: loaded manor state ({} production, {} procure rows, {skipped} unknown skipped).",
                 production.len(),
                 procure.len()
@@ -311,7 +311,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                 .filter(|h| h.owner_id != 0)
                 .map(|h| h.id)
                 .collect();
-            tracing::info!(
+            info!(
                 "GameLoop: loaded {} clan halls ({} owned).",
                 halls.len(),
                 owned.len()
@@ -334,7 +334,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                     },
                 );
             }
-            tracing::info!("GameLoop: loaded {} clan-hall auction bids.", rows.len());
+            info!("GameLoop: loaded {} clan-hall auction bids.", rows.len());
             // Arm the weekly auction close now that the bids exist.
             crate::game_loop::clans::hall_auction::schedule_weekly_close(world);
         }
@@ -353,7 +353,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                         },
                     );
             }
-            tracing::info!("GameLoop: loaded {} clan-hall functions.", rows.len());
+            info!("GameLoop: loaded {} clan-hall functions.", rows.len());
             // Re-arm each function's expiry (Java `ResidenceFunction.init`).
             let funcs: Vec<(i32, i32)> = world
                 .clan_hall_functions
@@ -414,7 +414,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                     .and_then(|l| l.product(item_id))
                     .map(|p| p.max_count)
                 else {
-                    tracing::warn!(
+                    warn!(
                         "BuyList stock found in database but not loaded from xml! \
                          BuyListId: {list_id} ItemId: {item_id}"
                     );
@@ -438,7 +438,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                 );
                 restored += 1;
             }
-            tracing::info!("BuyListData: Restored stock for {restored} products.");
+            info!("BuyListData: Restored stock for {restored} products.");
         }
         // The hired half of the siege-guard table. `Mercenary` carries the
         // ticket item id too, which the row does not: it is recovered from the
@@ -466,7 +466,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                 );
                 total += 1;
             }
-            tracing::info!("GameLoop: loaded {total} hired siege guard tickets.");
+            info!("GameLoop: loaded {total} hired siege guard tickets.");
         }
         DbEvent::SiegeGuardsLoaded { guards } => {
             let mut by_castle: std::collections::HashMap<
@@ -477,7 +477,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                 by_castle.entry(castle_id).or_default().push(spawn);
             }
             let total: usize = by_castle.values().map(|v| v.len()).sum();
-            tracing::info!(
+            info!(
                 "GameLoop: loaded {total} siege guards for {} castles.",
                 by_castle.len()
             );
@@ -496,7 +496,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                 .into_iter()
                 .map(|(id, enabled, text)| (id, (enabled, text)))
                 .collect();
-            tracing::info!(
+            info!(
                 "GameLoop: loaded {} clans, {} clan wars, {} crests, {} recruiting clans, \
                  {} waiting players, {} applications.",
                 clans.len(),

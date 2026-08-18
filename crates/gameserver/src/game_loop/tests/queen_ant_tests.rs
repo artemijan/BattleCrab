@@ -10,11 +10,7 @@ const QUEEN_OID: i32 = NPC_OID + 70;
 const HEAL1: i32 = 4020;
 const HEAL2: i32 = 4024;
 
-fn queen_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn queen_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for (id, kind, hp) in [
         (QUEEN, "GrandBoss", 100_000.0),
@@ -29,17 +25,14 @@ fn queen_world() -> (
         world.data.npc_data.insert_for_test(t);
     }
     for id in [HEAL1, HEAL2] {
-        world
-            .data
-            .skill_data
-            .insert_for_test(crate::model::skill::Skill {
-                self_continuous: false,
-                id,
-                level: 1,
-                magic_type: 1,
-                effects: vec![crate::model::skill::SkillEffect::Heal { power: 1000.0 }],
-                ..Default::default()
-            });
+        world.data.skill_data.insert_for_test(Skill {
+            self_continuous: false,
+            id,
+            level: 1,
+            magic_type: 1,
+            effects: vec![model::skill::SkillEffect::Heal { power: 1000.0 }],
+            ..Default::default()
+        });
     }
     (world, db, l)
 }
@@ -76,7 +69,7 @@ fn the_queen_spawns_her_larva() {
     let (mut world, _db, _l) = queen_world();
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
 
-    crate::game_loop::queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
+    queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
     assert!(
         find_npc_object_id(&mut world, LARVA).is_some(),
         "the larva is out"
@@ -114,11 +107,11 @@ fn the_queen_spawns_her_nurses_and_royal_guards() {
     world.data.npc_data.insert_for_test(guard);
 
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
-    crate::game_loop::queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
+    queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
 
     let count = |world: &mut World, npc_id: i32| {
         let mut n = 0;
-        world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
+        world.objects.for_each_mut::<&model::npc::Npc>(|x| {
             if x.npc_id == npc_id {
                 n += 1;
             }
@@ -148,7 +141,7 @@ fn nurses_heal_a_wounded_queen() {
     spawn_nurse(&mut world, QUEEN_OID + 1, QUEEN_OID);
     let wounded = wound_to_half(&mut world, QUEEN_OID);
 
-    crate::game_loop::queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
+    queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -217,7 +210,7 @@ fn a_nurse_of_another_master_does_not_heal_this_queen() {
     spawn_nurse(&mut world, QUEEN_OID + 1, QUEEN_OID + 999);
     let wounded = wound_to_half(&mut world, QUEEN_OID);
 
-    crate::game_loop::queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
+    queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -239,7 +232,7 @@ fn the_larva_is_immobilized_and_undying() {
     let larva = find_npc_object_id(&mut world, LARVA).unwrap();
     let flags = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&larva)
+        .get_component::<AdminFlags>(&larva)
         .expect("larva has admin flags");
     assert!(flags.undying, "the larva cannot be killed");
     assert!(flags.paralyzed, "the larva cannot move");
@@ -282,7 +275,7 @@ fn the_leash_resets_a_dragged_queen() {
     let (mut world, _db, _l) = queen_world();
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
     add_hate(&mut world, QUEEN_OID, 500, 100.0, 0.0);
-    crate::game_loop::queen_ant::handle_distance_check(&mut world, QUEEN_OID);
+    queen_ant::handle_distance_check(&mut world, QUEEN_OID);
     assert!(
         !has_hate(&world, QUEEN_OID),
         "a dragged Queen drops her hate"
@@ -301,7 +294,7 @@ fn the_leash_resets_a_dragged_queen() {
         -5734,
     );
     add_hate(&mut world, QUEEN_OID, 500, 100.0, 0.0);
-    crate::game_loop::queen_ant::handle_distance_check(&mut world, QUEEN_OID);
+    queen_ant::handle_distance_check(&mut world, QUEEN_OID);
     assert!(
         has_hate(&world, QUEEN_OID),
         "a Queen at home keeps fighting"
@@ -320,7 +313,7 @@ fn the_heal_beat_stops_when_the_queen_dies() {
         .dead = true;
 
     let before = world.scheduler.len();
-    crate::game_loop::queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
+    queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
     assert_eq!(world.scheduler.len(), before, "nothing rescheduled");
 }
 
@@ -340,7 +333,7 @@ fn nurse_faction_call_heals_the_hurt_caller() {
     let _rx = ingame_caster(&mut world, 1, 3001, 200, 0);
 
     // Caller at full HP: the listener does nothing.
-    crate::game_loop::ai::on_faction_call_script_for_test(&mut world, nurse, queen, 3001);
+    ai::on_faction_call_script_for_test(&mut world, nurse, queen, 3001);
     assert!(
         !world.objects.has_component::<Casting>(&nurse),
         "a healthy caller gets no heal"
@@ -348,7 +341,7 @@ fn nurse_faction_call_heals_the_hurt_caller() {
 
     // Wound the queen: the recruited nurse opens with Recovery.
     wound_to_half(&mut world, queen);
-    crate::game_loop::ai::on_faction_call_script_for_test(&mut world, nurse, queen, 3001);
+    ai::on_faction_call_script_for_test(&mut world, nurse, queen, 3001);
     assert!(
         world.objects.has_component::<Casting>(&nurse),
         "the faction-called nurse heals the hurt queen"

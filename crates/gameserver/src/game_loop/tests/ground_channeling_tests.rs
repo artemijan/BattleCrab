@@ -11,10 +11,6 @@ use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEf
 const CASTER: i32 = 2001;
 const CID: u32 = 1;
 
-fn dist_skills() -> crate::data::skill_data::SkillData {
-    dist::skills_owned()
-}
-
 /// A Volcano in miniature: 100 ms to first tick, 200 ms per tick, a short
 /// channel — real geometry, test-sized clock.
 fn volcano_like(id: i32) -> Skill {
@@ -58,7 +54,7 @@ fn learn(world: &mut World, oid: i32, skill: &Skill) {
     world.data.skill_data.insert_for_test(skill.clone());
     world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&oid)
+        .get_component_mut::<SkillBook>(&oid)
         .unwrap()
         .0
         .insert(skill.id, 1);
@@ -82,7 +78,7 @@ fn mp_of(world: &World, oid: i32) -> f64 {
 /// slice's "channelingEffects are dropped" note.
 #[test]
 fn volcano_parses_as_a_channeling_ground_cast() {
-    let sd = dist_skills();
+    let sd = dist::skills_owned();
     let volcano = sd.get(1419, 1).expect("Volcano lvl 1");
     assert_eq!(volcano.operate_type, OperateType::Channeling);
     assert_eq!(volcano.target_type, TargetType::Ground);
@@ -143,11 +139,7 @@ fn ground_channel_burns_the_point_not_the_caster() {
     let hp_before = hp_of(&world, in_fire);
     let outside_before = hp_of(&world, outside);
     let caster_hp_before = hp_of(&world, CASTER);
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, 9200, false),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, 9200, false));
     assert!(
         world.objects.has_component::<Casting>(&CASTER),
         "the ground cast starts"
@@ -197,8 +189,7 @@ fn the_ground_sweep_excludes_the_caster() {
     let mut skill = volcano_like(9210);
     skill.affect_object = AffectObject::All;
 
-    let hit =
-        crate::game_loop::skills::affect::targets_affected(&mut world, CASTER, CASTER, &skill);
+    let hit = affect::targets_affected(&mut world, CASTER, CASTER, &skill);
     assert!(hit.contains(&mob), "the mob in the circle is swept");
     assert!(
         !hit.contains(&CASTER),
@@ -227,11 +218,7 @@ fn ticks_stop_when_the_cast_ends() {
         v.cur_hp = 100_000.0;
     }
 
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, 9201, false),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, 9201, false));
     // Run far past the full cast (hit ≈ 1 s + cancel 2866 ms ≈ 39 ticks).
     advance_ticks(&mut world, 60);
     assert!(
@@ -274,11 +261,7 @@ fn a_mob_walking_in_mid_channel_burns() {
         .unwrap()
         .cur_mp = 10_000.0;
 
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, 9202, false),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, 9202, false));
     advance_ticks(&mut world, 5);
     assert_eq!(
         hp_of(&world, latecomer),
@@ -317,11 +300,7 @@ fn mp_starvation_aborts_the_channel() {
         .unwrap()
         .cur_mp = 45.0;
 
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, 9203, false),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, 9203, false));
     assert!(world.objects.has_component::<Casting>(&CASTER));
     advance_ticks(&mut world, 15);
     assert!(
@@ -343,7 +322,7 @@ fn ground_cast_without_a_position_is_refused() {
     let skill = volcano_like(9204);
     learn(&mut world, CASTER, &skill);
 
-    crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9204, false, false);
+    use_magic(&mut world, CID, CASTER, 9204, false, false);
     assert!(
         !world.objects.has_component::<Casting>(&CASTER),
         "no stored world position → ActionFailed, no cast"
@@ -359,21 +338,13 @@ fn shift_refuses_a_far_ground_point() {
     let skill = volcano_like(9205);
     learn(&mut world, CASTER, &skill);
 
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(1500, 0, 0, 9205, true),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(1500, 0, 0, 9205, true));
     assert!(
         !world.objects.has_component::<Casting>(&CASTER),
         "1500 > castRange 900 with dontMove → refused"
     );
 
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(1500, 0, 0, 9205, false),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(1500, 0, 0, 9205, false));
     assert!(
         world.objects.has_component::<Casting>(&CASTER),
         "without shift the Ground handler applies no range gate (Java's client \
@@ -404,17 +375,14 @@ fn channeling_cast_time_is_static() {
         let p = world.objects.get_component::<Player>(&CASTER).unwrap();
         let base = world
             .objects
-            .get_component::<crate::model::components::BaseStats>(&CASTER)
+            .get_component::<model::components::BaseStats>(&CASTER)
             .unwrap();
         let mods = world
             .objects
-            .get_component::<crate::model::components::StatModifiers>(&CASTER)
+            .get_component::<model::components::StatModifiers>(&CASTER)
             .unwrap();
-        let combat = world
-            .objects
-            .get_component::<crate::model::components::CombatStats>(&CASTER)
-            .unwrap();
-        crate::model::formulas::calc_cast_times(p, base, mods, combat, &world.data, skill)
+        let combat = world.objects.get_component::<CombatStats>(&CASTER).unwrap();
+        formulas::calc_cast_times(p, base, mods, combat, &world.data, skill)
     };
 
     let (channel_slow, cancel, _) = hit_of(&world, &channel);
@@ -428,10 +396,10 @@ fn channeling_cast_time_is_static() {
     // `StatModifiers.mul[MagicAttackSpeed]`).
     world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<model::components::StatModifiers>(&CASTER)
         .unwrap()
         .mul
-        .insert(crate::model::stats::Stat::MagicAttackSpeed, 2.0);
+        .insert(Stat::MagicAttackSpeed, 2.0);
     let (channel_fast, _, _) = hit_of(&world, &channel);
     let (active_fast, _, _) = hit_of(&world, &active);
 
@@ -458,11 +426,7 @@ fn reagent_is_required_and_consumed_at_cast_start() {
     skill.item_consume_count = 1;
     learn(&mut world, CASTER, &skill);
 
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, 9208, false),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, 9208, false));
     assert!(
         !world.objects.has_component::<Casting>(&CASTER),
         "no Magic Symbol → the reagent gate refuses"
@@ -470,23 +434,17 @@ fn reagent_is_required_and_consumed_at_cast_start() {
 
     {
         let World { objects, data, .. } = &mut world;
-        let inv = objects
-            .get_component_mut::<crate::model::inventory::Inventory>(&CASTER)
-            .unwrap();
+        let inv = objects.get_component_mut::<Inventory>(&CASTER).unwrap();
         inv.add_item(&data.item_data, 990_001, 8876, 2);
     }
-    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
-        &mut world,
-        CID,
-        &ground_body(500, 0, 0, 9208, false),
-    );
+    handle_request_magic_skill_use_ground(&mut world, CID, &ground_body(500, 0, 0, 9208, false));
     assert!(
         world.objects.has_component::<Casting>(&CASTER),
         "with a symbol it casts"
     );
     let left = world
         .objects
-        .get_component::<crate::model::inventory::Inventory>(&CASTER)
+        .get_component::<Inventory>(&CASTER)
         .unwrap()
         .count_of(8876);
     assert_eq!(left, 1, "one symbol paid at cast start");
@@ -519,9 +477,9 @@ fn channeled_skill(level: i32) -> Skill {
         abnormal_type: "PHYSICAL_STANCE".into(),
         magic_type: 2,
         effects: vec![SkillEffect::StatModifier(
-            crate::model::skill::StatModifierEffect {
-                stat: crate::model::stats::Stat::PhysicalAttack,
-                mode: crate::model::stats::StatModifierType::Diff,
+            model::skill::StatModifierEffect {
+                stat: Stat::PhysicalAttack,
+                mode: model::stats::StatModifierType::Diff,
                 amount: (5 * level) as f64,
                 armor_condition: 0,
                 weapon_condition: 0,
@@ -558,11 +516,7 @@ fn stance_skill() -> Skill {
     }
 }
 
-fn stance_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn stance_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
     for lvl in 1..=3 {
         world.data.skill_data.insert_for_test(channeled_skill(lvl));
@@ -573,17 +527,13 @@ fn stance_world() -> (
 fn start_stance(world: &mut World, client: u32, caster: i32, target: i32) {
     world
         .objects
-        .add_components(&caster, crate::model::components::TargetRef(Some(target)));
+        .add_components(&caster, TargetRef(Some(target)));
     world
         .objects
         .get_component_mut::<Vitals>(&caster)
         .unwrap()
         .cur_mp = 10_000.0;
-    crate::game_loop::skills::cast::handle_request_magic_skill_use(
-        world,
-        client,
-        &magic_skill_use_body(STANCE, false),
-    );
+    handle_request_magic_skill_use(world, client, &magic_skill_use_body(STANCE, false));
 }
 
 /// One channeler lands the channeled skill at **level 1**.
@@ -674,7 +624,7 @@ fn stopping_a_channel_drops_that_channeler_from_the_stack() {
     advance_ticks(&mut world, 10);
     assert_eq!(buff_level(&world, ALLY, CHANNELED), Some(2), "baseline");
 
-    crate::game_loop::skills::cast::stop_casting(&mut world, ALLY2);
+    stop_casting(&mut world, ALLY2);
 
     assert_eq!(
         world
@@ -692,7 +642,7 @@ fn stopping_a_channel_drops_that_channeler_from_the_stack() {
 /// `channelingSkillId` — 426 and 427 are learnable at 77.
 #[test]
 fn the_real_stances_parse_their_channeling_skill_id() {
-    let skills = dist_skills();
+    let skills = dist::skills_owned();
     for (stance, channeled) in [(426, 5104), (427, 5105)] {
         let s = skills
             .get(stance, 1)

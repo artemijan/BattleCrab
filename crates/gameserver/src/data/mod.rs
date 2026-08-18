@@ -300,7 +300,7 @@ pub struct GameData {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DataOptions {
     /// `MaxEquipableItemGrade` — the buy-list / multisell grade filter.
-    pub max_equipable_item_grade: crate::data::item_data::CrystalType,
+    pub max_equipable_item_grade: item_data::CrystalType,
     /// `InitialEquipmentEvent` — which starting-gear table to read.
     pub initial_equipment_event: bool,
 }
@@ -308,7 +308,7 @@ pub struct DataOptions {
 impl Default for DataOptions {
     fn default() -> Self {
         Self {
-            max_equipable_item_grade: crate::data::item_data::CrystalType::S,
+            max_equipable_item_grade: item_data::CrystalType::S,
             initial_equipment_event: true,
         }
     }

@@ -58,9 +58,7 @@ fn siege_resurrect_refusal(world: &World, corpse_oid: i32, skill_id: i32) -> Opt
     if skill_id == BATTLEGROUND_RESURRECTION_SKILL_ID {
         return None;
     }
-    let pos = world
-        .objects
-        .get_component::<crate::model::components::Position>(&corpse_oid)?;
+    let pos = world.objects.get_component::<Position>(&corpse_oid)?;
     let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
     let siege = world.sieges.get(&castle_id)?;
     if !siege.in_progress {
@@ -145,10 +143,7 @@ pub(crate) fn revive_request(
         target_oid
     };
 
-    let Some(target) = world
-        .objects
-        .get_component::<crate::model::Player>(&target_oid)
-    else {
+    let Some(target) = world.objects.get_component::<Player>(&target_oid) else {
         return;
     };
     if world
@@ -169,7 +164,7 @@ pub(crate) fn revive_request(
     // `calculateSkillResurrectRestorePercent(power, reviver)`.
     let wit_bonus = world
         .objects
-        .get_component::<crate::model::components::BaseStats>(&reviver_oid)
+        .get_component::<BaseStats>(&reviver_oid)
         .map(|b| {
             world
                 .data
@@ -189,16 +184,13 @@ pub(crate) fn revive_request(
     } else {
         world
             .objects
-            .get_component::<crate::model::Player>(&target_oid)
+            .get_component::<Player>(&target_oid)
             .map(|p| p.lost_exp_on_death)
             .unwrap_or(0)
     };
     let restore_exp = ((lost as f64 * restore_percent) / 100.0).round() as i64;
 
-    if let Some(p) = world
-        .objects
-        .get_component_mut::<crate::model::Player>(&target_oid)
-    {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target_oid) {
         p.revive_request = Some(crate::model::ReviveRequest {
             reviver: reviver_oid,
             restore_percent,
@@ -228,7 +220,7 @@ pub(crate) fn revive_request(
 pub(crate) fn handle_revive_answer(world: &mut World, player_oid: i32, accepted: bool) -> bool {
     let Some(request) = world
         .objects
-        .get_component_mut::<crate::model::Player>(&player_oid)
+        .get_component_mut::<Player>(&player_oid)
         .and_then(|p| p.revive_request.take())
     else {
         return false;
@@ -288,14 +280,10 @@ pub(crate) fn handle_revive_answer(world: &mut World, player_oid: i32, accepted:
 fn revive_target(
     world: &mut World,
     player_oid: i32,
-) -> Option<(
-    Mut<'_, crate::model::Player>,
-    Mut<'_, Vitals>,
-    Mut<'_, PlayerVitals>,
-)> {
+) -> Option<(Mut<'_, Player>, Mut<'_, Vitals>, Mut<'_, PlayerVitals>)> {
     world
         .objects
-        .get_many_mut::<(&mut crate::model::Player, &mut Vitals, &mut PlayerVitals)>(&player_oid)
+        .get_many_mut::<(&mut Player, &mut Vitals, &mut PlayerVitals)>(&player_oid)
 }
 
 /// Refill each pool to `percent` of its maximum, clamped there. A percentage of
@@ -500,7 +488,7 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
     // `Math.max(points / size, 1)` — a split never rounds anyone down to zero.
     let each = (total / members.len() as i32).max(1);
     for m in members {
-        if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&m) {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&m) {
             p.raidboss_points += each;
         }
         send_sm_to_player(

@@ -172,7 +172,7 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             ScheduledTask::BaiumSelectTarget => baium::handle_select_target(world),
             ScheduledTask::BaiumCinematic { step } => baium::handle_cinematic_step(world, step),
             ScheduledTask::BaiumCheckAttack => baium::handle_check_attack(world),
-            ScheduledTask::BaiumClearZone => baium::handle_clear_zone(world),
+            ScheduledTask::BaiumClearZone => baium::clear_zone(world),
             ScheduledTask::SailrenBeginFight => sailren::begin_fight(world),
             ScheduledTask::SailrenSpawn => sailren::handle_spawn_sailren(world),
             ScheduledTask::SailrenAttackEnable { sailren_oid } => {
@@ -257,13 +257,13 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 boats::handle_arrive(world, boat_object_id);
             }
             ScheduledTask::BoatDepart { boat_object_id } => {
-                boats::handle_depart(world, boat_object_id);
+                boats::depart(world, boat_object_id);
             }
             ScheduledTask::BoatDwellStage {
                 boat_object_id,
                 stage,
             } => {
-                boats::handle_dwell_stage(world, boat_object_id, stage);
+                boats::run_dwell_stage(world, boat_object_id, stage);
             }
             ScheduledTask::BoatVoyageShout {
                 boat_object_id,

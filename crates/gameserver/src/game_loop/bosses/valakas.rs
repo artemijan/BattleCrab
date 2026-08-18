@@ -410,7 +410,7 @@ pub(crate) fn begin_cinematic(world: &mut World, valakas_oid: i32) {
     for (i, (delay_ms, _)) in CINEMATIC.iter().enumerate() {
         world.scheduler.schedule(
             world.tick + (delay_ms / 1000 * TICKS_PER_SECOND).max(1),
-            crate::scheduler::ScheduledTask::ValakasCinematic {
+            ScheduledTask::ValakasCinematic {
                 valakas_oid,
                 step: i as u8,
             },
@@ -552,7 +552,7 @@ pub(crate) fn on_valakas_killed(world: &mut World, valakas_oid: i32) {
     for (i, (delay_ms, _)) in DEATH_CINEMATIC.iter().enumerate() {
         world.scheduler.schedule(
             world.tick + (delay_ms / 1000 * TICKS_PER_SECOND).max(1),
-            crate::scheduler::ScheduledTask::ValakasDeathCinematic {
+            ScheduledTask::ValakasDeathCinematic {
                 valakas_oid,
                 step: i as u8,
             },
@@ -584,13 +584,13 @@ pub(crate) fn handle_death_cinematic_step(world: &mut World, valakas_oid: i32, s
             if let Some(cube) = crate::model::npc::spawn_npc_at(world, CUBE, x, y, z, 0) {
                 world.scheduler.schedule(
                     world.tick + CUBE_LIFETIME_TICKS,
-                    crate::scheduler::ScheduledTask::DespawnNpc { npc_oid: cube },
+                    ScheduledTask::DespawnNpc { npc_oid: cube },
                 );
             }
         }
         world.scheduler.schedule(
             world.tick + REMOVE_PLAYERS_SECS * TICKS_PER_SECOND,
-            crate::scheduler::ScheduledTask::ValakasRemovePlayers,
+            ScheduledTask::ValakasRemovePlayers,
         );
     }
 }
@@ -652,11 +652,11 @@ pub(crate) fn klein_status_html(world: &World) -> &'static str {
 /// teleport, and the `allowEnter` grant. Returns the refusal html, or `None`
 /// when teleported (Java returns `""`, i.e. close the window).
 pub(crate) fn enter_hall_of_flames(world: &mut World, player_oid: i32) -> Option<&'static str> {
-    if quest_items_count(world, player_oid, VACUALITE) < 1 {
+    if crate::game_loop::helpers::count_of(world, player_oid, VACUALITE) < 1 {
         return Some("31540-06.htm");
     }
     teleport_player_rand(world, player_oid, HALL_OF_FLAMES, 0);
-    set_player_flag(world, player_oid, ALLOW_ENTER, 1);
+    crate::game_loop::helpers::set_player_var_int(world, player_oid, ALLOW_ENTER, 1);
     None
 }
 
@@ -673,11 +673,11 @@ pub(crate) fn heart_enter(world: &mut World, player_oid: i32) -> Option<&'static
     if world.valakas_entry_count >= MAX_PEOPLE {
         return Some("31385-03.htm");
     }
-    if player_flag(world, player_oid, ALLOW_ENTER) != 1 {
+    if crate::game_loop::helpers::player_var_int(world, player_oid, ALLOW_ENTER, 0) != 1 {
         return Some("31385-04.htm");
     }
     // Admitted: consume the flag, teleport in, and count the entry.
-    unset_player_flag(world, player_oid, ALLOW_ENTER);
+    crate::game_loop::helpers::unset_player_var(world, player_oid, ALLOW_ENTER);
     teleport_player_rand(world, player_oid, LAIR_ENTRY, 600);
     world.valakas_entry_count += 1;
 
@@ -688,7 +688,7 @@ pub(crate) fn heart_enter(world: &mut World, player_oid: i32) -> Option<&'static
         let wait_secs = world.cfg.grand_boss.valakas_wait_minutes.max(1) as u64 * 60;
         world.scheduler.schedule(
             world.tick + wait_secs * TICKS_PER_SECOND,
-            crate::scheduler::ScheduledTask::ValakasBeginning,
+            ScheduledTask::ValakasBeginning,
         );
     }
     None
@@ -722,34 +722,4 @@ fn teleport_player_rand(world: &mut World, player_oid: i32, base: (i32, i32, i32
         (0, 0)
     };
     crate::game_loop::death::teleport_player(world, player_oid, base.0 + dx, base.1 + dy, base.2);
-}
-
-fn quest_items_count(world: &World, oid: i32, item_id: i32) -> i64 {
-    crate::game_loop::helpers::count_of(world, oid, item_id)
-}
-
-fn player_flag(world: &World, oid: i32, key: &str) -> i32 {
-    world
-        .objects
-        .get_component::<crate::model::components::PlayerVariables>(&oid)
-        .and_then(|v| v.0.get(key).and_then(|s| s.parse().ok()))
-        .unwrap_or(0)
-}
-
-fn set_player_flag(world: &mut World, oid: i32, key: &str, value: i32) {
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
-    {
-        v.0.insert(key.to_string(), value.to_string());
-    }
-}
-
-fn unset_player_flag(world: &mut World, oid: i32, key: &str) {
-    if let Some(v) = world
-        .objects
-        .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
-    {
-        v.0.remove(key);
-    }
 }

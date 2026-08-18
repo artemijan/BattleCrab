@@ -96,9 +96,7 @@ macro_rules! check_all {
 
 #[tokio::test]
 async fn entities_match_the_migrated_schema() {
-    let db = models::sea_orm::Database::connect("sqlite::memory:")
-        .await
-        .unwrap();
+    let db = sea_orm::Database::connect("sqlite::memory:").await.unwrap();
     migration::Migrator::up(&db, None).await.unwrap();
 
     check_all!(

@@ -398,7 +398,7 @@ fn summon_evolved(
     }
     // `item.setEnchantLevel(petSummon.getLevel())` — the collar records the
     // level, which is what a later `restore` reads back out.
-    super::servitor::sync_collar_enchant_for_admin(world, player_oid, pet_oid);
+    super::servitor::sync_collar_enchant(world, player_oid, pet_oid);
 
     // `MagicSkillUse(npc, 2046, …)` is cast **by the manager**, plus the
     // summoning system message.

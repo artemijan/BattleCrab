@@ -51,9 +51,9 @@ fn send_register_outcome(world: &World, client_id: u32, castle_id: i32, outcome:
             send_to_client(
                 world,
                 client_id,
-                crate::network::server_packets::system_message_with(
+                server_packets::system_message_with(
                     sm_ids::THE_DEADLINE_TO_REGISTER_FOR_THE_SIEGE_OF_S1_HAS_PASSED,
-                    &[commons::system_messages::SmParam::CastleName(castle_id)],
+                    &[SmParam::CastleName(castle_id)],
                 ),
             );
         }
@@ -71,7 +71,7 @@ fn send_register_outcome(world: &World, client_id: u32, castle_id: i32, outcome:
                 world,
                 client_id,
                 sm_ids::S1_TEXT,
-                &[commons::system_messages::SmParam::Text(format!(
+                &[SmParam::Text(format!(
                     "You cannot register as a defender because {name} is owned by NPC."
                 ))],
             );

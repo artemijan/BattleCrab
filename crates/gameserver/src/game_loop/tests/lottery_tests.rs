@@ -166,7 +166,7 @@ fn the_draw_splits_the_pot_by_tier() {
     // prize1 (5-match) = (50000 - prize4) * 0.6 / 1 winner; prize4 = 0 here.
     let cmds = drain_db(&mut db_rx);
     let fin = cmds.iter().find_map(|c| match c {
-        crate::db::DbCommand::FinishLottery {
+        db::DbCommand::FinishLottery {
             idnr: 1,
             prize1,
             prize3,
@@ -189,11 +189,11 @@ fn buying_a_ticket_charges_adena_grows_the_pot_and_mints_the_ticket() {
 
     add_test_npc(&mut world, 500, 30991, "Folk", 70, 0, 0, 0);
     ingame_player(&mut world, 1, 100, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, 100, 57, 10_000);
+    items::add_inventory_item(&mut world, 100, 57, 10_000);
     // Five picked numbers.
     world
         .objects
-        .add_components(&100, crate::model::components::LotoPicks([1, 2, 3, 4, 5]));
+        .add_components(&100, model::components::LotoPicks([1, 2, 3, 4, 5]));
 
     lottery::loto_bypass(&mut world, 1, 100, 500, "Loto 22");
 
@@ -219,10 +219,10 @@ fn selling_closed_refuses_the_purchase() {
     drain_db(&mut db_rx);
     add_test_npc(&mut world, 500, 30991, "Folk", 70, 0, 0, 0);
     ingame_player(&mut world, 1, 100, 0, 0, 0);
-    super::items::add_inventory_item(&mut world, 100, 57, 10_000);
+    items::add_inventory_item(&mut world, 100, 57, 10_000);
     world
         .objects
-        .add_components(&100, crate::model::components::LotoPicks([1, 2, 3, 4, 5]));
+        .add_components(&100, model::components::LotoPicks([1, 2, 3, 4, 5]));
 
     lottery::loto_bypass(&mut world, 1, 100, 500, "Loto 22");
 
@@ -271,7 +271,7 @@ fn claiming_a_winning_ticket_pays_out_and_consumes_it() {
     add_test_npc(&mut world, 500, 30991, "Folk", 70, 0, 0, 0);
     ingame_player(&mut world, 1, 100, 0, 0, 0);
     // A round-1 winning ticket (5-match: enchant 31).
-    let oid = super::items::add_inventory_item(&mut world, 100, 4442, 1).unwrap()[0];
+    let oid = items::add_inventory_item(&mut world, 100, 4442, 1).unwrap()[0];
     world
         .objects
         .get_component_mut::<Inventory>(&100)

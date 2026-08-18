@@ -12,7 +12,7 @@
 //! `LazyLock` parses on first use, so a filtered `cargo test` run that touches
 //! none of these still pays nothing. It shares nothing between tests, though —
 //! nextest gives each test its own process — which is why the first load in
-//! each process goes through [`snapshot`](crate::data::snapshot): the parse
+//! each process goes through [`snapshot`](snapshot): the parse
 //! happens once for the whole suite and every later process decodes the result
 //! (627 ms → 85 ms for `SkillData`).
 

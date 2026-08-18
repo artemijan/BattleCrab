@@ -20,7 +20,7 @@ fn action_use_body(action_id: i32) -> Vec<u8> {
 
 /// A world with bot reporting on, two players out in the open, and the
 /// reporter targeting the other.
-fn report_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+fn report_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, ..) = test_world();
     world.cfg.bot_report = BotReportConfig {
         enabled: true,
@@ -31,11 +31,10 @@ fn report_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<bytes::Bytes>)
     };
     // The report arrives as `RequestActionUse`, which dispatches through
     // `ActionData.xml`'s handler table; the fixture world ships an empty one.
-    world.data.action_data.insert_row_for_test(
-        crate::game_loop::bot_report::BOT_REPORT_ACTION_ID,
-        "BotReport",
-        0,
-    );
+    world
+        .data
+        .action_data
+        .insert_row_for_test(bot_report::BOT_REPORT_ACTION_ID, "BotReport", 0);
     let rx = ingame_player(&mut world, 1, 6001, 0, 0, 0);
     let _bot_rx = ingame_player(&mut world, 2, 6002, 50, 0, 0);
     // Java refuses a target with zero exp ("has not acquired any XP after
@@ -233,7 +232,7 @@ fn the_punishment_ladder_picks_exact_and_range_rows() {
 
     let buffs: Vec<i32> = world
         .objects
-        .get_component::<crate::model::components::Buffs>(&6002)
+        .get_component::<Buffs>(&6002)
         .map(|b| b.0.iter().map(|x| x.skill_id).collect())
         .unwrap_or_default();
     assert!(buffs.contains(&6038), "the exact-count punishment landed");

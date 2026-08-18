@@ -75,7 +75,7 @@ fn panel_vitals(world: &World, target: i32) -> (Vitals, PlayerVitals) {
 /// carries its remaining lifetime instead), so targeting one is `INVALID_TARGET`
 /// exactly like targeting a player.
 pub(super) fn admin_fullfood(world: &mut World, client_id: u32, gm_object_id: i32) {
-    let pet = crate::game_loop::guard::target(world, gm_object_id).filter(|oid| {
+    let pet = guard::target(world, gm_object_id).filter(|oid| {
         world
             .objects
             .has_component::<crate::model::components::PetOf>(oid)
@@ -184,7 +184,7 @@ pub(super) fn admin_character_info(
     // and falls back to "N/A"/"Unknown" when there is none (client null or
     // detached), telling the GM which case it was. An offline trader is the
     // port's detached client — its session is gone but the `Player` stays.
-    let (ip, hwid, protocol) = match super::super::helpers::client_for_player(world, target) {
+    let (ip, hwid, protocol) = match super::helpers::client_for_player(world, target) {
         Some(cid) => (
             world
                 .clients
@@ -808,7 +808,7 @@ pub(super) fn admin_summon_setlvl(
         p.fed = p.fed.min(max_fed);
     }
     crate::game_loop::servitor::recalculate_pet_stats(world, pet_oid);
-    crate::game_loop::servitor::sync_collar_enchant_for_admin(world, owner, pet_oid);
+    crate::game_loop::servitor::sync_collar_enchant(world, owner, pet_oid);
     send_message(world, client_id, &format!("Pet level set to {level}."));
 }
 

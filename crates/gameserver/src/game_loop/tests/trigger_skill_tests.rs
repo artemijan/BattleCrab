@@ -18,11 +18,7 @@ const MOB_OID: i32 = NPC_OID;
 const CARRIER: i32 = 9900;
 const TRIGGERED: i32 = 9901;
 
-fn trigger_world() -> (
-    World,
-    db::CmdRx,
-    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
-) {
+fn trigger_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(MOB_ID);
     t.type_name = "Monster".into();
@@ -44,7 +40,7 @@ fn install(world: &mut World, effect: SkillEffect) {
     let base = |id: i32, effects: Vec<SkillEffect>, abnormal_time: i32, op: OperateType| Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: crate::model::skill::TraitType::None,
+        trait_type: model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -131,7 +127,7 @@ fn triggered(world: &World, oid: i32) -> bool {
 
 /// Land one normal hit of `damage`, critical or not.
 fn hit(world: &mut World, damage: i32, crit: bool) {
-    crate::game_loop::combat::handle_attack_hit(world, PLAYER, MOB_OID, damage, false, crit, 0);
+    combat::handle_attack_hit(world, PLAYER, MOB_OID, damage, false, crit, 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -290,7 +286,7 @@ fn a_self_hit_never_triggers() {
     install(&mut world, a_trigger(100, false));
     know(&mut world, PLAYER);
 
-    crate::game_loop::combat::handle_attack_hit(&mut world, PLAYER, PLAYER, 50, false, false, 0);
+    combat::handle_attack_hit(&mut world, PLAYER, PLAYER, 50, false, false, 0);
     assert!(!triggered(&world, PLAYER), "self-hits are excluded");
 }
 

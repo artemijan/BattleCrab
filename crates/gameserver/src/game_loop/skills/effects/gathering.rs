@@ -111,7 +111,7 @@ pub(crate) fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32)
             send_sm_bare_to_player(
                 world,
                 caster_oid,
-                crate::network::server_packets::sm_ids::YOUR_INVENTORY_IS_FULL,
+                server_packets::sm_ids::YOUR_INVENTORY_IS_FULL,
             );
             return;
         }
@@ -209,7 +209,7 @@ pub(crate) fn apply_sow(world: &mut World, caster_oid: i32, target_oid: i32) {
         // `player.sendPacket(QuestSound.ITEMSOUND_QUEST_ITEMGET.getPacket())`,
         // which Java fires before flagging the mob. Private to the sower even
         // when partied — only the result message below is broadcast.
-        crate::game_loop::helpers::send_to_player(
+        send_to_player(
             world,
             caster_oid,
             server_packets::play_sound(server_packets::quest_sounds::ITEMGET),

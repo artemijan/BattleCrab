@@ -6,7 +6,7 @@
 //! (**on** for this dist) and replays it verbatim; the port does the same, so
 //! the layout survives a relogin with the character's other variables.
 
-use crate::model::components::{PlayerVariables, UI_KEY_MAPPING};
+use crate::model::components::UI_KEY_MAPPING;
 use crate::session::ClientSession;
 use crate::world::World;
 
@@ -29,12 +29,7 @@ pub(crate) fn handle_save_key_mapping(world: &mut World, client_id: u32, body: &
         .map(|b| (*b as i8).to_string())
         .collect::<Vec<_>>()
         .join("\t");
-    if let Some(vars) = world
-        .objects
-        .get_component_mut::<PlayerVariables>(&object_id)
-    {
-        vars.0.insert(UI_KEY_MAPPING.to_string(), encoded);
-    }
+    super::helpers::set_player_var(world, object_id, UI_KEY_MAPPING, encoded);
 }
 
 /// The stored layout for this client's character, decoded back to raw bytes
@@ -44,18 +39,13 @@ pub(crate) fn stored_key_mapping(world: &World, client_id: u32) -> Vec<u8> {
         Some(ClientSession::InGame(s)) => s.player_object_id(),
         _ => return Vec::new(),
     };
-    decode_key_mapping(
-        world
-            .objects
-            .get_component::<PlayerVariables>(&object_id)
-            .and_then(|v| v.0.get(UI_KEY_MAPPING)),
-    )
+    decode_key_mapping(super::helpers::player_var(world, object_id, UI_KEY_MAPPING))
 }
 
 /// Decode the tab-joined variable back to the raw blob the client saved. Shared
 /// with the enter-world burst, which reads the same variable off the freshly
 /// loaded character bundle.
-pub(crate) fn decode_key_mapping(stored: Option<&String>) -> Vec<u8> {
+pub(crate) fn decode_key_mapping(stored: Option<&str>) -> Vec<u8> {
     stored
         .map(|stored| {
             stored
