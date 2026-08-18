@@ -209,7 +209,7 @@ fn keep_in_ignores_a_free_player() {
 fn boot_load_registers_and_re_arms_a_timed_jail() {
     let (mut world, _tx, _rx, _link) = test_world();
     let now = commons::util::now_millis();
-    let task  = punishment_models::Punishment {
+    let task = punishment_models::Punishment {
         id: 7,
         key: "3001".into(),
         affect: punishment_models::PunishmentAffect::Character,

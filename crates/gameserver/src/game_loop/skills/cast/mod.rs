@@ -42,6 +42,10 @@ mod target;
 
 pub(crate) use abort::*;
 pub(crate) use channeling::*;
+// A deliberate one-function test seam, not path plumbing: `consequences` is the
+// only module here imported with a *private* glob (`use consequences::*` below),
+// because the cast pipeline's consequence half is internal. The shim on the
+// other end is `#[cfg(test)]` too, which is what forces the cfg here.
 #[cfg(test)]
 pub(crate) use consequences::apply_bad_skill_aggro_for_test;
 use consequences::*;

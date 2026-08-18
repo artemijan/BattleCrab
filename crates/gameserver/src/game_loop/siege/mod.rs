@@ -18,6 +18,10 @@ mod battlefield;
 mod capture;
 mod doors;
 mod mercenaries;
+// Unlike the tick drivers in `game_loop/mod.rs`, this re-export is load-bearing:
+// `game_loop::tests` is a **sibling** of `siege`, not a descendant, so it cannot
+// name `siege::mercenaries` while that module is private. Deleting this line
+// does not compile.
 #[cfg(test)]
 pub(crate) use mercenaries::clear_castle as clear_castle_mercenaries;
 pub(crate) use mercenaries::handle_confirm as handle_mercenary_confirm;

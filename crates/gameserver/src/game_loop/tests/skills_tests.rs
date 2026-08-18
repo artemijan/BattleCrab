@@ -6313,9 +6313,9 @@ fn inner_rhythm_discounts_a_real_cast_driven_through_the_admin_command() {
 /// unspoiled corpse and passes on the caster's own spoil.
 #[test]
 fn npc_body_spoil_gate_only_for_sweeper() {
+    use crate::network::server_packets::sm_ids;
     use model::components::Position;
     use model::skill::{Skill, SkillEffect, TargetType};
-    use crate::network::server_packets::sm_ids;
 
     let (mut world, ..) = cast_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);

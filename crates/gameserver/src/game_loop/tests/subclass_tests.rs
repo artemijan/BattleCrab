@@ -719,10 +719,9 @@ fn modify_subclass_wipes_the_slot_and_replaces_it() {
         "…and its banked skills"
     );
     assert!(
-        drain_db(&mut db_rx).iter().any(|c| matches!(
-            c,
-            db::DbCommand::WipeSubclassSlot { class_index: 1, .. }
-        )),
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, db::DbCommand::WipeSubclassSlot { class_index: 1, .. })),
         "the slot's DB rows are wiped"
     );
 

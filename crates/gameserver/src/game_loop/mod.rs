@@ -118,11 +118,6 @@ pub(crate) mod support_magic;
 pub(crate) mod tamed_beast;
 mod target;
 mod tasks;
-// The tests drive ticks through these two directly.
-#[cfg(test)]
-pub(crate) use net::autosave_tick;
-#[cfg(test)]
-pub(crate) use tasks::apply_due_tasks;
 pub(crate) mod teleporter;
 #[cfg(test)]
 mod tests;
@@ -304,7 +299,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         let boundary_start = Instant::now();
 
         // 2. One-shot timers due this tick.
-        timed!("timers", apply_due_tasks(&mut world));
+        timed!("timers", tasks::apply_due_tasks(&mut world));
 
         // 3. Fixed-rate tick systems (movement, AI, attack…) — added in G4+.
         // Movement runs every tick (unlike the gated systems below) — it
@@ -354,7 +349,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
             timed!("custom_mail", custom_mail::poll(&mut world));
         }
         if world.tick.is_multiple_of(AUTOSAVE_CHECK_PERIOD) {
-            timed!("autosave", autosave_tick(&mut world));
+            timed!("autosave", net::autosave_tick(&mut world));
         }
         if world.tick.is_multiple_of(death::TELEPORT_WATCHDOG_PERIOD) {
             timed!(

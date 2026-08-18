@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::autosave_tick;
+use crate::game_loop::net::autosave_tick;
 
 #[test]
 fn auth_then_load_reaches_lobby_with_char_list() {
