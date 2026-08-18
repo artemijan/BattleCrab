@@ -71,6 +71,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         gameserver::data::DataOptions {
             max_equipable_item_grade: config.character.max_equipable_item_grade,
             initial_equipment_event: config.character.initial_equipment_event,
+            custom_npc_data: config.general.custom_npc_data,
+            custom_skills_load: config.general.custom_skills_load,
+            custom_items_load: config.general.custom_items_load,
+            custom_multisell_load: config.general.custom_multisell_load,
+            custom_buylist_load: config.general.custom_buylist_load,
         },
     );
     // Stat ceilings + run-speed boost live in Character.ini; fold them into the
@@ -109,6 +114,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         gm: config.general.skill_check_gm,
     };
     data.default_access_level = config.general.default_access_level;
+    // `HtmCache.loadFile`'s two content-affecting keys, installed before any
+    // html is read.
+    gameserver::data::htm_cache::set_html_settings(gameserver::data::htm_cache::HtmlSettings {
+        hide_bypass_removal: config.general.hide_bypass_removal,
+        check_encoding: config.general.check_html_encoding,
+    });
     // Character.ini `EnableModifySkillDuration`/`SkillDurationList`: bake the
     // per-skill `abnormalTime` overrides into the loaded skills (Java does this
     // in the `Skill` constructor). No-op when the list is empty/disabled.
@@ -167,6 +178,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config.server.database_url.clone(),
         config.server.database_max_connections,
         config.server.max_characters_number_per_account,
+        config.general.database_clean_up,
+        gameserver::db::GroundItemBootConfig {
+            save_dropped_item: config.general.save_dropped_item,
+            clear_dropped_item_table: config.general.clear_dropped_item_table,
+            empty_dropped_item_table_after_load: config.general.empty_dropped_item_table_after_load,
+        },
         db_cmd_rx,
         db_event_tx,
     );

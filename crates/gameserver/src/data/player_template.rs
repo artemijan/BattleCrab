@@ -194,6 +194,11 @@ impl PlayerTemplateData {
     }
     pub fn load_from(file_path: &str) -> Self {
         let mut templates = HashMap::new();
+        // Deliberately **not** `xml::xml_files_in`: that helper answers an
+        // unreadable directory with an empty list, and an empty player-template
+        // set is not a degraded server, it is one where no character can be
+        // created or loaded. The panic names the CWD because the usual cause is
+        // a datapack path resolved from the wrong directory.
         let dir = std::fs::read_dir(format!("{file_path}{BASE_STATS_DIR}")).unwrap_or_else(|e| {
             let cwd = std::env::current_dir().unwrap();
             panic!("PlayerTemplateData: cannot read {BASE_STATS_DIR}: {e}, CWD: {cwd:?}")

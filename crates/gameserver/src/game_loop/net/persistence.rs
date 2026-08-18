@@ -270,6 +270,9 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     }
 
     Some(db::PlayerSaveData {
+        // `Config.UPDATE_ITEMS_ON_CHAR_STORE` — Java's `autoSave` gate on
+        // `getInventory()/getWarehouse()/getFreight().updateDatabase()`.
+        store_items: world.cfg.general.update_items_on_char_store,
         base,
         pets,
         summons,

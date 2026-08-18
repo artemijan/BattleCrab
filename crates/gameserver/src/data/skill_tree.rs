@@ -134,14 +134,7 @@ impl SkillTreeData {
         let mut parents: HashMap<i32, i32> = HashMap::new();
         let mut common: Vec<SkillLearn> = Vec::new();
         for sub in CLASS_TREE_SUBDIRS {
-            let Ok(dir) = std::fs::read_dir(format!("{file_path}{SKILL_TREES_DIR}/{sub}")) else {
-                continue;
-            };
-            for entry in dir.flatten() {
-                let path = entry.path();
-                if path.extension().and_then(|e| e.to_str()) != Some("xml") {
-                    continue;
-                }
+            for path in xml::xml_files_in(format!("{file_path}{SKILL_TREES_DIR}/{sub}")) {
                 parse_tree(&path, &mut trees, &mut parents, &mut common);
             }
         }

@@ -246,6 +246,11 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
             let b = s.player();
             let _ = world.db.send(db::DbCommand::StorePlayer {
                 save: Box::new(db::PlayerSaveData {
+                    // Unconditional here, unlike the periodic save: this is the
+                    // logout/disconnect store, which is Java's `storeMe()` path
+                    // rather than `autoSave()`, and the comment above says why
+                    // an items-empty save would be destructive.
+                    store_items: true,
                     base: db::PlayerSnapshot::of(
                         &b.player,
                         &b.position,

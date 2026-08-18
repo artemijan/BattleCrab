@@ -29,7 +29,7 @@ this order:
    `crates/tools/tests/coverage_census.rs` — the marker inventory itself, as an
    assertion rather than a document. Adding a gap without recording it there
    fails the build; closing one without taking it off fails too. Its expected
-   list has been **empty** since 2026-08-07.
+   list held exactly one entry as of 2026-08-18: `antharas-cc`.
 3. **[PROGRESS.md](PROGRESS.md)** — the dated journal of what landed and why.
    Narrative, not enforced.
 
@@ -122,8 +122,13 @@ grep -rhoE 'TODO\([A-Za-z0-9][A-Za-z0-9._/+?-]*\)' crates/ --include='*.rs' | so
 | G33 | Misc parity & finishing sweep | ✅ All four named slices, plus the `Custom/*.ini` audit below | 0 |
 | G34 | Skills, effects & abnormal-state parity (epic) | ✅ **CLOSED** — the skill parser was fail-open; a wrong-behaviour census of every learnable skill went **275 → 11 of 758**, and each of the 11 is a recorded, named out-of-scope item | 0 |
 
-**Total recorded gaps: 0.** Every column above reads 0 because the inventory is
-empty. The sweep that began at 180 markers on 2026-08-03 closed the last two on
+**Total recorded gaps: 1.** Every column above reads 0 because the milestone
+sweep closed everything it had marked; the one entry since added belongs to no
+milestone. `TODO(antharas-cc)` — the Antharas entry gate reads only the
+*party*, while the doc that used to sit there described the command channel
+outranking it. **It was found by deduplication, not by a sweep**: the body was
+byte-identical to Sailren's honestly-party-only twin, and the claim lived in
+prose, where nothing measures. The sweep that began at 180 markers on 2026-08-03 closed the last two on
 2026-08-07 — the block list and `Say2`'s jail gate, both opened days earlier by
 the world-chat port.
 
@@ -135,7 +140,7 @@ set-difference audit of the axes neither one covers.
 
 The count is still **enforced**, by
 `deferral_markers_match_the_recorded_inventory` in
-`crates/tools/tests/coverage_census.rs`, which now expects an empty list: a new
+`crates/tools/tests/coverage_census.rs`, which expects that one entry: a new
 `TODO(<tag>)` anywhere under `crates/` fails the build until someone records it
 there deliberately. The scan is total — every parseable tag counts, whether
 milestone-scoped (`G24`), suffixed (`G9+`, `G24/G26`) or topic-tagged (`pets`,
@@ -199,9 +204,10 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **113** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini, Feature.ini and Character.ini are all wired**; what remains is Character 9 (all classified — see below), General 57, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **84** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini, Feature.ini and Character.ini are all wired**; what remains is Character 9 (all classified — see below), General 28, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
+| 20 | Item conditions | **`<cond>` is not parsed or evaluated at all** — 2126 blocks across `stats/items/*.xml`, gating on races (822), fly-mounted state (450), `categoryType` (261), level (218) and sex (149). The Olympiad hero/restricted-item gate and the event-restricted gate in the same Java function are absent with it | `ItemTemplate.checkCondition` against the port, which has no counterpart; `data::item_data`'s module header has recorded "`<cond>` is still not parsed" since it was written | An item's equip/use conditions are unenforced. Surfaced 2026-08-18 by `GMItemRestriction`, whose only job is to decide whether a GM bypasses this function — a key with nothing to gate. **No other measure reaches this axis**: not the marker inventory, not the skill census, not row 14 |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
 
 ### Closed
@@ -637,7 +643,7 @@ Every key the file ships is now accounted for. The nine still counted are:
   to flatter the count would defeat the point of having one.
 * **`MaximumPlayerLevel`**, which is row 19's decision and not ours to take.
 
-What is left in row 14 is General (**57** — mostly dev tooling and
+What is left in row 14 is General (**28** — mostly dev tooling and
 persistence-model choices the port made differently: memory-first saves, no
 `HtmCache`, no grid on/off) and Server (7), which is infrastructure. (This
 paragraph used to name General twice, once with Character.ini's description
@@ -757,6 +763,124 @@ restrictions are absent too. There is nothing for the override to bypass. The
 field exists so the gate lands with the conditions when they are ported; **item
 `<cond>` evaluation is a genuine unported subsystem** and is not counted
 anywhere else in this document.
+
+**The General.ini ground-item persistence cluster (11 keys).** Ten wired, one
+carried; the headline is that `itemsonground` is no longer an empty table the
+baseline migration left behind — the same position `buylists` was in before row
+17.
+
+`SaveDroppedItem` and its three companions (`SaveDroppedItemInterval`,
+`ClearDroppedItemTable`, `EmptyDroppedItemTableAfterLoad`) are the
+`ItemsOnGroundManager` persistence: load at boot, a periodic rewrite, a
+shutdown flush, and Java's two truncate paths. All four are **off** on this
+dist, so nothing changes today; what an operator turning them on now gets is
+ground items that survive a restart.
+
+**The decay clock had to be resumed rather than restarted.** Java compares
+timestamps in its sweep and gets this implicitly; the port holds decay as a
+scheduler entry in *ticks*, which do not survive a restart. So `drop_time` is
+persisted as wall-clock and the remaining lifetime is computed on the way in —
+an item that lay 590 s of its 600 s decays 10 s after the restart, not 600.
+`-1` keeps Java's "protected, never decays" meaning end to end.
+
+Two things deliberately **not** persisted, matching Java: loot protection
+(`_ownerId` and its `ResetOwner` task are in-memory, so a restart frees a
+reserved drop) and cursed weapons (`CursedWeaponsManager` owns their row, and
+Java's `run()` skips them to avoid a double save).
+
+`MultipleItemDrop` and `OnlyGMItemsFree` before it were both already
+implemented and hard-coded to this dist's value behind a comment naming the key.
+Reading it exposes Java's off branch, which is not the intuitive one: `break`ing
+out of `ItemContainer.addItem`'s loop creates **one instance of 1 and discards
+the rest**. It is a lossy setting, not a stacking setting.
+
+`DestroyAllItems` gains its gate *and* a third cond-override
+(`DESTROY_ALL_ITEMS`, ordinal 12) — Java's expression exempts an override
+holder from the undestroyable half but not from the cursed-weapon half, because
+`isCursed` sits outside the parenthesis. `UpdateItemsOnCharStore` had to become
+a **flag on the save payload** rather than an empty item list, since the write
+is delete-then-reinsert and an empty list means "delete everything".
+`DatabaseCleanUp` ports Java's `IdManager` sweep — 50 statements over 43
+tables, all 43 of which exist in this schema — as a four-column table plus the
+four statements that do not fit the shape.
+
+**One carried:** `LazyItemsUpdate` gates a *write-through* item path the port
+does not have. It is memory-first by design, so turning the key on in Java
+makes that engine behave more like this one; turning it off cannot make this
+one behave like that. `ClanVariablesStoreInterval` was carried for a different
+reason — see the field's own note: nothing writes a clan variable on this
+chronicle, because the only writer is the post-Interlude clan-reward system.
+
+**The General.ini loaders/HTML cluster (10 keys), and the bug in it.**
+`CustomNpcData` is **True** on this dist and the port read `stats/npcs` **without
+its `custom/` subdirectory** — `xml_files_in` does not recurse — so 14 templates
+never loaded. Two belong to features the port implements: the **TvT event
+manager** (70010/70011), so `//event_start TvT` spawned no NPC at all, and
+Kadmos (1003000), so `//spawn 1003000` failed.
+
+**A fixture was holding the gap open.** `tvt_tests` registers the manager
+template by hand, under a comment saying it does so *"so `event_start`'s spawn
+resolves"* — which is what a test looks like when it is compensating for a
+loader rather than exercising one. The new test asserts the template against the
+**real dist** instead, which is the only thing that could have caught this.
+
+`CustomSkillsLoad` was the same directory-shaped gap one loader over (Ghost
+Walking 100000, TvT's spawn protection). `CustomItemsLoad` is wired but inert —
+this dist ships no `stats/items/custom/`. `CustomMultisellLoad` and
+`CustomBuyListLoad` were already loading their overlays, hardcoded, with the key
+quoted in a comment — the fourth and fifth instance of that shape in this row.
+
+**`HtmCache` turns out to describe what the port already does.**
+`data::htm_cache`'s header framed per-interaction reading as a deliberate
+deviation, on the premise that "Java loads every file at boot". That is only
+true of `HtmCache = True`; this dist ships **False**, where Java logs
+*"Cache[HTML]: Running lazy cache"* and reads exactly the same way. The port
+implements the configured branch — the correction is to the premise, not the
+code. The eager branch stays unimplemented and is documented, because it also
+changes `Npc.getHtmlPath` into a cache-is-the-oracle lookup.
+
+`HideBypassRemoval` and `CheckHtmlEncoding` are `HtmCache.loadFile`'s two
+content keys and now live in `strip_htm` beside the comment/whitespace strip
+they run after. The `-h` removal is safe to apply to content because the
+**client** consumes that flag: it strips `bypass `/`bypass -h ` before sending,
+and Java's `RequestBypassToServer` never sees one.
+
+Two carried with reasons: `CustomTeleportTable` is **dead in Java** (parsed into
+a field nothing reads), and `HtmlActionCacheDebug` traces Java's
+`validateHtmlAction` cache, which `game_loop::bypass` records as a deliberate
+non-port.
+
+**The General.ini feature-gate cluster (10 keys), and a hole in the measure.**
+`AllowWarehouse`, `AllowRefund`, `AllowFishing`, `AllowBoat`,
+`AllowCursedWeapons`, `AllowDiscardItem`, `BoatBroadcastRadius`, `TradeChat`,
+`GlobalChat` and `MinimumChatLevel`. All ship **on**, so nothing changes today;
+what an operator gets is a switch that works.
+
+**The measure had a false negative.** `GlobalChat` never appeared in row 14's
+unread list, because `"GlobalChat"` occurs as a string literal in
+`config::flood_protector` — as the name of a *flood action*, nothing to do with
+the `General.ini` key. A literal-scan measure counts any collision as "read", so
+the real figure was 38 where the row said 37. This is the third distinct way the
+derivation has been wrong (after the `format!` reads and the missing `getByte`),
+and the first where it under-reported.
+
+**`TradeChat`/`GlobalChat` are not on/off.** Three values each: `on` is
+region-scoped, `global` is server-wide behind the flood protector, and `gm` is
+region-scoped **only** for a `CHAT_CONDITIONS` holder — everyone else falls
+through every branch and the line vanishes with no message. "Off" has no
+spelling of its own; it is whatever matches nothing.
+
+`MinimumChatLevel` gates General, Shout and Whisper with **three different
+system messages**, so it cannot be written once and shared. Trade is absent from
+that list because it carries its own **hard-coded level 20** — a Java literal,
+not a config, and the port had neither gate.
+
+The rest are single-site: the warehouse bypasses refuse as a *bypass* (the
+button stays and does nothing), `AllowBoat` stops `BoatManager` registering any
+dock at all, `AllowCursedWeapons` makes the manager load nothing, and
+`AllowRefund` picks whether a sold stack is filed or destroyed — plus
+`Player.hasRefund()`, which ANDs the key in so an operator turning it off hides
+a container filled while it was on.
 
 **Row 12 closed, and porting it found a live inventory divergence.** The
 recorded figure was 36; the arithmetic gives **35** (53 ids absent, minus

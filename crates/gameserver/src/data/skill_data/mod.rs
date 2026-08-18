@@ -339,13 +339,25 @@ impl SkillData {
     }
 
     pub fn load_from(file_path: &str) -> Self {
+        Self::load_from_with(file_path, true)
+    }
+
+    /// `SkillData.load()` with `Config.CUSTOM_SKILLS_LOAD`. This dist's
+    /// `stats/skills/custom/` holds one file — `tvt_event.xml`, whose Ghost
+    /// Walking (100000) is the TvT spawn-protection buff, so it belongs with
+    /// the custom NPC templates the same event needs.
+    pub fn load_from_with(file_path: &str, custom: bool) -> Self {
         let mut out = ParsedSkills::default();
-        if let Ok(dir) = std::fs::read_dir(format!("{file_path}{SKILLS_DIR}")) {
-            for entry in dir.flatten() {
-                let path = entry.path();
-                if path.extension().and_then(|e| e.to_str()) != Some("xml") {
-                    continue;
-                }
+        let mut dirs = vec![format!("{file_path}{SKILLS_DIR}")];
+        if custom {
+            dirs.push(format!("{file_path}{SKILLS_DIR}/custom"));
+        }
+        // `xml_files_in` is this walk — read, keep `.xml`, sort — and sorting is
+        // what the old inline loop lacked. `custom/` comes second either way;
+        // within a directory a stable order keeps a duplicate id's winner
+        // deterministic.
+        for d in dirs {
+            for path in crate::data::xml::xml_files_in(&d) {
                 parse_file(&path, &mut out);
             }
         }

@@ -4,6 +4,8 @@ pub(crate) async fn run(
     url: String,
     max_connections: u32,
     max_characters: i32,
+    clean_up: bool,
+    ground_items: GroundItemBootConfig,
     mut cmd_rx: CmdRx,
     event_tx: EventTx,
 ) {
@@ -34,6 +36,13 @@ pub(crate) async fn run(
         return;
     }
 
+    // Java `IdManager`'s constructor order: clean the orphans first, *then*
+    // walk the tables for used object ids. Doing it the other way round would
+    // reserve ids belonging to rows this is about to delete.
+    if clean_up {
+        clean_up_database(&db).await;
+    }
+
     let mut next_id = load_next_id(&db).await;
 
     // Hand the game thread its initial runtime-id block unprompted (it can't
@@ -44,7 +53,7 @@ pub(crate) async fn run(
     });
     next_id += ID_BLOCK_SIZE;
 
-    send_boot_events(&db, &event_tx).await;
+    send_boot_events(&db, &ground_items, &event_tx).await;
 
     while let Some(cmd) = cmd_rx.recv().await {
         match cmd {
@@ -126,6 +135,12 @@ pub(crate) async fn run(
                     -1
                 };
                 let _ = event_tx.send(DbEvent::NameCreatable { client_id, result });
+            }
+            DbCommand::StoreGroundItems { items } => {
+                store_ground_items(&db, &items).await;
+            }
+            DbCommand::ClearGroundItems => {
+                clear_ground_items(&db).await;
             }
             DbCommand::StorePlayer { save } => {
                 store_player(&db, &save).await;

@@ -8,11 +8,16 @@ use super::*;
 /// stack (persisting the new count) or allocate an object id and insert a
 /// fresh instance. Non-stackable items get one instance *per unit*, mirroring
 /// `ItemContainer.addItem`'s `for (i = 0; i < count; i++)` split under
-/// `MultipleItemDrop = True` — the only value ever shipped in this dist's
-/// `General.ini`, so it isn't wired up as a runtime toggle. Getting this
+/// `MultipleItemDrop` (**True** here, and Java's default). Getting this
 /// wrong is exactly the "2 earrings become 1 that vanishes on equip" class of
 /// bug: a non-stackable item with count > 1 crammed into a single instance
 /// is a state the paperdoll (one object id per slot) can't represent.
+///
+/// The key used to be hard-coded to this dist's value behind a comment naming
+/// it. Reading it exposes Java's **off** branch, which is worth stating
+/// plainly because it is not the intuitive one: `break`ing out of that loop on
+/// the first pass creates *one instance of 1* and silently discards the other
+/// `count - 1` units. It is a lossy setting, not a stacking setting.
 /// Returns every object id created/touched; `None` only on id-pool
 /// exhaustion (any already-created units stay, matching Java's partial
 /// completion when `createItem` fails mid-loop). Shared by the auto-loot
@@ -106,8 +111,15 @@ fn add_inventory_item_inner(
         return Some(vec![(new_oid, true)]);
     }
 
-    let mut created = Vec::with_capacity(count.max(1) as usize);
-    for _ in 0..count.max(1) {
+    // `MultipleItemDrop` off → Java breaks after the first pass, so exactly one
+    // unit is created and the remainder is lost.
+    let units = if world.cfg.general.multiple_item_drop {
+        count.max(1)
+    } else {
+        1
+    };
+    let mut created = Vec::with_capacity(units as usize);
+    for _ in 0..units {
         let new_oid = world.alloc_object_id()?;
         let inv = world.objects.get_component_mut::<Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, 1);

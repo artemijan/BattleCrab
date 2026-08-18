@@ -55,6 +55,10 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             // `loadDoorUpgrade` at castle load.
             crate::game_loop::castle::apply_door_upgrades_at_boot(world);
         }
+        DbEvent::GroundItemsLoaded { items } => {
+            let n = crate::game_loop::ground_items::restore_from_db(world, &items);
+            info!("GameLoop: restored {n} ground items.");
+        }
         DbEvent::PremiumLoaded { entries } => {
             info!("GameLoop: loaded {} premium accounts.", entries.len());
             world.premium = entries.into_iter().collect();
@@ -172,6 +176,12 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             // static world (`spawn_all`, geo) is already up before the loop.
             crate::game_loop::grand_boss::resolve_at_boot(world);
             crate::game_loop::dr_chaos::resolve_at_boot(world);
+        }
+        // `CursedWeaponsManager.load()` returns before reading anything when
+        // `AllowCursedWeapons` is off, so the manager holds no weapons and the
+        // drop/transfer paths have nothing to act on.
+        DbEvent::CursedWeaponsLoaded { .. } if !world.cfg.general.allow_cursed_weapons => {
+            info!("CursedWeaponsManager: disabled by AllowCursedWeapons.");
         }
         DbEvent::CursedWeaponsLoaded { rows } => {
             // Build from the XML config, compute each skill's max level, then

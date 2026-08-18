@@ -303,6 +303,13 @@ pub mod sm_ids {
     pub const YOU_HAVE_TAKEN_S1_DAMAGE_BECAUSE_YOU_WERE_UNABLE_TO_BREATHE: i16 = 297;
     /// "You received $s1 falling damage." — the `_fallingDamageTask` beat.
     pub const YOU_RECEIVED_S1_FALLING_DAMAGE: i16 = 296;
+    /// The three `MinimumChatLevel` refusals — one per channel, which is why
+    /// the gate cannot be written once and shared.
+    pub const SHOUT_CHAT_CANNOT_BE_USED_BELOW_LEVEL_S1: i16 = 4104;
+    pub const GENERAL_CHAT_CANNOT_BE_USED_BELOW_LEVEL_S1: i16 = 4106;
+    pub const WHISPER_CANNOT_BE_INITIATED_BELOW_LEVEL_S1: i16 = 4107;
+    /// `ChatTrade`'s hard-coded level-20 refusal.
+    pub const TRADE_CHAT_CANNOT_BE_USED_BELOW_LEVEL_S1: i16 = 4105;
     /// "Summoning your pet…" — the pet-manager evolve/restore flows (G29).
     pub const SUMMONING_YOUR_PET: i16 = 547;
     pub const S2_S1_S_DISAPPEARED: i16 = 301;

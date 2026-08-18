@@ -84,6 +84,7 @@ mod crit_damage_tests;
 mod cruma_tower_tests;
 mod cubic_tests;
 mod cursed_weapon_tests;
+mod custom_loader_tests;
 mod daily_tasks_tests;
 mod damage_swamp_tests;
 mod death_buff_tests;
@@ -96,6 +97,7 @@ mod effect_scope_tests;
 mod effect_zone_tests;
 mod falling_tests;
 mod fear_tests;
+mod feature_gate_tests;
 mod flood_tests;
 mod frintezza_tests;
 mod geo_editor_tests;
@@ -105,6 +107,7 @@ mod global_aggro_tests;
 mod gm_restriction_tests;
 mod grand_boss_tests;
 mod ground_channeling_tests;
+mod ground_persistence_tests;
 mod guard_aggro_tests;
 mod henna_tests;
 mod hero_voice_tests;
@@ -212,6 +215,26 @@ fn test_world() -> (
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, db_rx) = tokio::sync::mpsc::unbounded_channel();
     let mut world = World::new(link_tx, 7, 3, 0, GameData::for_test(), db_tx.clone());
+    apply_dist_general_config(&mut world);
+    // See `FloodProtectorsConfig::disabled`: fixtures drive a whole interaction
+    // from a single game tick, which the shipped 1 s `Transaction` window would
+    // refuse. `flood_tests` turns the protector back on to exercise it.
+    world.cfg.flood_protector = crate::config::FloodProtectorsConfig::disabled();
+    (world, db_tx, db_rx, link_rx)
+}
+/// The `General.ini` values a test world must carry.
+///
+/// `GeneralConfig` derives `Default`, so every bool starts **false** — and for
+/// a key whose shipped value is `True`, that silently exercises the disabled
+/// path. Every entry below is a key where the derived default differs from what
+/// this dist runs, so leaving it out changes what the fixture measures rather
+/// than failing it.
+///
+/// It is a function because there are three `World::new` sites in these
+/// fixtures and only one used to set any of this. `MultipleItemDrop` is the key
+/// that proved the point: wiring it broke two tests through the one path that
+/// had the block, and a third through a path that did not.
+fn apply_dist_general_config(world: &mut World) {
     // `GeneralConfig` derives `Default`, so every bool starts false; these two
     // are `True` on the dist *and* default true in Java, so a test world that
     // left them off would silently exercise the disabled path (G30).
@@ -230,12 +253,30 @@ fn test_world() -> (
     // true in Java, so leaving the derived `false` would make every fall-damage
     // fixture measure the disabled path.
     world.cfg.general.enable_falling_damage = true;
-    // See `FloodProtectorsConfig::disabled`: fixtures drive a whole interaction
-    // from a single game tick, which the shipped 1 s `Transaction` window would
-    // refuse. `flood_tests` turns the protector back on to exercise it.
-    world.cfg.flood_protector = crate::config::FloodProtectorsConfig::disabled();
-    (world, db_tx, db_rx, link_rx)
+    // `MultipleItemDrop` is `True` on the dist **and** Java's own default, and
+    // its off branch is the lossy one (one unit created, the rest discarded),
+    // so a test world on the derived `false` quietly exercises item loss.
+    world.cfg.general.multiple_item_drop = true;
+    // `UpdateItemsOnCharStore` is `True` here though Java defaults it `false`;
+    // the port stored items on every save before the key was wired, so this is
+    // both the dist value and the behaviour the fixtures were written against.
+    world.cfg.general.update_items_on_char_store = true;
+    // The feature gates. Every one is `True`/`ON` on the dist, and every one
+    // switches a whole subsystem off when false — dropping, the warehouse, the
+    // refund tab, fishing, boats, cursed weapons, and where Shout/Trade go. A
+    // fixture on the derived `false` does not fail; it measures a server with
+    // the feature turned off, which is why these are here and not in each test.
+    world.cfg.general.allow_discard_item = true;
+    world.cfg.general.allow_warehouse = true;
+    world.cfg.general.allow_refund = true;
+    world.cfg.general.allow_fishing = true;
+    world.cfg.general.allow_boat = true;
+    world.cfg.general.allow_cursed_weapons = true;
+    world.cfg.general.boat_broadcast_radius = 20_000;
+    world.cfg.general.trade_chat = crate::config::general::ChatScope::Region;
+    world.cfg.general.global_chat = crate::config::general::ChatScope::Region;
 }
+
 fn live_buffs(world: &World, oid: i32) -> Vec<i32> {
     world
         .objects
@@ -441,7 +482,7 @@ fn refresh_zone_masks(world: &mut World) {
 /// lists, and the loader validates ingredients/products against item templates).
 fn load_real_multisell_data(world: &mut World, dist_loc: &str) {
     world.data.item_data = dist::items_owned();
-    world.data.multisells = MultisellData::load_from(dist_loc, &world.data.item_data);
+    world.data.multisells = MultisellData::load_from(dist_loc, &world.data.item_data, true);
 }
 fn hate_on(world: &World, npc: i32, target: i32) -> f64 {
     world
@@ -599,7 +640,19 @@ async fn character_create_inserts_into_real_schema() {
 
     let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_event_tx, db_event_rx) = std::sync::mpsc::channel();
-    let db_handle = db::spawn(url, 1, 7, db_cmd_rx, db::EventTx(db_event_tx));
+    let db_handle = db::spawn(
+        url,
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        db_cmd_rx,
+        db::EventTx(db_event_tx),
+    );
 
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let data = GameData {
@@ -662,6 +715,7 @@ async fn character_create_inserts_into_real_schema() {
         default_access_level: 0,
     };
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
+    apply_dist_general_config(&mut world);
 
     let (out_tx, _out_rx) = tokio::sync::mpsc::unbounded_channel();
     let account = format!("acct{}", std::process::id());
@@ -1044,11 +1098,9 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         ..base
     });
 
-    (
-        World::new(link_tx, 7, 3, 0, data, db_tx.clone()),
-        db_rx,
-        link_rx,
-    )
+    let mut world = World::new(link_tx, 7, 3, 0, data, db_tx.clone());
+    apply_dist_general_config(&mut world);
+    (world, db_rx, link_rx)
 }
 fn get_test_session(
     client_id: u32,

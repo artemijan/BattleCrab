@@ -83,8 +83,8 @@ fn the_grade_filter_follows_the_config_key() {
             })
             .count()
     };
-    let at_s = BuyListData::load_from(crate::data::DIST_GAME, items, CrystalType::S);
-    let at_a = BuyListData::load_from(crate::data::DIST_GAME, items, CrystalType::A);
+    let at_s = BuyListData::load_from(crate::data::DIST_GAME, items, CrystalType::S, true);
+    let at_a = BuyListData::load_from(crate::data::DIST_GAME, items, CrystalType::A, true);
 
     // At S the catalogue carries S-grade lines…
     let s_lines = count_above(&at_s, CrystalType::A.level());

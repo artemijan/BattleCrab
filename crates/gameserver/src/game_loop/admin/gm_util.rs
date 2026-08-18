@@ -552,9 +552,17 @@ pub(super) fn admin_viewblockedeffects(world: &mut World, client_id: u32, object
 /// `TradeStart`'s available-item list.
 pub(crate) const ITEM_CONDITIONS_ORDINAL: u8 = 1;
 
+/// Java `PlayerCondOverride.ZONE_CONDITIONS` — ordinal 3, read by the fishing
+/// gate (and by `FishingZone`'s enter check in Java).
+pub(crate) const ZONE_CONDITIONS_ORDINAL: u8 = 3;
+
 /// Java `PlayerCondOverride.SKILL_CONDITIONS` — ordinal 2, read by
 /// `Skill.checkCondition` and the `restoreSkills` skill check.
 pub(crate) const SKILL_CONDITIONS_ORDINAL: u8 = 2;
+
+/// Java `PlayerCondOverride.DESTROY_ALL_ITEMS` — ordinal 12, read by
+/// `RequestDestroyItem`. Distinct again from both the drop and item ordinals.
+pub(crate) const DESTROY_ALL_ITEMS_ORDINAL: u8 = 12;
 
 /// Java `PlayerCondOverride.DROP_ALL_ITEMS` — ordinal 15, read by
 /// `RequestDropItem`. Deliberately *not* `ITEM_CONDITIONS`: Java uses a
@@ -904,8 +912,11 @@ pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
             "Item templates reloaded."
         }
         "multisell" => {
-            world.data.multisells =
-                crate::data::MultisellData::load_from(&root, &world.data.item_data);
+            world.data.multisells = crate::data::MultisellData::load_from(
+                &root,
+                &world.data.item_data,
+                world.cfg.general.custom_multisell_load,
+            );
             "Multisell lists reloaded."
         }
         "buylist" => {
@@ -913,8 +924,12 @@ pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
             // so editing Character.ini and reloading is enough to change the
             // catalogue without a restart.
             let max_grade = world.cfg.character.max_equipable_item_grade;
-            world.data.buy_lists =
-                crate::data::BuyListData::load_from(&root, &world.data.item_data, max_grade);
+            world.data.buy_lists = crate::data::BuyListData::load_from(
+                &root,
+                &world.data.item_data,
+                max_grade,
+                world.cfg.general.custom_buylist_load,
+            );
             "Buylists reloaded."
         }
         "teleport" => {

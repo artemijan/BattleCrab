@@ -988,6 +988,16 @@ impl ItemData {
     }
 
     pub fn load_from(file_path: &str) -> Self {
+        Self::load_from_with(file_path, true)
+    }
+
+    /// `ItemData.load()` with Java's `Config.CUSTOM_ITEMS_LOAD` branch.
+    ///
+    /// **This dist ships no `stats/items/custom/` directory**, so the flag is
+    /// inert here — wired anyway, because an operator adding custom items is
+    /// exactly who would set the key, and a silently-ignored directory is the
+    /// hardest kind of missing feature to diagnose.
+    pub fn load_from_with(file_path: &str, custom: bool) -> Self {
         let mut by_id = HashMap::new();
         let mut stat_bonuses = HashMap::new();
         let mut armor_types = HashMap::new();
@@ -996,7 +1006,11 @@ impl ItemData {
         let mut icons = HashMap::new();
         let dir = format!("{file_path}{ITEMS_DIR}");
         {
-            for path in xml::xml_files_in(&dir) {
+            let mut paths = xml::xml_files_in(&dir);
+            if custom {
+                paths.extend(xml::xml_files_in(format!("{dir}/custom")));
+            }
+            for path in paths {
                 parse_file(
                     &path,
                     &mut by_id,

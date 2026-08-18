@@ -571,7 +571,12 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
         }
     }
 
-    if !sold.is_empty() {
+    // `Config.ALLOW_REFUND` picks the destination of the sold stack: Java
+    // *transfers* it into the refund container when on, and **destroys** it
+    // when off. The port has already removed it from the inventory above, so
+    // "destroy" is simply not filing it — the difference is whether the buy-back
+    // tab can see it.
+    if !sold.is_empty() && world.cfg.general.allow_refund {
         if world
             .objects
             .get_component::<crate::model::inventory::Refund>(&player)
@@ -636,10 +641,17 @@ fn send_sell_list_refresh(
 }
 
 /// Snapshot of the player's refund container (empty when none exists yet).
+///
+/// Java `Player.hasRefund()` is `(_refund != null) && (_refund.getSize() > 0)
+/// && Config.ALLOW_REFUND`, so with the key off the tab is empty even if rows
+/// survive from a period when it was on.
 pub(crate) fn refund_items_of(
     world: &World,
     player: i32,
 ) -> Vec<crate::model::inventory::ItemInstance> {
+    if !world.cfg.general.allow_refund {
+        return Vec::new();
+    }
     world
         .objects
         .get_component::<crate::model::inventory::Refund>(&player)

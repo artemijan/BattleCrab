@@ -56,6 +56,7 @@ fn new_char(name: &str) -> NewCharacter {
 /// thread's transactional reconcile (adds, in-place updates, and deletions).
 fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
     db::PlayerSaveData {
+        store_items: true,
         base: db::PlayerSnapshot {
             object_id: c.object_id,
             level: c.level,
@@ -179,7 +180,19 @@ async fn create_persist_delete_restore() {
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
     add_accounts_table(&url).await;
-    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, db::EventTx(event_tx));
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
 
     // Create a character.
     cmd_tx
@@ -330,7 +343,19 @@ async fn login_char_count_excludes_expired_deletions() {
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
     add_accounts_table(&url).await;
-    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, db::EventTx(event_tx));
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
 
     // Three characters on the account.
     for name in ["Alive", "Pending", "Doomed"] {
@@ -474,7 +499,19 @@ async fn shortcuts_and_macros_persist() {
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
     add_accounts_table(&url).await;
-    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, db::EventTx(event_tx));
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
 
     let sc = |slot: i32, kind: ShortcutType, id: i32, level: i32| db::NewShortcut {
         slot,
@@ -686,7 +723,19 @@ async fn friendships_persist() {
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
     add_accounts_table(&url).await;
-    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, db::EventTx(event_tx));
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
 
     // Two characters on separate accounts.
     cmd_tx
@@ -816,7 +865,19 @@ async fn quest_states_persist() {
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
     add_accounts_table(&url).await;
-    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, db::EventTx(event_tx));
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
 
     cmd_tx
         .send(DbCommand::CreateCharacter {
@@ -970,7 +1031,19 @@ async fn recommendations_persist() {
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
     add_accounts_table(&url).await;
-    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, db::EventTx(event_tx));
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
 
     // Create → the seed row grants 20 recommendations to give.
     cmd_tx
@@ -1099,7 +1172,19 @@ async fn skill_reuse_cooldowns_persist() {
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
     add_accounts_table(&url).await;
-    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, db::EventTx(event_tx));
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
 
     cmd_tx
         .send(DbCommand::CreateCharacter {
@@ -1233,7 +1318,19 @@ async fn active_buffs_persist_with_frozen_countdown() {
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
     add_accounts_table(&url).await;
-    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, db::EventTx(event_tx));
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
 
     cmd_tx
         .send(DbCommand::CreateCharacter {
@@ -1382,7 +1479,19 @@ async fn pets_persist() {
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
     add_accounts_table(&url).await;
-    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, db::EventTx(event_tx));
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
 
     let mut data = new_char("Beastmaster");
     // The Wolf Collar this pet is bound to.
@@ -1567,7 +1676,19 @@ async fn current_cp_persists() {
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
     add_accounts_table(&url).await;
-    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, db::EventTx(event_tx));
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
 
     cmd_tx
         .send(DbCommand::CreateCharacter {

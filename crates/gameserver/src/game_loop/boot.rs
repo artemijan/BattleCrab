@@ -68,4 +68,8 @@ pub(super) fn shutdown_flush(world: &mut World) {
     // exactly as Java guards it — with per-action saving on, the rows are
     // already current and the sweep is redundant.
     manor::save_all_on_shutdown(world);
+    // `Shutdown` → `ItemsOnGroundManager.saveInDb()`: the ground set is
+    // in-memory between periodic writes, so without this every item dropped
+    // since the last one is lost. A no-op while `SaveDroppedItem` is off.
+    ground_items::store_all(world);
 }

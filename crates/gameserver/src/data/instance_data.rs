@@ -74,9 +74,7 @@ impl InstanceData {
 
     pub fn load_from(root: &str) -> Self {
         let mut by_id = HashMap::new();
-        let mut files = Vec::new();
-        collect_xml(&format!("{root}{INSTANCE_DIR}"), &mut files);
-        for path in files {
+        for path in crate::data::xml::xml_files_under(format!("{root}{INSTANCE_DIR}")) {
             if let Ok(content) = std::fs::read_to_string(&path)
                 && let Some(t) = parse(&content)
             {
@@ -111,22 +109,6 @@ impl InstanceData {
     #[cfg(test)]
     pub fn insert_for_test(&mut self, t: InstanceTemplate) {
         self.by_id.insert(t.id, t);
-    }
-}
-
-/// Recursively gather every `.xml` under `dir` (instance templates live in
-/// per-content subdirectories: `Bosses/`, `Olympiad/`, `custom/`).
-fn collect_xml(dir: &str, out: &mut Vec<std::path::PathBuf>) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.is_dir() {
-            collect_xml(&path.to_string_lossy(), out);
-        } else if path.extension().and_then(|e| e.to_str()) == Some("xml") {
-            out.push(path);
-        }
     }
 }
 

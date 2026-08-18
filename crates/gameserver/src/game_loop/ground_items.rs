@@ -170,6 +170,14 @@ pub(crate) fn spawn_ground_item(
                 enchant,
                 owner_id: 0,
                 owner_until_tick: 0,
+                // Java stamps `System.currentTimeMillis()` and flips it to -1
+                // for a protected item; the auto-destroy decision below is the
+                // same one, so reuse it rather than recomputing the gates.
+                drop_time_ms: if auto_destroy_delay(world, item_id, source).is_some() {
+                    commons::util::now_millis()
+                } else {
+                    -1
+                },
             },
             Position {
                 x,
@@ -387,6 +395,20 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         .get_component::<crate::model::Player>(&player_oid)
         .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::DROP_ALL_ITEMS_ORDINAL));
     let gm_bound_exempt = world.cfg.general.gm_trade_restricted_items && can_drop_all;
+    // `!Config.ALLOW_DISCARDITEM && !canOverrideCond(DROP_ALL_ITEMS)` — the
+    // first clause of Java's big refusal, and the only one that turns dropping
+    // off wholesale.
+    if !world.cfg.general.allow_discard_item && !can_drop_all {
+        send_to_client(
+            world,
+            client_id,
+            server_packets::system_message_with(
+                server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED,
+                &[],
+            ),
+        );
+        return;
+    }
     // `(item.getItemType() == EtcItemType.PET_COLLAR) && player.havePetInvItems()`
     // — a collar whose pet is still carrying things may not be thrown away;
     // the pet inventory would be stranded with no collar to reach it through.
@@ -575,4 +597,113 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         player_oid,
         DropSource::Player,
     );
+}
+
+/// `ItemsOnGroundManager.load()`'s world half: put every persisted row back on
+/// the ground, and re-arm the decay each one still has coming.
+///
+/// Java re-adds an item to `ItemsAutoDestroy` only when it is **not** protected
+/// (`dropTime > -1`) and the relevant destroy clock is on. The port schedules
+/// the same decay, but against the *remaining* lifetime rather than the whole
+/// of it: `drop_time` is wall-clock, so an item that lay for 500 s of its 600 s
+/// before the restart has 100 s left, not 600. Java gets this right implicitly
+/// by comparing timestamps in its sweep; here the scheduler holds ticks, which
+/// do not survive a restart, so the arithmetic has to be done on the way in.
+///
+/// Rows whose item template is gone from the datapack are dropped, matching
+/// Java's `getTemplate() == null` guard on the same path.
+pub(crate) fn restore_from_db(world: &mut World, rows: &[crate::db::GroundItemRow]) -> usize {
+    let now = commons::util::now_millis();
+    let mut restored = 0;
+    for row in rows {
+        if world.data.item_data.get(row.item_id).is_none() {
+            continue;
+        }
+        let region = region_of(row.x, row.y);
+        world
+            .ground_item_regions
+            .entry(region)
+            .or_default()
+            .push(row.object_id);
+        world.objects.spawn(
+            row.object_id,
+            (
+                GroundItem {
+                    object_id: row.object_id,
+                    item_id: row.item_id,
+                    count: row.count,
+                    enchant: row.enchant_level,
+                    // Loot protection is *not* persisted: Java's `_ownerId` and
+                    // its `ResetOwner` task are both in-memory, so a restart
+                    // frees a reserved drop for anyone. Ported as written.
+                    owner_id: 0,
+                    owner_until_tick: 0,
+                    drop_time_ms: row.drop_time_ms,
+                },
+                Position {
+                    x: row.x,
+                    y: row.y,
+                    z: row.z,
+                    heading: 0,
+                },
+                RegionCell(region),
+            ),
+        );
+        // `dropTime == -1` is Java's protected flag: no decay was ever armed.
+        if row.drop_time_ms >= 0
+            && let Some(delay_secs) = auto_destroy_delay(world, row.item_id, DropSource::Npc)
+        {
+            let elapsed_ms = (now - row.drop_time_ms).max(0);
+            let remaining_ms = (delay_secs as i64 * 1000 - elapsed_ms).max(0);
+            world.scheduler.schedule(
+                world.tick + (remaining_ms as u64).div_ceil(100),
+                ScheduledTask::GroundItemDecay {
+                    item_object_id: row.object_id,
+                },
+            );
+        }
+        restored += 1;
+    }
+    restored
+}
+
+/// `ItemsOnGroundManager.run()`'s game-thread half: gather the live set for
+/// [`crate::db::DbCommand::StoreGroundItems`].
+///
+/// A no-op when `SaveDroppedItem` is off — Java's `run()` returns immediately,
+/// and its `save`/`removeObject` never populate the set in the first place.
+pub(crate) fn store_all(world: &mut World) {
+    if !world.cfg.general.save_dropped_item {
+        return;
+    }
+    let mut items: Vec<crate::db::GroundItemRow> = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&GroundItem, &Position)>(|(g, pos)| {
+            items.push(crate::db::GroundItemRow {
+                object_id: g.object_id,
+                item_id: g.item_id,
+                count: g.count,
+                enchant_level: g.enchant,
+                x: pos.x,
+                y: pos.y,
+                z: pos.z,
+                drop_time_ms: g.drop_time_ms,
+                equipable: false,
+            });
+        });
+    // Java skips cursed weapons: `CursedWeaponsManager` owns their row and
+    // would otherwise write a second one. Also fills in `equipable`, which the
+    // loader uses only for the `DestroyEquipableItem` recycle sweep.
+    items.retain(|row| !crate::game_loop::cursed_weapon::is_cursed_item(world, row.item_id));
+    for row in &mut items {
+        row.equipable = world
+            .data
+            .item_data
+            .get(row.item_id)
+            .is_some_and(|t| t.is_equipable());
+    }
+    let _ = world
+        .db
+        .send(crate::db::DbCommand::StoreGroundItems { items });
 }

@@ -5,6 +5,37 @@
 
 use commons::config::PropertiesParser;
 
+/// `GlobalChat` / `TradeChat` — Java compares the raw string case-insensitively
+/// at every use, so an unrecognised value simply matches no branch and the
+/// channel goes quiet. [`ChatScope::Off`] is that state, named rather than left
+/// as a stray string.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ChatScope {
+    /// `ON` — the speaker's map region.
+    #[default]
+    Region,
+    /// `GM` — the region, but only for a `CHAT_CONDITIONS` holder.
+    GmOnly,
+    /// `GLOBAL` — the whole server, behind the flood protector.
+    Global,
+    /// Anything else: no branch matches and nothing is sent.
+    Off,
+}
+
+impl ChatScope {
+    pub fn parse(raw: &str) -> Self {
+        if raw.eq_ignore_ascii_case("on") {
+            Self::Region
+        } else if raw.eq_ignore_ascii_case("gm") {
+            Self::GmOnly
+        } else if raw.eq_ignore_ascii_case("global") {
+            Self::Global
+        } else {
+            Self::Off
+        }
+    }
+}
+
 pub const GENERAL_CONFIG_FILE: &str = "config/General.ini";
 
 /// The GM login-state settings applied in `EnterWorld.runImpl` plus the hero
@@ -88,6 +119,178 @@ pub struct GeneralConfig {
     /// swim-speed switch in `WaterZone.onEnter` is unconditional, so turning
     /// this off makes water slow but harmless, not inert.
     pub allow_water: bool,
+
+    // --- Feature gates: subsystems an operator can switch off wholesale ---
+    /// `AllowWarehouse` (dist **True**) — the private and clan warehouse
+    /// bypasses (`WithdrawP`/`DepositP`/`WithdrawC`/`DepositC`). Java refuses
+    /// the *bypass* rather than hiding the button, so with it off the keeper
+    /// still offers the link and it does nothing.
+    pub allow_warehouse: bool,
+    /// `AllowRefund` (dist **True**) — the merchant refund tab. Two Java sites:
+    /// `RequestSellItem` only files the sold stack into the refund list when
+    /// this is on, and `Player.hasRefund()` gates the tab itself.
+    pub allow_refund: bool,
+    /// `AllowFishing` (dist **True**) — gates *casting*, and Java pairs it with
+    /// a `ZONE_CONDITIONS` override so a GM can still fish with it off.
+    pub allow_fishing: bool,
+    /// `AllowBoat` (dist **True**) — whether `BoatManager` loads its docks at
+    /// all. Off means no boats exist, not that they stop moving.
+    pub allow_boat: bool,
+    /// `BoatBroadcastRadius` (dist **20000**) — how near a dock a player must
+    /// be to receive a boat's departure/arrival packets.
+    pub boat_broadcast_radius: i32,
+    /// `AllowCursedWeapons` (dist **True**) — whether `CursedWeaponsManager`
+    /// loads. Off disables the whole subsystem: no drops, no transfers.
+    pub allow_cursed_weapons: bool,
+    /// `AllowDiscardItem` (dist **True**) — whether `RequestDropItem` works at
+    /// all, exempting a `PlayerCondOverride.DROP_ALL_ITEMS` holder.
+    pub allow_discard_item: bool,
+    /// `TradeChat` (dist **`ON`**) and `GlobalChat` (dist **`ON`**) — where
+    /// Trade and Shout go. Three values each, and they are not on/off:
+    ///
+    /// * `on` — the speaker's **map region** only.
+    /// * `gm` — the same, but only for a `CHAT_CONDITIONS` holder; everyone
+    ///   else falls through to the `global` test and, failing that, is dropped
+    ///   silently.
+    /// * `global` — the whole server, behind the global-chat flood protector.
+    ///
+    /// So "off" is spelled by setting something that matches no branch, and the
+    /// line then vanishes with no message — Java's own shape.
+    pub trade_chat: ChatScope,
+    pub global_chat: ChatScope,
+    /// `MinimumChatLevel` (dist **0**) — the level below which General, Shout
+    /// and Whisper are refused, each with its own system message. A
+    /// `CHAT_CONDITIONS` holder is exempt. Inert at 0.
+    pub minimum_chat_level: i32,
+
+    // --- Datapack `custom/` overlays and the HTML loader ---
+    /// `CustomNpcData` (dist **True**) — also parse `stats/npcs/custom/`.
+    ///
+    /// The port read that directory nowhere, so 14 templates were missing —
+    /// including the TvT event manager, which made `//event_start TvT` spawn
+    /// no NPC at all.
+    pub custom_npc_data: bool,
+    /// `CustomSkillsLoad` (dist **True**) — `stats/skills/custom/`, one file
+    /// here (`tvt_event.xml`, Ghost Walking 100000).
+    pub custom_skills_load: bool,
+    /// `CustomItemsLoad` (dist **True**) — `stats/items/custom/`, which this
+    /// dist does not ship. Inert, and wired anyway.
+    pub custom_items_load: bool,
+    /// `CustomMultisellLoad` (dist **True**) — `multisell/custom/`, the
+    /// `6000xx` community-board shop lists.
+    pub custom_multisell_load: bool,
+    /// `CustomBuyListLoad` (dist **True**) — `buylists/custom/`, the 143
+    /// GM-shop lists.
+    pub custom_buylist_load: bool,
+    /// `CustomTeleportTable` (dist **True**) — **dead in Java**: `Config`
+    /// parses it into `CUSTOM_TELEPORT_TABLE` and nothing anywhere reads that
+    /// field. Given a field here so the key is accounted for and the next
+    /// audit does not re-derive it; deliberately unused, like the eight dead
+    /// `Character.ini` keys named in `config::character`'s header.
+    pub custom_teleport_table: bool,
+    /// `HtmCache` (dist **False**, Java default `true`) — whether the whole
+    /// `html/` tree is parsed into memory at boot.
+    ///
+    /// **False is the lazy branch, and lazy is exactly what this port does.**
+    /// `data::htm_cache`'s header used to frame per-interaction reading as a
+    /// deliberate deviation from Java, which is true only against
+    /// `HtmCache = True`; on this dist Java logs *"Cache[HTML]: Running lazy
+    /// cache"* and reads the same way. So the port already implements the
+    /// configured branch, and the field exists to say which branch that is —
+    /// the eager one is not implemented and would change more than caching
+    /// (`Npc.getHtmlPath` treats the cache as the existence oracle, so a file
+    /// added after boot becomes invisible).
+    pub htm_cache: bool,
+    /// `CheckHtmlEncoding` (dist **True**) — warn at load when an html file is
+    /// not pure ASCII. Diagnostics only; Java exempts `data/lang`.
+    pub check_html_encoding: bool,
+    /// `HideBypassRemoval` (dist **True**) — strip the `-h` flag from three
+    /// specific bypasses as the file is read, making those links visible in
+    /// the chat box instead of hidden.
+    ///
+    /// Safe to apply to content because the **client** consumes the flag: it
+    /// strips `bypass `/`bypass -h ` before sending, and Java's
+    /// `RequestBypassToServer` never sees a `-h`. So this changes what the
+    /// player's chat shows, not what the server parses.
+    pub hide_bypass_removal: bool,
+    /// `HtmlActionCacheDebug` (dist **False**) — verbose logging inside Java's
+    /// `Util` html-action cache.
+    ///
+    /// **No consumer: the port does not implement that cache.**
+    /// `validateHtmlAction` — the registry of which bypasses a player was
+    /// actually sent — is a recorded deviation in `game_loop::bypass`, which
+    /// re-checks interaction distance on every route instead. There is no
+    /// cache for this key to trace.
+    pub html_action_cache_debug: bool,
+
+    // --- Ground-item persistence and the item write path ---
+    /// `SaveDroppedItem` (dist **False**, Java default `false`) — persist items
+    /// lying on the ground to `itemsonground`, so a restart does not swallow
+    /// them. Off here, which is why the table has sat empty since the baseline
+    /// migration created it.
+    pub save_dropped_item: bool,
+    /// `SaveDroppedItemInterval` (dist **60**, Java default 60) — **minutes**
+    /// between full rewrites of that table. Java multiplies by 60000 at parse
+    /// time; the port keeps minutes here and converts at the scheduler, so the
+    /// unit in the field matches the unit in the ini.
+    pub save_dropped_item_interval_minutes: i32,
+    /// `EmptyDroppedItemTableAfterLoad` (dist **False**) — truncate
+    /// `itemsonground` immediately after loading it, so the rows are consumed
+    /// exactly once.
+    pub empty_dropped_item_table_after_load: bool,
+    /// `ClearDroppedItemTable` (dist **False**) — truncate at boot when
+    /// [`Self::save_dropped_item`] is **off**. Java's comment: *"may want to
+    /// delete all items previously stored to avoid add old items on
+    /// reactivate"* — it stops a table written during an earlier
+    /// `SaveDroppedItem = True` era from resurrecting when the key is turned
+    /// back on.
+    pub clear_dropped_item_table: bool,
+    /// `DestroyAllItems` (dist **False**, Java default `false`) — when **on**,
+    /// `RequestDestroyItem` skips its whole refusal gate: undestroyable items
+    /// and cursed weapons alike can be deleted. Off here, so the gate applies,
+    /// and `PlayerCondOverride.DESTROY_ALL_ITEMS` exempts a holder from the
+    /// undestroyable half **but not** from the cursed-weapon half.
+    pub destroy_all_items: bool,
+    /// `MultipleItemDrop` (dist **True**, Java default `true`) — a
+    /// non-stackable item added in quantity becomes *N instances of 1* rather
+    /// than one instance of N.
+    ///
+    /// Java's loop `break`s early when this is off, which does **not** produce
+    /// one instance of N — it produces **one instance of 1, silently dropping
+    /// the rest**. Ported as written; see `items::inventory`.
+    pub multiple_item_drop: bool,
+    /// `UpdateItemsOnCharStore` (dist **True**, Java default `false`) — whether
+    /// the periodic character save also writes the inventory, warehouse and
+    /// freight. The port's save is a single transaction over all of it, so this
+    /// selects whether the item half is included.
+    pub update_items_on_char_store: bool,
+    /// `DatabaseCleanUp` (dist **True**, Java default `true`) — delete orphaned
+    /// rows at boot: every child table whose owning character, clan, item or
+    /// forum is gone. Java runs 50 statements over 43 tables in `IdManager`;
+    /// all 43 exist in this schema.
+    pub database_clean_up: bool,
+    /// `LazyItemsUpdate` (dist **False**, Java default `false`) — in Java,
+    /// whether an item row is written on *every* change or only when something
+    /// forces it.
+    ///
+    /// **No consumer here, and it cannot have one as things stand.** The port
+    /// is memory-first by design: item state lives in components and reaches
+    /// the database through the periodic flush and the logout store, so there
+    /// is no per-change write for this key to make lazy. Turning it on in Java
+    /// makes that engine behave more like this one; turning it off cannot make
+    /// this one behave like that. Carried so the key is accounted for rather
+    /// than looking unexamined.
+    pub lazy_items_update: bool,
+    /// `ClanVariablesStoreInterval` (dist **15** minutes) — how often
+    /// `clan_variables` is flushed.
+    ///
+    /// **No consumer: nothing writes a clan variable on this chronicle.** The
+    /// only keys Java ever stores there are `MAX_ONLINE_MEMBERS`,
+    /// `HUNTING_POINTS` and their `PREVIOUS_*` twins, all owned by the clan
+    /// **reward** system (`ClanReward.xml`, Clan Unity 55168) — post-Interlude
+    /// content this port does not implement. The table ships and is empty, like
+    /// `itemsonground` was.
+    pub clan_variables_store_interval_minutes: i32,
 
     /// `GMSkillRestriction` (dist **True**, Java default `false`) — whether a
     /// character holding `PlayerCondOverride.SKILL_CONDITIONS` is **still**
@@ -366,6 +569,42 @@ impl GeneralConfig {
             // exempts a `SKILL_CONDITIONS` override.
             // The GM-restriction family. Java's code defaults are all
             // `false`; this dist raises three of them.
+            allow_warehouse: p.get_bool("AllowWarehouse", true),
+            allow_refund: p.get_bool("AllowRefund", true),
+            allow_fishing: p.get_bool("AllowFishing", true),
+            allow_boat: p.get_bool("AllowBoat", true),
+            boat_broadcast_radius: p.get_int("BoatBroadcastRadius", 20000),
+            allow_cursed_weapons: p.get_bool("AllowCursedWeapons", true),
+            allow_discard_item: p.get_bool("AllowDiscardItem", true),
+            trade_chat: ChatScope::parse(&p.get_string("TradeChat", "ON")),
+            global_chat: ChatScope::parse(&p.get_string("GlobalChat", "ON")),
+            minimum_chat_level: p.get_int("MinimumChatLevel", 0),
+            custom_npc_data: p.get_bool("CustomNpcData", false),
+            custom_skills_load: p.get_bool("CustomSkillsLoad", false),
+            custom_items_load: p.get_bool("CustomItemsLoad", false),
+            custom_multisell_load: p.get_bool("CustomMultisellLoad", false),
+            custom_buylist_load: p.get_bool("CustomBuyListLoad", false),
+            custom_teleport_table: p.get_bool("CustomTeleportTable", false),
+            // Java's code defaults are `true` for these three.
+            htm_cache: p.get_bool("HtmCache", true),
+            check_html_encoding: p.get_bool("CheckHtmlEncoding", true),
+            hide_bypass_removal: p.get_bool("HideBypassRemoval", true),
+            html_action_cache_debug: p.get_bool("HtmlActionCacheDebug", false),
+            save_dropped_item: p.get_bool("SaveDroppedItem", false),
+            // Java stores this pre-multiplied into ms; kept in the ini's own
+            // unit here and converted where it is scheduled.
+            save_dropped_item_interval_minutes: p.get_int("SaveDroppedItemInterval", 60),
+            empty_dropped_item_table_after_load: p
+                .get_bool("EmptyDroppedItemTableAfterLoad", false),
+            clear_dropped_item_table: p.get_bool("ClearDroppedItemTable", false),
+            destroy_all_items: p.get_bool("DestroyAllItems", false),
+            // Java's code default is `true` — the derived `Default` would be
+            // `false`, which is the silently-lossy branch.
+            multiple_item_drop: p.get_bool("MultipleItemDrop", true),
+            update_items_on_char_store: p.get_bool("UpdateItemsOnCharStore", false),
+            database_clean_up: p.get_bool("DatabaseCleanUp", true),
+            lazy_items_update: p.get_bool("LazyItemsUpdate", false),
+            clan_variables_store_interval_minutes: p.get_int("ClanVariablesStoreInterval", 15),
             gm_skill_restriction: p.get_bool("GMSkillRestriction", false),
             gm_item_restriction: p.get_bool("GMItemRestriction", false),
             gm_trade_restricted_items: p.get_bool("GMTradeRestrictedItems", false),

@@ -146,16 +146,32 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         send_item_message(world, client_id, "This item cannot be destroyed.");
         return;
     };
-    if undestroyable {
-        send_item_message(world, client_id, "This item cannot be destroyed.");
-        return;
-    }
-    // Java `RequestDestroyItem`: `CursedWeaponsManager.isCursed(itemId)` is
-    // OR'd into the non-destroyable test — you cannot delete your way out of
-    // the curse, which would otherwise strand the manager's row forever.
-    if crate::game_loop::cursed_weapon::is_cursed_item(world, item_id) {
-        send_item_message(world, client_id, "This item cannot be destroyed.");
-        return;
+    // Java's whole refusal is one expression:
+    //
+    // ```java
+    // if (!Config.DESTROY_ALL_ITEMS
+    //     && ((!canOverrideCond(DESTROY_ALL_ITEMS) && !itemToRemove.isDestroyable())
+    //         || CursedWeaponsManager.getInstance().isCursed(itemId)))
+    // ```
+    //
+    // Two things fall out of that shape. `DestroyAllItems` (**False** here)
+    // switches off the gate *entirely*, cursed weapons included. And the
+    // `DESTROY_ALL_ITEMS` override exempts a holder from the undestroyable
+    // half only — `isCursed` sits outside its parenthesis, so a GM still
+    // cannot delete their way out of a curse and strand the manager's row.
+    if !world.cfg.general.destroy_all_items {
+        let overrides = world
+            .objects
+            .get_component::<crate::model::Player>(&object_id)
+            .is_some_and(|p| {
+                p.can_override_cond(crate::game_loop::admin::DESTROY_ALL_ITEMS_ORDINAL)
+            });
+        if (undestroyable && !overrides)
+            || crate::game_loop::cursed_weapon::is_cursed_item(world, item_id)
+        {
+            send_item_message(world, client_id, "This item cannot be destroyed.");
+            return;
+        }
     }
     // A non-stackable item can only be destroyed one at a time; asking for
     // more punishes (Java `handleIllegalPlayerAction`).

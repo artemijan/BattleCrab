@@ -27,7 +27,7 @@ const PLAYER_OID: i32 = 3001;
 fn shadow_test_world() -> (World, db::CmdRx) {
     let (mut world, db_rx, _link_rx) = quest_test_world();
     world.data.item_data = dist::items_owned();
-    world.data.multisells = MultisellData::load_from(DIST, &world.data.item_data);
+    world.data.multisells = MultisellData::load_from(DIST, &world.data.item_data, true);
     world.id_pool = 0x7000_0000..0x7000_1000;
     add_test_npc(&mut world, NPC_OID, MASTER_NPC_ID, "Rains", 70, 100, 0, 0);
     (world, db_rx)

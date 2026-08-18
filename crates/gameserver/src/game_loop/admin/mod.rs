@@ -74,7 +74,8 @@ use menu::*;
 // `lobby::handle_enter_world`, so re-export it out of the admin module.
 pub(crate) use flags::apply_gm_startup;
 pub(crate) use gm_util::{
-    DROP_ALL_ITEMS_ORDINAL, ITEM_CONDITIONS_ORDINAL, SKILL_CONDITIONS_ORDINAL, all_exceptions_mask,
+    DESTROY_ALL_ITEMS_ORDINAL, DROP_ALL_ITEMS_ORDINAL, ITEM_CONDITIONS_ORDINAL,
+    SKILL_CONDITIONS_ORDINAL, ZONE_CONDITIONS_ORDINAL, all_exceptions_mask,
 };
 use instance::*;
 use items::*;

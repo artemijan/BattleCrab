@@ -159,6 +159,34 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
 
+    // `Config.MINIMUM_CHAT_LEVEL` (**0** here, so inert). Three of Java's chat
+    // handlers open with the same test and **each sends a different system
+    // message** naming its own channel — `ChatGeneral`, `ChatShout` and
+    // `ChatWhisper`. Trade has no such gate; it has a hard-coded level 20 of
+    // its own, below.
+    //
+    // A `CHAT_CONDITIONS` holder is exempt, which is the same override the
+    // scope branches read.
+    if let Some(sm) = match chat_type {
+        ChatType::General => Some(sm_ids::GENERAL_CHAT_CANNOT_BE_USED_BELOW_LEVEL_S1),
+        ChatType::Shout => Some(sm_ids::SHOUT_CHAT_CANNOT_BE_USED_BELOW_LEVEL_S1),
+        ChatType::Whisper => Some(sm_ids::WHISPER_CANNOT_BE_INITIATED_BELOW_LEVEL_S1),
+        _ => None,
+    } && let Some(p) = world.objects.get_component::<Player>(&sender_oid)
+        && p.level < world.cfg.general.minimum_chat_level
+        && !p.can_override_cond(CHAT_CONDITIONS_ORDINAL)
+    {
+        crate::game_loop::helpers::send_sm_to_client(
+            world,
+            client_id,
+            sm,
+            &[server_packets::SmParam::Int(
+                world.cfg.general.minimum_chat_level,
+            )],
+        );
+        return;
+    }
+
     // Java `Say2`'s jail gate, and note how it differs from the *other*
     // `JailDisableChat` check in `world_chat` below — the two are not copies:
     //
@@ -345,10 +373,49 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             }
         }
         ChatType::Shout | ChatType::Trade => {
-            // ChatShout/ChatTrade with `GlobalChat`/`TradeChat = ON` (this
-            // dist): everyone whose position maps to the same map-region
-            // *tile group* (`MapRegionManager.getMapRegionLocId`), speaker
-            // included. Region identity = the region entry; two off-map
+            // `ChatTrade` alone has a **hard-coded** level gate before its
+            // scope branch — not `MinimumChatLevel`, a literal 20. Shout has
+            // none. Ported here rather than with the config gate above,
+            // because it is not configurable.
+            if chat_type == ChatType::Trade
+                && world
+                    .objects
+                    .get_component::<Player>(&sender_oid)
+                    .is_some_and(|p| p.level < TRADE_CHAT_MIN_LEVEL)
+            {
+                crate::game_loop::helpers::send_sm_to_client(
+                    world,
+                    client_id,
+                    sm_ids::TRADE_CHAT_CANNOT_BE_USED_BELOW_LEVEL_S1,
+                    &[server_packets::SmParam::Int(TRADE_CHAT_MIN_LEVEL)],
+                );
+                return;
+            }
+            // `GlobalChat` (Shout) / `TradeChat` (Trade) choose the audience.
+            // `Region` and a `gm`-scoped channel for an override holder both
+            // land here; `Global` goes server-wide below; anything else
+            // matches no Java branch and the line is dropped in silence.
+            let scope = if chat_type == ChatType::Trade {
+                world.cfg.general.trade_chat
+            } else {
+                world.cfg.general.global_chat
+            };
+            let overrides = world
+                .objects
+                .get_component::<Player>(&sender_oid)
+                .is_some_and(|p| p.can_override_cond(CHAT_CONDITIONS_ORDINAL));
+            let region_scoped = match scope {
+                crate::config::general::ChatScope::Region => true,
+                crate::config::general::ChatScope::GmOnly => overrides,
+                _ => false,
+            };
+            let server_wide = !region_scoped && scope == crate::config::general::ChatScope::Global;
+            if !region_scoped && !server_wide {
+                return;
+            }
+            // With `ON` (this dist): everyone whose position maps to the same
+            // map-region *tile group* (`MapRegionManager.getMapRegionLocId`),
+            // speaker included. Region identity = the region entry; two off-map
             // players share Java's `0` bucket (both `None` here).
             let say =
                 server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
@@ -385,7 +452,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                     .map_region
                     .region_at(other_pos.x, other_pos.y)
                     .map(|r| r.name.clone());
-                if from_region == other_region {
+                if server_wide || from_region == other_region {
                     cs.send(say.clone());
                 }
             }
@@ -531,6 +598,10 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
 /// `PlayerCondOverride.CHAT_CONDITIONS` — the GM escape hatch from the jail
 /// chat gate.
 const CHAT_CONDITIONS_ORDINAL: u8 = 8;
+
+/// `ChatTrade`'s own level gate — a literal 20 in Java, unrelated to
+/// `MinimumChatLevel`, and with no counterpart on Shout.
+const TRADE_CHAT_MIN_LEVEL: i32 = 20;
 
 /// The speaker's remaining world-chat allowance, i.e. what `ExWorldChatCnt`
 /// reports: Java's constructor arithmetic

@@ -203,12 +203,8 @@ impl PetData {
     pub fn load_from(file_path: &str) -> Self {
         let mut by_npc: HashMap<i32, PetTemplate> = HashMap::new();
         let mut by_item: HashMap<i32, i32> = HashMap::new();
-        if let Ok(dir) = std::fs::read_dir(format!("{file_path}{PETS_DIR}")) {
-            for entry in dir.flatten() {
-                let path = entry.path();
-                if path.extension().and_then(|e| e.to_str()) != Some("xml") {
-                    continue;
-                }
+        {
+            for path in crate::data::xml::xml_files_in(format!("{file_path}{PETS_DIR}")) {
                 if let Ok(content) = std::fs::read_to_string(&path) {
                     parse_str(&content, &mut by_npc, &mut by_item);
                 }

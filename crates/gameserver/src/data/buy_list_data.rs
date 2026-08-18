@@ -121,16 +121,24 @@ pub struct BuyListData {
 
 impl BuyListData {
     pub fn load(items: &ItemData) -> Self {
-        Self::load_from("", items, CrystalType::S)
+        Self::load_from("", items, CrystalType::S, true)
     }
 
-    pub fn load_from(file_path: &str, items: &ItemData, max_grade: CrystalType) -> Self {
+    pub fn load_from(
+        file_path: &str,
+        items: &ItemData,
+        max_grade: CrystalType,
+        custom: bool,
+    ) -> Self {
         let mut by_id = HashMap::new();
         // Java parses "data/buylists" then "data/buylists/custom"; on an id
         // collision the later (custom) file wins.
         let dir = format!("{file_path}{BUYLISTS_DIR}");
         load_dir(&dir, items, max_grade, &mut by_id);
-        load_dir(&format!("{dir}/custom"), items, max_grade, &mut by_id);
+        // `CustomBuyListLoad` (**True** here): the 143 GM-shop lists.
+        if custom {
+            load_dir(&format!("{dir}/custom"), items, max_grade, &mut by_id);
+        }
         info!("BuyListData: Loaded {} buy lists.", by_id.len());
         Self { by_id }
     }
@@ -170,14 +178,7 @@ fn load_dir(
     max_grade: CrystalType,
     by_id: &mut HashMap<i32, BuyList>,
 ) {
-    let Ok(entries) = std::fs::read_dir(dir) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.extension().and_then(|e| e.to_str()) != Some("xml") {
-            continue;
-        }
+    for path in crate::data::xml::xml_files_in(dir) {
         let Some(list_id) = path
             .file_stem()
             .and_then(|s| s.to_str())
@@ -300,7 +301,7 @@ mod tests {
     fn loads_real_dist_files() {
         let root = crate::data::DIST_GAME;
         let items = dist::items();
-        let data = BuyListData::load_from(root, items, CrystalType::S);
+        let data = BuyListData::load_from(root, items, CrystalType::S, true);
         // 338 regular merchant lists + 143 custom (GM shop) lists.
         assert_eq!(data.len(), 481);
 

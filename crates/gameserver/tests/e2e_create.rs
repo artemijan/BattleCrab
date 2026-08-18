@@ -252,7 +252,19 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel::<DbCommand>();
 
-    db::spawn(db_url, 1, 7, db_cmd_rx, db_event_tx);
+    db::spawn(
+        db_url,
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        db_cmd_rx,
+        db_event_tx,
+    );
 
     let geo = Arc::new(gameserver::geo::GeoEngine::empty());
     let (path_tx, path_req_rx) = std::sync::mpsc::channel();

@@ -98,6 +98,14 @@ pub struct GroundItem {
     /// Expiry is lazy (checked at pickup) instead of Java's scheduled task.
     pub owner_id: i32,
     pub owner_until_tick: u64,
+    /// Java `Item._dropTime`, wall-clock ms — **`-1` means protected**, i.e.
+    /// never auto-destroyed (`item.setProtected(dropTime == -1)`).
+    ///
+    /// Only [`game_loop::ground_items`](crate::game_loop::ground_items)'
+    /// persistence reads it: the decay itself is a scheduler entry, but a row
+    /// reloaded from `itemsonground` has to know how much of its lifetime was
+    /// already spent, and ticks do not survive a restart.
+    pub drop_time_ms: i64,
 }
 
 /// Java `Attackable._firstCommandChannelAttacked` + `_commandChannelLastAttack`:

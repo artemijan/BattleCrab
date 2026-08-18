@@ -379,11 +379,34 @@ impl NpcData {
     }
 
     pub fn load_from(file_path: &str) -> Self {
+        Self::load_from_with(file_path, true)
+    }
+
+    /// `NpcData.load()`, with Java's `Config.CUSTOM_NPC_DATA` branch: after the
+    /// main tree, parse `stats/npcs/custom/` as well.
+    ///
+    /// **The port never read that directory**, which left 14 templates
+    /// unloaded — among them the TvT event manager (70010/70011), so
+    /// `//event_start TvT` spawned nothing at all, and Kadmos (1003000), so
+    /// `//spawn 1003000` failed. The TvT test injected the template by hand
+    /// with a comment saying it was doing so "*so `event_start`'s spawn
+    /// resolves*", which is the shape a fixture takes when it is papering over
+    /// a loader gap rather than exercising one.
+    ///
+    /// Java parses the custom directory **second**, so a custom file redefining
+    /// an id wins. `parse_file` inserts into the same map, which reproduces
+    /// that.
+    pub fn load_from_with(file_path: &str, custom: bool) -> Self {
         let mut by_id = HashMap::new();
         let dir = format!("{file_path}{NPCS_DIR}");
         {
             for path in xml::xml_files_in(&dir) {
                 parse_file(&path, &mut by_id);
+            }
+            if custom {
+                for path in xml::xml_files_in(format!("{dir}/custom")) {
+                    parse_file(&path, &mut by_id);
+                }
             }
         }
         info!("NpcData: Loaded {} NPCs.", by_id.len());

@@ -28,9 +28,9 @@ use models::entity::{
     clan_notices, clan_privs, clan_skills, clan_subpledges, clan_wars, clanhall,
     clanhall_auctions_bidders, crests, cursed_weapons, custom_mail, global_variables,
     grandboss_data, heroes, heroes_diary, item_auction, item_auction_bid, item_variations, items,
-    lottery, mdt_bets, mdt_history, messages, npc_respawns, olympiad_data, olympiad_nobles,
-    olympiad_nobles_eom, petition_feedback, pets, pledge_applicant, pledge_recruit,
-    pledge_waiting_list, punishments, residence_functions, siege_clans,
+    itemsonground, lottery, mdt_bets, mdt_history, messages, npc_respawns, olympiad_data,
+    olympiad_nobles, olympiad_nobles_eom, petition_feedback, pets, pledge_applicant,
+    pledge_recruit, pledge_waiting_list, punishments, residence_functions, siege_clans,
 };
 use models::sea_orm::ActiveValue::{NotSet, Set, Unchanged};
 use models::sea_orm::Condition;
@@ -49,6 +49,7 @@ mod commands;
 mod queries;
 mod types;
 
+pub use boot::GroundItemBootConfig;
 pub(crate) use boot::*;
 pub(crate) use commands::*;
 pub use queries::*;
@@ -85,6 +86,8 @@ pub fn spawn(
     url: String,
     max_connections: u32,
     max_characters: i32,
+    clean_up: bool,
+    ground_items: GroundItemBootConfig,
     cmd_rx: CmdRx,
     event_tx: EventTx,
 ) -> JoinHandle<()> {
@@ -95,7 +98,15 @@ pub fn spawn(
                 .enable_all()
                 .build()
                 .expect("db thread runtime");
-            rt.block_on(run(url, max_connections, max_characters, cmd_rx, event_tx));
+            rt.block_on(run(
+                url,
+                max_connections,
+                max_characters,
+                clean_up,
+                ground_items,
+                cmd_rx,
+                event_tx,
+            ));
         })
         .expect("failed to spawn db thread")
 }

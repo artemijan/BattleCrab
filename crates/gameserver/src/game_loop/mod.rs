@@ -156,6 +156,14 @@ use skills::effects::handle_buff_expire;
 /// systems on top of this.
 pub const TICK: Duration = Duration::from_millis(100);
 
+/// `Config.SAVE_DROPPED_ITEM_INTERVAL` in ticks, or `None` when the key is
+/// `<= 0` — Java skips scheduling the task entirely in that case rather than
+/// treating it as "every tick".
+fn ground_item_store_period(world: &World) -> Option<u64> {
+    let minutes = world.cfg.general.save_dropped_item_interval_minutes;
+    (minutes > 0).then(|| minutes as u64 * 60 * 10)
+}
+
 /// A tick that runs longer than this is the failure mode of the single-thread
 /// design, so it must be visible from day one (CONCURRENCY_MODEL §2.6 rule 4).
 const TICK_OVERRUN_WARN: Duration = Duration::from_millis(50);
@@ -366,6 +374,16 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // sweeps the component instead). Every tick: each player's clock
         // starts when *they* stopped falling.
         timed!("falling", falling::falling_damage_tick(&mut world));
+        // `ItemsOnGroundManager`'s `scheduleAtFixedRate(this, interval, interval)`
+        // — the periodic rewrite of `itemsonground`. Off entirely while
+        // `SaveDroppedItem` is off, which is why the period is read here rather
+        // than armed at boot.
+        if world.cfg.general.save_dropped_item
+            && let Some(period) = ground_item_store_period(&world)
+            && world.tick.is_multiple_of(period)
+        {
+            timed!("ground_item_store", ground_items::store_all(&mut world));
+        }
         // Item losses noted by the inventory removal methods become audit
         // records here, where the config gate and the owning player exist.
         // Every tick: a record that waits is a record that a crash loses.

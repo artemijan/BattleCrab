@@ -123,19 +123,15 @@ pub struct MultisellData {
 }
 
 impl MultisellData {
-    pub fn load_from(file_path: &str, items: &ItemData) -> Self {
+    pub fn load_from(file_path: &str, items: &ItemData, custom: bool) -> Self {
         let mut by_id = HashMap::new();
-        // Retail lists first, then the custom overlay (`CustomMultisellLoad`).
-        for sub in ["", "/custom"] {
+        // Retail lists first, then the custom overlay (`CustomMultisellLoad`,
+        // **True** on this dist — these are the `6000xx` community-board shop
+        // lists, so turning it off empties the CB shop).
+        let subs: &[&str] = if custom { &["", "/custom"] } else { &[""] };
+        for sub in subs {
             let dir = format!("{file_path}{MULTISELL_DIR}{sub}");
-            let Ok(entries) = std::fs::read_dir(&dir) else {
-                continue;
-            };
-            for entry in entries.flatten() {
-                let path = entry.path();
-                if path.extension().and_then(|e| e.to_str()) != Some("xml") {
-                    continue;
-                }
+            for path in crate::data::xml::xml_files_in(&dir) {
                 let Some(list_id) = path
                     .file_stem()
                     .and_then(|s| s.to_str())
@@ -345,7 +341,7 @@ mod tests {
     fn loads_real_dist_lists() {
         let root = dist();
         let items = dist::items();
-        let data = MultisellData::load_from(&root, items);
+        let data = MultisellData::load_from(&root, items, true);
         assert!(data.len() > 100, "loaded {} lists", data.len());
 
         // 600026.xml (custom CB belt shop): 4 adena→belt entries, npc -1.
@@ -367,7 +363,7 @@ mod tests {
     fn multipliers_default_to_one() {
         let root = dist();
         let items = dist::items();
-        let data = MultisellData::load_from(&root, items);
+        let data = MultisellData::load_from(&root, items, true);
         let list = data.get(600026).expect("list");
         assert_eq!(list.ingredient_multiplier, 1.0);
         assert_eq!(list.product_multiplier, 1.0);

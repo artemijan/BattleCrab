@@ -368,6 +368,13 @@ fn rune_primeval() -> RouteDef {
 /// `BoatManager.load` — spawn the four Interlude ferries at boot and set them
 /// on their routes.
 pub(crate) fn spawn_boats(world: &mut World) {
+    // `BoatManager.load()` opens with `if (!Config.ALLOW_BOAT) return;` — the
+    // docks are never registered, so with it off no boat exists at all rather
+    // than existing and standing still.
+    if !world.cfg.general.allow_boat {
+        tracing::info!("BoatManager: disabled by AllowBoat.");
+        return;
+    }
     for def in [
         talking_gludin(),
         giran_talking(),

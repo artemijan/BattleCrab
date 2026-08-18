@@ -54,6 +54,23 @@ pub struct NewCharacter {
     pub vitality_points: i32,
 }
 
+/// One `itemsonground` row (Java `ItemsOnGroundManager`'s insert/select tuple).
+///
+/// `drop_time_ms` carries Java's `-1 = protected` convention verbatim; the
+/// loader turns it back into "no decay scheduled".
+#[derive(Debug, Clone, Copy)]
+pub struct GroundItemRow {
+    pub object_id: i32,
+    pub item_id: i32,
+    pub count: i64,
+    pub enchant_level: i32,
+    pub x: i32,
+    pub y: i32,
+    pub z: i32,
+    pub drop_time_ms: i64,
+    pub equipable: bool,
+}
+
 /// The persistable slice of a `Player`, snapshotted on the game thread when the
 /// character leaves the world (restart / logout / disconnect) — Java
 /// `Disconnection.storeMe().deleteMe()`. Covers the `storeCharBase` columns the
@@ -159,6 +176,13 @@ pub struct PlayerSaveData {
     /// any `items` row for this owner not present here, so this is the whole
     /// authoritative set, covering pickups, drops, stack changes and equips.
     pub items: Vec<ItemRow>,
+    /// `Config.UPDATE_ITEMS_ON_CHAR_STORE` (**True** here, Java default
+    /// `false`) — whether this save writes the item half at all.
+    ///
+    /// It has to be a flag rather than an empty [`Self::items`], because the
+    /// write is delete-then-reinsert over the whole owned set: an empty vector
+    /// would not mean "leave the items alone", it would mean "delete them".
+    pub store_items: bool,
     /// Learned skills as `(skill_id, skill_level, skill_sub_level)` for the
     /// **active** class index (see [`Self::class_index`]).
     pub skills: Vec<(i32, i32, i32)>,
@@ -344,6 +368,20 @@ pub enum DbCommand {
     /// class-transfer, and by the shutdown save-all. Ordered before any
     /// following `LoadCharacters` on this channel, so a restart's re-sent list
     /// already reflects the save.
+    /// `ItemsOnGroundManager.run()` — truncate `itemsonground` and rewrite it
+    /// from the live set. Java's periodic task does exactly this (empty, then
+    /// insert), which is why it is one command rather than a diff.
+    ///
+    /// Cursed weapons are filtered on the game thread, matching Java's
+    /// `isCursed` skip: `CursedWeaponsManager` owns their row and would
+    /// otherwise double-save them.
+    StoreGroundItems {
+        items: Vec<GroundItemRow>,
+    },
+    /// `ItemsOnGroundManager.emptyTable()` on its own — the boot path for
+    /// `!SaveDroppedItem && ClearDroppedItemTable`, and for
+    /// `EmptyDroppedItemTableAfterLoad`.
+    ClearGroundItems,
     StorePlayer {
         /// Boxed: this is the one large variant, and every *other* `DbCommand`
         /// queued on the channel would otherwise be padded to its size. A
@@ -1149,6 +1187,9 @@ pub enum DbCommand {
 pub enum DbEvent {
     /// `GlobalVariablesManager.restoreMe()` — the whole table, at boot.
     GlobalVariablesLoaded { entries: Vec<(String, String)> },
+    /// `ItemsOnGroundManager.load()` — every row of `itemsonground`, sent only
+    /// when `SaveDroppedItem` is on (Java returns early otherwise).
+    GroundItemsLoaded { items: Vec<GroundItemRow> },
     /// `send_list` = push a fresh `CharSelectionInfo` to the client (login,
     /// delete, restore). After character creation it is false — Java only caches
     /// the list (`setCharSelection`) and does not re-send it.

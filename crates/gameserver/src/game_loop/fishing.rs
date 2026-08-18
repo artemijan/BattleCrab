@@ -116,6 +116,22 @@ fn can_fish(world: &World, player: i32) -> bool {
 }
 
 fn cast_line(world: &mut World, player: i32) {
+    // `Config.ALLOW_FISHING` gates the **cast**, not the rod or the zone, and
+    // it is paired with `ZONE_CONDITIONS` so a GM can still fish with the
+    // subsystem off. Java sends a plain message and an ActionFailed, then ends
+    // the session with `FishingEndType.ERROR`.
+    if !world.cfg.general.allow_fishing
+        && !world
+            .objects
+            .get_component::<crate::model::Player>(&player)
+            .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::ZONE_CONDITIONS_ORDINAL))
+    {
+        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
+            crate::game_loop::helpers::send_message(world, cid, "Fishing is disabled.");
+        }
+        stop_fishing(world, player, REASON_STOP);
+        return;
+    }
     if !can_fish(world, player) {
         stop_fishing(world, player, REASON_STOP);
         return;

@@ -7245,3 +7245,295 @@ session's diff by eye; this is the same shape, one layer down.
 Suite green, clippy clean, fmt clean. No new tests: the correction is in the
 expectations of the test that already existed, and reverting `finalize` to the
 old order fails it at exactly 422100 ≠ 420300.
+
+---
+
+## General.ini, cluster 4 — ground-item persistence, and a table that was never written
+
+Eleven keys. Ten wired, one carried, and `itemsonground` stops being an empty
+table the baseline migration left behind — the position `buylists` was in before
+row 17 ported it.
+
+`SaveDroppedItem` and its three companions are `ItemsOnGroundManager`: load at
+boot, a periodic rewrite, a shutdown flush, and Java's two truncate paths
+(`!SaveDroppedItem && ClearDroppedItemTable` at boot,
+`EmptyDroppedItemTableAfterLoad` after the read). All four are **off** on this
+dist, so nothing changes today. What an operator turning them on now gets is
+ground items that survive a restart.
+
+### Ticks do not survive a restart, so the decay had to be re-derived
+
+Java compares timestamps in its auto-destroy sweep and resumes the clock without
+thinking about it. The port holds decay as a *scheduler entry in ticks*, and
+ticks restart at zero. Persisting the tick would have been meaningless; persisting
+nothing would have given every reloaded item a fresh full lifetime.
+
+So `drop_time` is stored as wall-clock and the remaining span is computed on the
+way in: an item that lay 590 s of its 600 s decays 10 s after the restart. The
+test asserts an inequality against the full term rather than an exact tick,
+because the fixture cannot control the millisecond the row is read — and it
+still fails against the restart-the-clock version, which is the only thing it
+needs to distinguish.
+
+`-1` keeps Java's "protected, never decays" meaning end to end, and reloading a
+protected row must not put it on the destroy list.
+
+### Two things deliberately not persisted
+
+Loot protection: `_ownerId` and its `ResetOwner` task are in-memory in Java, so
+a restart frees a reserved drop for anyone. And cursed weapons, which
+`CursedWeaponsManager` owns — Java's `run()` skips them explicitly to avoid
+writing a second row for the same item.
+
+### The lossy setting that reads like a stacking setting
+
+`MultipleItemDrop` was already implemented and hard-coded to this dist's `True`
+behind a comment naming the key — the third instance of that shape this row has
+turned up, after `OnlyGMItemsFree` and `ServerGMOnly`. Reading it exposes the
+off branch, which is *not* "one instance of N": `ItemContainer.addItem` breaks
+out of its loop on the first pass, so **one unit is created and the rest are
+discarded**. Both branches are pinned, because the surprising one is the branch
+nobody would write a test for.
+
+### Three smaller shapes
+
+`DestroyAllItems` gains its gate and a *third* cond-override this row has now
+needed (`DESTROY_ALL_ITEMS`, ordinal 12). Java's expression exempts an override
+holder from the undestroyable half but not the cursed half, because `isCursed`
+sits outside the parenthesis.
+
+`UpdateItemsOnCharStore` had to become a **flag on the save payload**, not an
+empty item list: the write is delete-then-reinsert over the whole owned set, so
+an empty list does not mean "leave the items alone", it means "delete them".
+
+`DatabaseCleanUp` ports `IdManager`'s orphan sweep — 50 statements over 43
+tables, every one of which exists in this schema — as a four-column table plus
+the four statements that do not fit that shape (items owned by a character *or*
+a clan, the `-1` mail owner, and the two `forum_parent` cases). It runs before
+the used-id walk, as Java does: reserving ids for rows you are about to delete
+would be the wrong order.
+
+### One carried, for a reason worth separating from "dead"
+
+`LazyItemsUpdate` gates a *write-through* item path. The port is memory-first by
+design — item state lives in components and reaches the database through the
+periodic flush and the logout store — so there is no per-change write for the
+key to make lazy. Turning it on in Java makes that engine behave more like this
+one; turning it off cannot make this one behave like that. That is a different
+category from "dead in Java" and from "the subsystem isn't ported", and the
+field says so.
+
+### The fixture trap, for the third time
+
+`GeneralConfig` derives `Default`, so every bool starts false, and three keys
+in a row now have had a shipped value of `True`. Wiring `MultipleItemDrop` broke
+two tests through the one `World::new` site that had the dist-config block —
+and a third through a site that did not. There are three such sites in the
+fixtures and only one was maintained.
+
+They now share `apply_dist_general_config`. The comment on it says what it is
+for, because the failure it prevents is not a compile error: a missing entry
+changes what a fixture *measures* rather than failing it.
+
+### What one falsification could not reach
+
+Six mechanisms fail exactly one test each. A seventh attempt — sabotaging
+`store_player`'s `if s.store_items` — passed, because that test pins the flag
+the game thread computes and the write lives behind a channel and a real
+database. Re-aimed at the flag computation it fails correctly, and the test now
+records which half it covers rather than implying both.
+
+Suite green, clippy clean, fmt clean. Seven new tests.
+
+General.ini stands at **47** unread keys (71 → 70 → 67 → 57 → 47), and row 14 at
+**103**.
+
+---
+
+## General.ini, cluster 5 — the custom overlays, and an event that spawned nothing
+
+Ten keys. The headline is a live bug that had a test holding the door open for
+it.
+
+### `xml_files_in` does not recurse, and nobody had asked
+
+`CustomNpcData` is **True** on this dist. `NpcData::load_from` walked
+`stats/npcs` with `xml_files_in`, which is the non-recursive helper, so
+`stats/npcs/custom/` — nine files, 14 templates found nowhere else — was never
+read.
+
+Two of those 14 belong to features this port implements. `spawn_npc_at` returns
+`None` without a template, so:
+
+* **`//event_start TvT` spawned no manager.** The whole event is unusable: the
+  manager NPC is where registration happens.
+* **`//spawn 1003000` failed**, so Kadmos the Noblesse Master could not be
+  reached at all — and `scripts::nobless_master`'s own header says he is
+  "reachable only if spawned", which was true of the datapack and false of this
+  port.
+
+### The fixture that hid it
+
+`tvt_tests` builds the manager template by hand:
+
+```rust
+/// Register the manager NPC template (70010) so `event_start`'s spawn resolves.
+```
+
+That comment is the tell. A fixture registering a template *so the code under
+test can find it* is compensating for the loader, not exercising it — and once
+it exists, nothing in the suite ever asks whether the loader supplies the
+template on a real server. The new test asserts 70010 and 1003000 against
+`dist::npcs()`, which is the only form that could have failed.
+
+Worth generalising: **a test that constructs datapack content is testing the
+consumer, never the loader.** Both are needed, and this row now has one of each.
+
+`CustomSkillsLoad` was the identical shape one loader over — `stats/skills/custom/`
+holds Ghost Walking (100000), TvT's spawn-protection buff, so the same event was
+missing its skill as well as its NPC.
+
+### Three that were already right, and one premise that was not
+
+`CustomMultisellLoad` and `CustomBuyListLoad` already loaded their overlays,
+hardcoded, with the key named in a comment — the fourth and fifth instance of
+that shape this row has turned up. `CustomItemsLoad` is wired and inert: no
+`stats/items/custom/` ships here.
+
+**`HtmCache` describes what the port already does.** `data::htm_cache`'s header
+called per-interaction reading a deliberate deviation, on the premise that
+"Java preloads every datapack `.htm` at startup". That is true of
+`HtmCache = True`. This dist ships **False**, where Java's own log line is
+*"Cache[HTML]: Running lazy cache"* and it reads per call exactly as the port
+does. The conclusion the header reached ("not a parity gap") was right; the
+reason given for it was wrong, and a wrong reason is what gets inherited when
+somebody later "fixes" the deviation. Same failure mode as the breath comment,
+two clusters back.
+
+### The two content keys, and why they are safe to apply
+
+`HideBypassRemoval` (True) strips `-h` from three specific bypasses as the file
+is read; `CheckHtmlEncoding` (True) warns on non-ASCII. Both belong in
+`strip_htm`, beside the comment/whitespace strip they run *after*.
+
+The `-h` removal touches served content, so it needed checking before wiring:
+it is safe because the **client** consumes the flag. The client strips
+`bypass `/`bypass -h ` before sending, and Java's `RequestBypassToServer` has no
+`-h` handling at all — so the key changes whether the link is echoed in the
+player's chat box, not what the server parses.
+
+### A test that asserted an ordering it could not see
+
+The first version of the ordering test used a commented-out link and claimed to
+pin "replacement runs after the comment strip". It survived reversing the
+order — the comment is deleted either way, so the assertion was true of both
+implementations.
+
+The discriminating case is a **wrapped tag**, which is how datapack authors
+actually write long ones: Java removes `[\t\n]` first, which *joins*
+`…_Chat` and ` 1` into the literal the replacement looks for. Replace first and
+the same file keeps its `-h`. Rewritten that way it fails the sabotage.
+
+That is the second test this session that asserted a property both branches
+satisfy. Both were caught by sabotaging the thing the test named, which is the
+only reason to sabotage rather than eyeball.
+
+### Carried
+
+`CustomTeleportTable` is **dead in Java** — parsed into `CUSTOM_TELEPORT_TABLE`
+and read nowhere. `HtmlActionCacheDebug` traces Java's `validateHtmlAction`
+cache, which `game_loop::bypass` records as a deliberate non-port (it re-checks
+interaction distance on every route instead), so there is no cache to trace.
+
+Six new tests. Five falsifications, each failing exactly one test: dropping the
+custom NPC directory, dropping the custom skill directory, ignoring
+`HideBypassRemoval`, and reversing the strip order (twice — once against the
+test that could not see it, once against the one that can).
+
+General.ini stands at **37** unread keys (71 → … → 47 → 37), and row 14 at
+**93**.
+
+---
+
+## General.ini, cluster 6 — the feature gates, and a hole in the measure
+
+Ten keys that switch a subsystem off wholesale: `AllowWarehouse`,
+`AllowRefund`, `AllowFishing`, `AllowBoat`, `AllowCursedWeapons`,
+`AllowDiscardItem`, `BoatBroadcastRadius`, `TradeChat`, `GlobalChat`,
+`MinimumChatLevel`. Every one ships **on**, so nothing changes today; what an
+operator gets is a switch that works.
+
+### The measure said 37 and the real number was 38
+
+`GlobalChat` never appeared in row 14's unread list. The derivation subtracts
+every key name the port mentions **as a string literal**, and
+`config::flood_protector` contains `FloodAction::GlobalChat => "GlobalChat"` —
+the name of a *flood action*, nothing to do with the `General.ini` key. One
+collision, and the key reads as done.
+
+That is the third distinct way this derivation has been wrong: `format!`-built
+names (over-reported), a missing `getByte` in the Java-side extraction
+(under-reported the denominator), and now a literal collision (under-reports the
+gap). The first two were found by working the rows; this one only surfaced
+because `TradeChat` and `GlobalChat` are the same feature and reading one led to
+the other. **A name-based measure cannot distinguish a key from a string that
+happens to look like one**, which is worth remembering before trusting the
+count to be exhaustive rather than indicative.
+
+### `TradeChat`/`GlobalChat` are not on/off switches
+
+Three values each, and none of them is "off":
+
+* `on` — the speaker's map region.
+* `global` — the whole server, behind the global-chat flood protector.
+* `gm` — the region, but **only** for a `CHAT_CONDITIONS` holder. Everyone else
+  falls through to the `global` test, fails that too, and the line is dropped
+  with no message at all.
+
+So "off" is spelled by setting something that matches no branch, and the channel
+goes silent rather than refusing. Ported as `ChatScope`, with `Off` naming that
+state instead of leaving a stray string to compare.
+
+### The gate that is not a config at all
+
+`ChatTrade` opens with a **hard-coded level 20** — a Java literal, unrelated to
+`MinimumChatLevel`, and `ChatShout` has no equivalent. The port had neither, so
+a level-19 character could use trade chat. Found only by reading the handler for
+the scope branch, which is the recurring lesson: the config key is a pointer to
+a function, and the function usually contains something else worth having.
+
+`MinimumChatLevel` itself gates General, Shout and Whisper — three handlers,
+**three different system messages** (4104/4106/4107), which is why it cannot be
+factored into one shared call. A `CHAT_CONDITIONS` holder is exempt from all
+three.
+
+### The rest, one site each
+
+`AllowWarehouse` refuses at the **bypass**, so the keeper still shows the button
+and clicking does nothing — Java returns `false` from the handler rather than
+removing the link. `AllowBoat` stops `BoatManager` registering any dock, so no
+ferry exists rather than existing and standing still. `AllowCursedWeapons` makes
+the manager load nothing. `AllowFishing` gates the **cast**, paired with a
+`ZONE_CONDITIONS` override so a GM can still fish with the subsystem off.
+`AllowDiscardItem` is the first clause of `RequestDropItem`'s big refusal, with
+the `DROP_ALL_ITEMS` escape — the same override the bound-item gates read, which
+is why they are checked separately rather than folded together.
+
+`AllowRefund` is two sites and needed both: `RequestSellItem` decides whether
+the sold stack is *filed or destroyed*, and `Player.hasRefund()` ANDs the key in
+so turning it off hides a container filled while it was on.
+
+### The fixture helper earned itself
+
+Wiring these broke **14 existing tests** at once — boats, drops, fishing,
+refunds — all through the derived `false`. Every one was fixed by nine lines in
+`apply_dist_general_config`, the helper extracted two clusters ago when the same
+trap cost three separate hunts. A fixture on a derived default does not fail; it
+measures a server with the feature turned off.
+
+Eight new tests. Six falsifications, each failing exactly one test: collapsing
+the scope branch, dropping the trade level gate, dropping `MinimumChatLevel`,
+and disabling the boat, refund and discard gates.
+
+General.ini stands at **28** unread keys (71 → … → 37 → 28), and row 14 at
+**84**.

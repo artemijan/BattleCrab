@@ -1,5 +1,15 @@
 use super::*;
 
+/// The three `General.ini` keys `ItemsOnGroundManager`'s constructor reads.
+/// Passed to the DB thread rather than read there, because the thread has no
+/// `Config`.
+#[derive(Debug, Clone, Copy)]
+pub struct GroundItemBootConfig {
+    pub save_dropped_item: bool,
+    pub clear_dropped_item_table: bool,
+    pub empty_dropped_item_table_after_load: bool,
+}
+
 /// Confirms the pool actually points at a game database.
 ///
 /// `characters` and `accounts` are the two tables the server cannot run without
@@ -36,12 +46,33 @@ pub(crate) async fn verify_schema(db: &DatabaseConnection) -> Result<(), String>
 ///
 /// The tail order is load-bearing: `ClansLoaded` must be sent **last**, because
 /// the game loop releases the login link when it arrives.
-pub(crate) async fn send_boot_events(db: &DatabaseConnection, event_tx: &EventTx) {
+pub(crate) async fn send_boot_events(
+    db: &DatabaseConnection,
+    cfg: &GroundItemBootConfig,
+    event_tx: &EventTx,
+) {
     // `GlobalVariablesManager.restoreMe()` — small, and read by boot code that
     // runs before the world is up, so it goes first.
     let _ = event_tx.send(DbEvent::GlobalVariablesLoaded {
         entries: load_global_variables(db).await,
     });
+
+    // `ItemsOnGroundManager` construction, in Java's own order: the
+    // clear-on-disabled case first, then the load, then the empty-after-load.
+    if !cfg.save_dropped_item {
+        // "may want to delete all items previously stored to avoid add old
+        // items on reactivate" — only when the operator asked for it.
+        if cfg.clear_dropped_item_table {
+            clear_ground_items(db).await;
+        }
+    } else {
+        let items = load_ground_items(db).await;
+        info!("ItemsOnGroundManager: loaded {} items.", items.len());
+        let _ = event_tx.send(DbEvent::GroundItemsLoaded { items });
+        if cfg.empty_dropped_item_table_after_load {
+            clear_ground_items(db).await;
+        }
+    }
 
     // Premium table cache, before clans so `ClansLoaded` stays the last boot
     // event (the game loop releases the login link on it).
@@ -191,4 +222,129 @@ pub(crate) async fn send_boot_events(db: &DatabaseConnection, event_tx: &EventTx
         recruit_applicants: load_recruit_applicants(db).await,
         notices: load_clan_notices(db).await,
     });
+}
+
+/// Java `IdManager`'s `Config.DATABASE_CLEAN_UP` block: delete every child row
+/// whose owner is gone. Runs once at boot, before the used-id walk.
+///
+/// Java spells out 50 statements; they are four shapes over 43 tables, so they
+/// are a table here instead. Each entry is
+/// `(table, column, parent_table, parent_column)` and becomes
+/// `DELETE FROM t WHERE t.c NOT IN (SELECT pc FROM pt)`. **Every one of Java's
+/// 43 target tables exists in this schema**, so nothing is skipped; the four
+/// statements that do not fit the shape are spelled out below it.
+///
+/// Deleting nothing is the expected outcome on a healthy database. It is worth
+/// running anyway because the rows it removes are invisible: an orphaned
+/// `items` row still consumes its object id, which is exactly what the walk
+/// after this reads.
+pub(crate) async fn clean_up_database(db: &DatabaseConnection) {
+    use models::sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
+
+    /// `(table, column, parent table, parent column)`.
+    const ORPHANS: &[(&str, &str, &str, &str)] = &[
+        (
+            "account_gsdata",
+            "account_name",
+            "characters",
+            "account_name",
+        ),
+        ("character_contacts", "charId", "characters", "charId"),
+        ("character_contacts", "contactId", "characters", "charId"),
+        ("character_friends", "charId", "characters", "charId"),
+        ("character_friends", "friendId", "characters", "charId"),
+        ("character_hennas", "charId", "characters", "charId"),
+        ("character_macroses", "charId", "characters", "charId"),
+        ("character_quests", "charId", "characters", "charId"),
+        ("character_recipebook", "charId", "characters", "charId"),
+        ("character_recipeshoplist", "charId", "characters", "charId"),
+        ("character_shortcuts", "charId", "characters", "charId"),
+        ("character_skills", "charId", "characters", "charId"),
+        ("character_skills_save", "charId", "characters", "charId"),
+        ("character_subclasses", "charId", "characters", "charId"),
+        ("character_instance_time", "charId", "characters", "charId"),
+        ("item_auction_bid", "playerObjId", "characters", "charId"),
+        ("item_variations", "itemId", "items", "object_id"),
+        ("item_elementals", "itemId", "items", "object_id"),
+        ("item_variables", "id", "items", "object_id"),
+        ("cursed_weapons", "charId", "characters", "charId"),
+        ("heroes", "charId", "characters", "charId"),
+        ("olympiad_nobles", "charId", "characters", "charId"),
+        ("olympiad_nobles_eom", "charId", "characters", "charId"),
+        ("pets", "item_obj_id", "items", "object_id"),
+        ("merchant_lease", "player_id", "characters", "charId"),
+        ("character_reco_bonus", "charId", "characters", "charId"),
+        ("clan_data", "leader_id", "characters", "charId"),
+        ("clan_data", "clan_id", "characters", "clanid"),
+        ("olympiad_fights", "charOneId", "characters", "charId"),
+        ("olympiad_fights", "charTwoId", "characters", "charId"),
+        ("heroes_diary", "charId", "characters", "charId"),
+        ("character_offline_trade", "charId", "characters", "charId"),
+        (
+            "character_offline_trade_items",
+            "charId",
+            "characters",
+            "charId",
+        ),
+        ("character_tpbookmark", "charId", "characters", "charId"),
+        ("character_variables", "charId", "characters", "charId"),
+        ("bot_reported_char_data", "botId", "characters", "charId"),
+        ("clan_privs", "clan_id", "clan_data", "clan_id"),
+        ("clan_skills", "clan_id", "clan_data", "clan_id"),
+        ("clan_subpledges", "clan_id", "clan_data", "clan_id"),
+        ("clan_wars", "clan1", "clan_data", "clan_id"),
+        ("clan_wars", "clan2", "clan_data", "clan_id"),
+        ("siege_clans", "clan_id", "clan_data", "clan_id"),
+        ("clan_notices", "clan_id", "clan_data", "clan_id"),
+        ("auction_bid", "bidderId", "clan_data", "clan_id"),
+        ("posts", "post_forum_id", "forums", "forum_id"),
+        ("topic", "topic_forum_id", "forums", "forum_id"),
+    ];
+
+    /// The four Java statements that are not a plain single-parent orphan test.
+    const IRREGULAR: &[&str] = &[
+        // An item belongs to a character *or* a clan warehouse; `-1` is the
+        // mail/auction holding owner and is exempt.
+        "DELETE FROM items WHERE items.owner_id NOT IN (SELECT charId FROM characters) \
+         AND items.owner_id NOT IN (SELECT clan_id FROM clan_data) AND items.owner_id != -1",
+        // …and the `-1` ones are orphaned only when their mail is gone.
+        "DELETE FROM items WHERE items.owner_id = -1 AND loc LIKE 'MAIL' \
+         AND loc_data NOT IN (SELECT messageId FROM messages WHERE senderId = -1)",
+        // A forum's owner is a clan or a character depending on `forum_parent`.
+        "DELETE FROM forums WHERE forums.forum_owner_id NOT IN (SELECT clan_id FROM clan_data) \
+         AND forums.forum_parent=2",
+        "DELETE FROM forums WHERE forums.forum_owner_id NOT IN (SELECT charId FROM characters) \
+         AND forums.forum_parent=3",
+    ];
+
+    let started = std::time::Instant::now();
+    let mut cleaned = 0u64;
+    let exec = async |sql: String| -> u64 {
+        match db
+            .execute_raw(Statement::from_string(DatabaseBackend::Sqlite, sql.clone()))
+            .await
+        {
+            Ok(r) => r.rows_affected(),
+            Err(e) => {
+                // A missing table is not fatal: Java logs and carries on too,
+                // and an operator on a trimmed schema should still boot.
+                warn!("DB cleanup: {sql} failed: {e}");
+                0
+            }
+        }
+    };
+    for (table, column, parent, parent_column) in ORPHANS {
+        cleaned += exec(format!(
+            "DELETE FROM {table} WHERE {table}.{column} NOT IN \
+             (SELECT {parent_column} FROM {parent})"
+        ))
+        .await;
+    }
+    for sql in IRREGULAR {
+        cleaned += exec((*sql).to_string()).await;
+    }
+    info!(
+        "DB cleanup: removed {cleaned} orphaned row(s) in {} ms.",
+        started.elapsed().as_millis()
+    );
 }

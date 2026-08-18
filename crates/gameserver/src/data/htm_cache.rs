@@ -26,10 +26,89 @@
 //! Not a parity gap and not owed work. Revisit only if a profile shows dialog
 //! opens costing measurable time.
 
+/// The `General.ini` keys `HtmCache.loadFile` applies to every file it reads.
+///
+/// A module-level setting rather than a parameter because `read_htm` has ~40
+/// call sites and Java holds the same values in `Config` statics. Installed
+/// once at boot; the derived `Default` is Java's own code defaults, so an
+/// uninitialised test still behaves like a stock server.
+#[derive(Debug, Clone, Copy)]
+pub struct HtmlSettings {
+    /// `HideBypassRemoval` — strip `-h` from the three named bypasses.
+    pub hide_bypass_removal: bool,
+    /// `CheckHtmlEncoding` — warn when a file is not pure ASCII.
+    pub check_encoding: bool,
+}
+
+impl Default for HtmlSettings {
+    fn default() -> Self {
+        Self {
+            hide_bypass_removal: true,
+            check_encoding: true,
+        }
+    }
+}
+
+static HTML_SETTINGS: std::sync::OnceLock<HtmlSettings> = std::sync::OnceLock::new();
+
+/// Install the boot-time settings. Ignored if called twice — the second call
+/// would be a second `Config` load, which cannot happen on this server.
+pub fn set_html_settings(settings: HtmlSettings) {
+    let _ = HTML_SETTINGS.set(settings);
+}
+
+fn settings() -> HtmlSettings {
+    HTML_SETTINGS.get().copied().unwrap_or_default()
+}
+
 /// Apply the `HtmCache.loadFile` text normalization: strip html comments, then
 /// tabs and newlines. Carriage returns are left alone, matching Java's
 /// character class.
+///
+/// Then `HideBypassRemoval`'s three replacements, in Java's order and on the
+/// already-stripped text — which matters, because a `-h` inside an html comment
+/// is gone by the time this runs.
 pub fn strip_htm(content: &str) -> String {
+    strip_htm_with(content, settings(), "")
+}
+
+/// [`strip_htm`] with explicit settings and a path for the encoding warning —
+/// the form the tests drive, so neither behaviour depends on boot order.
+pub fn strip_htm_with(content: &str, settings: HtmlSettings, path: &str) -> String {
+    let out = strip_htm_inner(content);
+    let out = if settings.hide_bypass_removal {
+        // Java's three literal replacements, verbatim. Note the trailing space
+        // on the first: `_Chat ` takes an argument, the other two do not.
+        out.replace(
+            "bypass -h npc_%objectId%_Chat ",
+            "bypass npc_%objectId%_Chat ",
+        )
+        .replace(
+            "bypass -h npc_%objectId%_Quest",
+            "bypass npc_%objectId%_Quest",
+        )
+        .replace(
+            "bypass -h npc_%objectId%_showTeleports",
+            "bypass npc_%objectId%_showTeleports",
+        )
+    } else {
+        out
+    };
+    // `Config.CHECK_HTML_ENCODING && !filePath.startsWith("data/lang")` — a
+    // load-time diagnostic, not a refusal: the file is served either way.
+    if settings.check_encoding && !path.is_empty() && !out.is_ascii() {
+        let rel = match path.find("data/") {
+            Some(i) => &path[i..],
+            None => path,
+        };
+        if !rel.starts_with("data/lang") {
+            tracing::warn!("HTML encoding check: File {rel} contains non ASCII content.");
+        }
+    }
+    out
+}
+
+fn strip_htm_inner(content: &str) -> String {
     let mut out = String::with_capacity(content.len());
     let mut rest = content;
     while let Some(start) = rest.find("<!--") {
@@ -54,7 +133,11 @@ pub fn strip_htm(content: &str) -> String {
 /// Returns `None` when the file is missing, so callers keep their existing
 /// fallback chains (`.or_else(…)`, "text is missing" stubs).
 pub fn read_htm(path: impl AsRef<std::path::Path>) -> Option<String> {
-    std::fs::read_to_string(path).ok().map(|c| strip_htm(&c))
+    let p = path.as_ref();
+    let shown = p.to_string_lossy().into_owned();
+    std::fs::read_to_string(p)
+        .ok()
+        .map(|c| strip_htm_with(&c, settings(), &shown))
 }
 
 /// [`read_htm`] for a file being served **to a player** — Java's

@@ -1977,14 +1977,19 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
     .await?;
 
     // items (inventory + equipped): `Inventory::to_rows` is the whole owned set.
-    items::Entity::delete_many()
-        .filter(items::Column::OwnerId.eq(char_id))
-        .exec(&tx)
-        .await?;
-    for it in &s.items {
-        items::Entity::insert(item_row_model(char_id, it, None))
+    // Skipped wholesale under `UpdateItemsOnCharStore = False`, which is Java's
+    // `autoSave` gate — the rows then survive untouched until a path that
+    // writes them directly (logout, a trade, an enchant) does so.
+    if s.store_items {
+        items::Entity::delete_many()
+            .filter(items::Column::OwnerId.eq(char_id))
             .exec(&tx)
             .await?;
+        for it in &s.items {
+            items::Entity::insert(item_row_model(char_id, it, None))
+                .exec(&tx)
+                .await?;
+        }
     }
 
     // Augmentations, keyed to the item rows just written (the old statement
@@ -2432,4 +2437,65 @@ pub(crate) async fn load_recruit_applicants(
             }
         })
         .collect()
+}
+
+/// `ItemsOnGroundManager.load()`'s `SELECT` — every persisted ground item.
+pub(crate) async fn load_ground_items(db: &DatabaseConnection) -> Vec<GroundItemRow> {
+    match itemsonground::Entity::find().all(db).await {
+        Ok(rows) => rows
+            .into_iter()
+            .map(|r| GroundItemRow {
+                object_id: r.object_id,
+                item_id: r.item_id.unwrap_or(0),
+                count: r.count,
+                enchant_level: r.enchant_level.unwrap_or(0),
+                x: r.x.unwrap_or(0),
+                y: r.y.unwrap_or(0),
+                z: r.z.unwrap_or(0),
+                drop_time_ms: r.drop_time,
+                equipable: r.equipable.unwrap_or(0) != 0,
+            })
+            .collect(),
+        Err(e) => {
+            warn!("load_ground_items: {e}");
+            Vec::new()
+        }
+    }
+}
+
+/// `ItemsOnGroundManager.emptyTable()`.
+pub(crate) async fn clear_ground_items(db: &DatabaseConnection) {
+    warn_err(itemsonground::Entity::delete_many().exec(db).await);
+}
+
+/// `ItemsOnGroundManager.run()` — empty, then reinsert the live set. Java does
+/// the same thing for the same reason: a ground item has no stable identity to
+/// diff against once it has been picked up or decayed.
+pub(crate) async fn store_ground_items(db: &DatabaseConnection, items: &[GroundItemRow]) {
+    clear_ground_items(db).await;
+    if items.is_empty() {
+        return;
+    }
+    let Ok(tx) = db.begin().await else {
+        warn!("store_ground_items: could not open a transaction");
+        return;
+    };
+    for it in items {
+        warn_err(
+            itemsonground::Entity::insert(itemsonground::ActiveModel {
+                object_id: Set(it.object_id),
+                item_id: Set(Some(it.item_id)),
+                count: Set(it.count),
+                enchant_level: Set(Some(it.enchant_level)),
+                x: Set(Some(it.x)),
+                y: Set(Some(it.y)),
+                z: Set(Some(it.z)),
+                drop_time: Set(it.drop_time_ms),
+                equipable: Set(Some(i32::from(it.equipable))),
+            })
+            .exec(&tx)
+            .await,
+        );
+    }
+    warn_err(tx.commit().await);
 }

@@ -476,8 +476,12 @@ fn npc_bypass(
                 .trim();
             super::clans::handle_assign_subpledge_leader(world, client_id, object_id, args);
         }
-        // `bypasshandlers/PrivateWarehouse.java`: the keeper's deposit/withdraw
-        // windows (the bypass only appears on warehouse-keeper htmls).
+        // `bypasshandlers/PrivateWarehouse.java` / `ClanWarehouse.java`: all
+        // four open with `if (!Config.ALLOW_WAREHOUSE) return false;`, which
+        // refuses the *bypass* — the keeper still shows the button and the
+        // click does nothing, rather than the link disappearing.
+        "WithdrawP" | "DepositP" | "WithdrawC" | "DepositC"
+            if !world.cfg.general.allow_warehouse => {}
         "WithdrawP" => {
             super::warehouse::set_active(
                 world,

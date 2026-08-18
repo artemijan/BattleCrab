@@ -325,6 +325,14 @@ pub struct DataOptions {
     pub max_equipable_item_grade: item_data::CrystalType,
     /// `InitialEquipmentEvent` — which starting-gear table to read.
     pub initial_equipment_event: bool,
+    /// The `General.ini` `Custom*Load` family — whether each loader also reads
+    /// its `custom/` subdirectory. **All True on this dist**, and each is a
+    /// separate key in Java because the directories are independent.
+    pub custom_npc_data: bool,
+    pub custom_skills_load: bool,
+    pub custom_items_load: bool,
+    pub custom_multisell_load: bool,
+    pub custom_buylist_load: bool,
 }
 
 impl Default for DataOptions {
@@ -332,6 +340,13 @@ impl Default for DataOptions {
         Self {
             max_equipable_item_grade: item_data::CrystalType::S,
             initial_equipment_event: true,
+            // The dist's values, so the cached test snapshot is the shipped
+            // datapack — including the custom NPCs the TvT manager needs.
+            custom_npc_data: true,
+            custom_skills_load: true,
+            custom_items_load: true,
+            custom_multisell_load: true,
+            custom_buylist_load: true,
         }
     }
 }
@@ -349,19 +364,29 @@ impl GameData {
         let DataOptions {
             max_equipable_item_grade,
             initial_equipment_event,
+            custom_npc_data,
+            custom_skills_load,
+            custom_items_load,
+            custom_multisell_load,
+            custom_buylist_load,
         } = opts;
         // Buy lists read item reference prices (`CorrectPrices`), so items
         // load first.
-        let item_data = ItemData::load_from(file_path);
-        let buy_lists = BuyListData::load_from(file_path, &item_data, max_equipable_item_grade);
-        let multisells = MultisellData::load_from(file_path, &item_data);
+        let item_data = ItemData::load_from_with(file_path, custom_items_load);
+        let buy_lists = BuyListData::load_from(
+            file_path,
+            &item_data,
+            max_equipable_item_grade,
+            custom_buylist_load,
+        );
+        let multisells = MultisellData::load_from(file_path, &item_data, custom_multisell_load);
         let instance_templates = instance_data::InstanceData::load_from(file_path);
         let item_auctions = item_auction_data::ItemAuctionData::load_from(file_path);
         // The NPC AI skill index buckets each template's *active* skills by
         // what the AI would use them for, so it needs both loaders done first
         // (Java does the same bucketing inline at the end of `NpcData.parse`).
-        let skill_data = SkillData::load_from(file_path);
-        let npc_data = NpcData::load_from(file_path);
+        let skill_data = SkillData::load_from_with(file_path, custom_skills_load);
+        let npc_data = NpcData::load_from_with(file_path, custom_npc_data);
         let cubic_data = CubicData::load_from(file_path);
         let fishing_data = FishingData::load_from(file_path);
         let soul_crystal_data = SoulCrystalData::load_from(file_path);
