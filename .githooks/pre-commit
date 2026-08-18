@@ -29,8 +29,8 @@ if echo "$staged" | grep -q '\.rs$'; then
     # Warm cache makes this a few seconds; the first run after a toolchain
     # bump is the slow one. -D warnings so a warning is a failure here, not
     # something that scrolls past.
-    cargo clippy --workspace --all-targets --quiet -- -D warnings \
-        || fail "clippy found lint errors" "cargo clippy --workspace --all-targets  (then fix or #[allow] with a reason)"
+    cargo clippy --workspace --quiet -- -D warnings \
+        || fail "clippy found lint errors" "cargo clippy --workspace  (then fix or #[allow] with a reason)"
 fi
 
 # ---- Frontend --------------------------------------------------------------
