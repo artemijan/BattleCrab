@@ -9,6 +9,50 @@
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
+/// A millisecond duration, in whichever integer type it arrived as.
+///
+/// Java measures every delay in `long` ms; the port receives them as `i64`
+/// (`now_millis` arithmetic), `u64` (constants and elapsed spans) or `i32`
+/// (datapack attributes and config keys). A single concrete parameter type
+/// makes callers cast to fit it, and the casts are where the bugs live —
+/// `castle` carried a real `rate.min(i32::MAX as i64) as i32`.
+///
+/// `Into<u64>` cannot express this: `i32` and `i64` do not implement it, and
+/// they are the two most common cases. Negative means "already due" rather
+/// than a huge unsigned number, so the signed impls clamp at zero.
+pub(crate) trait Millis: Copy {
+    fn to_millis(self) -> u64;
+}
+
+macro_rules! impl_millis {
+    (signed: $($t:ty),*) => { $(
+        impl Millis for $t {
+            fn to_millis(self) -> u64 {
+                self.max(0) as u64
+            }
+        }
+    )* };
+    (unsigned: $($t:ty),*) => { $(
+        impl Millis for $t {
+            fn to_millis(self) -> u64 {
+                self as u64
+            }
+        }
+    )* };
+}
+
+impl_millis!(signed: i32, i64, isize);
+impl_millis!(unsigned: u32, u64, usize);
+
+/// Round a millisecond duration up to whole 100 ms ticks.
+///
+/// Rounding **up** is the rule everywhere: a delay landing mid-tick fires on
+/// the following one, never early. `0` is therefore `0` — "this tick" — so a
+/// caller that must not fire before the next tick says `.max(1)` itself.
+pub(crate) fn ms_to_ticks<T: Millis>(ms: T) -> u64 {
+    ms.to_millis().div_ceil(100)
+}
+
 /// A scheduled unit of work. Grows one variant per Java `schedule(...)` site as
 /// milestones land; for now it only carries the id-capturing shape and a test
 /// hook, so the loop and heap can be exercised before any real tasks exist.
@@ -917,6 +961,42 @@ impl Scheduler {
 
     pub fn is_empty(&self) -> bool {
         self.heap.is_empty()
+    }
+}
+
+#[cfg(test)]
+mod millis_tests {
+    use super::ms_to_ticks;
+
+    /// Rounding is **up**, so a delay never fires early.
+    #[test]
+    fn a_partial_tick_rounds_up() {
+        assert_eq!(ms_to_ticks(0), 0);
+        assert_eq!(ms_to_ticks(1), 1);
+        assert_eq!(ms_to_ticks(100), 1);
+        assert_eq!(ms_to_ticks(101), 2);
+        assert_eq!(ms_to_ticks(3_000), 30);
+    }
+
+    /// Negative means "already due" — it must clamp, not wrap into a delay of
+    /// 184 million years, which is what `as u64` on the raw value would give.
+    #[test]
+    fn a_negative_delay_is_due_now() {
+        assert_eq!(ms_to_ticks(-1), 0);
+        assert_eq!(ms_to_ticks(i32::MIN), 0);
+        assert_eq!(ms_to_ticks(i64::MIN), 0);
+    }
+
+    /// Every width a caller holds a duration in, without a cast at the call
+    /// site — the casts are what this replaced.
+    #[test]
+    fn it_takes_a_duration_in_any_integer_width() {
+        assert_eq!(ms_to_ticks(250i32), 3);
+        assert_eq!(ms_to_ticks(250i64), 3);
+        assert_eq!(ms_to_ticks(250isize), 3);
+        assert_eq!(ms_to_ticks(250u32), 3);
+        assert_eq!(ms_to_ticks(250u64), 3);
+        assert_eq!(ms_to_ticks(250usize), 3);
     }
 }
 

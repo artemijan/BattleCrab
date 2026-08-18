@@ -2,6 +2,7 @@
 //! the sender's warehouse.
 
 use super::*;
+use crate::game_loop::helpers::ms_to_ticks;
 // ---------------------------------------------------------------------------
 // Expiry — Java `MessageDeletionTaskManager`
 // ---------------------------------------------------------------------------
@@ -12,7 +13,7 @@ pub(crate) fn schedule_expiry(world: &mut World, message_id: i32) {
         return;
     };
     let delay_ms = (m.expiration - commons::util::now_millis()).max(0);
-    let delay_ticks = (delay_ms / 100) as u64;
+    let delay_ticks = ms_to_ticks(delay_ms);
     world.scheduler.schedule(
         world.tick + delay_ticks,
         crate::scheduler::ScheduledTask::MailExpire { message_id },

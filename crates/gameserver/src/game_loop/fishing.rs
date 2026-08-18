@@ -13,8 +13,8 @@
 use crate::data::item_data::WeaponType;
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::guard::{in_zone, maybe_position};
-use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::{is_dead, ms_to_ticks};
 use crate::model::Player;
 use crate::model::components::FishingSession;
 use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -184,7 +184,7 @@ fn cast_line(world: &mut World, player: i32) {
         f.bait_y = by;
         f.bait_z = bz;
     });
-    let fire_at = world.tick + (fishing_time as u64).div_ceil(100);
+    let fire_at = world.tick + ms_to_ticks(fishing_time);
     world.scheduler.schedule(
         fire_at,
         ScheduledTask::FishingReel {
@@ -227,7 +227,7 @@ pub(crate) fn handle_reel(world: &mut World, player: i32, cast_seq: u64) {
         .map(|b| b.wait_min)
         .unwrap_or(15000);
     let seq = current_seq(world, player);
-    let fire_at = world.tick + (wait as u64).max(1).div_ceil(100);
+    let fire_at = world.tick + ms_to_ticks(wait.max(1));
     world.scheduler.schedule(
         fire_at,
         ScheduledTask::FishingCast {

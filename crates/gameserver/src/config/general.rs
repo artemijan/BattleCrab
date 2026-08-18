@@ -15,6 +15,11 @@
 //!   there is no reward for the buff to ride along with.
 //! * **`LogAutoAnnouncements`** — assigned to a `Config` field that nothing
 //!   outside `Config.java` reads.
+//! * **`Developer`** — gates `LOGGER.warning` inside seven `catch` blocks in
+//!   the admin command handlers ("Heal error: …", "Set reputation error: …").
+//!   Every one logs an **exception** thrown by parsing a malformed command;
+//!   the port validates its arguments and answers with the same usage message
+//!   Java sends after logging, so there is no exception to gate.
 //!
 //! (`CustomTeleportTable` is dead in Java too but *does* have a field below,
 //! decided when the loader cluster landed. The two treatments are not a
@@ -137,6 +142,65 @@ pub struct GeneralConfig {
     /// swim-speed switch in `WaterZone.onEnter` is unconditional, so turning
     /// this off makes water slow but harmless, not inert.
     pub allow_water: bool,
+
+    // --- Developer switches, packet tracing and the region grid ---
+    /// `AltDevNoSpawns` (dist **False**) — boot with **no NPC spawns**. Java
+    /// returns early from both `SpawnData.load` and `DBSpawnManager.load`.
+    pub alt_dev_no_spawns: bool,
+    /// `AltDevShowScriptsLoadInLogs` (dist **False**) — log one line per
+    /// registered **script**, `QuestManager.addScript`'s half of the pair.
+    ///
+    /// Not a synonym for [`Self::alt_dev_show_quests_load_in_logs`]: Java's
+    /// `Quest(int questId)` registers as a quest when the id is positive and
+    /// as a script otherwise, so this one covers the AI and event classes —
+    /// which are exactly the scripts an id-keyed listing cannot show.
+    pub alt_dev_show_scripts_load_in_logs: bool,
+    /// `DebugClientPackets` (dist **False**) — trace every inbound base packet.
+    /// Java names the packet *class*; the port has no per-packet type and logs
+    /// the opcode instead — see `dispatch::client_packet_trace_line`.
+    pub debug_client_packets: bool,
+    /// `DebugExClientPackets` (dist **False**) — the same for `0xD0` extended
+    /// packets.
+    pub debug_ex_client_packets: bool,
+    /// `DebugServerPackets` (dist **False**) — trace outbound packets.
+    pub debug_server_packets: bool,
+    /// `DebugUnknownPackets` (dist **True**) — trace an opcode with no handler.
+    ///
+    /// **Inert on this dist, and not because of its own value.** Java nests it
+    /// *inside* the two client-packet switches — `if (DEBUG_CLIENT_PACKETS) {
+    /// … else if (DEBUG_UNKNOWN_PACKETS) … }` — so with tracing off the
+    /// unknown-packet line never runs either, whatever this says.
+    ///
+    /// The port keeps its own unconditional `error!` for an unhandled opcode
+    /// **as a deliberate deviation**: it is the only signal that a client is
+    /// sending something the server cannot serve, and measured-gaps row 15 was
+    /// derived from exactly those lines. Gating it behind a key that is
+    /// effectively off would have hidden that work.
+    pub debug_unknown_packets: bool,
+    /// `ExcludedPacketList` (dist **empty**) — comma-separated entries the
+    /// trace skips, trimmed as Java trims them. Matched against the same text
+    /// the trace prints, so here that is `0x49` / `0xD0:0x005F` rather than
+    /// Java's `Say2` — the deviation is on `client_packet_trace_line`.
+    pub excluded_packets: Vec<String>,
+    /// `GridsAlwaysOn` (dist **False**) — keep every world region active, so
+    /// NPC AI runs everywhere regardless of where players are.
+    pub grids_always_on: bool,
+    /// `GridNeighborTurnOnTime` (dist **1**, seconds) — how long after a player
+    /// arrives before the *neighbouring* regions wake. The player's own region
+    /// activates immediately.
+    pub grid_neighbor_turn_on_secs: i32,
+    /// `GridNeighborTurnOffTime` (dist **90**, seconds) — how long a region
+    /// stays awake after the last player leaves its neighbourhood.
+    ///
+    /// This is hysteresis, and the port had none: it recomputed the active set
+    /// from player positions every tick, so an NPC walking home after losing
+    /// its target froze the moment the player moved two cells away. Java keeps
+    /// it thinking for another 90 seconds.
+    pub grid_neighbor_turn_off_secs: i32,
+    /// `ShowServerNews` (dist **False**) — show `html/servnews.htm` at login.
+    /// Java's `else if` after the clan notice, so a player with a clan notice
+    /// never sees it regardless.
+    pub show_server_news: bool,
 
     // --- Instances and zones ---
     /// `PeaceZoneMode` (dist **0**) — three modes, not a flag:
@@ -641,12 +705,24 @@ impl GeneralConfig {
             // Java's code default is `true` — same trap as `allow_water`: the
             // derived `Default` would be `false`, which is the opposite.
             enable_falling_damage: p.get_bool("EnableFallingDamage", true),
-            // Java's code defaults, which the dist inverts on all three:
-            // `false`/`false`/`true` there, `True`/`True`/`False` here — so
-            // this dist checks every character, removes what fails, and
-            // exempts a `SKILL_CONDITIONS` override.
-            // The GM-restriction family. Java's code defaults are all
-            // `false`; this dist raises three of them.
+            // The developer switches, the packet trace and the region grid.
+            // Java's code defaults throughout; the dist changes none of them.
+            alt_dev_no_spawns: p.get_bool("AltDevNoSpawns", false),
+            alt_dev_show_scripts_load_in_logs: p.get_bool("AltDevShowScriptsLoadInLogs", false),
+            debug_client_packets: p.get_bool("DebugClientPackets", false),
+            debug_ex_client_packets: p.get_bool("DebugExClientPackets", false),
+            debug_server_packets: p.get_bool("DebugServerPackets", false),
+            debug_unknown_packets: p.get_bool("DebugUnknownPackets", true),
+            excluded_packets: p
+                .get_string("ExcludedPacketList", "")
+                .split(',')
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+                .collect(),
+            grids_always_on: p.get_bool("GridsAlwaysOn", false),
+            grid_neighbor_turn_on_secs: p.get_int("GridNeighborTurnOnTime", 1),
+            grid_neighbor_turn_off_secs: p.get_int("GridNeighborTurnOffTime", 90),
+            show_server_news: p.get_bool("ShowServerNews", false),
             peace_zone_mode: p.get_int("PeaceZoneMode", 0),
             jail_is_pvp: p.get_bool("JailIsPvp", false),
             eject_dead_player_time_min: p.get_int("EjectDeadPlayerTime", 1),
@@ -692,6 +768,8 @@ impl GeneralConfig {
             database_clean_up: p.get_bool("DatabaseCleanUp", true),
             lazy_items_update: p.get_bool("LazyItemsUpdate", false),
             clan_variables_store_interval_minutes: p.get_int("ClanVariablesStoreInterval", 15),
+            // The GM-restriction family. Java's code defaults are all
+            // `false`; this dist raises three of them.
             gm_skill_restriction: p.get_bool("GMSkillRestriction", false),
             gm_item_restriction: p.get_bool("GMItemRestriction", false),
             gm_trade_restricted_items: p.get_bool("GMTradeRestrictedItems", false),
@@ -703,6 +781,10 @@ impl GeneralConfig {
             server_gm_only: p.get_bool("ServerGMOnly", false),
             only_gm_items_free: p.get_bool("OnlyGMItemsFree", true),
             default_access_level: p.get_int("DefaultAccessLevel", 0),
+            // Java's code defaults, which the dist inverts on all three:
+            // `false`/`false`/`true` there, `True`/`True`/`False` here — so
+            // this dist checks every character, removes what fails, and
+            // exempts a `SKILL_CONDITIONS` override.
             skill_check_enable: p.get_bool("SkillCheckEnable", false),
             skill_check_remove: p.get_bool("SkillCheckRemove", false),
             skill_check_gm: p.get_bool("SkillCheckGM", true),

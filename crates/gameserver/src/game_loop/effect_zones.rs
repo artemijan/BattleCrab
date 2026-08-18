@@ -20,6 +20,7 @@ use crate::game_loop::helpers::skill_by_id;
 use commons::util::rnd;
 
 use crate::data::zone_data::ZoneKind;
+use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::spend_mp;
 use crate::game_loop::helpers::stat_add;
 use crate::model::components::{Position, Vitals, ZoneFlags};
@@ -127,23 +128,26 @@ fn already_affected_at_least(world: &World, oid: i32, skill_id: i32, level: i32)
         })
 }
 
-fn ms_to_ticks(ms: i32) -> u64 {
-    (ms.max(0) as u64 / 100).max(1)
-}
-
 /// Per-zone cadence, shared by the effect and damage sweeps. Schedules the
 /// zone's next fire and reports whether it may fire *now*: first sight schedules
 /// `initialDelay` out (Java's `scheduleAtFixedRate(task, initialDelay, reuse)`)
 /// and returns `false` rather than firing immediately.
+///
+/// The shared `ms_to_ticks` rounds **up** where this used to truncate, and it
+/// returns 0 for 0 where this floored at one tick. Neither difference reaches
+/// this dist: every `initialDelay`/`reuse` in `data/zones` is a multiple of
+/// 100 ms and none is below 1000, so the two agree on every value shipped. The
+/// `.max(1)` stays as the guard it always was — a zone declaring `reuse="0"`
+/// would otherwise re-arm on the same tick forever.
 fn arm_timer(world: &mut World, idx: usize, now: u64, initial_delay: i32, reuse: i32) -> bool {
     use std::collections::hash_map::Entry;
     match world.effect_zone_next_tick.entry(idx) {
         Entry::Occupied(mut e) => {
-            e.insert(now + ms_to_ticks(reuse));
+            e.insert(now + ms_to_ticks(reuse).max(1));
             true
         }
         Entry::Vacant(e) => {
-            e.insert(now + ms_to_ticks(initial_delay.max(reuse)));
+            e.insert(now + ms_to_ticks(initial_delay.max(reuse)).max(1));
             false
         }
     }

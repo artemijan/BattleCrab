@@ -926,11 +926,18 @@ pub(crate) fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) 
 /// Java `EnterWorld`'s `showClanNotice` block: a clan member whose clan has
 /// its notice enabled gets `clanNotice.htm` as a popup, newlines folded to
 /// `<br>` exactly as Java does.
-fn show_clan_notice_at_login(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(clan_id) = clan_of(world, object_id) else {
+pub(super) fn show_clan_notice_at_login(world: &mut World, client_id: u32, object_id: i32) {
+    let notice = clan_of(world, object_id)
+        .and_then(|clan_id| world.clan_notices.get(&clan_id).cloned())
+        .and_then(|(enabled, text)| enabled.then_some(text));
+    let Some(text) = notice else {
+        // Java's `else if (Config.SERVER_NEWS)`: the news page is the
+        // *alternative* to a clan notice, so a player whose clan has one set
+        // never sees the news however the key is configured.
+        show_server_news(world, client_id, object_id);
         return;
     };
-    let Some((true, text)) = world.clan_notices.get(&clan_id).cloned() else {
+    let Some(clan_id) = clan_of(world, object_id) else {
         return;
     };
     let clan_name = clan_name_or_empty(world, clan_id);
@@ -945,5 +952,22 @@ fn show_clan_notice_at_login(world: &mut World, client_id: u32, object_id: i32) 
         "%notice_text%",
         &text.replace("\r\n", "<br>").replace('\n', "<br>"),
     );
+    send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
+}
+
+/// `EnterWorld`'s `Config.SERVER_NEWS` branch: `html/servnews.htm`, shown only
+/// to a player with no clan notice waiting.
+fn show_server_news(world: &World, client_id: u32, object_id: i32) {
+    if !world.cfg.general.show_server_news {
+        return;
+    }
+    let Some(html) = crate::data::htm_cache::read_htm_for(
+        world,
+        object_id,
+        format!("{}data/html/servnews.htm", world.data.root),
+    ) else {
+        // Java's `if (serverNews != null)` — a missing file is silent.
+        return;
+    };
     send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
 }

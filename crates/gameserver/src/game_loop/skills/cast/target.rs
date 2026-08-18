@@ -2,6 +2,7 @@
 //! static match, plus the target-state and cast-range checks.
 
 use super::*;
+use crate::game_loop::helpers::ms_to_ticks;
 /// Port of `Skill.getTarget` + the `targethandlers/{Self,Target,Enemy,
 /// EnemyOnly}.java` scripts as a static match over players *and* NPCs (G9).
 /// `Err(sm_id)` is the system message the caller sends alongside
@@ -202,12 +203,8 @@ pub(crate) fn resolve_cast_target(
                 } else {
                     decay_at.saturating_sub(world.tick)
                 };
-                let min_ticks = (world
-                    .cfg
-                    .npc
-                    .corpse_consume_skill_allowed_time_before_decay
-                    .max(0)
-                    / 100) as u64;
+                let min_ticks =
+                    ms_to_ticks(world.cfg.npc.corpse_consume_skill_allowed_time_before_decay);
                 if ticks_left < min_ticks {
                     return Err(sm_ids::THE_CORPSE_IS_TOO_OLD_THE_SKILL_CANNOT_BE_USED);
                 }

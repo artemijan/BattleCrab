@@ -32,6 +32,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::{World, region_of};
 
 use super::helpers::broadcast_near_region;
+use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 
 fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> VehiclePathPoint {
@@ -496,7 +497,7 @@ pub(crate) fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize
     let is_last = stage_idx + 1 >= sched.stages.len();
 
     if !is_last {
-        let fire_at = world.tick + then_ms.div_ceil(100);
+        let fire_at = world.tick + ms_to_ticks(then_ms);
         world.scheduler.schedule(
             fire_at,
             ScheduledTask::BoatDwellStage {
@@ -510,7 +511,7 @@ pub(crate) fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize
 }
 
 fn schedule_depart(world: &mut World, boat_oid: i32) {
-    let fire_at = world.tick + DWELL_MS.div_ceil(100);
+    let fire_at = world.tick + ms_to_ticks(DWELL_MS);
     world.scheduler.schedule(
         fire_at,
         ScheduledTask::BoatDepart {
@@ -549,7 +550,7 @@ pub(crate) fn depart(world: &mut World, boat_oid: i32) {
     // Schedule the in-transit "arriving in ~N minutes" shouts for this leg.
     if let Some((schedule, _, delays)) = dock_info {
         for (shout, delay_ms) in delays.into_iter().enumerate() {
-            let fire_at = world.tick + delay_ms.div_ceil(100);
+            let fire_at = world.tick + ms_to_ticks(delay_ms);
             world.scheduler.schedule(
                 fire_at,
                 ScheduledTask::BoatVoyageShout {
@@ -684,7 +685,7 @@ fn move_to_next(world: &mut World, boat_oid: i32) {
     // Travel time: distance / speed (units per second → ms).
     let dist = distance_2d_xy(target.x, target.y, cur.x, cur.y);
     let travel_ms = (dist / target.move_speed.max(1) as f64 * 1000.0).max(100.0) as u64;
-    let fire_at = world.tick + travel_ms.div_ceil(100);
+    let fire_at = world.tick + ms_to_ticks(travel_ms);
     world.scheduler.schedule(
         fire_at,
         ScheduledTask::BoatArrive {

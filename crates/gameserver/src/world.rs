@@ -92,6 +92,18 @@ impl LoginState {
     }
 }
 
+/// One region's grid-activation timers (Java `WorldRegion._active` plus its
+/// `_neighborsTask`, which is a scheduled activate/deactivate rather than a
+/// pair of deadlines — the deadlines are the same thing without a task to
+/// cancel).
+#[derive(Debug, Clone, Copy)]
+pub struct RegionActivation {
+    /// Tick from which this region counts as active (`GridNeighborTurnOnTime`).
+    pub activate_at: u64,
+    /// Tick until which it stays active (`GridNeighborTurnOffTime`).
+    pub active_until: u64,
+}
+
 pub struct World {
     /// Monotonic tick counter (10 ticks/s). This *is* `GameTimeTaskManager` —
     /// no dedicated game-time thread (CONCURRENCY_MODEL §2.4).
@@ -279,6 +291,9 @@ pub struct World {
     /// the same reason as `geo`: call sites clone the handle, then hand
     /// `&mut World` into the script — no self-borrow. Immutable after boot.
     pub quests: std::sync::Arc<crate::game_loop::quests::QuestRegistry>,
+    /// Java `WorldRegion`'s activation state, one entry per region the grid
+    /// currently cares about. See `npc::ai::refresh_active_regions`.
+    pub region_activation: std::collections::HashMap<(i32, i32), RegionActivation>,
 
     /// Every clan, keyed by clan id (Java `ClanTable._clans`). Loaded once
     /// at boot (`DbEvent::ClansLoaded`); `create_clan` inserts.
@@ -643,6 +658,7 @@ impl World {
             pending_shutdown: None,
             cfg: crate::config::CombatConfig::default(),
             quests: std::sync::Arc::new(crate::scripts::build_registry(soul_crystal_npc_ids)),
+            region_activation: std::collections::HashMap::new(),
             clans: HashMap::new(),
             clan_wars: Vec::new(),
             crests: HashMap::new(),

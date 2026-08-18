@@ -35,6 +35,7 @@
 use crate::game_loop::time::{MILLIS_PER_DAY, MILLIS_PER_HOUR, MILLIS_PER_MINUTE};
 use tracing::info;
 
+use crate::game_loop::helpers::ms_to_ticks;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -127,7 +128,7 @@ pub(crate) fn schedule_server_restart(world: &mut World) {
     };
     let countdown_ms = cfg.server_restart_schedule_countdown as i64 * 1000;
     let fire_in_ms = (delay_ms - countdown_ms).max(0);
-    let at = world.tick + (fire_in_ms / 100) as u64;
+    let at = world.tick + ms_to_ticks(fire_in_ms);
     world
         .scheduler
         .schedule(at, ScheduledTask::ServerRestartSchedule);

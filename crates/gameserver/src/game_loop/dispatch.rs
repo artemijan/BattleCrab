@@ -58,6 +58,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         "client {client_id} → opcode 0x{opcode:02x} ({} B)",
         data.len()
     );
+    // `ClientPackets.newPacket`'s `Config.DEBUG_CLIENT_PACKETS` trace — the
+    // opcode stands in for Java's packet class name, see `log_client_packet`.
+    log_client_packet(world, opcode as u16, false);
     // The GM Debug panel's packet toggle (Java `Config.DEBUG_CLIENT_PACKETS`,
     // flipped at runtime by `//debug packets on|off`).
     if world.debug_packets {
@@ -538,6 +541,8 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
     let Some((sub, ex_body)) = cp::read_ex_opcode(body) else {
         return;
     };
+    // `DEBUG_EX_CLIENT_PACKETS`, the extended half of the trace above.
+    log_client_packet(world, sub, true);
     trace!(
         "client {client_id} → ex-opcode 0x{sub:04x} ({} B)",
         ex_body.len()
@@ -997,5 +1002,83 @@ fn dispatch_dlg_answer(world: &mut World, client_id: u32, body: &[u8]) {
             && super::offline_trade::handle_exit_game_answer(world, client_id, answer.answer == 1));
     if !claimed {
         super::admin::handle_dlg_answer(world, client_id, answer);
+    }
+}
+
+/// `Config.DEBUG_CLIENT_PACKETS` / `DEBUG_EX_CLIENT_PACKETS`: trace one inbound
+/// packet, honouring `ExcludedPacketList`.
+///
+/// **One documented difference from Java, and it is visible to an operator.**
+/// Java logs the packet's *class* name (`Say2`, `RequestBypassToServer`) and
+/// matches `ExcludedPacketList` against that. The port has no per-packet type —
+/// packets are opcodes dispatched to functions — and the two opcode tables hold
+/// 514 constants between them, so a hand-written name table would be large and
+/// would rot silently the first time an opcode moved. The trace therefore names
+/// the **opcode**, and the exclusion list matches the same text
+/// (`0x49`, `0xD0:0x005F`), case-insensitively.
+///
+/// Java's `else if (DEBUG_UNKNOWN_PACKETS)` is **nested inside** the trace
+/// switch, so an unknown opcode is logged only while tracing is on at all —
+/// which is why `DebugUnknownPackets = True` is inert on this dist. Reproduced
+/// as written; the port's separate unconditional `error!` for an unhandled
+/// opcode is a deliberate deviation documented on the config field.
+pub(crate) fn client_packet_trace_line(
+    world: &World,
+    opcode: u16,
+    extended: bool,
+) -> Option<String> {
+    let on = if extended {
+        world.cfg.general.debug_ex_client_packets
+    } else {
+        world.cfg.general.debug_client_packets
+    };
+    if !on {
+        return None;
+    }
+    let (tag, label) = if extended {
+        ("[C-Ex]", format!("0xD0:0x{opcode:04X}"))
+    } else {
+        ("[C]", format!("0x{opcode:02X}"))
+    };
+    if world
+        .cfg
+        .general
+        .excluded_packets
+        .iter()
+        .any(|e| e.eq_ignore_ascii_case(&label))
+    {
+        return None;
+    }
+    Some(format!("{tag} {label}"))
+}
+
+fn log_client_packet(world: &World, opcode: u16, extended: bool) {
+    if let Some(line) = client_packet_trace_line(world, opcode, extended) {
+        tracing::info!("{line}");
+    }
+}
+
+/// `Config.DEBUG_SERVER_PACKETS`: the outbound half, same shape and same
+/// opcode-instead-of-name caveat as [`log_client_packet`].
+pub(crate) fn server_packet_trace_line(world: &World, opcode: u8) -> Option<String> {
+    if !world.cfg.general.debug_server_packets {
+        return None;
+    }
+    let label = format!("0x{opcode:02X}");
+    if world
+        .cfg
+        .general
+        .excluded_packets
+        .iter()
+        .any(|e| e.eq_ignore_ascii_case(&label))
+    {
+        return None;
+    }
+    Some(format!("[S] {label}"))
+}
+
+pub(crate) fn log_server_packet(world: &World, opcode: u8) {
+    if let Some(line) = server_packet_trace_line(world, opcode) {
+        tracing::info!("{line}");
     }
 }

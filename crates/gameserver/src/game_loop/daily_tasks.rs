@@ -7,6 +7,7 @@
 //! so "Wednesday" here is UTC-Wednesday — consistent with the reco reset this
 //! generalises.
 
+use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::time::MILLIS_PER_DAY;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -144,7 +145,7 @@ pub(crate) fn schedule_initial_daily_reset(world: &mut World) {
     if delay_ms < 0 {
         delay_ms += MILLIS_PER_DAY;
     }
-    let delay_ticks = (delay_ms / 100) as u64;
+    let delay_ticks = ms_to_ticks(delay_ms);
     world
         .scheduler
         .schedule(world.tick + delay_ticks, ScheduledTask::DailyReset);

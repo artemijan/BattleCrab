@@ -36,10 +36,10 @@ pub(crate) use crate::game_loop::npc::ai::{
 pub(crate) use crate::game_loop::npc::say::{npc_say, npc_say_param, npc_say_text};
 pub(crate) use crate::game_loop::visibility::visible_creatures;
 
-/// Round a millisecond duration up to whole 100 ms ticks.
-pub(crate) fn ms_to_ticks(ms: i32) -> u64 {
-    (ms.max(0) as u64).div_ceil(100)
-}
+/// Re-exported from [`crate::scheduler`], which owns the tick and sits below
+/// both `game_loop` and `config`. Kept visible here because `helpers` is where
+/// every game-loop caller already looks for it.
+pub(crate) use crate::scheduler::ms_to_ticks;
 
 #[cfg(test)]
 mod tests {

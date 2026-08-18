@@ -368,7 +368,7 @@ pub(crate) fn handle_lease_check(world: &mut World, hall_id: i32) {
                 ),
             );
             world.scheduler.schedule(
-                world.tick + crate::game_loop::helpers::ms_to_ticks(DAY_MS as i32),
+                world.tick + crate::game_loop::helpers::ms_to_ticks(DAY_MS),
                 ScheduledTask::ClanHallLeaseCheck { hall_id },
             );
         }

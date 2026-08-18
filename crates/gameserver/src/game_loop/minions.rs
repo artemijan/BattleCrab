@@ -22,6 +22,7 @@ use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::set_attack_intention;
 use commons::util::rnd;
 
+use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::npc_id_of;
 use crate::model::components::Vitals;
 use crate::model::npc::{AggroInfo, AggroList, Npc, NpcAi, NpcIntention};
@@ -290,7 +291,7 @@ pub(crate) fn on_minion_die(world: &mut World, minion_oid: i32) {
     }
 
     world.scheduler.schedule(
-        world.tick + (delay_ms as u64 / 100).max(1),
+        world.tick + ms_to_ticks(delay_ms).max(1),
         ScheduledTask::MinionRespawn {
             master_object_id: master_oid,
             minion_npc_id,

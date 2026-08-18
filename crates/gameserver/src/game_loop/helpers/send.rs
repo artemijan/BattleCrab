@@ -7,6 +7,9 @@ use super::*;
 /// A direct `clients` lookup. Prefer this over [`send_to_player`] whenever the
 /// handler already holds the client id, which packet handlers always do.
 pub(crate) fn send_to_client(world: &World, client_id: u32, packet: Vec<u8>) {
+    if let Some(&opcode) = packet.first() {
+        crate::game_loop::dispatch::log_server_packet(world, opcode);
+    }
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(packet);
     }

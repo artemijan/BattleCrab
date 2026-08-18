@@ -554,6 +554,15 @@ const SPAWNABLE_TYPES: &[&str] = &[
 /// Java `SpawnData.init()` → `SpawnTemplate.spawnAll` at boot: place every
 /// spawn line from `data/spawns/**`. Returns the number of NPCs placed.
 pub fn spawn_all(world: &mut World) -> usize {
+    // `Config.ALT_DEV_NO_SPAWNS` — a developer switch that empties the world of
+    // NPCs entirely. Java guards `SpawnData.load` and `DBSpawnManager.load`
+    // separately; here the second falls out of the first, because the `db_save`
+    // lines `boss_respawn::resolve_boot` settles are collected by *this* pass
+    // into `pending_boss_spawns`, which stays empty when it returns here.
+    if world.cfg.general.alt_dev_no_spawns {
+        tracing::info!("SpawnData: AltDevNoSpawns is set — no NPCs spawned.");
+        return 0;
+    }
     let mut placed = 0usize;
     let mut skipped = 0usize;
     // The data bundle can't be borrowed while `world.objects` is mutated, and the

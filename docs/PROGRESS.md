@@ -7687,3 +7687,165 @@ ignoring `RestorePlayerInstance` on logout.
 
 General.ini stands at **19** unread keys (71 → … → 24 → 19), and row 14 at
 **75**.
+
+---
+
+## General.ini, cluster 9 — the dev switches, the packet trace, and a grid with no memory
+
+Eleven keys. Nine wired, two with nothing to assert.
+
+### The grid keys are hysteresis, and the port had none
+
+`GridsAlwaysOn`, `GridNeighborTurnOnTime` and `GridNeighborTurnOffTime` describe
+Java's `WorldRegion` activation. The port already had the *shape* of it —
+`npc_ai_tick` collected the 3×3 neighbourhood of every occupied player cell and
+thought only about NPCs inside it — so this looked like a config cluster over
+working machinery. It was not. The set was recomputed from scratch every tick
+from where players were standing **right now**, which means both timers were
+missing, not just unconfigurable.
+
+The turn-off half is the one with visible behaviour. An NPC that lost its
+target and started walking home froze the instant the player moved two cells
+away, and resumed mid-stride when they came back. Java gives it another 90
+seconds, which is long enough for the walk to finish — the mob is back at its
+spawn point by the time the region sleeps, instead of standing wherever the
+player happened to break line of sight.
+
+`World` now carries `region_activation: HashMap<(i32,i32), RegionActivation>`
+with an `activate_at` and an `active_until`, and `refresh_active_regions`
+maintains it: a player's own cell wakes immediately, its eight neighbours after
+`GridNeighborTurnOnTime`, and every touched cell keeps its liveness for
+`GridNeighborTurnOffTime` past this tick. Expired entries are pruned, so the map
+tracks the live set rather than every cell any player ever walked through.
+
+### A falsification that did not bite, and the duplication it found
+
+Sabotaging the turn-on delay — applying it to the player's own cell as well as
+the neighbours — left every test green. The reason was in the implementation:
+the `or_insert` chose `if own { now } else { now + turn_on }`, and three lines
+later `if own { entry.activate_at = entry.activate_at.min(now) }` decided the
+same thing again. Breaking one arm left the other holding it up.
+
+The second is the one that has to exist: it handles a cell already waiting out
+its delay when a player steps into it. So the ternary went, the `or_insert`
+always schedules, and the `min(now)` fixup is the single place the own-cell rule
+lives. Re-run, the sabotage failed exactly one test.
+
+### The packet trace names opcodes, and says so
+
+Java's `Debug*Packets` log the packet's *class* name — `Say2`,
+`RequestBypassToServer` — and `ExcludedPacketList` matches against that. This
+port has no per-packet type; packets are opcodes dispatched to functions, and
+the two opcode tables hold 514 constants between them. A hand-written
+opcode→name table would be large, would have to be maintained in lockstep with
+both tables, and would go wrong silently the first time an opcode moved.
+
+So the trace names the opcode (`[C] 0x49`, `[C-Ex] 0xD0:0x005F`, `[S] 0x32`) and
+the exclusion list matches the same text, case-insensitively as Java's
+`equalsIgnoreCase` does. An operator's `ExcludedPacketList` from a Java server
+will not carry over, which is a real cost, and it is written on the function
+rather than left to be discovered.
+
+### `DebugUnknownPackets` is inert for a reason that is not its value
+
+It ships **True**, and it logs nothing, because Java nests the branch *inside*
+the client-packet trace switch — `else if (DEBUG_UNKNOWN_PACKETS)` after the
+per-opcode `case`s. With `DebugClientPackets = False` the switch never runs and
+neither does the unknown branch. The port reproduces the nesting, and a test
+asserts it, so a later reading of "True should mean on" has to argue with
+something.
+
+The port's own unconditional `error!` for an unhandled opcode stays. It is a
+deviation, it is more useful than Java's version, and it is now recorded as one.
+
+### `AltDevShowScriptsLoadInLogs` is not the other key spelled differently
+
+The obvious reading is that the two `AltDevShow*LoadInLogs` keys are the same
+switch under two names, and wiring them to the same loop looked right. Java's
+`Quest(int questId)` constructor says otherwise: a positive id registers through
+`addQuest`, anything else through `addScript`, into two separate maps — and each
+call site has its own key and its own wording, "Loaded quest X." against "Loaded
+script X.".
+
+So the scripts key covers exactly the AI and event classes, which is the half an
+id-keyed listing cannot show you, and turning it on alone should print those and
+not the quests. The port has one registry, but it has `id()`, so it splits the
+same way. Neither half is testable — both sides are `info!` calls — but the
+split is not a logging detail, it is which set of scripts the operator asked
+about.
+
+### `Developer` has nothing to assert either
+
+It has no consumer at all. All seven Java sites gate a
+`LOGGER.warning` inside a `catch` block in the admin handlers — "Heal error",
+"Set reputation error" — and every one of them logs an **exception** thrown by
+parsing a malformed command. The port validates its arguments and answers with
+the same usage message Java sends after logging, so there is no exception to
+gate. Fourth key this session in the "checked, classified, no field" category,
+after `StoryQuestRewardBuff`, `DefaultFinishTime` and `LogAutoAnnouncements`.
+
+### The measure was two low, and the row said so about the wrong file
+
+Re-deriving row 14 gave 66, where 75 − 11 would be 64. Two of the difference are
+real: NPC.ini's `DmgPenaltyForLvLDifferences` and
+`CritDmgPenaltyForLvLDifferences` are unread here — deliberately, because Java
+parses them and then reads them nowhere, which `config::npc` has said in prose
+since it was written. The row nonetheless listed NPC.ini among the files that
+are "all wired" and left the two out of its arithmetic. Both are now counted.
+The other 9 is this cluster, minus the two `General.ini` keys documented in
+prose, which stay counted on purpose.
+
+### Verification
+
+Six new tests. Eight falsifications, each failing exactly one of them: dropping
+the turn-off window, delaying the player's own cell, ignoring `GridsAlwaysOn`,
+ignoring `AltDevNoSpawns`, sending the news alongside a clan notice, ignoring
+`ShowServerNews`, pointing the extended trace at the plain key, and ignoring
+`ExcludedPacketList`. The `ShowServerNews` one also took out
+`e2e_create::full_login_to_character_create`, which is the right kind of
+collateral — it says the key really does gate a packet on the login path.
+
+General.ini stands at **8** unread keys (71 → … → 19 → 8), and row 14 at **66**.
+
+---
+
+## `ms_to_ticks`, applied everywhere — and moved down a layer
+
+The helper existed and 40 call sites used it, but its `i32` parameter was
+narrow enough that callers kept working around it rather than through it:
+`ms_to_ticks(delay_ms as i32)`, `ms_to_ticks(FIRST_WAVE_MS as i32)`, and in
+`castle` a `rate.min(i32::MAX as i64) as i32` written to make an `i64` fit. A
+helper you have to cast into is a helper people re-implement instead, which is
+what the eleven hand-rolled `div_ceil(100)` / `/ 100` sites were.
+
+`Into<u64>` does not fix it — `i32` and `i64` do not implement it, and they are
+the two commonest cases. A small `Millis` trait does: one impl per integer
+width, signed ones clamping at zero because a negative delay means "already
+due" rather than 184 million years.
+
+### It belongs under `config`, not beside it
+
+`config::pvp::normal_ticks` had the same arithmetic and could not call the
+helper at all: `config` sits below `game_loop`, and importing upward to reach a
+unit conversion would have been the wrong trade. `scheduler` owns the tick, has
+no crate-internal dependencies, and is what both layers already schedule
+against — so `Millis` and `ms_to_ticks` live there now, re-exported from
+`helpers` so no existing caller had to move.
+
+### Seven of the conversions rounded the other way
+
+The hand-rolled sites truncated where the helper rounds up: daily reset, mail
+expiry, the scheduled restart, the Olympiad battle limit and poll, the bot
+report reset, and minion respawn. All seven are wall-clock deadlines, where
+firing a tick late is right and firing early is wrong, so the direction the
+helper picks is the one they wanted — but it is a behaviour change of up to
+100 ms in each, not a pure refactor.
+
+`effect_zones` had its own private `ms_to_ticks` that truncated *and* floored
+at one tick. Every `initialDelay`/`reuse` in `data/zones` is a multiple of 100
+and none is below 1000, so the two agree on every value this dist ships; the
+`.max(1)` stays as the guard it always was, now at the call site where it is
+visible.
+
+Three unit tests on the conversion itself — rounding up, negatives clamping to
+"due now", and every integer width going in without a cast.

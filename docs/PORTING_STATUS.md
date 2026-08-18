@@ -204,7 +204,7 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **75** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini, Feature.ini and Character.ini are all wired**; what remains is Character 9 (all classified — see below), General 19, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **66** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **Olympiad.ini, Rates.ini, Siege.ini and FloodProtector.ini are fully wired**; what remains is Feature 38, Character 9 (all classified — see below), Server 7, General 8, and 2 each in NPC.ini and PVP.ini. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **Two earlier recorded figures were low**: re-deriving Character gave 82, not 76, and the previous total of 75 omitted NPC.ini's two keys — the row called NPC.ini wired, and its `DmgPenaltyForLvLDifferences` / `CritDmgPenaltyForLvLDifferences` are unread here (deliberately: Java parses them and then reads them nowhere) | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
 | 20 | Item conditions | **`<cond>` is not parsed or evaluated at all** — 2126 blocks across `stats/items/*.xml`, gating on races (822), fly-mounted state (450), `categoryType` (261), level (218) and sex (149). The Olympiad hero/restricted-item gate and the event-restricted gate in the same Java function are absent with it | `ItemTemplate.checkCondition` against the port, which has no counterpart; `data::item_data`'s module header has recorded "`<cond>` is still not parsed" since it was written | An item's equip/use conditions are unenforced. Surfaced 2026-08-18 by `GMItemRestriction`, whose only job is to decide whether a GM bypasses this function — a key with nothing to gate. **No other measure reaches this axis**: not the marker inventory, not the skill census, not row 14 |
@@ -935,6 +935,53 @@ no-arg `finishInstance()` caller is `AbstractInstance.finishInstance(Player)`, a
 protected helper of the script framework that **no script on this dist calls**.
 The port's instances end through the empty-destroy timer or an explicit
 `destroy`, so there is no finish state for the delay to apply to.
+
+**The General.ini dev/debug and grid cluster (11 keys), and the hysteresis the
+port never had.** `GridsAlwaysOn`, `GridNeighborTurnOnTime` and
+`GridNeighborTurnOffTime` describe Java's `WorldRegion` activation, and the port
+had only half of it: the NPC AI recomputed its active set from where players
+were standing *this tick*, with no memory. **Both timers were therefore
+missing.** The turn-off half is the one with visible behaviour — an NPC walking
+home after losing its target froze the instant the player moved two cells away
+and resumed when they came back, where Java keeps it thinking for another 90
+seconds, which is long enough for the walk to finish. `World` now carries a
+`region_activation` map (`activate_at` / `active_until`) that
+`refresh_active_regions` maintains and prunes.
+
+`AltDevNoSpawns` early-returns from `spawn_all`, and the `DBSpawnManager` half
+Java guards separately falls out of it: the `db_save` lines `boss_respawn`
+settles are collected by that same pass. `ShowServerNews` is Java's `else if`
+**after** the clan notice, so a member of a clan with a notice enabled never
+sees `servnews.htm` however the key is set.
+
+**`AltDevShowScriptsLoadInLogs` is not a synonym for
+`AltDevShowQuestsLoadInLogs`.** Java's `Quest(int questId)` registers through
+`addQuest` when the id is positive and `addScript` otherwise, into two separate
+maps with a key and a wording each — so the scripts key covers exactly the AI
+and event classes, the ones an id-keyed listing cannot show. The port has one
+registry and had joined both keys to one loop; it now splits on `id() > 0` and
+logs "Loaded quest"/"Loaded script" as Java does.
+
+**The four `Debug*Packets` keys carry one documented deviation.** Java logs the
+packet's *class* name (`Say2`, `RequestBypassToServer`) and matches
+`ExcludedPacketList` against it. The port has no per-packet type — packets are
+opcodes dispatched to functions, and the two opcode tables hold 514 constants
+between them — so the trace names the **opcode** (`0x49`, `0xD0:0x005F`) and the
+exclusion list matches the same text, case-insensitively. A hand-written name
+table would be large and would rot silently the first time an opcode moved.
+
+**`DebugUnknownPackets = True` is inert on this dist, and not because of its own
+value.** Java nests the unknown-packet branch *inside* the client-packet trace
+switch, so with `DebugClientPackets = False` it is unreachable. Reproduced as
+written; the port's own unconditional `error!` for an unhandled opcode is kept
+as a deliberate deviation, recorded on the config field.
+
+**`Developer` has no consumer.** All seven Java sites gate a `LOGGER.warning`
+inside a `catch` block in the admin handlers, every one of them logging an
+exception thrown by parsing a malformed command. The port validates its
+arguments and answers with the same usage message Java sends after logging, so
+there is no exception to gate. Recorded in `config::general`'s header rather
+than given a field, following `config::character`'s convention.
 
 **Row 12 closed, and porting it found a live inventory divergence.** The
 recorded figure was 36; the arithmetic gives **35** (53 ids absent, minus

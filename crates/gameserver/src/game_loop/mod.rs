@@ -273,12 +273,24 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     if world.cfg.general.alt_dev_no_quests {
         world.quests = std::sync::Arc::new(quests::QuestRegistry::new(Vec::new()));
         info!("ScriptEngine: AltDevNoQuests is set — no scripts registered.");
-    } else if world.cfg.general.alt_dev_show_quests_load_in_logs {
-        // `QuestManager.addQuest` logs one line per quest under this key. The
-        // port registers them in one pass rather than one call each, so the
-        // lines are emitted here — same content, same trigger, one place.
+    } else if world.cfg.general.alt_dev_show_quests_load_in_logs
+        || world.cfg.general.alt_dev_show_scripts_load_in_logs
+    {
+        // Java logs one line per registration, and the two keys are **not**
+        // synonyms: `Quest(int questId)` calls `addQuest` when the id is
+        // positive and `addScript` otherwise, and each has its own key and its
+        // own wording. The port registers everything in one pass rather than
+        // one call each, so the lines are emitted here — same split, same
+        // wording, one place.
         for name in world.quests.names() {
-            info!("Loaded quest {name}.");
+            let is_quest = world.quests.quest_id(name).is_some_and(|id| id > 0);
+            if is_quest {
+                if world.cfg.general.alt_dev_show_quests_load_in_logs {
+                    info!("Loaded quest {name}.");
+                }
+            } else if world.cfg.general.alt_dev_show_scripts_load_in_logs {
+                info!("Loaded script {name}.");
+            }
         }
     }
     // Held until `DbEvent::ClansLoaded` arrives; then the login-link task is

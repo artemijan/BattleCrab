@@ -2,6 +2,7 @@
 //! absorbing, retargeting, NPC variables/say and quest timers.
 
 use super::*;
+use crate::game_loop::helpers::ms_to_ticks;
 
 impl<'w> QuestCtx<'w> {
     /// `Attackable.isSpoiled()` — whether a Spoil landed on the involved NPC.
@@ -162,7 +163,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return;
         }
-        let fire_at = self.world.tick + delay_ms.div_ceil(100);
+        let fire_at = self.world.tick + ms_to_ticks(delay_ms);
         self.world
             .scheduler
             .schedule(fire_at, ScheduledTask::DespawnNpc { npc_oid });
@@ -685,7 +686,7 @@ impl<'w> QuestCtx<'w> {
                 }
             }
         }
-        let fire_at = self.world.tick + delay_ms.div_ceil(100);
+        let fire_at = self.world.tick + ms_to_ticks(delay_ms);
         self.world.scheduler.schedule(
             fire_at,
             ScheduledTask::QuestTimer {

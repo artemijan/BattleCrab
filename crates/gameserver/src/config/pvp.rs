@@ -86,10 +86,10 @@ impl PvpConfig {
     /// The flag duration in 100 ms ticks, which is what the PvP flag task
     /// counts in.
     pub fn normal_ticks(&self) -> u64 {
-        (self.pvp_normal_time_ms.max(0) / 100) as u64
+        crate::scheduler::ms_to_ticks(self.pvp_normal_time_ms)
     }
     pub fn pvp_ticks(&self) -> u64 {
-        (self.pvp_pvp_time_ms.max(0) / 100) as u64
+        crate::scheduler::ms_to_ticks(self.pvp_pvp_time_ms)
     }
 }
 

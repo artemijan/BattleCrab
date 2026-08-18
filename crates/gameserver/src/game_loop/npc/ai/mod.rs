@@ -69,20 +69,80 @@ const RANDOM_WALK_RATE: i32 = 30;
 /// `Npc.MINIMUM_SOCIAL_INTERVAL` (6000 ms): floor between social broadcasts.
 const SOCIAL_THROTTLE_TICKS: u64 = 60;
 
-/// One AI pass over every living monster in an active region (Java gates
-/// `onEvtThink` on `WorldRegion.areNeighborsActive()`; regions are "active"
-/// exactly while a player's 3×3 block covers them, which is the same test as
-/// `regions_adjacent` against each player).
-pub(crate) fn npc_ai_tick(world: &mut World) {
-    // Active-region set: every cell adjacent to a player-occupied cell.
-    let mut active: HashSet<(i32, i32)> = HashSet::new();
-    for cell in world.occupied_player_cells() {
+/// Java `WorldRegion`'s activation model, which the three `Grid*` keys are
+/// entirely about.
+///
+/// The port used to recompute "cells adjacent to a player" every tick, with no
+/// hysteresis in either direction. Java has both:
+///
+/// * the player's **own** region activates immediately, its **neighbours**
+///   after `GridNeighborTurnOnTime` (`startActivation`);
+/// * a region stays awake for `GridNeighborTurnOffTime` after the last player
+///   leaves its neighbourhood (`startDeactivation`).
+///
+/// The turn-off half is the one with visible behaviour: without it an NPC
+/// walking home after losing its target froze the instant the player moved two
+/// cells away, and resumed when they came back. Java keeps it thinking for
+/// another 90 seconds, which is long enough for the walk to finish.
+///
+/// `GridsAlwaysOn` short-circuits both timers — every region with NPCs in it is
+/// active, which is what Java's `areNeighborsActive()` returns under the flag.
+///
+/// One Java refinement is deliberately not reproduced: `areNeighborsEmpty()`
+/// checks for *objects*, not players, before deactivating. The port's
+/// neighbourhood is player-derived, which is the same intent and the same
+/// answer everywhere a player is what keeps a region interesting.
+pub(crate) fn refresh_active_regions(world: &mut World) -> HashSet<(i32, i32)> {
+    let cfg = &world.cfg.general;
+    if cfg.grids_always_on {
+        return world.npc_regions.keys().copied().collect();
+    }
+    let now = world.tick;
+    let turn_on = (cfg.grid_neighbor_turn_on_secs.max(0) as u64) * 10;
+    let turn_off = (cfg.grid_neighbor_turn_off_secs.max(0) as u64) * 10;
+
+    // Refresh: a player's own cell is awake now, its neighbours after the
+    // turn-on delay. Both keep their liveness for `turn_off` past this tick.
+    let player_cells: Vec<(i32, i32)> = world.occupied_player_cells().collect();
+    for cell in player_cells {
         for dx in -1..=1 {
             for dy in -1..=1 {
-                active.insert((cell.0 + dx, cell.1 + dy));
+                let key = (cell.0 + dx, cell.1 + dy);
+                let own = dx == 0 && dy == 0;
+                let entry =
+                    world
+                        .region_activation
+                        .entry(key)
+                        .or_insert(crate::world::RegionActivation {
+                            activate_at: now + turn_on,
+                            active_until: now,
+                        });
+                // Java schedules the eight neighbours and activates the
+                // player's own cell inline, so a cell already waiting out its
+                // turn-on delay wakes the moment a player steps into it.
+                if own {
+                    entry.activate_at = entry.activate_at.min(now);
+                }
+                entry.active_until = now + turn_off;
             }
         }
     }
+    // Expire, so the map tracks the live set rather than every cell ever
+    // visited.
+    world.region_activation.retain(|_, a| a.active_until >= now);
+    world
+        .region_activation
+        .iter()
+        .filter(|(_, a)| now >= a.activate_at)
+        .map(|(k, _)| *k)
+        .collect()
+}
+
+/// One AI pass over every living monster in an active region — Java gates
+/// `onEvtThink` on `WorldRegion.areNeighborsActive()`, which
+/// [`refresh_active_regions`] answers.
+pub(crate) fn npc_ai_tick(world: &mut World) {
+    let active = refresh_active_regions(world);
     if active.is_empty() {
         return;
     }

@@ -211,7 +211,7 @@ fn begin_intro(world: &mut World, instance_id: i32) {
 
 fn schedule_intro(world: &mut World, instance_id: i32, step: u8, delay_ms: u64) {
     world.scheduler.schedule(
-        world.tick + ms_to_ticks(delay_ms as i32).max(1),
+        world.tick + ms_to_ticks(delay_ms).max(1),
         ScheduledTask::FrintezzaIntro { instance_id, step },
     );
 }
@@ -1000,7 +1000,7 @@ pub(crate) fn on_scarlet_killed(world: &mut World, killer_oid: i32) {
 
 fn schedule_finish(world: &mut World, instance_id: i32, step: u8, delay_ms: u64) {
     world.scheduler.schedule(
-        world.tick + ms_to_ticks(delay_ms as i32).max(1),
+        world.tick + ms_to_ticks(delay_ms).max(1),
         ScheduledTask::FrintezzaFinish { instance_id, step },
     );
 }
@@ -1151,7 +1151,7 @@ pub(crate) fn handle_fight_step(world: &mut World, instance_id: i32, step: u8) {
 
 fn schedule_fight(world: &mut World, instance_id: i32, step: u8, delay_ms: u64) {
     world.scheduler.schedule(
-        world.tick + ms_to_ticks(delay_ms as i32).max(1),
+        world.tick + ms_to_ticks(delay_ms).max(1),
         ScheduledTask::FrintezzaFight { instance_id, step },
     );
 }
@@ -1189,14 +1189,14 @@ const SONG_NAMES: [&str; 5] = [
 
 fn schedule_song(world: &mut World, instance_id: i32) {
     world.scheduler.schedule(
-        world.tick + ms_to_ticks(SONG_INTERVAL_MS as i32),
+        world.tick + ms_to_ticks(SONG_INTERVAL_MS),
         ScheduledTask::FrintezzaSong { instance_id },
     );
 }
 
 fn schedule_demons(world: &mut World, instance_id: i32) {
     world.scheduler.schedule(
-        world.tick + ms_to_ticks(DEMON_INTERVAL_MS as i32),
+        world.tick + ms_to_ticks(DEMON_INTERVAL_MS),
         ScheduledTask::FrintezzaDemons { instance_id },
     );
 }
@@ -1351,7 +1351,7 @@ fn arm_scarlet_ai(world: &mut World, instance_id: i32) {
 
 fn schedule_scarlet(world: &mut World, instance_id: i32) {
     world.scheduler.schedule(
-        world.tick + ms_to_ticks(SCARLET_TICK_MS as i32).max(1),
+        world.tick + ms_to_ticks(SCARLET_TICK_MS).max(1),
         ScheduledTask::ScarletSkill { instance_id },
     );
 }

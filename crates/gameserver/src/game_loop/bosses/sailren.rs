@@ -92,7 +92,7 @@ pub(crate) fn enter_party(world: &mut World, leader_oid: i32) {
         );
     }
     world.scheduler.schedule(
-        world.tick + crate::game_loop::helpers::ms_to_ticks(FIRST_WAVE_MS as i32),
+        world.tick + crate::game_loop::helpers::ms_to_ticks(FIRST_WAVE_MS),
         ScheduledTask::SailrenBeginFight,
     );
 }
@@ -141,7 +141,7 @@ pub(crate) fn on_wave_kill(world: &mut World, killer_oid: i32, npc_id: i32) {
         // The Tyrannosaurus falling arms Sailren's entrance, 3 minutes out.
         TREX => {
             world.scheduler.schedule(
-                world.tick + crate::game_loop::helpers::ms_to_ticks(SAILREN_DELAY_MS as i32),
+                world.tick + crate::game_loop::helpers::ms_to_ticks(SAILREN_DELAY_MS),
                 ScheduledTask::SailrenSpawn,
             );
         }
@@ -179,7 +179,7 @@ pub(crate) fn handle_spawn_sailren(world: &mut World) {
         ),
     );
     world.scheduler.schedule(
-        world.tick + crate::game_loop::helpers::ms_to_ticks(ATTACK_ENABLE_MS as i32),
+        world.tick + crate::game_loop::helpers::ms_to_ticks(ATTACK_ENABLE_MS),
         ScheduledTask::SailrenAttackEnable {
             sailren_oid: sailren,
         },

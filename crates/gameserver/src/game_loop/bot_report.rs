@@ -23,6 +23,7 @@ use crate::game_loop::helpers::skill_by_id;
 use std::collections::HashMap;
 
 use crate::config::bot_report::BotReportConfig;
+use crate::game_loop::helpers::ms_to_ticks;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::network::server_packets::{SmParam, sm_ids};
@@ -400,7 +401,7 @@ pub(crate) fn schedule_initial_points_reset(world: &mut World) {
         delay_ms += day;
     }
     world.scheduler.schedule(
-        world.tick + (delay_ms / 100) as u64,
+        world.tick + ms_to_ticks(delay_ms),
         crate::scheduler::ScheduledTask::BotReportPointsReset,
     );
 }

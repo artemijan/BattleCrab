@@ -21,6 +21,7 @@ use crate::config::OlympiadConfig;
 use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_sm_bare_to_player as send_sm;
@@ -105,7 +106,9 @@ pub(crate) fn next_comp_start_delay_ms(cfg: &OlympiadConfig, now_ms: i64) -> i64
 
 /// Convert a wall-clock delay to a scheduler fire tick (>= next tick).
 fn fire_at(world: &World, delay_ms: i64) -> u64 {
-    world.tick + (delay_ms.max(100) / 100) as u64
+    // `.max(1)` on the *ticks*: the Olympiad poll must always land on a later
+    // tick, or a zero-delay reschedule would spin inside one tick.
+    world.tick + ms_to_ticks(delay_ms).max(1)
 }
 
 /// Arm the competition-window and weekly-refresh schedules at boot (Java

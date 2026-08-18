@@ -2,6 +2,7 @@
 //! pre-fight countdown ceremony, the match poll and its resolution.
 
 use super::*;
+use crate::game_loop::helpers::ms_to_ticks;
 /// Java `Player.isInOlympiadMode()` — the player is *in a running match*, not
 /// merely registered or spectating.
 ///
@@ -196,7 +197,7 @@ pub(crate) fn handle_countdown(world: &mut World, arena: usize, step: usize) {
             let battle_ms = world.cfg.olympiad.battle_ms;
             let now_tick = world.tick;
             if let Some(mm) = world.olympiad.matches.iter_mut().find(|x| x.arena == arena) {
-                mm.deadline_tick = now_tick + (battle_ms / 100) as u64;
+                mm.deadline_tick = now_tick + ms_to_ticks(battle_ms);
             }
             world.scheduler.schedule(
                 fire_at(world, MATCH_POLL_MS),

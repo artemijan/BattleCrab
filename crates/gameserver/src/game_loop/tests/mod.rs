@@ -90,6 +90,7 @@ mod damage_swamp_tests;
 mod death_buff_tests;
 mod death_drop_tests;
 mod defence_crit_tests;
+mod dev_grid_config_tests;
 mod dr_chaos_tests;
 mod duel_tests;
 mod effect_level_tests;

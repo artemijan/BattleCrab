@@ -377,7 +377,7 @@ pub(crate) fn handle_function_renew(
         f.end_time = commons::util::now_millis() + rate;
     }
     world.scheduler.schedule(
-        world.tick + super::helpers::ms_to_ticks(rate.min(i32::MAX as i64) as i32),
+        world.tick + super::helpers::ms_to_ticks(rate),
         ScheduledTask::CastleFunctionRenew {
             castle_id,
             func_type,
