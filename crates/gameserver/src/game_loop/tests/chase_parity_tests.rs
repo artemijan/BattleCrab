@@ -300,7 +300,7 @@ fn a_pickup_walk_never_follows_and_so_never_gets_the_slack() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::PickUp { .. }))
+            Some(Intent(model::PlayerIntent::PickUp { .. }))
         ),
         "no slack for a non-creature pawn: still walking, item not yet lifted"
     );
@@ -492,7 +492,7 @@ fn a_follow_inside_3000_units_still_chases() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::Attack { .. }))
+            Some(Intent(model::PlayerIntent::Attack { .. }))
         ),
         "and the intention survives"
     );

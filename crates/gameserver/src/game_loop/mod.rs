@@ -304,7 +304,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         let boundary_start = Instant::now();
 
         // 2. One-shot timers due this tick.
-        timed!("timers", tasks::apply_due_tasks(&mut world));
+        timed!("timers", apply_due_tasks(&mut world));
 
         // 3. Fixed-rate tick systems (movement, AI, attack…) — added in G4+.
         // Movement runs every tick (unlike the gated systems below) — it
@@ -354,7 +354,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
             timed!("custom_mail", custom_mail::poll(&mut world));
         }
         if world.tick.is_multiple_of(AUTOSAVE_CHECK_PERIOD) {
-            timed!("autosave", net::autosave_tick(&mut world));
+            timed!("autosave", autosave_tick(&mut world));
         }
         if world.tick.is_multiple_of(death::TELEPORT_WATCHDOG_PERIOD) {
             timed!(

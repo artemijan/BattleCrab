@@ -340,7 +340,7 @@ fn placing_a_bid_persists_it() {
     let saved = std::iter::from_fn(|| db.try_recv().ok()).any(|c| {
         matches!(
             c,
-            crate::db::DbCommand::SaveClanHallBid {
+            db::DbCommand::SaveClanHallBid {
                 hall_id: 27,
                 clan_id: 10,
                 bid: 5_000_000,

@@ -7,7 +7,7 @@ use super::*;
 /// request").
 #[test]
 fn queued_action_slot_is_last_click_wins() {
-    use crate::model::components::QueuedAction;
+    use model::components::QueuedAction;
 
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -577,7 +577,7 @@ fn npc_view_skills_page_lists_the_npcs_skills() {
 /// aggro entry. Also unrouted before.
 #[test]
 fn npc_view_aggro_page_lists_hate_and_damage() {
-    use crate::model::npc::{AggroInfo, AggroList};
+    use model::npc::{AggroInfo, AggroList};
 
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
@@ -762,7 +762,7 @@ fn action_on_far_npc_walks_in_then_opens_chat_window() {
     );
     assert!(matches!(
         world.objects.get_component::<Intent>(&3001).copied(),
-        Some(Intent(crate::model::PlayerIntent::Interact { target_object_id })) if target_object_id == NPC_OID
+        Some(Intent(model::PlayerIntent::Interact { target_object_id })) if target_object_id == NPC_OID
     ));
 
     // Run the movement + combat-tick systems until the player arrives and
@@ -1060,7 +1060,7 @@ fn shift_click_via_action_packet_is_not_an_attack_at_all() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::Attack { .. }))
+            Some(Intent(model::PlayerIntent::Attack { .. }))
         ),
         "a non-shift click engages (and will chase)"
     );

@@ -2969,7 +2969,7 @@ fn distant_ground_item_is_walked_to_before_pickup() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&9400).copied(),
-            Some(Intent(crate::model::PlayerIntent::PickUp { item_object_id })) if item_object_id == item_oid
+            Some(Intent(model::PlayerIntent::PickUp { item_object_id })) if item_object_id == item_oid
         ),
         "AI_INTENTION_PICK_UP is set"
     );

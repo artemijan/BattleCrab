@@ -336,7 +336,7 @@ fn the_triggered_skills_carry_real_effects() {
         dagger
             .effects
             .iter()
-            .any(|e| matches!(e, SkillEffect::StatModifier(m) if m.stat == crate::model::stats::Stat::BlowRate)),
+            .any(|e| matches!(e, SkillEffect::StatModifier(m) if m.stat == Stat::BlowRate)),
         "5603 grants FatalBlowRate: {:?}",
         dagger.effects
     );

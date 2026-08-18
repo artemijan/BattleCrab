@@ -265,10 +265,10 @@ fn finish_race_persists_history_and_clears_bets() {
     let cmds = drain_db(&mut db_rx);
     assert!(
         cmds.iter()
-            .any(|c| matches!(c, crate::db::DbCommand::SaveMdtHistory { race_id: 1, .. }))
+            .any(|c| matches!(c, db::DbCommand::SaveMdtHistory { race_id: 1, .. }))
     );
     assert!(
         cmds.iter()
-            .any(|c| matches!(c, crate::db::DbCommand::ClearMdtBets))
+            .any(|c| matches!(c, db::DbCommand::ClearMdtBets))
     );
 }

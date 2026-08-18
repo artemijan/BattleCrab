@@ -932,7 +932,7 @@ fn the_exit_cubes_are_armed_to_despawn() {
         .scheduler
         .pending_tasks_for_test()
         .iter()
-        .filter(|t| matches!(t, crate::scheduler::ScheduledTask::DespawnNpc { .. }))
+        .filter(|t| matches!(t, ScheduledTask::DespawnNpc { .. }))
         .count();
     // The final death beat is the one that drops the cubes.
     let last = (crate::game_loop::valakas::death_cinematic_len() - 1) as u8;
@@ -941,7 +941,7 @@ fn the_exit_cubes_are_armed_to_despawn() {
         .scheduler
         .pending_tasks_for_test()
         .iter()
-        .filter(|t| matches!(t, crate::scheduler::ScheduledTask::DespawnNpc { .. }))
+        .filter(|t| matches!(t, ScheduledTask::DespawnNpc { .. }))
         .count();
     assert_eq!(
         after - before,

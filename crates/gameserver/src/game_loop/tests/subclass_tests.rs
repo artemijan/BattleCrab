@@ -721,7 +721,7 @@ fn modify_subclass_wipes_the_slot_and_replaces_it() {
     assert!(
         drain_db(&mut db_rx).iter().any(|c| matches!(
             c,
-            crate::db::DbCommand::WipeSubclassSlot { class_index: 1, .. }
+            db::DbCommand::WipeSubclassSlot { class_index: 1, .. }
         )),
         "the slot's DB rows are wiped"
     );

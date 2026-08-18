@@ -1187,7 +1187,7 @@ fn clan_board_lists_clans_and_edits_the_notice() {
     assert!(
         drain_db(&mut db_rx)
             .iter()
-            .any(|c| matches!(c, crate::db::DbCommand::SaveClanNotice { clan_id: 900, .. })),
+            .any(|c| matches!(c, db::DbCommand::SaveClanNotice { clan_id: 900, .. })),
         "persisted"
     );
 }

@@ -169,7 +169,7 @@ pub(crate) fn resolve_cast_target(
             let is_sweep = skill
                 .effects
                 .iter()
-                .any(|e| matches!(e, crate::model::skill::SkillEffect::Sweeper));
+                .any(|e| matches!(e, SkillEffect::Sweeper));
             if is_sweep {
                 let spoiler = world
                     .objects

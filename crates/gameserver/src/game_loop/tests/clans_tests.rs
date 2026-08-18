@@ -118,7 +118,7 @@ fn clan_create_guards_and_success() {
     ));
     assert!(cmds.iter().any(
         |c| matches!(c, db::DbCommand::UpdateCharClan { char_id: 3001, clan_privs, .. }
-        if *clan_privs == crate::model::clan::ALL_CLAN_PRIVILEGES)
+        if *clan_privs == model::clan::ALL_CLAN_PRIVILEGES)
     ));
 
     // Already in a clan.

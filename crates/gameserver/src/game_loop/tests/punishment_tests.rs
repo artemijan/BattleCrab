@@ -209,7 +209,7 @@ fn keep_in_ignores_a_free_player() {
 fn boot_load_registers_and_re_arms_a_timed_jail() {
     let (mut world, _tx, _rx, _link) = test_world();
     let now = commons::util::now_millis();
-    let task = model::punishment::Punishment {
+    let task  = punishment_models::Punishment {
         id: 7,
         key: "3001".into(),
         affect: punishment_models::PunishmentAffect::Character,
@@ -263,7 +263,6 @@ fn on_enter_world_reapplies_jail_to_a_returning_inmate() {
 }
 
 // --- Slice 2: ban / chat-ban / party-ban -----------------------------------
-
 use crate::model::components::PendingRequest;
 
 fn ban(
@@ -468,8 +467,6 @@ fn party_ban_blocks_a_banned_requestor_and_a_banned_target() {
 // --- Illegal player actions (Java `Util.handleIllegalPlayerAction` +
 // `IllegalPlayerActionTask`, G35) -------------------------------------------
 
-use crate::model::punishment::IllegalActionPunishment;
-
 #[test]
 fn illegal_action_kick_fires_after_the_five_second_delay() {
     let (mut world, _tx, _db_rx, _link) = test_world();
@@ -480,7 +477,7 @@ fn illegal_action_kick_fires_after_the_five_second_delay() {
         &mut world,
         3001,
         "test kick",
-        IllegalActionPunishment::Kick,
+        punishment_models::IllegalActionPunishment::Kick,
     );
     // The warning is immediate, the kick is not — Java schedules the task 5 s
     // out and the offender stays connected until it runs.
@@ -507,7 +504,7 @@ fn illegal_action_jail_books_a_timed_jail_punishment() {
         &mut world,
         3001,
         "test jail",
-        IllegalActionPunishment::Jail,
+        punishment_models::IllegalActionPunishment::Jail,
     );
     assert!(
         !world.objects.get_component::<Player>(&3001).unwrap().jailed,
@@ -533,7 +530,7 @@ fn illegal_action_kickban_drops_access_bans_and_disconnects() {
         &mut world,
         3001,
         "test kickban",
-        IllegalActionPunishment::KickBan,
+        punishment_models::IllegalActionPunishment::KickBan,
     );
     // The access-level drop is immediate (Java does it in the constructor):
     // character to −1 (persisted) and the account relayed to the login server.
@@ -576,7 +573,7 @@ fn illegal_action_spares_a_gm_from_the_punishment() {
         &mut world,
         3001,
         "gm tripped a guard",
-        IllegalActionPunishment::Kick,
+        punishment_models::IllegalActionPunishment::Kick,
     );
     advance_ticks(&mut world, 51);
     assert!(

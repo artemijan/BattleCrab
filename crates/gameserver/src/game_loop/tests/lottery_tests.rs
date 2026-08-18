@@ -41,7 +41,7 @@ fn fresh_boot_opens_round_one() {
     assert!(
         drain_db(&mut db_rx)
             .iter()
-            .any(|c| matches!(c, crate::db::DbCommand::StoreLottery { idnr: 1, .. }))
+            .any(|c| matches!(c, db::DbCommand::StoreLottery { idnr: 1, .. }))
     );
 }
 
@@ -111,7 +111,7 @@ fn finish_with_no_tickets_rolls_over_and_carries_the_whole_pot() {
     assert!(
         drain_db(&mut db_rx)
             .iter()
-            .any(|c| matches!(c, crate::db::DbCommand::LoadLotteryTickets { round: 1 }))
+            .any(|c| matches!(c, db::DbCommand::LoadLotteryTickets { round: 1 }))
     );
     // Phase 2: no tickets arrive → whole pot carries.
     lottery::finish_complete(&mut world, 1, vec![]);
@@ -122,7 +122,7 @@ fn finish_with_no_tickets_rolls_over_and_carries_the_whole_pot() {
     let cmds = drain_db(&mut db_rx);
     assert!(cmds.iter().any(|c| matches!(
         c,
-        crate::db::DbCommand::FinishLottery {
+        db::DbCommand::FinishLottery {
             idnr: 1,
             newprize: 50000,
             ..

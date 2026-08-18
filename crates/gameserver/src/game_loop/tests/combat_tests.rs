@@ -59,7 +59,7 @@ fn action_on_monster_colors_target_and_never_talks() {
 #[test]
 fn pvp_flag_starts_blinks_and_expires() {
     use crate::game_loop::pvp;
-    use crate::model::components::PvpState;
+    use model::components::PvpState;
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let start = world.tick;
@@ -106,7 +106,7 @@ fn pvp_flag_starts_blinks_and_expires() {
 #[test]
 fn pvp_flag_duration_depends_on_target_state() {
     use crate::game_loop::pvp;
-    use crate::model::components::PvpState;
+    use model::components::PvpState;
     let (mut world, ..) = test_world();
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 50, 0, 0);
@@ -201,7 +201,7 @@ fn flagged_or_pk_player_is_auto_attackable() {
 #[test]
 fn arena_players_attackable_without_flagging() {
     use crate::game_loop::pvp;
-    use crate::model::components::{PvpState, ZoneFlags};
+    use model::components::{PvpState, ZoneFlags};
     let (mut world, ..) = test_world();
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
@@ -519,7 +519,7 @@ fn ctrl_click_opcode_0x01_switches_target_and_attacks() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::Attack { .. }))
+            Some(Intent(model::PlayerIntent::Attack { .. }))
         ),
         "one Ctrl-click engages the attack intent"
     );
@@ -569,7 +569,7 @@ fn shift_attack_request_chases_because_java_discards_the_flag() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::Attack { .. }))
+            Some(Intent(model::PlayerIntent::Attack { .. }))
         ),
         "and engages it — the shift byte changes nothing"
     );
@@ -597,7 +597,7 @@ fn shift_attack_request_chases_because_java_discards_the_flag() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::Attack { .. }))
+            Some(Intent(model::PlayerIntent::Attack { .. }))
         ),
         "a non-shift attack engages too"
     );
@@ -1229,9 +1229,9 @@ fn siege_zone_makes_participants_attackable_only_during_siege() {
 /// to their nearest town (Java teleportPlayer(NotOwner, TOWN)).
 #[test]
 fn siege_start_evicts_non_owners_to_town() {
-    use crate::model::castle::{Castle, CastleSide};
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::siege::Siege;
+    use model::castle::{Castle, CastleSide};
+    use model::clan::{Clan, ClanMember};
+    use model::siege::Siege;
     const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = test_world();
     world.data.map_region = crate::data::MapRegionData::load_from(ROOT);
@@ -1318,9 +1318,9 @@ fn siege_start_evicts_non_owners_to_town() {
 /// Castle 3 with clan 500 owning it and clan 700 registered as an attacker —
 /// the shape both the capture test and the reputation-settlement tests want.
 fn siege_world_for_capture() -> (World, UnboundedReceiver<db::DbCommand>, ()) {
-    use crate::model::castle::{Castle, CastleSide};
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::siege::{Siege, SiegeClanType};
+    use model::castle::{Castle, CastleSide};
+    use model::clan::{Clan, ClanMember};
+    use model::siege::{Siege, SiegeClanType};
     let (mut world, _db_tx, db_rx, _link) = test_world();
     world.castles = vec![Castle {
         show_npc_crest: false,
@@ -1384,9 +1384,9 @@ fn siege_world_for_capture() -> (World, UnboundedReceiver<db::DbCommand>, ()) {
 /// Siege capture (midVictory) + endSiege victory determination.
 #[test]
 fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
-    use crate::model::castle::{Castle, CastleSide};
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::siege::{Siege, SiegeClanType};
+    use model::castle::{Castle, CastleSide};
+    use model::clan::{Clan, ClanMember};
+    use model::siege::{Siege, SiegeClanType};
     let (mut world, _db_tx, mut db_rx, _link) = test_world();
     world.castles = vec![Castle {
         show_npc_crest: false,
@@ -1562,9 +1562,9 @@ fn a_successful_defence_pays_castle_defended_points() {
 /// 500, attacker clan 700, siege started so `first_owner_clan_id == 500`.
 #[cfg(test)]
 fn siege_end_world(tickets: i32) -> (World, UnboundedReceiver<db::DbCommand>) {
-    use crate::model::castle::{Castle, CastleSide};
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::siege::{Siege, SiegeClanType};
+    use model::castle::{Castle, CastleSide};
+    use model::clan::{Clan, ClanMember};
+    use model::siege::{Siege, SiegeClanType};
     let (mut world, _db_tx, db_rx, _link) = test_world();
     world.castles = vec![Castle {
         show_npc_crest: false,
@@ -1738,8 +1738,8 @@ fn a_non_noble_captor_gets_no_diary_entry() {
 #[test]
 fn siege_doors_close_on_start_and_breach_on_damage() {
     use crate::data::door_data::DoorOpenMethod;
-    use crate::model::door::Door;
-    use crate::model::siege::Siege;
+    use model::door::Door;
+    use model::siege::Siege;
     let (mut world, ..) = test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000); // covers the door at (100, 0)
     world.sieges.insert(3, Siege::new(3));
@@ -1796,7 +1796,7 @@ fn siege_doors_close_on_start_and_breach_on_damage() {
 /// ending it despawns them. Port of Siege.spawnSiegeGuard / removeSiegeGuards.
 #[test]
 fn siege_spawns_and_despawns_the_stationed_guards() {
-    use crate::model::siege::{Siege, SiegeSpawn};
+    use model::siege::{Siege, SiegeSpawn};
     let (mut world, ..) = test_world();
     // Register a guard NPC template so spawn_npc_at can build it.
     world
@@ -1855,8 +1855,8 @@ fn siege_spawns_and_despawns_the_stationed_guards() {
 #[test]
 fn siege_door_can_be_targeted_and_breached_by_attack() {
     use crate::data::door_data::DoorOpenMethod;
-    use crate::model::door::Door;
-    use crate::model::siege::Siege;
+    use model::door::Door;
+    use model::siege::Siege;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000); // covers the door at (100, 0)
     let mut siege = Siege::new(3);
@@ -1925,9 +1925,9 @@ fn siege_door_can_be_targeted_and_breached_by_attack() {
 #[test]
 fn siege_door_out_of_reach_chases_and_breaches() {
     use crate::data::door_data::DoorOpenMethod;
-    use crate::model::components::{Movement, Position};
-    use crate::model::door::Door;
-    use crate::model::siege::Siege;
+    use model::components::{Movement, Position};
+    use model::door::Door;
+    use model::siege::Siege;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     insert_siege_zone(&mut world, 3, 0, 2000, -1000, 1000); // covers the gate at (100, 0)
     let mut siege = Siege::new(3);
@@ -1994,8 +1994,8 @@ fn siege_door_out_of_reach_chases_and_breaches() {
 #[test]
 fn siege_door_second_action_click_starts_attack() {
     use crate::data::door_data::DoorOpenMethod;
-    use crate::model::door::Door;
-    use crate::model::siege::Siege;
+    use model::door::Door;
+    use model::siege::Siege;
     let (mut world, ..) = combat_test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000);
     let mut siege = Siege::new(3);
@@ -2063,7 +2063,7 @@ fn siege_door_second_action_click_starts_attack() {
 #[test]
 fn door_click_does_not_attack_outside_siege() {
     use crate::data::door_data::DoorOpenMethod;
-    use crate::model::door::Door;
+    use model::door::Door;
     let (mut world, ..) = combat_test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000); // zone present, but no active siege
     let door =
@@ -2098,9 +2098,9 @@ fn door_click_does_not_attack_outside_siege() {
 /// capture engine. Port of Artefact.onAction → Castle.setOwner → midVictory.
 #[test]
 fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
-    use crate::model::castle::{Castle, CastleSide};
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::siege::{Siege, SiegeClanType};
+    use model::castle::{Castle, CastleSide};
+    use model::clan::{Clan, ClanMember};
+    use model::siege::{Siege, SiegeClanType};
     let (mut world, ..) = test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000);
     world.castles = vec![Castle {
@@ -2185,7 +2185,7 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
 /// siege's control-tower count (Java ControlTower.onDeath → Siege.killedCT).
 #[test]
 fn siege_control_tower_destruction_decrements_the_count() {
-    use crate::model::siege::{Siege, SiegeSpawn};
+    use model::siege::{Siege, SiegeSpawn};
     let (mut world, ..) = test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000);
     world.sieges.insert(3, Siege::new(3));
@@ -2231,8 +2231,8 @@ fn siege_control_tower_destruction_decrements_the_count() {
 /// resurrection, unported).
 #[test]
 fn siege_defender_respawns_at_castle_on_to_castle() {
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::siege::Siege;
+    use model::clan::{Clan, ClanMember};
+    use model::siege::Siege;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     // Town fallback: one region covering the death spot, respawn at (1000, 1000).
     world.data.map_region =
@@ -2338,8 +2338,8 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
 /// Java `HeadquarterCreate` + `Siege.getFlag`/`killedFlag`.
 #[test]
 fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::siege::{Siege, SiegeClanType};
+    use model::clan::{Clan, ClanMember};
+    use model::siege::{Siege, SiegeClanType};
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     insert_siege_zone(&mut world, 3, -1000, 1000, -1000, 1000);
     // `BuildCampSkillCondition`'s HQ patch — the camp may only go up in one.
@@ -2445,7 +2445,7 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
 /// for castle 3, plus an attacker clan (700, owns no castle) whose member is
 /// `player_oid`. Returns the guard oid.
 fn setup_siege_with_guard(world: &mut World, guard_oid: i32, gx: i32, gy: i32) {
-    use crate::model::siege::Siege;
+    use model::siege::Siege;
     insert_siege_zone(world, 3, -2000, 2000, -2000, 2000);
     world.sieges.insert(3, {
         let mut s = Siege::new(3);
@@ -2462,7 +2462,7 @@ fn setup_siege_with_guard(world: &mut World, guard_oid: i32, gx: i32, gy: i32) {
 }
 
 fn attacker_clan(world: &mut World, player_oid: i32) {
-    use crate::model::clan::{Clan, ClanMember};
+    use model::clan::{Clan, ClanMember};
     world.clans.insert(
         700,
         Clan {
@@ -2538,7 +2538,7 @@ fn siege_guard_attackable_by_attacker_not_defender() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::Attack { .. }))
+            Some(Intent(model::PlayerIntent::Attack { .. }))
         ),
         "click starts an attack on the guard"
     );
@@ -2548,7 +2548,7 @@ fn siege_guard_attackable_by_attacker_not_defender() {
 /// range and switches to the attack intent (Java `SiegeGuardAI` aggro scan).
 #[test]
 fn siege_guard_aggros_intruding_attacker() {
-    use crate::model::npc::{AggroList, NpcAi, NpcIntention};
+    use model::npc::{AggroList, NpcAi, NpcIntention};
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let guard = NPC_OID + 41;
     setup_siege_with_guard(&mut world, guard, 120, 0);
@@ -2597,7 +2597,7 @@ fn restart_to(point_type: i32) -> Vec<u8> {
 /// pipeline's targeting gate is unit-tested separately in `resolve_cast_target`).
 #[test]
 fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
-    use crate::model::skill::{AffectObject, AffectScope, Skill, SkillEffect, TargetType};
+    use model::skill::{AffectObject, AffectScope, Skill, SkillEffect, TargetType};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2764,9 +2764,9 @@ fn siege_sides_world(
     a_kind: model::siege::SiegeClanType,
     b_kind: model::siege::SiegeClanType,
 ) -> World {
-    use crate::model::castle::{Castle, CastleSide};
-    use crate::model::clan::Clan;
-    use crate::model::siege::Siege;
+    use model::castle::{Castle, CastleSide};
+    use model::clan::Clan;
+    use model::siege::Siege;
 
     let (mut world, ..) = test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, 0, 1000);
@@ -2847,7 +2847,7 @@ fn siege_sides_world(
 /// (`isFirstMidVictory`) — until then the besiegers are allies.
 #[test]
 fn siege_sides_decide_who_may_attack_whom() {
-    use crate::model::siege::SiegeClanType::{Attacker, Defender, Owner};
+    use model::siege::SiegeClanType::{Attacker, Defender, Owner};
     let attackable = |w: &World| crate::game_loop::pvp::is_player_auto_attackable(w, 4001, 4002);
 
     // Attacker vs defender — the ordinary case, hostile.
@@ -2888,7 +2888,7 @@ fn siege_sides_decide_who_may_attack_whom() {
 /// red ENEMY, and a besieger additionally carries ATTACKER.
 #[test]
 fn a_siege_stamps_and_clears_each_members_side() {
-    use crate::model::siege::SiegeClanType::{Attacker, Owner};
+    use model::siege::SiegeClanType::{Attacker, Owner};
     let mut world = siege_sides_world(Owner, Attacker);
     // The fixture pre-set `in_progress`; run the real start-of-siege update.
     let state = |w: &World, oid: i32| {
@@ -2915,9 +2915,9 @@ fn a_siege_stamps_and_clears_each_members_side() {
 /// control/flame towers are torn down and rebuilt with the count reset to 0.
 #[test]
 fn siege_capture_evicts_the_new_attackers_and_rebuilds_the_towers() {
-    use crate::model::castle::{Castle, CastleSide};
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::siege::{Siege, SiegeClanType, SiegeSpawn};
+    use model::castle::{Castle, CastleSide};
+    use model::clan::{Clan, ClanMember};
+    use model::siege::{Siege, SiegeClanType, SiegeSpawn};
     const ROOT: &str = crate::data::DIST_GAME;
 
     let (mut world, _db_tx, mut db_rx, _link) = test_world();
@@ -3062,7 +3062,7 @@ fn siege_capture_evicts_the_new_attackers_and_rebuilds_the_towers() {
 /// behaviour so a future "fix toward Java" has to argue with it.
 #[test]
 fn an_advanced_headquarters_takes_half_damage() {
-    use crate::model::components::{AdvancedHeadquarter, Vitals};
+    use model::components::{AdvancedHeadquarter, Vitals};
 
     let hp_after_hit = |advanced: bool| -> f64 {
         let (mut world, ..) = test_world();
@@ -3102,7 +3102,7 @@ fn an_advanced_headquarters_takes_half_damage() {
 #[test]
 fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
     use crate::data::zone_data::{Zone, ZoneKind};
-    use crate::model::castle::{Castle, CastleSide};
+    use model::castle::{Castle, CastleSide};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let tax_zone = |castle_id: i32| Zone {

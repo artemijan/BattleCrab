@@ -36,8 +36,8 @@ fn arm(world: &mut World, object_id: i32, item_id: i32) {
 /// are tested against synthetic `World` state, not real time).
 #[test]
 fn learn_and_cast_buff_skill_applies_and_expires() {
-    use crate::model::skill::{AffectObject, AffectScope, Skill, SkillEffect, StatModifierEffect};
-    use crate::model::stats::{Stat, StatModifierType};
+    use model::skill::{AffectObject, AffectScope, Skill, SkillEffect, StatModifierEffect};
+    use model::stats::{Stat, StatModifierType};
 
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
@@ -1318,8 +1318,8 @@ fn nuke_kills_at_zero_hp() {
 #[test]
 fn cast_nuke_damages_siege_door() {
     use crate::data::door_data::DoorOpenMethod;
-    use crate::model::door::Door;
-    use crate::model::siege::Siege;
+    use model::door::Door;
+    use model::siege::Siege;
     let (mut world, ..) = cast_test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000); // covers the gate at (100, 0)
     let mut siege = Siege::new(3);
@@ -1734,7 +1734,7 @@ fn incoming_magic_damage_can_break_precast() {
 /// began and does not resume walking.
 #[test]
 fn cast_discards_inflight_move() {
-    use crate::model::components::QueuedAction;
+    use model::components::QueuedAction;
 
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -1803,7 +1803,7 @@ fn cast_discards_inflight_move() {
 /// `useMagic`, which re-resolves the target).
 #[test]
 fn skill_queued_during_cast_replays_on_current_target() {
-    use crate::model::components::QueuedAction;
+    use model::components::QueuedAction;
 
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -1912,7 +1912,7 @@ fn force_attack_mid_cast_engages_new_target_after_cast() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::Attack { target_object_id })) if *target_object_id == next
+            Some(Intent(model::PlayerIntent::Attack { target_object_id })) if *target_object_id == next
         ),
         "the force-attack is remembered as the next intention"
     );
@@ -1936,7 +1936,7 @@ fn force_attack_mid_cast_engages_new_target_after_cast() {
 /// `EVT_READY_TO_ACT`), leaving the attack intent alive to resume after.
 #[test]
 fn skill_mid_swing_is_queued_until_swing_end() {
-    use crate::model::components::QueuedAction;
+    use model::components::QueuedAction;
 
     let (mut world, ..) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2066,8 +2066,8 @@ fn broadcast_is_scoped_to_surrounding_regions() {
 /// position and comes before the `Die` broadcast.
 #[test]
 fn moving_mob_death_broadcasts_stop_move() {
-    use crate::model::components::Movement;
-    use crate::model::movement::MoveData;
+    use model::components::Movement;
+    use model::movement::MoveData;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2211,7 +2211,7 @@ fn buff_on_monster_requires_ctrl() {
 /// character) and reverts on expiry.
 #[test]
 fn buff_on_monster_modifies_stats_and_reverts() {
-    use crate::model::components::{Buffs, CombatStats};
+    use model::components::{Buffs, CombatStats};
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 21;
@@ -2463,7 +2463,7 @@ fn nuke_on_a_same_level_monster_deals_full_damage() {
 /// lands from a flank: behind the mob it hits, from the front it silently fails.
 #[test]
 fn dagger_blows_deal_damage_and_backstab_requires_flank() {
-    use crate::model::components::{CombatStats, Position, Vitals};
+    use model::components::{CombatStats, Position, Vitals};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0); // caster at (0,0)
@@ -2547,7 +2547,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
 /// `HpDrain` family, which used to cast but deal (and drain) nothing.
 #[test]
 fn vampiric_touch_deals_damage_and_heals_caster() {
-    use crate::model::components::Vitals;
+    use model::components::Vitals;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2624,7 +2624,7 @@ fn spawn_debuff_target(world: &mut World, a_rx: &mut UnboundedReceiver<bytes::By
 /// forced value feeds the unconditional magic-crit roll, the second the land roll.
 #[test]
 fn single_target_debuff_lands_and_reports_chance() {
-    use crate::model::components::Speeds;
+    use model::components::Speeds;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2667,7 +2667,7 @@ fn single_target_debuff_lands_and_reports_chance() {
 /// forced to 90, which is not below the 90 rate, so it resists.
 #[test]
 fn single_target_debuff_resisted_leaves_target_and_reports() {
-    use crate::model::components::Speeds;
+    use model::components::Speeds;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2714,7 +2714,7 @@ fn single_target_debuff_resisted_leaves_target_and_reports() {
 #[test]
 fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
     use crate::game_loop::skills::effects::merge_defence_traits;
-    use crate::model::skill::TraitType;
+    use model::skill::TraitType;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2839,8 +2839,8 @@ fn a_magic_crit_dot_bursts_only_when_the_debuff_lands() {
 /// in `handle_skill_finish`) and forces the land roll to fail.
 #[test]
 fn resisted_debuff_still_aggros_monster() {
-    use crate::model::components::SkillBook;
-    use crate::model::npc::{AggroList, NpcAi, NpcIntention};
+    use model::components::SkillBook;
+    use model::npc::{AggroList, NpcAi, NpcIntention};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2888,8 +2888,8 @@ fn resisted_debuff_still_aggros_monster() {
 /// (used by combat/`faction_call`); these effects are thin wiring onto them.
 mod hate_effects {
     use super::*;
-    use crate::model::npc::{AggroList, NpcAi, NpcIntention};
-    use crate::model::skill::SkillEffect;
+    use model::npc::{AggroList, NpcAi, NpcIntention};
+    use model::skill::SkillEffect;
 
     const DECOY: i32 = 90001;
 
@@ -3155,8 +3155,8 @@ mod hate_effects {
 /// no-op (the poison kept ticking).
 #[test]
 fn cure_poison_dispels_matching_poison_debuff() {
-    use crate::model::components::Buffs;
-    use crate::model::skill::{OperateType, Skill, SkillEffect, TargetType};
+    use model::components::Buffs;
+    use model::skill::{OperateType, Skill, SkillEffect, TargetType};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -3361,12 +3361,12 @@ fn cure_poison_dispels_matching_poison_debuff() {
 /// unregistered and every skill in the family cast but stripped nothing.
 mod dispel_by_category {
     use super::*;
-    use crate::model::components::Buffs;
-    use crate::model::skill::{
+    use model::components::Buffs;
+    use model::skill::{
         AffectObject, AffectScope, DispelSlot, OperateType, Skill, SkillEffect, StatModifierEffect,
         TargetType,
     };
-    use crate::model::stats::{Stat, StatModifierType};
+    use model::stats::{Stat, StatModifierType};
 
     /// A minimal continuous skill — override `id`/`magic_type`/`effect_point`/
     /// `can_be_dispelled`/`is_debuff`/`effects` per case.
@@ -3646,7 +3646,7 @@ fn skill_acquire_gates_send_system_messages() {
 #[test]
 fn skill_acquire_requires_and_consumes_the_book() {
     use crate::data::skill_tree::SkillLearn;
-    use crate::model::inventory::Inventory;
+    use model::inventory::Inventory;
 
     const BOOK: i32 = 8618; // Ancient Book: Divine Inspiration (Modern Language)
 
@@ -3864,7 +3864,7 @@ fn divine_inspiration_book_waiver_also_waives_sp() {
 /// it against the current game tick — the cooldown survives the trip.
 #[test]
 fn skill_reuse_cooldown_survives_relog() {
-    use crate::model::SkillReuse;
+    use model::SkillReuse;
 
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -4017,8 +4017,8 @@ fn synthetic_buff(
     abnormal_level: i32,
     magic_type: i32,
 ) -> Skill {
-    use crate::model::skill::{Skill, SkillEffect, StatModifierEffect};
-    use crate::model::stats::{Stat, StatModifierType};
+    use model::skill::{Skill, SkillEffect, StatModifierEffect};
+    use model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
         basic_property: model::skill::BasicProperty::None,
@@ -4355,7 +4355,7 @@ fn buff_slot_cap_drops_oldest() {
 /// `thinkCast`/`maybeMoveToPawn`).
 #[test]
 fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
-    use crate::model::components::QueuedAction;
+    use model::components::QueuedAction;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -4404,7 +4404,7 @@ fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::Cast { target_object_id, .. })) if *target_object_id == far
+            Some(Intent(model::PlayerIntent::Cast { target_object_id, .. })) if *target_object_id == far
         ),
         "replayed click walks to the far monster (got intent {:?}, queued {:?}, casting {:?})",
         world.objects.get_component::<Intent>(&3001),
@@ -4499,7 +4499,7 @@ fn far_retarget_after_target_cancel_walks_into_range() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::Cast { target_object_id, .. })) if *target_object_id == far
+            Some(Intent(model::PlayerIntent::Cast { target_object_id, .. })) if *target_object_id == far
         ),
         "second click walks to the far monster (got intent {:?})",
         world.objects.get_component::<Intent>(&3001)
@@ -4528,7 +4528,7 @@ fn far_retarget_after_target_cancel_walks_into_range() {
 /// still running, so the mid-cast second click must reach the queue slot).
 #[test]
 fn queued_far_retarget_with_real_datapack_timings() {
-    use crate::model::components::QueuedAction;
+    use model::components::QueuedAction;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     world.data = dist::game_data_owned();
@@ -4595,7 +4595,7 @@ fn queued_far_retarget_with_real_datapack_timings() {
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),
-            Some(Intent(crate::model::PlayerIntent::Cast { target_object_id, .. })) if *target_object_id == far
+            Some(Intent(model::PlayerIntent::Cast { target_object_id, .. })) if *target_object_id == far
         ) || world
             .objects
             .get_component::<Casting>(&3001)
@@ -5943,7 +5943,7 @@ fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
 /// nothing existed to make that claim fail.
 #[test]
 fn a_trait_resistance_lowers_the_lethal_chance() {
-    use crate::model::skill::{SkillEffect, TraitType};
+    use model::skill::{SkillEffect, TraitType};
 
     let lethal = |resist: bool| {
         let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -6009,8 +6009,8 @@ fn a_trait_resistance_lowers_the_lethal_chance() {
 /// assertion measures.
 #[test]
 fn the_skill_power_stats_scale_finished_skill_damage() {
-    use crate::model::components::StatModifiers;
-    use crate::model::stats::Stat;
+    use model::components::StatModifiers;
+    use model::stats::Stat;
 
     const POWER_STRIKE: i32 = 3;
     const WIND_STRIKE: i32 = 1177;
@@ -6089,7 +6089,7 @@ fn pvit_npc_hp(world: &World, oid: i32) -> f64 {
 /// the port only notified the skill's own targets, so neither happened.
 #[test]
 fn healing_beside_a_fighting_mob_draws_its_hate_onto_the_healer() {
-    use crate::model::npc::{AggroList, NpcAi, NpcIntention};
+    use model::npc::{AggroList, NpcAi, NpcIntention};
 
     let (mut world, ..) = cast_test_world();
     // The healer, the tank it heals, and a mob already fighting the tank.
@@ -6146,7 +6146,7 @@ fn healing_beside_a_fighting_mob_draws_its_hate_onto_the_healer() {
 /// refused everyone.
 #[test]
 fn a_non_combat_transform_is_refused_a_walk_to_cast() {
-    use crate::model::Player;
+    use model::Player;
 
     let refused_for = |transform_id: i32| -> bool {
         let (mut world, ..) = cast_test_world();
@@ -6313,8 +6313,8 @@ fn inner_rhythm_discounts_a_real_cast_driven_through_the_admin_command() {
 /// unspoiled corpse and passes on the caster's own spoil.
 #[test]
 fn npc_body_spoil_gate_only_for_sweeper() {
-    use crate::model::components::Position;
-    use crate::model::skill::{Skill, SkillEffect, TargetType};
+    use model::components::Position;
+    use model::skill::{Skill, SkillEffect, TargetType};
     use crate::network::server_packets::sm_ids;
 
     let (mut world, ..) = cast_test_world();
@@ -6379,7 +6379,7 @@ fn npc_body_spoil_gate_only_for_sweeper() {
 /// strings 42239–42242). A stranger's interact still takes the normal path.
 #[test]
 fn own_summon_interact_fires_summon_talk() {
-    use crate::model::components::ServitorOf;
+    use model::components::ServitorOf;
 
     let (mut world, ..) = cast_test_world();
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
