@@ -310,6 +310,8 @@ pub mod sm_ids {
     pub const WHISPER_CANNOT_BE_INITIATED_BELOW_LEVEL_S1: i16 = 4107;
     /// `ChatTrade`'s hard-coded level-20 refusal.
     pub const TRADE_CHAT_CANNOT_BE_USED_BELOW_LEVEL_S1: i16 = 4105;
+    /// `Instance.onDeath`'s eject warning.
+    pub const IF_YOU_ARE_NOT_RESURRECTED_WITHIN_S1_MINUTES_YOU_WILL_BE_EXPELLED: i16 = 3147;
     /// "Summoning your pet…" — the pet-manager evolve/restore flows (G29).
     pub const SUMMONING_YOUR_PET: i16 = 547;
     pub const S2_S1_S_DISAPPEARED: i16 = 301;

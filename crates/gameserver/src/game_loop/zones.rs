@@ -46,7 +46,12 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         }
     }
 
-    let new_mask = world.data.zone_data.mask_at(pos.x, pos.y, pos.z);
+    let new_mask = apply_zone_config(
+        world,
+        object_id,
+        (pos.x, pos.y, pos.z),
+        world.data.zone_data.mask_at(pos.x, pos.y, pos.z),
+    );
 
     // Compass indicator (`Player.revalidateZone`'s tail): peace icon vs
     // general, only pushed when the code changes. Siege/PvP/altered codes
@@ -188,6 +193,55 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
     // JailZone.onExit (G31): a jailed player who has wandered out of the prison
     // is teleported straight back. Geometry-queried (jail claims no mask bit).
     super::punishment::enforce_jail_keep_in(world, object_id);
+}
+
+/// `PeaceZone`/`NoPvPZone`'s `Config.PEACE_ZONE_MODE` branches and
+/// `JailZone`'s `Config.JAIL_IS_PVP`, applied to the geometry mask before
+/// anything reads it.
+///
+/// Java puts these in each zone's `onEnter`, which is the same place in effect:
+/// the membership flag is what every consumer tests, so adjusting the mask as
+/// it is computed adjusts exactly what Java adjusts.
+///
+/// Two things about mode **1** worth writing down. It reads
+/// `getSiegeState() != 0`, which is *not* `isInSiege()`: the former is set for
+/// any registered clan member for the duration of the siege regardless of
+/// where they stand, so a participant is exempt in a town peace zone miles from
+/// the castle — see [`pvp::has_siege_state`](crate::game_loop::pvp::has_siege_state).
+/// And Java tests it in `onEnter` only, so a player whose siege state changes
+/// while standing still keeps the flag they entered with; recomputing on every
+/// revalidate is *more* responsive, and the difference is only reachable by
+/// registering for a siege without moving.
+#[cfg(test)]
+pub(crate) fn apply_zone_config_for_test(
+    world: &World,
+    object_id: i32,
+    pos: (i32, i32, i32),
+    mask: u8,
+) -> u8 {
+    apply_zone_config(world, object_id, pos, mask)
+}
+
+fn apply_zone_config(world: &World, object_id: i32, pos: (i32, i32, i32), mask: u8) -> u8 {
+    use crate::data::zone_data::ZoneKind;
+    let mut mask = mask;
+    let peace_bit = ZoneKind::Peace.bit();
+    if mask & peace_bit != 0 {
+        match world.cfg.general.peace_zone_mode {
+            // 2 — peace zones are off entirely.
+            2 => mask &= !peace_bit,
+            // 1 — a siege participant is exempt.
+            1 if crate::game_loop::pvp::has_siege_state(world, object_id) => mask &= !peace_bit,
+            _ => {}
+        }
+    }
+    // `JailZone.onEnter`: `if (JAIL_IS_PVP) setInsideZone(ZoneId.PVP, true)`.
+    // The jail is geometry-queried rather than masked, so this asks the same
+    // question the keep-in check does.
+    if world.cfg.general.jail_is_pvp && world.data.zone_data.in_jail_zone(pos.0, pos.1, pos.2) {
+        mask |= ZoneKind::Pvp.bit();
+    }
+    mask
 }
 
 /// `SiegeZone.onEnter/onExit` for one player: a siege zone is a combat zone only

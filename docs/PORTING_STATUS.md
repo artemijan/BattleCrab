@@ -204,7 +204,7 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **80** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini, Feature.ini and Character.ini are all wired**; what remains is Character 9 (all classified — see below), General 24, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **75** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini, Feature.ini and Character.ini are all wired**; what remains is Character 9 (all classified — see below), General 19, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
 | 20 | Item conditions | **`<cond>` is not parsed or evaluated at all** — 2126 blocks across `stats/items/*.xml`, gating on races (822), fly-mounted state (450), `categoryType` (261), level (218) and sex (149). The Olympiad hero/restricted-item gate and the event-restricted gate in the same Java function are absent with it | `ItemTemplate.checkCondition` against the port, which has no counterpart; `data::item_data`'s module header has recorded "`<cond>` is still not parsed" since it was written | An item's equip/use conditions are unenforced. Surfaced 2026-08-18 by `GMItemRestriction`, whose only job is to decide whether a GM bypasses this function — a key with nothing to gate. **No other measure reaches this axis**: not the marker inventory, not the skill census, not row 14 |
@@ -643,7 +643,7 @@ Every key the file ships is now accounted for. The nine still counted are:
   to flatter the count would defeat the point of having one.
 * **`MaximumPlayerLevel`**, which is row 19's decision and not ours to take.
 
-What is left in row 14 is General (**24** — mostly dev tooling and
+What is left in row 14 is General (**19** — mostly dev tooling and
 persistence-model choices the port made differently: memory-first saves, no
 `HtmCache`, no grid on/off) and Server (7), which is infrastructure. (This
 paragraph used to name General twice, once with Character.ini's description
@@ -906,6 +906,35 @@ not one script in the datapack. It is not dead the way a never-read `Config`
 field is (the method is a live scripting entry point), but nothing on this
 chronicle is a story quest. Recorded in `config::general`'s header rather than
 given a field, following `config::character`'s convention, so it stays counted.
+
+**The General.ini instances/zones cluster (5 keys).** `PeaceZoneMode` is three
+modes rather than a flag — 0 always, 1 exempts siege participants, 2 disables
+peace zones outright — and mode 1 reads `getSiegeState() != 0`, which is **not**
+`isInSiege()`. Java sets `_siegeState` for any registered clan member for the
+whole siege regardless of where they stand, so a participant is exempt in a town
+peace zone miles from the castle; the port's existing `is_in_siege` is
+zone-scoped and would have exempted nobody where the mode is interesting. A
+separate `has_siege_state` predicate was added for it.
+
+`JailIsPvp` makes the GM prison a combat zone. `EjectDeadPlayerTime` expels a
+corpse from an instance after a minute — **the port had no eject at all**, so a
+player who died in Frintezza's tomb or an Olympiad arena stayed until the
+instance was torn down. Java's cancellation mechanism is worth copying exactly:
+it never cancels the task, it schedules one that re-reads `isDead()` when it
+fires, so a resurrection, a manual exit and a logout all cancel it without
+cancelling anything.
+
+`RestorePlayerInstance` was absent in both directions: logging out inside an
+instance neither recorded it nor moved the player to the exit location, so they
+woke up at coordinates inside a world that no longer existed. Both branches now
+land, and a remembered id whose instance has since been destroyed is consumed
+and discarded rather than retried.
+
+**`DefaultFinishTime` has no consumer here or in the datapack.** Java's only
+no-arg `finishInstance()` caller is `AbstractInstance.finishInstance(Player)`, a
+protected helper of the script framework that **no script on this dist calls**.
+The port's instances end through the empty-destroy timer or an explicit
+`destroy`, so there is no finish state for the delay to apply to.
 
 **Row 12 closed, and porting it found a live inventory divergence.** The
 recorded figure was 36; the arithmetic gives **35** (53 ids absent, minus

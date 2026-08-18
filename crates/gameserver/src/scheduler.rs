@@ -258,6 +258,12 @@ pub enum ScheduledTask {
     OlympiadValidationEnd,
     /// Instances (G27): tear down an instance if it is still empty after its
     /// `<time empty>` grace period.
+    /// `Instance.onDeath`'s eject task: expel a player still dead inside an
+    /// instance `EjectDeadPlayerTime` minutes later. Never cancelled — it
+    /// re-reads the death state when it fires, as Java's does.
+    InstanceEjectDead {
+        player_object_id: i32,
+    },
     InstanceEmptyCheck {
         instance_id: i32,
     },

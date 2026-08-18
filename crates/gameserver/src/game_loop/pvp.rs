@@ -78,6 +78,27 @@ pub(crate) fn active_siege_castle(world: &World, oid: i32) -> Option<i32> {
 /// zone. This sets the in-siege bit (0x80) that puts the siege crown on their
 /// character — Java `Siege.updatePlayerSiegeStateFlags` does `setInSiege(true)`
 /// only for attacker/defender clan members inside the zone (`checkIfInZone`).
+/// Java `Player.getSiegeState() != 0` — **not** [`is_in_siege`].
+///
+/// The two differ in exactly one way, and it matters for `PeaceZoneMode = 1`.
+/// `_siegeState` is set by `EnterWorld` for any member of a registered clan
+/// while that castle's siege runs, and cleared by `Siege` when it ends — it is
+/// **not** location-dependent. `isInSiege()` additionally requires standing in
+/// the siege zone, which is what puts the crown on the character.
+///
+/// A siege participant standing in a *town* peace zone is therefore exempt
+/// under mode 1 even though they are nowhere near the castle, which is the
+/// behaviour the mode exists for ("PVP possible during siege, for siege
+/// participants only") and which the zone-scoped predicate would not give.
+pub(crate) fn has_siege_state(world: &World, oid: i32) -> bool {
+    let clan_id = clan_of_or_zero(world, oid);
+    clan_id != 0
+        && world
+            .sieges
+            .values()
+            .any(|s| s.in_progress && s.is_registered(clan_id))
+}
+
 pub(crate) fn is_in_siege(world: &World, oid: i32) -> bool {
     let Some(castle_id) = active_siege_castle(world, oid) else {
         return false;

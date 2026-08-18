@@ -319,3 +319,155 @@ fn despawn_instance_door(world: &mut World, instance_id: i32, door_oid: i32) {
     }
     world.objects.despawn(&door_oid);
 }
+
+/// `Instance.onDeath`: start the eject clock for a player who died inside an
+/// instance.
+///
+/// Java warns first (`IF_YOU_ARE_NOT_RESURRECTED_WITHIN_S1_MINUTE_S…`) and
+/// schedules a task that re-checks `isDead()` when it fires — so a resurrection
+/// cancels the eject implicitly rather than by cancelling the task. The port
+/// keeps that shape: the scheduled task re-reads the death state, which is also
+/// why nothing has to be cancelled when the player is raised, teleported out,
+/// or logs off.
+///
+/// `EjectDeadPlayerTime` is the **default** for `InstanceTemplate.ejectTime`;
+/// Java lets a template override it with `<ejectTime>`, and no instance on this
+/// dist does, so the configured value is the only one in play. `0` disables the
+/// eject, matching Java's `> 0` guard.
+pub(crate) fn arm_eject_on_death(world: &mut World, player: i32) {
+    let instance_id = instance_of(world, player);
+    if instance_id == 0 {
+        return;
+    }
+    let minutes = world.cfg.general.eject_dead_player_time_min;
+    if minutes <= 0 {
+        return;
+    }
+    crate::game_loop::helpers::send_sm_to_player(
+        world,
+        player,
+        crate::network::server_packets::sm_ids::IF_YOU_ARE_NOT_RESURRECTED_WITHIN_S1_MINUTES_YOU_WILL_BE_EXPELLED,
+        &[crate::network::server_packets::SmParam::Int(minutes)],
+    );
+    world.scheduler.schedule(
+        world.tick + (minutes as u64) * 600,
+        ScheduledTask::InstanceEjectDead {
+            player_object_id: player,
+        },
+    );
+}
+
+/// `Instance.onDeath`'s scheduled body: expel the player **if still dead**.
+///
+/// The liveness re-check is the whole cancellation mechanism — Java never
+/// cancels this task either, it just finds `isDead()` false and does nothing.
+pub(crate) fn handle_eject_dead(world: &mut World, player: i32) {
+    if !crate::game_loop::helpers::is_dead(world, player) {
+        return;
+    }
+    if instance_of(world, player) == 0 {
+        return;
+    }
+    exit(world, player);
+}
+
+/// Java `PlayerVariables.INSTANCE_RESTORE`.
+const INSTANCE_RESTORE_VAR: &str = "INSTANCE_RESTORE";
+
+/// `Instance.onPlayerLogout` — the half that decides where a player who logs
+/// out inside an instance wakes up.
+///
+/// `RestorePlayerInstance` **on** (this dist): record the instance id in a
+/// player variable and leave their position alone, so the next login can put
+/// them back. **Off**: Java moves them to the instance's exit location, because
+/// the instance will not be there when they return and the stored coordinates
+/// would otherwise drop them into empty geometry.
+///
+/// Note this is *not* `exit()` — Java calls `removePlayer` and sets the
+/// location directly, without the teleport packets or the empty-destroy arming
+/// that a live exit does. The player is leaving the world in the same breath.
+pub(crate) fn on_player_logout(world: &mut World, player: i32) {
+    let instance_id = instance_of(world, player);
+    if instance_id == 0 {
+        return;
+    }
+    if world.cfg.general.restore_player_instance {
+        if let Some(vars) = world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerVariables>(&player)
+        {
+            vars.0
+                .insert(INSTANCE_RESTORE_VAR.to_string(), instance_id.to_string());
+        }
+        return;
+    }
+    // Off: park them at the exit location so the stored position is somewhere
+    // that still exists next time.
+    let template_id = world
+        .instances
+        .get(instance_id)
+        .map_or(0, |i| i.template_id);
+    let ret = world
+        .instances
+        .remove_member(instance_id, player, world.tick);
+    world.objects.remove_component::<InstanceId>(&player);
+    let dest = match world
+        .data
+        .instance_templates
+        .get(template_id)
+        .map(|t| t.exit)
+    {
+        Some(ExitType::Fixed(x, y, z)) => Some((x, y, z)),
+        _ => ret,
+    };
+    if let Some((x, y, z)) = dest
+        && let Some(pos) = world
+            .objects
+            .get_component_mut::<crate::model::components::Position>(&player)
+    {
+        pos.x = x;
+        pos.y = y;
+        pos.z = z;
+    }
+}
+
+/// `EnterWorld`'s restore half: put the player back into the instance they
+/// logged out of, **if it is still running**.
+///
+/// Java guards on `instance.getId() == vars.getInt(INSTANCE_RESTORE, 0)` and
+/// clears the variable either way — so a stale id from an instance that has
+/// since been destroyed is consumed and discarded rather than retried forever.
+pub(crate) fn restore_on_login(world: &mut World, player: i32) {
+    let stored = world
+        .objects
+        .get_component::<crate::model::components::PlayerVariables>(&player)
+        .and_then(|v| v.0.get(INSTANCE_RESTORE_VAR).cloned());
+    let Some(raw) = stored else { return };
+    // Consumed whatever happens, matching Java's unconditional `vars.remove`.
+    if let Some(vars) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerVariables>(&player)
+    {
+        vars.0.remove(INSTANCE_RESTORE_VAR);
+    }
+    if !world.cfg.general.restore_player_instance {
+        return;
+    }
+    let Ok(instance_id) = raw.parse::<i32>() else {
+        return;
+    };
+    if world.instances.get(instance_id).is_none() {
+        return;
+    }
+    let ret = pos_of(world, player).unwrap_or((0, 0, 0));
+    world.instances.add_member(instance_id, player, ret);
+    world
+        .objects
+        .add_components(&player, InstanceId(instance_id));
+}
+
+/// [`instance_of`] for the config tests, which assert membership directly.
+#[cfg(test)]
+pub(crate) fn instance_of_for_test(world: &World, player: i32) -> i32 {
+    instance_of(world, player)
+}

@@ -138,6 +138,44 @@ pub struct GeneralConfig {
     /// this off makes water slow but harmless, not inert.
     pub allow_water: bool,
 
+    // --- Instances and zones ---
+    /// `PeaceZoneMode` (dist **0**) — three modes, not a flag:
+    ///
+    /// * **0** — peace zones always apply.
+    /// * **1** — a player with a non-zero siege state is exempt *on entry*, so
+    ///   siege participants can fight inside a town under siege.
+    /// * **2** — the `PEACE` flag is never set at all; peace zones are off.
+    ///
+    /// Java applies the same three branches in `PeaceZone` **and** `NoPvPZone`.
+    /// Note mode 1 is checked only in `onEnter`: a player whose siege state
+    /// changes while standing in the zone keeps whatever flag they entered
+    /// with, which is Java's behaviour and not an oversight to tidy.
+    pub peace_zone_mode: i32,
+    /// `JailIsPvp` (dist **False**) — whether the GM prison is also a PvP zone.
+    /// Java sets `ZoneId.PVP` on entry and sends "you have entered a combat
+    /// zone", clearing both on exit.
+    pub jail_is_pvp: bool,
+    /// `EjectDeadPlayerTime` (dist **1**, minutes) — how long a corpse may lie
+    /// in an instance before being expelled. `0` disables the eject.
+    ///
+    /// It is the **default** for `InstanceTemplate.ejectTime`, overridable per
+    /// template — and no instance on this dist overrides it, so all six use the
+    /// configured minute.
+    pub eject_dead_player_time_min: i32,
+    /// `DefaultFinishTime` (dist **5**, minutes) — the delay
+    /// `Instance.finishInstance()` uses when called without one.
+    ///
+    /// **No consumer here, and none in the datapack either.** Java's only
+    /// no-arg caller is `AbstractInstance.finishInstance(Player)`, a protected
+    /// helper of the script framework that **no script on this dist calls**.
+    /// The port's instances end through the empty-destroy timer or an explicit
+    /// `destroy`, so there is no "finish" state for the delay to apply to.
+    pub instance_finish_time_min: i32,
+    /// `RestorePlayerInstance` (dist **True**) — whether logging out inside an
+    /// instance puts you back in it on your next login, rather than at the
+    /// instance's exit location.
+    pub restore_player_instance: bool,
+
     // --- Quests ---
     /// `OrderQuestListByQuestId` (dist **True**) — sort the NPC's quest-choice
     /// window by quest id. Java builds a `TreeMap` keyed by id, so it also
@@ -609,6 +647,11 @@ impl GeneralConfig {
             // exempts a `SKILL_CONDITIONS` override.
             // The GM-restriction family. Java's code defaults are all
             // `false`; this dist raises three of them.
+            peace_zone_mode: p.get_int("PeaceZoneMode", 0),
+            jail_is_pvp: p.get_bool("JailIsPvp", false),
+            eject_dead_player_time_min: p.get_int("EjectDeadPlayerTime", 1),
+            instance_finish_time_min: p.get_int("DefaultFinishTime", 5),
+            restore_player_instance: p.get_bool("RestorePlayerInstance", false),
             order_quest_list_by_quest_id: p.get_bool("OrderQuestListByQuestId", true),
             auto_delete_invalid_quest_data: p.get_bool("AutoDeleteInvalidQuestData", false),
             alt_dev_no_quests: p.get_bool("AltDevNoQuests", false),

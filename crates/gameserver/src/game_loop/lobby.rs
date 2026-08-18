@@ -771,6 +771,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         );
     }
 
+    // `EnterWorld`'s instance restore (`RestorePlayerInstance`): put the player
+    // back into the instance they logged out of, if it is still running.
+    super::instances::restore_on_login(world, object_id);
     // `EnterWorld`'s over-enchant sweep, before the protection window so a
     // punished login is still punished.
     super::enchant::over_enchant_sweep(world, object_id);

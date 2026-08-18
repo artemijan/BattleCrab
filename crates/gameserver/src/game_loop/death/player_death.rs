@@ -126,6 +126,10 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // listener): a kill on the enemy team scores, and the victim is queued for
     // a timed arena respawn. `killer_oid` is already the acting player.
     crate::game_loop::events::tvt::on_player_death(world, player_oid, killer_oid);
+
+    // `Instance.onDeath`: a corpse in an instance is expelled after
+    // `EjectDeadPlayerTime` minutes unless it is resurrected first.
+    crate::game_loop::instances::arm_eject_on_death(world, player_oid);
 }
 
 /// `Playable.doDie`'s effect block.

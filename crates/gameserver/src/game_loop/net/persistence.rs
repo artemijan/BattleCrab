@@ -6,6 +6,11 @@ use super::*;
 /// `Disconnection.storeMe().deleteMe()`. Shared by restart, logout, and
 /// unexpected disconnects. Scheduled tasks holding the dead object id no-op.
 pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) {
+    // `Instance.onPlayerLogout`: with `RestorePlayerInstance` on, remember the
+    // instance in a player variable so the next login puts them back in it;
+    // with it off, Java moves them to the instance's exit location instead so
+    // they do not wake up inside a world that no longer exists.
+    crate::game_loop::instances::on_player_logout(world, player_object_id);
     // deleteMe → leaveParty (DISCONNECTED semantics: leadership transfers)
     // + pending party/friend request cleanup on both sides.
     crate::game_loop::party::on_player_leave_world(world, player_object_id);

@@ -113,6 +113,7 @@ mod henna_tests;
 mod hero_voice_tests;
 mod hwid_tests;
 mod instance_tests;
+mod instance_zone_config_tests;
 mod item_auction_tests;
 mod item_link_tests;
 mod items_tests;
@@ -276,6 +277,12 @@ fn apply_dist_general_config(world: &mut World) {
     world.cfg.general.boat_broadcast_radius = 20_000;
     world.cfg.general.trade_chat = crate::config::general::ChatScope::Region;
     world.cfg.general.global_chat = crate::config::general::ChatScope::Region;
+    // Instances: both differ from the derived default. `EjectDeadPlayerTime`
+    // at 0 disables the eject entirely, and `RestorePlayerInstance` at false
+    // takes the *other* logout branch — either would make a fixture measure a
+    // server configured unlike this one.
+    world.cfg.general.eject_dead_player_time_min = 1;
+    world.cfg.general.restore_player_instance = true;
 }
 
 fn live_buffs(world: &World, oid: i32) -> Vec<i32> {

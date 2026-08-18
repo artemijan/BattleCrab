@@ -282,6 +282,9 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             ScheduledTask::OlympiadMatchTick { arena } => olympiad::handle_match_tick(world, arena),
             ScheduledTask::OlympiadEnd => olympiad::handle_olympiad_end(world),
             ScheduledTask::OlympiadValidationEnd => olympiad::handle_validation_end(world),
+            ScheduledTask::InstanceEjectDead { player_object_id } => {
+                instances::handle_eject_dead(world, player_object_id);
+            }
             ScheduledTask::InstanceEmptyCheck { instance_id } => {
                 instances::handle_empty_check(world, instance_id)
             }

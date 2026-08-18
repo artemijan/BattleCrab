@@ -7615,3 +7615,75 @@ do).
 
 General.ini stands at **24** unread keys (71 → … → 28 → 24), and row 14 at
 **80**.
+
+---
+
+## General.ini, cluster 8 — instances and zones, and a predicate that looked right
+
+Five keys. Four wired, one with no consumer on either side.
+
+### `PeaceZoneMode` is three modes, and mode 1 needs the *other* siege predicate
+
+0 always applies, 2 switches peace zones off entirely, and 1 exempts siege
+participants — "PVP possible during siege, now for siege participants only", in
+Java's own comment.
+
+Mode 1 reads `getSiegeState() != 0`, and the obvious port is
+`pvp::is_in_siege`, which already exists and already means "siege participant".
+It is the wrong one. `_siegeState` is set by `EnterWorld` for any member of a
+registered clan for the **duration of the siege**, wherever they stand;
+`isInSiege()` additionally requires standing in the siege zone, because it
+drives the crown on the character.
+
+The difference is the whole mode. A participant standing in a *town* peace zone
+is exempt in Java — that is the scenario the mode exists for — and the
+zone-scoped predicate would have exempted nobody, because a town peace zone is
+not a siege zone. Two functions that read identically in prose, and only one is
+correct here; `has_siege_state` is now beside `is_in_siege` with the difference
+written between them.
+
+### An eject that was never armed
+
+`EjectDeadPlayerTime` expels a corpse from an instance after a minute. **The
+port had no eject at all** — a player who died in Frintezza's tomb or an
+Olympiad arena lay there until the instance was torn down.
+
+Java's cancellation is worth copying exactly rather than improving: it never
+cancels the task. It schedules one that re-reads `isDead()` when it fires, so a
+resurrection cancels it, and so does a manual exit, a logout, or a teleport out
+— none of which have to know the task exists. Cancelling explicitly would mean
+finding every one of those paths.
+
+### A logout that lost the player
+
+`RestorePlayerInstance` was missing in *both* directions. Logging out inside an
+instance neither recorded it (so the login could not restore it) nor moved the
+player to the exit location (Java's other branch) — so their stored coordinates
+were inside a world that would not exist when they came back.
+
+Both branches land now, and the remembered id is consumed unconditionally, as
+Java's `vars.remove` is: an instance destroyed while the player was away leaves
+a stale id that must be discarded rather than retried on every login.
+
+### `DefaultFinishTime` gates a method with no callers
+
+Java's only no-arg `finishInstance()` caller is
+`AbstractInstance.finishInstance(Player)` — a protected helper of the script
+framework that **no script on this dist calls**. Second key this session in that
+category, after `StoryQuestRewardBuff`: a live API with no invocation on this
+chronicle, which is neither "dead in Java" nor "subsystem unported".
+
+### The fixture list grew again
+
+Two of the five differ from the derived `Default`, and both would have made
+fixtures measure the wrong server: `EjectDeadPlayerTime = 0` disables the eject,
+`RestorePlayerInstance = false` takes the other logout branch. The eject test
+caught it immediately — the clock was never armed — which is the value of
+asserting the mechanism rather than the outcome.
+
+Seven new tests. Four falsifications, each failing exactly one test: ignoring
+`PeaceZoneMode`, ignoring `JailIsPvp`, dropping the eject's death re-check, and
+ignoring `RestorePlayerInstance` on logout.
+
+General.ini stands at **19** unread keys (71 → … → 24 → 19), and row 14 at
+**75**.
