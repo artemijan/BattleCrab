@@ -382,6 +382,14 @@ pub enum DbCommand {
     /// `!SaveDroppedItem && ClearDroppedItemTable`, and for
     /// `EmptyDroppedItemTableAfterLoad`.
     ClearGroundItems,
+    /// `Config.AUTODELETE_INVALID_QUEST_DATA`'s half of
+    /// `Quest.restoreQuestStates`: delete the `character_quests` rows naming a
+    /// quest the server no longer has. Java deletes the state row and the
+    /// variable rows with two statements over the same name.
+    DeleteQuestRows {
+        char_id: i32,
+        quest_names: Vec<String>,
+    },
     StorePlayer {
         /// Boxed: this is the one large variant, and every *other* `DbCommand`
         /// queued on the channel would otherwise be padded to its size. A

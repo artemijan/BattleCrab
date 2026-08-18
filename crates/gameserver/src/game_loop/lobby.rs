@@ -398,6 +398,15 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
     // The buff half only rides along on the bundle here: a buff can't be applied
     // to a character that isn't in the world yet, so enter-world does it.
     bundle.restore_buffs(&chr);
+    // Java `Quest.restoreQuestStates`' `q == null` branch: a `character_quests`
+    // row naming a quest this server does not have is dropped from the live
+    // state **whatever** `AutoDeleteInvalidQuestData` says — the key only
+    // decides whether the row is also deleted.
+    //
+    // This runs here rather than in `from_char` because the quest registry is a
+    // runtime object on `World`, not part of `GameData`; `from_char` sees only
+    // the latter. Same split as the skill check's reporting half.
+    drop_invalid_quest_states(world, &mut bundle, chr.object_id);
     let selected = server_packets::char_selected(
         &bundle.view(),
         s.play_ok1(),
@@ -415,6 +424,42 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
         world
             .clients
             .insert(client_id, ClientSession::Entering(Box::new(s)));
+    }
+}
+
+/// Drop quest states whose script is gone, and (under
+/// `AutoDeleteInvalidQuestData`) delete their rows.
+///
+/// Java logs each one at `finer` and continues. The port keeps the same
+/// two-step shape: the in-memory drop is unconditional, the DB delete is the
+/// configured half. Before this, an unknown row rode in the live component and
+/// went straight back out on the next flush, so a quest renamed between builds
+/// left a `QuestState` that no code could reach and no restart could clear.
+pub(crate) fn drop_invalid_quest_states(
+    world: &World,
+    bundle: &mut crate::model::PlayerData,
+    char_id: i32,
+) {
+    let registry = world.quests.clone();
+    let invalid: Vec<String> = bundle
+        .quests
+        .0
+        .keys()
+        .filter(|name| registry.by_name(name).is_none())
+        .cloned()
+        .collect();
+    if invalid.is_empty() {
+        return;
+    }
+    for name in &invalid {
+        tracing::warn!("Unknown quest {name} for char {char_id}; dropping its state.");
+        bundle.quests.0.remove(name);
+    }
+    if world.cfg.general.auto_delete_invalid_quest_data {
+        let _ = world.db.send(crate::db::DbCommand::DeleteQuestRows {
+            char_id,
+            quest_names: invalid,
+        });
     }
 }
 

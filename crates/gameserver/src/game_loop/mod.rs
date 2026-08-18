@@ -265,6 +265,22 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     world.path_cfg = path_cfg;
     world.geoedit_path = geoedit_path;
     world.cfg = cfg;
+    // `Config.ALT_DEV_NO_QUESTS` — Java returns from
+    // `ScriptEngineManager.executeScriptList()` before loading anything, so
+    // despite the name it drops **every** script (AI and events included), not
+    // only quests. The port's registry holds the same set, so emptying it is
+    // the same switch.
+    if world.cfg.general.alt_dev_no_quests {
+        world.quests = std::sync::Arc::new(quests::QuestRegistry::new(Vec::new()));
+        info!("ScriptEngine: AltDevNoQuests is set — no scripts registered.");
+    } else if world.cfg.general.alt_dev_show_quests_load_in_logs {
+        // `QuestManager.addQuest` logs one line per quest under this key. The
+        // port registers them in one pass rather than one call each, so the
+        // lines are emitted here — same content, same trigger, one place.
+        for name in world.quests.names() {
+            info!("Loaded quest {name}.");
+        }
+    }
     // Held until `DbEvent::ClansLoaded` arrives; then the login-link task is
     // released to connect (Java: `LoginServerThread.start()` after `ClanTable`).
     world.login.ready = Some(login_ready_tx);

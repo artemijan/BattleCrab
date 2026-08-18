@@ -139,6 +139,18 @@ pub(crate) async fn run(
             DbCommand::StoreGroundItems { items } => {
                 store_ground_items(&db, &items).await;
             }
+            DbCommand::DeleteQuestRows {
+                char_id,
+                quest_names,
+            } => {
+                warn_err(
+                    character_quests::Entity::delete_many()
+                        .filter(character_quests::Column::CharId.eq(char_id))
+                        .filter(character_quests::Column::Name.is_in(quest_names))
+                        .exec(&db)
+                        .await,
+                );
+            }
             DbCommand::ClearGroundItems => {
                 clear_ground_items(&db).await;
             }

@@ -7537,3 +7537,81 @@ and disabling the boat, refund and discard gates.
 
 General.ini stands at **28** unread keys (71 → … → 37 → 28), and row 14 at
 **84**.
+
+---
+
+## General.ini, cluster 7 — the quest keys, and a test that tested `Vec::sort`
+
+Five keys. Four wired, one recorded as having no consumer in Java either.
+
+### One key, two behaviours, and only one of them configurable
+
+`AutoDeleteInvalidQuestData` reads like "delete bad rows or don't". Java's
+`restoreQuestStates` is more careful than that: a `character_quests` row naming
+a quest the server no longer has hits `q == null` and `continue`s **whatever the
+key says** — the state never enters memory. The key decides only whether the
+*row* is also deleted.
+
+The port did neither half. It loaded every row into the `Quests` component and
+wrote the component straight back on the next flush, so a quest renamed between
+builds left a `QuestState` that no code could reach, no restart could clear, and
+every autosave re-persisted. Now the drop is unconditional and the delete is the
+configured part.
+
+It lives in `lobby` rather than `from_char` for the same reason the skill check's
+reporting half does: the quest registry is a runtime object on `World`, and
+`from_char` sees only `GameData`.
+
+### `AltDevNoQuests` does not mean no quests
+
+Java returns from `ScriptEngineManager.executeScriptList()` before loading
+anything at all, so the switch drops **every** script — AI and events with the
+quests. The port's registry holds that same set, so emptying it is the same
+switch; the name is Java's and is left alone.
+
+### `StoryQuestRewardBuff` gates a method nobody calls
+
+`Quest.giveStoryQuestReward` has **zero callers**: not one class under `java/`,
+not one script in the datapack. It is not dead the way a never-read `Config`
+field is — it is a live scripting entry point, and on a dist with story quests
+it would fire — but nothing on this chronicle is a story quest.
+
+That is a third category, distinct from both "dead in Java" and "the subsystem
+is unported", and it is recorded in `config::general`'s header rather than given
+a field, following `config::character`'s convention so the unread count stays
+honest.
+
+### A test that tested the standard library
+
+The first version of the ordering test was:
+
+```rust
+let mut ids = vec![300, 100, 200, 100];
+ids.sort();
+ids.dedup();
+assert_eq!(ids, vec![100, 200, 300]);
+```
+
+It passes. It also passes with the port's ordering deleted, because it never
+calls it — it asserts that `Vec::sort` sorts. Written while the real code sat
+four lines inline in a function that needs a world, an NPC and a player to
+reach, which is exactly the pressure that produces a test like this.
+
+The fix was to give the ordering a name (`order_quest_list`) so a test can drive
+the real thing with real scripts out of the registry — shuffled, with a repeat
+so the dedup has work. It now fails against sort-without-dedup **and** against
+ignoring the key.
+
+Third test this session that asserted something both branches satisfy, and the
+worst of the three: the other two at least touched the code. The reliable
+signal is the same each time — **if sabotaging the implementation leaves the
+test green, the test is not about the implementation.**
+
+Four new tests. Five falsifications, each failing exactly one test: dropping the
+dedup, ignoring the ordering key, not dropping unknown states, deleting rows
+regardless of the key, and dropping *known* states too (the dangerous one — it
+fails two tests, which is what a "wipes everyone's quest progress" bug should
+do).
+
+General.ini stands at **24** unread keys (71 → … → 28 → 24), and row 14 at
+**80**.

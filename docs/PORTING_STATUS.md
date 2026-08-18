@@ -204,7 +204,7 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **84** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini, Feature.ini and Character.ini are all wired**; what remains is Character 9 (all classified — see below), General 28, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **80** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini, Feature.ini and Character.ini are all wired**; what remains is Character 9 (all classified — see below), General 24, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
 | 20 | Item conditions | **`<cond>` is not parsed or evaluated at all** — 2126 blocks across `stats/items/*.xml`, gating on races (822), fly-mounted state (450), `categoryType` (261), level (218) and sex (149). The Olympiad hero/restricted-item gate and the event-restricted gate in the same Java function are absent with it | `ItemTemplate.checkCondition` against the port, which has no counterpart; `data::item_data`'s module header has recorded "`<cond>` is still not parsed" since it was written | An item's equip/use conditions are unenforced. Surfaced 2026-08-18 by `GMItemRestriction`, whose only job is to decide whether a GM bypasses this function — a key with nothing to gate. **No other measure reaches this axis**: not the marker inventory, not the skill census, not row 14 |
@@ -643,7 +643,7 @@ Every key the file ships is now accounted for. The nine still counted are:
   to flatter the count would defeat the point of having one.
 * **`MaximumPlayerLevel`**, which is row 19's decision and not ours to take.
 
-What is left in row 14 is General (**28** — mostly dev tooling and
+What is left in row 14 is General (**24** — mostly dev tooling and
 persistence-model choices the port made differently: memory-first saves, no
 `HtmCache`, no grid on/off) and Server (7), which is infrastructure. (This
 paragraph used to name General twice, once with Character.ini's description
@@ -881,6 +881,31 @@ dock at all, `AllowCursedWeapons` makes the manager load nothing, and
 `AllowRefund` picks whether a sold stack is filed or destroyed — plus
 `Player.hasRefund()`, which ANDs the key in so an operator turning it off hides
 a container filled while it was on.
+
+**The General.ini quest cluster (5 keys).** `OrderQuestListByQuestId` sorts the
+NPC's quest-choice window by id — and Java's `TreeMap` **also de-duplicates**,
+which a sort alone does not: two scripts sharing an id collapse to one entry.
+
+`AutoDeleteInvalidQuestData` turned out to be two behaviours, only one of which
+the key controls. A `character_quests` row naming a quest the server no longer
+has is dropped from the **live state** either way (Java's `q == null` →
+`continue`); the key decides only whether the *row* is deleted. The port did
+neither — it loaded the row into the component and wrote it straight back on the
+next flush, so a quest renamed between builds left a `QuestState` no code could
+reach and no restart could clear.
+
+`AltDevNoQuests` is misnamed: Java returns from
+`ScriptEngineManager.executeScriptList()` before loading anything, so it drops
+**every** script — AI and events with the quests. Ported as emptying the
+registry, which is the same set. `AltDevShowQuestsLoadInLogs` logs one line per
+registered quest.
+
+**`StoryQuestRewardBuff` has no consumer in Java either.**
+`Quest.giveStoryQuestReward` has **zero callers** — not one class under `java/`,
+not one script in the datapack. It is not dead the way a never-read `Config`
+field is (the method is a live scripting entry point), but nothing on this
+chronicle is a story quest. Recorded in `config::general`'s header rather than
+given a field, following `config::character`'s convention, so it stays counted.
 
 **Row 12 closed, and porting it found a live inventory divergence.** The
 recorded figure was 36; the arithmetic gives **35** (53 ids absent, minus

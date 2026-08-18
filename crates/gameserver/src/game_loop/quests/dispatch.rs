@@ -61,6 +61,7 @@ fn show_quest_window_all(world: &mut World, client_id: u32, player: i32, npc_oid
             quests.push(q);
         }
     }
+    order_quest_list(&mut quests, world.cfg.general.order_quest_list_by_quest_id);
     match quests.len() {
         0 => send_no_quest_html(world, client_id, npc_oid),
         1 => show_quest_window(world, client_id, player, npc_oid, quests[0].name()),
@@ -100,6 +101,25 @@ fn talk_shows_no_quest(
         Some(html) => html == no_quest_html(world, player),
         None => false,
     }
+}
+
+/// `Config.ORDER_QUEST_LIST_BY_QUESTID` (**True** here).
+///
+/// Java builds a `TreeMap<Integer, Quest>` keyed by id and takes its
+/// `values()`, so the list comes out sorted **and de-duplicated by id** — two
+/// scripts sharing an id collapse to one entry. The dedup is not incidental to
+/// the ordering: it is what a map keyed by id does, and a sort alone would keep
+/// both.
+///
+/// A named function rather than four lines inline so a test can drive the real
+/// ordering with real scripts; the first version of that test sorted a local
+/// `Vec<i32>` and proved nothing about this code at all.
+pub(crate) fn order_quest_list(quests: &mut Vec<Arc<dyn QuestScript>>, enabled: bool) {
+    if !enabled {
+        return;
+    }
+    quests.sort_by_key(|q| q.id());
+    quests.dedup_by_key(|q| q.id());
 }
 
 /// `QuestLink.showQuestChooseWindow`: one `<button>` per quest, colored and

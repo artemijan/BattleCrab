@@ -26,11 +26,23 @@ if echo "$staged" | grep -q '\.rs$'; then
     cargo fmt --check --quiet 2>/dev/null \
         || fail "rustfmt found unformatted code" "cargo fmt && git add -u"
 
-    # Warm cache makes this a few seconds; the first run after a toolchain
-    # bump is the slow one. -D warnings so a warning is a failure here, not
-    # something that scrolls past.
-    cargo clippy --workspace --quiet -- -D warnings \
-        || fail "clippy found lint errors" "cargo clippy --workspace  (then fix or #[allow] with a reason)"
+    # `--all-targets` for two reasons, and dropping it broke both:
+    #
+    #  * it lints **tests and benches**, not just the lib. Without it a warning
+    #    in a `#[cfg(test)]` module sails through the hook and fails CI.
+    #  * it matches what rust-analyzer runs on save. The IDE and this hook
+    #    share ./target, so the same flags mean the hook finds a warm cache and
+    #    returns in seconds; different flags mean a different unit set, so it
+    #    rebuilds *and* queues behind the IDE's lock.
+    #
+    # No `--quiet` here on purpose. Cargo suppresses "Blocking waiting for file
+    # lock on build directory" under `--quiet`, so a hook waiting on
+    # rust-analyzer looked exactly like a hung commit. A few "Checking" lines
+    # are a fair price for knowing why it is waiting.
+    #
+    # -D warnings so a warning fails the commit rather than scrolling past.
+    cargo clippy --workspace --all-targets -- -D warnings \
+        || fail "clippy found lint errors" "cargo clippy --workspace --all-targets  (then fix or #[allow] with a reason)"
 fi
 
 # ---- Frontend --------------------------------------------------------------

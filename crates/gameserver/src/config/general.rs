@@ -1,7 +1,25 @@
-//! `General.ini` — port of the GM-startup / hero-aura keys of the
-//! `GENERAL_CONFIG_FILE` block of `Config.java`. Only the keys the admin
-//! login flow needs so far are loaded (grown per milestone, like the other
-//! config sections).
+//! `General.ini` — port of the `GENERAL_CONFIG_FILE` block of `Config.java`,
+//! grown per milestone like the other config sections.
+//!
+//! # Keys parsed by Java and deliberately given no field here
+//!
+//! Following `config::character`'s convention: a field would imply something
+//! consults the key, so these are named in prose instead. Each was checked
+//! against the Java tree rather than assumed.
+//!
+//! * **`StoryQuestRewardBuff`** — gates `Quest.giveStoryQuestReward`, a
+//!   scripting API with **zero callers**: not one class in `java/` and not one
+//!   script in the datapack invokes it. It is not dead the way a
+//!   never-read `Config` field is — the method is a live entry point for
+//!   datapack authors — but nothing on this chronicle is a story quest, so
+//!   there is no reward for the buff to ride along with.
+//! * **`LogAutoAnnouncements`** — assigned to a `Config` field that nothing
+//!   outside `Config.java` reads.
+//!
+//! (`CustomTeleportTable` is dead in Java too but *does* have a field below,
+//! decided when the loader cluster landed. The two treatments are not a
+//! disagreement about the key: a field costs nothing and stops the next audit
+//! re-deriving it, while prose keeps the unread count honest. Prefer prose.)
 
 use commons::config::PropertiesParser;
 
@@ -119,6 +137,28 @@ pub struct GeneralConfig {
     /// swim-speed switch in `WaterZone.onEnter` is unconditional, so turning
     /// this off makes water slow but harmless, not inert.
     pub allow_water: bool,
+
+    // --- Quests ---
+    /// `OrderQuestListByQuestId` (dist **True**) — sort the NPC's quest-choice
+    /// window by quest id. Java builds a `TreeMap` keyed by id, so it also
+    /// **de-duplicates**: two scripts sharing an id would collapse to one.
+    pub order_quest_list_by_quest_id: bool,
+    /// `AutoDeleteInvalidQuestData` (dist **False**) — what to do with a
+    /// `character_quests` row naming a quest the server no longer has.
+    ///
+    /// Java drops it from memory either way (`q == null` → `continue`); the key
+    /// only decides whether the **row** is also deleted. The port used to keep
+    /// such rows in the live component and write them straight back, so a
+    /// renamed or removed quest left a phantom `QuestState` that outlived every
+    /// restart.
+    pub auto_delete_invalid_quest_data: bool,
+    /// `AltDevNoQuests` (dist **False**) — a developer switch that starts the
+    /// server with **no quests registered at all**. Java skips the whole quest
+    /// half of `ScriptEngineManager.executeScriptList`.
+    pub alt_dev_no_quests: bool,
+    /// `AltDevShowQuestsLoadInLogs` (dist **False**) — log every quest as
+    /// `QuestManager` registers it, rather than only the total.
+    pub alt_dev_show_quests_load_in_logs: bool,
 
     // --- Feature gates: subsystems an operator can switch off wholesale ---
     /// `AllowWarehouse` (dist **True**) — the private and clan warehouse
@@ -569,6 +609,10 @@ impl GeneralConfig {
             // exempts a `SKILL_CONDITIONS` override.
             // The GM-restriction family. Java's code defaults are all
             // `false`; this dist raises three of them.
+            order_quest_list_by_quest_id: p.get_bool("OrderQuestListByQuestId", true),
+            auto_delete_invalid_quest_data: p.get_bool("AutoDeleteInvalidQuestData", false),
+            alt_dev_no_quests: p.get_bool("AltDevNoQuests", false),
+            alt_dev_show_quests_load_in_logs: p.get_bool("AltDevShowQuestsLoadInLogs", false),
             allow_warehouse: p.get_bool("AllowWarehouse", true),
             allow_refund: p.get_bool("AllowRefund", true),
             allow_fishing: p.get_bool("AllowFishing", true),

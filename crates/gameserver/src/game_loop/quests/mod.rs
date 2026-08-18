@@ -199,7 +199,7 @@ mod ctx_items;
 mod ctx_npc;
 mod ctx_player;
 mod ctx_ui;
-mod dispatch;
+pub(crate) mod dispatch;
 mod registry;
 mod render;
 

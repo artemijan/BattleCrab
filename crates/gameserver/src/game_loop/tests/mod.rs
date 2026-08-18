@@ -157,6 +157,7 @@ mod premium_rates_tests;
 mod punishment_tests;
 mod pvp_kill_tests;
 mod queen_ant_tests;
+mod quest_config_tests;
 mod quests_tests;
 mod raid_curse_tests;
 mod ranged_tests;
