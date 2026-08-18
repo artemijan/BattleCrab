@@ -1,7 +1,20 @@
 //! Packet handlers: item list, use-item entry, destroy, crystallize and
 //! inventory-order save.
 
-use super::*;
+use super::add_inventory_item;
+use super::cursed_weapon_blocks_equip;
+use super::finish_equip_change;
+use super::unequip_if_worn;
+use super::use_equipable_item;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
+use crate::model::inventory::Inventory;
+use crate::network::client_packets as cp;
+use crate::network::enter_world as ew;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 /// Port of `clientpackets/RequestItemList.runImpl`: the client opened its
 /// inventory window and wants the current contents. Java calls
 /// `player.sendItemList(true)`, which (after a 300 ms debounce we don't

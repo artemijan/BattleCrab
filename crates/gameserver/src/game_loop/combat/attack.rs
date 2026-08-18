@@ -1,5 +1,18 @@
-use super::*;
+use super::apply_attack_damage;
+use super::apply_door_damage;
+use super::combatant;
+use super::crit_damage_auto;
+use super::crit_rate_position_mul;
+use super::defence_crit_rate;
+use super::is_npc_oid;
+use super::refresh_attack_stance;
+use super::vitals_of;
+use super::wields_two_handed;
 use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::broadcast_including_self;
+use crate::game_loop::helpers::broadcast_near_region_in;
+use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::instance_of;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_bare_to_client;
@@ -7,7 +20,18 @@ use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::stat_add;
+use crate::model::components::AttackState;
+use crate::model::components::Intent;
+use crate::model::components::Position;
+use crate::model::formulas;
+use crate::model::movement;
+use crate::model::movement::get_position;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::scheduler::ScheduledTask;
 use crate::scheduler::ms_to_ticks;
+use crate::world::World;
 
 /// Port of `Creature.doAutoAttack` + `generateAttackTargetData`/`generateHit`
 /// for the melee single-hit case, shared by players and NPCs: roll the hit

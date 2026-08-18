@@ -1,12 +1,28 @@
 //! Packet handlers: the setup gates, set_seed/set_crop writes and the
 //! buy-seed / procure-crop trades.
 
-use super::*;
+use super::persist::save_after_action;
+use super::reference_price;
 /// Java `RequestSetSeed`/`RequestSetCrop`'s shared owner gate. Returns the
 /// player object id when: the manor is in its **modifiable** period, the
 /// player's clan owns castle `manor_id`, they hold `CS_MANOR_ADMIN`, and they
 /// are in range of the chamberlain (last folk NPC). Otherwise sends
 /// `ActionFailed` and returns `None`, mirroring Java's early-outs.
+use crate::game_loop::death::ADENA_ID;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_sm_to_client;
+use crate::game_loop::helpers::send_to_client;
+use crate::model::Player;
+use crate::model::clan::CS_MANOR_ADMIN;
+use crate::model::components::LastFolkNpc;
+use crate::model::manor::CropProcure;
+use crate::model::manor::SeedProduction;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
+use commons::network::PacketReader;
 fn manor_setup_gate(world: &mut World, client_id: u32, manor_id: i32) -> Option<i32> {
     let player_oid = match world.clients.get(&client_id) {
         Some(crate::session::ClientSession::InGame(s)) => s.player_object_id(),

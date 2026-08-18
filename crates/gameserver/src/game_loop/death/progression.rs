@@ -1,9 +1,22 @@
-use super::*;
+use crate::data::npc_data::NpcTemplate;
+use crate::game_loop::helpers::broadcast_including_self;
+use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::vitals_pair;
 use crate::game_loop::helpers::{
     player_var_int, send_sm_bare_to_client, send_sm_bare_to_player, send_sm_to_client,
     send_sm_to_player, send_to_client, set_player_var_int,
 };
+use crate::model::Player;
+use crate::model::components::BaseStats;
+use crate::model::components::PlayerVitals;
+use crate::model::components::SkillBook;
+use crate::model::components::Speeds;
+use crate::model::components::StatModifiers;
+use crate::model::components::Vitals;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 
 /// `Attackable.calculateOverhitExp` — the bonus XP a killing `<overHit>` blow
 /// earns, and the "over-hit!" notice that goes with it.

@@ -1,8 +1,19 @@
-use super::*;
+use super::do_revive;
 use crate::game_loop::guard::clan_of;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::broadcast_including_self;
+use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::set_position;
 use crate::game_loop::helpers::{send_to_client, send_to_player};
+use crate::model::Player;
+use crate::model::components::Intent;
+use crate::model::components::Movement;
+use crate::model::components::Position;
+use crate::model::components::Vitals;
+use crate::network::client_packets as cp;
+use crate::network::server_packets;
+use crate::world::World;
 
 /// Port of `clientpackets/RequestRestartPoint`: pick the respawn point for the
 /// requested restart type — the siege "to castle"/"to siege HQ" cases when the

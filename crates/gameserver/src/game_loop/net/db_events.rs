@@ -1,7 +1,14 @@
 //! The DB event fan-out: route each boot-loaded table and query result to
 //! its owning module.
 
-use super::*;
+use super::on_characters_loaded;
+use crate::db::DbEvent;
+use crate::game_loop::helpers::send_to_client;
+use crate::loginlink::LoginLinkCommand;
+use crate::network::server_packets;
+use crate::world::World;
+use tracing::info;
+use tracing::warn;
 /// One DB result: a boot-load table landing, or a mid-session read's
 /// continuation (character list, name check, id block…).
 pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {

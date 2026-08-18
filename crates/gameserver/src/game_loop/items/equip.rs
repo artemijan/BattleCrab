@@ -1,7 +1,11 @@
 //! The equip/paperdoll lifecycle: equip clicks, unequip, slot displacement
 //! refresh and equipped-item destruction.
 
-use super::*;
+use super::use_etc_item;
+use crate::game_loop::helpers::item_id_of;
+use crate::game_loop::helpers::send_to_client;
+use crate::model::inventory::Inventory;
+use crate::world::World;
 /// The cursed-weapon half of `UseItem.runImpl`'s equipable branch: a wielder of
 /// Zariche/Akamanah may neither put on formal wear (6408) nor touch a hand slot
 /// — the curse locks the weapon in place, so the "just swap to another sword"

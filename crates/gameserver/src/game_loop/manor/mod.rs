@@ -27,29 +27,21 @@
 //! the reference build never sends the buy/sell *display* packets (`BuyListSeed`
 //! /`ExShowSellCropList` are dead), so the trader window is client-native.
 
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::send_action_failed;
-use crate::game_loop::helpers::send_sm_bare_to_player;
-use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::time::{
-    MILLIS_PER_DAY, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, TICKS_PER_SECOND,
-};
-use commons::network::PacketReader;
+#[cfg(test)]
+use crate::game_loop::time::{MILLIS_PER_DAY, MILLIS_PER_HOUR, MILLIS_PER_MINUTE};
+#[cfg(test)]
+use crate::model::manor::ManorMode;
+#[cfg(test)]
+use schedule::{ModeTimes, boot_mode, next_mode_change_millis};
+
 use tracing::warn;
 
-use crate::model::Player;
-use crate::model::clan::CS_MANOR_ADMIN;
 use crate::model::components::LastFolkNpc;
-use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
-use crate::network::server_packets::{
-    self, CropInfoEntry, CropSettingEntry, ManorDefaultEntry, SeedInfoEntry, SeedSettingEntry,
-    SmParam, sm_ids,
-};
-use crate::scheduler::ScheduledTask;
+
+use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 
-use super::death::ADENA_ID;
 use crate::game_loop::helpers::npc_id_of;
 
 /// The clan that owns `castle_id`, if any (Java `Castle.getOwnerId()`), re-
@@ -195,11 +187,21 @@ mod persist;
 mod schedule;
 mod settlement;
 
-use entries::*;
-pub(crate) use packets::*;
-pub(crate) use persist::*;
-pub(crate) use schedule::*;
-pub(crate) use settlement::*;
+use entries::{
+    crop_info_entries, crop_setting_entries, default_entries, reference_price, seed_info_entries,
+    seed_setting_entries,
+};
+pub(crate) use packets::{
+    handle_request_buy_seed, handle_request_procure_crop_list, handle_request_set_crop,
+    handle_request_set_seed,
+};
+
+pub(crate) use persist::{arm_autosave, handle_autosave, save_all_on_shutdown};
+
+pub(crate) use schedule::{advance_manor_mode, next_mode_change_at, schedule_manor_at_boot};
+
+pub(crate) use settlement::manor_cost;
+
 /// Parse `…?ask=<int>&state=<int>&time=<0|1>` (Java splits on `?`, then `&`,
 /// each `key=value` on `=`, and `time` is `.equals("1")`).
 fn parse_manor_select(command: &str) -> Option<(i32, i32, bool)> {

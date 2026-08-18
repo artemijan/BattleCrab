@@ -1,9 +1,25 @@
-use super::*;
+use super::add_exp_and_sp;
+use super::award_raid_points;
+use super::consume_kill_vitality;
+use super::overhit_bonus;
+use crate::data::item_data::ADENA_ID;
+use crate::data::npc_data::DropHolder;
+use crate::data::npc_data::NpcTemplate;
 use crate::game_loop::ground_items::reserve_for;
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::{send_sm_to_client, send_to_client};
+use crate::model::Player;
+use crate::model::components::Position;
+use crate::model::components::Vitals;
+use crate::model::formulas;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
+use crate::world::regions_adjacent;
 
 /// XP/SP shares from the aggro list + drops to the top damage dealer.
 /// Party members pool shares and split via `Party.distributeXpAndSp` (G10).

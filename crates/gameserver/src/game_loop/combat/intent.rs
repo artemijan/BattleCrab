@@ -1,11 +1,39 @@
-use super::*;
+use super::Combatant;
+use super::combatant;
+use super::distance_2d;
+use super::do_auto_attack;
+use super::refresh_attack_stance;
+use super::target_is_dead;
+use super::wields_two_handed;
 use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::broadcast_including_self;
+use crate::game_loop::helpers::broadcast_near_region_in;
+use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::instance_of;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::stop_movement;
 use crate::game_loop::skills::effects::target_p_def;
+use crate::model::PlayerIntent;
+use crate::model::components::AttackState;
+use crate::model::components::Casting;
+use crate::model::components::Following;
+use crate::model::components::Intent;
+use crate::model::components::MoveToPawnState;
+use crate::model::components::Movement;
+use crate::model::components::Position;
+use crate::model::components::Speeds;
+use crate::model::components::Vitals;
+use crate::model::formulas;
+use crate::model::movement;
+use crate::model::movement::MoveData;
+use crate::network::client_packets as cp;
+use crate::network::server_packets;
+use crate::network::server_packets::sm_ids;
+use crate::scheduler::ScheduledTask;
 use crate::scheduler::ms_to_ticks;
+use crate::world::World;
 
 /// Port of `clientpackets/AttackRequest` + `Player.onActionRequest` →
 /// `NpcAction`'s monster branch: clicking your already-selected monster

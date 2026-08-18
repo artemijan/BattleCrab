@@ -1,8 +1,13 @@
 //! Expiry: the 15-day timers and the return of unclaimed attachments to
 //! the sender's warehouse.
 
-use super::*;
+use super::delete_message;
+use super::send_unread_count;
+use crate::game_loop::helpers::send_sm_to_player as send_sm;
+use crate::model::inventory::Inventory;
+use crate::network::server_packets::sm_ids;
 use crate::scheduler::ms_to_ticks;
+use crate::world::World;
 // ---------------------------------------------------------------------------
 // Expiry — Java `MessageDeletionTaskManager`
 // ---------------------------------------------------------------------------

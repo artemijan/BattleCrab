@@ -1,13 +1,33 @@
 //! Attachments: the shared guards, take/cancel/reject flows and the COD
 //! payment to the sender.
 
-use super::*;
 // ---------------------------------------------------------------------------
 // Attachments — receive (ex 0x67), cancel (ex 0x6C), reject (ex 0x68)
 // ---------------------------------------------------------------------------
 
+use super::char_name_by_id;
+use super::delete_message;
+use super::in_peace_zone;
+use super::persist_attachments;
+use super::persist_flags;
+use super::persist_message;
+use super::refuse_attachments_outside_peace_zone;
+use super::schedule_expiry;
+use super::send_unread_count;
 /// Shared guard chain for the three attachment flows. `peace_sm` differs per
 /// packet in Java, so the caller supplies its trio of messages.
+use crate::data::item_data::ADENA_ID;
+use crate::game_loop::helpers::send_inventory_item_list;
+use crate::game_loop::helpers::send_sm_to_player as send_sm;
+use crate::game_loop::helpers::send_to_player;
+use crate::model::Player;
+use crate::model::components::Trade;
+use crate::model::inventory::Inventory;
+use crate::model::mail::Message;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 fn attachment_guards(
     world: &World,
     player: i32,

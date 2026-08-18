@@ -1,7 +1,23 @@
 //! EtcItem "use" handlers: the ItemHandler dispatch, seeds, item skills,
 //! consume checks and extractables.
 
-use super::*;
+use super::charge_fish_shot;
+use super::charge_shot;
+use super::destroy_item_by_id;
+use super::item_skills;
+use crate::data::item_data::ItemHandler;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::item_id_of;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::skill_by_id;
+use crate::model::inventory::Inventory;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
+use tracing::warn;
 /// The `EtcItem` branch of `UseItem.runImpl` (Java:
 /// `ItemHandler.getInstance().getHandler(etcItem)`). Dispatches on
 /// `ItemTemplate.handler`; only `ExtractableItems` (pack/box items) is

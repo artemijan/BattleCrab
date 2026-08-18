@@ -1,10 +1,31 @@
-use super::*;
+use super::attacker_display_name;
+use super::is_npc_oid;
+use super::refresh_attack_stance;
+use crate::game_loop::common::maybe_distance_too_far;
+use crate::game_loop::helpers::broadcast_including_self;
+use crate::game_loop::helpers::broadcast_near_region_in;
+use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::instance_of;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::stat_add;
 use crate::game_loop::helpers::stat_mul;
 use crate::game_loop::helpers::{absorb_into_hp, is_dead};
+use crate::game_loop::skills::cast::break_cast;
+use crate::model::components::Casting;
+use crate::model::components::PlayerVitals;
+use crate::model::components::Speeds;
+use crate::model::components::Vitals;
+use crate::model::formulas;
+use crate::model::npc::AggroList;
+use crate::model::npc::NpcAi;
+use crate::model::npc::NpcIntention;
+use crate::model::stats::BaseStat;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 
 /// Damage application shared by auto-attacks (and reusable by future physical
 /// skills): route to the right victim kind, waking NPC AI / breaking player

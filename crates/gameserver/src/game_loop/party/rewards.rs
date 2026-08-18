@@ -1,6 +1,5 @@
 //! XP/SP distribution for a party's damage share of one kill.
 
-use super::*;
 // ---------------------------------------------------------------------------
 // Party rewards (`Party.distributeXpAndSp` + `distributeItem`/`distributeAdena`)
 // ---------------------------------------------------------------------------
@@ -10,6 +9,7 @@ use super::*;
 /// `base_exp`/`base_sp` already carry `partyDmg/totalDamage × partyMul ×
 /// level-gap` (the caller ports `calculateExpAndSp`); this adds the party
 /// bonus ladder and splits by level².
+use crate::world::World;
 pub(crate) fn distribute_xp_and_sp(
     world: &mut World,
     rewarded: &[(i32, i32)], // (object_id, level), alive + in range

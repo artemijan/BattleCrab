@@ -2,8 +2,15 @@
 //! audit trail, and the quest-style give/take with "You have earned" messages
 //! shared by many non-quest modules.
 
-use super::*;
-
+use super::finish_equipped_item_destroyed;
+use super::unequipped_by_removal;
+use crate::game_loop::helpers::send_to_client;
+use crate::model::inventory::Inventory;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
+use tracing::warn;
 /// The stack-or-create core of `Player.addItem`: merge into an existing
 /// stack (persisting the new count) or allocate an object id and insert a
 /// fresh instance. Non-stackable items get one instance *per unit*, mirroring

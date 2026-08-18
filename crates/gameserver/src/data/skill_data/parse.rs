@@ -1,5 +1,27 @@
-use super::*;
+use super::CondScope;
+use super::EffectScope;
+use super::LeveledValues;
+use super::ParsedCondition;
+use super::ParsedEffect;
+use super::ParsedSkills;
+use super::RangedRow;
+use super::SkillGaps;
+use super::effect_level_attrs;
+use super::finalize_skill;
+use super::ranged_bounds;
+use super::record_dropped_scope;
 use crate::data::xml;
+use crate::data::xml::attr_f64;
+use crate::data::xml::attr_i32;
+use crate::data::xml::attr_i64;
+use crate::data::xml::attr_str;
+use crate::model::skill::RestorationGroup;
+use crate::model::skill::RestorationItem;
+use quick_xml::events::Event;
+use std::collections::BTreeSet;
+use std::collections::HashMap;
+use tracing::info;
+use tracing::warn;
 
 pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
     // Current `<skill>` being built (id/name/toLevel + the generic field map).

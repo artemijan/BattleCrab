@@ -1,12 +1,17 @@
 //! Boot load, the char-name index, and the write-through persistence of
 //! messages, flags and attachments.
 
-use super::*;
 // ---------------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------------
 
+use super::schedule_all_expiries;
+use crate::model::Player;
 /// `DbEvent::MailLoaded` — Java `MailManager.load` + `CharInfoTable`.
+use crate::model::inventory::Inventory;
+use crate::model::mail::MailManager;
+use crate::model::mail::Message;
+use crate::world::World;
 pub(crate) fn on_loaded(
     world: &mut World,
     messages: Vec<Message>,

@@ -1,12 +1,25 @@
 //! The manor period scheduler: ModeTimes, the boot mode, and the daily
 //! Maintenance → Modifiable → Approved transitions.
 
-use super::*;
 // ---------------------------------------------------------------------------
 // Period scheduler — port of `CastleManorManager`'s wall-clock mode machine.
 // ---------------------------------------------------------------------------
 
+use super::arm_autosave;
+use super::persist::notify_leader;
+use super::persist::store_manor;
+use super::settlement::charge_next_period;
+use super::settlement::gate_next_period_on_treasury;
+use super::settlement::owned_manor_castles;
+use super::settlement::settle_closing_period;
 /// The five daily cutover times (from `General.ini`), pulled off config.
+use crate::game_loop::time::MILLIS_PER_DAY;
+use crate::game_loop::time::MILLIS_PER_HOUR;
+use crate::game_loop::time::MILLIS_PER_MINUTE;
+use crate::model::manor::ManorMode;
+use crate::network::server_packets::sm_ids;
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
 #[derive(Debug, Clone, Copy)]
 pub(super) struct ModeTimes {
     pub(super) refresh_h: i32,

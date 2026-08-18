@@ -1,12 +1,29 @@
 //! The send flow: `RequestSendPost` with its guard chain, fee, and the
 //! attachment move into the message container.
 
-use super::*;
 // ---------------------------------------------------------------------------
 // ex 0x63 RequestSendPost — compose and send
 // ---------------------------------------------------------------------------
 
+use super::char_id_by_name;
+use super::in_peace_zone;
+use super::persist_attachments;
+use super::persist_message;
+use super::schedule_expiry;
+use super::send_unread_count;
 /// Java's field caps (`RequestSendPost`).
+use crate::data::item_data::ADENA_ID;
+use crate::game_loop::helpers::send_inventory_item_list;
+use crate::game_loop::helpers::send_sm_to_player as send_sm;
+use crate::game_loop::helpers::send_to_player;
+use crate::model::Player;
+use crate::model::components::Trade;
+use crate::model::inventory::Inventory;
+use crate::model::mail::Message;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 const MAX_RECEIVER_LENGTH: usize = 16;
 const MAX_SUBJECT_LENGTH: usize = 128;
 const MAX_TEXT_LENGTH: usize = 512;

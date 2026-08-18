@@ -22,34 +22,38 @@
 //! - `damage` — applying it: HP/MP absorb, reflect, servitor transfer, and the
 //!   NPC and player receive-damage paths.
 
-use crate::game_loop::common::maybe_distance_too_far;
-use crate::model::PlayerIntent;
-use crate::model::components::{
-    AttackState, Casting, Collision, CombatStats, Following, Intent, MoveToPawnState, Movement,
-    PlayerVitals, Position, Speeds, Vitals,
-};
+use crate::model::components::{AttackState, Collision, CombatStats, Position, Vitals};
 use crate::model::formulas;
-use crate::model::movement::{self, MoveData, get_position};
-use crate::model::npc::{AggroList, NpcAi, NpcIntention};
+
+use crate::model::movement;
+
 use crate::model::stats::BaseStat;
-use crate::network::client_packets as cp;
-use crate::network::server_packets::{self, SmParam, sm_ids};
-use crate::scheduler::ScheduledTask;
+
+use crate::network::server_packets;
+
 use crate::world::World;
 
-use super::helpers::{
-    broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of,
-};
-use super::skills::cast::break_cast;
+use super::helpers::broadcast_including_self;
+
 use crate::game_loop::helpers::stat_mul;
 
 mod attack;
 mod damage;
 mod intent;
 
-pub(crate) use attack::*;
-pub(crate) use damage::*;
-pub(crate) use intent::*;
+pub(crate) use attack::{abort_attack, attacker_display_name, do_auto_attack, handle_attack_hit};
+#[cfg(test)]
+pub(crate) use damage::player_receive_damage;
+pub(crate) use damage::{
+    ATTACK_TIMEOUT_TICKS, apply_attack_damage, apply_physical_damage, npc_receive_damage,
+    npc_wake_on_attacked, player_receive_damage_ex,
+};
+
+pub(crate) use intent::{
+    apply_door_damage, handle_attack_request, pawn_destination, player_cast_think,
+    player_combat_tick, resume_attack_intent, run_queued_action, start_attack_intent,
+    start_interact_intent, start_pickup_intent,
+};
 
 /// `AttackStanceTaskManager.COMBAT_TIME` (15 s) in ticks.
 pub(crate) const COMBAT_STANCE_TICKS: u64 = 150;

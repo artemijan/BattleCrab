@@ -1,11 +1,19 @@
 //! Reading and deleting mail: the received/sent post windows and the
 //! delete pair.
 
-use super::*;
 // ---------------------------------------------------------------------------
 // ex 0x66 RequestReceivedPost / ex 0x6B RequestSentPost — open one message
 // ---------------------------------------------------------------------------
 
+use super::attachment_views;
+use super::char_name_by_id;
+use super::delete_message;
+use super::persist_flags;
+use super::refuse_attachments_outside_peace_zone;
+use super::send_unread_count;
+use crate::game_loop::helpers::send_to_player;
+use crate::network::server_packets;
+use crate::world::World;
 pub(crate) fn handle_received_post(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(player) = world.player_oid(client_id) else {
         return;

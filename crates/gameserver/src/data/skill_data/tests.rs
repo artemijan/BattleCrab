@@ -1,5 +1,21 @@
-use super::*;
+use super::ParsedSkills;
+use super::SkillData;
+use super::parse_str;
 use crate::data::dist;
+use crate::model::skill::AffectObject;
+use crate::model::skill::AffectScope;
+use crate::model::skill::DispelSlot;
+use crate::model::skill::EscapeDest;
+use crate::model::skill::OperateType;
+use crate::model::skill::RestorationItem;
+use crate::model::skill::Skill;
+use crate::model::skill::SkillEffect;
+use crate::model::skill::StatModifierEffect;
+use crate::model::skill::TargetType;
+use crate::model::stats::Stat;
+use crate::model::stats::StatModifierType;
+use std::collections::BTreeSet;
+use std::collections::HashMap;
 
 /// `Skill.getName()` — `<skill name="…">` is parsed and kept per id, for
 /// the messages that quote a skill back to the player. The name lives on

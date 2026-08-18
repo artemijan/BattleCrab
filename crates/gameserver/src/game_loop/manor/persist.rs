@@ -1,11 +1,15 @@
 //! Persistence: per-action saves, the autosave chain, shutdown flush and
 //! the clan-leader notification.
 
-use super::*;
+use super::castle_owner_clan_id;
+use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::time::TICKS_PER_SECOND;
 /// `AltManorSaveAllActions` — write this castle's rows now if the operator
 /// asked for per-action persistence. With it off (this dist) the setup rides
 /// in memory until [`handle_autosave`] or the shutdown sweep, which is what
 /// Java does too.
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
 pub(super) fn save_after_action(world: &World, castle_id: i32) {
     if world.cfg.general.alt_manor_save_all_actions {
         store_manor(world, castle_id);

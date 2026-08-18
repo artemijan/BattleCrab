@@ -1,7 +1,20 @@
-use super::*;
+use super::die_options;
+use super::level_for_exp;
+use super::on_die_drop_item;
+use super::set_level;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::broadcast_including_self;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::model::Player;
+use crate::model::components::Intent;
+use crate::model::components::Movement;
+use crate::model::components::StatModifiers;
+use crate::model::components::Vitals;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 
 /// `Player.doDie`: mark dead, stop everything, apply the XP penalty,
 /// broadcast `Die` with the to-village flag.

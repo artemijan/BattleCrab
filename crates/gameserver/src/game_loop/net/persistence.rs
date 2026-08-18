@@ -1,7 +1,10 @@
 //! Player persistence: the World → PlayerSaveData serialization, immediate
 //! and shutdown saves, and the store-then-remove leave path.
 
-use super::*;
+use crate::db;
+use crate::game_loop::guard::clan_of_or_zero;
+use crate::world::World;
+use tracing::info;
 /// Take the player out of the world and persist them — Java
 /// `Disconnection.storeMe().deleteMe()`. Shared by restart, logout, and
 /// unexpected disconnects. Scheduled tasks holding the dead object id no-op.

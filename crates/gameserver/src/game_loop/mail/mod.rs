@@ -6,15 +6,11 @@
 //! Both parties to a message may be offline, so nothing here is memory-first:
 //! each change is followed by its `DbCommand` (the clan-warehouse discipline).
 
-use crate::data::item_data::ADENA_ID;
-use crate::game_loop::helpers::{
-    send_inventory_item_list, send_sm_to_player as send_sm, send_to_player,
-};
-use crate::model::Player;
-use crate::model::components::{Trade, ZoneFlags};
+use crate::game_loop::helpers::{send_sm_to_player as send_sm, send_to_player};
+use crate::model::components::ZoneFlags;
 use crate::model::inventory::{Inventory, ItemInstance};
-use crate::model::mail::{MailListRow, MailManager, Message};
-use crate::network::server_packets::{self, MailListView, SmParam, sm_ids};
+use crate::model::mail::MailListRow;
+use crate::network::server_packets::{self, MailListView, sm_ids};
 use crate::world::World;
 
 mod attachments;
@@ -23,11 +19,18 @@ mod read;
 mod send;
 mod store;
 
-pub(crate) use attachments::*;
-pub(crate) use expiry::*;
-pub(crate) use read::*;
-pub(crate) use send::*;
-pub(crate) use store::*;
+pub(crate) use attachments::{
+    handle_cancel_post_attachment, handle_post_attachment, handle_reject_post_attachment,
+};
+pub(crate) use expiry::{handle_expiry, schedule_all_expiries, schedule_expiry};
+pub(crate) use read::{
+    handle_delete_received_post, handle_delete_sent_post, handle_received_post, handle_sent_post,
+};
+pub(crate) use send::handle_send_post;
+pub(crate) use store::{
+    char_id_by_name, char_name_by_id, delete_message, on_character_created, on_character_deleted,
+    on_loaded, persist_attachments, persist_flags, persist_message,
+};
 // ---------------------------------------------------------------------------
 // Small helpers
 // ---------------------------------------------------------------------------

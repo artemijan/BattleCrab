@@ -1,9 +1,14 @@
 //! Settlement: closing-period payout, the treasury gate, next-period
 //! charge and the clan-warehouse deposit.
 
-use super::*;
+use super::castle_owner_clan_id;
+use super::persist::notify_leader;
+use super::reference_price;
 /// The manor castles that currently have an owning clan — Java skips the rest
 /// (`if (owner == null) continue`).
+use crate::model::manor::CropProcure;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 pub(super) fn owned_manor_castles(world: &World) -> Vec<i32> {
     world
         .data

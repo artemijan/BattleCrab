@@ -1,7 +1,15 @@
 //! Soulshot/spiritshot/fishshot charging, the auto-shot toggle and the
 //! shot visual broadcast.
 
-use super::*;
+use crate::data::item_data::ItemHandler;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_to_client;
+use crate::model::inventory::Inventory;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 /// Java `Player.addAutoSoulShot(itemId)` — arm auto-use for one shot item.
 ///
 /// The list is a set: Java's `_activeSoulShots` is a `Set<Integer>`, and the

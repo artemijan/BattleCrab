@@ -24,25 +24,25 @@
 //!   tooling: `crates/tools/tests/coverage_census.rs`.
 
 use std::cell::RefCell;
+
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use quick_xml::events::Event;
-use tracing::{info, warn};
+use tracing::info;
 
 use crate::model::skill::{
-    AffectObject, AffectScope, BasicProperty, CompanionKind, DispelSlot, EscapeDest, OperateType,
-    ResidenceType, RestorationGroup, RestorationItem, Skill, SkillCondition, SkillEffect,
-    StatModifierEffect, TargetType,
+    CompanionKind, OperateType, ResidenceType, RestorationGroup, Skill, SkillCondition,
 };
-use crate::model::stats::{Stat, StatModifierType};
+use crate::model::stats::Stat;
 
 mod build;
 pub(crate) mod parse;
 
-pub(crate) use build::*;
-pub(crate) use parse::*;
+pub(crate) use build::build_skill;
+
+pub(crate) use parse::parse_str;
+
 // `build` used to define these; the submodules still reach them by this path.
-pub(crate) use crate::data::xml::{attr_f64, attr_i32, attr_i64, attr_str};
+pub(crate) use crate::data::xml::attr_i32;
 
 pub const SKILLS_DIR: &str = "data/stats/skills";
 
