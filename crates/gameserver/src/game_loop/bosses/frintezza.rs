@@ -16,14 +16,15 @@
 
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::hp_pair;
+use crate::game_loop::helpers::instance_of;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::helpers::{instance_of, ms_to_ticks};
 use crate::game_loop::instances;
 use crate::model::components::{AdminFlags, Movement, Position};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
+use crate::scheduler::ms_to_ticks;
 use crate::world::World;
 
 pub(crate) const TEMPLATE_ID: i32 = 136;

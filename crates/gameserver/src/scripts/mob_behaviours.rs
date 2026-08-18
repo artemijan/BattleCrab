@@ -443,7 +443,7 @@ impl QuestScript for FleeMonsters {
             .world
             .geo
             .get_valid_location(npc_pos.x, npc_pos.y, npc_pos.z, dest_x, dest_y, npc_pos.z);
-        crate::game_loop::helpers::set_move_to_intention(ctx.world, ctx.npc, vx, vy, vz);
+        crate::game_loop::npc::ai::set_move_to_intention(ctx.world, ctx.npc, vx, vy, vz);
     }
 }
 

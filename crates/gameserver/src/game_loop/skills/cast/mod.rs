@@ -10,8 +10,8 @@ use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{
-    broadcast_including_self, client_for_player, ms_to_ticks, run_queued_action,
-    send_sm_and_action_failed, send_sm_to_client, send_to_player,
+    broadcast_including_self, client_for_player, send_sm_and_action_failed, send_sm_to_client,
+    send_to_player,
 };
 use crate::model::Player;
 use crate::model::components::{
@@ -46,6 +46,7 @@ pub(crate) use channeling::*;
 // only module here imported with a *private* glob (`use consequences::*` below),
 // because the cast pipeline's consequence half is internal. The shim on the
 // other end is `#[cfg(test)]` too, which is what forces the cfg here.
+use crate::game_loop::combat::run_queued_action;
 #[cfg(test)]
 pub(crate) use consequences::apply_bad_skill_aggro_for_test;
 use consequences::*;

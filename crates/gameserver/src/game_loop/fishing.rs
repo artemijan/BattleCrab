@@ -13,8 +13,8 @@
 use crate::data::item_data::WeaponType;
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::guard::{in_zone, maybe_position};
+use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::helpers::{is_dead, ms_to_ticks};
 use crate::model::Player;
 use crate::model::components::FishingSession;
 use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -24,6 +24,7 @@ use crate::world::World;
 
 use super::helpers::send_to_player as send;
 use super::helpers::{broadcast_near_region, client_for_player};
+use crate::scheduler::ms_to_ticks;
 
 // FishingEndReason (Java enum ordinals).
 const REASON_WIN: u8 = 0;

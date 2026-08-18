@@ -2,6 +2,7 @@ use super::*;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_raid_npc;
+use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
@@ -9,8 +10,7 @@ use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::set_position;
-use crate::game_loop::helpers::{force_attack_target, npc_name_or_empty};
-
+use crate::game_loop::npc::ai::force_attack_target;
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
 pub(crate) fn confuse_chance_passes(
@@ -41,7 +41,7 @@ pub(crate) fn random_bystander(
     caster_oid: i32,
     exclude_caster_and_clan: bool,
 ) -> Option<i32> {
-    let mut candidates = crate::game_loop::helpers::visible_creatures(world, victim_oid);
+    let mut candidates = crate::game_loop::visibility::visible_creatures(world, victim_oid);
     if exclude_caster_and_clan {
         candidates.retain(|&oid| oid != caster_oid && !same_npc_faction(world, victim_oid, oid));
     }
@@ -289,7 +289,7 @@ pub(crate) fn fear_action(world: &mut World, effector: Option<i32>, effected: i3
             (vx, vy, vz),
         );
     } else {
-        crate::game_loop::helpers::set_move_to_intention(world, effected, vx, vy, vz);
+        crate::game_loop::npc::ai::set_move_to_intention(world, effected, vx, vy, vz);
     }
 }
 

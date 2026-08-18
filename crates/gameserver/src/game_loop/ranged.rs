@@ -116,7 +116,7 @@ pub(crate) fn prepare_ranged_shot(
     world.objects.add_components(
         &attacker_oid,
         crate::model::components::RangedReload {
-            ready_at_tick: world.tick + super::helpers::ms_to_ticks(reuse_ms),
+            ready_at_tick: world.tick + crate::scheduler::ms_to_ticks(reuse_ms),
         },
     );
     if is_crossbow(weapon_type) {

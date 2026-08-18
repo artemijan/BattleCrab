@@ -5063,7 +5063,7 @@ fn a_shop_window_suppresses_item_list_refreshes_briefly() {
     );
 
     // Block, as opening a shop/warehouse does.
-    crate::game_loop::helpers::block_inventory(&mut world, 3001);
+    crate::game_loop::items::block_inventory(&mut world, 3001);
     items::handle_request_item_list(&mut world, 1);
     assert!(
         drain(&mut rx).is_empty(),

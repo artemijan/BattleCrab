@@ -224,7 +224,7 @@ pub(crate) fn arm_function_expiry(world: &mut World, hall_id: i32, func_id: i32)
     };
     let delay_ms = (expiration - now).max(0).min(i32::MAX as i64) as i32;
     world.scheduler.schedule(
-        world.tick + crate::game_loop::helpers::ms_to_ticks(delay_ms),
+        world.tick + crate::scheduler::ms_to_ticks(delay_ms),
         ScheduledTask::ClanHallFunctionExpire { hall_id, func_id },
     );
 }

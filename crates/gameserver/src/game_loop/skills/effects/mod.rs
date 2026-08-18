@@ -19,13 +19,13 @@
 
 use crate::game_loop::bot_report;
 use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::helpers::{client_for_player, force_attack_target};
 use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
@@ -52,6 +52,7 @@ mod ticks;
 mod traits;
 mod triggers;
 
+use crate::game_loop::npc::ai::force_attack_target;
 pub(crate) use continuous::*;
 pub(crate) use control::*;
 pub(crate) use damage::*;

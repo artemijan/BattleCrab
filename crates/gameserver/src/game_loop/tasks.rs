@@ -370,7 +370,7 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 siege::handle_siege_fame(world, player_oid);
             }
             ScheduledTask::AttackFinish { object_id } => {
-                helpers::run_queued_action(world, object_id);
+                crate::game_loop::combat::run_queued_action(world, object_id);
             }
             ScheduledTask::NpcAttackReady { npc_oid } => {
                 ai::on_npc_attack_ready(world, npc_oid);

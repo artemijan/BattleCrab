@@ -656,7 +656,7 @@ pub(crate) fn restore_from_db(world: &mut World, rows: &[crate::db::GroundItemRo
             let elapsed_ms = (now - row.drop_time_ms).max(0);
             let remaining_ms = (delay_secs as i64 * 1000 - elapsed_ms).max(0);
             world.scheduler.schedule(
-                world.tick + crate::game_loop::helpers::ms_to_ticks(remaining_ms),
+                world.tick + crate::scheduler::ms_to_ticks(remaining_ms),
                 ScheduledTask::GroundItemDecay {
                     item_object_id: row.object_id,
                 },

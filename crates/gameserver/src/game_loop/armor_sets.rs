@@ -238,7 +238,7 @@ fn stamp_equip_reuse(world: &mut World, oid: i32, granted: &[(i32, i32)]) {
                 key,
                 crate::model::SkillReuse {
                     skill_level: level,
-                    until_tick: now + crate::game_loop::helpers::ms_to_ticks(delay_ms),
+                    until_tick: now + crate::scheduler::ms_to_ticks(delay_ms),
                     total_ms: delay_ms,
                 },
             );

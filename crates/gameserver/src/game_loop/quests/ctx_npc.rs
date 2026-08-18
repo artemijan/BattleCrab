@@ -2,7 +2,7 @@
 //! absorbing, retargeting, NPC variables/say and quest timers.
 
 use super::*;
-use crate::game_loop::helpers::ms_to_ticks;
+use crate::scheduler::ms_to_ticks;
 
 impl<'w> QuestCtx<'w> {
     /// `Attackable.isSpoiled()` — whether a Spoil landed on the involved NPC.
@@ -259,7 +259,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return;
         }
-        crate::game_loop::helpers::npc_say_text(self.world, self.npc, text);
+        crate::game_loop::npc::say::npc_say_text(self.world, self.npc, text);
     }
 
     /// The same literal-text bubble, but from an *arbitrary* npc — a spawned
@@ -268,7 +268,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return;
         }
-        crate::game_loop::helpers::npc_say_text(self.world, npc_oid, text);
+        crate::game_loop::npc::say::npc_say_text(self.world, npc_oid, text);
     }
 
     /// Seed aggro from an arbitrary npc onto a target (npc-vs-npc), for the Saga
@@ -609,7 +609,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return;
         }
-        crate::game_loop::helpers::npc_say(self.world, self.npc, npc_string_id);
+        crate::game_loop::npc::say::npc_say(self.world, self.npc, npc_string_id);
     }
 
     /// `attacker.sendPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))` — the

@@ -828,7 +828,7 @@ impl PlayerData {
                 r.reuse_key,
                 SkillReuse {
                     skill_level: r.skill_level,
-                    until_tick: now_tick + crate::game_loop::helpers::ms_to_ticks(remaining_ms),
+                    until_tick: now_tick + crate::scheduler::ms_to_ticks(remaining_ms),
                     total_ms: r.reuse_delay,
                 },
             );

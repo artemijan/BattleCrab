@@ -2,6 +2,7 @@
 //! shot consume) and the cool-down end with its queued-action replay.
 
 use super::*;
+use crate::scheduler::ms_to_ticks;
 
 /// A cast task's `CastState` if it's still the live one (seq matches);
 /// stale/aborted tasks resolve to `None` and no-op.

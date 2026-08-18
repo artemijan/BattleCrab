@@ -2,6 +2,7 @@
 //! and `stopChanneling`.
 
 use super::*;
+use crate::scheduler::ms_to_ticks;
 
 /// One `SkillChannelizer.run()` tick: MP upkeep (starvation → SM 140 + abort),
 /// re-resolve the target and **re-sweep the affect scope** (a mob that walked

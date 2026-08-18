@@ -32,8 +32,8 @@ use crate::scheduler::ScheduledTask;
 use crate::world::{World, region_of};
 
 use super::helpers::broadcast_near_region;
-use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::scheduler::ms_to_ticks;
 
 fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> VehiclePathPoint {
     VehiclePathPoint {

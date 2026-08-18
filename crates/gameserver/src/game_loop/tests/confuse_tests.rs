@@ -3,7 +3,7 @@
 //! Both were blocked on the same thing: the hate-effects slice deferred
 //! `RandomizeHate` because it "needs a general nearby-visible-creatures query
 //! `faction_call`'s NPC-only neighbour scan doesn't provide". Building
-//! `helpers::visible_creatures` once unblocks both.
+//! `visibility::visible_creatures` once unblocks both.
 //!
 //! Madness 1105, Curse Discord 1163 and Confusion 2 each carry **only** the
 //! unported effect, so all three were dropped whole.

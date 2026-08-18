@@ -21,7 +21,6 @@ use crate::config::OlympiadConfig;
 use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_sm_bare_to_player as send_sm;
@@ -34,7 +33,7 @@ use crate::model::olympiad::{
     CompetitionType, NobleStats, OlympiadMatch, OlympiadState, REG_CLOSE_BEFORE_END_MS,
 };
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
-use crate::scheduler::ScheduledTask;
+use crate::scheduler::{ScheduledTask, ms_to_ticks};
 use crate::world::World;
 
 // --- the competition-period state machine (dist `config/Olympiad.ini`) ---

@@ -23,10 +23,10 @@ use crate::game_loop::helpers::skill_by_id;
 use std::collections::HashMap;
 
 use crate::config::bot_report::BotReportConfig;
-use crate::game_loop::helpers::ms_to_ticks;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::network::server_packets::{SmParam, sm_ids};
+use crate::scheduler::ms_to_ticks;
 use crate::world::World;
 
 /// Java `BotReportTable`'s action-block ids. Negative by design: they share a

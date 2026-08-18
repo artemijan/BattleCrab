@@ -157,7 +157,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
         if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
             l.following = true;
         }
-        crate::game_loop::helpers::set_active_intention(world, servitor_oid);
+        crate::game_loop::npc::ai::set_active_intention(world, servitor_oid);
     }
 
     world.scheduler.schedule(

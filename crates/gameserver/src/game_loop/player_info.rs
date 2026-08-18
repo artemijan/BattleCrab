@@ -165,7 +165,7 @@ pub(crate) fn broadcast_user_info(world: &mut World, object_id: i32) {
         p.char_info_pending = true;
     }
     world.scheduler.schedule(
-        world.tick + crate::game_loop::helpers::ms_to_ticks(50),
+        world.tick + crate::scheduler::ms_to_ticks(50),
         ScheduledTask::BroadcastCharInfo { object_id },
     );
 }

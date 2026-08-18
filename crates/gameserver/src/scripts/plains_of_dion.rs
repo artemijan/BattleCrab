@@ -3,8 +3,8 @@
 //! onto you, with the appropriate indignation.
 
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::npc_say_param;
 use crate::game_loop::npc::ai;
+use crate::game_loop::npc::say::npc_say_param;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Position, Vitals};
 use crate::model::npc::AggroList;

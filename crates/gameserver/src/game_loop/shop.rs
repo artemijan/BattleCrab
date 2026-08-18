@@ -246,7 +246,7 @@ pub(crate) fn show_buy_window_taxed(
     // borrows `world.data` — and the ordering is unobservable, since the flag
     // gates the client's *next* packet, which cannot arrive until this handler
     // has returned.
-    helpers::block_inventory(world, player);
+    crate::game_loop::items::block_inventory(world, player);
 }
 
 /// Port of `clientpackets/RequestBuyItem.runImpl`, minus the karma gate and

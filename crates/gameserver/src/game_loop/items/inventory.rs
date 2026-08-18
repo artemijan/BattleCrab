@@ -346,7 +346,7 @@ pub(crate) fn take_items(
 pub(crate) fn block_inventory(world: &mut World, object_id: i32) {
     world.inventory_blocked.insert(object_id);
     world.scheduler.schedule(
-        world.tick + crate::game_loop::helpers::ms_to_ticks(1500),
+        world.tick + crate::scheduler::ms_to_ticks(1500),
         crate::scheduler::ScheduledTask::InventoryEnable { object_id },
     );
 }

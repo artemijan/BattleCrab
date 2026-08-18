@@ -120,7 +120,7 @@ pub(crate) fn run(world: &mut World, player_object_id: i32) {
 /// `ThreadPool.validate` floor is 0, which is what makes the reference server's
 /// unassigned 0 blow up — see the config field's doc).
 fn reward_period_ticks(world: &World) -> u64 {
-    crate::game_loop::helpers::ms_to_ticks(world.cfg.premium.pc_cafe_reward_time).max(1)
+    crate::scheduler::ms_to_ticks(world.cfg.premium.pc_cafe_reward_time).max(1)
 }
 
 /// The `PcCafeReward` task body: `giveRetailPcCafePont`, then reschedule.

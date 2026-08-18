@@ -88,7 +88,7 @@ pub(crate) fn on_core_attacked(world: &mut World, core_oid: i32) {
     if first {
         // `if (getRandom(100) == 0)` — a rare line, not every swing.
         if world.roll(TAUNT_CHANCE) == 0 {
-            crate::game_loop::helpers::npc_say(world, core_oid, REMOVING_INTRUDERS);
+            crate::game_loop::npc::say::npc_say(world, core_oid, REMOVING_INTRUDERS);
         }
         return;
     }
@@ -109,8 +109,12 @@ pub(crate) fn on_core_attacked(world: &mut World, core_oid: i32) {
     // rather than on a save timer — same value, no lost-window.
     crate::game_loop::global_vars::set(world, CORE_ATTACKED_VAR, true);
     // Both intro lines, in order.
-    crate::game_loop::helpers::npc_say(world, core_oid, A_NON_PERMITTED_TARGET_HAS_BEEN_DISCOVERED);
-    crate::game_loop::helpers::npc_say(world, core_oid, INTRUDER_REMOVAL_SYSTEM_INITIATED);
+    crate::game_loop::npc::say::npc_say(
+        world,
+        core_oid,
+        A_NON_PERMITTED_TARGET_HAS_BEEN_DISCOVERED,
+    );
+    crate::game_loop::npc::say::npc_say(world, core_oid, INTRUDER_REMOVAL_SYSTEM_INITIATED);
 }
 
 /// Is this npc id one of Core's script-spawned minions?
@@ -175,6 +179,6 @@ pub(crate) fn handle_despawn_minions(world: &mut World) {
 
 /// Core's death lines, said before the minions are cleared.
 pub(crate) fn say_death_lines(world: &mut World, core_oid: i32) {
-    crate::game_loop::helpers::npc_say(world, core_oid, A_FATAL_ERROR_HAS_OCCURRED);
-    crate::game_loop::helpers::npc_say(world, core_oid, SYSTEM_IS_BEING_SHUT_DOWN);
+    crate::game_loop::npc::say::npc_say(world, core_oid, A_FATAL_ERROR_HAS_OCCURRED);
+    crate::game_loop::npc::say::npc_say(world, core_oid, SYSTEM_IS_BEING_SHUT_DOWN);
 }

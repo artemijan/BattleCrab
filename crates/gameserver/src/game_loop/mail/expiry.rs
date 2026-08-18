@@ -2,7 +2,7 @@
 //! the sender's warehouse.
 
 use super::*;
-use crate::game_loop::helpers::ms_to_ticks;
+use crate::scheduler::ms_to_ticks;
 // ---------------------------------------------------------------------------
 // Expiry — Java `MessageDeletionTaskManager`
 // ---------------------------------------------------------------------------

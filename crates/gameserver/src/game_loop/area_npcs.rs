@@ -9,11 +9,12 @@
 //! merchants (`ai/others/Mammons/*`) are the same shape and live here too.
 
 use crate::game_loop::death::despawn_npc_by_oid;
+use crate::game_loop::helpers::announce_to_all_online;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::{announce_to_all_online, ms_to_ticks};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
+use crate::scheduler::ms_to_ticks;
 use crate::session::ClientSession;
 use crate::world::World;
 

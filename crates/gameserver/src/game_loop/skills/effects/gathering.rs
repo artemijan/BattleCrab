@@ -256,7 +256,7 @@ pub(crate) fn apply_sow(world: &mut World, caster_oid: i32, target_oid: i32) {
     }
 
     // Java sets the mob's AI to IDLE after a sow attempt.
-    crate::game_loop::helpers::set_active_intention(world, target_oid);
+    crate::game_loop::npc::ai::set_active_intention(world, target_oid);
 }
 
 /// `Sow.calcSuccess`: a level-scaled chance (base 90 %, or 20 % for the

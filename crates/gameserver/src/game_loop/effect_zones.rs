@@ -20,10 +20,10 @@ use crate::game_loop::helpers::skill_by_id;
 use commons::util::rnd;
 
 use crate::data::zone_data::ZoneKind;
-use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::spend_mp;
 use crate::game_loop::helpers::stat_add;
 use crate::model::components::{Position, Vitals, ZoneFlags};
+use crate::scheduler::ms_to_ticks;
 use crate::world::World;
 
 /// How often the sweep runs (10 × 100 ms). Individual zones still fire at their

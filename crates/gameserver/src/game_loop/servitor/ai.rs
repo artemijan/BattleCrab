@@ -102,7 +102,7 @@ pub(crate) fn summon_stop(world: &mut World, summon_oid: i32) -> bool {
     world
         .objects
         .remove_component::<crate::model::components::Movement>(&summon_oid);
-    crate::game_loop::helpers::set_active_intention(world, summon_oid);
+    crate::game_loop::npc::ai::set_active_intention(world, summon_oid);
     if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&summon_oid) {
         l.following = true;
     }

@@ -49,8 +49,7 @@ pub(crate) fn resolve_boot(world: &mut World, rows: Vec<NpcRespawnRow>) {
         match row {
             // Still dead: put it back on the clock instead of on the map.
             Some(r) if r.respawn_time > now => {
-                let delay_ticks =
-                    crate::game_loop::helpers::ms_to_ticks(r.respawn_time - now).max(1);
+                let delay_ticks = crate::scheduler::ms_to_ticks(r.respawn_time - now).max(1);
                 world.scheduler.schedule(
                     world.tick + delay_ticks,
                     ScheduledTask::BossRespawn { spawn_ref },

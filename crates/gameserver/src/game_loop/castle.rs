@@ -377,7 +377,7 @@ pub(crate) fn handle_function_renew(
         f.end_time = commons::util::now_millis() + rate;
     }
     world.scheduler.schedule(
-        world.tick + super::helpers::ms_to_ticks(rate),
+        world.tick + crate::scheduler::ms_to_ticks(rate),
         ScheduledTask::CastleFunctionRenew {
             castle_id,
             func_type,

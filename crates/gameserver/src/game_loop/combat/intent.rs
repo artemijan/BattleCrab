@@ -5,6 +5,7 @@ use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::stop_movement;
 use crate::game_loop::skills::effects::target_p_def;
+use crate::scheduler::ms_to_ticks;
 
 /// Port of `clientpackets/AttackRequest` + `Player.onActionRequest` →
 /// `NpcAction`'s monster branch: clicking your already-selected monster

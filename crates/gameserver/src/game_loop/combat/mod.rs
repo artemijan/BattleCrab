@@ -38,7 +38,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::helpers::{
-    broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of, ms_to_ticks,
+    broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of,
 };
 use super::skills::cast::break_cast;
 use crate::game_loop::helpers::stat_mul;

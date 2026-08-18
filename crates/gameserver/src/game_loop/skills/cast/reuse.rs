@@ -1,6 +1,7 @@
 //! The reuse (cooldown) gate: check and set, keyed by shared reuse groups.
 
 use super::*;
+use crate::scheduler::ms_to_ticks;
 /// Reuse gate shared by `use_magic_on` and the `ItemSkills` item handler
 /// (Java `Player.isSkillDisabled`/`getSkillRemainingReuseTime`), keyed by the
 /// shared reuse group when the skill has one. `true` means the skill is off

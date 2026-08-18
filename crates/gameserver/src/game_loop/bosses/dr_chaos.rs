@@ -130,7 +130,7 @@ pub(crate) fn handle_paranoia(world: &mut World, dr_chaos_oid: i32) {
             st.pissed_off
         };
         if timer == 15 {
-            crate::game_loop::helpers::npc_say_text(
+            crate::game_loop::npc::say::npc_say_text(
                 world,
                 dr_chaos_oid,
                 "How dare you trespass into my territory! Have you no fear?",
@@ -163,7 +163,7 @@ fn become_angry(world: &mut World, dr_chaos_oid: i32) {
     // `setIntention(MOVE_TO, grotto)` — cosmetic; teleport rather than model
     // the walk (scripted bosses teleport elsewhere in the port too).
     crate::game_loop::death::relocate_npc(world, dr_chaos_oid, GROTTO.0, GROTTO.1, GROTTO.2, 0);
-    crate::game_loop::helpers::npc_say_text(
+    crate::game_loop::npc::say::npc_say_text(
         world,
         dr_chaos_oid,
         "Fools! Why haven't you fled yet? Prepare to learn a lesson!",
@@ -309,13 +309,13 @@ pub(crate) fn on_golem_attacked(world: &mut World, golem_oid: i32) {
             1 => "Foolish, insignificant creatures! How dare you challenge me!",
             _ => "I see that none will challenge me now!",
         };
-        crate::game_loop::helpers::npc_say_text(world, golem_oid, line);
+        crate::game_loop::npc::say::npc_say_text(world, golem_oid, line);
     }
 }
 
 /// `onKill` (golem): DEAD, a `(36 ± 24)h` reset, and the parting bark.
 pub(crate) fn on_golem_killed(world: &mut World, golem_oid: i32) {
-    crate::game_loop::helpers::npc_say_text(
+    crate::game_loop::npc::say::npc_say_text(
         world,
         golem_oid,
         "Urggh! You will pay dearly for this insult.",

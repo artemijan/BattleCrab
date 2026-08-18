@@ -2,7 +2,7 @@
 //! static match, plus the target-state and cast-range checks.
 
 use super::*;
-use crate::game_loop::helpers::ms_to_ticks;
+use crate::scheduler::ms_to_ticks;
 /// Port of `Skill.getTarget` + the `targethandlers/{Self,Target,Enemy,
 /// EnemyOnly}.java` scripts as a static match over players *and* NPCs (G9).
 /// `Err(sm_id)` is the system message the caller sends alongside

@@ -756,7 +756,7 @@ pub(crate) fn handle_craft_pass(world: &mut World, crafter: i32) {
             sp::setup_gauge(crafter, 0, session.delay_ms),
         );
         world.scheduler.schedule(
-            world.tick + 1 + super::helpers::ms_to_ticks(session.delay_ms),
+            world.tick + 1 + crate::scheduler::ms_to_ticks(session.delay_ms),
             crate::scheduler::ScheduledTask::CraftPass {
                 crafter_oid: crafter,
             },
@@ -824,7 +824,7 @@ pub(crate) fn handle_craft_pass(world: &mut World, crafter: i32) {
         super::helpers::broadcast_including_self(world, crafter, &msu);
         send_to_player(world, crafter, sp::setup_gauge(crafter, 0, delay_ms));
         world.scheduler.schedule(
-            world.tick + 1 + super::helpers::ms_to_ticks(delay_ms),
+            world.tick + 1 + crate::scheduler::ms_to_ticks(delay_ms),
             crate::scheduler::ScheduledTask::CraftPass {
                 crafter_oid: crafter,
             },
@@ -834,7 +834,7 @@ pub(crate) fn handle_craft_pass(world: &mut World, crafter: i32) {
         // `finishCrafting`).
         send_to_player(world, crafter, sp::setup_gauge(crafter, 0, delay_ms));
         world.scheduler.schedule(
-            world.tick + 1 + super::helpers::ms_to_ticks(delay_ms),
+            world.tick + 1 + crate::scheduler::ms_to_ticks(delay_ms),
             crate::scheduler::ScheduledTask::CraftFinish {
                 crafter_oid: crafter,
             },

@@ -19,14 +19,13 @@ use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::set_attack_intention;
 use commons::util::rnd;
 
-use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::npc::ai::set_attack_intention;
 use crate::model::components::Vitals;
 use crate::model::npc::{AggroInfo, AggroList, Npc, NpcAi, NpcIntention};
-use crate::scheduler::ScheduledTask;
+use crate::scheduler::{ScheduledTask, ms_to_ticks};
 use crate::world::World;
 
 /// `MinionList.initializeNpc`: minions land in a ring around the leader,

@@ -2,7 +2,7 @@
 //! pre-fight countdown ceremony, the match poll and its resolution.
 
 use super::*;
-use crate::game_loop::helpers::ms_to_ticks;
+use crate::scheduler::ms_to_ticks;
 /// Java `Player.isInOlympiadMode()` — the player is *in a running match*, not
 /// merely registered or spectating.
 ///

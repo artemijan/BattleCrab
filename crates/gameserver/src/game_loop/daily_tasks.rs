@@ -7,9 +7,9 @@
 //! so "Wednesday" here is UTC-Wednesday — consistent with the reco reset this
 //! generalises.
 
-use crate::game_loop::helpers::ms_to_ticks;
 use crate::game_loop::time::MILLIS_PER_DAY;
 use crate::scheduler::ScheduledTask;
+use crate::scheduler::ms_to_ticks;
 use crate::world::World;
 
 /// 24 h between resets, in 100 ms ticks.

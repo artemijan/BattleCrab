@@ -318,7 +318,7 @@ pub(crate) fn arm_lease_check(world: &mut World, hall_id: i32) {
     };
     let delay_ms = (paid_until - now).max(0).min(i32::MAX as i64) as i32;
     world.scheduler.schedule(
-        world.tick + crate::game_loop::helpers::ms_to_ticks(delay_ms),
+        world.tick + crate::scheduler::ms_to_ticks(delay_ms),
         ScheduledTask::ClanHallLeaseCheck { hall_id },
     );
 }
@@ -368,7 +368,7 @@ pub(crate) fn handle_lease_check(world: &mut World, hall_id: i32) {
                 ),
             );
             world.scheduler.schedule(
-                world.tick + crate::game_loop::helpers::ms_to_ticks(DAY_MS),
+                world.tick + crate::scheduler::ms_to_ticks(DAY_MS),
                 ScheduledTask::ClanHallLeaseCheck { hall_id },
             );
         }

@@ -7,6 +7,7 @@ use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::stat_add;
+use crate::scheduler::ms_to_ticks;
 
 /// Port of `Creature.doAutoAttack` + `generateAttackTargetData`/`generateHit`
 /// for the melee single-hit case, shared by players and NPCs: roll the hit

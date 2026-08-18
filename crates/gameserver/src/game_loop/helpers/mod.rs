@@ -1,5 +1,12 @@
 //! Shared helpers for the packet handlers, split by theme: lookups, sends,
 //! broadcasts, vitals, inventory and position.
+//!
+//! The `pub(crate) use` lines below re-export this module's **own** submodules,
+//! which is the whole point of the split. Nothing else belongs here: a symbol
+//! that lives in another module is imported from that module by every caller,
+//! never forwarded through this one. A convenience re-export would make
+//! `helpers` look like the home of something it does not own — `ms_to_ticks`
+//! belongs to `crate::scheduler`, `npc_say` to `npc::say`, and so on.
 
 use crate::game_loop::guard::maybe_position;
 use crate::model;
@@ -25,21 +32,6 @@ pub(crate) use lookup::*;
 pub(crate) use position::*;
 pub(crate) use send::*;
 pub(crate) use vitals::*;
-
-// Moved to their owning modules; re-exported so existing helpers:: call
-// sites keep working.
-pub(crate) use crate::game_loop::combat::run_queued_action;
-pub(crate) use crate::game_loop::items::block_inventory;
-pub(crate) use crate::game_loop::npc::ai::{
-    force_attack_target, set_active_intention, set_attack_intention, set_move_to_intention,
-};
-pub(crate) use crate::game_loop::npc::say::{npc_say, npc_say_param, npc_say_text};
-pub(crate) use crate::game_loop::visibility::visible_creatures;
-
-/// Re-exported from [`crate::scheduler`], which owns the tick and sits below
-/// both `game_loop` and `config`. Kept visible here because `helpers` is where
-/// every game-loop caller already looks for it.
-pub(crate) use crate::scheduler::ms_to_ticks;
 
 #[cfg(test)]
 mod tests {

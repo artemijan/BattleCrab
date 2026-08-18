@@ -11,8 +11,8 @@ use crate::model::components::{SummonerRef, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use super::helpers::ms_to_ticks;
 use crate::game_loop::npc::cast;
+use crate::scheduler::ms_to_ticks;
 
 /// The `SummonNpc` effect's `EffectPoint` branch: spawn the totem at the
 /// point, link it to its owner, title it with the owner's name, and arm the

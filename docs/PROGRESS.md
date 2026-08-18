@@ -7829,8 +7829,20 @@ due" rather than 184 million years.
 helper at all: `config` sits below `game_loop`, and importing upward to reach a
 unit conversion would have been the wrong trade. `scheduler` owns the tick, has
 no crate-internal dependencies, and is what both layers already schedule
-against — so `Millis` and `ms_to_ticks` live there now, re-exported from
-`helpers` so no existing caller had to move.
+against — so `Millis` and `ms_to_ticks` live there now.
+
+The first attempt kept a `pub(crate) use crate::scheduler::ms_to_ticks` in
+`helpers` "so existing call sites keep working", and that was the wrong move:
+a re-export makes a module look like it owns something it does not, and the
+next reader learns the wrong home along with the wrong layering. All 45 call
+sites import from `crate::scheduler` directly instead.
+
+The same reasoning took out the block of re-exports `helpers` had accumulated
+around it — `npc_say`, `force_attack_target`, `run_queued_action`,
+`block_inventory`, `visible_creatures`, each labelled "moved to their owning
+modules; re-exported so existing `helpers::` call sites keep working". Every
+caller now names the owning module, which is the only place any of them was
+ever defined.
 
 ### Seven of the conversions rounded the other way
 

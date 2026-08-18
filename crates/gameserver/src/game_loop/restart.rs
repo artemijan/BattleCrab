@@ -35,8 +35,8 @@
 use crate::game_loop::time::{MILLIS_PER_DAY, MILLIS_PER_HOUR, MILLIS_PER_MINUTE};
 use tracing::info;
 
-use crate::game_loop::helpers::ms_to_ticks;
 use crate::scheduler::ScheduledTask;
+use crate::scheduler::ms_to_ticks;
 use crate::world::World;
 
 /// `ServerRestartManager`'s constructor: of every `HH:MM` in
