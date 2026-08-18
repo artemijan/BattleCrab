@@ -53,6 +53,7 @@ pub(crate) mod effect_zones;
 mod enchant;
 pub(crate) mod events;
 mod expertise;
+pub(crate) mod falling;
 pub(crate) mod fishing;
 pub(crate) mod flood;
 pub(crate) mod four_sepulchers;
@@ -365,6 +366,11 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // drowning player; the port sweeps the component instead). Every tick,
         // because each player's clock starts when *they* went under.
         timed!("drowning", water::drown_tick(&mut world));
+        // `_fallingDamageTask`'s 1.5 s one-shot (Java schedules a future per
+        // falling player and cancels it on every further report; the port
+        // sweeps the component instead). Every tick: each player's clock
+        // starts when *they* stopped falling.
+        timed!("falling", falling::falling_damage_tick(&mut world));
         // Item losses noted by the inventory removal methods become audit
         // records here, where the config gate and the owning player exist.
         // Every tick: a record that waits is a record that a crash loses.

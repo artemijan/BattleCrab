@@ -89,6 +89,99 @@ pub struct GeneralConfig {
     /// this off makes water slow but harmless, not inert.
     pub allow_water: bool,
 
+    /// `GMSkillRestriction` (dist **True**, Java default `false`) — whether a
+    /// character holding `PlayerCondOverride.SKILL_CONDITIONS` is **still**
+    /// bound by a skill's conditions.
+    ///
+    /// Java: `if (isFakePlayer() || (canOverrideCond(SKILL_CONDITIONS) &&
+    /// !Config.GM_SKILL_RESTRICTION)) return true;` — so **True, the dist
+    /// value, restricts**: the override stops exempting them. The port used to
+    /// let every GM skip every skill condition unconditionally, behind a
+    /// comment asserting this key was off.
+    pub gm_skill_restriction: bool,
+    /// `GMItemRestriction` (dist **True**, Java default `false`) — the same
+    /// shape for `ItemTemplate.checkCondition` and
+    /// `PlayerCondOverride.ITEM_CONDITIONS`.
+    ///
+    /// **No consumer here, and it is not a wiring oversight**: the port does
+    /// not evaluate item conditions at all — `<cond>` is unparsed
+    /// (`data::item_data`'s module header records it), and the Olympiad and
+    /// event item restrictions are likewise absent. There is nothing for the
+    /// override to bypass and therefore nothing for this key to re-restrict.
+    /// Carried as a field anyway so the gate lands with the conditions
+    /// whenever they are ported, rather than being rediscovered then.
+    pub gm_item_restriction: bool,
+    /// `GMTradeRestrictedItems` (dist **False**, Java default `false`) —
+    /// whether an override-holder may drop, trade and store items the datapack
+    /// marks untradeable or quest-bound. Four Java sites read it: the drop
+    /// gate, the quest-item drop gate, `TradeStart`'s item list and
+    /// `TradeList.addItem`.
+    pub gm_trade_restricted_items: bool,
+    /// `GMRestartFighting` (dist **True**, Java default `true`) — whether a GM
+    /// may restart or log out while the attack stance is up
+    /// (`Player.canLogout`). The one key in this family that *grants* rather
+    /// than restricts.
+    pub gm_restart_fighting: bool,
+    /// `GMShowAnnouncerName` (dist **False**, Java default `false`) — append
+    /// ` [GmName]` to a `//announce`. `//announce_screen` is deliberately
+    /// exempt in Java, and so is the port.
+    pub gm_announcer_name: bool,
+    /// `GMDebugHtmlPaths` (dist **True**, Java default `true`) — send a GM the
+    /// path of every HTML the server serves them (`HtmCache.getHtm`), as a
+    /// plain chat line. A GM tool: it is how you find which file a dialog came
+    /// from without grepping the datapack.
+    pub gm_debug_html_paths: bool,
+    /// `UseSuperHasteAsGMSpeed` (dist **False**, Java default `false`) —
+    /// `//gmspeed <n>` forwards to `//superhaste <n>` instead of applying a
+    /// run-speed multiplier. Java calls it a "rollback feature for old custom
+    /// way, in order to make everyone happy".
+    pub use_super_haste_as_gm_speed: bool,
+    /// `DefaultAccessLevel` (dist **0**, Java default `0`) — the access level a
+    /// character resolving to 0 is promoted to. Java applies it in
+    /// `Player.setAccessLevel` behind a `> 0` guard, so **0 means "no
+    /// promotion"** rather than "promote everyone to 0"; an operator setting it
+    /// to a GM tier makes every character on the server a GM, which is why the
+    /// guard is the whole feature.
+    pub default_access_level: i32,
+    /// `OnlyGMItemsFree` (dist **True**, Java default `true`) — a buy-list row
+    /// priced at 0 is refused (and punished) for anyone who is not a GM. The
+    /// port had this hard-coded to the dist's behaviour behind a comment
+    /// naming the key; the field is what makes an operator's `False` mean
+    /// something.
+    pub only_gm_items_free: bool,
+    /// `ServerGMOnly` (dist **False**, Java default `false`) — whether the
+    /// server registers with the login server as GM-only at startup, and what
+    /// the status returns to after a cancelled shutdown. `//server_gm_only` /
+    /// `//server_all` flip it at runtime, in Java by assigning the config field
+    /// itself.
+    pub server_gm_only: bool,
+
+    /// `SkillCheckEnable` (dist **True**, Java default `false`) — whether
+    /// `restoreSkills` validates every row it reads out of `character_skills`
+    /// against the skill trees. A row that fails is an illegal skill: it was
+    /// never learnable by this class, so it arrived through a bug, a
+    /// hand-edited database or an exploit.
+    pub skill_check_enable: bool,
+    /// `SkillCheckRemove` (dist **True**, Java default `false`) — whether a
+    /// failing row is *removed* as well as reported. With it off the check is
+    /// a pure audit.
+    pub skill_check_remove: bool,
+    /// `SkillCheckGM` (dist **False**, Java default `true`) — whether the check
+    /// also applies to a character holding `PlayerCondOverride.SKILL_CONDITIONS`.
+    /// Java's guard reads
+    /// `(!canOverrideCond(SKILL_CONDITIONS) || Config.SKILL_CHECK_GM)`, so
+    /// **False here exempts** such a character. Note the inversion: the key
+    /// reads like "check GMs too", and that is exactly what it means — off, so
+    /// they are skipped.
+    pub skill_check_gm: bool,
+
+    /// `EnableFallingDamage` (dist `True`) — whether a fall costs HP.
+    /// Java reads it in exactly one place, `Formulas.calcFallDam`, which
+    /// returns 0 when it is off; `Player.isFalling` still runs, so the
+    /// position-validation suppression and the client re-grounding survive a
+    /// server with damage disabled. Java's code default is `true`.
+    pub enable_falling_damage: bool,
+
     /// `AllowManor`: whether the castle manor (seed sowing / crop harvest) runs.
     /// The dist ships `False`; the manor data + packets exist regardless so the
     /// feature works the moment an operator enables it.
@@ -264,6 +357,29 @@ impl GeneralConfig {
             // Java's code default is `true` (not `d.allow_water`, which the
             // derived `Default` would make `false` — the opposite meaning).
             allow_water: p.get_bool("AllowWater", true),
+            // Java's code default is `true` — same trap as `allow_water`: the
+            // derived `Default` would be `false`, which is the opposite.
+            enable_falling_damage: p.get_bool("EnableFallingDamage", true),
+            // Java's code defaults, which the dist inverts on all three:
+            // `false`/`false`/`true` there, `True`/`True`/`False` here — so
+            // this dist checks every character, removes what fails, and
+            // exempts a `SKILL_CONDITIONS` override.
+            // The GM-restriction family. Java's code defaults are all
+            // `false`; this dist raises three of them.
+            gm_skill_restriction: p.get_bool("GMSkillRestriction", false),
+            gm_item_restriction: p.get_bool("GMItemRestriction", false),
+            gm_trade_restricted_items: p.get_bool("GMTradeRestrictedItems", false),
+            // …except this one, whose Java default is `true`.
+            gm_restart_fighting: p.get_bool("GMRestartFighting", true),
+            gm_announcer_name: p.get_bool("GMShowAnnouncerName", false),
+            gm_debug_html_paths: p.get_bool("GMDebugHtmlPaths", true),
+            use_super_haste_as_gm_speed: p.get_bool("UseSuperHasteAsGMSpeed", false),
+            server_gm_only: p.get_bool("ServerGMOnly", false),
+            only_gm_items_free: p.get_bool("OnlyGMItemsFree", true),
+            default_access_level: p.get_int("DefaultAccessLevel", 0),
+            skill_check_enable: p.get_bool("SkillCheckEnable", false),
+            skill_check_remove: p.get_bool("SkillCheckRemove", false),
+            skill_check_gm: p.get_bool("SkillCheckGM", true),
             allow_manor: p.get_bool("AllowManor", d.allow_manor),
             alt_manor_save_all_actions: p
                 .get_bool("AltManorSaveAllActions", d.alt_manor_save_all_actions),

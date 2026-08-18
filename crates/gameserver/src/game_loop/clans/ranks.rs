@@ -170,10 +170,11 @@ pub(crate) fn show_pledge_skill_list(world: &World, client_id: u32, player_oid: 
 /// Serve a `data/html/villagemaster/<file>` window (Java `NpcHtmlMessage.
 /// setFile` with no NPC binding — object id 0).
 fn send_villagemaster_html(world: &World, client_id: u32, file: &str) {
-    let html = crate::data::htm_cache::read_htm(format!(
-        "{}data/html/villagemaster/{file}",
-        world.data.root
-    ))
+    let html = crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/villagemaster/{file}", world.data.root),
+    )
     .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string());
     send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
 }
@@ -763,10 +764,14 @@ pub(crate) fn handle_cancel_clan_leader_change(
 /// Serve a `data/scripts/village_master/ClanMaster/<file>` page through the
 /// clicked NPC (the leader-transfer confirmations live with the script htmls).
 fn send_clan_master_html(world: &World, client_id: u32, npc_oid: i32, file: &str) {
-    let html = crate::data::htm_cache::read_htm(format!(
-        "{}data/scripts/village_master/ClanMaster/{file}",
-        world.data.root
-    ))
+    let html = crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!(
+            "{}data/scripts/village_master/ClanMaster/{file}",
+            world.data.root
+        ),
+    )
     .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
     .replace("%objectId%", &npc_oid.to_string());
     send_to_client(

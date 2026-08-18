@@ -208,7 +208,7 @@ impl<'w> QuestCtx<'w> {
     /// `Quest.getNoQuestMsg` — for `addCondMaxLevel`-style gates whose
     /// "can't take it" html is the generic no-quest message.
     pub fn no_quest_html(&self) -> String {
-        no_quest_html(self.world)
+        no_quest_html(self.world, self.player)
     }
 
     pub fn get_int(&self, var: &str) -> i32 {

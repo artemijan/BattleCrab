@@ -1683,6 +1683,9 @@ pub(crate) fn build_skill(
             // Java `set.getBoolean("canBeDispelled", true)` / `("isDebuff", false)`.
             can_be_dispelled: value_at(values, "canBeDispelled", level).is_none_or(|v| v == "true"),
             is_debuff: value_at(values, "isDebuff", level) == Some("true"),
+            // Java `set.getBoolean("excludedFromCheck", false)`.
+            excluded_from_check: value_at(values, "excludedFromCheck", level)
+                .is_some_and(|v| v.eq_ignore_ascii_case("true")),
             // Java `set.getBoolean("isSharedWithSummon", true)` — note the
             // `true` default: absent tag means shared.
             shared_with_summon: value_at(values, "isSharedWithSummon", level)

@@ -267,10 +267,11 @@ fn send_page(world: &World, client_id: u32, player_oid: i32, command: &str) {
         "playitems" => ("Items.htm", item_rows(world, player_oid)),
         _ => ("Potion.htm", potion_rows(world, player_oid)),
     };
-    let html = crate::data::htm_cache::read_htm(format!(
-        "{}data/html/mods/AutoPlay/{file}",
-        world.data.root
-    ))
+    let html = crate::data::htm_cache::read_htm_for(
+        world,
+        player_oid,
+        format!("{}data/html/mods/AutoPlay/{file}", world.data.root),
+    )
     .unwrap_or_else(|| "<html><body>%list%</body></html>".to_string())
     .replace("%list%", &rows);
     send_to_client(

@@ -103,6 +103,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         give_special_skills: config.general.gm_give_special_skills,
         give_special_aura_skills: config.general.gm_give_special_aura_skills,
     };
+    data.skill_check = gameserver::data::SkillCheckSettings {
+        enable: config.general.skill_check_enable,
+        remove: config.general.skill_check_remove,
+        gm: config.general.skill_check_gm,
+    };
+    data.default_access_level = config.general.default_access_level;
     // Character.ini `EnableModifySkillDuration`/`SkillDurationList`: bake the
     // per-skill `abnormalTime` overrides into the loaded skills (Java does this
     // in the `Skill` constructor). No-op when the list is empty/disabled.

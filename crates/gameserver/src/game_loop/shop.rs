@@ -336,7 +336,12 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
         // loader only on a list with no `<npcs>` block — the GM shop — and no
         // such list can be opened at a merchant, so this is the second lock on
         // a door that is already shut. Java punishes rather than refusing.
-        if unit_price == 0 && !helpers::is_gm(world, player) {
+        //
+        // The key was hard-coded to this dist's `True` behind that comment;
+        // reading it is what lets an operator who ships free rows actually get
+        // them.
+        if world.cfg.general.only_gm_items_free && unit_price == 0 && !helpers::is_gm(world, player)
+        {
             send_message(
                 world,
                 client_id,

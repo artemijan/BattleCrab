@@ -244,6 +244,18 @@ pub enum Stat {
     ReduceExpLostByPvp,
     ReduceExpLostByRaid,
     Breath,
+    /// Java `Stat.FALL` ("fall") — despite the name of its only effect
+    /// (`SafeFallHeight`), this modifies the **damage** a fall deals, not the
+    /// height you may fall safely: the safe height is
+    /// `PlayerTemplate.getSafeFallHeight()`, which no stat touches.
+    /// `Formulas.calcFallDam` reads it as
+    /// `getValue(FALL, fallHeight * maxHp / 1000)`, so Acrobatics (173) —
+    /// `DIFF -60` / `-100` — subtracts a flat 60 or 100 from the damage.
+    /// The datapack's own comment ("Increases the maximum height user can fall
+    /// without taking damage by 60") describes the intent; Java computes the
+    /// other thing, and that is what is ported
+    /// ([[l2r-port-behaviour-not-intent]]).
+    Fall,
     /// Java `Stat.WEIGHT_LIMIT` / `WEIGHT_PENALTY` — `Creature.getMaxLoad()`
     /// (`getValue(WEIGHT_LIMIT, CON bonus × 69000 × config)`) and
     /// `getBonusWeightPenalty()` (`getValue(WEIGHT_PENALTY, 1)`), the extra

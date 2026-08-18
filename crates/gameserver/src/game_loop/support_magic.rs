@@ -199,10 +199,13 @@ pub(crate) fn cast_from_npc(
 /// Serve a `data/html/default/<file>` window through the clicked NPC (Java
 /// `npc.showChatWindow(player, "data/html/default/...")`).
 fn send_default_html(world: &World, client_id: u32, npc_object_id: i32, file: &str) {
-    let html =
-        crate::data::htm_cache::read_htm(format!("{}data/html/default/{file}", world.data.root))
-            .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
-            .replace("%objectId%", &npc_object_id.to_string());
+    let html = crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/default/{file}", world.data.root),
+    )
+    .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
+    .replace("%objectId%", &npc_object_id.to_string());
     send_to_client(
         world,
         client_id,

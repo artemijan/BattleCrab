@@ -1178,7 +1178,7 @@ fn the_hall_list_lists_free_halls_with_bids() {
     put_bid(&mut world, ONYX, 10, 6_000_000, 100);
     world.clan_halls.get_mut(&OTHER_HALL).unwrap().owner_id = 99; // owned → excluded
 
-    let html = render_hall_list(&world);
+    let html = render_hall_list(&world, 0);
     assert!(!html.contains("%agitList%"), "the row template is filled");
     assert!(!html.contains("%pages%"), "the pager placeholder is filled");
     assert!(
@@ -1202,7 +1202,7 @@ fn the_info_page_fills_the_auction_fields() {
     put_bid(&mut world, ONYX, 10, 5_000_000, 100);
     put_bid(&mut world, ONYX, 20, 6_000_000, 200);
 
-    let html = render_hall_info(&world, ONYX).expect("info page");
+    let html = render_hall_info(&world, ONYX, 0).expect("info page");
     for ph in [
         "%id%",
         "%owner%",
@@ -1228,7 +1228,7 @@ fn the_bidder_list_orders_by_most_recent() {
     put_bid(&mut world, ONYX, 10, 5_000_000, 100); // older
     put_bid(&mut world, ONYX, 20, 6_000_000, 200); // newer
 
-    let html = render_bidder_list(&world, ONYX).expect("bidder list");
+    let html = render_bidder_list(&world, ONYX, 0).expect("bidder list");
     assert!(!html.contains("%bidderList%"), "the rows are filled");
     let i20 = html.find("Clan20").expect("clan 20 listed");
     let i10 = html.find("Clan10").expect("clan 10 listed");
@@ -1244,7 +1244,7 @@ fn the_bid_form_shows_clan_adena() {
     fund_clan(&mut world, 10, 12_345_678);
     put_bid(&mut world, ONYX, 20, 6_000_000, 100);
 
-    let html = render_bid_form(&world, 10, ONYX).expect("bid form");
+    let html = render_bid_form(&world, 10, ONYX, 0).expect("bid form");
     assert!(!html.contains("%clanAdena%") && !html.contains("%minBid%"));
     assert!(html.contains("12345678"), "the clan's adena");
     assert!(html.contains("6000000"), "the current minimum bid");

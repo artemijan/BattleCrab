@@ -1436,6 +1436,29 @@ impl ZoneFlags {
     }
 }
 
+/// Java `Player._fallingDamage` + `_fallingDamageTask` — the pending fall.
+///
+/// Java computes the damage on the *first* report of a fall and hangs a 1.5 s
+/// `ScheduledFuture` off the player, cancelling and re-scheduling it on every
+/// further report so the clock only starts once the player stops falling. The
+/// port keeps the same shape as a component swept by
+/// [`game_loop::falling`](crate::game_loop::falling): "cancel and reschedule"
+/// is writing [`Self::due_tick`], and the task firing removes the component.
+///
+/// Same trick as [`WaterTask`], and for the same reason: the scheduler has no
+/// cancel, and a component that is *overwritten* cannot leave a stale future
+/// behind the way a re-armed heap entry could.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct FallingDamage {
+    /// `world.tick` the 1.5 s damage task lands on. Pushed further out by
+    /// every subsequent falling report.
+    pub due_tick: u64,
+    /// `Player._fallingDamage` — computed once, on the report that opened the
+    /// fall (`if (_fallingDamage == 0)`), and deliberately *not* recomputed as
+    /// the fall continues.
+    pub damage: i32,
+}
+
 /// Last position/heading the client reported via `ValidatePosition`
 /// (Java `Player._clientX/_clientY/_clientZ/_clientHeading`).
 #[derive(Component, Debug, Clone, Copy, Default)]

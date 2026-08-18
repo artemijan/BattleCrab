@@ -73,6 +73,9 @@ use menu::*;
 // The enter-world GM startup block (`EnterWorld.runImpl`) is driven from
 // `lobby::handle_enter_world`, so re-export it out of the admin module.
 pub(crate) use flags::apply_gm_startup;
+pub(crate) use gm_util::{
+    DROP_ALL_ITEMS_ORDINAL, ITEM_CONDITIONS_ORDINAL, SKILL_CONDITIONS_ORDINAL, all_exceptions_mask,
+};
 use instance::*;
 use items::*;
 use mobgroup::*;
@@ -470,7 +473,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Repair a broken offline character (Java `AdminRepairChar`, G33).
         "admin_repair" | "admin_restore" => admin_repair_char(world, client_id, &args),
         // Broadcast a message to every online player.
-        "admin_announce" => admin_announce(world, client_id, &args),
+        "admin_announce" => admin_announce(world, client_id, object_id, &args),
         // Spawn NPC(s) at the anchor (target or GM).
         "admin_spawn" | "admin_spawn_monster" | "admin_spawn_once" => {
             admin_spawn(world, client_id, object_id, &args)
@@ -646,9 +649,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_online" => admin_online(world, client_id),
         "admin_targetsay" => admin_targetsay(world, client_id, object_id, &args),
         "admin_msg" => admin_msg(world, client_id, &args),
-        "admin_announce_screen" => admin_announce_variant(world, client_id, &args, true),
+        "admin_announce_screen" => admin_announce_variant(world, client_id, object_id, &args, true),
         "admin_announce_crit" | "admin_announces" => {
-            admin_announce_variant(world, client_id, &args, false)
+            admin_announce_variant(world, client_id, object_id, &args, false)
         }
         "admin_html" | "admin_loadhtml" => admin_html(world, client_id, &args),
         "admin_showdoors" => admin_showdoors(world, client_id, object_id),

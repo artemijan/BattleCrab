@@ -57,10 +57,11 @@ pub(crate) fn send_npc_view(world: &World, client_id: u32, npc_object_id: i32) {
     // Java `NpcHtmlMessage.setFile`: a missing file still sends the packet
     // (empty content, logged) — mirror `interact_with_npc`'s stub fallback so
     // the window always opens even when the datapack html is absent.
-    let mut html = crate::data::htm_cache::read_htm(format!(
-        "{}data/html/mods/NpcView/Info.htm",
-        world.data.root
-    ))
+    let mut html = crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/mods/NpcView/Info.htm", world.data.root),
+    )
     .unwrap_or_else(|| "<html><body>NPC Info<br>%name%</body></html>".to_string());
 
     let mut set = |needle: &str, value: &str| html = html.replace(needle, value);
@@ -186,7 +187,7 @@ fn send_npc_skill_view(world: &World, client_id: u32, npc_object_id: i32) {
         ));
     }
 
-    let html = read_view_htm(world, "Skills.htm")
+    let html = read_view_htm(world, client_id, "Skills.htm")
         .replace("%skills%", &rows)
         .replace("%npc_name%", &t.name)
         .replace("%npcId%", &t.id.to_string());
@@ -226,7 +227,7 @@ fn send_aggro_list_view(world: &World, client_id: u32, npc_object_id: i32) {
         }
     }
 
-    let html = read_view_htm(world, "AggroList.htm")
+    let html = read_view_htm(world, client_id, "AggroList.htm")
         .replace("%aggrolist%", &rows)
         .replace("%npc_name%", &t.name)
         .replace("%npcId%", &t.id.to_string())
@@ -253,9 +254,13 @@ fn attacker_name(world: &World, object_id: i32) -> Option<String> {
 /// One of the three `data/html/mods/NpcView/*` files. Java's `setFile` sends
 /// the packet even when the file is missing (logged, empty body); mirror the
 /// stub fallback the info window already used so a window always opens.
-fn read_view_htm(world: &World, file: &str) -> String {
-    crate::data::htm_cache::read_htm(format!("{}data/html/mods/NpcView/{file}", world.data.root))
-        .unwrap_or_else(|| format!("<html><body>{file}<br>%npc_name%</body></html>"))
+fn read_view_htm(world: &World, client_id: u32, file: &str) -> String {
+    crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/mods/NpcView/{file}", world.data.root),
+    )
+    .unwrap_or_else(|| format!("<html><body>{file}<br>%npc_name%</body></html>"))
 }
 
 /// `NpcViewMod.getDropListButtons`: a "Show Drop" button when the NPC has any
@@ -462,10 +467,11 @@ fn send_npc_drop_list(
         }
     }
 
-    let Some(template_html) = crate::data::htm_cache::read_htm(format!(
-        "{}data/html/mods/NpcView/DropList.htm",
-        world.data.root
-    )) else {
+    let Some(template_html) = crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/mods/NpcView/DropList.htm", world.data.root),
+    ) else {
         return;
     };
     let body =

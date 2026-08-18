@@ -146,7 +146,7 @@ fn read_book(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
     let path = format!("{}data/html/help/{item_id}.htm", world.data.root);
     // Java's missing-file branch says so in the window rather than staying
     // silent, which is how a datapack gap gets noticed.
-    let html = crate::data::htm_cache::read_htm(&path).unwrap_or_else(|| {
+    let html = crate::data::htm_cache::read_htm_for(world, object_id, &path).unwrap_or_else(|| {
         format!("<html><body>My Text is missing:<br>data/html/help/{item_id}.htm</body></html>")
     });
     send_to_client(

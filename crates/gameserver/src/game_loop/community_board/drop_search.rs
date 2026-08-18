@@ -31,13 +31,20 @@ pub(super) fn do_drop_search(world: &mut World, client_id: u32, command: &str) {
 /// Read `dropsearch/main.html`, apply the caller's result-token substitution,
 /// inject the navigation panel (Java replaces `%navigation%` last), and send.
 pub(super) fn render_drop_search(world: &World, client_id: u32, f: impl FnOnce(String) -> String) {
-    let root = &world.data.root;
-    let Some(html) = read_html(root, "data/html/CommunityBoard/Custom/dropsearch/main.html") else {
+    let Some(html) = read_html(
+        world,
+        client_id,
+        "data/html/CommunityBoard/Custom/dropsearch/main.html",
+    ) else {
         warn!("CommunityBoard: missing dropsearch/main.html.");
         return;
     };
-    let navigation =
-        read_html(root, "data/html/CommunityBoard/Custom/navigation.html").unwrap_or_default();
+    let navigation = read_html(
+        world,
+        client_id,
+        "data/html/CommunityBoard/Custom/navigation.html",
+    )
+    .unwrap_or_default();
     let html = f(html).replace("%navigation%", &navigation);
     send_cb_html(world, client_id, &html);
 }

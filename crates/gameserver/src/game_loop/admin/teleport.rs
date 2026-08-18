@@ -32,6 +32,15 @@ use crate::game_loop::helpers::region_cell_of;
 /// The target is any **Creature** — Java takes `target.isCreature()`, so an NPC
 /// can be sped up too; only a non-creature target falls back to the GM.
 pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    // `Config.USE_SUPER_HASTE_AS_GM_SPEED` (**False** here) — Java's
+    // "rollback feature for old custom way, in order to make everyone happy":
+    // the whole command forwards to `//superhaste <token>` and returns, so the
+    // 0..=10 clamp below never runs and the argument is read as a super-haste
+    // level instead of a speed multiplier.
+    if world.cfg.general.use_super_haste_as_gm_speed {
+        admin_superhaste(world, client_id, object_id, args);
+        return;
+    }
     let Some(mult) = nth_arg::<f64>(args, 0).filter(|b| (0.0..=10.0).contains(b)) else {
         send_message(world, client_id, "//gmspeed [0...10]");
         return;

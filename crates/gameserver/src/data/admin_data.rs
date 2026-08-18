@@ -219,6 +219,28 @@ impl AdminData {
         self.access_level(level).is_gm
     }
 
+    /// Java `Player.setAccessLevel`'s `DefaultAccessLevel` promotion: a
+    /// character whose level resolves to **0** is raised to
+    /// `Config.DEFAULT_ACCESS_LEVEL` when that is above zero and defined.
+    ///
+    /// The `> 0` guard is the feature, not a detail — without it every
+    /// character on a server shipping the dist's `0` would be re-resolved
+    /// through the table for no reason. Java also *rewrites the config field*
+    /// to 0 when the configured level is undefined, so the warning fires once
+    /// rather than per login; the port answers `0` for the same case and leaves
+    /// the config alone, which has the same observable effect without a
+    /// mutable global.
+    pub fn effective_access_level(&self, level: i32, default_level: i32) -> i32 {
+        if self.access_level(level).level != 0 || default_level <= 0 {
+            return level;
+        }
+        if self.access_levels.contains_key(&default_level) {
+            default_level
+        } else {
+            0
+        }
+    }
+
     pub fn highest_level(&self) -> i32 {
         self.highest_level
     }

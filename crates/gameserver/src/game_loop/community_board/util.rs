@@ -23,7 +23,7 @@ pub(super) fn serve_page(
         format!("{page}.html")
     };
     let rel = format!("data/html/CommunityBoard/Custom/{file}");
-    let Some(html) = read_html(&world.data.root, &rel) else {
+    let Some(html) = read_html(world, client_id, &rel) else {
         warn!("CommunityBoard: missing sub-page [{rel}].");
         return;
     };
@@ -39,8 +39,9 @@ pub(super) fn finalize_custom(
     html: String,
     error_message: &str,
 ) -> String {
-    let navigation = read_html(
-        &world.data.root,
+    let navigation = read_html_for(
+        world,
+        object_id,
         "data/html/CommunityBoard/Custom/navigation.html",
     )
     .unwrap_or_default();
@@ -162,6 +163,20 @@ pub(super) fn charge_item(
     true
 }
 
-pub(super) fn read_html(root: &str, rel: &str) -> Option<String> {
-    crate::data::htm_cache::read_htm(format!("{root}{rel}"))
+/// A community-board page, served **to a client** — Java's board handlers all
+/// pass the player to `HtmCache.getHtm`, which is what carries
+/// `GMDebugHtmlPaths`. The datapack root comes off `world` rather than being
+/// threaded separately; the old `(root, rel)` signature had no recipient to
+/// give the debug line to.
+pub(super) fn read_html(world: &World, client_id: u32, rel: &str) -> Option<String> {
+    crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}{rel}", world.data.root),
+    )
+}
+
+/// [`read_html`] for the handlers that hold the viewer's object id instead.
+pub(super) fn read_html_for(world: &World, object_id: i32, rel: &str) -> Option<String> {
+    crate::data::htm_cache::read_htm_for(world, object_id, format!("{}{rel}", world.data.root))
 }

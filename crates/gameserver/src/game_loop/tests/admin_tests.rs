@@ -5363,12 +5363,46 @@ fn tradeoff_refuses_trade_requests() {
 
 /// **`//exceptions`/`//set_exception` toggle cond-override bits, and
 /// SEE_ALL_PLAYERS lets its holder be described a hidden GM.**
+///
+/// The watcher starts by *disabling* everything. That step used to be
+/// unnecessary — the port gave every character 0 overrides at load — but Java
+/// defaults a **GM** to `getAllExceptionsMask()` in `Player.restore`, and the
+/// port now does too, so an access-100 character already holds SEE_ALL_PLAYERS
+/// before anything is toggled. Testing a toggle means starting from a known
+/// state, and for a GM that state has to be set rather than assumed.
 #[test]
 fn cond_overrides_and_see_all_players() {
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7911, 100);
     let mut watcher_rx = ingame_player_access(&mut world, 2, 7912, 100);
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&7912)
+            .unwrap()
+            .can_override_cond(13),
+        "a GM logs in overriding everything (Java's `Player.restore` default)"
+    );
+    on_packet(&mut world, 2, build_admin("set_exception disable_all"));
+    // Admin commands land behind a confirm dialog, same as the enable below.
+    on_packet(
+        &mut world,
+        2,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&7912)
+            .unwrap()
+            .can_override_cond(13),
+        "…and `disable_all` clears the lot"
+    );
     drain(&mut gm_rx);
     drain(&mut watcher_rx);
 

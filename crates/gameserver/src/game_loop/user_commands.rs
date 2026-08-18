@@ -507,10 +507,11 @@ fn siege_status(world: &World, client_id: u32, object_id: i32) {
         refuse(world);
         return;
     };
-    let Some(page) = crate::data::htm_cache::read_htm(format!(
-        "{}data/html/siege/siege_status.htm",
-        world.data.root
-    )) else {
+    let Some(page) = crate::data::htm_cache::read_htm_for(
+        world,
+        object_id,
+        format!("{}data/html/siege/siege_status.htm", world.data.root),
+    ) else {
         return;
     };
     let mut rows = String::new();

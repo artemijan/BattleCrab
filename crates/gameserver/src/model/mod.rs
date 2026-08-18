@@ -262,6 +262,13 @@ pub struct Player {
     /// server just performed is not immediately reverted to the position the
     /// client is still reporting from before the fly.
     pub blink_active: bool,
+    /// Java `Player._fallingTimestamp` — the tick until which further
+    /// `ValidatePosition` reports are ignored, so a fall in progress cannot be
+    /// "corrected" into a jump. Armed by `setFalling()` for
+    /// `FALLING_VALIDATION_DELAY` (1 s) on every report that continues the
+    /// fall, and cleared the moment a report lands within the safe height or
+    /// over ungeodata'd ground. `0` = not falling.
+    pub falling_until_tick: u64,
 
     pub level: i32,
     pub class_id: i32,
@@ -726,6 +733,83 @@ pub struct PlayerData {
     /// [`PlayerData::spawn_into`] and hands them to
     /// `skills::effects::restore_persisted_buffs` once the entity exists.
     pub pending_buffs: Vec<crate::db::SkillBuffRow>,
+    /// `character_skills` rows this character was not entitled to — Java's
+    /// `restoreSkills` skill check (`SkillCheckEnable`).
+    ///
+    /// Not a component: the finding belongs to the *load*, not to the
+    /// character. `from_char` runs against `&GameData` alone and has no world
+    /// to broadcast into and no audit sink, so it records what it found and the
+    /// login path ([`game_loop::lobby`](crate::game_loop::lobby)) reports it —
+    /// the same split `pending_buffs` above uses for the same reason.
+    ///
+    /// Whether the skills were also *removed* from [`Self::skills`] depends on
+    /// `SkillCheckRemove`; this list is populated either way, because the audit
+    /// half of the feature is the half that works with removal off.
+    pub illegal_skills: Vec<(i32, i32)>,
+}
+
+/// Java `Player.restoreSkills`' skill check, factored out of
+/// [`Player::from_char`] so it can be read (and tested) as the one thing it is.
+///
+/// Java's guard is
+/// `SKILL_CHECK_ENABLE && (!canOverrideCond(SKILL_CONDITIONS) || SKILL_CHECK_GM)
+/// && !isSkillAllowed(...)`, evaluated per restored row. The middle clause is
+/// the one worth reading twice: with `SkillCheckGM = False` — this dist — a
+/// character holding the `SKILL_CONDITIONS` override is **skipped entirely**,
+/// so the key named "check GMs" turns checking GMs off.
+///
+/// Returns the book to keep and everything that failed. Failures are reported
+/// whether or not `SkillCheckRemove` takes them out: an operator running the
+/// check as a pure audit still wants the list.
+fn check_restored_skills(
+    data: &GameData,
+    c: &CharData,
+    cond_overrides: u64,
+    skills: SkillBook,
+) -> (SkillBook, Vec<(i32, i32)>) {
+    if !data.skill_check.enable {
+        return (skills, Vec::new());
+    }
+    // `canOverrideCond(PlayerCondOverride.SKILL_CONDITIONS)`.
+    let overrides_skill_conditions =
+        cond_overrides & (1u64 << crate::game_loop::admin::SKILL_CONDITIONS_ORDINAL) != 0;
+    if overrides_skill_conditions && !data.skill_check.gm {
+        return (skills, Vec::new());
+    }
+    let is_gm = data.admin.is_gm(
+        data.admin
+            .effective_access_level(c.access_level, data.default_access_level),
+    );
+    let race = crate::enums::Race::from_ordinal(c.race);
+    let mut illegal: Vec<(i32, i32)> = Vec::new();
+    let mut kept = SkillBook::default();
+    for (&id, &level) in &skills.0 {
+        // Java's first arm, `skill.isExcludedFromCheck()`, reads the *skill*
+        // rather than any tree — the datapack's own opt-out for skills learned
+        // by routes that are not class trees (the subclass certifications).
+        let excluded = data
+            .skill_data
+            .get(id, level)
+            .is_some_and(|s| s.excluded_from_check);
+        let max_level = data.skill_data.max_level(id);
+        if excluded
+            || data
+                .skill_trees
+                .is_skill_allowed(c.class_id, race, is_gm, id, level, max_level)
+        {
+            kept.0.insert(id, level);
+            continue;
+        }
+        illegal.push((id, level));
+    }
+    illegal.sort_unstable();
+    // `Config.SKILL_CHECK_REMOVE` — off, the check is an audit and the book is
+    // returned untouched.
+    if data.skill_check.remove {
+        (kept, illegal)
+    } else {
+        (skills, illegal)
+    }
 }
 
 impl PlayerData {
@@ -1055,6 +1139,19 @@ impl Player {
     /// Max HP/MP/CP are recomputed (not read from the DB) so they display
     /// correctly; current HP/MP/CP come from the row, clamped to the max.
     pub fn from_char(data: &GameData, c: &CharData) -> PlayerData {
+        // Java `Player.setAccessLevel`, called from `restore`: `DefaultAccessLevel`
+        // promotes a level-0 character. 0 on this dist, so it is the identity —
+        // but every access-level read below has to see the promoted value, not
+        // the stored one, or an operator who sets the key gets GMs whose
+        // condition overrides and skill-check exemption do not match their tier.
+        let access_level = data
+            .admin
+            .effective_access_level(c.access_level, data.default_access_level);
+        let cond_overrides = if data.admin.is_gm(access_level) {
+            crate::game_loop::admin::all_exceptions_mask()
+        } else {
+            0
+        };
         // The active class's template (base classes only in G4).
         let t = data
             .player_templates
@@ -1162,7 +1259,7 @@ impl Player {
             name: c.name.clone(),
             account: c.account_name.clone(),
             title: String::new(),
-            access_level: c.access_level,
+            access_level,
             name_color,
             title_color,
             hero_aura,
@@ -1187,6 +1284,7 @@ impl Player {
             true_hero: false,
             tele_mode: crate::enums::AdminTeleportType::Normal,
             blink_active: false,
+            falling_until_tick: 0,
             level: c.level,
             class_id: c.class_id,
             base_class_id: c.base_class_id,
@@ -1263,7 +1361,20 @@ impl Player {
             mount_collar_object_id: 0,
             char_info_pending: false,
             trade_refusal: false,
-            cond_overrides: 0,
+            // Java `Player.restore`: `if (player.isGM())
+            // setOverrideCond(variables.getLong(COND_OVERRIDE_KEY,
+            // PlayerCondOverride.getAllExceptionsMask()))` — a GM who has never
+            // touched `//set_exception` overrides **everything** by default.
+            // The port used to start every character at 0, which left
+            // `//exceptions` showing a GM as overriding nothing and made
+            // `SkillCheckGM` unreachable (nothing ever held the override at
+            // load, so the key it gates could not matter). The variable itself
+            // is still not persisted here, so this is the default arm only.
+            cond_overrides: if data.admin.is_gm(c.access_level) {
+                crate::game_loop::admin::all_exceptions_mask()
+            } else {
+                0
+            },
             transform_id: 0,
             transform_display_id: 0,
             store_type: 0,
@@ -1305,6 +1416,15 @@ impl Player {
                 .map(|&(id, lvl, _)| (id, lvl))
                 .collect(),
         );
+        // Java `restoreSkills`' skill check. It runs over the rows read **from
+        // the database**, which is the whole reason it sits here and not after
+        // the derived grants below: Java iterates its `ResultSet`, not the
+        // finished `_skills` map, so a skill that is granted rather than stored
+        // is never a candidate. Check the book instead and the armour-set and
+        // noble grants — which are in no allow-list arm, correctly — get eaten
+        // the moment they are added.
+        let (skills, illegal_skills) = check_restored_skills(data, c, cond_overrides, skills);
+
         // Re-grant whatever the gear the character logged out wearing entitles
         // them to. The rows themselves were just filtered out above, so this is
         // the only thing that puts a set bonus back — without it a relog would
@@ -1316,7 +1436,20 @@ impl Player {
         {
             skills.0.insert(id, level);
         }
-        let skills = skills;
+        // Java `Player.restore`: `player.setNoble(rset.getInt("nobless") == 1)`,
+        // whose `setNoble(true)` grants the noble tree with
+        // `addSkill(skill, false)` — **granted from the column, never
+        // persisted**. The port had it the other way round: nothing re-granted
+        // at load and the skills survived only as `character_skills` rows, so a
+        // nobless who was stripped of it kept every skill, and the rows are
+        // exactly what `is_skill_allowed` is built to reject. Deriving them
+        // here is what lets the check remove the rows without taking the
+        // skills with them.
+        if c.noble {
+            for &(id, level) in data.skill_trees.noble_skills() {
+                skills.0.insert(id, level);
+            }
+        }
 
         // The enchant sub-levels ride the same rows (PLAN_G19_SKILL_ENCHANT.md).
         let skill_enchants = components::SkillEnchants(
@@ -1437,6 +1570,7 @@ impl Player {
             reuses: Reuses::default(),
             // Likewise filled by the select path, via `restore_buffs`.
             pending_buffs: Vec::new(),
+            illegal_skills,
         }
     }
 
@@ -1913,6 +2047,23 @@ impl Player {
 /// `ShieldDefenceRate` over the equipped shield's own `sDef`/`rShld` outside
 /// the `recalculate_stats` pass (shield block stats aren't cached on
 /// `CombatStats`, so they're finalized fresh at combat-lookup time instead).
+///
+/// **This is the one place the order lives.** Java's `getValue(stat, base)` is
+/// `(mul × base) + add`, and the alternative reading — folding `add` inside the
+/// multiply — agrees on every stat carrying only one kind of modifier, so a
+/// respelling of this formula elsewhere can be wrong for years without a test
+/// noticing. `water::breath_ms` was, until 2026-08-18. Call this; do not
+/// rewrite it.
+///
+/// **One term is deliberately missing.** Java adds
+/// `getMoveTypeValue(stat, creature.getMoveType())`, which this cannot: the
+/// move type is not a property of `StatModifiers`. That is safe only because
+/// of what the datapack contains — the sole stats any `StatByMoveType` effect
+/// on this dist targets are `REGENERATE_*` (64 entries) and `EVASION` (1), and
+/// both are finalized at their own call sites, which do add the term
+/// (`game_loop::regen`, `game_loop::combat`). A stat that acquires a
+/// `by_move_type` entry **and** comes through here would silently lose it, so
+/// check that before routing a new stat to this function.
 pub(crate) fn finalize(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
     if let Some(&fixed) = mods.fixed.get(&stat) {
         return fixed;

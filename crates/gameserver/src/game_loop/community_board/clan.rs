@@ -18,8 +18,11 @@ pub(super) fn show_region_board(world: &mut World, client_id: u32, object_id: i3
         .insert(object_id, ("Region".to_string(), command.to_string()));
     // The region-name npcstring ids, castle 1..=9 (Java `REGIONS`).
     const REGIONS: [i32; 9] = [1049, 1052, 1053, 1057, 1060, 1059, 1248, 1247, 1056];
-    let root = world.data.root.clone();
-    let Some(row_tpl) = read_html(&root, "data/html/CommunityBoard/region_list.html") else {
+    let Some(row_tpl) = read_html(
+        world,
+        client_id,
+        "data/html/CommunityBoard/region_list.html",
+    ) else {
         return;
     };
     let mut rows = String::new();
@@ -44,7 +47,7 @@ pub(super) fn show_region_board(world: &mut World, client_id: u32, object_id: i3
                 .replace("%region_tax_rate%", &format!("{tax}%")),
         );
     }
-    let Some(html) = read_html(&root, "data/html/CommunityBoard/region.html") else {
+    let Some(html) = read_html(world, client_id, "data/html/CommunityBoard/region.html") else {
         return;
     };
     send_cb_html(world, client_id, &html.replace("%region_list%", &rows));

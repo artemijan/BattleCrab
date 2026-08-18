@@ -291,6 +291,14 @@ fn a_long_swim_click_is_clamped_to_700_units() {
 /// 60 000 ms base: Eva's Kiss is `PER 400` → ×5, five minutes; Boost Breath is
 /// `DIFF 180` → +0.18 s, which looks like a datapack unit slip but is exactly
 /// what Java computes.
+///
+/// **The combined case asserted the wrong arithmetic.** It pinned
+/// `(base + add) × mul` with a comment saying that was Java's — and
+/// `Stat.defaultValue` is `(mul × base) + add`. The test could not have caught
+/// the bug because it was written from the same misreading as the code, which
+/// is the failure mode a test cannot protect against on its own: the fix came
+/// from reading Java's finalizer while porting a *different* stat
+/// (`Stat.FALL`, `game_loop::falling`) that runs through the same function.
 #[test]
 fn the_breath_stat_extends_the_gauge() {
     use crate::model::stats::Stat;
@@ -318,14 +326,17 @@ fn the_breath_stat_extends_the_gauge() {
         "a PER source multiplies the whole gauge"
     );
 
-    // Boost Breath level 2: `DIFF 300`, applied before the multiplier as Java's
-    // `(base + add) × mul` does.
+    // Boost Breath level 2: `DIFF 300`, added **after** the multiply —
+    // `Stat.defaultValue` is `(mul × base) + add`. The two orders differ by
+    // `add × (mul − 1)`, which is 1.8 s here; the numbers are spelled out
+    // rather than computed so the wrong one cannot be re-derived from the
+    // code under test.
     mods.add.insert(Stat::Breath, 300.0);
     world.objects.add_components(&oid, mods);
     assert_eq!(
         water::breath_ms(&world, oid),
-        (60_000 + 300) * 7,
-        "add lands inside the multiply, not after it"
+        420_300,
+        "7 × 60000 + 300 — not (60000 + 300) × 7, which gives 422100"
     );
 
     // …and the *drowning task* must use it. Asserting only `breath_ms` leaves
@@ -339,7 +350,7 @@ fn the_breath_stat_extends_the_gauge() {
         .next_damage_tick;
     assert_eq!(
         due - world.tick,
-        ((60_000 + 300) * 7) / 100,
+        420_300 / 100,
         "the first drown tick is the buffed gauge, not the 60 s base"
     );
 }

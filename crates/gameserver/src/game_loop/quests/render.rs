@@ -50,7 +50,8 @@ pub(super) fn show_html_file(
     filename: &str,
 ) {
     let quest_window = !filename.ends_with(".html");
-    let Some(content) = load_quest_html(world, script, filename) else {
+    let viewer = world.player_oid(client_id).unwrap_or(0);
+    let Some(content) = load_quest_html(world, viewer, script, filename) else {
         warn!("Quest {}: missing html [{filename}].", script.name());
         return;
     };
@@ -82,31 +83,39 @@ pub(super) fn show_html_file(
 /// `data/scripts/quests/<Name>/` fallback.
 pub(super) fn load_quest_html(
     world: &World,
+    viewer_oid: i32,
     script: &Arc<dyn QuestScript>,
     filename: &str,
 ) -> Option<String> {
     let root = &world.data.root;
-    crate::data::htm_cache::read_htm(format!(
-        "{root}data/scripts/{}/{filename}",
-        script.html_dir()
-    ))
+    crate::data::htm_cache::read_htm_for(
+        world,
+        viewer_oid,
+        format!("{root}data/scripts/{}/{filename}", script.html_dir()),
+    )
     .or_else(|| {
-        crate::data::htm_cache::read_htm(format!(
-            "{root}data/scripts/quests/{}/{filename}",
-            script.name()
-        ))
+        crate::data::htm_cache::read_htm_for(
+            world,
+            viewer_oid,
+            format!("{root}data/scripts/quests/{}/{filename}", script.name()),
+        )
     })
 }
 
 /// `Quest.getNoQuestMsg` (`data/html/noquest.htm`, with Java's inline
 /// default when the file is missing).
-pub(super) fn no_quest_html(world: &World) -> String {
-    crate::data::htm_cache::read_htm(format!("{}data/html/noquest.htm", world.data.root))
+pub(super) fn no_quest_html(world: &World, viewer_oid: i32) -> String {
+    crate::data::htm_cache::read_htm_for(
+        world,
+        viewer_oid,
+        format!("{}data/html/noquest.htm", world.data.root),
+    )
         .unwrap_or_else(|| "<html><body>You are either not on a quest that involves this NPC, or you don't meet this NPC's minimum quest requirements.</body></html>".to_string())
 }
 
 pub(super) fn send_no_quest_html(world: &mut World, client_id: u32, npc_oid: i32) {
-    let content = no_quest_html(world).replace("%objectId%", &npc_oid.to_string());
+    let viewer = world.player_oid(client_id).unwrap_or(0);
+    let content = no_quest_html(world, viewer).replace("%objectId%", &npc_oid.to_string());
     send_to_client(
         world,
         client_id,

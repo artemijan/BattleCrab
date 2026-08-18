@@ -272,10 +272,11 @@ pub(crate) fn show_teleport_list(
         ));
     }
 
-    let html = crate::data::htm_cache::read_htm(format!(
-        "{}data/html/teleporter/teleports.htm",
-        world.data.root
-    ))
+    let html = crate::data::htm_cache::read_htm_for(
+        world,
+        object_id,
+        format!("{}data/html/teleporter/teleports.htm", world.data.root),
+    )
     .unwrap_or_else(|| "<html><body>%locations%</body></html>".to_string())
     .replace("%locations%", &buttons);
     send_to_client(
@@ -404,11 +405,14 @@ pub(crate) fn do_teleport(
 /// with the `%objectId%`/`%npcname%` replacements.
 pub(crate) fn send_teleporter_html(world: &World, client_id: u32, npc_object_id: i32, file: &str) {
     let name = npc_name_or_empty(world, npc_object_id);
-    let html =
-        crate::data::htm_cache::read_htm(format!("{}data/html/teleporter/{file}", world.data.root))
-            .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
-            .replace("%objectId%", &npc_object_id.to_string())
-            .replace("%npcname%", &name);
+    let html = crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/teleporter/{file}", world.data.root),
+    )
+    .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
+    .replace("%objectId%", &npc_object_id.to_string())
+    .replace("%npcname%", &name);
     send_to_client(
         world,
         client_id,

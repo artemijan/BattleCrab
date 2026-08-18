@@ -394,7 +394,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, comm
 
     if val < 10 {
         // Pick a lane (page 2).
-        let mut html = mob_names(page(world, npc_oid, 2), world);
+        let mut html = mob_names(page(world, player, npc_oid, 2), world);
         if val == 0 {
             html = html.replace("No1", "");
         } else {
@@ -408,7 +408,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, comm
         if t[0] == 0 {
             return;
         }
-        let mut html = page(world, npc_oid, 3)
+        let mut html = page(world, player, npc_oid, 3)
             .replace("0place", &t[0].to_string())
             .replace("Mob1", &mob_name(world, t[0]));
         if val == 10 {
@@ -425,7 +425,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, comm
             return;
         }
         let price = TICKET_PRICES[(t[1] - 1) as usize];
-        let html = page(world, npc_oid, 4)
+        let html = page(world, player, npc_oid, 4)
             .replace("0place", &t[0].to_string())
             .replace("Mob1", &mob_name(world, t[0]))
             .replace("0adena", &price.to_string())
@@ -487,7 +487,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, comm
 
 /// Java `ShowOdds` (page 5): the per-lane odds board (available only once sales
 /// have closed).
-fn show_odds(world: &mut World, client_id: u32, _player: i32, npc_oid: i32) {
+fn show_odds(world: &mut World, client_id: u32, player: i32, npc_oid: i32) {
     if !world.cfg.general.allow_race || world.monster_race.state == RaceState::AcceptingBets {
         send_sm(
             world,
@@ -497,7 +497,7 @@ fn show_odds(world: &mut World, client_id: u32, _player: i32, npc_oid: i32) {
         chat0(world, client_id, npc_oid);
         return;
     }
-    let mut html = mob_names(page(world, npc_oid, 5), world);
+    let mut html = mob_names(page(world, player, npc_oid, 5), world);
     for lane in 1..=LANES as i32 {
         let odd = world
             .monster_race
@@ -520,7 +520,7 @@ fn show_info(world: &World, client_id: u32, npc_oid: i32) {
     if !world.cfg.general.allow_race {
         return;
     }
-    let html = mob_names(page(world, npc_oid, 6), world);
+    let html = mob_names(page_for_client(world, client_id, npc_oid, 6), world);
     finalize(world, client_id, npc_oid, html);
 }
 
@@ -543,7 +543,7 @@ fn show_tickets(world: &mut World, client_id: u32, player: i32, npc_oid: i32) {
             }
         }
     }
-    let html = page(world, npc_oid, 7).replace("%tickets%", &rows);
+    let html = page(world, player, npc_oid, 7).replace("%tickets%", &rows);
     finalize(world, client_id, npc_oid, html);
 }
 
@@ -572,7 +572,7 @@ fn show_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, com
     } else {
         "0.01".to_string()
     };
-    let html = page(world, npc_oid, 8)
+    let html = page(world, player, npc_oid, 8)
         .replace("%raceId%", &race_id.to_string())
         .replace("%lane%", &lane.to_string())
         .replace("%bet%", &bet.to_string())
@@ -637,7 +637,7 @@ fn view_history(world: &mut World, client_id: u32, npc_oid: i32) {
             info.race_id, info.first, info.second, info.odd_rate
         ));
     }
-    let html = page(world, npc_oid, 9).replace("%infos%", &rows);
+    let html = page_for_client(world, client_id, npc_oid, 9).replace("%infos%", &rows);
     finalize(world, client_id, npc_oid, html);
 }
 
@@ -710,15 +710,26 @@ fn mob_names(mut html: String, world: &World) -> String {
 }
 
 /// Read a RaceManager html page (`data/html/default/<npcId>-<page>.htm`).
-fn page(world: &World, npc_oid: i32, page: i32) -> String {
+/// [`page`] for the handlers that hold only a client id.
+fn page_for_client(world: &World, client_id: u32, npc_oid: i32, page_no: i32) -> String {
+    page(
+        world,
+        world.player_oid(client_id).unwrap_or(0),
+        npc_oid,
+        page_no,
+    )
+}
+
+fn page(world: &World, viewer_oid: i32, npc_oid: i32, page: i32) -> String {
     let npc_id = world
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_oid)
         .map_or(0, |n| n.npc_id);
-    crate::data::htm_cache::read_htm(format!(
-        "{}data/html/default/{npc_id}-{page}.htm",
-        world.data.root
-    ))
+    crate::data::htm_cache::read_htm_for(
+        world,
+        viewer_oid,
+        format!("{}data/html/default/{npc_id}-{page}.htm", world.data.root),
+    )
     .unwrap_or_default()
 }
 

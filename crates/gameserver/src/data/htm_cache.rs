@@ -57,6 +57,60 @@ pub fn read_htm(path: impl AsRef<std::path::Path>) -> Option<String> {
     std::fs::read_to_string(path).ok().map(|c| strip_htm(&c))
 }
 
+/// [`read_htm`] for a file being served **to a player** — Java's
+/// `HtmCache.getHtm(player, path)`, as opposed to the `getHtm(null, path)` the
+/// loaders and scans use.
+///
+/// The recipient is the whole difference: it carries `Config.GM_DEBUG_HTML_PATHS`
+/// (**True** on this dist), which sends a GM the path of every html the server
+/// hands them. It is how a GM answers "which file is this dialog?" without
+/// grepping the datapack, and it is why the parameter exists in Java's
+/// signature at all.
+///
+/// Java prints `newPath.substring(5)`, dropping the leading `data/` — the
+/// path as the datapack author would write it.
+pub fn read_htm_for(
+    world: &crate::world::World,
+    player_object_id: i32,
+    path: impl AsRef<std::path::Path>,
+) -> Option<String> {
+    let content = read_htm(&path);
+    if world.cfg.general.gm_debug_html_paths
+        && crate::game_loop::helpers::is_gm(world, player_object_id)
+    {
+        let shown = path.as_ref().to_string_lossy().into_owned();
+        // The port reads under the datapack root rather than Java's cache key,
+        // so strip whatever prefix precedes `data/` instead of a fixed 5.
+        let shown = match shown.find("data/") {
+            Some(i) => shown[i + "data/".len()..].to_string(),
+            None => shown,
+        };
+        crate::game_loop::helpers::send_to_player(
+            world,
+            player_object_id,
+            crate::network::server_packets::system_message_with(
+                crate::network::server_packets::sm_ids::S1_TEXT,
+                &[crate::network::server_packets::SmParam::Text(shown)],
+            ),
+        );
+    }
+    content
+}
+
+/// [`read_htm_for`] keyed by client id, for the many handlers that hold one
+/// rather than an object id. A client with no in-game player reads the file
+/// with no debug line, which is Java's `getHtm(null, path)`.
+pub fn read_htm_for_client(
+    world: &crate::world::World,
+    client_id: u32,
+    path: impl AsRef<std::path::Path>,
+) -> Option<String> {
+    match world.player_oid(client_id) {
+        Some(oid) => read_htm_for(world, oid, path),
+        None => read_htm(path),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

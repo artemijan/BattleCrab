@@ -53,7 +53,7 @@ impl<'w> QuestCtx<'w> {
     /// `TutorialShowHtml` with the content of a file from the script's html
     /// dir (Java `showTutorialHtml(getHtm(player, file))`).
     pub fn tutorial_show_html_file(&mut self, filename: &str) {
-        let html = load_quest_html(self.world, &self.script, filename)
+        let html = load_quest_html(self.world, self.player, &self.script, filename)
             .unwrap_or_else(|| format!("<html><body>File {filename} not found.</body></html>"));
         self.send(server_packets::tutorial_show_html(&html));
     }

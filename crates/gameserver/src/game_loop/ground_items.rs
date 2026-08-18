@@ -372,6 +372,21 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     let Some(ppos) = maybe_position(world, player_oid) else {
         return;
     };
+    // `PlayerCondOverride.DROP_ALL_ITEMS` — the drop path's override, and note
+    // it is **not** the `ITEM_CONDITIONS` the trade window reads for the same
+    // config key.
+    //
+    // Bound once because the three gates below combine it *differently*: the
+    // undroppable and quest-item gates want it together with
+    // `Config.GM_TRADE_RESTRICTED_ITEMS` (**False** here), the `TYPE2_QUEST`
+    // gate wants the override on its own. Keeping both spellings next to each
+    // other is what makes that asymmetry visible instead of looking like a
+    // typo at one of the sites.
+    let can_drop_all = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::DROP_ALL_ITEMS_ORDINAL));
+    let gm_bound_exempt = world.cfg.general.gm_trade_restricted_items && can_drop_all;
     // `(item.getItemType() == EtcItemType.PET_COLLAR) && player.havePetInvItems()`
     // — a collar whose pet is still carrying things may not be thrown away;
     // the pet inventory would be stranded with no collar to reach it through.
@@ -386,7 +401,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     // `THAT_ITEM_CANNOT_BE_DISCARDED`. `_count > item.getCount()` refuses with
     // the same message rather than clamping, so a forged count cannot drop
     // more than is held.
-    if !dropable
+    if (!dropable && !gm_bound_exempt)
         || loaded_collar
         || pkt.count > held
         || world.data.zone_data.no_item_drop_at(ppos.x, ppos.y, ppos.z)
@@ -401,7 +416,11 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         );
         return;
     }
-    if is_quest || (!is_stackable && pkt.count > 1) {
+    // `item.isQuestItem() && !(canOverrideCond(DROP_ALL_ITEMS) &&
+    // GM_TRADE_RESTRICTED_ITEMS)` — the quest-item gate takes the same
+    // exemption, unlike the trade window's, where `isQuestItem()` sits outside
+    // the exempted parenthesis and refuses even a GM.
+    if (is_quest && !gm_bound_exempt) || (!is_stackable && pkt.count > 1) {
         return;
     }
     // `Config.JAIL_DISABLE_TRANSACTION && player.isJailed()`.
@@ -460,11 +479,19 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     // `ItemTemplate.TYPE2_QUEST == item.getTemplate().getType2()` — a second,
     // wider quest gate than the `isQuestItem()` flag above: it catches the
     // quest-typed items whose template never sets that flag.
+    //
+    // **Its exemption is `can_drop_all` alone.** Java writes
+    // `&& !player.canOverrideCond(DROP_ALL_ITEMS)` here, with no
+    // `GM_TRADE_RESTRICTED_ITEMS`, unlike the two gates above which require
+    // both. So on this dist's `False` a GM clears this gate and is still
+    // stopped by the `isQuestItem()` one. Ported as written; the port
+    // previously had no exemption on this gate at all.
     if world
         .data
         .item_data
         .get(item_id)
         .is_some_and(|t| t.type2 == TYPE2_QUEST)
+        && !can_drop_all
     {
         send_to_client(
             world,

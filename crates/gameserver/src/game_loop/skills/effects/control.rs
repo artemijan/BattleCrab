@@ -76,14 +76,17 @@ pub(crate) fn retarget_onto(world: &mut World, victim_oid: i32, new_target_oid: 
 /// `effected.getStat().getValue(Stat.MANA_CHARGE, amount)` — the recipient's
 /// recharge bonus. Java's two-arg `getValue` is `mul * baseValue + add`, so
 /// Higher Mana Gain 285 (`mode=DIFF`, +22..81 by level) is a flat addition.
+///
+/// The order was already right here; routing it through
+/// [`crate::model::finalize`] (which *is* `Stat.defaultValue`) rather than
+/// respelling it also picks up the `//setparam` fixed-value short-circuit that
+/// `getValue` checks first and this function did not.
 pub(crate) fn mana_charge_of(world: &World, target_oid: i32, amount: f64) -> f64 {
     use crate::model::stats::Stat;
     let Some(mods) = world.objects.get_component::<StatModifiers>(&target_oid) else {
         return amount;
     };
-    let mul = mods.mul.get(&Stat::ManaCharge).copied().unwrap_or(1.0);
-    let add = mods.add.get(&Stat::ManaCharge).copied().unwrap_or(0.0);
-    (mul * amount) + add
+    crate::model::finalize(mods, Stat::ManaCharge, amount)
 }
 
 /// `ManaHealByLevel`'s recharge penalty: a target more than 5 levels above the

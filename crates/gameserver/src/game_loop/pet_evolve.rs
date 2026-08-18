@@ -71,9 +71,13 @@ const RESTORE: [(i32, i32, i32, i32); 5] = [
 /// `restore_no.htm` / `exchange_no.htm`) — Java's answer to every failed
 /// attempt, with no system message of its own.
 fn refuse(world: &mut World, client_id: u32, npc_object_id: i32, file: &str) {
-    let html = crate::data::htm_cache::read_htm(format!("{}data/html/{file}", world.data.root))
-        .map(|c| c.replace("%objectId%", &npc_object_id.to_string()))
-        .unwrap_or_default();
+    let html = crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/{file}", world.data.root),
+    )
+    .map(|c| c.replace("%objectId%", &npc_object_id.to_string()))
+    .unwrap_or_default();
     send(
         world,
         client_id,

@@ -365,6 +365,9 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
             .filter(|cs| cs.addr().ip().to_string() == ip)
             .count();
         if in_game as i32 >= limit {
+            // No recipient: this fires at character select, before the
+            // player is in the world — Java's `getHtm(null, path)` case, so
+            // no `GMDebugHtmlPaths` line either way.
             let html = crate::data::htm_cache::read_htm(format!(
                 "{}data/html/mods/IPRestriction.htm",
                 world.data.root
@@ -682,9 +685,11 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     }
 
     let object_id = player.object_id;
+    let class_id_for_log = player.class_id;
     // Take the persisted buffs off the bundle before it's consumed; they're
     // re-applied below, once the entity exists.
     let pending_buffs = std::mem::take(&mut bundle.pending_buffs);
+    let illegal_skills = std::mem::take(&mut bundle.illegal_skills);
     bundle.spawn_into(world);
     info!(
         "GameLoop: '{name}' entered the world ({} online).",
@@ -693,6 +698,34 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     world
         .clients
         .insert(client_id, ClientSession::InGame(session));
+    // Java `restoreSkills`' skill check reports through
+    // `Util.handleIllegalPlayerAction(..., BROADCAST)`. The *finding* is made
+    // in `from_char`, which runs at character select against `&GameData` and
+    // has no world; reporting has to wait until there is an entity to name, so
+    // it happens here, one line into enter-world.
+    //
+    // `BROADCAST` is passed explicitly rather than through
+    // `DefaultPunish` — Java hard-codes it at this call site, and it is the
+    // right level: an illegal row is very often a bug or an old build's
+    // leftovers rather than a player cheating, so it tells the GMs and stops.
+    for (skill_id, level) in &illegal_skills {
+        let skill_name = world
+            .data
+            .skill_data
+            .get(*skill_id, *level)
+            .map(|s| s.name.clone())
+            .unwrap_or_default();
+        super::punishment::handle_illegal_player_action(
+            world,
+            object_id,
+            &format!(
+                "Player {name} has invalid skill {skill_name} ({skill_id}/{level}), \
+                 class:{class_id_for_log}"
+            ),
+            crate::model::punishment::IllegalActionPunishment::Broadcast,
+        );
+    }
+
     // `EnterWorld`'s over-enchant sweep, before the protection window so a
     // punished login is still punished.
     super::enchant::over_enchant_sweep(world, object_id);
@@ -853,9 +886,11 @@ fn show_clan_notice_at_login(world: &mut World, client_id: u32, object_id: i32) 
         return;
     };
     let clan_name = clan_name_or_empty(world, clan_id);
-    let Some(html) =
-        crate::data::htm_cache::read_htm(format!("{}data/html/clanNotice.htm", world.data.root))
-    else {
+    let Some(html) = crate::data::htm_cache::read_htm_for(
+        world,
+        object_id,
+        format!("{}data/html/clanNotice.htm", world.data.root),
+    ) else {
         return;
     };
     let html = html.replace("%clan_name%", &clan_name).replace(

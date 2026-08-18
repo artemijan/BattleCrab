@@ -576,9 +576,9 @@ pub(crate) fn on_manager_first_talk(world: &World, player: i32, npc: i32) -> Opt
         if in_arena {
             return Some("manager-buffheal.html".to_string());
         }
-        return Some(count_page(world, "manager-cancel.html"));
+        return Some(count_page(world, player, "manager-cancel.html"));
     }
-    Some(count_page(world, "manager-register.html"))
+    Some(count_page(world, player, "manager-register.html"))
 }
 
 /// Java `TvT.loadConfig()`: the `<schedule pattern="…"/>` entries of
@@ -1224,18 +1224,20 @@ fn despawn_manager(world: &mut World) {
 /// Load a manager page and substitute `%player_numbers%` (Java builds these two
 /// via `html.replace`). Returned content starts with `<html>`, so the quest
 /// framework renders it inline.
-fn count_page(world: &World, file: &str) -> String {
-    manager_html(world, file).replace(
+fn count_page(world: &World, viewer_oid: i32, file: &str) -> String {
+    manager_html(world, viewer_oid, file).replace(
         "%player_numbers%",
         &world.events.tvt.player_list.len().to_string(),
     )
 }
 
-fn manager_html(world: &World, file: &str) -> String {
+fn manager_html(world: &World, viewer_oid: i32, file: &str) -> String {
     let root = &world.data.root;
-    crate::data::htm_cache::read_htm(format!(
-        "{root}data/scripts/custom/events/TeamVsTeam/{file}"
-    ))
+    crate::data::htm_cache::read_htm_for(
+        world,
+        viewer_oid,
+        format!("{root}data/scripts/custom/events/TeamVsTeam/{file}"),
+    )
     .unwrap_or_default()
 }
 

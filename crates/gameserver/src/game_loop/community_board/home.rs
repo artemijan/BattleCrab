@@ -13,8 +13,11 @@ pub(super) fn show_shell(
     world
         .cb_last_bypass
         .insert(object_id, ("Board".to_string(), command.to_string()));
-    let root = world.data.root.clone();
-    if let Some(html) = read_html(&root, &format!("data/html/CommunityBoard/{file}")) {
+    if let Some(html) = read_html(
+        world,
+        client_id,
+        &format!("data/html/CommunityBoard/{file}"),
+    ) {
         send_cb_html(world, client_id, &html);
     }
 }
@@ -41,7 +44,6 @@ pub(super) fn show_home(world: &mut World, client_id: u32, object_id: i32, comma
             .cb_last_bypass
             .insert(object_id, ("Home".to_string(), command.to_string()));
     }
-    let root = &world.data.root;
     let rel = match page {
         Some(p) if custom => format!("data/html/CommunityBoard/Custom/{p}"),
         Some(p) => format!("data/html/CommunityBoard/{p}"),
@@ -49,7 +51,7 @@ pub(super) fn show_home(world: &mut World, client_id: u32, object_id: i32, comma
         None => "data/html/CommunityBoard/home.html".to_string(),
     };
 
-    let Some(mut html) = read_html(root, &rel) else {
+    let Some(mut html) = read_html(world, client_id, &rel) else {
         warn!("CommunityBoard: missing html [{rel}].");
         return;
     };

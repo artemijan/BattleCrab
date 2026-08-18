@@ -111,7 +111,8 @@ pub(super) fn do_delevel(world: &mut World, client_id: u32, object_id: i32) {
     crate::game_loop::death::set_level(world, object_id, new_level);
     crate::game_loop::admin::vitals::heal_creature(world, object_id);
     if let Some(html) = read_html(
-        &world.data.root,
+        world,
+        client_id,
         "data/html/CommunityBoard/Custom/delevel/complete.html",
     ) {
         send_cb_html(world, client_id, &html);

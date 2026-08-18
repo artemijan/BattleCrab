@@ -178,9 +178,16 @@ pub struct Config {
     pub server_id: i32,
 
     /// Whether the login server should reserve the GS host on login
-    /// (`RESERVE_HOST_ON_LOGIN`) and whether the server is GM-only
-    /// (`SERVER_GMONLY`). Stock defaults; wired to config in a later milestone.
+    /// (`RESERVE_HOST_ON_LOGIN`) — still a stock default, the key is not in
+    /// any `.ini` this port reads.
     pub reserve_host_on_login: bool,
+    /// `General.ini`'s `ServerGMOnly` (**False** here): register with the login
+    /// server as `STATUS_GM_ONLY` rather than `STATUS_AUTO`.
+    ///
+    /// Java also restores *this* value when a shutdown is aborted
+    /// (`Shutdown.java`: `setServerStatus(SERVER_GMONLY ? GM_ONLY : AUTO)`),
+    /// which is the difference between a cancelled restart reopening the server
+    /// and reopening it to GMs only.
     pub server_gmonly: bool,
 }
 
@@ -219,6 +226,7 @@ impl Config {
         let character = CharacterConfig::load_from(root);
         let feature = FeatureConfig::load_from(root);
         let general = GeneralConfig::load_from(root);
+        let server_gm_only = general.server_gm_only;
         let geoengine = GeoEngineConfig::load_from(root);
         let npc = NpcConfig::load_from(root);
         let rates = RatesConfig::load_from(root);
@@ -286,7 +294,12 @@ impl Config {
             hex_id: hex.hex_id,
             server_id: hex.server_id,
             reserve_host_on_login: false,
-            server_gmonly: false,
+            // `General.ini`'s `ServerGMOnly` — this used to be a hard-coded
+            // `false` beside a note saying "wired to config in a later
+            // milestone". The status it drives is what the login server shows
+            // in the server list, so an operator who set the key was
+            // advertising an open server while believing it closed.
+            server_gmonly: server_gm_only,
         }
     }
 

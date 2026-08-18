@@ -199,7 +199,7 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **127** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini, Feature.ini and Character.ini are all wired**; what remains is Character 9 (all classified — see below), General 71, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **113** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **PVP.ini, Olympiad.ini, NPC.ini, Rates.ini, Feature.ini and Character.ini are all wired**; what remains is Character 9 (all classified — see below), General 57, Server 7, plus 38 Feature and 2 PVP keys that are fortress-only or dead in Java. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **The recorded Character figure was low**: re-deriving it gave 82, not 76 | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
@@ -637,11 +637,126 @@ Every key the file ships is now accounted for. The nine still counted are:
   to flatter the count would defeat the point of having one.
 * **`MaximumPlayerLevel`**, which is row 19's decision and not ours to take.
 
-What is left in row 14 is General (71 — enchant/augment
-gates, the karma trio, the clan/ally day penalties, character creation and
-auto-loot), General (71 — mostly dev tooling and persistence-model choices the
-port made differently: memory-first saves, no `HtmCache`, no grid on/off), and
-Server (7), which is infrastructure.
+What is left in row 14 is General (**57** — mostly dev tooling and
+persistence-model choices the port made differently: memory-first saves, no
+`HtmCache`, no grid on/off) and Server (7), which is infrastructure. (This
+paragraph used to name General twice, once with Character.ini's description
+attached to it — a copy-edit slip from the row that closed Character.ini.)
+
+**The General.ini fall-damage cluster (`EnableFallingDamage`).** The first
+General key worked, and the only one on the file that was a *subsystem* rather
+than a flag: nothing in the port implemented falling at all. Java drives it
+entirely from `ValidatePosition` — `Player.isFalling(z)` prices the drop once,
+arms a 1.5 s task, and returns `true` for the next second so position
+reconciliation is suppressed while the player is in the air. All three landed
+(`game_loop::falling`), plus `Formulas.calcFallDam` and `Stat.FALL`.
+
+Three things the Java side had to be read for rather than assumed:
+
+* **`Stat.FALL` scales the damage, not the height.** Its only effect is named
+  `SafeFallHeight` and the datapack comments it as *"Increases the maximum
+  height user can fall without taking damage by 60"* — but the safe height is
+  `PlayerTemplate.getSafeFallHeight()`, which no stat touches, and the stat is
+  read by `calcFallDam` alone. Acrobatics (173) takes a flat 60/100 off the
+  damage. Ported as Java computes it, not as the datapack describes it.
+* **`getValue(stat, base)` is `mul * base + add`**, not `(base + add) * mul`
+  (`Stat.defaultValue`). The two differ whenever a stat carries both kinds of
+  modifier, and the test pins a pair rather than a single one so it can tell
+  them apart. **This found a live bug one module over**: `water::breath_ms`
+  computed the other order, behind a comment saying it was Java's, and its test
+  asserted the same wrong expression — a test written from the premise it was
+  meant to check. Fixed, along with the duplication behind it: `model::finalize`
+  already *was* `Stat.defaultValue`, and three sites were respelling it
+  (`breath_ms`, `calc_fall_dam`, `mana_charge_of`); two of them also skipped the
+  `//setparam` fixed-value short-circuit `getValue` checks first. All three now
+  call it.
+* **The safe height is a constant.** `baseSafeFall` appears in **no**
+  `stats/chars/*.xml` on this dist, so every class takes Java's literal
+  `getInt("baseSafeFall", 333)` default. A loader would have had one possible
+  answer.
+
+This also **closes a G34 census exclusion**: `SafeFallHeight` was recorded out
+of scope on the grounds that the stat would have no consumer, which was a
+statement about the port's state and not a decision. The effect is now
+registered and Acrobatics works; `<effect>` residue 133 → 132, learnable
+skills affected 10 → 9, and `only_the_recorded_gap_is_reachable_from_a_skill_tree`
+is down to `OpSweeper` alone.
+
+**The General.ini skill-check cluster (`SkillCheckEnable`/`Remove`/`GM`).**
+`restoreSkills` validates every `character_skills` row against the skill trees
+and, on this dist, removes what fails. Porting it needed two corrections to
+things around it first, because a check is only as good as the data it judges:
+
+* **Noble skills were persisted instead of derived.** Java's `Player.restore`
+  runs `setNoble(nobless == 1)`, which grants the tree with
+  `addSkill(skill, false)` — never written. The port granted them nowhere at
+  load and relied on the stored rows, so a revoked nobless kept every skill.
+  Hero skills had the same shape from the other side: re-derived at enter-world
+  *and* persisted, so a hero decrowned while offline kept theirs. Both are now
+  derived-only and filtered out of the flush, which is also what makes them
+  correctly *illegal* as stored rows.
+* **A GM held no condition overrides at load.** Java defaults a GM's
+  `cond_override` variable to `getAllExceptionsMask()`; the port started every
+  character at 0. `SkillCheckGM` gates on exactly that override, so without the
+  fix the third key of the cluster could never matter. One existing test moved
+  (it was asserting the old default while testing the toggle).
+
+Three notes on the check itself. `SkillCheckGM` **reads backwards** — Java's
+`(!canOverrideCond(SKILL_CONDITIONS) || SKILL_CHECK_GM)` means **False**, the
+dist value, *exempts* an override-holder. The level is clamped to the skill's
+max before matching, which is what lets an enchanted skill (stored at level
+101+) match its tree entry. And the check runs over the **DB rows**, not the
+finished skill book: Java iterates its `ResultSet`, so derived grants are never
+candidates — judging the book instead deletes the armour-set and noble skills
+granted moments earlier.
+
+`fishingSkillTree.xml` and `transformSkillTree.xml` are now parsed **for the
+allow-list only**. Neither is teachable here, but Java's check consults both,
+and parsing them makes the result correct by construction rather than by an
+argument about which paths can produce a row.
+
+**The General.ini GM-restriction cluster (10 keys).** The family that decides
+what a GM's `PlayerCondOverride` grid exempts them from — and three of its
+members read backwards: Java's guard is `canOverrideCond(...) && !Config.KEY`,
+so setting the key **True** is what *stops* the override applying.
+
+`GMSkillRestriction` is **True** on this dist and the port bypassed every skill
+condition for every GM, behind a comment asserting the key was off. That comment
+was wrong twice over — it also justified reading the access level instead of the
+override, which only became distinguishable once the skill-check cluster gave a
+GM a real override grid. Both halves are fixed: the gate reads
+`canOverrideCond(SKILL_CONDITIONS)`, so `//set_exception 2` now means something.
+
+`GMTradeRestrictedItems` turns out to be **three** exemption shapes on one key:
+the undroppable gate and the quest-item gate need `canOverrideCond(DROP_ALL_ITEMS)`
+*and* the key; the `TYPE2_QUEST` gate needs the override **alone**; and
+`TradeStart`'s item list reads `ITEM_CONDITIONS` rather than `DROP_ALL_ITEMS`,
+while `TradeList.addItem` beside it reads plain `isGM()`. Ported as written. The
+port had no exemption on any of the four.
+
+`OnlyGMItemsFree` was already implemented and hard-coded to this dist's value
+behind a comment quoting the key — the pattern this row named at the outset.
+`ServerGMOnly` was a `false` literal beside the note *"wired to config in a
+later milestone"*, so an operator who closed the server was still advertised as
+open. `GMRestartFighting`, `GMShowAnnouncerName`, `UseSuperHasteAsGMSpeed` and
+`DefaultAccessLevel` are wired at their single Java sites.
+
+**`GMDebugHtmlPaths` needed the recipient threaded through the html layer.**
+Java's `HtmCache.getHtm(player, path)` carries a player at 132 of its 145 call
+sites, and the parameter exists *for this key*: it sends a GM the path of every
+dialog they are served. The port's `read_htm(path)` had no recipient, so the
+split is now Java's — `read_htm_for`/`read_htm_for_client` where a player is
+being served, plain `read_htm` for the loaders and scans that are Java's
+`getHtm(null, …)`. ~40 call sites across 28 modules.
+
+**`GMItemRestriction` is the one key with no consumer, and that is recorded
+rather than wired.** It gates `ItemTemplate.checkCondition`, and the port
+evaluates no item conditions at all: `<cond>` is unparsed (2126 blocks on this
+dist — races, level, sex, categoryType), and the Olympiad and event item
+restrictions are absent too. There is nothing for the override to bypass. The
+field exists so the gate lands with the conditions when they are ported; **item
+`<cond>` evaluation is a genuine unported subsystem** and is not counted
+anywhere else in this document.
 
 **Row 12 closed, and porting it found a live inventory divergence.** The
 recorded figure was 36; the arithmetic gives **35** (53 ids absent, minus

@@ -152,10 +152,11 @@ pub(crate) fn show_hero_diary(world: &mut World, client_id: u32, npc_oid: i32, a
     let Some(info) = world.olympiad.hero_info.get(&char_id).cloned() else {
         return;
     };
-    let Some(template) = crate::data::htm_cache::read_htm(format!(
-        "{}data/html/olympiad/herodiary.htm",
-        world.data.root
-    )) else {
+    let Some(template) = crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/olympiad/herodiary.htm", world.data.root),
+    ) else {
         return;
     };
 

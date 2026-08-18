@@ -141,14 +141,24 @@ fn open_window(world: &World, viewer: i32, partner: i32) {
         .get_component::<crate::model::Player>(&partner)
         .map(|p| p.level as u8)
         .unwrap_or(1);
+    // `TradeStart` reads `getAvailableItems(true, canOverrideCond(ITEM_CONDITIONS)
+    // && GM_TRADE_RESTRICTED_ITEMS, false)`. Named for the override it reads,
+    // because `handle_add_item` below has its own differently-shaped exemption
+    // on the same config key and one shared name would hide that.
+    let lists_bound_items = world.cfg.general.gm_trade_restricted_items
+        && world
+            .objects
+            .get_component::<crate::model::Player>(&viewer)
+            .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::ITEM_CONDITIONS_ORDINAL));
     let items: Vec<(ItemInstance, &crate::data::item_data::ItemTemplate)> = world
         .objects
         .get_component::<Inventory>(&viewer)
         .map(|inv| {
             inv.unequipped_with_templates(&world.data.item_data)
                 // Java `TradeList.addItem` refuses untradable items, so the
-                // window never lists them either.
-                .filter(|(_, t)| !t.is_quest_item && t.is_tradable())
+                // window never lists them either — unless the viewer is exempt,
+                // in which case Java lists them and `addItem` still decides.
+                .filter(|(_, t)| lists_bound_items || (!t.is_quest_item && t.is_tradable()))
                 .map(|(it, t)| (*it, t))
                 .collect()
         })
@@ -184,13 +194,21 @@ pub(crate) fn handle_add_item(world: &mut World, client_id: u32, body: &[u8]) {
     else {
         return;
     };
-    // Java `TradeList.addItem`: `!item.isTradeable() || item.isQuestItem()` is
-    // refused outright — a bound item can never be handed to another player.
+    // Java `TradeList.addItem`: `!(item.isTradeable() || (isGM() &&
+    // GM_TRADE_RESTRICTED_ITEMS)) || item.isQuestItem()`.
+    //
+    // Two things this site does **not** share with the `TradeStart` list that
+    // fills the window: it reads plain `isGM()` rather than an override, and
+    // the exemption covers only the tradeable half — `isQuestItem()` sits
+    // outside the parenthesis, so a quest item is refused even to an exempt
+    // GM. Hence a separate name: the window may list an item this refuses.
+    let may_offer_untradeable =
+        world.cfg.general.gm_trade_restricted_items && crate::game_loop::helpers::is_gm(world, me);
     if world
         .data
         .item_data
         .get(item_id)
-        .is_some_and(|t| t.is_quest_item || !t.is_tradable())
+        .is_some_and(|t| t.is_quest_item || (!t.is_tradable() && !may_offer_untradeable))
     {
         crate::game_loop::helpers::send_sm_and_action_failed(
             world,

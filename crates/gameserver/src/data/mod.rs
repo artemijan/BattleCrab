@@ -194,6 +194,21 @@ pub struct GmSettings {
     pub give_special_aura_skills: bool,
 }
 
+/// `General.ini`'s `SkillCheck*` trio, carried on [`GameData`] because the only
+/// consumer is `Player::from_char`, which runs against `&GameData` and never
+/// sees the live `World`. Same shape as [`GmSettings`] beside it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
+pub struct SkillCheckSettings {
+    /// `SkillCheckEnable` — run the check at all.
+    pub enable: bool,
+    /// `SkillCheckRemove` — remove what fails, rather than only reporting it.
+    pub remove: bool,
+    /// `SkillCheckGM` — also check a character holding
+    /// `PlayerCondOverride.SKILL_CONDITIONS`. **False on this dist**, which
+    /// *exempts* them.
+    pub gm: bool,
+}
+
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct GameData {
     pub experience: ExperienceData,
@@ -285,6 +300,13 @@ pub struct GameData {
     pub combat_caps: CombatCaps,
     /// GM login-state / hero-aura settings, from `General.ini` (see [`GmSettings`]).
     pub gm: GmSettings,
+    /// `SkillCheckEnable`/`Remove`/`GM`, from `General.ini` (see
+    /// [`SkillCheckSettings`]).
+    pub skill_check: SkillCheckSettings,
+    /// `General.ini`'s `DefaultAccessLevel` — carried here for the same reason
+    /// as [`SkillCheckSettings`]: `Player::from_char` applies it and sees only
+    /// `&GameData`.
+    pub default_access_level: i32,
     /// Datapack root prefix (`""` when running from `dist/game`) — for the
     /// odd loose file read at runtime (NPC dialog `.htm`s, which Java streams
     /// through `HtmCache` rather than a boot-time loader).
@@ -409,6 +431,8 @@ impl GameData {
             combat_caps: CombatCaps::default(),
             // Overwritten from the parsed `GeneralConfig` at boot (`main.rs`).
             gm: GmSettings::default(),
+            skill_check: SkillCheckSettings::default(),
+            default_access_level: 0,
         };
         // Deferred to here, not `SkillData::load_from`: separating a parser gap
         // that touches a skill a player can learn from one that only touches
@@ -484,6 +508,8 @@ impl GameData {
             admin: AdminData::empty(),
             combat_caps: CombatCaps::default(),
             gm: GmSettings::default(),
+            skill_check: SkillCheckSettings::default(),
+            default_access_level: 0,
         }
     }
 }

@@ -93,6 +93,7 @@ mod duel_tests;
 mod effect_level_tests;
 mod effect_scope_tests;
 mod effect_zone_tests;
+mod falling_tests;
 mod fear_tests;
 mod flood_tests;
 mod frintezza_tests;
@@ -100,6 +101,7 @@ mod geo_editor_tests;
 mod geo_vertical_tests;
 mod geometric_scope_tests;
 mod global_aggro_tests;
+mod gm_restriction_tests;
 mod grand_boss_tests;
 mod ground_channeling_tests;
 mod guard_aggro_tests;
@@ -165,6 +167,7 @@ mod shop_stock_tests;
 mod shortcuts_tests;
 mod siege_registration_tests;
 mod siege_schedule_tests;
+mod skill_check_tests;
 mod skill_condition_tests;
 mod skill_enchant_tests;
 mod skill_rate_tests;
@@ -222,6 +225,10 @@ fn test_world() -> (
     world.cfg.general.world_chat_interval_secs = 20;
     world.cfg.general.jail_disable_chat = true;
     world.cfg.general.allow_attachments = true;
+    // Same trap again: `EnableFallingDamage` is `True` on the dist and defaults
+    // true in Java, so leaving the derived `false` would make every fall-damage
+    // fixture measure the disabled path.
+    world.cfg.general.enable_falling_damage = true;
     // See `FloodProtectorsConfig::disabled`: fixtures drive a whole interaction
     // from a single game tick, which the shipped 1 s `Transaction` window would
     // refuse. `flood_tests` turns the protector back on to exercise it.
@@ -650,6 +657,8 @@ async fn character_create_inserts_into_real_schema() {
         admin: crate::data::AdminData::empty(),
         combat_caps: crate::data::CombatCaps::default(),
         gm: crate::data::GmSettings::default(),
+        skill_check: crate::data::SkillCheckSettings::default(),
+        default_access_level: 0,
     };
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
@@ -834,6 +843,7 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         channeling_start_ms: 0,
         can_be_dispelled: true,
         is_debuff: false,
+        excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
         removed_on_damage: false,
@@ -1935,6 +1945,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         channeling_start_ms: 0,
         can_be_dispelled: true,
         is_debuff: false,
+        excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
         removed_on_damage: false,
@@ -2019,6 +2030,7 @@ fn clan_advent_test_skill() -> Skill {
         channeling_start_ms: 0,
         can_be_dispelled: true,
         is_debuff: false,
+        excluded_from_check: false,
         shared_with_summon: true,
         stay_after_death: false,
         removed_on_damage: false,

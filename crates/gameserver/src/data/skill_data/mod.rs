@@ -208,6 +208,11 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
         Stat::DefencePhysicalSkillCriticalDamage,
     ),
     ("Breath", Stat::Breath),
+    // Acrobatics (173), the one learnable source: `SafeFallHeight` →
+    // `Stat.FALL`, a plain single-stat `AbstractStatEffect` consumed by
+    // `game_loop::falling`'s `calc_fall_dam`. It reduces fall *damage*, not
+    // the safe height — see [`Stat::Fall`].
+    ("SafeFallHeight", Stat::Fall),
     // `WeightLimit` (Weight Limit 150, Quiver of Holding 418, Super Haste 7029)
     // and `WeightPenalty` (Decrease Weight 1257, Master's Blessing 7049).
     ("WeightLimit", Stat::WeightLimit),

@@ -41,14 +41,16 @@ pub(super) fn admin_character_disconnect(world: &mut World, client_id: u32, obje
 /// player. Java sends a `ChatType.ANNOUNCEMENT` `CreatureSay`; we send it as a
 /// system-message text line (documented simplification — the announce chat
 /// type isn't wired yet).
-pub(super) fn admin_announce(world: &mut World, client_id: u32, args: &[&str]) {
+pub(super) fn admin_announce(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     if args.is_empty() {
         send_message(world, client_id, "Usage: //announce <message>");
         return;
     }
     let packet = server_packets::system_message_with(
         sm_ids::S1_TEXT,
-        &[server_packets::SmParam::Text(args.join(" "))],
+        &[server_packets::SmParam::Text(
+            super::gm_util::with_announcer_name(world, object_id, args.join(" ")),
+        )],
     );
     world.broadcast_to_all_online(&packet);
 }

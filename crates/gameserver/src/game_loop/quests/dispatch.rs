@@ -97,7 +97,7 @@ fn talk_shows_no_quest(
         script.on_talk(&mut ctx)
     };
     match res {
-        Some(html) => html == no_quest_html(world),
+        Some(html) => html == no_quest_html(world, player),
         None => false,
     }
 }
@@ -182,7 +182,7 @@ fn show_quest_choose_window(
         && cant_start.is_empty()
         && completed.is_empty()
     {
-        no_quest_html(world)
+        no_quest_html(world, world.player_oid(client_id).unwrap_or(0))
     } else {
         format!("<html><body>{started}{can_start}{cant_start}{completed}</body></html>")
     };

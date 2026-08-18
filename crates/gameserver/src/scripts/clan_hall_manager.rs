@@ -235,11 +235,15 @@ impl ClanHallManager {
             .get_component::<Vitals>(&ctx.npc)
             .map(|v| v.cur_mp as i32)
             .unwrap_or(0);
-        crate::data::htm_cache::read_htm(format!(
-            "{}data/scripts/{}/{file}",
-            ctx.world.data.root,
-            self.html_dir()
-        ))
+        crate::data::htm_cache::read_htm_for(
+            ctx.world,
+            ctx.player,
+            format!(
+                "{}data/scripts/{}/{file}",
+                ctx.world.data.root,
+                self.html_dir()
+            ),
+        )
         .unwrap_or_default()
         .replace("%manaLeft%", &mana.to_string())
     }

@@ -137,6 +137,13 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
                 // `GMGiveSpecialSkills` back off leaves every GM who ever
                 // logged in still holding Super Haste.
                 .filter(|(id, _)| !world.data.skill_trees.is_gm_skill(**id))
+                // Hero and noble skills are the same shape again, and Java
+                // says so in a comment at the grant site ("Don't persist hero
+                // skills into database"). Both are re-derived on the way in —
+                // hero from the `heroes` table at enter-world, nobless from the
+                // `nobless` column in `from_char` — so a row here would
+                // outlive the status that justified it.
+                .filter(|(id, _)| !world.data.skill_trees.is_hero_or_noble_skill(**id))
                 .map(|(id, lvl)| (*id, *lvl, skill_enchants.get(id).copied().unwrap_or(0)))
                 .collect()
         })

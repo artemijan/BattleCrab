@@ -4,7 +4,7 @@ use super::*;
 /// Port of `HomepageBoard.parseCommunityBoardCommand` (`_bbslink`): serve the
 /// static `homepage.html` verbatim (a plain retail page, no navigation inject).
 pub(super) fn show_homepage(world: &World, client_id: u32) {
-    let Some(html) = read_html(&world.data.root, "data/html/CommunityBoard/homepage.html") else {
+    let Some(html) = read_html(world, client_id, "data/html/CommunityBoard/homepage.html") else {
         warn!("CommunityBoard: missing html [homepage.html].");
         return;
     };
@@ -15,10 +15,13 @@ pub(super) fn show_homepage(world: &World, client_id: u32) {
 /// one `favorite_list.html` row per stored favorite (newest first, the boot /
 /// insert order the mirror keeps). Java re-queries the DB; we render the mirror.
 pub(super) fn show_favorites(world: &World, client_id: u32, object_id: i32) {
-    let root = &world.data.root;
     let (Some(page), Some(row_tpl)) = (
-        read_html(root, "data/html/CommunityBoard/favorite.html"),
-        read_html(root, "data/html/CommunityBoard/favorite_list.html"),
+        read_html(world, client_id, "data/html/CommunityBoard/favorite.html"),
+        read_html(
+            world,
+            client_id,
+            "data/html/CommunityBoard/favorite_list.html",
+        ),
     ) else {
         warn!("CommunityBoard: missing favorite html.");
         return;

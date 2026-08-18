@@ -177,7 +177,11 @@ fn handle_link(world: &mut World, client_id: u32, npc_object_id: i32, html_path:
         return;
     }
     let content = if VALID_LINKS.contains(&html_path) {
-        crate::data::htm_cache::read_htm(format!("{}data/html/{html_path}", world.data.root))
+        crate::data::htm_cache::read_htm_for_client(
+            world,
+            client_id,
+            format!("{}data/html/{html_path}", world.data.root),
+        )
     } else {
         None
     };
@@ -211,9 +215,12 @@ fn handle_player_help(world: &mut World, client_id: u32, command: &str) {
         Some((page, id)) => (page, id.parse::<i32>().unwrap_or(0)),
         None => (token, 0),
     };
-    let html =
-        crate::data::htm_cache::read_htm(format!("{}data/html/help/{page}", world.data.root))
-            .unwrap_or_default();
+    let html = crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/help/{page}", world.data.root),
+    )
+    .unwrap_or_default();
     send_to_client(
         world,
         client_id,
@@ -241,9 +248,11 @@ fn handle_territory_status(world: &mut World, client_id: u32, npc_object_id: i32
     } else {
         "territorynoclan.htm"
     };
-    let Some(mut html) =
-        crate::data::htm_cache::read_htm(format!("{}data/html/{file}", world.data.root))
-    else {
+    let Some(mut html) = crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/{file}", world.data.root),
+    ) else {
         return;
     };
     if let Some(clan_id) = owner
@@ -660,7 +669,7 @@ pub(crate) fn handle_request_link_html(world: &mut World, client_id: u32, body: 
         return;
     }
     let path = format!("{}data/html/{link}", world.data.root);
-    let Some(html) = crate::data::htm_cache::read_htm(path) else {
+    let Some(html) = crate::data::htm_cache::read_htm_for_client(world, client_id, path) else {
         warn!("Player {player} requested missing html link: {link}");
         return;
     };

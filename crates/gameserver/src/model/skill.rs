@@ -2219,6 +2219,13 @@ pub struct Skill {
     /// Java `Skill.isDebuff()` (`<isDebuff>`, default false). A debuff can't be
     /// self-dispelled via alt+click even when `can_be_dispelled` is set.
     pub is_debuff: bool,
+    /// Java `Skill.isExcludedFromCheck()` (`<excludedFromCheck>`, default
+    /// false) — the first arm of `SkillTreeData.isSkillAllowed`: a skill
+    /// flagged here is legitimate no matter which tree does or does not list
+    /// it. On this dist the 86 flagged levels are the subclass certification
+    /// families (631–655, 799–804, 1956–1986), the Exalted line and the two
+    /// storage expansions — all learned by routes that are not class trees.
+    pub excluded_from_check: bool,
     /// Java `Skill.isSharedWithSummon()` (`<isSharedWithSummon>`, **default
     /// true**) — a continuous, non-debuff buff landing on a player is re-applied
     /// to each of their servitors (`Skill.applyEffects`'s "buff sharing"
@@ -2640,6 +2647,7 @@ impl Default for Skill {
             abnormal_type: "NONE".to_string(),
             can_be_dispelled: true,
             is_debuff: false,
+            excluded_from_check: false,
             shared_with_summon: true,
             stay_after_death: false,
             removed_on_damage: false,

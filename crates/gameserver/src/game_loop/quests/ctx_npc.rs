@@ -629,10 +629,11 @@ impl<'w> QuestCtx<'w> {
 
     /// `Quest.getAlreadyCompletedMsg` (`data/html/alreadycompleted.htm`).
     pub fn already_completed_html(&self) -> String {
-        crate::data::htm_cache::read_htm(format!(
-            "{}data/html/alreadycompleted.htm",
-            self.world.data.root
-        ))
+        crate::data::htm_cache::read_htm_for(
+            self.world,
+            self.player,
+            format!("{}data/html/alreadycompleted.htm", self.world.data.root),
+        )
         .unwrap_or_else(|| {
             "<html><body>This quest has already been completed.</body></html>".to_string()
         })
@@ -644,7 +645,7 @@ impl<'w> QuestCtx<'w> {
     /// the framework sends it inline (`showResult`'s `<html>` branch). Empty
     /// string if the file is missing, matching Java's null collapsing to "".
     pub fn get_htm(&self, filename: &str) -> String {
-        load_quest_html(self.world, &self.script, filename).unwrap_or_default()
+        load_quest_html(self.world, self.player, &self.script, filename).unwrap_or_default()
     }
 
     /// `ItemData.getInstance().getTemplate(id).getName()` — an item's display

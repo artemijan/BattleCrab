@@ -376,12 +376,12 @@ fn show_loto_window(world: &mut World, client_id: u32, player: i32, npc_oid: i32
     };
 
     let html: String = match value {
-        0 => page(world, npc_id, 1),
+        0 => page(world, player, npc_id, 1),
         1..=21 => {
             if !sale_open(world, client_id) {
                 return;
             }
-            let mut content = page(world, npc_id, 5);
+            let mut content = page(world, player, npc_id, 5);
             let mut p = picks(world, player);
             // Toggle: unset if already picked, else fill the first empty slot.
             let mut count = 0;
@@ -423,16 +423,16 @@ fn show_loto_window(world: &mut World, client_id: u32, player: i32, npc_oid: i32
             content
         }
         22 => match buy_ticket(world, client_id, player) {
-            Some(()) => page(world, npc_id, 6),
+            Some(()) => page(world, player, npc_id, 6),
             None => return,
         },
-        23 => page(world, npc_id, 3),
+        23 => page(world, player, npc_id, 3),
         24 => {
-            let mut content = page(world, npc_id, 4);
+            let mut content = page(world, player, npc_id, 4);
             content = content.replace("%result%", &claim_list(world, player, npc_oid));
             content
         }
-        25 => page(world, npc_id, 2),
+        25 => page(world, player, npc_id, 2),
         v if v > 25 => {
             claim_ticket(world, client_id, player, v);
             return; // Java shows no window on a direct claim.
@@ -621,13 +621,14 @@ fn set_picks(world: &mut World, player: i32, values: [i32; 5]) {
 
 /// Read a Lottery Seller html page (`data/html/default/<npcId>-<page>.htm`) and
 /// apply the shared `%…%` replaces (Java's tail of `showLotoWindow`).
-fn page(world: &World, npc_id: i32, page: i32) -> String {
+fn page(world: &World, viewer_oid: i32, npc_id: i32, page: i32) -> String {
     let g = &world.cfg.general;
     let g_enddate = world.lottery.enddate;
-    crate::data::htm_cache::read_htm(format!(
-        "{}data/html/default/{npc_id}-{page}.htm",
-        world.data.root
-    ))
+    crate::data::htm_cache::read_htm_for(
+        world,
+        viewer_oid,
+        format!("{}data/html/default/{npc_id}-{page}.htm", world.data.root),
+    )
     .unwrap_or_default()
     .replace("%race%", &world.lottery.number.to_string())
     .replace("%adena%", &world.lottery.prize.to_string())

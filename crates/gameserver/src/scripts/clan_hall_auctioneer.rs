@@ -61,9 +61,9 @@ impl QuestScript for ClanHallAuctioneer {
         let bid = field(&toks, "bid=");
 
         match verb {
-            "auctionList" if hall_id > 0 => render_hall_info(ctx.world, hall_id),
-            "auctionList" => Some(render_hall_list(ctx.world)),
-            "listBidder" => render_bidder_list(ctx.world, hall_id),
+            "auctionList" if hall_id > 0 => render_hall_info(ctx.world, hall_id, ctx.player),
+            "auctionList" => Some(render_hall_list(ctx.world, ctx.player)),
+            "listBidder" => render_bidder_list(ctx.world, hall_id, ctx.player),
             "bid" => self.on_bid(ctx, hall_id, bid),
             "cancelBid" => self.on_cancel_page(ctx),
             "cancel" => self.on_cancel(ctx),
@@ -87,7 +87,7 @@ impl ClanHallAuctioneer {
         };
         // No amount yet → the templated bid form (clan adena + current minimum).
         if bid == 0 {
-            return render_bid_form(ctx.world, clan_id, hall_id);
+            return render_bid_form(ctx.world, clan_id, hall_id, ctx.player);
         }
         let now = commons::util::now_millis();
         let outcome = hall_auction::place_bid(ctx.world, hall_id, clan_id, bid, now);
@@ -117,7 +117,7 @@ impl ClanHallAuctioneer {
         // Java `%myBidRemain%` = the bid minus the 10% tax (`* 9 / 10`), shown as
         // `getClanBid(clan) * 9` in the dist (a per-mille display quirk kept).
         Some(
-            tpl("ClanHallAuctioneer-cancelBid.html", ctx.world)
+            tpl("ClanHallAuctioneer-cancelBid.html", ctx.world, ctx.player)
                 .replace("%myBid%", &my_bid.to_string())
                 .replace("%myBidRemain%", &(my_bid * 9).to_string()),
         )
@@ -139,7 +139,7 @@ impl ClanHallAuctioneer {
 
 /// The list of free auctionable halls (`ClanHallAuctioneer-list.html`), each row
 /// linking to its info page and showing the current highest bid.
-pub(crate) fn render_hall_list(world: &World) -> String {
+pub(crate) fn render_hall_list(world: &World, viewer_oid: i32) -> String {
     let mut halls: Vec<&crate::model::clan_hall::ClanHall> = world
         .clan_halls
         .values()
@@ -161,18 +161,18 @@ pub(crate) fn render_hall_list(world: &World) -> String {
             bid = highest_bid(world, h.id),
         ));
     }
-    tpl("ClanHallAuctioneer-list.html", world)
+    tpl("ClanHallAuctioneer-list.html", world, viewer_oid)
         .replace("%agitList%", &rows)
         .replace("%pages%", "")
 }
 
 /// One hall's auction info (`ClanHallAuctioneer-info.html`).
-pub(crate) fn render_hall_info(world: &World, hall_id: i32) -> Option<String> {
+pub(crate) fn render_hall_info(world: &World, hall_id: i32, viewer_oid: i32) -> Option<String> {
     let hall = world.clan_halls.get(&hall_id)?;
     let (owner, leader) = owner_names(world, hall.owner_id);
     let (hours, minutes) = auction_remaining(world);
     Some(
-        tpl("ClanHallAuctioneer-info.html", world)
+        tpl("ClanHallAuctioneer-info.html", world, viewer_oid)
             .replace("%owner%", &owner)
             .replace("%clanLeader%", &leader)
             .replace("%rent%", &hall.lease.to_string())
@@ -189,7 +189,12 @@ pub(crate) fn render_hall_info(world: &World, hall_id: i32) -> Option<String> {
 
 /// The bid form (`ClanHallAuctioneer-bid1.html`) — the clan's warehouse adena
 /// and the current minimum, with the hall id fixed into the confirm bypass.
-pub(crate) fn render_bid_form(world: &World, clan_id: i32, hall_id: i32) -> Option<String> {
+pub(crate) fn render_bid_form(
+    world: &World,
+    clan_id: i32,
+    hall_id: i32,
+    viewer_oid: i32,
+) -> Option<String> {
     world.clan_halls.get(&hall_id)?;
     let adena = world
         .clans
@@ -197,7 +202,7 @@ pub(crate) fn render_bid_form(world: &World, clan_id: i32, hall_id: i32) -> Opti
         .map(|c| c.warehouse.0.count_of(ADENA_ID))
         .unwrap_or(0);
     Some(
-        tpl("ClanHallAuctioneer-bid1.html", world)
+        tpl("ClanHallAuctioneer-bid1.html", world, viewer_oid)
             .replace("%clanAdena%", &adena.to_string())
             .replace("%minBid%", &highest_bid(world, hall_id).to_string())
             .replace("%id%", &hall_id.to_string()),
@@ -205,7 +210,7 @@ pub(crate) fn render_bid_form(world: &World, clan_id: i32, hall_id: i32) -> Opti
 }
 
 /// The bidder list (`ClanHallAuctioneer-bidderList.html`), newest bid first.
-pub(crate) fn render_bidder_list(world: &World, hall_id: i32) -> Option<String> {
+pub(crate) fn render_bidder_list(world: &World, hall_id: i32, viewer_oid: i32) -> Option<String> {
     let bids = world.clan_hall_bids.get(&hall_id)?;
     let mut list: Vec<(i32, &crate::model::clan_hall::ClanHallBid)> =
         bids.iter().map(|(k, v)| (*k, v)).collect();
@@ -223,7 +228,7 @@ pub(crate) fn render_bidder_list(world: &World, hall_id: i32) -> Option<String> 
         ));
     }
     Some(
-        tpl("ClanHallAuctioneer-bidderList.html", world)
+        tpl("ClanHallAuctioneer-bidderList.html", world, viewer_oid)
             .replace("%bidderList%", &rows)
             .replace("%pages%", "")
             .replace("%id%", &hall_id.to_string()),
@@ -231,9 +236,13 @@ pub(crate) fn render_bidder_list(world: &World, hall_id: i32) -> Option<String> 
 }
 
 /// Read one of the auctioneer's html templates.
-fn tpl(file: &str, world: &World) -> String {
-    crate::data::htm_cache::read_htm(format!("{}data/scripts/{HTML_DIR}/{file}", world.data.root))
-        .unwrap_or_default()
+fn tpl(file: &str, world: &World, viewer_oid: i32) -> String {
+    crate::data::htm_cache::read_htm_for(
+        world,
+        viewer_oid,
+        format!("{}data/scripts/{HTML_DIR}/{file}", world.data.root),
+    )
+    .unwrap_or_default()
 }
 
 /// The clan's name and its leader's name for an owner id (`("", "")` if free).

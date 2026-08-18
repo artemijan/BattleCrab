@@ -108,10 +108,11 @@ fn send_panel(world: &World, client_id: u32, player_oid: i32) {
             "L2UI_CH3.radiobutton1"
         }
     };
-    let mut html = crate::data::htm_cache::read_htm(format!(
-        "{}data/html/mods/AutoPlay/Main.htm",
-        world.data.root
-    ))
+    let mut html = crate::data::htm_cache::read_htm_for(
+        world,
+        player_oid,
+        format!("{}data/html/mods/AutoPlay/Main.htm", world.data.root),
+    )
     .unwrap_or_else(|| "<html><body>Auto Play</body></html>".to_string());
     html = html
         .replace("%attack%", checkbox(s.auto_attack))

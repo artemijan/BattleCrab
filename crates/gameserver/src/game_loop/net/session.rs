@@ -92,8 +92,17 @@ pub(crate) fn handle_net_event(world: &mut World, event: NetEvent) {
 /// fighting. Java also blocks on a pending item request, a subclass-change lock,
 /// and event registration — none of those systems are ported yet, so combat
 /// stance (`AttackStanceTaskManager.hasAttackStanceTask`) is the only guard.
+///
+/// `GMRestartFighting` (**True** here, and Java's own default) is the exemption:
+/// `!(isGM() && Config.GM_RESTART_FIGHTING)`. It reads the access level rather
+/// than a condition override — Java does too at this site, which is why it is
+/// the one member of the GM-restriction family that is not about
+/// `PlayerCondOverride`.
 fn can_logout(world: &World, object_id: i32) -> bool {
-    !crate::game_loop::combat::has_attack_stance(world, object_id)
+    if !crate::game_loop::combat::has_attack_stance(world, object_id) {
+        return true;
+    }
+    world.cfg.general.gm_restart_fighting && crate::game_loop::helpers::is_gm(world, object_id)
 }
 
 /// Port of `clientpackets/RequestRestart.runImpl`: save + leave the world, drop

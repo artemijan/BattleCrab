@@ -61,8 +61,12 @@ fn rotate(direction: u8, dx: i32, dy: i32) -> (i32, i32) {
 const PASSABLE_BG: &str = "L2UI_CH3.minibar_food";
 const BLOCKED_BG: &str = "L2UI_CH3.minibar_arrow";
 
-fn read_admin_htm(world: &World, name: &str) -> Option<String> {
-    crate::data::htm_cache::read_htm(format!("{}data/html/admin/{name}", world.data.root))
+fn read_admin_htm(world: &World, client_id: u32, name: &str) -> Option<String> {
+    crate::data::htm_cache::read_htm_for_client(
+        world,
+        client_id,
+        format!("{}data/html/admin/{name}", world.data.root),
+    )
 }
 
 /// `//geoedit` — the 19×19 cell grid (Java's `geoRadius = 9`), each button a
@@ -72,7 +76,7 @@ pub(super) fn admin_geoedit(world: &mut World, client_id: u32, object_id: i32) {
     let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
-    let Some(mut content) = read_admin_htm(world, "geoedit.htm") else {
+    let Some(mut content) = read_admin_htm(world, client_id, "geoedit.htm") else {
         send_message(world, client_id, "Missing data/html/admin/geoedit.htm.");
         return;
     };
@@ -116,7 +120,7 @@ pub(super) fn admin_ge(world: &mut World, client_id: u32, object_id: i32, args: 
     let Some(pos) = maybe_position(world, object_id) else {
         return;
     };
-    let Some(mut content) = read_admin_htm(world, "geoedit_cell.htm") else {
+    let Some(mut content) = read_admin_htm(world, client_id, "geoedit_cell.htm") else {
         send_message(
             world,
             client_id,

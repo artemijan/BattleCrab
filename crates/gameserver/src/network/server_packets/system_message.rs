@@ -301,6 +301,8 @@ pub mod sm_ids {
     /// "You have taken $s1 damage because you were unable to breathe." — the
     /// drowning beat (`WaterTask`).
     pub const YOU_HAVE_TAKEN_S1_DAMAGE_BECAUSE_YOU_WERE_UNABLE_TO_BREATHE: i16 = 297;
+    /// "You received $s1 falling damage." — the `_fallingDamageTask` beat.
+    pub const YOU_RECEIVED_S1_FALLING_DAMAGE: i16 = 296;
     /// "Summoning your pet…" — the pet-manager evolve/restore flows (G29).
     pub const SUMMONING_YOUR_PET: i16 = 547;
     pub const S2_S1_S_DISAPPEARED: i16 = 301;

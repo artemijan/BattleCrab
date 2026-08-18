@@ -61,8 +61,11 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 }
 
 /// `<effect>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 143 name(s), 10 learnable
-/// skill(s) affected, 1167 reachable.
+/// the work list, worst first. Category totals: 132 name(s), 9 learnable
+/// skill(s) affected, 974 reachable — the live figures the tuple below
+/// asserts. (This header had drifted to 143/10/1167, the totals from before
+/// the S6 and S9 passes; it is a comment, so nothing failed when it went
+/// stale.)
 ///
 /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
 /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -127,6 +130,12 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 /// names left with a learnable source, `StatUp` (Territory War) and
 /// `SafeFallHeight` (needs fall damage), are both deliberately out of
 /// scope, so the residue is now entirely recorded rather than unexamined.
+/// → 144 with the `General.ini` fall-damage cluster: `SafeFallHeight` had
+/// been parked on "needs fall damage", and fall damage now exists
+/// (`game_loop::falling`), so the effect is registered against `Stat::Fall`
+/// and Acrobatics (173) works. Reachable 975 → 974. `StatUp` (Territory
+/// War) is the only learnable-source name left, and that one is
+/// off-chronicle for good.
 /// → 143 at S6: the item tail's two biggest names — `Teleport` (every
 /// destination Scroll of Escape, 107 reachable, all previously inert) and
 /// `Hp` (Elixir of Life and the food items). Reachable 1303 → 1167.
@@ -151,7 +160,7 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 /// of Escape: Clan Hall/Castle and their blessed twins — but `FORTRESS` still
 /// drops on purpose. There is no fortress system to teleport to, and letting
 /// it fall back to town would hide that behind a plausible-looking result.
-const EFFECTS: &[(&str, usize)] = &[("StatUp", 9), ("SafeFallHeight", 1)];
+const EFFECTS: &[(&str, usize)] = &[("StatUp", 9)];
 
 /// `<effect-scope>` names with at least one **learnable** skill behind them —
 /// the work list, worst first. Category totals: 5 name(s), 1 learnable
@@ -236,7 +245,7 @@ fn datapack_skill_coverage_census() {
         // (Porta 20213 / skill 4161) and the player prompt (Summon Friend
         // 1403 and its siblings) — so counting it as handled no longer
         // overstates anything. It did until 2026-08-06.
-        ("effect", &gaps.effects, EFFECTS, 133, 10, 975),
+        ("effect", &gaps.effects, EFFECTS, 132, 9, 974),
         ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 2, 0, 1),
         ("condition", &gaps.conditions, CONDITIONS, 60, 1, 733),
         ("targetType", &gaps.target_types, TARGET_TYPES, 8, 0, 457),
@@ -303,13 +312,6 @@ fn datapack_skill_coverage_census() {
         (
             856,
             "StatUp: Schuttgart Territory Benefaction (Territory War)",
-        ),
-        // `SafeFallHeight` — Acrobatics (173). This port has no fall damage
-        // at all, so the stat would have nothing to modify: a stat with no
-        // consumer is the exact anti-pattern this epic spent S4 fighting.
-        (
-            173,
-            "SafeFallHeight: Acrobatics — the port has no fall damage",
         ),
         // `OpSweeper` — Sweeper (42), deliberate: see `CONDITIONS` above.
         // Java's cast condition re-runs the whole per-corpse sweep that

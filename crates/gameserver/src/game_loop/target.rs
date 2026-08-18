@@ -2,7 +2,6 @@
 //! `Player.setTarget` port, and (G8) the `NpcAction` interact path — talking
 //! to a targeted NPC opens its chat window.
 
-use crate::data::htm_cache::read_htm;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::npc_template;
@@ -758,10 +757,11 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
         // Java then falls through to the ordinary dialog — so a criminal is
         // refused only at the NPCs the datapack wrote a refusal for.
         if let Some(dir) = denied_dir
-            && let Some(html) = read_htm(format!(
-                "{}data/html/{dir}/{}-pk.htm",
-                world.data.root, t.id
-            ))
+            && let Some(html) = crate::data::htm_cache::read_htm_for_client(
+                world,
+                client_id,
+                format!("{}data/html/{dir}/{}-pk.htm", world.data.root, t.id),
+            )
         {
             let html = html.replace("%objectId%", &npc_object_id.to_string());
             send_to_client(
@@ -790,7 +790,7 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
         super::teleporter::send_teleporter_html(world, client_id, npc_object_id, &file);
         return;
     }
-    let html = load_chat_window_html(&world.data.root, &t.type_name, t.id, value)
+    let html = load_chat_window_html(world, client_id, &t.type_name, t.id, value)
         .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
         .replace("%objectId%", &npc_object_id.to_string())
         .replace("%npcname%", &t.name);
@@ -809,7 +809,14 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
 /// `HtmCache`; this port reads per interaction and applies the same
 /// normalization via [`read_htm`] — a deliberate choice with identical output,
 /// documented in [`crate::data::htm_cache`], not a deferral.
-fn load_chat_window_html(root: &str, type_name: &str, npc_id: i32, value: i32) -> Option<String> {
+fn load_chat_window_html(
+    world: &World,
+    client_id: u32,
+    type_name: &str,
+    npc_id: i32,
+    value: i32,
+) -> Option<String> {
+    let root = &world.data.root;
     let pom = if value == 0 {
         npc_id.to_string()
     } else {
@@ -825,9 +832,10 @@ fn load_chat_window_html(root: &str, type_name: &str, npc_id: i32, value: i32) -
         t if t.starts_with("VillageMaster") => Some("villagemaster"),
         _ => None,
     };
+    let read = |p: String| crate::data::htm_cache::read_htm_for_client(world, client_id, p);
     match dir {
-        Some(dir) => read_htm(format!("{root}data/html/{dir}/{pom}.htm")),
-        None => read_htm(format!("{root}data/html/default/{pom}.htm"))
-            .or_else(|| read_htm(format!("{root}data/html/npcdefault.htm"))),
+        Some(dir) => read(format!("{root}data/html/{dir}/{pom}.htm")),
+        None => read(format!("{root}data/html/default/{pom}.htm"))
+            .or_else(|| read(format!("{root}data/html/npcdefault.htm"))),
     }
 }

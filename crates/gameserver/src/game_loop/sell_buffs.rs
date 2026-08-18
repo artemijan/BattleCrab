@@ -44,7 +44,7 @@ pub(crate) fn send_sell_menu(world: &World, client_id: u32, player_oid: i32) {
     } else {
         "BuffMenu.html"
     };
-    let html = read_page(world, page);
+    let html = read_page(world, player_oid, page);
     super::community_board::send_cb_html(world, client_id, &html);
 }
 
@@ -218,7 +218,7 @@ fn send_buff_choice_menu(world: &World, client_id: u32, player_oid: i32, index: 
         ));
     }
     rows.push_str(&pager("sellbuffadd", index, candidates.len()));
-    let html = read_page(world, "BuffChoice.html").replace("%list%", &rows);
+    let html = read_page(world, player_oid, "BuffChoice.html").replace("%list%", &rows);
     super::community_board::send_cb_html(world, client_id, &html);
 }
 
@@ -236,7 +236,7 @@ fn send_buff_edit_menu(world: &World, client_id: u32, player_oid: i32) {
              <td><a action=\"bypass sellbuffremove {skill_id}\">Remove</a></td></tr>"
         ));
     }
-    let html = read_page(world, "BuffChoice.html").replace("%list%", &rows);
+    let html = read_page(world, player_oid, "BuffChoice.html").replace("%list%", &rows);
     super::community_board::send_cb_html(world, client_id, &html);
 }
 
@@ -403,7 +403,7 @@ pub(crate) fn send_buff_menu(
         index,
         list.len(),
     ));
-    let html = read_page(world, "BuffBuyMenu.html").replace("%list%", &rows);
+    let html = read_page(world, buyer_oid, "BuffBuyMenu.html").replace("%list%", &rows);
     super::community_board::send_cb_html(world, client_id, &html);
 }
 
@@ -555,9 +555,13 @@ fn pager(bypass: &str, index: usize, total: usize) -> String {
     out
 }
 
-fn read_page(world: &World, file: &str) -> String {
-    crate::data::htm_cache::read_htm(format!("{}{HTML_FOLDER}{file}", world.data.root))
-        .unwrap_or_else(|| "<html><body>%list%</body></html>".to_string())
+fn read_page(world: &World, viewer_oid: i32, file: &str) -> String {
+    crate::data::htm_cache::read_htm_for(
+        world,
+        viewer_oid,
+        format!("{}{HTML_FOLDER}{file}", world.data.root),
+    )
+    .unwrap_or_else(|| "<html><body>%list%</body></html>".to_string())
 }
 
 /// Java `Player.onActionRequest`'s sell-buff branch: clicking a seller opens

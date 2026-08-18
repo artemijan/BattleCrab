@@ -40,6 +40,13 @@ pub const HERO_SKILL_TREE_FILE: &str = "data/skillTrees/heroSkillTree.xml";
 pub const NOBLE_SKILL_TREE_FILE: &str = "data/skillTrees/nobleSkillTree.xml";
 pub const GM_SKILL_TREE_FILE: &str = "data/skillTrees/gameMasterSkillTree.xml";
 pub const GM_AURA_SKILL_TREE_FILE: &str = "data/skillTrees/gameMasterAuraSkillTree.xml";
+/// The two trees that exist only to feed `isSkillAllowed`'s allow-list here.
+/// Neither is teachable in this port — there is no `RequestAcquireSkill`
+/// `FISHING` path and no transformation learning — but Java's check consults
+/// them, so a row from either must survive it. Parsing them is what makes the
+/// check correct by construction instead of by argument.
+pub const FISHING_SKILL_TREE_FILE: &str = "data/skillTrees/fishingSkillTree.xml";
+pub const TRANSFORM_SKILL_TREE_FILE: &str = "data/skillTrees/transformSkillTree.xml";
 
 /// Java `CommonSkill.EXPERTISE` (239): the one skill `checkPlayerSkills`
 /// verifies with no level grace — its level *is* the wearable grade, so it may
@@ -110,6 +117,12 @@ pub struct SkillTreeData {
     /// learn condition and grants outright.
     gm_skills: Vec<Skill>,
     gm_aura_skills: Vec<Skill>,
+    /// `(skill_id, skill_level, races)` from `fishingSkillTree.xml` and
+    /// `transformSkillTree.xml` — the input to Java's `_skillsByRaceHashCodes`
+    /// (entries that name races) and the race-less part of
+    /// `_allSkillsHashCodes`. Read by [`Self::is_skill_allowed`] and nothing
+    /// else: this port teaches neither tree.
+    check_only_entries: Vec<(i32, i32, Vec<crate::enums::Race>)>,
 }
 
 impl SkillTreeData {
@@ -144,6 +157,11 @@ impl SkillTreeData {
         let gm_aura_skills = parse_hero_tree(&format!("{file_path}{GM_AURA_SKILL_TREE_FILE}"));
         // Same flat `<skill id level/>` shape as the hero tree.
         let noble_skills = parse_hero_tree(&format!("{file_path}{NOBLE_SKILL_TREE_FILE}"));
+        let mut check_only_entries =
+            parse_check_only_tree(&format!("{file_path}{FISHING_SKILL_TREE_FILE}"));
+        check_only_entries.extend(parse_check_only_tree(&format!(
+            "{file_path}{TRANSFORM_SKILL_TREE_FILE}"
+        )));
         let total: usize = trees.values().map(|v| v.len()).sum();
         info!(
             "SkillTreeData: Loaded skill trees for {} classes ({total} skill levels), {} common + {} hero skills.",
@@ -160,6 +178,7 @@ impl SkillTreeData {
             gm_skills,
             gm_aura_skills,
             noble_skills,
+            check_only_entries,
         }
     }
 
@@ -233,6 +252,78 @@ impl SkillTreeData {
         }
     }
 
+    /// Java's `isSkillAllowed`, the whole allow-list.
+    ///
+    /// The question it answers is narrow and worth stating exactly: **may this
+    /// `character_skills` row exist for this character?** Not "can they cast it",
+    /// not "have they met the level" — those are other gates. A `false` here means
+    /// the row could never have been produced legitimately.
+    ///
+    /// Java's seven arms, in order, and what each is on this dist:
+    ///
+    /// 1. `skill.isExcludedFromCheck()` — the datapack's own opt-out.
+    /// 2. GM holding a GM-tree skill.
+    /// 3. `_loading` — a reload guard with no counterpart here: the port's trees
+    ///    are built once at boot, before any character loads.
+    /// 4. The complete class tree (class chain ∪ commons).
+    /// 5. The race-scoped fishing/transform entries.
+    /// 6. The race-less fishing/transform/commons entries, plus the collect,
+    ///    ability and alchemy trees — **none of which ship on this dist**, so 5
+    ///    and 6 collapse onto [`Self::check_only_entries`] plus the commons the
+    ///    class tree already carries.
+    /// 7. Transfer and race skills — `transferSkillTree`/`raceSkillTree` ship
+    ///    nowhere in this datapack either, so both arms are vacuous.
+    ///
+    /// Java clamps the level to `SkillData.getMaxLevel(skillId)` before hashing,
+    /// which is what lets an *enchanted* skill (level 100+) match its level-`max`
+    /// tree entry. `max_skill_level` supplies that clamp.
+    pub fn is_skill_allowed(
+        &self,
+        class_id: i32,
+        race: Option<crate::enums::Race>,
+        is_gm: bool,
+        skill_id: i32,
+        skill_level: i32,
+        max_skill_level: i32,
+    ) -> bool {
+        if is_gm && self.is_gm_skill(skill_id) {
+            return true;
+        }
+        let level = skill_level.min(max_skill_level.max(1));
+        if self
+            .complete_entries(class_id)
+            .iter()
+            .any(|e| e.skill_id == skill_id && e.skill_level == level)
+        {
+            return true;
+        }
+        self.check_only_entries.iter().any(|(id, lvl, races)| {
+            *id == skill_id
+            && *lvl == level
+            // Java splits these into two arrays — race-scoped entries are
+            // matched against the player's race, race-less ones against
+            // everyone — and both are consulted, so one predicate covers it.
+            && (races.is_empty() || race.is_some_and(|r| races.contains(&r)))
+        })
+    }
+
+    /// Whether `skill_id` is a hero or noble grant — the two other trees Java
+    /// hands out with `addSkill(skill, false)` (`Player.setHero` carries the
+    /// comment *"Don't persist hero skills into database"* verbatim).
+    ///
+    /// Both are **derived state**: hero from the `heroes` table at enter-world,
+    /// nobless from the character's `nobless` column at load. Persisting them
+    /// as learned rows is not merely redundant, it is wrong in the direction
+    /// that matters — a hero stripped of the crown while offline, or a nobless
+    /// revoked, would keep the skills forever, because nothing re-derives a row
+    /// that is already there.
+    pub fn is_hero_or_noble_skill(&self, skill_id: i32) -> bool {
+        self.hero_skills
+            .iter()
+            .chain(&self.noble_skills)
+            .any(|(id, _)| *id == skill_id)
+    }
+
     /// Whether `skill_id` came from a GM tree. Read by the persistence flush:
     /// Java grants these with `addSkill(skill, false)` — **not saved** — so a
     /// GM who logs in once must not carry Super Haste in `character_skills`
@@ -268,6 +359,12 @@ impl SkillTreeData {
     #[doc(hidden)]
     pub fn set_noble_skills_for_test(&mut self, skills: Vec<Skill>) {
         self.noble_skills = skills;
+    }
+
+    /// Test hook: install a synthetic hero tree.
+    #[doc(hidden)]
+    pub fn set_hero_skills_for_test(&mut self, skills: Vec<Skill>) {
+        self.hero_skills = skills;
     }
 
     /// Java `SkillTreeData.getNobleSkillTree`.
@@ -443,6 +540,7 @@ impl SkillTreeData {
             gm_skills: Vec::new(),
             gm_aura_skills: Vec::new(),
             noble_skills: Vec::new(),
+            check_only_entries: Vec::new(),
         }
     }
 
@@ -567,6 +665,41 @@ fn push_learn(
 }
 
 /// Parse `heroSkillTree.xml` (Java `getHeroSkillTree`): a flat `<skill>` list.
+/// `fishingSkillTree.xml` / `transformSkillTree.xml` → `(id, level, races)`.
+/// Only the three things `isSkillAllowed` reads; the `<item>`, `getLevel` and
+/// `preRequisiteSkill` children are deliberately dropped, because nothing here
+/// ever *teaches* these.
+fn parse_check_only_tree(path: &str) -> Vec<(i32, i32, Vec<crate::enums::Race>)> {
+    let Ok(content) = std::fs::read_to_string(path) else {
+        return Vec::new();
+    };
+    let mut out: Vec<(i32, i32, Vec<crate::enums::Race>)> = Vec::new();
+    let mut in_race = false;
+    for event in xml::events(&content) {
+        match event {
+            Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"skill" => {
+                let id = attr_i32(&e, b"skillId").unwrap_or(-1);
+                let level = attr_i32(&e, b"skillLevel").unwrap_or(1);
+                if id > 0 {
+                    out.push((id, level, Vec::new()));
+                }
+            }
+            Event::Start(e) if e.name().as_ref() == b"race" => in_race = true,
+            Event::End(e) if e.name().as_ref() == b"race" => in_race = false,
+            Event::Text(t) if in_race => {
+                if let Some(entry) = out.last_mut()
+                    && let Ok(name) = t.unescape()
+                    && let Some(race) = crate::enums::Race::from_name(name.trim())
+                {
+                    entry.2.push(race);
+                }
+            }
+            _ => {}
+        }
+    }
+    out
+}
+
 fn parse_hero_tree(path: &str) -> Vec<Skill> {
     let Ok(content) = std::fs::read_to_string(path) else {
         return Vec::new();
@@ -591,6 +724,7 @@ fn parse_hero_tree(path: &str) -> Vec<Skill> {
 mod tests {
     use super::*;
     use crate::data::dist;
+    use crate::enums::Race;
 
     fn learn(skill_id: i32, skill_level: i32, get_level: i32, level_up_sp: i64) -> SkillLearn {
         SkillLearn {
@@ -610,17 +744,22 @@ mod tests {
     /// of the report, so it is asserted against the real dist rather than left
     /// to the log to state.
     ///
-    /// Both survivors are recorded G34 out-of-scope decisions:
-    /// **173 Acrobatics** (`SafeFallHeight` — this port has no fall damage, so
-    /// the stat would have no consumer) and **42 Sweeper** (`OpSweeper` —
-    /// enforced at *apply* time by `effects::sweep` with the right per-corpse
-    /// messages; gating the cast too would double them).
+    /// The one survivor is a recorded G34 out-of-scope decision: **42 Sweeper**
+    /// (`OpSweeper` — enforced at *apply* time by `effects::sweep` with the
+    /// right per-corpse messages; gating the cast too would double them).
+    ///
+    /// **173 Acrobatics used to be the second**, on the grounds that
+    /// `SafeFallHeight` fed a stat with no consumer. Fall damage landed with
+    /// `General.ini`'s `EnableFallingDamage`, so the consumer exists
+    /// ([`game_loop::falling`](crate::game_loop::falling)) and the effect is
+    /// registered — a reminder that "the stat has no consumer" is a statement
+    /// about today, not a decision.
     ///
     /// A new name appearing here means a parser gap became reachable, which is
     /// exactly the moment someone should look — the count alone would not say
     /// which skill or why.
     #[test]
-    fn only_the_two_recorded_gaps_are_reachable_from_a_skill_tree() {
+    fn only_the_recorded_gap_is_reachable_from_a_skill_tree() {
         let trees = dist::skill_trees();
         let skills = dist::skills();
         let learnable = trees.all_learnable_skill_ids();
@@ -647,12 +786,127 @@ mod tests {
         reachable.sort();
         assert_eq!(
             reachable,
-            vec![
-                "condition/conditions/OpSweeper [42]".to_string(),
-                "effect/SafeFallHeight [173]".to_string(),
-            ],
+            vec!["condition/conditions/OpSweeper [42]".to_string()],
             "the set of parser gaps reachable from a skill tree changed"
         );
+    }
+
+    /// `isSkillAllowed`, against the **real dist trees** rather than a
+    /// fixture — the point of the check is what the shipped data does and does
+    /// not contain, which a synthetic tree cannot tell you.
+    ///
+    /// Human Fighter (class 0) is the subject. `Power Strike` (3) is its own,
+    /// and 8 is a made-up id no tree carries.
+    #[test]
+    fn is_skill_allowed_accepts_the_class_tree_and_refuses_what_no_tree_grants() {
+        let trees = dist::skill_trees();
+        let skills = dist::skills();
+        let max = |id: i32| skills.max_level(id);
+
+        assert!(
+            trees.is_skill_allowed(0, Some(Race::Human), false, 3, 1, max(3)),
+            "Power Strike is a Human Fighter class skill"
+        );
+        assert!(
+            !trees.is_skill_allowed(0, Some(Race::Human), false, 1000, 1, max(1000)),
+            "a skill no tree on this dist grants is refused"
+        );
+    }
+
+    /// The race arm. `Expand Dwarven Craft` (1368) is in the **fishing** tree
+    /// — a tree this port never teaches — scoped `<race>DWARF</race>`.
+    ///
+    /// Two things fail without it: a Dwarf who legitimately holds the skill
+    /// has it removed, and a Human who could not have it keeps it. Both are
+    /// asserted, because a check that allows everything passes the first.
+    #[test]
+    fn is_skill_allowed_honours_the_race_scope_of_the_fishing_tree() {
+        let trees = dist::skill_trees();
+        let max = dist::skills().max_level(1368);
+        assert!(
+            trees.is_skill_allowed(53, Some(Race::Dwarf), false, 1368, 1, max),
+            "a Dwarven Fighter may hold Expand Dwarven Craft"
+        );
+        assert!(
+            !trees.is_skill_allowed(0, Some(Race::Human), false, 1368, 1, max),
+            "a Human may not — the entry names DWARF"
+        );
+    }
+
+    /// The race-**less** arm of the same trees (Java's `_allSkillsHashCodes`):
+    /// `Expand Storage`/`Expand Inventory` carry no `<race>`, so every race
+    /// keeps them. Pinned separately from the scoped arm because collapsing
+    /// the two — treating "no races listed" as "no race matches" — refuses
+    /// every one of them, and that is the failure that eats real skills.
+    #[test]
+    fn is_skill_allowed_accepts_race_less_entries_for_everyone() {
+        let trees = dist::skill_trees();
+        let max = dist::skills().max_level(1369);
+        for (class_id, race) in [(0, Race::Human), (53, Race::Dwarf), (18, Race::Elf)] {
+            assert!(
+                trees.is_skill_allowed(class_id, Some(race), false, 1369, 1, max),
+                "{race:?} keeps the race-less fishing entry"
+            );
+        }
+    }
+
+    /// Java clamps to `SkillData.getMaxLevel(id)` before matching, which is
+    /// what lets an **enchanted** skill — stored at level 101+ — match the
+    /// level-`max` tree entry it was enchanted from. Without the clamp every
+    /// enchanted skill on the server fails the check at once.
+    #[test]
+    fn is_skill_allowed_clamps_an_enchanted_level_to_the_tree_maximum() {
+        let trees = dist::skill_trees();
+        let max = dist::skills().max_level(3);
+        assert!(max > 1, "sanity: Power Strike has several levels");
+        assert!(
+            trees.is_skill_allowed(0, Some(Race::Human), false, 3, 101, max),
+            "an enchanted Power Strike matches its max-level tree entry"
+        );
+    }
+
+    /// A GM holding a GM-tree skill is allowed outright (Java's second arm),
+    /// and the same skill on a non-GM is not.
+    #[test]
+    fn is_skill_allowed_lets_a_gm_keep_gm_tree_skills() {
+        let trees = dist::skill_trees();
+        let Some(&(gm_skill, level)) = trees.gm_skills(false).first() else {
+            panic!("the GM tree should not be empty");
+        };
+        let max = dist::skills().max_level(gm_skill);
+        assert!(trees.is_skill_allowed(0, Some(Race::Human), true, gm_skill, level, max));
+        assert!(!trees.is_skill_allowed(0, Some(Race::Human), false, gm_skill, level, max));
+    }
+
+    /// **Hero and noble skills are in no allow-list arm at all**, and that is
+    /// correct rather than an oversight: Java grants both with
+    /// `addSkill(skill, false)` and never writes them to `character_skills`,
+    /// so a row carrying one is exactly the garbage the check exists to find.
+    ///
+    /// Asserted because it is the most surprising thing about the function,
+    /// and because it is only safe while the port re-derives both on the way
+    /// in — see `is_hero_or_noble_skill` and `Player::from_char`.
+    #[test]
+    fn hero_and_noble_skills_are_deliberately_not_allowed() {
+        let trees = dist::skill_trees();
+        let skills = dist::skills();
+        for &(id, level) in trees.hero_skills().iter().chain(trees.noble_skills()) {
+            assert!(
+                !trees.is_skill_allowed(
+                    0,
+                    Some(Race::Human),
+                    false,
+                    id,
+                    level,
+                    skills.max_level(id)
+                ),
+                "{id}/{level} must not pass the check as a stored row"
+            );
+            assert!(
+                trees.is_hero_or_noble_skill(id),
+                "{id} must be recognised by the persistence filter instead"
+            );
+        }
     }
 
     #[test]

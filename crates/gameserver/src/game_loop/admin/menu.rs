@@ -45,9 +45,10 @@ pub(super) fn show_admin_html_replace(
     replacements: &[(&str, String)],
 ) {
     let full = format!("{}data/html/admin/{path}", world.data.root);
-    let mut content = crate::data::htm_cache::read_htm(&full).unwrap_or_else(|| {
-        format!("<html><body>My text is missing:<br>data/html/admin/{path}</body></html>")
-    });
+    let mut content = crate::data::htm_cache::read_htm_for_client(world, client_id, &full)
+        .unwrap_or_else(|| {
+            format!("<html><body>My text is missing:<br>data/html/admin/{path}</body></html>")
+        });
     for (token, value) in replacements {
         content = content.replace(&format!("%{token}%"), value);
     }

@@ -6917,3 +6917,331 @@ Row 14 stands at **127**, with General (71) and Server (7) the only files left.
 
 3458 green, clippy clean, fmt clean. Two new tests; the clamp falsified at both
 bounds.
+
+---
+
+## General.ini, cluster 1 — falling damage, and a stat that isn't what it's called
+
+`EnableFallingDamage` is **True** on this dist and the port had no falling at
+all — not a flag with no consumer but a subsystem with no code. It is the only
+key on General.ini in that category; the rest of the file is dev tooling and
+persistence-model choices.
+
+Java runs the whole thing out of one client packet. `ValidatePosition` calls
+`Player.isFalling(z)`, which does three things people tend to remember only two
+of: it prices the drop, arms a 1.5 s task to apply it, and **returns `true` for
+the next second** so the packet handler bails before reconciliation — Java's own
+comment is *"Disable validations during fall to avoid jumping"*. Leave the third
+out and the desync snap fights the client all the way down; the player stutters,
+and nothing about the damage looks wrong.
+
+The port keeps Java's shape with the `WaterTask` trick beside it: a
+`FallingDamage` component holding the due tick, swept per tick. Java cancels and
+re-schedules its `ScheduledFuture` on every further report, and overwriting a
+component is that without a stale heap entry to reason about — the scheduler
+here has no cancel.
+
+### The effect is named for the wrong quantity
+
+`Stat.FALL`'s only effect is `SafeFallHeight`, and skill 173 Acrobatics carries
+the datapack comment *"Increases the maximum height user can fall without taking
+damage by 60"*. It does not. The safe height is
+`PlayerTemplate.getSafeFallHeight()`, which no stat touches; `Stat.FALL` is read
+in exactly one place, `Formulas.calcFallDam`, where it scales the **damage**. So
+Acrobatics takes a flat 60 (100 at level 2) off the HP a fall costs, and the
+comment describes an intent nobody implemented. Ported as Java computes it
+([[l2r-port-behaviour-not-intent]]) — the third time this port has found a
+datapack comment describing something the code beside it does not do.
+
+### `getValue(stat, base)` is `mul * base + add`
+
+`Stat.defaultValue(creature, stat, baseValue)` is
+`(mul * baseValue) + add + moveTypeValue` — the multiplier applies to the base
+and the flat term lands *after* it. The obvious alternative, `(base + add) *
+mul`, agrees whenever a stat carries only one kind of modifier, which is most of
+the time, so a single-modifier test cannot tell them apart. The test therefore
+pins a pair: `mul 2.0` with `add -60` against a base of 1000 gives **1940**, not
+1880.
+
+**This is also a live divergence one module over.** `game_loop::water`'s
+`breath_ms` computes `(base + add) * mul`, and `the_breath_stat_extends_the_gauge`
+asserts that arithmetic explicitly, with a comment stating it is what Java does.
+It is not. On this dist it costs Boost Breath + Eva's Kiss holders 720 ms of
+breath (300 900 against Java's 300 180), which is why nobody noticed. Left alone
+here — it is a different key's cluster and its test needs re-deriving, not
+patching — and recorded so the next General cluster picks it up.
+
+### Two facts the datapack settled
+
+`baseSafeFall` appears in **no** `stats/chars/*.xml` file, so all 31 classes take
+Java's `set.getInt("baseSafeFall", 333)` default and the safe height is a
+constant, not a per-class template field. And `isFlyingMounted()` is
+`checkTransformed(Transform::isFlying)` — a Gracia flying *transformation*, of
+which this dist has none — so `Player::is_flying`'s wyvern check covers that
+whole arm of the guard.
+
+### A recorded exclusion that was really a snapshot
+
+G34's census parked `SafeFallHeight` out of scope "because this port has no fall
+damage, so the stat would have no consumer". That is a statement about the port
+on the day it was written, not a decision about the chronicle, and it aged into
+one: the effect is registered now and Acrobatics works. `<effect>` residue
+133 → 132, learnable skills affected 10 → 9, and the reachable-gap test is down
+to `OpSweeper` alone. Worth separating the two kinds of entry in that list next
+time it is read — "off-chronicle" never expires, "we haven't built it yet" does.
+
+3466 green, clippy clean, fmt clean. Eight new tests, each falsified: dropping
+the validation bail, inverting the `mul * base + add` order, moving the
+safe-height boundary off `<=`, removing the never-kill clamp and repricing the
+fall on every report each fail exactly the test that covers them and no others.
+
+General.ini stands at **70** unread keys (71 → 70), and row 14 at **126**.
+
+---
+
+## General.ini, cluster 2 — the skill check, and two things it had to fix first
+
+`SkillCheckEnable`/`SkillCheckRemove`/`SkillCheckGM` are `True`/`True`/`False`
+on this dist against Java's `false`/`false`/`true`: an operator who deliberately
+turned the audit on and let it delete. `Player.restoreSkills` runs
+`SkillTreeData.isSkillAllowed` over every `character_skills` row and removes
+what no tree could have granted.
+
+A check that deletes skills is only as good as the data it judges, so most of
+this cluster is the two corrections that had to land before it could be turned
+on without eating legitimate skills.
+
+### Noble skills were stored; hero skills were stored *and* derived
+
+Java grants both with `addSkill(skill, false)` and says so at the site — *"Don't
+persist hero skills into database"*. Both are derived state: hero from the
+`heroes` table at enter-world, nobless from the character's `nobless` column in
+`Player.restore`.
+
+The port had each wrong in a different direction. **Hero** skills were
+re-granted at enter-world *and* written to `character_skills`, so a hero
+decrowned while offline kept the skills — nothing re-derives a row that is
+already there. **Noble** skills were not granted at load at all; they survived
+only as stored rows, so a revoked nobless kept theirs forever and the feature
+worked only by accident of persistence.
+
+Both are now derived-only and filtered out of the flush, beside the transform,
+armour-set and GM filters that were already there for the same reason. That is
+also what makes them correctly *illegal* as stored rows — which is the load
+order's whole problem, below.
+
+### A GM overrode nothing, so the third key could not matter
+
+`SkillCheckGM` gates on `canOverrideCond(SKILL_CONDITIONS)`. Java's
+`Player.restore` seeds a GM's `cond_override` variable with
+`PlayerCondOverride.getAllExceptionsMask()` when it is absent, so every GM holds
+every override by default; the port started all characters at 0. Nothing ever
+held the override at load, so the key gated a condition that could not occur —
+a config key with no reachable consumer, which is the shape this port keeps
+finding and keeps deciding not to leave alone.
+
+Seeding it costs one changed test out of 3466: `cond_overrides_and_see_all_players`
+was asserting the old default while testing the toggle, and now disables the
+overrides explicitly before enabling the one it is about. Measuring that blast
+radius before keeping the change was the point of doing it first.
+
+### The check runs over the ResultSet, not the skill book
+
+The intuitive placement is wrong and the tests caught it. Running the check
+after the derived grants removes the noble skill granted three lines earlier,
+because noble skills are in no allow-list arm — correctly, since a *stored*
+noble row is exactly the garbage this exists to find.
+
+Java iterates its `ResultSet`, so only stored rows are ever candidates. The port
+now runs the check in the same place: over the DB rows, before the armour-set
+and noble grants fold in. A nobless carrying legacy rows therefore logs in, has
+them reported and removed, and keeps the skills anyway — and the report stops
+after the first login, because the flush no longer writes them.
+
+### Three details of the check worth stating
+
+* **`SkillCheckGM` reads backwards.** `(!canOverrideCond(SKILL_CONDITIONS) ||
+  Config.SKILL_CHECK_GM)` — **False** *exempts* the override-holder. Reading the
+  name as "check GMs too" and wiring it as written inverts both branches, and
+  only the test written specifically for it would notice.
+* **The level is clamped** to `SkillData.getMaxLevel(id)` before matching. That
+  is what lets an enchanted skill, stored at level 101+, match the level-`max`
+  tree entry it was enchanted from. Without it every enchanted skill on the
+  server fails the check at once.
+* **`excludedFromCheck` is read off the skill**, not any tree — 86 levels on
+  this dist, the subclass certification families and the Exalted line.
+
+`fishingSkillTree.xml` and `transformSkillTree.xml` are now parsed for the
+allow-list *only*. This port teaches neither, so an argument could have been
+made that no row from either can exist — but the argument is what would have to
+be re-made every time a path changes, and parsing two 150-line files makes the
+answer structural instead. `Expand Dwarven Craft` (1368, `<race>DWARF</race>`)
+is the test case that proves both arms: a Dwarf keeps it, a Human does not.
+
+The collect, ability, alchemy, transfer and race trees Java also consults ship
+**nowhere** in this datapack, so those arms are vacuous here and are documented
+rather than implemented.
+
+3480 green, clippy clean, fmt clean. Fourteen new tests. Six falsifications, each
+failing exactly one test: inverting the `SkillCheckGM` guard, moving the check
+after the derived grants, treating "no races listed" as "no race matches",
+dropping the level clamp, dropping the `excludedFromCheck` arm and dropping the
+hero/noble persistence filter.
+
+General.ini stands at **67** unread keys (71 → 70 → 67), and row 14 at **123**.
+
+---
+
+## General.ini, cluster 3 — the GM-restriction family, and three keys that read backwards
+
+Ten keys deciding what a GM's `PlayerCondOverride` grid actually exempts them
+from. Nine were wired; the tenth is recorded as blocked, with the reason.
+
+**The family's guard is inverted, and the names hide it.** Java writes
+`canOverrideCond(X) && !Config.KEY`, so setting `GMSkillRestriction`,
+`GMItemRestriction` or `GMTradeRestrictedItems` to **True** is what *stops* the
+override applying. Read the name as "should GMs be restricted" and you get the
+right answer; read it as "grant GMs this power" — which is how a config file
+usually reads — and you get the opposite on every branch.
+
+### The divergence: every GM skipped every skill condition
+
+`GMSkillRestriction` is **True** here, so a GM is bound by a skill's conditions
+like anyone else. The port returned early for any access-level GM, behind a
+comment stating the key was *off in this dist's `General.ini`*. It is on. The
+comment was wrong about the config and, on the strength of that, wrong to
+substitute the access level for the override.
+
+Both halves are fixed together, and the second only became fixable last cluster:
+before a GM held a real override grid at load, `canOverrideCond` and `isGM`
+could not be told apart. `//set_exception 2` now switches one GM's exemption
+without touching the config, which is the point of the grid existing.
+
+### One key, four sites, three exemption shapes
+
+`GMTradeRestrictedItems` is worth writing down because no two of its call sites
+agree:
+
+| Site | Exempt when |
+|---|---|
+| drop: `!isDropable()` | `canOverrideCond(DROP_ALL_ITEMS)` **and** the key |
+| drop: `isQuestItem()` | `canOverrideCond(DROP_ALL_ITEMS)` **and** the key |
+| drop: `TYPE2_QUEST` | `canOverrideCond(DROP_ALL_ITEMS)` **alone** |
+| `TradeStart` item list | `canOverrideCond(ITEM_CONDITIONS)` **and** the key |
+| `TradeList.addItem` | plain `isGM()` **and** the key — and `isQuestItem()` sits *outside* the exempted parenthesis, so a quest item is refused even to an exempt GM |
+
+Ported as written. The port had no exemption on any of them, which matched the
+dist's `False` by accident on four of the five and diverged on the third — the
+`TYPE2_QUEST` gate, whose exemption does not consult the key at all.
+
+### Two keys that were already implemented, minus the key
+
+`OnlyGMItemsFree` was live in `shop.rs` and hard-coded to this dist's value,
+behind a comment naming the key — the exact "hardcoded to this dist's value
+inside a comment quoting the key" shape row 14 called out when it opened.
+`ServerGMOnly` was a `false` literal beside `// wired to config in a later
+milestone`, and it drives the status the *login server* advertises: an operator
+who closed the server to GMs was still listed as open.
+
+### `GMDebugHtmlPaths` needed the recipient threaded through the html layer
+
+Java's `HtmCache.getHtm(**player**, path)` carries a player at 132 of its 145
+call sites, and that parameter exists for this key: it sends a GM the path of
+every dialog served to them. The port's `read_htm(path)` had no recipient at
+all, so a partial port would have been worse than none — a GM would read the
+absence of a line as "this dialog came from somewhere else".
+
+The split is now Java's: `read_htm_for` / `read_htm_for_client` where a player
+is being served, plain `read_htm` for the loaders and the `//missing_htmls`
+scan, which are Java's `getHtm(null, …)`. About 40 call sites across 28 modules;
+the community board's own `read_html(root, rel)` helper lost its `root`
+parameter and gained the viewer, because a path with no recipient is precisely
+what the feature cannot use.
+
+### The one key left unwired, and why that is not a wiring oversight
+
+`GMItemRestriction` gates `ItemTemplate.checkCondition`. **The port evaluates no
+item conditions**: `<cond>` is unparsed — 2126 blocks on this dist, gating on
+races (822), fly-mounted state (450), categoryType (261), level (218), sex
+(149) — and the Olympiad and event item restrictions are absent with it. There
+is nothing for the override to bypass, so there is nothing to re-restrict.
+
+The field is carried anyway, documented, so the gate lands with the conditions
+rather than being rediscovered then. **Item `<cond>` evaluation is a real
+unported subsystem** and it is not counted by the marker inventory, the skill
+census, or row 14 — it surfaced only because this key pointed at it.
+
+`DefaultAccessLevel` is inert at 0 behind Java's `> 0` guard, and the guard is
+the feature rather than an optimisation: `AdminData.access_level` folds every
+negative to `-1`, the banned tier, so without it a mistyped
+`DefaultAccessLevel = -1` would ban every character at login. The first draft of
+its test asserted the inert case only, survived deleting the guard, and had to
+be given the negative case to be worth having — the third time in these clusters
+that a test proved the value and not the mechanism.
+
+3489 green, clippy clean, fmt clean. Nine new tests. Eight falsifications, each
+failing exactly one test: inverting the `GMSkillRestriction` guard, reading the
+access level instead of the override, dropping the restart exemption, dropping
+the drop-gate exemption, dropping the announcer-name append, dropping the
+`//gmspeed` redirect, dropping the html debug line, and dropping the
+`DefaultAccessLevel` guard.
+
+General.ini stands at **57** unread keys (71 → 70 → 67 → 57), and row 14 at
+**113**.
+
+---
+
+## `Stat.defaultValue` — the breath bug, and the helper that was already there
+
+Cluster 1 recorded a divergence in passing: `game_loop::water`'s `breath_ms`
+computed `(base + add) × mul`, while `Stat.defaultValue` is
+`(mul × baseValue) + add + moveTypeValue`. Fixed.
+
+**The two orders agree whenever a stat carries only one kind of modifier**,
+which is most of the time and is why this survived. Telling them apart on this
+dist needs a character holding *both* Eva's Kiss (`PER 600` → ×7) and Boost
+Breath (`DIFF 300`): Java gives 420 300 ms, the port gave 422 100 — 1.8 s of
+breath, on a gauge nobody times.
+
+### The test was written from the same misreading as the code
+
+`the_breath_stat_extends_the_gauge` asserted `(60_000 + 300) * 7` **with a
+comment stating that was what Java does**. A test cannot catch a bug it
+inherited the premise of, and this one had the premise written into both its
+expected value and its prose. It was already the second self-justifying comment
+that module had turned up ([[l2r-deviation-comments-self-justify]]).
+
+What broke the loop was porting an unrelated stat. `Stat.FALL` runs through the
+same finalizer, so `calc_fall_dam` required reading `Stat.defaultValue` line by
+line — and the line disagreed with the module next door. **Porting a second
+consumer of a shared function is a cheap way to audit the first.**
+
+The corrected assertion spells `420_300` out rather than computing it from an
+expression, so the wrong order cannot be re-derived from the code under test.
+
+### There was a `Stat.defaultValue` in the tree the whole time
+
+`model::finalize(mods, stat, base)` — the right order *and* the
+`CreatureStat.getValue` fixed-value short-circuit (`//setparam`) — has existed
+since the stat pipeline was built. Three sites were spelling the arithmetic out
+instead of calling it:
+
+* `water::breath_ms` — wrong order, no fixed check.
+* `falling::calc_fall_dam` — right order, own fixed check; **written this
+  session**, so the duplication was fresh, and it duplicated a helper the same
+  reading of Java should have found.
+* `effects::control::mana_charge_of` — right order, no fixed check, so
+  `//setparam MANA_CHARGE` did nothing.
+
+All three now call `finalize`. The only raw read of the modifier maps left
+outside `model/mod.rs` is `Stat::SkillMastery`, which stores a `BaseStat`
+*ordinal* rather than a magnitude and must not be finalized.
+
+The lesson worth keeping is not "check the order" — it is that a respelled
+formula is a second place for the same rule to be wrong, and the port had four
+copies of one three-line function. The user caught one such duplication in this
+session's diff by eye; this is the same shape, one layer down.
+
+Suite green, clippy clean, fmt clean. No new tests: the correction is in the
+expectations of the test that already existed, and reverting `finalize` to the
+old order fails it at exactly 422100 ≠ 420300.

@@ -37,7 +37,7 @@ use crate::data::zone_data::ZoneKind;
 use crate::game_loop::abnormal::flags_of;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::{
-    is_dead, is_gm, level_of, player, send_action_failed, send_sm_bare_to_client, send_sm_to_client,
+    is_dead, level_of, player, send_action_failed, send_sm_bare_to_client, send_sm_to_client,
 };
 use crate::model::Player;
 use crate::model::components::{OlympiadObserver, PartyRef, ServitorOf, Vitals, ZoneFlags};
@@ -76,11 +76,24 @@ pub(crate) fn check_cast(
     target_oid: i32,
 ) -> Result<(), Refusal> {
     // Java: `creature.canOverrideCond(SKILL_CONDITIONS) && !Config.GM_SKILL_RESTRICTION`.
-    // The port has no per-GM condition-override grid, so the whole
-    // access-level-is-GM flag stands in for it — the same substitution
-    // `admin::` makes everywhere else. `GM_SKILL_RESTRICTION` is off in this
-    // dist's `General.ini`, so a GM skips every condition.
-    if is_gm(world, caster_oid) {
+    //
+    // **Both halves of this used to be wrong.** The port read "is this an
+    // access-level GM" instead of the override — there was no override grid at
+    // load — and the comment justifying it stated `GM_SKILL_RESTRICTION` was
+    // off in this dist's `General.ini`. It is **True**, which is precisely the
+    // value that *stops* the override exempting anyone, so every GM here
+    // skipped every skill condition on a server configured to allow none of
+    // that.
+    //
+    // The override is now real (`Player.restore` seeds a GM with the whole
+    // exception mask), so this reads the thing Java reads, and `//set_exception 2`
+    // turns it off for one GM without touching the config.
+    if world
+        .objects
+        .get_component::<Player>(&caster_oid)
+        .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::SKILL_CONDITIONS_ORDINAL))
+        && !world.cfg.general.gm_skill_restriction
+    {
         return Ok(());
     }
     // `isMounted() && isBad()` — a mounted player may not cast an offensive

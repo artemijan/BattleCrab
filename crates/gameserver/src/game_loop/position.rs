@@ -15,7 +15,6 @@ use crate::model::components::{
 use crate::model::movement::GeoPath;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
-use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::{broadcast_including_self, broadcast_to_others};
@@ -617,14 +616,52 @@ pub(crate) fn start_move(
 
 /// Port of `clientpackets/ValidatePosition.runImpl` — reconcile the client's
 /// periodic position report with the server's authoritative position.
-/// Narrowing: no vehicles, falling state, observer mode, or Blink, and the
-/// trailing door-exploit check is skipped (no doors) — those branches simply
-/// can't trigger yet. Flying (wyvern) and swimming take Java's trust-the-
-/// client-Z branch below.
+/// Narrowing: no vehicles, and the trailing door-exploit check is skipped (no
+/// doors). Flying (wyvern) and swimming take Java's trust-the-client-Z branch
+/// below.
 pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::ValidatePosition::read(body) else {
         return;
     };
+    let Some(object_id) = world.player_oid(client_id) else {
+        return;
+    };
+    // Java bails while casting, teleporting, or in observer mode. The
+    // teleporting bail is load-bearing: during a far teleport
+    // the client keeps reporting its OLD position until it finishes loading
+    // and sends Appearing — without the bail, the out-of-sync snap below
+    // reverts the server position to the pre-teleport spot and the client
+    // hangs on the black loading screen.
+    if world.objects.has_component::<Casting>(&object_id)
+        || world
+            .objects
+            .has_component::<crate::model::components::Observing>(&object_id)
+        || world
+            .objects
+            .get_component::<Player>(&object_id)
+            .is_none_or(|p| p.teleporting)
+    {
+        return;
+    }
+
+    if pkt.x == 0
+        && pkt.y == 0
+        && world
+            .objects
+            .get_component::<Position>(&object_id)
+            .is_some_and(|p| p.x != 0)
+    {
+        return;
+    }
+
+    // "Disable validations during fall to avoid jumping" — and, on the report
+    // that *opens* the fall, arm the damage. Java runs this here, after the
+    // (0,0) guard and before any reconciliation, and it needs `&mut World`, so
+    // it must precede the split borrow below.
+    if super::falling::is_falling(world, object_id, pkt.z) {
+        return;
+    }
+
     // Field-level split borrow: `player`+`pos` (mut) + `geo`/`clients` (shared).
     let World {
         clients,
@@ -632,33 +669,11 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
         geo,
         ..
     } = world;
-    let Some(ClientSession::InGame(session)) = clients.get(&client_id) else {
-        return;
-    };
-    let object_id = session.player_object_id();
-    // Java bails while casting, teleporting, or in observer mode. The
-    // teleporting bail is load-bearing: during a far teleport
-    // the client keeps reporting its OLD position until it finishes loading
-    // and sends Appearing — without the bail, the out-of-sync snap below
-    // reverts the server position to the pre-teleport spot and the client
-    // hangs on the black loading screen.
-    if objects.has_component::<Casting>(&object_id)
-        || objects.has_component::<crate::model::components::Observing>(&object_id)
-        || objects
-            .get_component::<Player>(&object_id)
-            .is_none_or(|p| p.teleporting)
-    {
-        return;
-    }
     let Some((mut player, mut pos, speeds, mut client)) =
         objects.get_many_mut::<(&mut Player, &mut Position, &Speeds, &mut ClientPos)>(&object_id)
     else {
         return;
     };
-
-    if pkt.x == 0 && pkt.y == 0 && pos.x != 0 {
-        return;
-    }
 
     let dx = (pkt.x - pos.x) as f64;
     let dy = (pkt.y - pos.y) as f64;

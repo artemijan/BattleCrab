@@ -338,10 +338,11 @@ fn show_values_page(world: &mut World, client_id: u32, opcodes: &[String], forma
     if let Some(format) = format {
         send_bypass.push(' ');
         send_bypass.push_str(format);
-        let template = crate::data::htm_cache::read_htm(format!(
-            "{}data/html/admin/pforge/inc/editor.htm",
-            world.data.root
-        ));
+        let template = crate::data::htm_cache::read_htm_for_client(
+            world,
+            client_id,
+            format!("{}data/html/admin/pforge/inc/editor.htm", world.data.root),
+        );
         if let Some(template) = template {
             for (i, ch) in format.chars().enumerate() {
                 editors.push_str(

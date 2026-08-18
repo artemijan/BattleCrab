@@ -162,6 +162,7 @@ pub(super) fn admin_msg(world: &mut World, client_id: u32, args: &[&str]) {
 pub(super) fn admin_announce_variant(
     world: &mut World,
     client_id: u32,
+    object_id: i32,
     args: &[&str],
     screen: bool,
 ) {
@@ -177,7 +178,26 @@ pub(super) fn admin_announce_variant(
             server_packets::ex_show_screen_message(&text, 2, 10_000),
         );
     } else {
+        // Java appends the name on the `//announce`/`//announce_crit` branch
+        // only — `announce_screen` returns before reaching it.
+        let text = with_announcer_name(world, object_id, text);
         broadcast_text(world, &text);
+    }
+}
+
+/// `Config.GM_ANNOUNCER_NAME` (**False** here): Java's
+/// `announce = announce + " [" + activeChar.getName() + "]"`.
+///
+/// Off on this dist, so today it returns the text unchanged — the point of
+/// wiring it is that an operator who turns it on gets the attribution instead
+/// of nothing.
+pub(super) fn with_announcer_name(world: &World, object_id: i32, text: String) -> String {
+    if !world.cfg.general.gm_announcer_name {
+        return text;
+    }
+    match world.objects.get_component::<Player>(&object_id) {
+        Some(p) => format!("{text} [{}]", p.name),
+        None => text,
     }
 }
 
@@ -527,6 +547,30 @@ pub(super) fn admin_viewblockedeffects(world: &mut World, client_id: u32, object
 // switch_gm_buffs
 // ---------------------------------------------------------------------------
 
+/// Java `PlayerCondOverride.ITEM_CONDITIONS` — ordinal 1. Read by
+/// `ItemTemplate.checkCondition` (unported — see `GMItemRestriction`) and by
+/// `TradeStart`'s available-item list.
+pub(crate) const ITEM_CONDITIONS_ORDINAL: u8 = 1;
+
+/// Java `PlayerCondOverride.SKILL_CONDITIONS` — ordinal 2, read by
+/// `Skill.checkCondition` and the `restoreSkills` skill check.
+pub(crate) const SKILL_CONDITIONS_ORDINAL: u8 = 2;
+
+/// Java `PlayerCondOverride.DROP_ALL_ITEMS` — ordinal 15, read by
+/// `RequestDropItem`. Deliberately *not* `ITEM_CONDITIONS`: Java uses a
+/// different override for dropping than for the trade window, on the same
+/// config key.
+pub(crate) const DROP_ALL_ITEMS_ORDINAL: u8 = 15;
+
+/// Java `PlayerCondOverride.getAllExceptionsMask()` — every ordinal set.
+///
+/// Load-bearing at login: `Player.restore` gives a **GM** this mask as the
+/// *default* value of the `cond_override` character variable, so a GM who has
+/// never touched `//set_exception` still overrides everything.
+pub(crate) fn all_exceptions_mask() -> u64 {
+    COND_OVERRIDES.iter().map(|&(o, _)| 1u64 << o).sum()
+}
+
 /// Java `PlayerCondOverride` ordinals + panel descriptions (bit = ordinal).
 pub(crate) const COND_OVERRIDES: &[(u8, &str)] = &[
     (0, "Overrides maximum states conditions"),
@@ -621,7 +665,7 @@ pub(super) fn admin_set_exception(
         );
         return;
     };
-    let all_mask: u64 = COND_OVERRIDES.iter().map(|&(o, _)| 1u64 << o).sum();
+    let all_mask: u64 = all_exceptions_mask();
     match token {
         "enable_all" => {
             if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {

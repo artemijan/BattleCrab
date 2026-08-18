@@ -273,10 +273,14 @@ fn replace_all(ctx: &QuestCtx) -> String {
 
 /// Java `replacePart` — read a page and fill the fee/level placeholders.
 fn replace_part(ctx: &QuestCtx, file: &str) -> String {
-    crate::data::htm_cache::read_htm(format!(
-        "{}data/scripts/ai/others/WyvernManager/{file}",
-        ctx.world.data.root
-    ))
+    crate::data::htm_cache::read_htm_for(
+        ctx.world,
+        ctx.player,
+        format!(
+            "{}data/scripts/ai/others/WyvernManager/{file}",
+            ctx.world.data.root
+        ),
+    )
     .unwrap_or_default()
     .replace("%wyvern_fee%", &WYVERN_FEE.to_string())
     .replace("%strider_level%", &STRIDER_LEVEL.to_string())

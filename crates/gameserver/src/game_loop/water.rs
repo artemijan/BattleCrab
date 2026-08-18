@@ -40,13 +40,27 @@ const GAUGE_CYAN: i32 = 2;
 /// so check the claim before trusting the note.
 pub(crate) const BREATH_BASE_MS: u64 = 60_000;
 
-/// Java `getStat().getValue(Stat.BREATH, 60000)` — `(60000 + add) × mul`.
+/// Java `getStat().getValue(Stat.BREATH, 60000)` — `Stat.defaultValue`, i.e.
+/// **`mul × 60000 + add`**.
 ///
-/// The two modes read very differently against that base: Eva's Kiss is
+/// The order is the whole content of this function and it was wrong here: the
+/// port computed `(60000 + add) × mul`, folding the flat term *inside* the
+/// multiply, behind a comment claiming that was what Java does. It is not —
+/// `Stat.defaultValue` is `(mul * baseValue) + add + moveTypeValue`, so a
+/// multiplier applies to the base alone. The two agree whenever a stat carries
+/// only one kind of modifier, which is why it survived: on this dist it took a
+/// character holding *both* Eva's Kiss and Boost Breath to tell them apart, and
+/// then only by ~1.8 s of breath.
+///
+/// The two modes still read very differently against that base: Eva's Kiss is
 /// `PER 400` (×5 — five minutes underwater), while Boost Breath is `DIFF 180`,
 /// which adds 0.18 s. The second looks like a datapack unit slip, but Java
 /// computes exactly that, so it is ported as written
 /// ([[l2r-port-behaviour-not-intent]]) rather than "corrected" into seconds.
+///
+/// Now routed through [`crate::model::finalize`], which *is*
+/// `Stat.defaultValue` and was sitting there the whole time — including the
+/// `//setparam` fixed-value short-circuit this function never honoured.
 pub(crate) fn breath_ms(world: &World, object_id: i32) -> u64 {
     use crate::model::stats::Stat;
     let Some(mods) = world
@@ -55,9 +69,7 @@ pub(crate) fn breath_ms(world: &World, object_id: i32) -> u64 {
     else {
         return BREATH_BASE_MS;
     };
-    let value = (BREATH_BASE_MS as f64 + mods.add.get(&Stat::Breath).copied().unwrap_or(0.0))
-        * mods.mul.get(&Stat::Breath).copied().unwrap_or(1.0);
-    value.max(0.0) as u64
+    crate::model::finalize(mods, Stat::Breath, BREATH_BASE_MS as f64).max(0.0) as u64
 }
 
 /// The 1 s period of `scheduleAtFixedRate(…, timeinwater, 1000)`, in game ticks.

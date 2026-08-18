@@ -94,7 +94,7 @@ pub(super) fn render_merchant_page(
         format!("{page}.html")
     };
     let rel = format!("data/html/CommunityBoard/Custom/{file}");
-    let Some(html) = read_html(&world.data.root, &rel) else {
+    let Some(html) = read_html(world, client_id, &rel) else {
         return;
     };
     let html = finalize_custom(world, object_id, html, "");
