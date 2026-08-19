@@ -3353,12 +3353,16 @@ fn dying_to_a_war_enemys_summon_still_quarters_the_penalty() {
     let _rx2 = ingame_caster(&mut world, CID + 7, victim, 60, 0);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
 
-    // The exp penalty is measured; give the victim something to lose.
+    // The exp penalty is measured; give the victim something to lose. The exp
+    // has to sit *above* level 20's own threshold — the penalty is capped at
+    // what the character has earned since it (`exp - exp_for_level(level)`),
+    // so a level set without matching exp loses nothing at all.
     let exp_of = |w: &World| w.objects.get_component::<Player>(&victim).unwrap().exp;
+    let at_level_20 = world.data.experience.exp_for_level(20);
     for oid in [OWNER, victim] {
         let p = world.objects.get_component_mut::<Player>(&oid).unwrap();
         p.level = 20;
-        p.exp = 1_000_000;
+        p.exp = at_level_20 + 1_000_000;
     }
 
     let before = exp_of(&world);

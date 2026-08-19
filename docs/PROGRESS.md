@@ -7938,3 +7938,77 @@ pledge class, which Java's `setNewLeader` does on the line above the
 
 28 tests: 7 on the parser, 17 on the player-facing gate and the sweep, 4 on the
 pet path. Every mechanism sabotage-verified.
+
+---
+
+## Row 19: the level cap, and the `++` that moved it
+
+The port let characters reach **84**. Java stops them at **80** — and the row
+that recorded this gap said 79, because it missed a line in `Config.load`:
+
+```java
+PLAYER_MAXIMUM_LEVEL = characterConfig.getByte("MaximumPlayerLevel", (byte) 90);
+PLAYER_MAXIMUM_LEVEL++;
+```
+
+The key is incremented immediately after it is read, so the shipped
+`MaximumPlayerLevel = 80` arrives at `ExperienceData` as 81 and meets a second
+`+ 1` there: `MAX_LEVEL = maxLevel + 1` (86 from `experience.xml`), clamped to
+it. `MAX_LEVEL` names the row **above** the highest attainable level, which is
+what makes the exp cap `getExpForLevel(MAX_LEVEL) - 1` stop a character one
+point short of level 81. Java's boot log prints `MAX_LEVEL - 1` as "Max Player
+Level" for exactly that reason.
+
+Both increments stay where Java puts them. `CharacterConfig::maximum_player_level`
+holds the incremented value and documents why; `ExperienceData::max_level` is
+`MAX_LEVEL`, not the attainable cap, so every consumer writes `max_level - 1`
+the way the Java expressions do. Pre-decrementing either would trade one
+documented offset for an off-by-one at every use site.
+
+### The exp cap was only one of three mechanisms
+
+* **The exp cap** already read `max_level`, so correcting what that means moved
+  it from 84 to 80 by itself.
+* **Row loading stops at the cap.** Java `break`s at the first row above
+  `PLAYER_MAXIMUM_LEVEL`, so the table holds 1..=81 and `getExpForLevel` past it
+  answers with row 81. The port loaded all 86 rows, and its `exp_for_level`
+  clamped to the vector's end — which was a zero it had padded with, not the
+  last row.
+* **`PlayerStat.setLevel` clamps at `MAX_LEVEL - 1`**, and the paths that set a
+  level outright never go through `addExp`: `//set_level`, the community board
+  delevel, the subclass swap. The clamp is `death::cap_level`, applied inside
+  `set_level` — Java's own funnel — rather than at each caller. `//set_level`
+  reads it too: it stores the exp for the level `setLevel` will settle on, not
+  for the one that was typed.
+
+`AdminLevel` came with it. `//set_level`'s accept range is
+`1..=getMaxLevel()`, narrowed to `MaxSubclassLevel` while a subclass is active,
+and out-of-range is **refused with a message** rather than clamped — while an
+in-range value still passes through `setLevel`, so asking for 81 lands on 80.
+The port had neither the range nor the narrowing.
+
+### What the fixtures were hiding
+
+The shared test world's synthetic exp table stopped at level 8, so the new
+clamp put every fixture that set a level above it — subclass swaps at 40, the
+board delevel at 10 — back down to 7. The table now runs to 81 with the cheap
+low thresholds the exp tests are written against, which gives the fixture the
+same *shape* as the dist: a top row one above the highest attainable level.
+
+Two follow-ons fell out of that. `ExperienceData::empty()` (the datapack-less
+fixtures) has `max_level = 0`, where `max_level - 1` would clamp everything to
+level 1 — Java always has a table, so the port guards that case explicitly. And
+a servitor test had a victim at level 20 holding less exp than level 20 costs,
+which the death penalty correctly took nothing from once the table went past
+row 8; it now derives the exp from the table instead of hard-coding it.
+
+`maxPetLevel` is parsed by Java in the same function (82 here) and is named in
+prose rather than given a field: no species' `PetData` table comes near it, so
+the species table is what actually caps a pet on both sides.
+
+**`MaximumPlayerLevel` was `Character.ini`'s last unread key** — row 14 drops
+from 66 to 65, and the file is now fully read.
+
+8 tests: 3 on the table and its two clamps, 4 on the cap in play (config value,
+the 80 a flood stops at, `set_level`'s ceiling and floor, the subclass ceiling
+under it), 1 on `//set_level`'s range. Every mechanism sabotage-verified.

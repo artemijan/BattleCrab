@@ -1511,9 +1511,21 @@ fn insert_adena_template(world: &mut World) {
 /// 5-adena drop line, 2 s corpse time).
 fn combat_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db_rx, link_rx) = cast_test_world();
+    // Levels 1-8 keep the cheap thresholds the exp/level tests are written
+    // against ((N−1)·1000, then two big steps); 9-81 continue past them so the
+    // fixture has the same *shape* as the dist — a table whose top row is one
+    // above the highest attainable level, which is what `set_level`'s clamp
+    // (Java `PlayerStat.setLevel`) reads. Without the tail, any test that puts
+    // a character at level 40 would be clamped to 7.
     world.data.experience = crate::data::ExperienceData::from_table(
-        vec![0, 0, 1000, 2000, 3000, 4000, 5000, 50000, 100_000],
-        8,
+        {
+            let mut table = vec![0, 0, 1000, 2000, 3000, 4000, 5000, 50000, 100_000];
+            for level in 9..=81i64 {
+                table.push(100_000 + (level - 8) * 100_000);
+            }
+            table
+        },
+        81,
     );
     // The caster template lacks the melee-side fields — give it reach, run
     // speed, defence, and level tables past 5 so level-ups stay sane.

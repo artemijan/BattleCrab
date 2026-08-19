@@ -359,9 +359,30 @@ pub(crate) fn level_for_exp(world: &World, exp: i64, max_level: i32) -> i32 {
     level
 }
 
+/// `PlayerStat.setLevel`'s first two lines: nothing may be set above
+/// `ExperienceData.getMaxLevel() - 1` — 80 on this dist.
+///
+/// The exp paths cannot exceed it (their cap is `exp_for_level(max_level) - 1`,
+/// one point short of the row above), but `//set_level`, the community board's
+/// delevel and the subclass swap all set a level outright, so the clamp lives
+/// at Java's own funnel rather than at each caller. `//set_level` also asks for
+/// it directly, to pick the exp that goes with the level it will actually get.
+pub(crate) fn cap_level(world: &World, level: i32) -> i32 {
+    let table_max = world.data.experience.max_level as i32;
+    if table_max > 1 {
+        level.clamp(1, table_max - 1)
+    } else {
+        // `ExperienceData::empty()` — the fixtures that run without a
+        // datapack. Java always has a table, so there is no ceiling to read
+        // and clamping to `0 - 1` would put every character at level 1.
+        level.max(1)
+    }
+}
+
 /// `PlayerStat.addLevel` (up or down): recompute vitals/stats, grant new
 /// autoGet skills, broadcast the level-up flourish.
 pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
+    let new_level = cap_level(world, new_level);
     let leveled_up = {
         let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else {
             return;

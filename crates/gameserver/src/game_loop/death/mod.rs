@@ -52,7 +52,7 @@ pub(crate) use player_death::{apply_death_exp_penalty, is_lucky, player_do_die};
 #[cfg(test)]
 pub(crate) use progression::check_player_skills;
 pub(crate) use progression::{
-    add_exp_and_sp, consume_kill_vitality, level_for_exp, maybe_skill_remove_on_delevel,
+    add_exp_and_sp, cap_level, consume_kill_vitality, level_for_exp, maybe_skill_remove_on_delevel,
     overhit_bonus, remove_exp_and_sp, reward_skill_grants, reward_skills, set_level,
 };
 pub(crate) use restart::{

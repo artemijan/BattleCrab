@@ -1754,6 +1754,67 @@ fn admin_set_and_add_level() {
     );
 }
 
+/// `AdminLevel`'s accept range for `//set_level`: `1..=ExperienceData
+/// .getMaxLevel()`, narrowed to `MaxSubclassLevel` while a subclass is active.
+/// A value outside it is refused with the usage line and nothing changes;
+/// **inside** it, `setLevel`'s own clamp still applies — which is why asking
+/// for the top of the range (81) lands on 80.
+#[test]
+fn admin_set_level_refuses_past_the_cap_and_clamps_at_it() {
+    let (mut world, ..) = admin_world();
+    world.data.experience = crate::data::ExperienceData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7306, 100);
+    on_packet(&mut world, 1, build_admin("set_level 20"));
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("set_level 999"));
+    assert_eq!(
+        world.objects.get_component::<Player>(&7306).unwrap().level,
+        20,
+        "out of range: refused outright, not clamped"
+    );
+    assert!(
+        has_system_message(&drain(&mut gm_rx), server_packets::sm_ids::S1_TEXT),
+        "…and said so"
+    );
+
+    on_packet(&mut world, 1, build_admin("set_level 81"));
+    let p = world.objects.get_component::<Player>(&7306).unwrap();
+    assert_eq!(
+        p.level, 80,
+        "the top of the range is accepted, then clamped by setLevel"
+    );
+    assert_eq!(
+        p.exp,
+        world.data.experience.exp_for_level(80),
+        "and the exp that goes with the level it settled on, not the one asked for"
+    );
+
+    // A subclass lowers the range itself, so the same value is now refused.
+    world.cfg.character.max_subclass_level = 75;
+    world
+        .objects
+        .get_component_mut::<Player>(&7306)
+        .unwrap()
+        .class_index = 1;
+    drain(&mut gm_rx);
+    on_packet(&mut world, 1, build_admin("set_level 80"));
+    assert_eq!(
+        world.objects.get_component::<Player>(&7306).unwrap().level,
+        80,
+        "refused: 80 is past MaxSubclassLevel"
+    );
+    on_packet(&mut world, 1, build_admin("set_level 70"));
+    assert_eq!(
+        world.objects.get_component::<Player>(&7306).unwrap().level,
+        70,
+        "inside the narrowed range"
+    );
+}
+
 /// `//gmchat` reaches every online GM (including the sender) but no normal
 /// player.
 #[test]

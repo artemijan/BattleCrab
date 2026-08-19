@@ -149,11 +149,43 @@ pub(super) fn admin_change_level(
     else {
         return;
     };
+    // `AdminLevel`'s own ceiling for `//set_level`: the experience table's
+    // `MAX_LEVEL`, lowered to `MaxSubclassLevel` while a subclass is active.
+    // It is the accept *range*, not the cap — a value inside it is still put
+    // through `setLevel`, which clamps at `MAX_LEVEL - 1`, so typing the top
+    // of the range lands one below it.
     let max_level = world.data.experience.max_level as i32;
+    let max_level = if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.class_index != 0)
+        && world.cfg.character.max_subclass_level < max_level
+    {
+        world.cfg.character.max_subclass_level
+    } else {
+        max_level
+    };
+    if set && !(1..=max_level).contains(&value) {
+        send_message(
+            world,
+            client_id,
+            &format!("You must specify level between 1 and {max_level}."),
+        );
+        return;
+    }
+    // `//add_level` has no range check of its own: Java hands the delta to
+    // `PlayableStat.addLevel`, which trims it to what is reachable.
     let new_level = if set { value } else { current + value }.clamp(1, max_level);
     // Set exp to the level's threshold so the exp bar and future exp math stay
     // consistent (Java `PlayerStat.setLevel` → `setExp(getExpForLevel(level))`).
-    let exp = world.data.experience.exp_for_level(new_level);
+    // The threshold is read for the level `setLevel` will actually settle on:
+    // the top of the accept range is one above the reachable cap, and Java
+    // ends up one exp point below that row rather than on it (its `//set_level`
+    // routes the difference through `addExpAndSp`, which caps there).
+    let exp = world
+        .data
+        .experience
+        .exp_for_level(super::death::cap_level(world, new_level));
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.exp = exp;
     }

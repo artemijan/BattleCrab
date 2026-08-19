@@ -1011,3 +1011,107 @@ fn fame_is_clamped_to_max_personal_fame_points() {
     set_fame_clamped(&mut world, 3001, |_| -50);
     assert_eq!(fame(&world), 0, "never negative");
 }
+
+// ---------------------------------------------------------------------------
+// `MaximumPlayerLevel` — the level cap (PORTING_STATUS row 19)
+// ---------------------------------------------------------------------------
+
+/// A world carrying the **real** experience table, since the level cap is a
+/// property of that table meeting `MaximumPlayerLevel`.
+fn capped_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
+    let (mut world, db, l) = combat_test_world();
+    world.data.experience = crate::data::ExperienceData::load_from(crate::data::DIST_GAME);
+    (world, db, l)
+}
+
+/// Java reads the key and increments it on the very next line
+/// (`PLAYER_MAXIMUM_LEVEL++`), and every comparison in the tree is written
+/// against the incremented value — so the field carries 81 for a shipped 80.
+#[test]
+fn maximum_player_level_is_stored_incremented_as_java_stores_it() {
+    let c = CharacterConfig::load_from(crate::data::DIST_GAME);
+    assert_eq!(
+        c.maximum_player_level, 81,
+        "`MaximumPlayerLevel = 80` in Character.ini, plus Java's `++`"
+    );
+}
+
+/// The cap itself: all the exp in the world stops a character at **80**, one
+/// point short of level 81's threshold. The port used to run the same flood up
+/// to 84, because it read `maxLevel="85"` raw and clamped to nothing.
+#[test]
+fn a_character_stops_at_the_interlude_cap_of_80() {
+    let (mut world, _db, _l) = capped_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    crate::game_loop::death::add_exp_and_sp(&mut world, 3001, 1e18, 0.0, false);
+
+    let p = world
+        .objects
+        .get_component::<Player>(&3001)
+        .expect("player");
+    assert_eq!(p.level, 80, "the chronicle's cap, not the table's 85");
+    assert_eq!(
+        p.exp,
+        world.data.experience.exp_for_level(81) - 1,
+        "`getExpForLevel(MAX_LEVEL) - 1` — one point short of the row above"
+    );
+}
+
+/// `PlayerStat.setLevel` clamps at `MAX_LEVEL - 1` for everyone who sets a
+/// level outright — the community board, the subclass swap, `//set_level`.
+/// The exp cap cannot catch those: they never go through `addExp`.
+#[test]
+fn setting_a_level_outright_is_clamped_to_the_cap() {
+    let (mut world, _db, _l) = capped_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    crate::game_loop::death::set_level(&mut world, 3001, 99);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .expect("player")
+            .level,
+        80
+    );
+
+    // The lower bound is Java's too — `setLevel` never goes below 1.
+    crate::game_loop::death::set_level(&mut world, 3001, -5);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .expect("player")
+            .level,
+        1
+    );
+}
+
+/// A **subclass** stops lower still, on `MaxSubclassLevel`, and the exp cap is
+/// what enforces it — so the two ceilings have to agree on the same table.
+#[test]
+fn the_subclass_ceiling_sits_under_the_main_cap() {
+    let (mut world, _db, _l) = capped_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    assert_eq!(world.cfg.character.max_subclass_level, 80);
+    // Lower it so the two answers differ at all: shipped, both are 80.
+    world.cfg.character.max_subclass_level = 75;
+    {
+        let p = world
+            .objects
+            .get_component_mut::<Player>(&3001)
+            .expect("player");
+        p.class_index = 1;
+    }
+
+    crate::game_loop::death::add_exp_and_sp(&mut world, 3001, 1e18, 0.0, false);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .expect("player")
+            .level,
+        75
+    );
+}

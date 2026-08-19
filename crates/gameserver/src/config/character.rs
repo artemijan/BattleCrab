@@ -1,9 +1,9 @@
 //! `Character.ini` — port of the `CHARACTER_CONFIG_FILE` block of `Config.java`.
 //!
-//! **Every key this file ships is now accounted for**, one of three ways: read
-//! into a field below, listed as dead in Java just under this note, or —
-//! `MaximumPlayerLevel` alone — left open pending the level-cap decision
-//! (`docs/PORTING_STATUS.md` row 19).
+//! **Every key this file ships is read or accounted for**: into a field below,
+//! or listed as dead in Java just under this note. `MaximumPlayerLevel` was the
+//! last hold-out and landed with the level cap (`docs/PORTING_STATUS.md`
+//! row 19).
 //!
 //! # Parsed by Java and read by nothing
 //!
@@ -592,6 +592,20 @@ pub struct CharacterConfig {
     /// against the *quest* limit.
     pub auto_loot_slot_limit: bool,
 
+    /// `MaximumPlayerLevel` (dist **80**), **stored the way Java stores it**:
+    /// `Config.PLAYER_MAXIMUM_LEVEL` is the ini value **plus one**, because
+    /// `Config.load` does `getByte(...)` and then `PLAYER_MAXIMUM_LEVEL++` on
+    /// the next line. Every comparison in the Java tree is written against the
+    /// incremented value, so keeping the `+ 1` here rather than at each use
+    /// lets those expressions be ported literally — and the alternative is an
+    /// off-by-one in every one of them.
+    ///
+    /// Read by [`crate::data::ExperienceData`], which is the only consumer in
+    /// Java too: it clamps the experience table's own `maxLevel + 1` to this
+    /// and stops loading rows above it. 80 + 1 = 81 here, so the highest level
+    /// a character can reach is **80** — the Interlude cap.
+    pub maximum_player_level: i32,
+
     // --- Subclasses, and what may be learned ------------------------------
     /// `BaseSubclassLevel` — the level (and matching exp) a newly added
     /// subclass starts on.
@@ -853,6 +867,8 @@ impl Default for CharacterConfig {
             auto_loot_herbs: false,
             auto_loot_item_ids: std::collections::HashSet::new(),
             auto_loot_slot_limit: true,
+            // The dist's 80, incremented as Java does.
+            maximum_player_level: 81,
             base_subclass_level: 40,
             max_subclass_level: 80,
             base_dualclass_level: 80,
@@ -1267,6 +1283,9 @@ impl CharacterConfig {
                 .filter_map(|id| id.trim().parse().ok())
                 .collect(),
             auto_loot_slot_limit: p.get_bool("AutoLootSlotLimit", d.auto_loot_slot_limit),
+            // `PLAYER_MAXIMUM_LEVEL = getByte("MaximumPlayerLevel", 90);
+            // PLAYER_MAXIMUM_LEVEL++;` — the increment is part of the read.
+            maximum_player_level: p.get_int("MaximumPlayerLevel", 90) + 1,
             base_subclass_level: p.get_int("BaseSubclassLevel", d.base_subclass_level),
             max_subclass_level: p.get_int("MaxSubclassLevel", d.max_subclass_level),
             base_dualclass_level: p.get_int("BaseDualclassLevel", d.base_dualclass_level),

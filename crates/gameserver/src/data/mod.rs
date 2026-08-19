@@ -324,6 +324,10 @@ pub struct GameData {
 pub struct DataOptions {
     /// `MaxEquipableItemGrade` — the buy-list / multisell grade filter.
     pub max_equipable_item_grade: item_data::CrystalType,
+    /// `MaximumPlayerLevel` **as Java stores it** (the ini value + 1) — the
+    /// ceiling `ExperienceData` clamps its own `maxLevel + 1` to, and stops
+    /// loading rows above.
+    pub maximum_player_level: i32,
     /// `InitialEquipmentEvent` — which starting-gear table to read.
     pub initial_equipment_event: bool,
     /// The `General.ini` `Custom*Load` family — whether each loader also reads
@@ -340,6 +344,7 @@ impl Default for DataOptions {
     fn default() -> Self {
         Self {
             max_equipable_item_grade: item_data::CrystalType::S,
+            maximum_player_level: experience::DIST_PLAYER_MAXIMUM_LEVEL,
             initial_equipment_event: true,
             // The dist's values, so the cached test snapshot is the shipped
             // datapack — including the custom NPCs the TvT manager needs.
@@ -364,6 +369,7 @@ impl GameData {
     pub fn load_from_with(file_path: &str, opts: DataOptions) -> Self {
         let DataOptions {
             max_equipable_item_grade,
+            maximum_player_level,
             initial_equipment_event,
             custom_npc_data,
             custom_skills_load,
@@ -395,7 +401,7 @@ impl GameData {
         let npc_ai_skills = NpcAiSkillIndex::build(&npc_data, &skill_data);
         let data = Self {
             root: file_path.to_string(),
-            experience: ExperienceData::load_from(file_path),
+            experience: ExperienceData::load_from_with(file_path, maximum_player_level),
             player_templates: PlayerTemplateData::load_from(file_path),
             skill_trees: SkillTreeData::load_from(file_path),
             sell_buff_data: sell_buff_data::SellBuffData::load_from(file_path),

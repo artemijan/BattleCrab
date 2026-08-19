@@ -204,9 +204,8 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **66** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **Olympiad.ini, Rates.ini, Siege.ini and FloodProtector.ini are fully wired**; what remains is Feature 38, Character 9 (all classified — see below), Server 7, General 8, and 2 each in NPC.ini and PVP.ini. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **Two earlier recorded figures were low**: re-deriving Character gave 82, not 76, and the previous total of 75 omitted NPC.ini's two keys — the row called NPC.ini wired, and its `DmgPenaltyForLvLDifferences` / `CritDmgPenaltyForLvLDifferences` are unread here (deliberately: Java parses them and then reads them nowhere) | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
+| 14 | Config | **65** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **Olympiad.ini, Rates.ini, Siege.ini and FloodProtector.ini are fully wired**; what remains is Feature 38, Character 8 (all dead in Java — see below), Server 7, General 8, and 2 each in NPC.ini and PVP.ini. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **Two earlier recorded figures were low**: re-deriving Character gave 82, not 76, and the previous total of 75 omitted NPC.ini's two keys — the row called NPC.ini wired, and its `DmgPenaltyForLvLDifferences` / `CritDmgPenaltyForLvLDifferences` are unread here (deliberately: Java parses them and then reads them nowhere) | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
-| 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
 
 ### Closed
@@ -230,6 +229,7 @@ same work. Closed rows move to [§ Closed](#closed).
 | 7 | `player_help` bypass | 2026-08-15 | `bypasshandlers/PlayerHelp` — the help book's own page links, with Java's `..` traversal guard and the `#<itemId>` suffix that marks the dialog item-bound so a button inside it does not close the book |
 | 8 | `TerritoryStatus` bypass | 2026-08-15 | `bypasshandlers/TerritoryStatus`. The lookup is `findNearestCastle`, **not** the siege zone the NPC stands in — which is what lets a fisherman in the middle of a town answer at all |
 | 20 | Item conditions | 2026-08-19 | `ItemTemplate.checkCondition` and the `<cond>` parser under it — the whole tree, all 24 condition kinds, both message forms, and the four call sites Java gates with it. See below |
+| 19 | Player level cap | 2026-08-19 | `ExperienceData`'s two `+ 1`s and the `MaximumPlayerLevel` clamp, `PlayerStat.setLevel`'s ceiling, and `AdminLevel`'s accept range. **The row's own figures were wrong on the Java side** — see below |
 
 **Row 16 mostly corrected itself.** The audit's original figure was 79 missing
 of 458 with "~10 against ported systems, so the G13 row's 'all off-chronicle'
@@ -629,11 +629,13 @@ The other six are carried with reasons: the fortress fame pair is off-chronicle
 `SilenceModeExclude` has no player-facing silence mode to exclude from — the
 port models only `General.ini`'s GM startup flag.
 
-### Character.ini's remaining 9 are not portable work
+### Character.ini's remaining 8 are not portable work
 
-Every key the file ships is now accounted for. The nine still counted are:
+Every key the file ships is now accounted for. `MaximumPlayerLevel` — the ninth,
+and the only one that was ever real work — landed with row 19. All eight still
+counted are **dead in Java**:
 
-* **eight dead in Java** — `AbilityMaxPoints`, `AbilityPointsResetAdena`, the
+* `AbilityMaxPoints`, `AbilityPointsResetAdena`, the
   three `FeeDelete*Skills`, `MaxNewbieBuffLevel`, and the two mentor penalties,
   which are dead twice over because **both assign to the same field**, so the
   "leave" penalty has never done anything in any Mobius build. They are listed
@@ -641,13 +643,13 @@ Every key the file ships is now accounted for. The nine still counted are:
   field would imply something reads them. The measure counts *string literals*,
   so naming them in prose deliberately does not move the number — loosening it
   to flatter the count would defeat the point of having one.
-* **`MaximumPlayerLevel`**, which is row 19's decision and not ours to take.
 
-What is left in row 14 is General (**19** — mostly dev tooling and
-persistence-model choices the port made differently: memory-first saves, no
-`HtmCache`, no grid on/off) and Server (7), which is infrastructure. (This
-paragraph used to name General twice, once with Character.ini's description
-attached to it — a copy-edit slip from the row that closed Character.ini.)
+What is left in row 14 is General (**8**, down from 19 as the dev/debug and
+grid clusters landed — what remains is persistence-model choices the port made
+differently: memory-first saves, no `HtmCache`) and Server (7), which is
+infrastructure. (This paragraph used to name General twice, once with
+Character.ini's description attached to it — a copy-edit slip from the row that
+closed Character.ini.)
 
 **The General.ini fall-damage cluster (`EnableFallingDamage`).** The first
 General key worked, and the only one on the file that was a *subsystem* rather
@@ -982,6 +984,61 @@ exception thrown by parsing a malformed command. The port validates its
 arguments and answers with the same usage message Java sends after logging, so
 there is no exception to gate. Recorded in `config::general`'s header rather
 than given a field, following `config::character`'s convention.
+
+**Row 19 closed, and the row's own arithmetic was wrong — in Java's favour by
+one.** It recorded the Java cap as 79. It is **80**, the Interlude cap, and the
+missing step is in `Config.load`:
+
+```java
+PLAYER_MAXIMUM_LEVEL = characterConfig.getByte("MaximumPlayerLevel", (byte) 90);
+PLAYER_MAXIMUM_LEVEL++;
+```
+
+The key is read and then *incremented on the next line*, so a shipped
+`MaximumPlayerLevel = 80` reaches `ExperienceData` as **81**. There it meets a
+second `+ 1`: `MAX_LEVEL = maxLevel + 1` (86 from the table), clamped to that
+81. `MAX_LEVEL` therefore names the row **above** the highest attainable level,
+which is what makes the exp cap — `getExpForLevel(MAX_LEVEL) - 1` — stop a
+character one point short of level 81. Java's own boot log prints
+`MAX_LEVEL - 1` as "Max Player Level" for the same reason.
+
+Both `+ 1`s are kept where Java keeps them:
+`CharacterConfig::maximum_player_level` stores the incremented value and says
+so, and `ExperienceData::max_level` is `MAX_LEVEL` rather than the attainable
+cap — so every consumer spells the cap `max_level - 1`, exactly as the Java
+expressions do. Storing either one "helpfully" pre-decremented would put an
+off-by-one into every use site instead of one place.
+
+Three mechanisms, not one. The exp cap alone would not have held:
+
+* **The exp cap** (`progression::add_exp_and_sp`) already read `max_level`, so
+  fixing what that means moved it from 84 to 80 on its own.
+* **Row loading stops at the cap.** Java `break`s out of the row loop at the
+  first `level > PLAYER_MAXIMUM_LEVEL`, so `_expTable` holds 1..=81 and
+  `getExpForLevel` of anything past it answers with row 81. The port loaded all
+  86 rows and its `exp_for_level` clamped to the table's *end* — which, past
+  the last row, was reading a zero it had padded the vector with.
+* **`PlayerStat.setLevel` clamps at `MAX_LEVEL - 1`**, and the paths that set a
+  level outright — `//set_level`, the community board's delevel, the subclass
+  swap — never go through `addExp` at all. The clamp is `death::cap_level`,
+  applied inside `set_level` (Java's own funnel) rather than at each caller, and
+  read directly by `//set_level` so the exp it stores is the one that goes with
+  the level `setLevel` will settle on.
+
+`AdminLevel` came with it: `//set_level`'s accept range is
+`1..=ExperienceData.getMaxLevel()`, lowered to `MaxSubclassLevel` while a
+subclass is active, and a value outside it is **refused with a message** rather
+than clamped — while a value inside it is still put through `setLevel`, so
+asking for 81 lands on 80. The port had neither the range nor the narrowing.
+
+`maxPetLevel` is parsed by Java in the same function (`min(86 + 1,
+MAX_LEVEL + 1)` = 82) and is named in prose rather than given a field: its only
+readers are `Summon.getExpForThisLevel`/`getExpForNextLevel`, and no species'
+`PetData` table comes close to 81, so the species table is the binding
+constraint on both sides — which is what the port already reads.
+
+**This also closes `MaximumPlayerLevel`**, the last unread key in
+`Character.ini` and the one row 14 was holding open pending this decision.
 
 **Row 20 closed, and the two conditions that look unported are Java's own
 constants.** `<cond>` now parses (`data::item_cond`) and evaluates
