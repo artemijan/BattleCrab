@@ -92,6 +92,10 @@ pub(crate) fn run_regen_tick(world: &mut World) {
             client_id,
             server_packets::status_update(object_id, &updates),
         );
+        // Regen is the other way a player leaves an HP-conditioned passive's
+        // band — slower than a heal, but the one that catches a character who
+        // simply walks away from a fight.
+        super::passive_skills::refresh_on_hp_change(world, object_id);
         super::party::notify_party_vitals(world, object_id);
     }
 }

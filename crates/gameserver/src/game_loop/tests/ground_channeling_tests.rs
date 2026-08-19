@@ -475,6 +475,7 @@ fn channeled_skill(level: i32) -> Skill {
                 weapon_condition: 0,
                 qualifier: None,
                 two_handed: false,
+                hp_percent: 0,
             },
         )],
         ..Default::default()

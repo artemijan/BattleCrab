@@ -150,6 +150,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })],
     });
 
@@ -3459,6 +3460,7 @@ mod dispel_by_category {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })
     }
 
@@ -4102,6 +4104,7 @@ fn synthetic_buff(
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })],
     }
 }
@@ -6538,5 +6541,94 @@ fn a_charged_spiritshot_shortens_the_cast() {
         formulas::calc_skill_time_factor(p, base, mods, &world.data, &channeled, true),
         1.0,
         "a channeling skill's timing is static"
+    );
+}
+
+/// `AbstractConditionalHpEffect` — a stat effect that counts **only while the
+/// wearer's HP is at or below `<hpPercent>`**:
+///
+/// ```java
+/// public boolean canPump(Creature effector, Creature effected, Skill skill)
+/// {
+///     return (_hpPercent <= 0) || (effected.getCurrentHpPercent() <= _hpPercent);
+/// }
+/// ```
+///
+/// Four handlers extend it (`PAtk`, `PhysicalDefence`, `PhysicalEvasion`,
+/// `CriticalRate`) and two learnable skills on this dist use it: **Final Frenzy
+/// (290)**, +P.Atk below 30 % HP, and **Final Fortress (291)**, +P.Def. The port
+/// parsed the effects but not the condition, so both bonuses were up
+/// permanently — a flat damage and defence inflation for the classes that learn
+/// them.
+///
+/// The fixture reads its numbers off the **real** skill so it cannot drift from
+/// what it is modelling, and drives the whole thing through the same
+/// `refresh_conditioned_passives` the equip path uses.
+#[test]
+fn a_below_thirty_percent_passive_only_counts_while_wounded() {
+    use model::components::{SkillBook, Vitals};
+
+    const FINAL_FRENZY: i32 = 290;
+    let (mut world, ..) = cast_test_world();
+    world.data.skill_data = dist::skills_owned();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    // The real skill's own numbers: a DIFF `PAtk` bonus gated at 30 %.
+    let frenzy = world
+        .data
+        .skill_data
+        .get(FINAL_FRENZY, 1)
+        .expect("Final Frenzy 290 on the dist");
+    let (bonus, threshold) = frenzy
+        .effects
+        .iter()
+        .find_map(|e| match e {
+            model::skill::SkillEffect::StatModifier(m)
+                if m.stat == Stat::PhysicalAttack && m.hp_percent > 0 =>
+            {
+                Some((m.amount, m.hp_percent))
+            }
+            _ => None,
+        })
+        .expect("a PAtk effect carrying an hpPercent");
+    assert_eq!(threshold, 30, "Java's `<hpPercent>30</hpPercent>`");
+    assert!(bonus > 0.0, "and a positive P.Atk bonus");
+
+    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&3001) {
+        book.0.insert(FINAL_FRENZY, 1);
+    }
+
+    let set_hp = |world: &mut World, percent: f64| {
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&3001) {
+            v.max_hp = 1000;
+            v.cur_hp = 1000.0 * percent / 100.0;
+        }
+        passive_skills::refresh_conditioned_passives(world, 3001);
+        pcs(world, 3001).p_atk
+    };
+
+    let healthy = set_hp(&mut world, 100.0);
+    let wounded = set_hp(&mut world, 25.0);
+    assert!(
+        (wounded - healthy - bonus).abs() < 1e-9,
+        "below 30 % the bonus is up: {wounded} vs {healthy} (+{bonus})"
+    );
+
+    // Java's test is `<=`, and `getCurrentHpPercent()` truncates, so 30 % is
+    // inside the band and 31 % is not.
+    assert!(
+        (set_hp(&mut world, 30.0) - healthy - bonus).abs() < 1e-9,
+        "exactly 30 % still counts — Java compares with `<=`"
+    );
+    assert!(
+        (set_hp(&mut world, 31.0) - healthy).abs() < 1e-9,
+        "31 % does not"
+    );
+
+    // And healing back out drops it again, which is the half a one-way hook
+    // would miss.
+    assert!(
+        (set_hp(&mut world, 100.0) - healthy).abs() < 1e-9,
+        "back above the band, the bonus is gone"
     );
 }

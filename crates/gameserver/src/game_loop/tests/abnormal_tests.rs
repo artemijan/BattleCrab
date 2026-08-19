@@ -1849,6 +1849,7 @@ fn enlarge_abnormal_slot_raises_the_buff_cap_and_gives_it_back() {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         },
     )];
     boost.effect_point = 100;
@@ -2428,6 +2429,77 @@ fn mp_vampiric_drains_on_skills_not_melee() {
         mp(&world) > 0.0,
         "a skill hit drains 10 % of the damage into MP: {}",
         mp(&world)
+    );
+}
+
+/// The same `MAX_RECOVERABLE_HP` ceiling, on the **over-time** side. Java reads
+/// it in `HealOverTime.onActionTime` and in `Relax.onActionTime`:
+///
+/// ```java
+/// double hp = effected.getCurrentHp();
+/// final double maxhp = effected.getMaxRecoverableHp();
+/// if (_power > 0) { if (hp >= maxhp) return false; }
+/// …
+/// hp = Math.min(hp, maxhp);
+/// ```
+///
+/// The port clamped both to the raw pool, so a regeneration under Noblesse
+/// Harmony kept ticking past the cap that its own instant heals respected —
+/// the two halves of the same skill disagreeing about the same number.
+#[test]
+fn a_regeneration_stops_at_the_recoverable_ceiling_too() {
+    use crate::model::components::StatModifiers;
+    use crate::model::stats::Stat;
+
+    const HOT: i32 = 9394;
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    // A plain regeneration: +50 HP a tick for a long while.
+    let mut hot = cc_skill(
+        HOT,
+        SkillEffect::HealOverTime {
+            power: 50.0,
+            ticks: 1,
+        },
+        "HP_RECOVER",
+    );
+    hot.effect_point = 100;
+    hot.is_debuff = false;
+    hot.abnormal_time = 600;
+    world.data.skill_data.insert_for_test(hot.clone());
+
+    assert!(
+        effects::apply_continuous_effects(&mut world, CASTER, CASTER, &hot, None),
+        "the regeneration buff landed"
+    );
+    // Both of these go on **after** the buff: landing one rebuilds
+    // `StatModifiers` from the live buff list (dropping a hand-placed entry)
+    // and runs `recompute_max_vitals` (recomputing `max_hp` off the template).
+    let mut mods = world
+        .objects
+        .get_component::<StatModifiers>(&CASTER)
+        .cloned()
+        .unwrap_or_default();
+    // Noblesse Harmony's `PER −30` on `MAX_RECOVERABLE_HP`.
+    mods.mul.insert(Stat::MaxRecoverableHp, 0.7);
+    world.objects.add_components(&CASTER, mods);
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&CASTER) {
+        v.max_hp = 1000;
+        v.cur_hp = 100.0;
+    }
+
+    // Let it run well past the point where it would fill an uncapped bar.
+    advance_ticks(&mut world, 400);
+
+    let hp = world
+        .objects
+        .get_component::<Vitals>(&CASTER)
+        .map(|v| v.cur_hp)
+        .expect("alive");
+    assert!(
+        (hp - 700.0).abs() < 1.0,
+        "the regeneration stops at the 70 % recoverable ceiling, got {hp}"
     );
 }
 

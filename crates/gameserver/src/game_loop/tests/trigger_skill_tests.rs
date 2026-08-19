@@ -94,6 +94,7 @@ fn install(world: &mut World, effect: SkillEffect) {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })],
         60,
         OperateType::Active,

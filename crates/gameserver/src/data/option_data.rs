@@ -209,6 +209,11 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
                             weapon_condition: 0,
                             qualifier: None,
                             two_handed: false,
+                            // Augment options carry no `hpPercent`: the four
+                            // `AbstractConditionalHpEffect` names that could
+                            // (`PAtk`, `PhysicalDefence`, `PhysicalEvasion`,
+                            // `CriticalRate`) appear here as plain stat rows.
+                            hp_percent: 0,
                         });
                     }
                 }

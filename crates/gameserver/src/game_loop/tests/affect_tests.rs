@@ -63,6 +63,7 @@ fn aoe_skill(id: i32, scope: AffectScope, object: AffectObject, range: i32) -> S
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })],
         ..Default::default()
     }

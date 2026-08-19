@@ -66,6 +66,7 @@ fn aura_skill() -> Skill {
                 weapon_condition: 0,
                 qualifier: None,
                 two_handed: false,
+                hp_percent: 0,
             },
         )],
         ..Default::default()

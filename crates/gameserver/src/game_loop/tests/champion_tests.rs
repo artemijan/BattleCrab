@@ -769,6 +769,7 @@ fn npc_weapon_mastery_needs_the_template_weapon() {
         weapon_condition: crate::data::item_data::WeaponType::Sword.mask_bit(),
         qualifier: None,
         two_handed: false,
+        hp_percent: 0,
     })];
     world.data.skill_data.insert_for_test(mastery);
 

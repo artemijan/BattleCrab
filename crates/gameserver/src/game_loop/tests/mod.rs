@@ -955,6 +955,7 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })],
         ..base.clone()
     });
@@ -1010,6 +1011,7 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
                 weapon_condition: 0,
                 qualifier: None,
                 two_handed: false,
+                hp_percent: 0,
             })
         })
         .collect(),
@@ -1084,6 +1086,7 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })],
         ..base.clone()
     });
@@ -1260,6 +1263,7 @@ fn test_stat_modifier_effect() -> model::skill::StatModifierEffect {
         weapon_condition: 0,
         qualifier: None,
         two_handed: false,
+        hp_percent: 0,
     }
 }
 fn ai_intention_test(world: &mut World, oid: i32, intention: NpcIntention) {
@@ -2035,6 +2039,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })],
     }
 }
@@ -2120,6 +2125,7 @@ fn clan_advent_test_skill() -> Skill {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })],
     }
 }

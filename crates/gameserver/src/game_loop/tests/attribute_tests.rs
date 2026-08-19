@@ -185,6 +185,7 @@ fn fire_resistance_reduces_and_surrender_restores() {
                 weapon_condition: 0,
                 qualifier: None,
                 two_handed: false,
+                hp_percent: 0,
             }],
             ..test_buff()
         }]),

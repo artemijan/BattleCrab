@@ -1256,6 +1256,7 @@ fn passive_max_mp_skill_boosts_mp_at_login() {
         weapon_condition: 0,
         qualifier: None,
         two_handed: false,
+        hp_percent: 0,
     })];
     world.data.skill_data.insert_for_test(s);
 
@@ -1316,6 +1317,7 @@ fn clan_skills_move_max_hp_mp_cp() {
                     weapon_condition: 0,
                     qualifier: None,
                     two_handed: false,
+                    hp_percent: 0,
                 })
             })
             .collect();

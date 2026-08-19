@@ -80,7 +80,19 @@ pub(crate) fn handle_dam_over_time_tick(
             SkillEffect::HealOverTime { power, ticks } if *ticks > 0 => {
                 interval = dot_interval_ticks(*ticks, ratio_ms);
                 let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else { continue };
-                let max_hp = v.max_hp as f64;
+                // Java's ceiling is **`getMaxRecoverableHp()`**, not `getMaxHp()`
+                // — `getValue(MAX_RECOVERABLE_HP, getMaxHp())`. `LimitHp`'s two
+                // carriers, Noblesse Harmony (1326) and Noblesse Symphony
+                // (1327), are both learnable, so a regeneration running on a
+                // capped target has to stop at the cap like an instant heal
+                // does. (Its MP twin below keeps plain `maxMp`: `LimitMp`'s
+                // carriers, 1509 and 11603, are neither learnable nor reachable.)
+                let max_hp = crate::game_loop::skills::effects::max_recoverable(
+                    world,
+                    target_oid,
+                    crate::model::stats::Stat::MaxRecoverableHp,
+                    v.max_hp as f64,
+                );
                 // Java's early bails: at full HP a healing tick is skipped, and
                 // a draining one is skipped when it would take the target to 0.
                 // (With a negative power the second test is `hp + |power| <= 0`,
@@ -200,7 +212,16 @@ pub(crate) fn handle_dam_over_time_tick(
                 // Java's `(curHp + 1) > maxRecoverableHp`: the point of Relax is
                 // to regenerate, so it retires itself once there is nothing left
                 // to heal — with its own message, distinct from running dry.
-                if v.cur_hp + 1.0 > v.max_hp as f64 && is_toggle {
+                // The ceiling is the **recoverable** one, so a Relax under
+                // Noblesse Harmony retires at 70 % rather than grinding on to a
+                // full bar it can never reach.
+                let recoverable_hp = crate::game_loop::skills::effects::max_recoverable(
+                    world,
+                    target_oid,
+                    crate::model::stats::Stat::MaxRecoverableHp,
+                    v.max_hp as f64,
+                );
+                if v.cur_hp + 1.0 > recoverable_hp && is_toggle {
                     helpers::send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED);
                     deactivate_toggle = true;
                     continue;

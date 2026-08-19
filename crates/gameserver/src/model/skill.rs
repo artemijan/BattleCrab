@@ -478,6 +478,22 @@ pub struct StatModifierEffect {
     /// [`Self::weapon_condition`] rather than another mask bit: "a blunt" and
     /// "a two-handed weapon" are independent tests that both have to pass.
     pub two_handed: bool,
+    /// `AbstractConditionalHpEffect`'s `<hpPercent>` — the contribution counts
+    /// only while the *effected* creature's HP is at or below this percentage.
+    /// `0` (the absent case) means unconditional.
+    ///
+    /// ```java
+    /// public boolean canPump(Creature effector, Creature effected, Skill skill)
+    /// {
+    ///     return (_hpPercent <= 0) || (effected.getCurrentHpPercent() <= _hpPercent);
+    /// }
+    /// ```
+    ///
+    /// Java re-evaluates it on every stat recompute and registers an
+    /// `ON_CREATURE_HP_CHANGE` listener that forces one whenever the predicate
+    /// flips. Two learnable skills carry it here — **Final Frenzy (290)**
+    /// (+P.Atk below 30 % HP) and **Final Fortress (291)** (+P.Def below 30 %).
+    pub hp_percent: i32,
 }
 
 impl Default for StatModifierEffect {
@@ -493,6 +509,7 @@ impl Default for StatModifierEffect {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         }
     }
 }
@@ -2918,6 +2935,7 @@ impl Skill {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         };
         self.effects
             .iter()

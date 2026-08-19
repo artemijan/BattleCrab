@@ -4515,6 +4515,7 @@ fn augment_options_apply_while_the_item_is_equipped() {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         }],
         ..Default::default()
     };

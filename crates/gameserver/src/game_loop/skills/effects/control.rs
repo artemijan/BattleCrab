@@ -1384,6 +1384,7 @@ pub(crate) fn hp_by_level(world: &mut World, caster_oid: i32, power: f64) {
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
         v.cur_hp += restored;
     }
+    crate::game_loop::passive_skills::refresh_on_hp_change(world, caster_oid);
     helpers::send_sm_to_player(
         world,
         caster_oid,

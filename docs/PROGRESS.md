@@ -8613,3 +8613,99 @@ S-grade two-hander's P.Atk ratio landing on `(500 + 72) / 500`, a servitor
 reading its owner's +10 weapon, evasion sinking below zero and stopping at 250, a
 30.4 % draw beating a 30.5 % chance, and a cleric's spiritshot heal beating a
 warrior's by exactly the skill's `mpConsume`.
+
+---
+
+## Effect-handler parity, batch 1: what a passive is *supposed* to be conditional on
+
+The formula axis kept finding its bugs in handler bodies rather than in
+`Formulas.java`, so this is the axis that follows it: read each Java effect
+handler's body against the port's arm.
+
+The denominator was measured before starting. **118** effect handlers have a real
+body and are reachable from a learnable skill; the port has an arm for **117**
+(the one gap, `StatUp`, is a recorded Territory War decision the census
+asserts). The other 42 live names are `AbstractStat*Effect` wrappers whose only
+content is which `Stat` they drive — diffing Java's `super(params, Stat.X)`
+against `EFFECT_REGISTRY` for all 38 that route through it found zero
+mismatches, which was worth an hour because a wrong stat mapping is silent and
+this port has been bitten by exactly that once.
+
+### Final Frenzy was always on
+
+`AbstractConditionalHpEffect` is a stat effect that counts **only while the
+wearer is hurt**:
+
+```java
+public boolean canPump(Creature effector, Creature effected, Skill skill)
+{
+    return (_hpPercent <= 0) || (effected.getCurrentHpPercent() <= _hpPercent);
+}
+```
+
+Four handlers extend it — `PAtk`, `PhysicalDefence`, `PhysicalEvasion`,
+`CriticalRate` — and the port parsed their stat and their amount but not their
+`<hpPercent>`. Two learnable skills carry one: **Final Frenzy (290)**, whose own
+datapack comment reads *"Increases P. Atk. by 32.9 when HP is below 30%"*, and
+**Final Fortress (291)**. Both were paying out at full health, permanently.
+
+The interesting half is the plumbing. Java re-checks `canPump` on every stat
+recompute and hangs an `ON_CREATURE_HP_CHANGE` listener on the effected creature
+to force one whenever the predicate flips. This port has no event bus and 54
+places that write `cur_hp`, so the honest options were "hook everything" or
+"hook the funnels and say which". It hooks the funnels: the player damage path
+(`player_receive_damage_ex`), the shared heal exit (`notify_heal`, which both
+heal writes pass through), `Restoration`, and the regen tick. Down into the band
+is immediate — that is the direction that decides whether Final Frenzy pays off
+in the fight that triggered it; out of the band is immediate on a heal and
+within a regen tick otherwise.
+
+The cost is gated at the front: a scan for any `hp_percent > 0` effect in the
+skill book, returning before it allocates. For everyone who is not a Gladiator
+or a Warlord that is the whole call.
+
+### A regeneration that outran its own cap
+
+`HealOverTime.onActionTime` and `Relax.onActionTime` both clamp to
+`getMaxRecoverableHp()`. The port clamped to `getMaxHp()`. Under Noblesse
+Harmony — `LimitHp`, `PER −30`, learnable — a character's *instant* heals
+already stopped at 70 % because that path used the right helper, while a
+regeneration on the same character kept ticking to a full bar. One mechanic,
+two halves, disagreeing about one number.
+
+The MP twin, `ManaHealOverTime`, already carried a written narrowing for exactly
+this: *"`LimitMp`'s two carriers are unreachable here"* — and they are (1509 and
+11603, neither learnable nor reachable). That note is what made the HP side's
+silence conspicuous. A narrowing that names its carrier is worth more than a
+correct line with no comment, because the missing one next to it stands out.
+
+### Two came back clean
+
+`DamOverTime`'s magic-crit burst — `power × 10` the moment a DoT lands, Java's
+comment reading *"Tests show that 10 times HP DOT is taken during magic
+critical"* — is already ported, on 15 learnable carriers (Poison, Venom, Decay,
+Curse Poison, Poisonous Cloud, Inferno …). Its two apparent gaps are both inert
+and both were checked rather than waved through: Java's `!skill.isToggle()`
+guard has no carrier here (not one magic toggle declares a `DamOverTime`), and
+its `isDOT` flag only matters against `HP_BLOCK`, which nothing on this dist
+grants.
+
+### The mistake worth recording
+
+The first draft of this batch re-implemented that crit burst from the Java
+source. The compiler caught the duplicate definition — the port had it already,
+in a function whose doc comment named the mechanic, quoted the same Java line,
+and recorded the deliberate decision to reuse the cast's crit roll rather than
+draw again.
+
+Reading Java first and the port second is the wrong order for this axis. The
+formula passes got away with it because `Formulas.java` maps one-to-one onto
+`model/formulas.rs`; 369 effect handlers do not map onto anything so tidy, and
+the port groups them by mechanism rather than by Java class name. **Grep the
+port for the mechanism before transcribing it** — the answer is often a comment
+that already knows more than the Java file does.
+
+Two findings, both sabotage-verified and pinned: Final Frenzy's bonus appearing
+at 30 % and vanishing at 31 % (Java compares with `<=`, and
+`getCurrentHpPercent()` truncates, so 30 is inside the band), and a regeneration
+parking at 700 of a 1000 HP bar.

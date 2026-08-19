@@ -775,6 +775,12 @@ pub(crate) fn player_receive_damage_ex(
         (pvitals.cur_cp as i32, vitals.cur_hp as i32)
     };
 
+    // Dropping into an HP-conditioned passive's band turns it on — Java's
+    // `ON_CREATURE_HP_CHANGE` listener forcing a stat recompute. This is the
+    // *down* direction, and the one that has to be immediate: it is what makes
+    // Final Frenzy pay off in the fight that triggered it.
+    crate::game_loop::passive_skills::refresh_on_hp_change(world, player_oid);
+
     // Victim-side damage message + stance. Self-inflicted damage says nothing
     // (see `attacker_is_other`) — the environmental sources send their own
     // line instead, e.g. drowning's "you were unable to breathe".

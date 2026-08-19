@@ -265,6 +265,7 @@ fn heal_effect_scales_received_healing() {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })],
         false,
     ));

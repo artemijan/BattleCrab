@@ -227,6 +227,14 @@ pub(crate) fn build_skill(
                     } else {
                         StatModifierType::Diff
                     };
+                    // `AbstractConditionalHpEffect`'s `<hpPercent>`: the four
+                    // handlers that extend it (`PAtk`, `PhysicalDefence`,
+                    // `PhysicalEvasion`, `CriticalRate`) are otherwise ordinary
+                    // stat effects, and every one of them reaches this closure
+                    // through `EFFECT_REGISTRY` — so reading the parameter here
+                    // covers the family without a per-name arm. Absent → 0 →
+                    // unconditional, which is Java's `_hpPercent <= 0` case.
+                    let hp_percent = param("hpPercent").unwrap_or(0.0) as i32;
                     let stat_mod = |stat: Stat, amount: f64| {
                         skill::SkillEffect::StatModifier(skill::StatModifierEffect {
                             stat,
@@ -236,6 +244,7 @@ pub(crate) fn build_skill(
                             weapon_condition: *weapon_condition,
                             qualifier: None,
                             two_handed: false,
+                            hp_percent,
                         })
                     };
                     match xml_name.as_str() {
@@ -270,6 +279,7 @@ pub(crate) fn build_skill(
                                                 ),
                                             ),
                                             two_handed: false,
+                                            hp_percent: 0,
                                         },
                                     )]
                                 }
@@ -300,6 +310,7 @@ pub(crate) fn build_skill(
                                         weapon_condition: *weapon_condition,
                                         qualifier: None,
                                         two_handed: false,
+                                        hp_percent: 0,
                                     })
                                 })
                                 .into_iter()
@@ -321,6 +332,7 @@ pub(crate) fn build_skill(
                                         weapon_condition: *weapon_condition,
                                         qualifier: None,
                                         two_handed: false,
+                                        hp_percent: 0,
                                     })
                                 })
                                 .into_iter()
@@ -430,6 +442,7 @@ pub(crate) fn build_skill(
                                         weapon_condition: 0,
                                         qualifier: None,
                                         two_handed: false,
+                                        hp_percent: 0,
                                     },
                                 )]
                             })
@@ -467,6 +480,7 @@ pub(crate) fn build_skill(
                                 weapon_condition: 0,
                                 qualifier: None,
                                 two_handed: false,
+                                hp_percent: 0,
                             },
                         )],
                         // `Lucky` (194) is an **empty effect** in Java — its
@@ -522,6 +536,7 @@ pub(crate) fn build_skill(
                                         weapon_condition: *weapon_condition,
                                         qualifier: None,
                                         two_handed: false,
+                                        hp_percent: 0,
                                     }),
                                     skill::SkillEffect::StatModifier(skill::StatModifierEffect {
                                         stat: Stat::MpVampiricSum,
@@ -531,6 +546,7 @@ pub(crate) fn build_skill(
                                         weapon_condition: *weapon_condition,
                                         qualifier: None,
                                         two_handed: false,
+                                        hp_percent: 0,
                                     }),
                                 ]
                             })
@@ -1283,6 +1299,7 @@ pub(crate) fn build_skill(
                                         amount,
                                         weapon_condition: weapon,
                                         two_handed: true,
+                                        hp_percent: 0,
                                         ..Default::default()
                                     },
                                 ))
@@ -1484,6 +1501,7 @@ pub(crate) fn build_skill(
                                             crate::model::stats::StatQualifier::Position(position),
                                         ),
                                         two_handed: false,
+                                        hp_percent: 0,
                                     })
                                 })
                                 .into_iter()
@@ -1508,6 +1526,7 @@ pub(crate) fn build_skill(
                                             crate::model::stats::StatQualifier::Position(position),
                                         ),
                                         two_handed: false,
+                                        hp_percent: 0,
                                     })
                                 })
                                 .into_iter()

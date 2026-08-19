@@ -162,6 +162,59 @@ git show <sha>^:docs/DEFERRALS.md
 
 ---
 
+## Effect-handler parity — the axis after the formulas
+
+**Opened 2026-08-19.** The formula axis found sixteen divergences and taught one
+thing above all: the bugs live in the **handler bodies**, not in `Formulas.java`.
+`Heal.instant` had three caster arms collapsed into one; `PhysicalAttack`'s
+`ssmod` dropped `SHOTS_BONUS`; `calcBlowDamage` was missing its whole crit
+block. All three surfaced by accident, while working on something else.
+
+**Coverage was already closed before this axis opened, and is test-enforced.**
+Of the **118** effect handlers with a real body reachable from a learnable
+skill, the port has an arm for **117**; the one remaining is `StatUp` (the nine
+Territory War "Benefaction" skills), which `datapack_skill_coverage_census`
+asserts as `EFFECTS = [("StatUp", 9)]`. The other 42 live effect names are
+`AbstractStat*Effect` wrappers whose only content is which `Stat` they drive;
+diffing Java's `super(params, Stat.X)` against the port's `EFFECT_REGISTRY` for
+all 38 that route through it found **zero** mismatches. What was never measured
+is whether the 117 arms *behave* like the Java bodies. That is this axis.
+
+### Batch 1 — the periodic and HP-conditioned families
+
+| What | Effect in game |
+|---|---|
+| `AbstractConditionalHpEffect`'s **`<hpPercent>` was not parsed at all** | Four handlers extend it (`PAtk`, `PhysicalDefence`, `PhysicalEvasion`, `CriticalRate`) and the condition — `(_hpPercent <= 0) or (effected.getCurrentHpPercent() <= _hpPercent)` — was simply absent. **Final Frenzy (290)** and **Final Fortress (291)** are learnable carriers, so their below-30 %-HP bonuses were up **permanently**: a flat P.Atk and P.Def inflation for the classes that learn them |
+| `HealOverTime` / `Relax` clamped to **`getMaxHp()`** | Java's ceiling in both is **`getMaxRecoverableHp()`**. `LimitHp`'s carriers — Noblesse Harmony (1326) and Noblesse Symphony (1327) — are both learnable, so a regeneration under either kept ticking past the cap the same character's *instant* heals already respected. The two halves of one mechanic disagreed about the same number |
+
+Java re-evaluates `canPump` on every stat recompute and hangs an
+`ON_CREATURE_HP_CHANGE` listener to force one when the predicate flips. The port
+has no such event bus, so `passive_skills::refresh_on_hp_change` is called from
+the paths that actually move a player's HP — the damage funnel (immediate, and
+the direction that matters), the shared heal exit, the `Restoration` arm and the
+regen tick. It opens with a skill-book scan for any `hp_percent > 0` effect and
+returns before allocating for everyone who has none, which is everyone but those
+two classes.
+
+**Two came back clean, and both were checked rather than assumed.**
+`DamOverTime`'s magic-crit burst (`power x 10` the instant a DoT lands, on 15
+learnable carriers — Poison, Venom, Decay, Inferno ...) is **already ported**,
+and its two apparent gaps are inert: Java's `!skill.isToggle()` guard has no
+carrier (no magic toggle declares a `DamOverTime`) and its `isDOT` flag only
+matters against `HP_BLOCK`, which nothing on this dist grants. `ManaHealOverTime`
+already carries a written narrowing for its own `getMaxRecoverableMp()` ceiling
+— `LimitMp`'s carriers (1509, 11603) are neither learnable nor reachable — which
+is exactly the note the HP side was missing.
+
+**Method note.** The first draft of this batch re-implemented `DamOverTime`'s
+crit burst from the Java source without checking whether the port already had
+it; the compiler caught the duplicate. Reading the Java body first and the port
+second is backwards — the port's own doc comment already named the mechanic, the
+"Tests show that 10 times HP DOT" line and the roll-reuse decision. **Grep the
+port for the mechanism before transcribing it.**
+
+---
+
 ## Formula parity — the axis opened after the gap table emptied
 
 **Opened 2026-08-19.** Every row of [§ Measured gaps](#measured-gaps--the-axes-nothing-above-measures)

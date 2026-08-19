@@ -271,6 +271,7 @@ fn move_type_effects_route_to_their_own_map() {
             weapon_condition: 0,
             qualifier: Some(model::stats::StatQualifier::MoveType(MoveType::Running)),
             two_handed: false,
+            hp_percent: 0,
         },
     );
     assert!(

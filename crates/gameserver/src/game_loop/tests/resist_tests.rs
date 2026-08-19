@@ -83,6 +83,7 @@ fn resist_buff_pumps_a_multiplier() {
             weapon_condition: 0,
             qualifier: None,
             two_handed: false,
+            hp_percent: 0,
         })],
     );
     world.data.skill_data.insert_for_test(resist);
@@ -164,6 +165,7 @@ fn blocked_abnormal_types_cannot_land() {
                 weapon_condition: 0,
                 qualifier: None,
                 two_handed: false,
+                hp_percent: 0,
             })],
         );
         s.abnormal_type = abnormal.into();
@@ -236,6 +238,7 @@ fn seed_dispel_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>
                 weapon_condition: 0,
                 qualifier: None,
                 two_handed: false,
+                hp_percent: 0,
             })],
         );
         s.abnormal_type = abnormal.into();

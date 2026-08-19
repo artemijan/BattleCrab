@@ -78,6 +78,7 @@ fn death_buff_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>)
         weapon_condition: 0,
         qualifier: None,
         two_handed: false,
+        hp_percent: 0,
     });
     world
         .data

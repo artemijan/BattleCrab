@@ -905,6 +905,10 @@ fn heal_npc(world: &mut World, target_oid: i32, amount: f64) {
 /// A self-heal reports the shorter `S1_HP_HAS_BEEN_RESTORED`. Offline targets
 /// fall through silently.
 fn notify_heal(world: &mut World, caster_oid: i32, target_oid: i32, healed: f64) {
+    // A heal can lift the target back **out** of an HP-conditioned passive's
+    // band (Final Frenzy / Final Fortress), which Java notices through
+    // `ON_CREATURE_HP_CHANGE`. Both heal writes funnel through here.
+    crate::game_loop::passive_skills::refresh_on_hp_change(world, target_oid);
     let caster_name = effects::caster_display_name(world, caster_oid);
     let Some(client_id) = helpers::client_for_player(world, target_oid) else {
         return;

@@ -4875,6 +4875,7 @@ fn sharing_skill(id: i32, shared: bool, is_debuff: bool) -> Skill {
                 weapon_condition: 0,
                 qualifier: None,
                 two_handed: false,
+                hp_percent: 0,
             },
         )],
         ..Default::default()

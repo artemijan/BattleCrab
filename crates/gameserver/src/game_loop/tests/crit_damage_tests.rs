@@ -249,6 +249,7 @@ fn position_qualified_stats_multiply_from_one() {
             weapon_condition: 0,
             qualifier: Some(StatQualifier::Position(Position::Back)),
             two_handed: false,
+            hp_percent: 0,
         },
     );
     assert!(

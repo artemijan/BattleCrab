@@ -30,6 +30,35 @@ pub(crate) fn refresh_conditioned_passives(world: &mut World, object_id: i32) {
     }
 }
 
+/// The HP-conditioned half of the same mechanism —
+/// `AbstractConditionalHpEffect`'s `ON_CREATURE_HP_CHANGE` listener, which
+/// forces a stat recompute whenever `currentHpPercent <= hpPercent` flips.
+///
+/// Java attaches that listener per effect; the port calls this from the paths
+/// that actually move a player's HP. The gate up front is what keeps it free
+/// for everyone else: only **Final Frenzy (290)** and **Final Fortress (291)**
+/// are learnable carriers on this dist, so for every other character this is a
+/// single pass over the skill book with no allocation and no recompute.
+pub(crate) fn refresh_on_hp_change(world: &mut World, object_id: i32) {
+    use crate::model::skill::SkillEffect;
+    let carries = world
+        .objects
+        .get_component::<SkillBook>(&object_id)
+        .is_some_and(|book| {
+            book.0.iter().any(|(&id, &level)| {
+                world.data.skill_data.get(id, level).is_some_and(|s| {
+                    s.effects
+                        .iter()
+                        .any(|e| matches!(e, SkillEffect::StatModifier(m) if m.hp_percent > 0))
+                })
+            })
+        });
+    if !carries {
+        return;
+    }
+    refresh_conditioned_passives(world, object_id);
+}
+
 /// Re-derive the armor-conditioned passive contributions in place, **without**
 /// sending any packet. Returns whether the applied set actually changed (so a
 /// caller that will broadcast its own stat update — e.g. `set_level`'s
@@ -51,7 +80,15 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
     let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return false;
     };
-    let desired = crate::model::conditioned_passive_buffs(&world.data, book, inventory);
+    // `AbstractConditionalHpEffect` reads the live HP percentage, so this
+    // recompute is also what turns Final Frenzy / Final Fortress on and off as
+    // the bar crosses 30 %.
+    let hp_percent = world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&object_id)
+        .map(|v| crate::model::hp_percent_of(v.cur_hp, v.max_hp))
+        .unwrap_or(100);
+    let desired = crate::model::conditioned_passive_buffs(&world.data, book, inventory, hp_percent);
     let desired_pairs: Vec<(i32, Vec<StatModifierEffect>)> = desired
         .iter()
         .map(|b| (b.skill_id, b.effects.clone()))

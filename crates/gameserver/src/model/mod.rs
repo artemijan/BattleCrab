@@ -1560,7 +1560,16 @@ impl Player {
                 None => {}
             }
         }
-        for buff in conditioned_passive_buffs(data, &skills, &inventory) {
+        // The HP-conditioned passives (Final Frenzy 290, Final Fortress 291)
+        // are evaluated against the *stored* HP, so a character who logs out
+        // below 30 % logs back in with the bonus already up — which is what
+        // Java's first `recalculateStats` after `restore` does.
+        for buff in conditioned_passive_buffs(
+            data,
+            &skills,
+            &inventory,
+            hp_percent_of(vitals.cur_hp, vitals.max_hp),
+        ) {
             p.apply_buff(
                 data,
                 &base_stats,
@@ -2548,10 +2557,32 @@ pub(crate) fn compose_base_stats(world: &crate::world::World, oid: i32) -> Optio
     })
 }
 
+/// Java `Creature.getCurrentHpPercent()` — `(int) ((currentHp * 100) / maxHp)`.
+///
+/// The integer truncation is Java's and is kept: at 30.9 % HP this answers 30,
+/// so a `<hpPercent>30</hpPercent>` effect is already up. A max of 0 answers 0
+/// rather than dividing by zero, which keeps a not-yet-initialised creature on
+/// the "hurt" side — the same side Java's `0/0 = NaN` comparison would fail to.
+pub(crate) fn hp_percent_of(cur_hp: f64, max_hp: i32) -> i32 {
+    if max_hp <= 0 {
+        return 0;
+    }
+    ((cur_hp * 100.0) / max_hp as f64) as i32
+}
+
+/// The passive buffs a player's skill book contributes **right now**, with each
+/// effect's own conditions evaluated against the state they name.
+///
+/// `hp_percent_now` is Java's `effected.getCurrentHpPercent()` —
+/// `(int) ((currentHp * 100) / maxHp)` — read by the
+/// `AbstractConditionalHpEffect` family. It is a parameter rather than a
+/// component read because this runs from `Player::from_char`, before the
+/// entity exists.
 pub(crate) fn conditioned_passive_buffs(
     data: &GameData,
     skills: &SkillBook,
     inventory: &Inventory,
+    hp_percent_now: i32,
 ) -> Vec<ActiveBuff> {
     use crate::model::skill::{OperateType, SkillEffect};
     let mut out = Vec::new();
@@ -2585,6 +2616,9 @@ pub(crate) fn conditioned_passive_buffs(
                     // axis from the weapon type: the same blunt bonus is off
                     // while a one-handed mace is equipped.
                     && (!m.two_handed || two_handed_weapon_equipped(inventory, &data.item_data))
+                    // `AbstractConditionalHpEffect.canPump`:
+                    // `(_hpPercent <= 0) || (effected.getCurrentHpPercent() <= _hpPercent)`.
+                    && (m.hp_percent <= 0 || hp_percent_now <= m.hp_percent)
             })
             .collect();
         if applicable.is_empty() {
