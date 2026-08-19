@@ -16,6 +16,10 @@ const SWORD_ID: i32 = 8202;
 fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTemplate {
     ItemTemplate {
         trade_flags: Default::default(),
+        pre_conditions: Vec::new(),
+        is_oly_restricted: false,
+        is_event_restricted: false,
+        for_npc: false,
         time: -1,
         duration: -1,
         immediate_effect: false,

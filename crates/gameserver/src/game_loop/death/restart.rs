@@ -476,6 +476,10 @@ fn on_teleported(world: &mut World, client_id: Option<u32>, object_id: i32) {
     // character too: the destination's zone membership is what later decides
     // whether the shop is still allowed to be there.
     crate::game_loop::zones::revalidate_zone(world, object_id, true);
+    // `checkItemRestriction()`, immediately after the revalidation Java pairs
+    // it with: this is how the zone- and instance-gated items come off when a
+    // teleport takes the wearer out of the place that allowed them.
+    crate::game_loop::items::check_item_restriction(world, object_id);
     if let (Some(pkt), Some(cid)) = (
         crate::game_loop::player_info::user_info_packet(world, object_id),
         client_id,

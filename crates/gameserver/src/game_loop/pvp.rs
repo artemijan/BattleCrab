@@ -714,6 +714,10 @@ pub(crate) fn on_kill_update_pvp_reputation(world: &mut World, killer_oid: i32, 
     // `broadcastUserInfo(UserInfoType.SOCIAL)` — the name/title colour and the
     // karma flag other clients draw come from here.
     super::player_info::broadcast_user_info(world, killer_oid);
+
+    // `onPlayerKill`'s last line: a fresh PK can push the killer past a
+    // `pkCount` or `chaotic` gate on something they are wearing.
+    crate::game_loop::items::check_item_restriction(world, killer_oid);
 }
 
 /// Java `Player.updatePvpTitleAndColor` — the five-rung ladder from

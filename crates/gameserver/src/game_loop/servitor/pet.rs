@@ -243,6 +243,14 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
         v.cur_hp = 0.0;
     }
     set_summon_link(world, owner_oid, None, Some(pet_oid), true);
+    // Java `PetInventory.restore`'s tail: "check for equipped items from other
+    // pets" — every worn item is re-judged against the *summoned* pet and
+    // unequipped if it fails, which is what stops a strider's saddle staying on
+    // a wolf. It runs here rather than at character load because the port keeps
+    // the pet inventory on the owner: there is no pet to judge against until
+    // this point. The link above must already exist for the conditions to see
+    // the pet as a summon at all.
+    unequip_items_this_pet_cannot_wear(world, owner_oid, pet_oid);
     // Java `Pet.spawnMe` → `startFeed()`: the food clock runs from summon.
     start_feed(world, pet_oid);
     send_pet_info(world, owner_oid, pet_oid, PetInfoKind::Summoned);
@@ -503,4 +511,44 @@ pub(crate) fn pet_inventory_has_room(world: &World, owner_oid: i32, item_id: i32
         return true;
     }
     pi.0.items().len() < world.cfg.npc.inventory_maximum_pet
+}
+
+/// `PetInventory.restore`'s validation pass: strip the equipped items whose
+/// `<cond>` the summoned pet does not satisfy.
+///
+/// Java's `unEquipItemInSlot` here is silent — no message, no packet — because
+/// the `PetItemList` that `summon_pet` sends next carries the corrected
+/// paperdoll anyway.
+fn unequip_items_this_pet_cannot_wear(world: &mut World, owner_oid: i32, pet_oid: i32) {
+    let worn: Vec<(i32, i32)> = world
+        .objects
+        .get_component::<crate::model::inventory::PetInventory>(&owner_oid)
+        .map(|pi| {
+            pi.0.equipped_items()
+                .iter()
+                .map(|i| (i.object_id, i.item_id))
+                .collect()
+        })
+        .unwrap_or_default();
+    let failing: Vec<i32> = worn
+        .into_iter()
+        .filter(|&(_, item_id)| {
+            world.data.item_data.get(item_id).is_some_and(|t| {
+                !crate::game_loop::items::check_condition(world, pet_oid, t, false)
+            })
+        })
+        .map(|(object_id, _)| object_id)
+        .collect();
+    if failing.is_empty() {
+        return;
+    }
+    if let Some(pi) = world
+        .objects
+        .get_component_mut::<crate::model::inventory::PetInventory>(&owner_oid)
+    {
+        for object_id in failing {
+            pi.0.unequip_item(object_id);
+        }
+    }
+    recalculate_pet_stats(world, pet_oid);
 }

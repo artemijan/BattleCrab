@@ -50,6 +50,7 @@ const SNAPSHOT_FORMAT: u32 = 1;
 const LAYOUT_SOURCES: &[&str] = &[
     "src/data",
     "src/enums.rs",
+    "src/model/castle.rs",
     "src/model/clan_hall.rs",
     "src/model/cursed_weapon.rs",
     "src/model/movement.rs",

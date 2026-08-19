@@ -73,6 +73,16 @@ pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
         send_action_failed(world, client_id);
         return;
     }
+    // `if (!item.isEquipped() && !item.getTemplate().checkCondition(player,
+    // player, true))` — the item's `<cond>` blocks, plus the Olympiad and
+    // event gates in the same function. Only an item being *put on* or used is
+    // checked: taking one off is always allowed, which is what lets a player
+    // out of gear they no longer meet the terms for.
+    if !item_is_equipped(world, object_id, pkt.object_id)
+        && !condition_allows(world, object_id, pkt.object_id, true)
+    {
+        return;
+    }
     if cursed_weapon_blocks_equip(world, object_id, pkt.object_id) {
         return; // Java returns with no packet at all.
     }
@@ -393,4 +403,35 @@ pub(crate) fn handle_request_save_inventory_order(world: &mut World, client_id: 
         })
         .collect();
     inventory.apply_inventory_order(&order);
+}
+
+/// `Item.isEquipped()` for an inventory item of `object_id`.
+fn item_is_equipped(world: &World, object_id: i32, item_object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .is_some_and(|inv| inv.paperdoll_slot_of(item_object_id).is_some())
+}
+
+/// `ItemTemplate.checkCondition` for an item held by `object_id`, looked up by
+/// object id. An item whose template is missing is not gated — the catalogue
+/// is the same one the inventory was built from, so this cannot happen for a
+/// real item, and refusing would be a worse failure than allowing.
+fn condition_allows(
+    world: &World,
+    object_id: i32,
+    item_object_id: i32,
+    send_message: bool,
+) -> bool {
+    let Some(item_id) = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .and_then(|inv| inv.by_object_id(item_object_id).map(|it| it.item_id))
+    else {
+        return true;
+    };
+    let Some(template) = world.data.item_data.get(item_id) else {
+        return true;
+    };
+    super::check_condition(world, object_id, template, send_message)
 }

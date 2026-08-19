@@ -1,11 +1,14 @@
 //! Gear equip/unequip handlers (`UseItem`, `RequestUnEquipItem`) and the
 //! `EtcItem` "use" dispatch (`ExtractableItems` for pack/box items).
 
+mod conditions;
 mod equip;
 mod etc_item;
 mod handlers;
 mod inventory;
 mod shots;
+
+pub(crate) use conditions::{check_condition, check_item_restriction, is_condition_attached};
 
 use equip::cursed_weapon_blocks_equip;
 

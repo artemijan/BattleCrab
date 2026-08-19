@@ -507,6 +507,13 @@ pub mod sm_ids {
     pub const RESURRECTION_HAS_ALREADY_BEEN_PROPOSED: i16 = 1512;
     /// "$s1 cannot be used due to unsuitable terms."
     pub const S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS: i16 = 113;
+    // Item conditions (`ItemTemplate.checkCondition`) — the two Olympiad
+    // refusals it picks between by whether the item is equippable.
+    pub const YOU_CANNOT_EQUIP_THAT_ITEM_IN_A_OLYMPIAD_MATCH: i16 = 1507;
+    pub const YOU_CANNOT_USE_THAT_ITEM_IN_A_OLYMPIAD_MATCH: i16 = 1508;
+    /// `Player.checkItemRestriction`'s cloak arm, which ends the sweep.
+    pub const YOUR_CLOAK_HAS_BEEN_UNEQUIPPED_BECAUSE_YOUR_ARMOR_SET_IS_NO_LONGER_COMPLETE: i16 =
+        2451;
     /// "Reject resurrection."
     pub const REJECT_RESURRECTION: i16 = 356;
     /// "If a base camp does not exist, resurrection is not possible."

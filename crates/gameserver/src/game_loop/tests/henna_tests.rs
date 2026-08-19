@@ -12,6 +12,10 @@ const DYE_ID: i32 = 1;
 fn etc_template(item_id: i32, name: &str) -> ItemTemplate {
     ItemTemplate {
         trade_flags: Default::default(),
+        pre_conditions: Vec::new(),
+        is_oly_restricted: false,
+        is_event_restricted: false,
+        for_npc: false,
         time: -1,
         duration: -1,
         immediate_effect: false,

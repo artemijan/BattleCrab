@@ -116,6 +116,7 @@ mod hwid_tests;
 mod instance_tests;
 mod instance_zone_config_tests;
 mod item_auction_tests;
+mod item_condition_tests;
 mod item_link_tests;
 mod items_tests;
 mod live_gap_tests;

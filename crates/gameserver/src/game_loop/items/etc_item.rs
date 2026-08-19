@@ -298,10 +298,12 @@ fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id
 /// the cast is interrupted, since `useMagic` returning true is what sets
 /// `successfulUse`.
 ///
-/// Narrowing: no `<cond>` gating (not parsed for items — see `item_data`'s
-/// header comment). Java's pet and Olympiad legs are not narrowings any more —
-/// both subsystems landed (G29, G25) — but this path has never routed to
-/// them; wiring them is the open half, not their absence.
+/// `<cond>` gating is **not** a narrowing any more: `UseItem` runs
+/// `ItemTemplate.checkCondition` (`items::conditions`) before it reaches this
+/// dispatch, which is exactly where Java's `UseItem` runs it — so an etc item
+/// whose conditions fail never gets here. Java's pet and Olympiad legs are not
+/// narrowings either — both subsystems landed (G29, G25) — but this path has
+/// never routed to them; wiring them is the open half, not their absence.
 /// A timed item skill that loses the race against a running cast is queued as
 /// `QueuedAction::UseItem` and replayed when the cast ends — the port's
 /// equivalent of Java's `_queuedSkill` (an immediate-effect item, a potion,

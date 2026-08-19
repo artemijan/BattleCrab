@@ -369,6 +369,8 @@ pub(crate) fn set_clan_level(world: &mut World, clan_id: i32, level: i32) {
         if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
             p.pledge_class = pledge_class;
         }
+        // `setPledgeClass` → `checkItemRestriction()`.
+        crate::game_loop::items::check_item_restriction(world, oid);
         super::player_info::broadcast_user_info(world, oid);
     }
     // Java `Clan.changeLevel`: on reaching the siege min level the online leader

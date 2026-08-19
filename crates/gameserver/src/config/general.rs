@@ -444,17 +444,16 @@ pub struct GeneralConfig {
     /// let every GM skip every skill condition unconditionally, behind a
     /// comment asserting this key was off.
     pub gm_skill_restriction: bool,
-    /// `GMItemRestriction` (dist **True**, Java default `false`) — the same
-    /// shape for `ItemTemplate.checkCondition` and
-    /// `PlayerCondOverride.ITEM_CONDITIONS`.
+    /// `GMItemRestriction` (dist **True**, Java default `false`) — whether a
+    /// GM holding `PlayerCondOverride.ITEM_CONDITIONS` is put back under the
+    /// item conditions the override exists to bypass.
     ///
-    /// **No consumer here, and it is not a wiring oversight**: the port does
-    /// not evaluate item conditions at all — `<cond>` is unparsed
-    /// (`data::item_data`'s module header records it), and the Olympiad and
-    /// event item restrictions are likewise absent. There is nothing for the
-    /// override to bypass and therefore nothing for this key to re-restrict.
-    /// Carried as a field anyway so the gate lands with the conditions
-    /// whenever they are ported, rather than being rediscovered then.
+    /// Read by [`crate::game_loop::items::check_condition`], the first branch
+    /// of `ItemTemplate.checkCondition`. This key is what *found* that
+    /// function: it was carried here with no consumer, because the port did
+    /// not evaluate item conditions at all, and the note explaining why became
+    /// the measured gap the conditions were ported to close. At the shipped
+    /// **True** the override is inert — a GM obeys `<cond>` like anyone else.
     pub gm_item_restriction: bool,
     /// `GMTradeRestrictedItems` (dist **False**, Java default `false`) —
     /// whether an override-holder may drop, trade and store items the datapack

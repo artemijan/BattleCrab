@@ -359,15 +359,46 @@ pub(crate) fn handle_pet_use_item(world: &mut World, client_id: u32, body: &[u8]
         return;
     };
 
+    // `if (!item.getTemplate().isForNpc())` — Java's first gate on this
+    // packet, and the reason the pet window cannot be used to feed a pet
+    // anything at all: 508 items on this dist declare `for_npc`, and nothing
+    // else may be handed over.
+    if !world.data.item_data.get(item_id).is_some_and(|t| t.for_npc) {
+        notify_owner(world, owner, sm_ids::THIS_PET_CANNOT_USE_THIS_ITEM, &[]);
+        return;
+    }
+
+    // `if (!item.isEquipped() && !item.getTemplate().checkCondition(pet, pet,
+    // true))` — evaluated against the **pet**, which is what makes
+    // `categoryType="STRIDER"` on a saddle mean the wearer and not the owner.
+    // A failing block answers with `THIS_PET_CANNOT_USE_THIS_ITEM` rather than
+    // its own message (`checkCondition`'s `isSummon` arm).
+    let worn = world
+        .objects
+        .get_component::<crate::model::inventory::PetInventory>(&owner)
+        .is_some_and(|pi| pi.0.paperdoll_slot_of(object_id).is_some());
+    let template = world.data.item_data.get(item_id).cloned();
+    if let Some(template) = template.as_ref()
+        && !worn
+        && !crate::game_loop::items::check_condition(world, pet_oid, template, true)
+    {
+        return;
+    }
+
     // Java `RequestPetUseItem`: an **equippable** item is worn rather than
     // consumed (`useEquippableItem`), which is how a battle pet gets its
     // armour. 96 pet-armour items ship on this dist.
-    if world
-        .data
-        .item_data
-        .get(item_id)
-        .is_some_and(|t| t.is_equipable())
-    {
+    if template.as_ref().is_some_and(|t| t.is_equipable()) {
+        // `useItem`'s own gate: pet gear is *defined* by carrying conditions,
+        // so an equippable item with none is refused outright — the port had
+        // been equipping any equippable item the pet window offered.
+        if !template
+            .as_ref()
+            .is_some_and(crate::game_loop::items::is_condition_attached)
+        {
+            notify_owner(world, owner, sm_ids::THIS_PET_CANNOT_USE_THIS_ITEM, &[]);
+            return;
+        }
         equip_pet_item(world, owner, pet_oid, object_id);
         return;
     }

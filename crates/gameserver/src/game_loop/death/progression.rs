@@ -529,6 +529,12 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
         &known,
         is_gm,
     );
+    // Java's `rewardSkills` ends with `checkItemRestriction()` — **before**
+    // any early exit, since a level or class change can invalidate worn gear
+    // whether or not it also granted a skill. It is placed here rather than at
+    // the tail for exactly that reason: the port returns early when nothing
+    // was granted, which is the common case on a class change.
+    crate::game_loop::items::check_item_restriction(world, player_oid);
     if granted.is_empty() {
         return;
     }

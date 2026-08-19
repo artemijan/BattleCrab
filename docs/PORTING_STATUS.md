@@ -207,7 +207,6 @@ same work. Closed rows move to [§ Closed](#closed).
 | 14 | Config | **66** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **Olympiad.ini, Rates.ini, Siege.ini and FloodProtector.ini are fully wired**; what remains is Feature 38, Character 9 (all classified — see below), Server 7, General 8, and 2 each in NPC.ini and PVP.ini. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **Two earlier recorded figures were low**: re-deriving Character gave 82, not 76, and the previous total of 75 omitted NPC.ini's two keys — the row called NPC.ini wired, and its `DmgPenaltyForLvLDifferences` / `CritDmgPenaltyForLvLDifferences` are unread here (deliberately: Java parses them and then reads them nowhere) | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 19 | Player level cap | The port lets characters reach **84**; Java stops them at **79** | Java's `ExperienceData` does `MAX_LEVEL = maxLevel + 1` then clamps to `MaximumPlayerLevel` (80), and caps exp at `getExpForLevel(MAX_LEVEL) - 1`. The port reads `maxLevel="85"` raw, does neither, and nothing anywhere reads `MaximumPlayerLevel` | Five levels of content past the chronicle's cap. Found while porting row 4, whose karma table Java truncates at exactly that boundary |
-| 20 | Item conditions | **`<cond>` is not parsed or evaluated at all** — 2126 blocks across `stats/items/*.xml`, gating on races (822), fly-mounted state (450), `categoryType` (261), level (218) and sex (149). The Olympiad hero/restricted-item gate and the event-restricted gate in the same Java function are absent with it | `ItemTemplate.checkCondition` against the port, which has no counterpart; `data::item_data`'s module header has recorded "`<cond>` is still not parsed" since it was written | An item's equip/use conditions are unenforced. Surfaced 2026-08-18 by `GMItemRestriction`, whose only job is to decide whether a GM bypasses this function — a key with nothing to gate. **No other measure reaches this axis**: not the marker inventory, not the skill census, not row 14 |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
 
 ### Closed
@@ -230,6 +229,7 @@ same work. Closed rows move to [§ Closed](#closed).
 | 17 | Buylists | 2026-08-15 | Limited stock in full (`count`/`restock_delay` → `ProductStock` on the world, the buy gate, `decreaseCount`, `BuyListTaskManager`'s restock beat, the sold-out packet filter, and the `buylists` table that had been sitting unused since the baseline migration) — **plus two pricing bugs the row's own premise had missed.** See below |
 | 7 | `player_help` bypass | 2026-08-15 | `bypasshandlers/PlayerHelp` — the help book's own page links, with Java's `..` traversal guard and the `#<itemId>` suffix that marks the dialog item-bound so a button inside it does not close the book |
 | 8 | `TerritoryStatus` bypass | 2026-08-15 | `bypasshandlers/TerritoryStatus`. The lookup is `findNearestCastle`, **not** the siege zone the NPC stands in — which is what lets a fisherman in the middle of a town answer at all |
+| 20 | Item conditions | 2026-08-19 | `ItemTemplate.checkCondition` and the `<cond>` parser under it — the whole tree, all 24 condition kinds, both message forms, and the four call sites Java gates with it. See below |
 
 **Row 16 mostly corrected itself.** The audit's original figure was 79 missing
 of 458 with "~10 against ported systems, so the G13 row's 'all off-chronicle'
@@ -983,6 +983,69 @@ arguments and answers with the same usage message Java sends after logging, so
 there is no exception to gate. Recorded in `config::general`'s header rather
 than given a field, following `config::character`'s convention.
 
+**Row 20 closed, and the two conditions that look unported are Java's own
+constants.** `<cond>` now parses (`data::item_cond`) and evaluates
+(`game_loop::items::conditions`). The parse is checked against the datapack
+rather than against itself: `the_dist_parses_to_the_blocks_the_datapack_declares`
+asserts **2126** blocks and a per-attribute tally — races 822, flyMounted 450,
+categoryType 261, level 218, sex 149, levelRange 100, pledgeClass 73,
+cloakStatus 49, instanceId 42, castle 29, isHero 29, SiegeZone 22,
+class_id_restriction 20, insideZoneId 18, subclass 17, pkCount 16, clanHall 8,
+chaotic 6, MinimumVitalityPoints 4, isOnSide 4, isClanLeader 2, vehicleMounted
+2, fort 1, and the one `<target levelRange>` — each figure derived from the XML
+independently of the parser, so a dropped arm shows up as a drop in one row.
+
+Four things the Java side had to be read for rather than assumed:
+
+* **`<cond>` in `stats/skills` is dead data.** 13 skill files carry blocks in
+  the same syntax. `DocumentBase` — the only thing that parses `<cond>` — has
+  exactly one subclass in the whole Java tree, `DocumentItem`; `SkillData`
+  reads the newer `<condition name="…">` form instead. Those blocks are inert
+  on both sides, which is why row 20 is an *item* row and closing it does not
+  touch the skill census.
+* **The effector is not always the player, and the conditions split three ways
+  on that.** `ConditionPlayerRace` tests `isPlayer()` and so refuses a pet
+  outright; most read `getActingPlayer()`, which for a summon is its **owner**;
+  and `ConditionCategoryType` reads `getId()` — a player's *class* id but a
+  summon's *npc* id. That last one is the entire mechanism behind
+  `categoryType="STRIDER"` on a saddle, and it is why `RequestPetUseItem`
+  evaluates against the pet.
+* **`cloakStatus` and `fort` are constants here, not narrowings.**
+  `Inventory.canEquipCloak()` forwards to `PlayerStat._cloakSlot`, whose only
+  setter has **no caller anywhere in the Java tree** — so the 49 items gated on
+  it are unwearable in Java too. `fort="-1"` asks the clan for `getFortId()`,
+  and there are no fortresses on this chronicle. Both are ported as the
+  expressions Java evaluates rather than left to fail open, so they answer the
+  same way for the same reason.
+* **`pkCount` is a maximum.** `getPkKills() <= value` — read as a minimum, the
+  16 items using `pkCount="0"` would be gated exactly backwards.
+
+Two gates rode along with the function because they are inside it: the Olympiad
+refusal for hero and `is_oly_restricted` items (with the equip/use wording
+split, and `_heroItem` computed from the id range 6611-6621 / 9388-9390 / 6842
+rather than read from a flag) and the event-restricted refusal.
+
+**The other half is `checkItemRestriction`**, which re-judges worn gear and
+strips what stopped qualifying. Java calls it from nine places; the seven that
+are in-chronicle are wired — `rewardSkills`, `onPlayerKill`, `setPledgeClass`
+(the port's scattered assignments, at the clan join/leave/level/leader sites),
+`onTeleported`, the clan-leader handover, and siege end. The Olympiad's
+`portPlayerToArena` call needs no wiring of its own: the port enters the arena
+through `teleport_player`, so `on_teleported` fires it at the same moment, with
+the match already registered. `PetInventory.restore`'s validation pass runs at
+**summon** instead of at load, because the port keeps the pet inventory on the
+owner — there is no pet to judge the gear against until then.
+
+Porting it also closed three holes on the pet path, all of them the same
+handler's other gates: `RequestPetUseItem` never ran `checkCondition`; its
+`useItem` refuses an equippable item carrying **no** conditions at all (pet gear
+is *defined* by being gated), where the port had been wearing anything
+equippable the pet window offered; and `isForNpc()` — `for_npc`, declared by 508
+items and Java's first check on the packet — was not modelled, so the window
+accepted any item. And `force_new_leader` never re-derived either player's
+pledge class, which Java's `setNewLeader` does on the line above the
+`checkItemRestriction` this row added.
+
 **Row 12 closed, and porting it found a live inventory divergence.** The
 recorded figure was 36; the arithmetic gives **35** (53 ids absent, minus
 Q00255 which is ported as `tutorial.rs`, minus the 17 `not_done` stubs).
@@ -1283,6 +1346,13 @@ comm -23 /tmp/ini.txt /tmp/read.txt | wc -l   # 862 of 1342 shipped keys
 # …and the count is only the start. A key is a gap only if Java *reads* the
 # field it fills; check each survivor's `Config.FIELD` against the tree:
 grep -rn 'Config\.CLAN_LEVEL_6_COST' ../interlude_classic/java | grep -v Config.java  # none
+
+# row 20 — `<cond>` blocks in the item datapack, and the attributes they use
+grep -c '<cond' dist/game/data/stats/items/*.xml | awk -F: '{n+=$2} END {print n}'   # 2126
+grep -h -A4 '<cond' dist/game/data/stats/items/*.xml \
+  | grep -oE '<(player|target)[^>]*' | grep -oE '[a-zA-Z_]+=' | sort | uniq -c | sort -rn
+# …and the same figures out of the *parser*, which is what
+# `the_dist_parses_to_the_blocks_the_datapack_declares` asserts.
 
 # row 16 — admin commands
 grep -oE 'command="[a-zA-Z_0-9]+"' dist/game/config/AdminCommands.xml \

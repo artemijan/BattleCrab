@@ -4,15 +4,19 @@
 //! branch) the `handler`/`<capsuled_items>` pair `ExtractableItems` reads, plus
 //! the combat-stat bonuses under `<stats>` (Java `ItemTemplate._funcTemplates`)
 //! the stats engine folds in when the item is equipped ([`ItemStats`], applied
-//! by `Player::recalculate_stats`). `<cond>` is still not parsed.
+//! by `Player::recalculate_stats`), plus the `<cond>` blocks
+//! ([`crate::data::item_cond`]) that gate whether the item may be equipped or
+//! used at all — Java `ItemTemplate._preConditions`, evaluated by
+//! [`crate::game_loop::items::conditions`].
 
 use std::collections::HashMap;
 
 use quick_xml::events::Event;
 use tracing::info;
 
+use crate::data::item_cond::{self, CondBuilder, ItemCondition};
 use crate::data::xml;
-use crate::data::xml::{attr_f64, attr_i32, attr_i64, attr_str};
+use crate::data::xml::{attr_f64, attr_i32, attr_i64, attr_pairs, attr_str};
 use crate::model::stats::Stat;
 
 pub const ITEMS_DIR: &str = "data/stats/items";
@@ -874,6 +878,21 @@ pub struct ItemTemplate {
     /// `<set name="default_action">` — only the values `checkConsume`
     /// distinguishes are kept (see [`ActionType`]).
     pub default_action: ActionType,
+    /// `<cond>` blocks, in document order (Java `ItemTemplate._preConditions`).
+    /// ANDed at evaluation, each with its own refusal message — see
+    /// [`crate::data::item_cond`].
+    pub pre_conditions: Vec<ItemCondition>,
+    /// `<set name="is_oly_restricted">` (Java `_isOlyRestricted`) — barred from
+    /// an Olympiad match. Java ORs this with `Config.LIST_OLY_RESTRICTED_ITEMS`
+    /// at the call site, which is empty on this dist.
+    pub is_oly_restricted: bool,
+    /// `<set name="is_event_restricted">` (Java `_isEventRestricted`) — barred
+    /// while the holder is on an event.
+    pub is_event_restricted: bool,
+    /// `<set name="for_npc">` (Java `_forNpc`, 508 items here) — the item may
+    /// be handed to a pet at all. `RequestPetUseItem` refuses anything else
+    /// before it reaches the conditions.
+    pub for_npc: bool,
 }
 
 #[cfg(test)]
@@ -1213,6 +1232,8 @@ fn parse_file(
     let mut in_stats = false;
     let mut cur_stat_type: Option<String> = None;
     let mut cur_stats = ItemStats::default();
+    let mut cur_conditions: Vec<ItemCondition> = Vec::new();
+    let mut conds = CondBuilder::default();
 
     for event in xml::events(&content) {
         match event {
@@ -1227,6 +1248,7 @@ fn parse_file(
                 attrs.clear();
                 cur_capsules.clear();
                 cur_item_skills.clear();
+                cur_conditions.clear();
                 cur_stats = ItemStats::default();
             }
             Event::Start(e) if e.name().as_ref() == b"stats" => {
@@ -1299,6 +1321,41 @@ fn parse_file(
                     cur_item_skills.push((id, level));
                 }
             }
+            // `<cond msgId="113" addName="1"><and><player …/></and></cond>` —
+            // Java `DocumentItem`'s `cond` arm. The block's message lives on
+            // the `<cond>` element; the tree is assembled by [`CondBuilder`].
+            Event::Start(e) if e.name().as_ref() == b"cond" => {
+                conds.begin(item_cond::message_from(
+                    attr_str(&e, b"msg"),
+                    attr_str(&e, b"msgId").as_deref(),
+                    attr_str(&e, b"addName").as_deref(),
+                ));
+            }
+            Event::End(e) if e.name().as_ref() == b"cond" => {
+                if let Some(condition) = conds.finish() {
+                    cur_conditions.push(condition);
+                }
+            }
+            Event::Start(e) if conds.is_open() => {
+                match e.name().as_ref() {
+                    // A `<player>`/`<target>` written with an explicit end tag
+                    // rather than self-closed. None on this dist, but the two
+                    // spellings are the same element.
+                    b"player" => conds.push_leaf(item_cond::player_condition(&attr_pairs(&e))),
+                    b"target" => conds.push_leaf(item_cond::target_condition(&attr_pairs(&e))),
+                    name => conds.open_group(name),
+                }
+            }
+            Event::Empty(e) if conds.is_open() => match e.name().as_ref() {
+                b"player" => conds.push_leaf(item_cond::player_condition(&attr_pairs(&e))),
+                b"target" => conds.push_leaf(item_cond::target_condition(&attr_pairs(&e))),
+                _ => {}
+            },
+            Event::End(e) if conds.is_open() => {
+                if !matches!(e.name().as_ref(), b"player" | b"target") {
+                    conds.close_group(e.name().as_ref());
+                }
+            }
             Event::End(e) if e.name().as_ref() == b"item" => {
                 if let Some(item_id) = cur_id.take() {
                     out.insert(
@@ -1310,6 +1367,7 @@ fn parse_file(
                             &attrs,
                             std::mem::take(&mut cur_capsules),
                             std::mem::take(&mut cur_item_skills),
+                            std::mem::take(&mut cur_conditions),
                         ),
                     );
                     let stats = std::mem::take(&mut cur_stats);
@@ -1359,6 +1417,7 @@ fn make_template(
     attrs: &HashMap<String, String>,
     capsuled_items: Vec<CapsuledItem>,
     item_skills: Vec<(i32, i32)>,
+    pre_conditions: Vec<ItemCondition>,
 ) -> ItemTemplate {
     let weight = attrs
         .get("weight")
@@ -1525,6 +1584,16 @@ fn make_template(
             .map(|v| v == "true")
             .unwrap_or(false),
         default_action: ActionType::from_name(attrs.get("default_action").map(|s| s.as_str())),
+        pre_conditions,
+        is_oly_restricted: attrs
+            .get("is_oly_restricted")
+            .map(|v| v == "true")
+            .unwrap_or(false),
+        is_event_restricted: attrs
+            .get("is_event_restricted")
+            .map(|v| v == "true")
+            .unwrap_or(false),
+        for_npc: attrs.get("for_npc").map(|v| v == "true").unwrap_or(false),
     }
 }
 

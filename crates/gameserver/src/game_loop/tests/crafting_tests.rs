@@ -19,6 +19,10 @@ const RARE_PRODUCT: i32 = 4;
 fn etc_template(item_id: i32, name: &str, stackable: bool, handler: ItemHandler) -> ItemTemplate {
     ItemTemplate {
         trade_flags: Default::default(),
+        pre_conditions: Vec::new(),
+        is_oly_restricted: false,
+        is_event_restricted: false,
+        for_npc: false,
         time: -1,
         duration: -1,
         immediate_effect: false,

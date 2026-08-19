@@ -16,6 +16,10 @@ const INFINITE_ARROW_ID: i32 = 8103;
 fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i32) -> ItemTemplate {
     ItemTemplate {
         trade_flags: Default::default(),
+        pre_conditions: Vec::new(),
+        is_oly_restricted: false,
+        is_event_restricted: false,
+        for_npc: false,
         time: -1,
         duration: -1,
         immediate_effect: false,

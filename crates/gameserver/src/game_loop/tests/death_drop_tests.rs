@@ -81,6 +81,10 @@ fn register_loot(world: &mut World, stacks: i32) {
 fn items_tests_template() -> crate::data::item_data::ItemTemplate {
     crate::data::item_data::ItemTemplate {
         trade_flags: Default::default(),
+        pre_conditions: Vec::new(),
+        is_oly_restricted: false,
+        is_event_restricted: false,
+        for_npc: false,
         time: -1,
         duration: -1,
         immediate_effect: false,

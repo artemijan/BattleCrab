@@ -30,6 +30,7 @@ pub mod initial_equipment;
 pub mod initial_shortcut;
 pub mod instance_data;
 pub mod item_auction_data;
+pub mod item_cond;
 pub mod item_data;
 pub mod karma_data;
 pub mod manor_data;

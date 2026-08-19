@@ -1242,6 +1242,9 @@ fn register_food(world: &mut World, restores: i32) {
     let mut item = crate::data::item_data::ItemTemplate::default();
     item.item_id = WOLF_FOOD;
     item.name = "Wolf Food".into();
+    // 2515 ships `for_npc="true"`, which is Java's first gate on the pet
+    // window — without it `RequestPetUseItem` refuses the item outright.
+    item.for_npc = true;
     item.is_stackable = true;
     item.item_skills = vec![(WOLF_FOOD_SKILL, 1)];
     world.data.item_data.insert_for_test(item);
@@ -3474,6 +3477,8 @@ fn register_pet_armor(world: &mut World) {
     t.name = "Wolf's Hide Armor".into();
     t.kind = crate::data::item_data::ItemKind::Armor;
     t.body_part = crate::data::item_data::SLOT_CHEST;
+    // As the real 3891 declares it: the pet window refuses anything else.
+    t.for_npc = true;
     world.data.item_data.insert_for_test(t);
     world
         .data
@@ -5833,4 +5838,166 @@ fn a_starving_pet_will_not_fetch() {
         ),
         "and the owner is told why"
     );
+}
+
+// ---------------------------------------------------------------------------
+// Item conditions on the pet window (`ItemTemplate.checkCondition` with the
+// **pet** as the effector).
+// ---------------------------------------------------------------------------
+
+/// A pet armour gated on a category, the way every real one is.
+fn register_gated_pet_armor(world: &mut World, category: &str) {
+    use crate::data::item_cond::{Cond, CondMessage, ItemCondition};
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = WOLF_ARMOR;
+    t.name = "Gated Hide Armor".into();
+    t.kind = crate::data::item_data::ItemKind::Armor;
+    t.body_part = crate::data::item_data::SLOT_CHEST;
+    t.for_npc = true;
+    t.pre_conditions = vec![ItemCondition {
+        node: Cond::CategoryType(vec![category.to_string()]),
+        message: CondMessage::Sm {
+            id: 1518,
+            add_name: false,
+        },
+    }];
+    world.data.item_data.insert_for_test(t);
+}
+
+fn pet_use_item(world: &mut World, item_object_id: i32) {
+    crate::game_loop::servitor::handle_pet_use_item(world, CID, &item_object_id.to_le_bytes());
+}
+
+fn pet_wears(world: &World, item_object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<PetInventory>(&OWNER)
+        .unwrap()
+        .0
+        .paperdoll_slot_of(item_object_id)
+        .is_some()
+}
+
+/// `ConditionCategoryType` reads `Creature.getId()`, which for a summon is its
+/// **npc** id — not the owner's class id. That is the whole mechanism behind
+/// `categoryType="STRIDER"` on a saddle: the wearer is the pet.
+#[test]
+fn pet_gear_is_gated_on_the_pets_own_species() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_gated_pet_armor(&mut world, "STRIDER_GROUP");
+    let pet_oid = summoned_pet(&mut world);
+    let armor = give_pet_armor(&mut world);
+    drain(&mut rx);
+
+    // The Wolf is not a strider.
+    pet_use_item(&mut world, armor);
+    assert!(!pet_wears(&world, armor), "wrong species, refused");
+    assert!(
+        has_system_message(
+            &drain(&mut rx),
+            crate::network::server_packets::sm_ids::THIS_PET_CANNOT_USE_THIS_ITEM
+        ),
+        "a summon gets its own line, not the block's message"
+    );
+
+    // Put the Wolf's npc id in the group and the same saddle goes on.
+    world
+        .data
+        .categories
+        .insert_for_test("STRIDER_GROUP", &[WOLF_NPC]);
+    pet_use_item(&mut world, armor);
+    assert!(pet_wears(&world, armor));
+    let _ = pet_oid;
+}
+
+/// `RequestPetUseItem.useItem` refuses an equippable item that carries **no**
+/// conditions at all: pet gear is defined by being gated. Without this leg the
+/// pet window would happily wear a player's helmet.
+#[test]
+fn an_ungated_equippable_item_is_not_pet_gear() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_pet_armor(&mut world); // no `<cond>` on this one
+    summoned_pet(&mut world);
+    let armor = give_pet_armor(&mut world);
+    drain(&mut rx);
+
+    pet_use_item(&mut world, armor);
+    assert!(!pet_wears(&world, armor));
+    assert!(has_system_message(
+        &drain(&mut rx),
+        crate::network::server_packets::sm_ids::THIS_PET_CANNOT_USE_THIS_ITEM
+    ));
+}
+
+/// `PetInventory.restore`'s "check for equipped items from other pets": the
+/// owner keeps one item store, so gear worn by the last pet is re-judged
+/// against the one being summoned now.
+#[test]
+fn a_summoned_pet_sheds_gear_that_belonged_to_another_species() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_gated_pet_armor(&mut world, "STRIDER_GROUP");
+    world
+        .data
+        .categories
+        .insert_for_test("STRIDER_GROUP", &[WOLF_NPC]);
+    let pet_oid = summoned_pet(&mut world);
+    let armor = give_pet_armor(&mut world);
+    crate::game_loop::servitor::equip_pet_item(&mut world, OWNER, pet_oid, armor);
+    assert!(pet_wears(&world, armor), "worn while the species matched");
+
+    // The wolf stops being a strider — as it would be by putting the saddle on
+    // a wolf after a strider took it off — and is summoned again.
+    unsummon_servitor(&mut world, OWNER);
+    world.data.categories.insert_for_test("STRIDER_GROUP", &[]);
+    let collar = crate::game_loop::servitor::active_pet_collar(&world, OWNER)
+        .or_else(|| {
+            world
+                .objects
+                .get_component::<Inventory>(&OWNER)
+                .unwrap()
+                .items()
+                .first()
+                .map(|i| i.object_id)
+        })
+        .expect("collar");
+    park_collar(&mut world, collar);
+    summon_pet(&mut world, OWNER).expect("re-summoned");
+
+    assert!(
+        !pet_wears(&world, armor),
+        "the saddle came off at summon time"
+    );
+}
+
+/// `for_npc` is Java's **first** gate on the pet window — 508 items declare it,
+/// and anything else is refused before the conditions are even looked at.
+#[test]
+fn only_a_for_npc_item_reaches_the_pet_at_all() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    register_gated_pet_armor(&mut world, "STRIDER_GROUP");
+    world
+        .data
+        .categories
+        .insert_for_test("STRIDER_GROUP", &[WOLF_NPC]);
+    // …but the item is not declared as pet gear.
+    let mut t = world.data.item_data.get(WOLF_ARMOR).unwrap().clone();
+    t.for_npc = false;
+    world.data.item_data.insert_for_test(t);
+    summoned_pet(&mut world);
+    let armor = give_pet_armor(&mut world);
+    drain(&mut rx);
+
+    pet_use_item(&mut world, armor);
+    assert!(
+        !pet_wears(&world, armor),
+        "the species matches, but the item is not for an npc"
+    );
+    assert!(has_system_message(
+        &drain(&mut rx),
+        crate::network::server_packets::sm_ids::THIS_PET_CANNOT_USE_THIS_ITEM
+    ));
 }

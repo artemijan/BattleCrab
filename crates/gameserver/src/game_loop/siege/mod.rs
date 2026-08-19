@@ -314,6 +314,12 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
     // from everyone on the now-inactive field). Runs **before** the ownership
     // bookkeeping below, while the roster still names the clans that fought.
     update_player_siege_state_flags(world, castle_id, true);
+    // `endSiege` then walks both rosters calling `checkItemRestriction()` on
+    // every online member: the siege that let a `<cond SiegeZone>` item be
+    // worn has just stopped being one.
+    for member in registered_online_members(world, castle_id) {
+        crate::game_loop::items::check_item_restriction(world, member);
+    }
     super::zones::refresh_siege_zone_for_all(world);
     // `_castle.setFirstMidVictory(false)`.
     if let Some(c) = world.castle_mut(castle_id) {
@@ -386,4 +392,17 @@ pub(crate) fn owner_clan_id_opt(world: &World, castle_id: i32) -> Option<i32> {
 fn broadcast_sm(world: &World, message_id: i16, castle_id: i32) {
     let pkt = server_packets::system_message_with(message_id, &[SmParam::CastleName(castle_id)]);
     world.broadcast_to_all_online(&pkt);
+}
+
+/// Every online member of every clan registered on `castle_id`'s siege — the
+/// attacker and defender loops `Siege.endSiege` runs back to back.
+fn registered_online_members(world: &World, castle_id: i32) -> Vec<i32> {
+    let Some(siege) = world.sieges.get(&castle_id) else {
+        return Vec::new();
+    };
+    let clan_ids: Vec<i32> = siege.clans.iter().map(|c| c.clan_id).collect();
+    clan_ids
+        .into_iter()
+        .flat_map(|clan_id| super::clans::online_members(world, clan_id))
+        .collect()
 }

@@ -13,7 +13,12 @@
 //! persistence live in [`crate::game_loop::castle`].
 
 /// Java `enums/CastleSide`.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+///
+/// `Serialize`/`Deserialize` because an item `<cond isOnSide="LIGHT">` parses
+/// into one ([`crate::data::item_cond::Cond::IsOnSide`]) and the item
+/// catalogue is bincode-snapshotted — which is also why `model/castle.rs` is
+/// on `snapshot::LAYOUT_SOURCES`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum CastleSide {
     #[default]
     Neutral,

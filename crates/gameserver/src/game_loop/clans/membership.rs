@@ -325,6 +325,10 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
         p.pledge_class = pledge_class;
         p.clan_join_expiry_time = 0; // Java `setClanJoinExpiryTime(0)`
     }
+    // Java's `Player.setPledgeClass` ends with `checkItemRestriction()`: the
+    // clan-rank gear (`<cond pledgeClass=…>`, and the hall/castle conditions
+    // that need a clan at all) has to be re-judged whenever the rank moves.
+    crate::game_loop::items::check_item_restriction(world, player_oid);
     let _ = world.db.send(DbCommand::UpdateCharClan {
         char_id: player_oid,
         clan_id,
@@ -508,6 +512,9 @@ pub(crate) fn remove_clan_member(
                 p.clan_create_expiry_time = leader_expiry;
             }
         }
+        // `setPledgeClass` → `checkItemRestriction()`: leaving the clan drops
+        // the rank to 0 and takes the clan-gated gear off with it.
+        crate::game_loop::items::check_item_restriction(world, member_oid);
         send_to_member(
             world,
             member_oid,

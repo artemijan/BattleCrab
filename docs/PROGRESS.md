@@ -7861,3 +7861,80 @@ visible.
 
 Three unit tests on the conversion itself — rounding up, negatives clamping to
 "due now", and every integer width going in without a cast.
+
+---
+
+## Row 20: item `<cond>` — parsed, evaluated, and the four places Java checks it
+
+`ItemTemplate.checkCondition` had no counterpart here. 2126 `<cond>` blocks
+across `stats/items` were read past at load and the whole function — the
+Olympiad and event gates included — was absent, so every item's equip/use
+terms were unenforced. It landed as a parser (`data::item_cond`) and an
+evaluator (`game_loop::items::conditions`), wired into `UseItem`,
+`RequestPetUseItem`, `Player.checkItemRestriction` and `PetInventory.restore`.
+
+### The parse is checked against the datapack, not against itself
+
+A set-difference over XML tells you a name is absent, not that a behaviour is —
+so the census test asserts **2126** blocks and a per-attribute tally (races 822,
+flyMounted 450, categoryType 261, level 218, sex 149, …, fort 1, and the one
+`<target levelRange>`), every figure derived from the XML by hand before the
+parser existed. A silently-dropped arm shows up as a drop in one row rather
+than as nothing at all. Three items are then read end to end, because a
+leaf-counting census cannot tell an `<and>` of two `<player>` elements from two
+separate blocks.
+
+### Four things the Java side had to be read for
+
+* **`<cond>` under `stats/skills` is dead data.** 13 skill files carry blocks
+  in the same syntax, and `DocumentBase` — the only parser of `<cond>` — has
+  exactly one subclass in the tree, `DocumentItem`. `SkillData` reads the newer
+  `<condition name>` form. Those blocks are inert on both sides, which is what
+  keeps this an item-only row.
+* **The effector is not always the player.** `ConditionPlayerRace` tests
+  `isPlayer()` and refuses a pet outright; most conditions read
+  `getActingPlayer()`, which for a summon is its **owner**; and
+  `ConditionCategoryType` reads `getId()` — a player's *class* id, a summon's
+  *npc* id. That last is the whole mechanism behind `categoryType="STRIDER"` on
+  a saddle.
+* **`cloakStatus` and `fort` are constants, not narrowings.**
+  `Inventory.canEquipCloak()` forwards to `PlayerStat._cloakSlot`, whose only
+  setter has no caller anywhere in the Java tree; `fort` asks a clan for a
+  fortress this chronicle does not have. Both are ported as the expressions
+  Java evaluates, so they answer false for the reason Java answers false.
+* **`pkCount` is a maximum** (`getPkKills() <= value`). Read as a minimum, the
+  16 items using `pkCount="0"` would be gated backwards.
+
+Java's null is reproduced too: `parsePlayerCondition` has no default arm, so an
+unknown attribute contributes nothing while its siblings still build, and an
+element with nothing recognised becomes a null pre-condition that
+`checkCondition` skips.
+
+### `GMItemRestriction` finally has the thing it gates
+
+The key was carried with a field and a note saying it had no consumer, because
+there were no item conditions for the override to bypass. That note was what
+surfaced this row. At the shipped **True** the override stays inert — a GM
+obeys `<cond>` like anyone else — which the test pins in both directions.
+
+### The sweep, and the two pet holes it exposed
+
+`checkItemRestriction` re-judges worn gear whenever an input moves: a level or
+class change, a PK, a pledge-class change, a teleport, the clan-leader
+handover, siege end. The Olympiad's own call needs no wiring — the port enters
+the arena through `teleport_player`, so `on_teleported` fires it at the same
+moment. `PetInventory.restore`'s validation runs at **summon** instead of at
+load, because the port keeps the pet inventory on the owner and there is no pet
+to judge against until then.
+
+Three adjacent holes came out of the same handler. `RequestPetUseItem` never ran
+`checkCondition` at all; its `useItem` refuses an equippable item carrying **no**
+conditions — pet gear is defined by being gated — so the port had been wearing
+anything equippable the pet window offered; and its *first* gate,
+`isForNpc()` (`for_npc`, 508 items), was missing entirely, so the window would
+take any item at all. And `force_new_leader` never re-derived either player's
+pledge class, which Java's `setNewLeader` does on the line above the
+`checkItemRestriction` this row added.
+
+28 tests: 7 on the parser, 17 on the player-facing gate and the sweep, 4 on the
+pet path. Every mechanism sabotage-verified.

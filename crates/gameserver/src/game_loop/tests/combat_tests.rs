@@ -2609,6 +2609,10 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
         .item_data
         .insert_for_test(crate::data::item_data::ItemTemplate {
             trade_flags: Default::default(),
+            pre_conditions: Vec::new(),
+            is_oly_restricted: false,
+            is_event_restricted: false,
+            for_npc: false,
             time: -1,
             duration: -1,
             immediate_effect: false,

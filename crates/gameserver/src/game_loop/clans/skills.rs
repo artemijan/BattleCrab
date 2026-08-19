@@ -382,11 +382,22 @@ pub(crate) fn force_new_leader(world: &mut World, clan_id: i32, new_leader: i32)
         leader_id: new_leader,
     });
     for (oid, is_leader) in [(old_leader, false), (new_leader, true)] {
+        // Java `Clan.setNewLeader` re-derives **both** ranks through
+        // `setPledgeClass(calculatePledgeClass(...))` — the handover moves the
+        // crown, and with it the pledge class the clan-rank gear is gated on.
+        let pledge_class = world
+            .clans
+            .get(&clan_id)
+            .map_or(0, |c| c.pledge_class_of(oid));
         if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
             p.clan_leader = is_leader;
             p.clan_privs = if is_leader { i32::MAX } else { 0 };
+            p.pledge_class = pledge_class;
         }
         if world.objects.has_component::<Player>(&oid) {
+            // `setPledgeClass` → `checkItemRestriction()`, which Java also
+            // spells out for the ex-leader on the line after the handover.
+            crate::game_loop::items::check_item_restriction(world, oid);
             crate::game_loop::player_info::broadcast_user_info(world, oid);
         }
     }

@@ -23,6 +23,10 @@ const SHIELD_ID: i32 = 7700;
 fn gear(item_id: i32, kind: ItemKind, body_part: i32) -> ItemTemplate {
     ItemTemplate {
         trade_flags: Default::default(),
+        pre_conditions: Vec::new(),
+        is_oly_restricted: false,
+        is_event_restricted: false,
+        for_npc: false,
         time: -1,
         duration: -1,
         immediate_effect: false,

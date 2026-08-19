@@ -159,3 +159,22 @@ pub(crate) fn attr_i64(e: &BytesStart, key: &[u8]) -> Option<i64> {
 pub(crate) fn attr_f64(e: &BytesStart, key: &[u8]) -> Option<f64> {
     attr_str(e, key).and_then(|v| v.parse().ok())
 }
+
+/// Every attribute of `e` as `(name, value)` pairs, in document order.
+///
+/// The readers above answer "what is attribute X"; this one answers "what
+/// attributes are there", which is what an attribute-*driven* format needs —
+/// `<cond>`'s `<player races="…" level="…"/>`, where the attribute name
+/// chooses the condition. Names and values are both read lossily, matching
+/// [`attr_str`].
+pub(crate) fn attr_pairs(e: &BytesStart) -> Vec<(String, String)> {
+    e.attributes()
+        .flatten()
+        .map(|a| {
+            (
+                String::from_utf8_lossy(a.key.as_ref()).into_owned(),
+                String::from_utf8_lossy(&a.value).into_owned(),
+            )
+        })
+        .collect()
+}
