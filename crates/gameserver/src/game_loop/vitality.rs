@@ -167,11 +167,23 @@ pub(crate) fn update_vitality_points(
             return false;
         }
         if points < 0.0 {
-            // Java scales by `getMul(Stat.VITALITY_CONSUME_RATE, 1)` here and
-            // bails out entirely when that rate is <= 0. The stat is unmodelled
-            // and **no skill on this dist grants it**, so the rate is its
-            // identity (1) and the bail-out is unreachable — not an omission.
-            points *= 1.0;
+            // `double consumeRate = getMul(VITALITY_CONSUME_RATE, 1); if
+            // (consumeRate <= 0) return; points *= consumeRate;` — the
+            // Vitality Replenishing Herb family (skill 2580, -10 %) is what
+            // grants it. The note that used to sit here said no skill on this
+            // dist does; the herbs drop from the Schuttgart golems
+            // (22801-22808), which this dist spawns, so it was reachable all
+            // along.
+            let rate = consume_rate(world, object_id);
+            if rate <= 0.0 {
+                // Java's early return. It is **shape, not behaviour**: falling
+                // through with `points *= 0.0` reaches the same place, since a
+                // zero delta leaves the total unchanged and this function
+                // reports "nothing happened" for that. Kept so the two read
+                // alike, not because a test can tell them apart.
+                return false;
+            }
+            points *= rate;
         }
         // Java's two branches read `points > 0` *after* the consume scaling, so
         // a rate that flipped the sign would take the other branch; kept as-is.
@@ -273,4 +285,15 @@ pub(crate) fn reset_vitality(world: &mut World, weekly: bool) {
     let _ = world
         .db
         .send(crate::db::DbCommand::ResetVitality { weekly });
+}
+
+/// `getMul(Stat.VITALITY_CONSUME_RATE, 1)` — the multiplier on vitality
+/// **loss**, 1.0 for a character with no such buff up.
+fn consume_rate(world: &World, object_id: i32) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&object_id)
+        .map_or(1.0, |mods| {
+            crate::model::finalize(mods, crate::model::stats::Stat::VitalityConsumeRate, 1.0)
+        })
 }

@@ -1076,6 +1076,26 @@ pub(crate) fn build_skill(
                         // Java `params.getInt("sp", 0)` — an int on the XML, but
                         // the award path takes the same i64 as every other SP
                         // grant.
+                        // The three appearance potions, one variant.
+                        "ChangeFace" => vec![skill::SkillEffect::ChangeAppearance {
+                            part: skill::AppearancePart::Face,
+                            value: param("value").unwrap_or(0.0) as i32,
+                        }],
+                        "ChangeHairStyle" => vec![skill::SkillEffect::ChangeAppearance {
+                            part: skill::AppearancePart::HairStyle,
+                            value: param("value").unwrap_or(0.0) as i32,
+                        }],
+                        "ChangeHairColor" => vec![skill::SkillEffect::ChangeAppearance {
+                            part: skill::AppearancePart::HairColor,
+                            value: param("value").unwrap_or(0.0) as i32,
+                        }],
+                        "SendSystemMessageToClan" => {
+                            vec![skill::SkillEffect::SendSystemMessageToClan {
+                                message_id: param("id").unwrap_or(0.0) as i16,
+                            }]
+                        }
+                        // Empty in Java — see the variant.
+                        "Recovery" => vec![skill::SkillEffect::Recovery],
                         "GiveSp" => vec![skill::SkillEffect::GiveSp {
                             sp: param("sp").unwrap_or(0.0) as i64,
                         }],

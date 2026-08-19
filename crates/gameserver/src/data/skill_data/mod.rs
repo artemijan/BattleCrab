@@ -208,6 +208,7 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
         Stat::DefencePhysicalSkillCriticalDamage,
     ),
     ("Breath", Stat::Breath),
+    ("VitalityPointsRate", Stat::VitalityConsumeRate),
     // Acrobatics (173), the one learnable source: `SafeFallHeight` →
     // `Stat.FALL`, a plain single-stat `AbstractStatEffect` consumed by
     // `game_loop::falling`'s `calc_fall_dam`. It reduces fall *damage*, not
@@ -1006,6 +1007,24 @@ pub(crate) fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Opti
         "CanTransform" => Some(SkillCondition::CanTransform),
         "CanUntransform" => Some(SkillCondition::CanUntransform),
         "CanSummon" => Some(SkillCondition::CanSummon),
+        "CanSummonPet" => Some(SkillCondition::CanSummonPet),
+        "OpMainjob" => Some(SkillCondition::OpMainjob),
+        "CannotUseInTransform" => Some(SkillCondition::CannotUseInTransform {
+            // Java `params.getInt("transformId", 0)`: 0 means "any
+            // transformation", a positive id means that one only.
+            transform_id: num("transformId").unwrap_or(0),
+        }),
+        "OpPledge" => Some(SkillCondition::OpPledge {
+            level: num("level").unwrap_or(0),
+        }),
+        "OpCheckResidence" => Some(SkillCondition::OpCheckResidence {
+            residence_ids: c
+                .lists
+                .get("residenceIds")
+                .map(|ids| ids.iter().filter_map(|v| v.parse().ok()).collect())
+                .unwrap_or_default(),
+            is_within: flag("isWithin", false),
+        }),
         "CanSummonCubic" => Some(SkillCondition::CanSummonCubic),
         "CanSummonSiegeGolem" => Some(SkillCondition::CanSummonSiegeGolem),
         // Two Java classes, one body.

@@ -61,8 +61,8 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 }
 
 /// `<effect>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 132 name(s), 9 learnable
-/// skill(s) affected, 974 reachable — the live figures the tuple below
+/// the work list, worst first. Category totals: 126 name(s), 9 learnable
+/// skill(s) affected, 900 reachable — the live figures the tuple below
 /// asserts. (This header had drifted to 143/10/1167, the totals from before
 /// the S6 and S9 passes; it is a comment, so nothing failed when it went
 /// stale.)
@@ -155,6 +155,16 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 /// the Orc Prefect and Grandis families cast — 1891 templates on this dist
 /// declare the `grown` cylinder it reads). Reachable 1154 → 975.
 ///
+/// → 126 at **row 18**, the live tail's own pass: the appearance potions
+/// (`ChangeFace`, `ChangeHairStyle`, `ChangeHairColor` — Facelifting, Hair
+/// Style Change and Dye, all ordinary Interlude items), `SendSystemMessageToClan`
+/// (Clan Gate), `Recovery` (**empty in Java** — the whole body of its
+/// `instant()` is commented out, so registering it is the honest answer) and
+/// `VitalityPointsRate`. That last one overturned a note in the port:
+/// `game_loop::vitality` said no skill on this dist granted
+/// `VITALITY_CONSUME_RATE`, and skill 2580 does — its carrier herbs drop from
+/// the Schuttgart golems this dist spawns. Reachable 974 → 900.
+///
 /// `Escape` is **not** off this list, and should not be: its TOWN, CLANHALL
 /// and CASTLE arms are all ported now — which is what un-inerted the Scrolls
 /// of Escape: Clan Hall/Castle and their blessed twins — but `FORTRESS` still
@@ -168,8 +178,8 @@ const EFFECTS: &[(&str, usize)] = &[("StatUp", 9)];
 const EFFECT_SCOPES: &[(&str, usize)] = &[];
 
 /// `<condition>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 60 name(s), 1 learnable
-/// skill(s) affected, 733 reachable.
+/// the work list, worst first. Category totals: 55 name(s), 1 learnable
+/// skill(s) affected, 716 reachable.
 ///
 /// **G34 S1 took this from 111 names / 215 learnable skills down to this.**
 /// The single learnable hold-out is `OpSweeper`, left out on purpose: Java's
@@ -177,6 +187,10 @@ const EFFECT_SCOPES: &[(&str, usize)] = &[];
 /// about spoil ownership, corpse age and the sweeper's free inventory — all
 /// of which `effects::sweep` already does at *apply* time with the right
 /// per-corpse messages. Gating the cast on it too would double every one.
+///
+/// 60 → 55 names at row 18: `CanSummonPet` (the collar gate, a different
+/// chain from `CanSummon`'s servitor one), `OpMainjob`, `CannotUseInTransform`,
+/// `OpPledge` and `OpCheckResidence`. Reachable 733 → 716.
 ///
 /// 69 → 61 names at S9, the live-reachability pass — six Java handlers, eight
 /// names, because `OpTargetNpc` and `OpAlignment` each appear under two
@@ -245,9 +259,9 @@ fn datapack_skill_coverage_census() {
         // (Porta 20213 / skill 4161) and the player prompt (Summon Friend
         // 1403 and its siblings) — so counting it as handled no longer
         // overstates anything. It did until 2026-08-06.
-        ("effect", &gaps.effects, EFFECTS, 132, 9, 974),
+        ("effect", &gaps.effects, EFFECTS, 126, 9, 900),
         ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 2, 0, 1),
-        ("condition", &gaps.conditions, CONDITIONS, 60, 1, 733),
+        ("condition", &gaps.conditions, CONDITIONS, 55, 1, 716),
         ("targetType", &gaps.target_types, TARGET_TYPES, 8, 0, 457),
         ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 7, 0, 3),
         (

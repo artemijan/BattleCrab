@@ -432,6 +432,9 @@ pub mod sm_ids {
     pub const YOU_ALREADY_HAVE_A_PET: i16 = 542;
     /// "You cannot summon during combat." — `SummonItems`' attacking guard.
     pub const YOU_CANNOT_SUMMON_DURING_COMBAT: i16 = 578;
+    /// `CanSummonPet`'s first two refusals.
+    pub const YOU_MAY_NOT_SUMMON_MULTIPLE_PETS_AT_THE_SAME_TIME: i16 = 580;
+    pub const YOU_CANNOT_SUMMON_DURING_A_TRADE_OR_WHILE_USING_A_PRIVATE_STORE: i16 = 577;
     /// "$c1 has rolled a $s2." — the party dice result.
     pub const C1_HAS_ROLLED_A_S2: i16 = 834;
     /// "You may not throw the dice at this time. Try again later."

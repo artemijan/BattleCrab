@@ -533,3 +533,145 @@ fn teleport_to_target_puts_the_caster_behind_its_target() {
     // And the target itself has not moved — this is a dash, not a swap.
     assert_eq!(pos_of(&world, CASTER), (0, 0));
 }
+
+// ---------------------------------------------------------------------------
+// Row 18: the live tail after S9 — the appearance potions, the clan message,
+// the vitality-loss rate, and the five conditions behind them.
+// ---------------------------------------------------------------------------
+
+/// `ChangeFace` / `ChangeHairStyle` / `ChangeHairColor` — the Facelifting, Hair
+/// Style Change and Dye potions, all Interlude items whose skills did nothing.
+#[test]
+fn the_appearance_potions_change_the_head_and_say_so() {
+    use crate::model::skill::AppearancePart;
+
+    let (mut world, ..) = cast_test_world();
+    let mut rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    drain(&mut rx);
+
+    for (part, value, read) in [
+        (AppearancePart::Face, 2, 0usize),
+        (AppearancePart::HairStyle, 3, 1),
+        (AppearancePart::HairColor, 1, 2),
+    ] {
+        let skill = instant(2122, SkillEffect::ChangeAppearance { part, value });
+        land(&mut world, &skill, CASTER, CASTER);
+        let p = world
+            .objects
+            .get_component::<Player>(&CASTER)
+            .expect("player");
+        let got = [p.face, p.hair_style, p.hair_color][read];
+        assert_eq!(got, value, "{part:?} written");
+    }
+    // `broadcastUserInfo()` — without it the client keeps drawing the old head.
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == crate::network::user_info::OPCODE_USER_INFO),
+        "the change is broadcast"
+    );
+}
+
+/// `SendSystemMessageToClan` — Clan Gate (3632) tells the whole clan.
+#[test]
+fn a_clan_message_effect_reaches_every_online_member() {
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let mut b_rx = ingame_caster(&mut world, CID + 1, CASTER + 1, 20, 0);
+    let mut clan = clan_owning(90, 0);
+    // `broadcastToOnlineMembers` walks the **roster**, so the two have to be
+    // on it — being in-world with a matching `clan_id` is not enough.
+    clan.members = [CASTER, CASTER + 1]
+        .iter()
+        .map(|&oid| model::clan::ClanMember {
+            char_id: oid,
+            name: format!("P{oid}"),
+            level: 1,
+            class_id: 0,
+            sex: 0,
+            race: 0,
+            power_grade: 5,
+            title: String::new(),
+            pledge_type: 0,
+            apprentice: 0,
+            sponsor: 0,
+        })
+        .collect();
+    world.clans.insert(90, clan);
+    for oid in [CASTER, CASTER + 1] {
+        world
+            .objects
+            .get_component_mut::<Player>(&oid)
+            .expect("player")
+            .clan_id = 90;
+    }
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    let skill = instant(
+        3632,
+        SkillEffect::SendSystemMessageToClan { message_id: 1524 },
+    );
+    land(&mut world, &skill, CASTER, CASTER);
+
+    assert!(has_system_message(&drain(&mut a_rx), 1524), "the caster");
+    assert!(has_system_message(&drain(&mut b_rx), 1524), "and the clan");
+}
+
+/// `VitalityPointsRate` — the herb's -10 % scales vitality **loss** only, and
+/// a rate that reaches 0 stops the loss entirely (Java returns early).
+#[test]
+fn the_vitality_consume_rate_scales_only_the_loss() {
+    use crate::model::stats::Stat;
+
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    world.cfg.character.enable_vitality = true;
+    world.cfg.rates.rate_vitality_lost = 1.0;
+    world.cfg.rates.rate_vitality_gain = 1.0;
+
+    let vit = |w: &World| {
+        w.objects
+            .get_component::<Player>(&CASTER)
+            .expect("player")
+            .vitality_points
+    };
+    let set = |w: &mut World, v: i32| {
+        w.objects
+            .get_component_mut::<Player>(&CASTER)
+            .expect("player")
+            .vitality_points = v;
+    };
+
+    // No buff: the loss lands in full.
+    set(&mut world, 10_000);
+    crate::game_loop::vitality::update_vitality_points(&mut world, CASTER, -1000, true, true);
+    assert_eq!(vit(&world), 9_000);
+
+    // -50 %: half of it.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+        .expect("mods")
+        .mul
+        .insert(Stat::VitalityConsumeRate, 0.5);
+    set(&mut world, 10_000);
+    crate::game_loop::vitality::update_vitality_points(&mut world, CASTER, -1000, true, true);
+    assert_eq!(vit(&world), 9_500);
+
+    // …and the gain side is untouched by it.
+    set(&mut world, 10_000);
+    crate::game_loop::vitality::update_vitality_points(&mut world, CASTER, 1000, true, true);
+    assert_eq!(vit(&world), 11_000, "the rate is loss-only");
+
+    // A rate of 0 bails out before anything is spent.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+        .expect("mods")
+        .mul
+        .insert(Stat::VitalityConsumeRate, 0.0);
+    set(&mut world, 10_000);
+    crate::game_loop::vitality::update_vitality_points(&mut world, CASTER, -1000, true, true);
+    assert_eq!(vit(&world), 10_000, "no consumption at all");
+}

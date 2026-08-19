@@ -202,9 +202,11 @@ number behind rather than renumbering the rest, so the cross-references in
 [§ Re-deriving these numbers](#re-deriving-these-numbers) keep pointing at the
 same work. Closed rows move to [§ Closed](#closed).
 
-| # | Area | Gap | Evidence | Effect in game |
-|---|---|---|---|---|
-| 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
+**This table is empty.** Every measured gap has been worked or classified;
+what each one turned into is in [§ Closed](#closed) and the sections below it.
+That is not the same as "nothing is missing" — see the note at the top of this
+section about what these axes do and do not reach — but every axis this audit
+opened has been taken to the end.
 
 ### Closed
 
@@ -230,6 +232,7 @@ same work. Closed rows move to [§ Closed](#closed).
 | 19 | Player level cap | 2026-08-19 | `ExperienceData`'s two `+ 1`s and the `MaximumPlayerLevel` clamp, `PlayerStat.setLevel`'s ceiling, and `AdminLevel`'s accept range. **The row's own figures were wrong on the Java side** — see below |
 | 14 | Config | 2026-08-19 | **59** keys still unread, and every one of them accounted for: dead in Java, off-chronicle, or blocked on an unported subsystem. The last live ones — `CorrectPrices`, the birthday trio and the two `PVP.ini` drop lists — landed with it. See below |
 | 16 | Admin commands | 2026-08-19 | **69** of 458 absent, every one of them classified — and the row's "what is left" list was wrong about four of the seven that were still portable. See below |
+| 18 | Skill census residue | 2026-08-19 | 11 names ported off the live tail; the 14 that remain are each classified, and the census test holds every number. See below |
 
 **Row 16 mostly corrected itself.** The audit's original figure was 79 missing
 of 458 with "~10 against ported systems, so the G13 row's 'all off-chronicle'
@@ -984,6 +987,52 @@ exception thrown by parsing a malformed command. The port validates its
 arguments and answers with the same usage message Java sends after logging, so
 there is no exception to gate. Recorded in `config::general`'s header rather
 than given a field, following `config::character`'s convention.
+
+## Row 18 closed: the live tail, and a note in the port that was wrong
+
+The census's *learnable* axis had been closed since S4 — two recorded
+decisions, no unexamined names. What row 18 still carried was the tail below
+it: names with no learnable source but a **live** one, i.e. a skill a player
+can actually meet through a spawned NPC or an obtainable item. Re-running that
+ranking left 25 names; 11 of them were real Interlude content and are now
+ported.
+
+**Effects** (132 → **126** names, 974 → **900** reachable skills):
+
+* `ChangeFace`, `ChangeHairStyle`, `ChangeHairColor` — the Facelifting, Hair
+  Style Change and Dye potions. One `PlayerAppearance` field each and a
+  `broadcastUserInfo`, without which the client keeps drawing the old head.
+  Three Java classes with one body, so one variant names the field.
+* `SendSystemMessageToClan` — Clan Gate (3632) tells the whole clan.
+* `Recovery` — **empty in Java**: the entire body of its `instant()` is
+  commented out. Registered as the no-op it is, so the census stops reporting
+  Scroll: Recovery (2286) as a skill that lost something. It did not; there was
+  nothing to lose.
+* `VitalityPointsRate` — and this one contradicted a note in the port.
+  `game_loop::vitality` said Java's `VITALITY_CONSUME_RATE` scaling was
+  unreachable because "no skill on this dist grants it". Skill 2580 does, at
+  -10 %, and its carriers — the Vitality Replenishing Herb family — drop from
+  the Schuttgart golems (22801-22808) that this dist spawns in `22_14_Monsters`.
+  The stat, its multiplier and Java's bail-out at `<= 0` are ported.
+
+**Conditions** (60 → **55** names, 733 → **716** reachable):
+`CanSummonPet` (the collar gate, which is a different chain from `CanSummon`'s
+servitor one and answers with a different line per blocked state), `OpMainjob`
+(base class only), `CannotUseInTransform`, `OpPledge` (clan level) and
+`OpCheckResidence` (the clan's hall).
+
+### The 14 live names that remain
+
+| Why | Names |
+|---|---|
+| The **agathion** subsystem, which this chronicle has none of | `OpNeedAgathion` (215 skills), `SummonAgathion` (117), `OpAgathionEnergy` (18), `UnsummonAgathion`, `CanUseVitalityIncreaseItem` |
+| `targetType ITEM` — **inert on both sides** | 500 skills declare it and exactly one carries an `<effect>` (22794, a post-Interlude accessory pack). The rest, the enchant scrolls among them, have no effects at all and are never cast: their items run the `EnchantScrolls` handler, which opens the enchant dialog |
+| Recorded decisions | `StatUp` (Territory War) and `OpSweeper` (enforced at apply time instead) — both already on the census's out-of-scope list |
+| Off-chronicle by item id | `DamageByAttack` (cloaks 19039/19040), `ExpModify`/`SpModify` (castle scrolls 55061/55062), `VampiricDefence` (14765), `CanEnchantAttribute` (the elemental stones) |
+| Cannot fail here | `OpCanNotUseAirship` — squash seeds and Nectar are Interlude items, but there are no airships to be on, so the condition can only ever pass; ignoring it is Java's answer |
+
+The census test holds every number in this section, so none of it can drift
+quietly: land a handler and it fails until the tables are struck.
 
 ## Row 16 closed: seven more were portable, and the residue is 69
 

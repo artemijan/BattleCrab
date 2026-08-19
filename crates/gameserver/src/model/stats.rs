@@ -256,6 +256,13 @@ pub enum Stat {
     /// other thing, and that is what is ported
     /// ([[l2r-port-behaviour-not-intent]]).
     Fall,
+    /// Java `Stat.VITALITY_CONSUME_RATE` — a **multiplier on vitality loss**
+    /// (`PlayerStat.updateVitalityPoints` scales a negative delta by it and
+    /// bails out entirely at `<= 0`). The Vitality Replenishing Herb family
+    /// grants it at -10 %; the golems that drop those herbs are spawned in
+    /// Schuttgart on this dist, so it is reachable content, not Gracia-only
+    /// data.
+    VitalityConsumeRate,
     /// Java `Stat.WEIGHT_LIMIT` / `WEIGHT_PENALTY` — `Creature.getMaxLoad()`
     /// (`getValue(WEIGHT_LIMIT, CON bonus × 69000 × config)`) and
     /// `getBonusWeightPenalty()` (`getValue(WEIGHT_PENALTY, 1)`), the extra

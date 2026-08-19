@@ -17,7 +17,7 @@ use crate::model::inventory::PaperdollSlot;
 use crate::network::masks::build_mask;
 use crate::network::server_packets::opcodes;
 
-const OPCODE_USER_INFO: u8 = 0x32;
+pub(crate) const OPCODE_USER_INFO: u8 = 0x32;
 
 use crate::model::skill::STEALTH_CLIENT_ID;
 

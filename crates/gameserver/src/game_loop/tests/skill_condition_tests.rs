@@ -472,3 +472,239 @@ fn summon_friend_charges_the_target_prompts_them_and_teleports_on_accept() {
     assert!(accept_summon_request(&mut world, TARGET, CASTER, false));
     assert!(!at_caster(&world), "no means no");
 }
+
+// ---------------------------------------------------------------------------
+// Row 18: the live tail's five conditions
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::skills::conditions::check_for_test;
+use crate::model::skill::SkillCondition;
+
+/// `OpMainjob` — the summon spellbooks refuse on a subclass.
+#[test]
+fn op_mainjob_wants_the_base_class() {
+    let (mut world, ..) = dist_world();
+    let _rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let conds = [SkillCondition::OpMainjob];
+
+    assert!(check_for_test(&world, CASTER, CASTER, &conds));
+    world
+        .objects
+        .get_component_mut::<Player>(&CASTER)
+        .expect("player")
+        .class_index = 1;
+    assert!(
+        !check_for_test(&world, CASTER, CASTER, &conds),
+        "a subclass is not the main job"
+    );
+}
+
+/// `CannotUseInTransform` — with no id it means "not transformed at all"; with
+/// one it bars only that transformation.
+#[test]
+fn cannot_use_in_transform_reads_the_id_when_it_has_one() {
+    let (mut world, ..) = dist_world();
+    let _rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let any = [SkillCondition::CannotUseInTransform { transform_id: 0 }];
+    let one = [SkillCondition::CannotUseInTransform { transform_id: 111 }];
+
+    assert!(check_for_test(&world, CASTER, CASTER, &any));
+    assert!(check_for_test(&world, CASTER, CASTER, &one));
+
+    world
+        .objects
+        .get_component_mut::<Player>(&CASTER)
+        .expect("player")
+        .transform_id = 111;
+    assert!(!check_for_test(&world, CASTER, CASTER, &any), "transformed");
+    assert!(!check_for_test(&world, CASTER, CASTER, &one), "that one");
+
+    world
+        .objects
+        .get_component_mut::<Player>(&CASTER)
+        .expect("player")
+        .transform_id = 112;
+    assert!(
+        check_for_test(&world, CASTER, CASTER, &one),
+        "a different transformation passes the id-scoped gate"
+    );
+}
+
+/// `OpPledge` — a clan of at least the given level.
+#[test]
+fn op_pledge_wants_a_clan_of_that_level() {
+    let (mut world, ..) = dist_world();
+    let _rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let conds = [SkillCondition::OpPledge { level: 5 }];
+
+    assert!(
+        !check_for_test(&world, CASTER, CASTER, &conds),
+        "clanless: refused"
+    );
+
+    let mut clan = crate::model::clan::Clan {
+        id: 77,
+        name: "C".into(),
+        leader_id: CASTER,
+        level: 4,
+        reputation_score: 0,
+        castle_id: 0,
+        members: Vec::new(),
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    };
+    clan.level = 4;
+    world.clans.insert(77, clan);
+    world
+        .objects
+        .get_component_mut::<Player>(&CASTER)
+        .expect("player")
+        .clan_id = 77;
+    assert!(
+        !check_for_test(&world, CASTER, CASTER, &conds),
+        "level 4 is below 5"
+    );
+
+    world.clans.get_mut(&77).expect("clan").level = 5;
+    assert!(check_for_test(&world, CASTER, CASTER, &conds));
+}
+
+/// `OpCheckResidence` — the clan's **hall**, with `isWithin` choosing which
+/// way round the membership test reads.
+#[test]
+fn op_check_residence_reads_the_clans_hall() {
+    let (mut world, ..) = dist_world();
+    let _rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let within = [SkillCondition::OpCheckResidence {
+        residence_ids: vec![36, 37],
+        is_within: true,
+    }];
+    let without = [SkillCondition::OpCheckResidence {
+        residence_ids: vec![36, 37],
+        is_within: false,
+    }];
+
+    // No clan at all: refused **both** ways — Java returns false before it
+    // ever looks at `isWithin`.
+    assert!(!check_for_test(&world, CASTER, CASTER, &within));
+    assert!(!check_for_test(&world, CASTER, CASTER, &without));
+
+    world.clan_halls.insert(36, hall(36, 77, (0, 0, 0)));
+    world.clans.insert(77, clan_owning_for_cond(77));
+    world
+        .objects
+        .get_component_mut::<Player>(&CASTER)
+        .expect("player")
+        .clan_id = 77;
+    assert!(check_for_test(&world, CASTER, CASTER, &within), "owns 36");
+    assert!(!check_for_test(&world, CASTER, CASTER, &without));
+
+    // A hall outside the list flips both answers.
+    world.clan_halls.clear();
+    world.clan_halls.insert(51, hall(51, 77, (0, 0, 0)));
+    assert!(!check_for_test(&world, CASTER, CASTER, &within));
+    assert!(check_for_test(&world, CASTER, CASTER, &without));
+}
+
+/// `CanSummonPet` — the collar gate, with the refusal that belongs to each
+/// blocked state.
+#[test]
+fn can_summon_pet_refuses_each_blocked_state_with_its_own_line() {
+    let (mut world, ..) = dist_world();
+    let _rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let conds = [SkillCondition::CanSummonPet];
+
+    assert!(check_for_test(&world, CASTER, CASTER, &conds), "clear");
+
+    // Mid-trade.
+    world
+        .objects
+        .add_components(&CASTER, crate::model::components::Trade::default());
+    assert!(!check_for_test(&world, CASTER, CASTER, &conds));
+    world
+        .objects
+        .remove_component::<crate::model::components::Trade>(&CASTER);
+    assert!(check_for_test(&world, CASTER, CASTER, &conds));
+
+    // Teleporting, and mounted.
+    world
+        .objects
+        .get_component_mut::<Player>(&CASTER)
+        .expect("player")
+        .teleporting = true;
+    assert!(!check_for_test(&world, CASTER, CASTER, &conds));
+    {
+        let p = world
+            .objects
+            .get_component_mut::<Player>(&CASTER)
+            .expect("player");
+        p.teleporting = false;
+        p.mount_type = 1;
+    }
+    assert!(!check_for_test(&world, CASTER, CASTER, &conds), "mounted");
+}
+
+/// A clan the residence condition can read: id and level only.
+fn clan_owning_for_cond(id: i32) -> crate::model::clan::Clan {
+    crate::model::clan::Clan {
+        id,
+        name: format!("C{id}"),
+        leader_id: 0,
+        level: 5,
+        reputation_score: 0,
+        castle_id: 0,
+        members: Vec::new(),
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    }
+}
+
+/// A clan hall owned by `owner_id` — the residence condition reads only the
+/// id/owner pair.
+fn hall(
+    id: i32,
+    owner_id: i32,
+    owner_restart: (i32, i32, i32),
+) -> crate::model::clan_hall::ClanHall {
+    crate::model::clan_hall::ClanHall {
+        id,
+        name: format!("Hall {id}"),
+        grade: crate::model::clan_hall::ClanHallGrade::None,
+        hall_type: crate::model::clan_hall::ClanHallType::Auctionable,
+        min_bid: 0,
+        lease: 0,
+        deposit: 0,
+        npcs: Vec::new(),
+        doors: Vec::new(),
+        owner_restart,
+        banish: (0, 0, 0),
+        owner_id,
+        paid_until: 0,
+    }
+}

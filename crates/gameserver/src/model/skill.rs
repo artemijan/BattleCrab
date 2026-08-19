@@ -542,6 +542,18 @@ pub struct RestorationGroup {
     pub items: Vec<RestorationItem>,
 }
 
+/// Which `PlayerAppearance` field an appearance potion writes
+/// ([`SkillEffect::ChangeAppearance`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum AppearancePart {
+    /// `ChangeFace` — `setFace`.
+    Face,
+    /// `ChangeHairStyle` — `setHairStyle`.
+    HairStyle,
+    /// `ChangeHairColor` — `setHairColor`.
+    HairColor,
+}
+
 /// A skill effect the pipeline knows how to apply. Java registers ~380 effect
 /// handler scripts by name; here each supported kind is a variant —
 /// `StatModifier` covers the whole `AbstractStatAddEffect`/
@@ -1386,6 +1398,27 @@ pub enum SkillEffect {
     /// It is not cosmetic-only: the cylinder feeds every reach test, so a
     /// grown mob really does swing from further out.
     Grow,
+    /// `ChangeFace` / `ChangeHairStyle` / `ChangeHairColor` — the appearance
+    /// potions (Facelifting, Hair Style Change, Dye), instant and
+    /// players-only, each setting one `PlayerAppearance` field and
+    /// re-broadcasting `UserInfo`. Three Java classes with the same body, so
+    /// one variant names which field it writes.
+    ChangeAppearance {
+        part: AppearancePart,
+        value: i32,
+    },
+    /// `handlers/effecthandlers/SendSystemMessageToClan.java` — an instant
+    /// that broadcasts one `SystemMessageId` to the caster's clan. Clan Gate
+    /// (3632) is the only carrier on this dist.
+    SendSystemMessageToClan {
+        message_id: i16,
+    },
+    /// `handlers/effecthandlers/Recovery.java` — **an empty instant**: the
+    /// whole body of Java's `instant()` is commented out, so the effect exists
+    /// and does nothing. Registered rather than dropped so the census stops
+    /// reporting Scroll: Recovery (2286) as a skill that lost something —
+    /// it did not; there was nothing to lose.
+    Recovery,
     /// `handlers/effecthandlers/GiveSp.java` — a flat SP grant.
     ///
     /// Two Java quirks that read like bugs and are kept verbatim: the SP goes
@@ -2495,6 +2528,25 @@ pub enum SkillCondition {
     /// `CanTransform` — the transform scroll family's gate. Replaces the
     /// ad-hoc block that used to sit inline in `cast.rs`.
     CanTransform,
+    /// `CanSummonPet` — the **pet** summon gate (collars), which is a
+    /// different chain from `CanSummon`'s servitor one: already has a pet,
+    /// mid-trade or private store, in combat, mounted, observing or
+    /// teleporting. Each of the first three answers with its own line.
+    CanSummonPet,
+    /// `OpMainjob` — the caster must be on their **base** class. The summon
+    /// spellbooks and Lyn Draco carry it.
+    OpMainjob,
+    /// `CannotUseInTransform` — refused while transformed; with a
+    /// `transformId`, refused only while wearing *that* transformation.
+    CannotUseInTransform { transform_id: i32 },
+    /// `OpPledge` — the caster's clan must be at least this level.
+    OpPledge { level: i32 },
+    /// `OpCheckResidence` — the caster's clan owns (`is_within`) or does not
+    /// own one of these clan halls.
+    OpCheckResidence {
+        residence_ids: Vec<i32>,
+        is_within: bool,
+    },
     /// `CanSummon` — servitor summoning.
     CanSummon,
     /// `CanSummonCubic`.

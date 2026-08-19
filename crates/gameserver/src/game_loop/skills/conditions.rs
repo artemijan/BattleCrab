@@ -318,6 +318,28 @@ fn eval(
         }
         skill::SkillCondition::CanTransform => can_transform(world, caster),
         skill::SkillCondition::CanSummon => ok(can_summon(world, caster)),
+        skill::SkillCondition::CanSummonPet => can_summon_pet(world, caster),
+        // `caster.isPlayer() && !isSubClassActive()`.
+        skill::SkillCondition::OpMainjob => {
+            ok(helpers::player(world, caster).is_some_and(|p| p.class_index == 0))
+        }
+        // `transformId > 0 ? getTransformationId() != transformId : !isTransformed()`.
+        skill::SkillCondition::CannotUseInTransform { transform_id } => {
+            ok(helpers::player(world, caster).is_some_and(|p| {
+                if *transform_id > 0 {
+                    p.transform_id != *transform_id
+                } else {
+                    p.transform_id == 0
+                }
+            }))
+        }
+        skill::SkillCondition::OpPledge { level } => ok(helpers::player(world, caster)
+            .and_then(|p| world.clans.get(&p.clan_id))
+            .is_some_and(|c| c.level >= *level)),
+        skill::SkillCondition::OpCheckResidence {
+            residence_ids,
+            is_within,
+        } => ok(check_residence(world, caster, residence_ids, *is_within)),
         // Java adds `isAlikeDead` and checks `inObserverMode` twice; the
         // duplicate is dropped, the rest is the summon gate minus teleporting.
         skill::SkillCondition::CanSummonCubic => {
@@ -871,4 +893,71 @@ fn resurrection(world: &World, caster: i32, target: i32) -> Result<(), Refusal> 
         ))));
     }
     Ok(())
+}
+
+/// `CanSummonPetSkillCondition` — the collar gate, which is **not**
+/// `CanSummon`'s servitor chain: the first three refusals each send their own
+/// line, the rest are silent.
+///
+/// Two legs of Java's chain cannot be reached here and are dropped rather than
+/// faked: `RESTORE_PET_ON_RECONNECT` (whose `CharSummonTable` re-summon this
+/// port does at login instead of holding a pending row) and `isInAirShip`.
+/// Spawn/teleport protection is Java's first guard and is kept.
+fn can_summon_pet(world: &World, caster: i32) -> Result<(), Refusal> {
+    let Some(p) = helpers::player(world, caster) else {
+        return Err(Refusal(None));
+    };
+    if p.teleporting {
+        return Err(Refusal(None));
+    }
+    if crate::game_loop::servitor::pet_of(world, caster).is_some() {
+        return Err(Refusal(Some(RefusalLine::Sm(
+            sm_ids::YOU_MAY_NOT_SUMMON_MULTIPLE_PETS_AT_THE_SAME_TIME,
+        ))));
+    }
+    if world.objects.has_component::<components::Trade>(&caster)
+        || world
+            .objects
+            .has_component::<components::PrivateStore>(&caster)
+    {
+        return Err(Refusal(Some(RefusalLine::Sm(
+            sm_ids::YOU_CANNOT_SUMMON_DURING_A_TRADE_OR_WHILE_USING_A_PRIVATE_STORE,
+        ))));
+    }
+    if crate::game_loop::combat::has_attack_stance(world, caster) {
+        return Err(Refusal(Some(RefusalLine::Sm(
+            sm_ids::YOU_CANNOT_SUMMON_DURING_COMBAT,
+        ))));
+    }
+    // The silent tail: mounted, observing, teleporting (already checked).
+    if p.is_mounted()
+        || world
+            .objects
+            .has_component::<components::OlympiadObserver>(&caster)
+    {
+        return Err(Refusal(None));
+    }
+    Ok(())
+}
+
+/// `OpCheckResidenceSkillCondition` — the caster's clan must (or must not) own
+/// one of these clan halls. A clanless caster, or one whose clan owns no hall,
+/// is refused either way: Java returns `false` before it ever looks at
+/// `isWithin`.
+fn check_residence(world: &World, caster: i32, residence_ids: &[i32], is_within: bool) -> bool {
+    let Some(clan_id) = helpers::player(world, caster)
+        .map(|p| p.clan_id)
+        .filter(|id| *id != 0)
+    else {
+        return false;
+    };
+    let Some(hall_id) = world
+        .clan_halls
+        .values()
+        .find(|h| h.owner_id == clan_id)
+        .map(|h| h.id)
+    else {
+        return false;
+    };
+    is_within == residence_ids.contains(&hall_id)
 }

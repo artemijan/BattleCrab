@@ -410,3 +410,44 @@ pub(crate) fn focus_momentum(world: &mut World, target_oid: i32, amount: i32, ma
     }
     crate::game_loop::helpers::send_etc_status_update(world, client_id, target_oid);
 }
+
+/// `ChangeFace` / `ChangeHairStyle` / `ChangeHairColor` — the appearance
+/// potions. Players only (`effected.isPlayer()`), and the re-broadcast is what
+/// makes the change visible: the value lives in `UserInfo`/`CharInfo`, so
+/// without it the client would keep drawing the old head until relog.
+pub(crate) fn change_appearance(
+    world: &mut World,
+    target_oid: i32,
+    part: crate::model::skill::AppearancePart,
+    value: i32,
+) {
+    use crate::model::skill::AppearancePart;
+    let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&target_oid)
+    else {
+        return;
+    };
+    match part {
+        AppearancePart::Face => p.face = value,
+        AppearancePart::HairStyle => p.hair_style = value,
+        AppearancePart::HairColor => p.hair_color = value,
+    }
+    crate::game_loop::player_info::broadcast_user_info(world, target_oid);
+}
+
+/// `SendSystemMessageToClan.instant` — `clan.broadcastToOnlineMembers(msg)`.
+/// A clanless caster is a no-op, as in Java.
+pub(crate) fn send_system_message_to_clan(world: &mut World, target_oid: i32, message_id: i16) {
+    let clan_id = world
+        .objects
+        .get_component::<crate::model::Player>(&target_oid)
+        .map(|p| p.clan_id)
+        .filter(|id| *id != 0);
+    let Some(clan_id) = clan_id else {
+        return;
+    };
+    for member in crate::game_loop::clans::online_members(world, clan_id) {
+        helpers::send_sm_bare_to_player(world, member, message_id);
+    }
+}

@@ -8161,3 +8161,71 @@ player-facing, each waiting on a subsystem rather than on the command.
 used `//instancezone` as its example of a declared-but-unimplemented command,
 and now needs one that is still absent **and** carries no `confirmDlg` — a
 confirm prompt is a `ConfirmDlg` packet, not the system message it counts.
+
+---
+
+## Row 18: the census's live tail, and a note that was wrong
+
+The census's *learnable* axis had been closed since S4: two recorded decisions,
+nothing unexamined. What row 18 still carried was the tail underneath — names
+with no learnable source but a **live** one, meaning a skill a player can meet
+through a spawned NPC or an obtainable item. That ranking had 25 names on it;
+11 were real Interlude content and are now ported, taking effects 132 → **126**
+(reachable 974 → **900**) and conditions 60 → **55** (733 → **716**).
+
+### The appearance potions were doing nothing
+
+Facelifting Potion, Hair Style Change Potion and Dye Potion are ordinary
+Interlude items whose skills dropped their only effect. Each is one
+`PlayerAppearance` field plus a `broadcastUserInfo` — and the broadcast is the
+half that matters: the value rides `UserInfo`/`CharInfo`, so without it the
+client would keep drawing the old head until relog.
+
+### `Recovery` is empty in Java
+
+The whole body of `Recovery.instant()` is commented out. Registering it as the
+no-op it is, rather than leaving it unhandled, is the difference between "the
+census reports Scroll: Recovery as broken" and the truth, which is that there
+was never anything there.
+
+### `VitalityPointsRate` contradicted a note in the port
+
+`game_loop::vitality` carried a comment saying Java's `VITALITY_CONSUME_RATE`
+scaling was unreachable because **no skill on this dist grants it**. Skill 2580
+grants it at -10 %, and the Vitality Replenishing Herb family that carries it
+drops from the Schuttgart golems (22801-22808) — which this dist spawns in
+`22_14_Monsters.xml`. The stat, the multiplier on vitality *loss* and Java's
+bail-out at `<= 0` are ported; the bail-out is documented as shape rather than
+behaviour, because falling through with a zero delta lands in the same place.
+
+That is the third recorded "this cannot be reached" claim this epic has
+overturned by checking rather than reading (after row 14's two PVP drop lists
+and row 16's four portable commands). The pattern is the same each time: the
+claim was about *data*, and the data had a case in it.
+
+### Five conditions
+
+`CanSummonPet` is the collar gate — a different chain from `CanSummon`'s
+servitor one, with its own line per blocked state (already have a pet,
+mid-trade or store, in combat) and a silent tail (mounted, observing,
+teleporting). Java's two other legs are dropped on purpose: the
+`RESTORE_PET_ON_RECONNECT` pending-row check, which this port does at login
+instead, and `isInAirShip`. The rest are one-liners: `OpMainjob` (base class
+only), `CannotUseInTransform`, `OpPledge` (clan level) and `OpCheckResidence`
+(the clan's hall, with `isWithin` choosing which way the membership reads).
+
+### What the 14 remaining live names are
+
+The agathion subsystem (5 names, 351 skills) is off-chronicle. `targetType
+ITEM` looks big at 500 skills and is inert on both sides: exactly one of them
+carries an `<effect>` at all, and the enchant scrolls that make up the rest are
+never cast — their items run the `EnchantScrolls` handler, which opens the
+enchant dialog. `StatUp` and `OpSweeper` are the census's two recorded
+decisions. Four names are off-chronicle by item id (post-Interlude cloaks,
+castle scrolls, the elemental stones). And `OpCanNotUseAirship` sits on squash
+seeds and Nectar — real Interlude items — but there are no airships to be on,
+so the condition can only ever pass and ignoring it is Java's answer.
+
+8 tests, every mechanism sabotage-verified but one: the `<= 0` bail-out in the
+vitality path is unobservable, which the comment there now says instead of the
+test pretending to cover it.

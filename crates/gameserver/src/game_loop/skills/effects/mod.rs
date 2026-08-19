@@ -77,8 +77,9 @@ pub(crate) use gathering::{calc_harvest_success, calc_sow_success};
 pub(crate) use summoning::{betray, summon_npc};
 pub(crate) use support::send_sm;
 pub(crate) use support::{
-    broadcast_social_action, focus_momentum, give_item, give_item_random, give_sp,
-    grant_and_notify, magic_success_input, open_recipe_book, roll_magic_failure,
+    broadcast_social_action, change_appearance, focus_momentum, give_item, give_item_random,
+    give_sp, grant_and_notify, magic_success_input, open_recipe_book, roll_magic_failure,
+    send_system_message_to_clan,
 };
 pub(crate) use ticks::{
     expire_active_buffs, expire_buffs_where, handle_buff_expire, handle_dam_over_time_tick,
@@ -649,6 +650,16 @@ pub(crate) fn apply_skill_effects(
                 give_item_random(world, target_oid, groups);
             }
             SkillEffect::GiveSp { sp } => give_sp(world, caster_oid, target_oid, *sp),
+            // The appearance potions: one field, then `broadcastUserInfo`.
+            SkillEffect::ChangeAppearance { part, value } => {
+                change_appearance(world, target_oid, *part, *value);
+            }
+            // `SendSystemMessageToClan.instant` — the whole clan hears it.
+            SkillEffect::SendSystemMessageToClan { message_id } => {
+                send_system_message_to_clan(world, target_oid, *message_id);
+            }
+            // `Recovery.instant` is an empty body in Java; see the variant.
+            SkillEffect::Recovery => {}
             // `SetSkill.instant` — `addSkill(skill, true)`: granted and stored,
             // exactly as if it had been learned from a trainer.
             SkillEffect::SetSkill {
