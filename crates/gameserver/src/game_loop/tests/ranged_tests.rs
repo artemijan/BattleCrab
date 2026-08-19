@@ -390,3 +390,90 @@ fn the_last_arrow_unequips_the_empty_quiver() {
         "the emptied left hand is pushed to the client"
     );
 }
+
+/// **A bow swings on Java's `154` weapon mod, a sword on `77`** — the term
+/// `calcAutoAttackDamage` picks from `weapon.getItemType().isRanged()`, and
+/// the one the port had been leaving at the melee value. Against the same
+/// target with the same pAtk, the arrow lands for twice the sword's hit.
+#[test]
+fn a_bow_hits_for_twice_the_melee_coefficient() {
+    /// One swing's damage, read off the target's HP.
+    fn swing(world: &mut World, attacker: i32, target: i32) -> f64 {
+        let before = world
+            .objects
+            .get_component::<Vitals>(&target)
+            .expect("target")
+            .cur_hp;
+        combat::do_auto_attack(world, attacker, target);
+        // The swing lands on the scheduled `AttackHit`, not on the call.
+        advance_ticks(world, 60);
+        let after = world
+            .objects
+            .get_component::<Vitals>(&target)
+            .expect("target")
+            .cur_hp;
+        before - after
+    }
+
+    let (mut world, _db, _l) = bow_world();
+    let _out = ingame_caster(&mut world, CID, ARCHER, 0, 0);
+    arm_archer(&mut world, 10, ARROW_ID);
+    // No crit, no miss, no random spread: the two hits must differ only by the
+    // weapon mod.
+    {
+        let p = world
+            .objects
+            .get_component_mut::<CombatStats>(&ARCHER)
+            .expect("stats");
+        p.crit_hit = 0.0;
+        p.accuracy = 10_000;
+        p.random_dmg = 0;
+    }
+    // A target each, so the second swing is not measured against a mob the
+    // first one left mid-AI — and both need enough HP to survive the hit, or
+    // the "damage" measured is just their health bar running out.
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 0, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 1, 20001, "Monster", 5, 40, 0, 0);
+    for oid in [NPC_OID, NPC_OID + 1] {
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&oid)
+            .expect("target");
+        v.max_hp = 1_000_000;
+        v.cur_hp = 1_000_000.0;
+    }
+
+    let ranged = swing(&mut world, ARCHER, NPC_OID);
+    assert!(ranged > 0.0, "the shot landed");
+
+    // Same archer, same pAtk, sword in hand. The reload/attack-end gates are
+    // per-swing, so let them lapse first.
+    advance_ticks(&mut world, 200);
+    unequip_bow(&mut world);
+    let melee = swing(&mut world, ARCHER, NPC_OID + 1);
+    assert!(melee > 0.0, "the swing landed");
+
+    let ratio = ranged / melee;
+    assert!(
+        (ratio - 2.0).abs() < 0.02,
+        "bow/sword damage ratio should be 154/77 = 2, got {ratio} ({ranged} vs {melee})"
+    );
+}
+
+/// Take the bow off so the same character swings bare-handed-ish: the weapon
+/// slot decides `isRanged`, and pAtk is unchanged because these fixtures carry
+/// their attack on the character, not the weapon.
+fn unequip_bow(world: &mut World) {
+    let bow_oid = world
+        .objects
+        .get_component::<Inventory>(&ARCHER)
+        .expect("inventory")
+        .paperdoll_object_id(PaperdollSlot::RHand);
+    if bow_oid != 0 {
+        world
+            .objects
+            .get_component_mut::<Inventory>(&ARCHER)
+            .expect("inventory")
+            .unequip_item(bow_oid);
+    }
+}

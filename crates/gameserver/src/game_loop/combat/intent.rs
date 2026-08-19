@@ -221,6 +221,16 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
         // A door swing never crits, so the crit stats are never read.
         formulas::CritDamage::default(),
         false,
+        // Doors are hit with whatever is in hand; the weapon mod still
+        // applies, so a bow batters a gate on 154 like it does anything else.
+        crate::game_loop::ranged::is_ranged(
+            crate::game_loop::ranged::equipped_weapon_type(world, attacker_oid).unwrap_or_default(),
+        ),
+        // A door is not a creature: it carries no traits, no elements and no
+        // pvp/pve side, so all three multipliers are their identity.
+        1.0,
+        1.0,
+        1.0,
     ) as i32;
 
     // Face the gate (Java `doAttack` `setHeading`).

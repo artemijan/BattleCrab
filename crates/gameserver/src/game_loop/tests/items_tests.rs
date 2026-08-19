@@ -2166,6 +2166,9 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    // A nuke now carries Java's ±10 % `randomMod`; this test compares two
+    // casts, so the spread is switched off rather than averaged out.
+    zero_random_damage(&mut world, 3001);
     let npc_oid = NPC_OID + 9;
     let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world

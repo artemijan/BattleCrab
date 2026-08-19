@@ -203,11 +203,36 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                     crit,
                     crit_damage_auto(world, attacker_oid, target_oid, position),
                     ss,
-                ) * crate::game_loop::skills::effects::calc_attack_trait_bonus(world, attacker_oid, target_oid)
+                    // A bow/crossbow swings on Java's **154** weapon mod, and
+                    // its crits split across both halves of the expression.
+                    crate::game_loop::ranged::is_ranged(weapon_type),
+                    // `calcAutoAttackDamage`'s own `damage *= calcAttackTraitBonus(...)`
+                    // — the weapon trait plus every group-2 weakness, which is what
+                    // makes the Hunter's "Detect … Weakness" line pay off.
+                    crate::game_loop::skills::effects::calc_attack_trait_bonus(
+                        world,
+                        attacker_oid,
+                        target_oid,
+                    ),
+                    // `calcAttributeBonus(attacker, target, **null**)`: with no
+                    // skill to name an element the attacker's strongest POWER
+                    // stat elects one, so an elemental weapon buff reaches
+                    // plain swings too.
+                    crate::game_loop::skills::effects::attribute_mod_no_skill(
+                        world,
+                        attacker_oid,
+                        target_oid,
+                    ),
                     // `calcAutoAttackDamage`'s own `pvpPveMod`, passed a **null
                     // skill** — so an auto-attack reads the PHYSICAL_ATTACK pair,
                     // never either skill pair.
-                    * crate::game_loop::skills::effects::pvp_pve_bonus(world, attacker_oid, target_oid, None)
+                    crate::game_loop::skills::effects::pvp_pve_bonus(
+                        world,
+                        attacker_oid,
+                        target_oid,
+                        None,
+                    ),
+                )
             };
             // Java `generateHit`'s `halfDamage` — each dual hit is half a swing.
             let dmg = if is_dual { dmg / 2.0 } else { dmg };

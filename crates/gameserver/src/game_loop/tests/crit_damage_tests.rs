@@ -55,9 +55,24 @@ fn crit_stats_do_not_touch_a_normal_hit() {
         false,
         CritDamage::default(),
         false,
+        false,
+        1.0,
+        1.0,
+        1.0,
     );
-    let with_stats =
-        formulas::calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, huge, false);
+    let with_stats = formulas::calc_auto_attack_damage(
+        100.0,
+        1.0,
+        Position::Front,
+        50.0,
+        false,
+        huge,
+        false,
+        false,
+        1.0,
+        1.0,
+        1.0,
+    );
     assert_eq!(
         plain, with_stats,
         "a non-crit ignores cAtk/cAtkAdd entirely"
@@ -77,6 +92,10 @@ fn default_crit_damage_reproduces_the_old_hard_coded_double() {
         false,
         CritDamage::default(),
         false,
+        false,
+        1.0,
+        1.0,
+        1.0,
     );
     let crit = formulas::calc_auto_attack_damage(
         100.0,
@@ -86,6 +105,10 @@ fn default_crit_damage_reproduces_the_old_hard_coded_double() {
         true,
         CritDamage::default(),
         false,
+        false,
+        1.0,
+        1.0,
+        1.0,
     );
     assert!(
         (crit - base * 2.0).abs() < 1e-9,
@@ -107,6 +130,10 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
         true,
         CritDamage { mul: 4.0, add: 0.0 },
         false,
+        false,
+        1.0,
+        1.0,
+        1.0,
     );
     let default_crit = formulas::calc_auto_attack_damage(
         100.0,
@@ -116,6 +143,10 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
         true,
         CritDamage::default(),
         false,
+        false,
+        1.0,
+        1.0,
+        1.0,
     );
     assert!(
         (doubled - default_crit * 2.0).abs() < 1e-9,
@@ -134,6 +165,10 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
             add: 50.0,
         },
         false,
+        false,
+        1.0,
+        1.0,
+        1.0,
     );
     assert!(
         (with_add - (250.0 * 77.0 / 50.0)).abs() < 1e-9,
@@ -153,6 +188,10 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
             add: 50.0,
         },
         true,
+        false,
+        1.0,
+        1.0,
+        1.0,
     );
     assert!(
         (ss - (450.0 * 77.0 / 50.0)).abs() < 1e-9,
@@ -165,11 +204,11 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
 #[test]
 fn magic_crit_multiplier_applies_only_on_a_magic_crit() {
     let none = formulas::MagicFailure::None;
-    let plain = formulas::calc_magic_dam(100.0, 60.0, 12.0, false, 3.0, 1.0, none);
-    let base = formulas::calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, none);
+    let plain = formulas::calc_magic_dam(100.0, 60.0, 12.0, false, 3.0, 1.0, none, 1.0);
+    let base = formulas::calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, none, 1.0);
     assert_eq!(plain, base, "a non-crit cast ignores the crit multiplier");
 
-    let crit = formulas::calc_magic_dam(100.0, 60.0, 12.0, true, 3.0, 1.0, none);
+    let crit = formulas::calc_magic_dam(100.0, 60.0, 12.0, true, 3.0, 1.0, none, 1.0);
     assert!(
         (crit - base * 3.0).abs() < 1e-9,
         "a magic crit takes the full multiplier"

@@ -291,6 +291,10 @@ fn melee_kill_rewards_and_decay() {
         false,
         formulas::CritDamage::default(),
         false,
+        false,
+        1.0,
+        1.0,
+        1.0,
     );
     assert!(
         expected > 100.0,

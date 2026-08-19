@@ -81,6 +81,11 @@ fn magic_damage(
         crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
         magic_shots_bonus,
         failure,
+        // `randomMod` — Java multiplies a nuke by the caster's own random
+        // damage spread exactly as it does a swing. Every class template
+        // declares `baseRndDam = 10`, so the same cast lands anywhere in
+        // ±10 %; without it a mage's damage was identical every time.
+        effects::random_damage_multiplier_of(world, caster_oid),
     ) * effects::attribute_mod(world, caster_oid, target_oid, skill)
         * effects::skill_trait_mod(world, caster_oid, target_oid, skill, false)
         * effects::skill_power_mul(world, caster_oid, true)

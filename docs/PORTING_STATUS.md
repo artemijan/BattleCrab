@@ -162,6 +162,54 @@ git show <sha>^:docs/DEFERRALS.md
 
 ---
 
+## Formula parity — the axis opened after the gap table emptied
+
+**Opened 2026-08-19.** Every row of [§ Measured gaps](#measured-gaps--the-axes-nothing-above-measures)
+is closed, and none of them ever looked at the *arithmetic*. The
+Java-comparison tests scattered through the suite pin one or two hand-computed
+cases per formula, which finds a wrong constant and cannot find a **missing
+term** — a term absent from both the port and the expected value agrees with
+itself.
+
+`crates/tools/tests/formula_parity.rs` is the counterweight. It holds
+transcriptions of Java's expressions, copied from the source and quoted above
+each one, and sweeps them against the port's own functions over a grid of
+inputs (attack, defence, level mod, power, crit/shot/ranged/position). A
+divergence fails with the inputs that produced it.
+
+**The first pass found three, all live:**
+
+| What | Effect in game |
+|---|---|
+| `calcAutoAttackDamage`'s **weapon mod** was a flat 77 | A bow or crossbow swung on the melee coefficient. Java uses **154** for a ranged weapon, so every archer auto-attack was landing for **half** what it should — and a ranged *crit* splits across both halves of the expression (`critMod` 0.5), which no `if crit` shape can express |
+| The auto-attack path never multiplied by **`calcAttributeBonus`** | An elemental attack buff coloured skills but not plain swings. Java passes a null skill there, which elects the attacker's strongest POWER stat |
+| `calcMagicDam` dropped **`randomMod`** | Every nuke landed on exactly the same number. Java multiplies magic damage by the caster's own `1 + Rnd.get(-r, r)/100`, and every class template declares `baseRndDam = 10` |
+
+Each is fixed, sabotage-verified, and pinned twice: once in the sweep and once
+in a game-level test (a bow hitting for double a sword, an elemental buff
+moving a swing, forty rolls of a nuke's spread landing on more than one value).
+
+Three narrowings are recorded as fixed inputs rather than tolerances, because
+nothing on this dist can carry them: `SHOTS_BONUS` (no carrier),
+`AUTO_ATTACK_DAMAGE_BONUS` (its only skill is in the 30500 range) and blessed
+soulshots (post-Interlude).
+
+**One lesson is worth more than the findings.** The first draft of the
+attribute-bonus transcription was written from memory as a linear band, and the
+sweep failed against a port that was **right** — the real curve is
+`1.025 + sqrt(diff³/2)·0.0001`. A transcription that is recalled rather than
+copied makes this file a second opinion of equal confidence, which is worth
+nothing. Copy the expression, quote it, then sweep.
+
+**Covered so far:** `calcAutoAttackDamage`, `PhysicalAttack.instant`,
+`calcMagicDam`, `calcAttributeBonus`. **Not yet:** blow/mana damage, the
+land-rate family (`calcEffectSuccess`, `calcMagicSuccess`, `calcProbability`),
+heal and resurrect restore, the speed/timing family, and the stat finalizers
+themselves — each is a sweep of the same shape, and the file is laid out for
+adding them.
+
+---
+
 ## Measured gaps — the axes nothing above measures
 
 **Audited 2026-08-14.** The marker inventory is empty and

@@ -8229,3 +8229,76 @@ so the condition can only ever pass and ignoring it is Java's answer.
 8 tests, every mechanism sabotage-verified but one: the `<= 0` bail-out in the
 vitality path is unobservable, which the comment there now says instead of the
 test pretending to cover it.
+
+---
+
+## Formula parity: a new axis, and three live bugs on its first pass
+
+With the measured-gaps table empty, the remaining risk was in the place none of
+those rows looked: the arithmetic. Every Java-comparison test in the tree pins
+one or two hand-computed cases per formula, which catches a wrong constant and
+**cannot** catch a missing term — a term absent from both the port and the
+expected value agrees with itself.
+
+`crates/tools/tests/formula_parity.rs` compares two independent expressions
+instead: transcriptions of Java's, copied from the source and quoted above each
+one, swept against the port's functions over a grid of inputs. It found three
+divergences immediately, all of them things a player would feel.
+
+### A bow was hitting for half
+
+`calcAutoAttackDamage` picks its weapon mod from
+`weapon.getItemType().isRanged()` — **154** for a bow or crossbow, 77 for
+everything else. The port had the melee value hard-coded with a note deferring
+the ranged half, so every archer auto-attack landed for half its damage.
+
+The ranged branch is not just a bigger number. `critMod` is
+`crit ? (isRanged ? 0.5 : 1) : 0`, so a ranged **crit** takes half the crit
+branch *and* half the flat one — with the default ×2 crit damage that makes a
+bow crit 1.5× its own normal hit, where a melee crit is 2×. No `if crit { … }
+else { … }` shape can express that, which is why the fix was to write Java's
+two-term expression out rather than to add a multiplier.
+
+### An elemental buff stopped at skills
+
+Java's auto-attack multiplies by `calcAttributeBonus(attacker, target, **null**)`.
+The null skill is not a degenerate case: with no skill to name an element, the
+attacker's strongest POWER stat elects one, which is how a Holy Weapon-style
+buff colours plain swings. The port applied the elemental term on the skill
+paths only, so those buffs did nothing to auto-attacks.
+
+### Every nuke landed on the same number
+
+`calcMagicDam`'s tail multiplies by `attacker.getRandomDamageMultiplier()` —
+`1 + Rnd.get(-r, r)/100` over the caster's own `RANDOM_DAMAGE`, which every
+class template sets to 10. The port's magic path had no random term at all, so
+the same cast on the same target produced an identical number every time. Three
+existing tests broke on the fix by comparing two casts for an exact ratio; they
+now switch the spread off explicitly (`zero_random_damage`), which is the right
+kind of collateral — it says the behaviour really did change.
+
+### The lesson that outlasts the findings
+
+The first draft of the attribute-bonus transcription was written **from memory**
+as a linear band, and the sweep failed against a port that was right: the real
+curve is `1.025 + sqrt(diff³/2)·0.0001`. A recalled transcription turns the
+harness into a second opinion of equal confidence, which is worth nothing —
+copy the expression, quote it, then sweep. That is now the first rule in the
+file's header.
+
+### Shape of the harness
+
+Three narrowings are fixed inputs rather than tolerances, because nothing on
+this dist can carry them: `SHOTS_BONUS`, `AUTO_ATTACK_DAMAGE_BONUS` (its only
+skill is in the 30500 range) and blessed soulshots. The caller-applied
+multiplier block (traits, weakness, attribute, pvp/pve, skill power) sweeps as
+one factor, since it is a product either way and the leaf's arithmetic is what
+is under test.
+
+Covered: `calcAutoAttackDamage`, `PhysicalAttack.instant`, `calcMagicDam`,
+`calcAttributeBonus` — about 60 000 cases. Not yet: blow and mana damage, the
+land-rate family, heal/resurrect restore, the timing family, and the stat
+finalizers. Each is the same shape, and the file is laid out to take them.
+
+5 sweeps plus 3 game-level tests; every finding sabotage-verified in both
+directions.

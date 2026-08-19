@@ -63,10 +63,11 @@ pub(crate) use control::{
     stop_effects_on_damage, target_me, teleport_to_target, try_break_stun,
 };
 pub(crate) use damage::{
-    SkillHit, apply_buff_to_npc, apply_skill_damage, attribute_mod, broadcast_target_buffs,
-    broadcast_vitals, caster_m_atk, defence_after_shield, dot_interval_ticks, dot_tick_damage,
-    physical_attack, recompute_max_vitals, recompute_npc_buffed_stats, refresh_summon_info,
-    schedule_dam_over_time, skill_trait_mod, target_m_def, target_p_def,
+    SkillHit, apply_buff_to_npc, apply_skill_damage, attribute_mod, attribute_mod_no_skill,
+    broadcast_target_buffs, broadcast_vitals, caster_m_atk, defence_after_shield,
+    dot_interval_ticks, dot_tick_damage, physical_attack, recompute_max_vitals,
+    recompute_npc_buffed_stats, refresh_summon_info, schedule_dam_over_time, skill_trait_mod,
+    target_m_def, target_p_def,
 };
 pub(crate) use dispel::{dispel_all, dispel_by_category, dispel_by_slot_myself};
 pub(crate) use gathering::{
@@ -78,8 +79,8 @@ pub(crate) use summoning::{betray, summon_npc};
 pub(crate) use support::send_sm;
 pub(crate) use support::{
     broadcast_social_action, change_appearance, focus_momentum, give_item, give_item_random,
-    give_sp, grant_and_notify, magic_success_input, open_recipe_book, roll_magic_failure,
-    send_system_message_to_clan,
+    give_sp, grant_and_notify, magic_success_input, open_recipe_book, random_damage_multiplier_of,
+    roll_magic_failure, send_system_message_to_clan,
 };
 pub(crate) use ticks::{
     expire_active_buffs, expire_buffs_where, handle_buff_expire, handle_dam_over_time_tick,

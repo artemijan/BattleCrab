@@ -228,3 +228,78 @@ fn holy_weapon_colors_an_attributeless_skill() {
         "HolyPower 20 elected onto the attribute-less nuke: {blessed} vs {plain}"
     );
 }
+
+/// **`calcAutoAttackDamage` multiplies by `calcAttributeBonus(attacker,
+/// target, null)`** — with no skill to name an element, the attacker's
+/// strongest POWER stat elects one. So a Holy Weapon-style buff colours plain
+/// swings, not just skills; the port had been applying the elemental term on
+/// the skill paths only.
+#[test]
+fn an_elemental_buff_reaches_plain_auto_attacks() {
+    use crate::game_loop::combat;
+    use crate::model::components::{CombatStats, StatModifiers, Vitals};
+    use crate::model::stats::Stat;
+
+    const ATTACKER: i32 = 8801;
+    const TARGET: i32 = NPC_OID;
+
+    fn damage_of(elemental: bool) -> f64 {
+        let (mut world, _db, _l) = combat_test_world();
+        let _rx = ingame_caster(&mut world, 1, ATTACKER, 0, 0);
+        {
+            let p = world
+                .objects
+                .get_component_mut::<CombatStats>(&ATTACKER)
+                .expect("stats");
+            // No crit, no miss, no spread — the elemental term is the only
+            // thing allowed to move between the two runs.
+            p.crit_hit = 0.0;
+            p.accuracy = 10_000;
+            p.random_dmg = 0;
+        }
+        if elemental {
+            world
+                .objects
+                .get_component_mut::<StatModifiers>(&ATTACKER)
+                .expect("mods")
+                .add
+                .insert(Stat::FirePower, 60.0);
+        }
+        add_test_npc(&mut world, TARGET, 20001, "Monster", 5, 0, 0, 0);
+        {
+            let v = world
+                .objects
+                .get_component_mut::<Vitals>(&TARGET)
+                .expect("target");
+            v.max_hp = 1_000_000;
+            v.cur_hp = 1_000_000.0;
+        }
+        let before = world
+            .objects
+            .get_component::<Vitals>(&TARGET)
+            .expect("target")
+            .cur_hp;
+        combat::do_auto_attack(&mut world, ATTACKER, TARGET);
+        advance_ticks(&mut world, 60);
+        before
+            - world
+                .objects
+                .get_component::<Vitals>(&TARGET)
+                .expect("target")
+                .cur_hp
+    }
+
+    let plain = damage_of(false);
+    let fiery = damage_of(true);
+    assert!(plain > 0.0, "the swing landed");
+
+    // 60 attack vs 0 defence — the same ladder `calc_attribute_bonus` walks.
+    let expected = calc_attribute_bonus(60.0, 0.0);
+    assert!(expected > 1.0, "the fixture's element must actually pay");
+    let ratio = fiery / plain;
+    assert!(
+        (ratio - expected).abs() < 0.02,
+        "an elemental attacker should swing for ×{expected}, got ×{ratio} \
+         ({fiery} vs {plain})"
+    );
+}

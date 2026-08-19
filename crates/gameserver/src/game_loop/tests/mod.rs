@@ -2676,3 +2676,13 @@ pub(crate) fn real_db_path() -> Option<std::path::PathBuf> {
         .map(|d| d.join("interlude_classic.db"))
         .find(|p| p.exists())
 }
+
+/// Switch off a caster's random-damage spread (`Stat.RANDOM_DAMAGE`, 10 on
+/// every class template). Java multiplies both swings **and** nukes by
+/// `1 + Rnd.get(-r, r)/100`, so any test that compares two hits has to remove
+/// it or compare a distribution.
+fn zero_random_damage(world: &mut World, oid: i32) {
+    if let Some(cs) = world.objects.get_component_mut::<CombatStats>(&oid) {
+        cs.random_dmg = 0;
+    }
+}

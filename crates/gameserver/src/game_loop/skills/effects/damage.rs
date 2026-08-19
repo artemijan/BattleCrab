@@ -108,12 +108,33 @@ pub(crate) fn skill_trait_mod(
 /// fix" scan) — which is how Holy Weapon colors an attribute-less skill holy.
 /// Nothing elected (both sides bare) → 1.0.
 pub(crate) fn attribute_mod(world: &World, caster_oid: i32, target_oid: i32, skill: &Skill) -> f64 {
+    attribute_mod_of(
+        world,
+        caster_oid,
+        target_oid,
+        skill
+            .attribute_type
+            .map(|el| (el, skill.attribute_value as f64)),
+    )
+}
+
+/// `calcAttributeBonus(attacker, target, **null**)` — the same election with
+/// no skill to name an element, which is what an **auto-attack** passes. It is
+/// not a degenerate case: with no skill element the attacker's strongest
+/// POWER stat elects one, so a Holy Weapon buff colours plain swings too.
+pub(crate) fn attribute_mod_no_skill(world: &World, caster_oid: i32, target_oid: i32) -> f64 {
+    attribute_mod_of(world, caster_oid, target_oid, None)
+}
+
+fn attribute_mod_of(
+    world: &World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill_element: Option<(crate::model::stats::Element, f64)>,
+) -> f64 {
     use crate::model::stats::Element;
-    let (attack, element) = match skill.attribute_type {
-        Some(el) => (
-            element_stat(world, caster_oid, el, false) + skill.attribute_value as f64,
-            el,
-        ),
+    let (attack, element) = match skill_element {
+        Some((el, value)) => (element_stat(world, caster_oid, el, false) + value, el),
         None => {
             let mut best: Option<(Element, f64)> = None;
             for el in Element::ALL {

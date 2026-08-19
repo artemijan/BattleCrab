@@ -451,3 +451,21 @@ pub(crate) fn send_system_message_to_clan(world: &mut World, target_oid: i32, me
         helpers::send_sm_bare_to_player(world, member, message_id);
     }
 }
+
+/// `Creature.getRandomDamageMultiplier()` — `1 + Rnd.get(-random, random)/100`
+/// over the caster's own `RANDOM_DAMAGE`.
+///
+/// The auto-attack path rolls this inline because it already holds the
+/// attacker's `CombatStats`; the skill paths need it by object id, and Java
+/// reads it in `calcMagicDam` and `PhysicalAttack` alike.
+pub(crate) fn random_damage_multiplier_of(world: &mut World, oid: i32) -> f64 {
+    let r = world
+        .objects
+        .get_component::<crate::model::components::CombatStats>(&oid)
+        .map_or(0, |c| c.random_dmg);
+    if r <= 0 {
+        return 1.0;
+    }
+    let roll = world.roll(2 * r + 1) - r;
+    crate::model::formulas::random_damage_multiplier(roll)
+}

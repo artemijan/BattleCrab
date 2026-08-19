@@ -49,6 +49,7 @@ pub enum MagicFailure {
 /// trait/attribute/random/pvpPve mods, so the halving and the `damage = 1`
 /// floor are applied here *ahead* of `mcrit`. (The trait and attribute mods are
 /// real and applied by the caller; only random/pvpPve are still identities.)
+#[allow(clippy::too_many_arguments)]
 pub fn calc_magic_dam(
     m_atk: f64,
     m_def: f64,
@@ -57,6 +58,7 @@ pub fn calc_magic_dam(
     crit_mul: f64,
     shots_bonus: f64,
     failure: MagicFailure,
+    random_mul: f64,
 ) -> f64 {
     let mut damage = (77.0 * power * m_atk.sqrt() / m_def.max(1.0)) * shots_bonus;
     match failure {
@@ -64,7 +66,11 @@ pub fn calc_magic_dam(
         MagicFailure::Half => damage /= 2.0,
         MagicFailure::Resisted => damage = 1.0,
     }
-    damage * if mcrit { crit_mul } else { 1.0 }
+    // `damage * critMod * … * randomMod * …` — the spread is Java's, and it
+    // applies to a nuke exactly as it does to a swing: a mage's own
+    // `randomDamage` (10 on every class template) makes the same cast land
+    // anywhere in ±10 %.
+    damage * if mcrit { crit_mul } else { 1.0 } * random_mul
 }
 
 /// `Formulas.calcProbability` — the chance gate on `Confuse`/`RandomizeHate`.
@@ -711,14 +717,28 @@ impl Default for CritDamage {
     }
 }
 
-/// `Formulas.calcAutoAttackDamage`, melee/shotless narrowing (see the module
-/// note): `attack = pAtk·randomMul + proxBonus`, ×77, over the target's
-/// `pDef`. `position` is the attacker's position relative to the target
-/// (front 0, side +5%, back +20% of pAtk).
+/// `Formulas.calcAutoAttackDamage` — **the whole expression**, with every
+/// world-dependent term passed in so the arithmetic can be swept against a
+/// transcription of Java's (`tools/tests/formula_parity.rs`).
 ///
-/// `cd` carries the crit-damage stats (Death Whisper, Focus Attack, Vicious
-/// Stance, …). It was a hard-coded ×2 before this slice, so every one of those
-/// buffs was inert on autoattacks.
+/// ```text
+/// attack = (pAtk · randomDamage) + proxBonus
+/// attack = (((attack · cAtk · ss) + cAtkAdd) · critMod + attack · (1 − critMod) · ss)
+///          · (isRanged ? 154 : 77)
+/// damage = attack / defence · traitBonus · attributeBonus · pvpPveBonus
+/// ```
+///
+/// `critMod` is `crit ? (isRanged ? 0.5 : 1) : 0`, which is what makes a
+/// **ranged crit** take *half* the crit branch and half the flat one rather
+/// than all of either — the shape a plain `if crit` cannot express, and the
+/// reason this function takes `is_ranged` instead of deferring it.
+///
+/// `defence` already carries the shield (a perfect block never reaches here;
+/// the caller shortcuts to 1 damage). `AUTO_ATTACK_DAMAGE_BONUS` is Java's
+/// last multiplier and is **not** a parameter: the only skill on this dist
+/// declaring `AutoAttackDamageBonus` is in the 30500 range, so nothing here
+/// can grant it and a 1.0 term would be noise.
+#[allow(clippy::too_many_arguments)]
 pub fn calc_auto_attack_damage(
     p_atk: f64,
     random_mul: f64,
@@ -727,28 +747,32 @@ pub fn calc_auto_attack_damage(
     crit: bool,
     cd: CritDamage,
     ss: bool,
+    is_ranged: bool,
+    trait_bonus: f64,
+    attribute_bonus: f64,
+    pvp_pve_bonus: f64,
 ) -> f64 {
     let prox_bonus = match position {
         Position::Front => 0.0,
         Position::Side => 0.05,
         Position::Back => 0.2,
     } * p_atk;
-    // `ssBonus` = `ss ? 2 : 1` (blessed soulshots — 2.15 — don't exist in
-    // Interlude; times `SHOTS_BONUS`, 1.0 here).
+    // `ssBonus` = `ss ? (blessed ? 2.15 : 2) · SHOTS_BONUS : 1`. Blessed
+    // soulshots do not exist on Interlude and `SHOTS_BONUS` has no carrier
+    // here, so the multiplier is a flat 2.
     let ss_bonus = if ss { 2.0 } else { 1.0 };
-    let attack = p_atk * random_mul + prox_bonus;
-    // Java's two-section expression, with the melee `critMod` of 1 (the ranged
-    // 0.5 belongs with the deferred 154 weapon mod):
-    //   attack = (((attack·cAtk·ss) + cAtkAdd)·critMod)·77
-    //          + (attack·(1 − critMod)·ss·77)
-    // — a crit takes the first term only, a non-crit the second. Note
-    // `cAtkAdd` lands *after* the soulshot multiply and *inside* the ×77.
-    let attack = if crit {
-        (attack * cd.mul * ss_bonus) + cd.add
+    let weapon_mod = if is_ranged { 154.0 } else { 77.0 };
+    let crit_mod = if crit {
+        if is_ranged { 0.5 } else { 1.0 }
     } else {
-        attack * ss_bonus
-    } * 77.0;
-    (attack / p_def.max(1.0)).max(0.0)
+        0.0
+    };
+    let attack = p_atk * random_mul + prox_bonus;
+    let attack = ((((attack * cd.mul * ss_bonus) + cd.add) * crit_mod)
+        + (attack * (1.0 - crit_mod) * ss_bonus))
+        * weapon_mod;
+    let damage = attack / p_def.max(1.0);
+    (damage * trait_bonus * attribute_bonus * pvp_pve_bonus).max(0.0)
 }
 
 /// `Formulas.calcCrit`'s physical-skill branch for sub-78 actors
@@ -998,19 +1022,25 @@ mod tests {
     #[test]
     fn magic_dam_matches_java_formula() {
         let none = MagicFailure::None;
-        let dmg = calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, none);
+        let dmg = calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, none, 1.0);
         assert!((dmg - 154.0).abs() < 1e-9);
-        let crit = calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, none);
+        let crit = calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, none, 1.0);
         assert!((crit - 308.0).abs() < 1e-9);
         // Spiritshot doubles, blessed spiritshot quadruples the base.
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 2.0, none) - 308.0).abs() < 1e-9);
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 4.0, none) - 616.0).abs() < 1e-9);
+        assert!(
+            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 2.0, none, 1.0) - 308.0).abs() < 1e-9
+        );
+        assert!(
+            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 4.0, none, 1.0) - 616.0).abs() < 1e-9
+        );
     }
 
     /// mDef is floored at 1 so a zero-defence target can't divide by zero.
     #[test]
     fn magic_dam_survives_zero_mdef() {
-        assert!(calc_magic_dam(100.0, 0.0, 12.0, false, 2.0, 1.0, MagicFailure::None).is_finite());
+        assert!(
+            calc_magic_dam(100.0, 0.0, 12.0, false, 2.0, 1.0, MagicFailure::None, 1.0).is_finite()
+        );
     }
 
     /// Java applies the `MagicFailures` adjustment to the *base* damage and only
@@ -1019,20 +1049,41 @@ mod tests {
     #[test]
     fn magic_failure_applies_before_the_crit_multiplier() {
         assert!(
-            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, MagicFailure::Half) - 77.0).abs()
-                < 1e-9
-        );
-        assert!(
-            (calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, MagicFailure::Half) - 154.0).abs()
-                < 1e-9
-        );
-        assert!(
-            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, MagicFailure::Resisted) - 1.0)
+            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, MagicFailure::Half, 1.0) - 77.0)
                 .abs()
                 < 1e-9
         );
         assert!(
-            (calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, MagicFailure::Resisted) - 2.0).abs()
+            (calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, MagicFailure::Half, 1.0) - 154.0)
+                .abs()
+                < 1e-9
+        );
+        assert!(
+            (calc_magic_dam(
+                100.0,
+                60.0,
+                12.0,
+                false,
+                2.0,
+                1.0,
+                MagicFailure::Resisted,
+                1.0
+            ) - 1.0)
+                .abs()
+                < 1e-9
+        );
+        assert!(
+            (calc_magic_dam(
+                100.0,
+                60.0,
+                12.0,
+                true,
+                2.0,
+                1.0,
+                MagicFailure::Resisted,
+                1.0
+            ) - 2.0)
+                .abs()
                 < 1e-9
         );
     }
@@ -1344,7 +1395,11 @@ mod tests {
                 50.0,
                 false,
                 CritDamage::default(),
-                false
+                false,
+                false,
+                1.0,
+                1.0,
+                1.0,
             ) - 154.0)
                 .abs()
                 < 1e-9
@@ -1357,7 +1412,11 @@ mod tests {
                 50.0,
                 true,
                 CritDamage::default(),
-                false
+                false,
+                false,
+                1.0,
+                1.0,
+                1.0,
             ) - 308.0)
                 .abs()
                 < 1e-9
@@ -1370,7 +1429,11 @@ mod tests {
                 50.0,
                 false,
                 CritDamage::default(),
-                false
+                false,
+                false,
+                1.0,
+                1.0,
+                1.0,
             ) - 184.8)
                 .abs()
                 < 1e-9
@@ -1384,7 +1447,11 @@ mod tests {
                 50.0,
                 false,
                 CritDamage::default(),
-                true
+                true,
+                false,
+                1.0,
+                1.0,
+                1.0,
             ) - 308.0)
                 .abs()
                 < 1e-9
@@ -1398,7 +1465,11 @@ mod tests {
                 0.0,
                 false,
                 CritDamage::default(),
-                false
+                false,
+                false,
+                1.0,
+                1.0,
+                1.0,
             )
             .is_finite()
         );

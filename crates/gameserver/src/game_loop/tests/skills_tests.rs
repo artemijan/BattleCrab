@@ -1045,6 +1045,9 @@ fn the_delevel_grace_is_what_ships_and_what_defaults() {
 fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    // A nuke now carries Java's ±10 % `randomMod`; this test compares two
+    // casts, so the spread is switched off rather than averaged out.
+    zero_random_damage(&mut world, 3001);
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
 
     handle_action(&mut world, 1, &action_body(3002, 0));
@@ -1127,6 +1130,7 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
         2.0,
         1.0,
         formulas::MagicFailure::None,
+        1.0,
     );
     assert!(
         damage > 100.0,
@@ -2372,6 +2376,9 @@ fn nuke_kills_monster_and_rewards() {
 fn nuke_on_a_far_higher_level_monster_is_resisted_to_one_damage() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    // A nuke now carries Java's ±10 % `randomMod`; this test compares two
+    // casts, so the spread is switched off rather than averaged out.
+    zero_random_damage(&mut world, 3001);
     world
         .objects
         .get_component_mut::<Player>(&3001)
@@ -2436,6 +2443,7 @@ fn nuke_on_a_same_level_monster_deals_full_damage() {
         2.0,
         1.0,
         formulas::MagicFailure::None,
+        1.0,
     );
     assert!(
         unresisted > 100.0,
@@ -6420,5 +6428,49 @@ fn own_summon_interact_fires_summon_talk() {
             .iter()
             .any(|p| p[0] == server_packets::opcodes::NPC_SAY),
         "a missed roll says nothing"
+    );
+}
+
+/// **A nuke carries the caster's random-damage spread**, exactly as a swing
+/// does: `calcMagicDam`'s tail multiplies by
+/// `attacker.getRandomDamageMultiplier()`. Every class template declares
+/// `baseRndDam = 10`, so the same cast on the same target must land on more
+/// than one number — before this the port's magic damage was identical every
+/// time.
+#[test]
+fn magic_damage_varies_with_the_casters_random_spread() {
+    use crate::model::formulas::{self, MagicFailure};
+
+    // The formula's own term first: ±10 % around the deterministic value.
+    let at = |random_mul: f64| {
+        formulas::calc_magic_dam(
+            100.0,
+            60.0,
+            12.0,
+            false,
+            2.0,
+            1.0,
+            MagicFailure::None,
+            random_mul,
+        )
+    };
+    let base = at(1.0);
+    assert!((at(1.1) - base * 1.1).abs() < 1e-9, "the high end");
+    assert!((at(0.9) - base * 0.9).abs() < 1e-9, "the low end");
+
+    // …and it reaches the cast path: 40 nukes from a caster with the template
+    // spread must not all be the same number.
+    let (mut world, _db, _l) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let mut seen = std::collections::BTreeSet::new();
+    for _ in 0..40 {
+        seen.insert(
+            crate::game_loop::skills::effects::random_damage_multiplier_of(&mut world, 3001)
+                .to_bits(),
+        );
+    }
+    assert!(
+        seen.len() > 1,
+        "the caster's spread produced one value in 40 rolls"
     );
 }
