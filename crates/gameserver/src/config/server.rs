@@ -1,4 +1,33 @@
 //! `Server.ini` — port of the `SERVER_CONFIG_FILE` block of `Config.java`.
+//!
+//! # The seven keys with no field here, and why each one has none
+//!
+//! Every other key this file ships is read below. These seven are named in
+//! prose instead, because a field would imply something consults them — and
+//! each was checked against the Java tree rather than assumed:
+//!
+//! * **`Driver`** (`org.sqlite.JDBC`) — a JDBC driver class name, loaded with
+//!   `Class.forName`. This server talks to SQLite through `sqlx`, so there is
+//!   no class to name; the connection string (`URL`) is the whole config.
+//! * **`MySqlBinLocation`** — where `mysqldump` lives, and Java reads it only
+//!   on Windows and only from `DatabaseBackup`. There is no MySQL here, and
+//!   `BackupDatabase` is `False` on this dist besides.
+//! * **`KickMissingHWID`** (False) and **`MaxPlayersPerHWID`** (0) — both gate
+//!   on `client.getHardwareInfo()`, which is only ever set by
+//!   `RequestHardWareInfo`, an Ex packet this chronicle's client does not
+//!   send. With no fingerprint to compare, and both keys off, they are inert
+//!   in Java too. (`EnableHardwareInfo` — the key that reads like their
+//!   switch — is itself assigned and read nowhere outside `Config.java`.)
+//! * **`PrecautionaryRestartCpu`** (True) and **`PrecautionaryRestartMemory`**
+//!   (False) — read only by `PrecautionaryRestartManager`, which `GameServer`
+//!   creates only `if (Config.PRECAUTIONARY_RESTART_ENABLED)`. That key is
+//!   **False** on this dist, so the manager never starts and neither value is
+//!   ever read. The three keys that *are* fields below
+//!   (`PrecautionaryRestartEnabled`/`Percentage`/`Delay`) are carried so that
+//!   switching it on is a change in one place rather than a hunt — the same
+//!   treatment `config::pvp` gives the anti-feed block.
+//! * **`PrecautionaryRestartChecks`** (True) — assigned to a `Config` field
+//!   that nothing outside `Config.java` reads, in Java as much as here.
 
 use commons::config::PropertiesParser;
 

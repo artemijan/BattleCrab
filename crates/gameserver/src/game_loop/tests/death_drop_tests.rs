@@ -4,6 +4,7 @@
 use super::*;
 use crate::game_loop::helpers::get_inventory_items_oids;
 
+use crate::data::item_data::ItemTemplate;
 use crate::model::Player;
 use crate::model::inventory::Inventory;
 
@@ -399,4 +400,51 @@ fn a_shadow_item_is_never_dropped_on_death() {
         !still_held.contains(&plain_oid),
         "while the ordinary copy of the same item id drops: {still_held:x?}"
     );
+}
+
+/// `PVP.ini`'s two lists: 30 item ids a dying PK never scatters (adena, the
+/// hero weapons and circlet, the newbie gear), and 12 pet ids. Without them a
+/// PK's corpse handed a hero weapon to whoever killed them.
+#[test]
+fn the_non_droppable_lists_survive_a_pk_death() {
+    /// One PK death with the two lists either populated or empty; returns
+    /// `(items kept, items on the ground)`.
+    fn kill_with_lists(listed: bool) -> (usize, usize) {
+        // Two listed ids — one from each list — and one ordinary item beside
+        // them.
+        const HERO_WEAPON: i32 = 6611; // `ListOfNonDroppableItems`
+        const WOLF_COLLAR: i32 = 2375; // `ListOfPetItems`
+
+        let (mut world, _db, _l) = drop_world();
+        let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 0, 0);
+        let _k = ingame_caster(&mut world, KILLER_CID, KILLER, 50, 0);
+        for id in [HERO_WEAPON, WOLF_COLLAR] {
+            world.data.item_data.insert_for_test(ItemTemplate {
+                item_id: id,
+                name: format!("Listed {id}"),
+                ..items_tests_template()
+            });
+        }
+        if listed {
+            world.cfg.rates.karma_nondroppable_items = vec![HERO_WEAPON];
+            world.cfg.rates.karma_nondroppable_pet_items = vec![WOLF_COLLAR];
+        }
+        register_loot(&mut world, 1);
+        pk_victim(&mut world, 1);
+        give(&mut world, VICTIM, HERO_WEAPON, 1, 0x6100_0000);
+        give(&mut world, VICTIM, WOLF_COLLAR, 1, 0x6100_0001);
+        assert_eq!(inventory_len(&world, VICTIM), 3);
+
+        kill_by_player(&mut world);
+        (inventory_len(&world, VICTIM), ground_item_count(&world))
+    }
+
+    assert_eq!(
+        kill_with_lists(true),
+        (2, 1),
+        "the two listed items stay; only the ordinary loot falls"
+    );
+    // Emptying the lists is what an operator editing `PVP.ini` does, and it
+    // has to reach the filter.
+    assert_eq!(kill_with_lists(false), (0, 3), "unlisted, everything drops");
 }

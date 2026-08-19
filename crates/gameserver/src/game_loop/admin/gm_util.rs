@@ -914,6 +914,7 @@ pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
                 &root,
                 &world.data.item_data,
                 world.cfg.general.custom_multisell_load,
+                world.cfg.general.correct_prices,
             );
             "Multisell lists reloaded."
         }
@@ -927,6 +928,7 @@ pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
                 &world.data.item_data,
                 max_grade,
                 world.cfg.general.custom_buylist_load,
+                world.cfg.general.correct_prices,
             );
             "Buylists reloaded."
         }

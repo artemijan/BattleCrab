@@ -492,7 +492,7 @@ fn refresh_zone_masks(world: &mut World) {
 /// lists, and the loader validates ingredients/products against item templates).
 fn load_real_multisell_data(world: &mut World, dist_loc: &str) {
     world.data.item_data = dist::items_owned();
-    world.data.multisells = MultisellData::load_from(dist_loc, &world.data.item_data, true);
+    world.data.multisells = MultisellData::load_from(dist_loc, &world.data.item_data, true, true);
 }
 fn hate_on(world: &World, npc: i32, target: i32) -> f64 {
     world

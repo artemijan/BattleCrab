@@ -156,6 +156,15 @@ pub struct RatesConfig {
     /// `PVP.ini` `MinimumPKRequiredToDrop` (Java default 4) — a PK below this
     /// many kills drops nothing to a player killer.
     pub karma_pk_limit: i32,
+    /// `PVP.ini` `ListOfNonDroppableItems` — item ids a dying PK never
+    /// scatters, whatever the rates say. Kept **sorted**, as Java sorts it for
+    /// the `Arrays.binarySearch` the drop filter uses. Lives here with the
+    /// other death-drop settings rather than in `config::pvp`, following
+    /// `karma_pk_limit`: PVP.ini's keys are split by consumer.
+    pub karma_nondroppable_items: Vec<i32>,
+    /// `PVP.ini` `ListOfPetItems` — the same list for pet gear (collars,
+    /// armour, food), checked separately by Java and merged nowhere.
+    pub karma_nondroppable_pet_items: Vec<i32>,
     /// `VitalityMaxItemsAllowed` — weekly cap on vitality-restoring item uses,
     /// reported by `ExVitalityEffectInfo` (**999**).
     pub vitality_max_items_allowed: i32,
@@ -229,6 +238,8 @@ impl Default for RatesConfig {
             karma_rate_drop_equip: 0,
             karma_rate_drop_equip_weapon: 0,
             karma_pk_limit: 4,
+            karma_nondroppable_items: Vec::new(),
+            karma_nondroppable_pet_items: Vec::new(),
         }
     }
 }
@@ -343,6 +354,18 @@ impl RatesConfig {
             // Lives in PVP.ini, not Rates.ini.
             karma_pk_limit: PropertiesParser::load_rel(root, "config/PVP.ini")
                 .get_int("MinimumPKRequiredToDrop", d.karma_pk_limit),
+            karma_nondroppable_items: sorted_ids(
+                &PropertiesParser::load_rel(root, "config/PVP.ini").get_string(
+                    "ListOfNonDroppableItems",
+                    "57,1147,425,1146,461,10,2368,7,6,2370,2369,6842,6611,6612,6613,6614,6615,6616,6617,6618,6619,6620,6621,7694,8181,5575,7694,9388,9389,9390",
+                ),
+            ),
+            karma_nondroppable_pet_items: sorted_ids(
+                &PropertiesParser::load_rel(root, "config/PVP.ini").get_string(
+                    "ListOfPetItems",
+                    "2375,3500,3501,3502,4422,4423,4424,4425,6648,6649,6650,9882",
+                ),
+            ),
         }
     }
 }
@@ -360,6 +383,19 @@ pub(crate) fn parse_id_multiplier_list(raw: &str) -> HashMap<i32, f64> {
         }
     }
     out
+}
+
+/// A comma-separated item-id list, parsed and **sorted** — Java stores these
+/// two as `int[]` and sorts them so the drop filter can binary-search.
+/// Unparseable entries are skipped rather than failing the load; Java would
+/// throw and lose the whole config, which is a worse answer for a stray space.
+fn sorted_ids(raw: &str) -> Vec<i32> {
+    let mut ids: Vec<i32> = raw
+        .split(',')
+        .filter_map(|t| t.trim().parse().ok())
+        .collect();
+    ids.sort_unstable();
+    ids
 }
 
 #[cfg(test)]
@@ -390,5 +426,40 @@ mod row14_tests {
             "parsed even though disabled"
         );
         assert_eq!(r.event_item_max_level_difference, 9);
+    }
+
+    /// The two `PVP.ini` drop lists that live here with `karma_pk_limit`:
+    /// parsed, sorted for the binary search the drop filter does, and holding
+    /// the shipped ids.
+    #[test]
+    fn the_non_droppable_lists_are_parsed_and_sorted() {
+        let r = RatesConfig::load_from(crate::data::DIST_GAME);
+        assert!(
+            r.karma_nondroppable_items.windows(2).all(|w| w[0] <= w[1]),
+            "sorted, as `Arrays.sort` leaves Java's copy"
+        );
+        assert!(
+            r.karma_nondroppable_pet_items
+                .windows(2)
+                .all(|w| w[0] <= w[1])
+        );
+        // Adena, the Interlude hero weapons and the hero circlet.
+        for id in [57, 6611, 6621, 6842] {
+            assert!(
+                r.karma_nondroppable_items.binary_search(&id).is_ok(),
+                "item {id} is on the non-droppable list"
+            );
+        }
+        // The wolf collar and the baby-pet collars.
+        for id in [2375, 6648, 6650] {
+            assert!(
+                r.karma_nondroppable_pet_items.binary_search(&id).is_ok(),
+                "pet item {id} is on the pet list"
+            );
+        }
+        assert!(
+            !r.karma_nondroppable_items.contains(&1),
+            "…and an ordinary Short Sword is not"
+        );
     }
 }

@@ -925,7 +925,13 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
             continue;
         };
         // Java's filter, in full: `isShadowItem() || isTimeLimitedItem() ||
-        // !isDropable() || ADENA || TYPE2_QUEST`. The shadow-item leg is the
+        // !isDropable() || ADENA || TYPE2_QUEST || the active pet's control
+        // item || either `PVP.ini` list`. The pet-control leg is **dead in
+        // Java**: it compares `_pet.getControlObjectId()` — an id from the
+        // world pool, which starts at 0x10000000 — against `itemDrop.getId()`,
+        // a template id no higher than five digits, so the two can never be
+        // equal. A summoned pet's collar is kept off the ground by
+        // `ListOfPetItems` instead, which is what actually contains 2375. The shadow-item leg is the
         // *instance's* mana (`_mana >= 0`), which is why `mana_left` is carried
         // through the snapshot rather than read off the template — 295 shadow
         // items are reachable on this chronicle, and without this a Shadow
@@ -936,6 +942,23 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
             || !t.is_dropable()
             || t.is_time_limited()
             || crate::game_loop::item_mana::is_shadow_item(mana_left)
+            // `PVP.ini`'s two lists (`KARMA_LIST_NONDROPPABLE_ITEMS` and its
+            // pet twin): 30 ids a PK never scatters — adena, the hero
+            // weapons and circlet, the newbie gear — plus 12 pet items.
+            // Java binary-searches both; the lists are sorted at load, so
+            // `binary_search` here is the same operation.
+            || world
+                .cfg
+                .rates
+                .karma_nondroppable_items
+                .binary_search(&item_id)
+                .is_ok()
+            || world
+                .cfg
+                .rates
+                .karma_nondroppable_pet_items
+                .binary_search(&item_id)
+                .is_ok()
         {
             continue;
         }

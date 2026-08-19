@@ -330,6 +330,9 @@ pub struct DataOptions {
     pub maximum_player_level: i32,
     /// `InitialEquipmentEvent` — which starting-gear table to read.
     pub initial_equipment_event: bool,
+    /// `CorrectPrices` — the shop price floor, applied while the buy lists and
+    /// multisells parse (Java does it in both loaders).
+    pub correct_prices: bool,
     /// The `General.ini` `Custom*Load` family — whether each loader also reads
     /// its `custom/` subdirectory. **All True on this dist**, and each is a
     /// separate key in Java because the directories are independent.
@@ -345,6 +348,7 @@ impl Default for DataOptions {
         Self {
             max_equipable_item_grade: item_data::CrystalType::S,
             maximum_player_level: experience::DIST_PLAYER_MAXIMUM_LEVEL,
+            correct_prices: true,
             initial_equipment_event: true,
             // The dist's values, so the cached test snapshot is the shipped
             // datapack — including the custom NPCs the TvT manager needs.
@@ -370,6 +374,7 @@ impl GameData {
         let DataOptions {
             max_equipable_item_grade,
             maximum_player_level,
+            correct_prices,
             initial_equipment_event,
             custom_npc_data,
             custom_skills_load,
@@ -385,8 +390,10 @@ impl GameData {
             &item_data,
             max_equipable_item_grade,
             custom_buylist_load,
+            correct_prices,
         );
-        let multisells = MultisellData::load_from(file_path, &item_data, custom_multisell_load);
+        let multisells =
+            MultisellData::load_from(file_path, &item_data, custom_multisell_load, correct_prices);
         let instance_templates = instance_data::InstanceData::load_from(file_path);
         let item_auctions = item_auction_data::ItemAuctionData::load_from(file_path);
         // The NPC AI skill index buckets each template's *active* skills by

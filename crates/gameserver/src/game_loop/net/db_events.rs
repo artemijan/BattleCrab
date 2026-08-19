@@ -386,6 +386,9 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
         DbEvent::CustomMailLoaded { rows } => {
             crate::game_loop::custom_mail::apply_loaded(world, rows);
         }
+        DbEvent::BirthdaysLoaded { rows } => {
+            crate::game_loop::birthday::apply_loaded(world, rows);
+        }
         DbEvent::OlympiadLoaded {
             current_cycle,
             period,

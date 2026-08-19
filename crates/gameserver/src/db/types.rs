@@ -1042,6 +1042,13 @@ pub enum DbCommand {
     /// rows an operator (or a web shop) writes straight into the table are the
     /// whole interface — the game server only ever reads and deletes them.
     LoadCustomMail,
+    /// `TaskBirthday`'s query: every character whose `create_date` ends in one
+    /// of these `MM-DD` day keys, with the year that day belongs to (the task
+    /// catches up a day at a time, so a run can carry several). Replies with
+    /// [`DbEvent::BirthdaysLoaded`].
+    LoadBirthdays {
+        days: Vec<BirthdayDay>,
+    },
     /// Delete one delivered `custom_mail` row, keyed as Java keys it: the
     /// `(date, receiver)` pair, which is the table's composite primary key.
     DeleteCustomMail {
@@ -1257,6 +1264,11 @@ pub enum DbEvent {
     /// The persisted (offline) sold tickets of `round` for a draw — the reply to
     /// [`DbCommand::LoadCustomMail`] — the pending rows, in table order.
     CustomMailLoaded { rows: Vec<CustomMailRow> },
+    /// The reply to [`DbCommand::LoadBirthdays`]: one entry per character
+    /// whose creation day matches a day that was asked for. The name comes
+    /// from the same row rather than from a second lookup — Java reads it back
+    /// out of `CharInfoTable`, which is that table's own index.
+    BirthdaysLoaded { rows: Vec<BirthdayMatch> },
     /// [`DbCommand::LoadLotteryTickets`]. `(object_id, enchant, custom_type2)`
     /// per ticket item 4442; the draw dedupes these against online inventories.
     LotteryTicketsLoaded {
@@ -1477,6 +1489,26 @@ pub struct OlympiadNobleRow {
     pub comp_lost: i32,
     pub comp_drawn: i32,
     pub comp_done_week: i32,
+}
+
+/// One day `TaskBirthday` checks: the `MM-DD` the `create_date` must end in,
+/// and the year whose anniversary it is (the age is measured against that).
+#[derive(Debug, Clone)]
+pub struct BirthdayDay {
+    /// `"MM-DD"`, zero-padded — Java's `"%-" + getNum(month + 1) + "-" + getNum(day)`.
+    pub month_day: String,
+    pub year: i32,
+}
+
+/// One character found by [`DbCommand::LoadBirthdays`].
+#[derive(Debug, Clone)]
+pub struct BirthdayMatch {
+    pub char_id: i32,
+    pub name: String,
+    /// `characters.create_date`, `YYYY-MM-DD` — only the year is read back.
+    pub create_date: String,
+    /// The year whose anniversary this is, from the day that matched.
+    pub year: i32,
 }
 
 /// One pending `custom_mail` row — the table an operator writes into to hand a

@@ -41,10 +41,11 @@ pub(crate) use queries::{
 };
 pub use queries::{NpcRespawnRow, OfflineTraderRow};
 pub use types::{
-    ClanHallBidRow, ClanHallRow, CmdTx, CreateResult, CursedWeaponRow, CustomMailRow, DbCommand,
-    DbEvent, FreightItemRow, GroundItemRow, HeroRow, MailRow, ManorProcureRow, ManorProductionRow,
-    NewCharacter, NewItem, NewShortcut, OlympiadEomRow, OlympiadNobleRow, PetRow, PlayerSaveData,
-    PlayerSnapshot, ResidenceFunctionRow, SiegeClanRow, SkillBuffRow, SkillReuseRow, SummonRow,
+    BirthdayDay, BirthdayMatch, ClanHallBidRow, ClanHallRow, CmdTx, CreateResult, CursedWeaponRow,
+    CustomMailRow, DbCommand, DbEvent, FreightItemRow, GroundItemRow, HeroRow, MailRow,
+    ManorProcureRow, ManorProductionRow, NewCharacter, NewItem, NewShortcut, OlympiadEomRow,
+    OlympiadNobleRow, PetRow, PlayerSaveData, PlayerSnapshot, ResidenceFunctionRow, SiegeClanRow,
+    SkillBuffRow, SkillReuseRow, SummonRow,
 };
 
 /// First object id handed out by `IdManager` (Java `FIRST_OID`). Shared by

@@ -204,7 +204,6 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 14 | Config | **65** keys in the ten core in-chronicle `.ini` files, parsed by Java, unread here. **Olympiad.ini, Rates.ini, Siege.ini and FloodProtector.ini are fully wired**; what remains is Feature 38, Character 8 (all dead in Java — see below), Server 7, General 8, and 2 each in NPC.ini and PVP.ini. Of the whole remainder, ~25 are dead in Java and 23 fortress-only. **Two earlier recorded figures were low**: re-deriving Character gave 82, not 76, and the previous total of 75 omitted NPC.ini's two keys — the row called NPC.ini wired, and its `DmgPenaltyForLvLDifferences` / `CritDmgPenaltyForLvLDifferences` are unread here (deliberately: Java parses them and then reads them nowhere) | `Config.java`'s `get*("Key")` calls ∩ the ten .ini files, minus every key name the port mentions as a string literal — literals, `format!` patterns **and array-driven reads**, each of which an earlier narrower scan missed | Contradicts the README's *"behaves as that config says"* for the remainder. See below |
 | 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
 
@@ -230,6 +229,7 @@ same work. Closed rows move to [§ Closed](#closed).
 | 8 | `TerritoryStatus` bypass | 2026-08-15 | `bypasshandlers/TerritoryStatus`. The lookup is `findNearestCastle`, **not** the siege zone the NPC stands in — which is what lets a fisherman in the middle of a town answer at all |
 | 20 | Item conditions | 2026-08-19 | `ItemTemplate.checkCondition` and the `<cond>` parser under it — the whole tree, all 24 condition kinds, both message forms, and the four call sites Java gates with it. See below |
 | 19 | Player level cap | 2026-08-19 | `ExperienceData`'s two `+ 1`s and the `MaximumPlayerLevel` clamp, `PlayerStat.setLevel`'s ceiling, and `AdminLevel`'s accept range. **The row's own figures were wrong on the Java side** — see below |
+| 14 | Config | 2026-08-19 | **59** keys still unread, and every one of them accounted for: dead in Java, off-chronicle, or blocked on an unported subsystem. The last live ones — `CorrectPrices`, the birthday trio and the two `PVP.ini` drop lists — landed with it. See below |
 
 **Row 16 mostly corrected itself.** The audit's original figure was 79 missing
 of 458 with "~10 against ported systems, so the G13 row's 'all off-chronicle'
@@ -644,12 +644,12 @@ counted are **dead in Java**:
   so naming them in prose deliberately does not move the number — loosening it
   to flatter the count would defeat the point of having one.
 
-What is left in row 14 is General (**8**, down from 19 as the dev/debug and
-grid clusters landed — what remains is persistence-model choices the port made
-differently: memory-first saves, no `HtmCache`) and Server (7), which is
-infrastructure. (This paragraph used to name General twice, once with
-Character.ini's description attached to it — a copy-edit slip from the row that
-closed Character.ini.)
+What was left in row 14 at that point was General (**8**, down from 19 as the
+dev/debug and grid clusters landed) and Server (7). Both are now classified
+rather than outstanding — see [the closing section](#row-14-closed-and-two-of-its-own-classifications-were-wrong)
+below. (This paragraph used to name General twice, once with Character.ini's
+description attached to it — a copy-edit slip from the row that closed
+Character.ini.)
 
 **The General.ini fall-damage cluster (`EnableFallingDamage`).** The first
 General key worked, and the only one on the file that was a *subsystem* rather
@@ -984,6 +984,79 @@ exception thrown by parsing a malformed command. The port validates its
 arguments and answers with the same usage message Java sends after logging, so
 there is no exception to gate. Recorded in `config::general`'s header rather
 than given a field, following `config::character`'s convention.
+
+## Row 14 closed, and two of its own classifications were wrong
+
+The row measured **65** unread keys and sorted them into buckets. Working the
+buckets found that two of them held live work, and closing the row meant
+porting that rather than re-describing it. The count is now **59**, and the
+difference is the six keys that turned out to matter.
+
+**`CorrectPrices` was read in one loader and hardcoded in the other.** The buy
+lists floored an npc-served price at the item's sell value with the key baked
+to `True`; the multisells did not implement the second half at all — Java also
+raises a single-adena-ingredient entry's *cost* to the total sell value of what
+it hands out, chance-weighted (`sellValue * chance / 100`), which is what keeps
+a 1 %-drop list from costing the jackpot. Both halves now read the key.
+
+On the shipped datapack the key corrects **nothing**: no npc-served buy-list
+line undercuts its item's sell value, and none of the 4971 single-ingredient
+multisell entries is underpriced. That is asserted rather than assumed — one
+test per loader compares the catalogue parsed both ways and expects them
+identical — and the mechanism itself is pinned by unit tests instead of by the
+data.
+
+**The birthday gift was a whole task, not a key.** `AltBirthdayGift`,
+`AltBirthdayMailSubject` and `AltBirthdayMailText` feed
+`taskmanager/tasks/TaskBirthday`, which Java registers as a global task at
+`06:30:00` — the slot the port's daily reset already owns. It mails every
+character a present on the anniversary of its creation, and three details are
+easy to miss:
+
+* it **catches up**, walking day by day from the task's last activation to
+  today, so a server that was down over a birthday still sends the gift. That
+  makes it the first reader of the `DAILY_TASK_RESET` stamp the daily reset has
+  been writing all along;
+* the recipient does **not** have to be online — the query is over the
+  `characters` table and the gift is a mail row;
+* a 29-February character is paid on the 28th in non-leap years, which Java
+  spells out and the port ports.
+
+The shipped `AltBirthdayMailText` uses **neither** `$c1` nor `$s1` despite the
+ini's own comment documenting both, so the mail goes out impersonally until an
+operator edits it. The substitutions are implemented and tested anyway.
+
+**`ListOfNonDroppableItems` and `ListOfPetItems` were filed as dead in Java and
+are not.** Both feed `Player.onDieDropItem`: a dying PK never scatters the 30
+ids on the first list (adena, the Interlude hero weapons, the hero circlet, the
+newbie gear) or the 12 on the second (collars, pet armour). The port's
+death-drop filter had every other leg of Java's condition and not these two, so
+a PK's corpse handed a hero weapon to whoever killed them. They live on
+`config::rates` beside `MinimumPKRequiredToDrop` — `PVP.ini`'s keys are split
+by consumer here — sorted at load, because Java binary-searches them.
+
+Porting that leg also found a **dead branch in Java**: the same filter skips
+"the control item of the active pet" by comparing `_pet.getControlObjectId()`,
+an id from the world pool starting at `0x10000000`, against `itemDrop.getId()`,
+a template id of at most five digits. They can never be equal. A summoned pet's
+collar is kept off the ground by `ListOfPetItems` instead, which is what
+actually contains 2375.
+
+### The 59 that remain, and why none of them is portable work
+
+| File | Unread | What they are |
+|---|---:|---|
+| Feature.ini | 38 | 19 fortress fees + 2 fort reputation awards (off-chronicle), 12 clan level 6-11 costs/requirements and 5 others (`BloodOathPoints`, `BloodAlliancePoints`, `FestivalOfDarknessWin`, `KillBallistaPoints`, `KnightsEpaulettePoints`) that **no code outside `Config.java` reads** |
+| Character.ini | 8 | all dead in Java — ability points (2), the skill-deletion fees (3), `MaxNewbieBuffLevel`, and the two mentor penalties, which are dead twice over because both assign to the *same* field (`MENTOR_PENALTY_FOR_MENTEE_COMPLETE` is assigned from `MentorPenaltyForMenteeLeave` on the next line) |
+| Server.ini | 7 | infrastructure: `Driver` (a JDBC class name; this server is `sqlx`), `MySqlBinLocation` (mysqldump, Windows-only, and `BackupDatabase = False`), the two HWID keys (no `RequestHardWareInfo` on this chronicle, and both off), `PrecautionaryRestartCpu`/`Memory` (the manager is created only `if PRECAUTIONARY_RESTART_ENABLED`, **False** here) and `PrecautionaryRestartChecks` (no reader in Java) |
+| General.ini | 4 | `Developer`, `LogAutoAnnouncements`, `StoryQuestRewardBuff` — no reader in Java — plus `BookmarkConsumeItemId`, which Java *does* read but which needs the teleport-bookmark subsystem (four client packets on Ex `0x4E`, none dispatched here) |
+| NPC.ini | 2 | `DmgPenaltyForLvLDifferences` / `CritDmgPenaltyForLvLDifferences`: parsed by Java, read by nothing |
+
+Each figure above was re-derived from `Config.java` against the port rather
+than carried forward; the command is in
+[§ Re-deriving these numbers](#re-deriving-these-numbers). Every "no reader"
+claim was checked with a `Config.FIELD` grep over `java/` **and**
+`dist/game/data/scripts/`, not assumed from the key's name.
 
 **Row 19 closed, and the row's own arithmetic was wrong — in Java's favour by
 one.** It recorded the Java cap as 79. It is **80**, the Interlude cap, and the
@@ -1387,6 +1460,31 @@ comm -23 /tmp/jq.txt /tmp/rq.txt
 # NPCs are actually spawned and its items actually exist:
 grep -rl 'id="31774"' dist/game/data/spawns/    # Q00933: no output = unreachable
 grep -l  '<item id="49559"' dist/game/data/stats/items/*.xml   # Q11000: none
+
+# row 14 — the strict form, per file. Java's `Config` reads keys through a
+# parser variable per ini; map variable → file, intersect with the port's
+# string literals, and what is left is unread. (The coarse form below
+# over-reports badly; it is kept because it needs no script.)
+python3 - <<'EOF'
+import re, collections, glob
+src = open('../interlude_classic/java/org/l2jmobius/Config.java').read()
+parsers = dict(re.findall(r'final PropertiesParser (\w+) = new PropertiesParser\((\w+)\)', src))
+consts = dict(re.findall(r'(?:public|private) static final String (\w+) = "\./config/([^"]+)"', src))
+reads = collections.defaultdict(set)
+for var, const in parsers.items():
+    for m in re.finditer(re.escape(var) + r'\.get\w+\("([^"]+)"', src):
+        reads[consts.get(const, const)].add(m.group(1))
+seen = set()
+for p in glob.glob('crates/**/*.rs', recursive=True):
+    seen |= set(re.findall(r'"([A-Za-z0-9_]+)"', open(p, errors='replace').read()))
+for f in ('Character.ini','General.ini','Server.ini','Feature.ini','NPC.ini','PVP.ini'):
+    print(f, sorted(k for k in reads[f] if k not in seen))
+EOF
+
+# …and the two `CorrectPrices` measurements: how much of the shipped
+# catalogue either half of the key actually moves. Both are zero, which is
+# what `the_shipped_catalogue_is_the_same_either_way` and its multisell twin
+# assert from the parser's own output.
 
 # row 14 — coarse form, and **it over-reports**. A literal-only scan of the
 # port misses every key it builds with `format!` (all 13 GrandBoss respawn

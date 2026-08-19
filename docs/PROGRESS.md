@@ -8012,3 +8012,81 @@ from 66 to 65, and the file is now fully read.
 8 tests: 3 on the table and its two clamps, 4 on the cap in play (config value,
 the 80 a flood stops at, `set_level`'s ceiling and floor, the subclass ceiling
 under it), 1 on `//set_level`'s range. Every mechanism sabotage-verified.
+
+---
+
+## Row 14: the config sweep ends, and two of its own buckets were wrong
+
+The row counted 65 unread keys and sorted them into "dead in Java",
+"fortress-only" and "infrastructure". Working the buckets found six keys that
+were none of those, so closing the row meant porting them.
+
+### `CorrectPrices` was half-implemented and hardcoded
+
+The buy lists already floored an npc-served price at the item's sell value —
+with the key baked to `True`, so an operator turning it off changed nothing.
+The multisell half was missing outright: Java also raises a single-adena-
+ingredient entry's *cost* to the total sell value of what it hands out,
+chance-weighted, which is what stops a 1 %-drop list being priced at the
+jackpot. Both halves read the key now, through `DataOptions` (it decides how
+the catalogue parses, so it travels with `MaxEquipableItemGrade`).
+
+On the shipped datapack the key corrects **nothing** — no buy-list line
+undercuts its sell value, and none of the 4971 single-ingredient multisell
+entries is underpriced. Rather than assume that, one test per loader parses the
+catalogue both ways and asserts the two are identical; the mechanism itself is
+pinned by unit tests on the two decision functions.
+
+### The birthday gift was a task, not three keys
+
+`AltBirthdayGift` + the two mail strings feed `TaskBirthday`, a global task
+Java registers at `06:30:00` — the slot `daily_tasks` already owns, so it rides
+along there. It mails every character a present on the anniversary of its
+creation, **offline recipients included** (the query is over `characters`, the
+delivery is a mail row), and it **catches up**: Java walks day by day from the
+task's last activation to today, so a server down over a birthday still sends
+the gift. That makes it the first reader of the `DAILY_TASK_RESET` stamp the
+daily reset has been writing all along. Java's leap-day rule ports with it — a
+29-February character is paid on the 28th in common years.
+
+One thing the data says and the ini's comment does not: the shipped
+`AltBirthdayMailText` uses **neither** `$c1` nor `$s1`, so the mail is
+impersonal until an operator edits it. Both substitutions are implemented
+anyway, and tested.
+
+### The two `PVP.ini` drop lists were filed as dead and are not
+
+`ListOfNonDroppableItems` and `ListOfPetItems` feed `Player.onDieDropItem`: a
+dying PK never scatters the 30 ids on the first (adena, the Interlude hero
+weapons, the hero circlet, the newbie gear) or the 12 on the second. The port's
+drop filter had every other leg of Java's condition and not these two — a PK's
+corpse handed a hero weapon to whoever killed them. They sit on
+`config::rates` beside `MinimumPKRequiredToDrop`, sorted at load because Java
+binary-searches them.
+
+Porting that leg found a **dead branch in Java**: the same filter tries to skip
+"the control item of the active pet" by comparing `_pet.getControlObjectId()` —
+an id from the world pool, which starts at `0x10000000` — against
+`itemDrop.getId()`, a template id of at most five digits. They can never be
+equal. What actually keeps a summoned pet's collar off the ground is
+`ListOfPetItems`, which contains 2375.
+
+### What the remaining 59 are
+
+38 Feature (fortress fees and the clan level 6-11 costs, none of them read
+outside `Config.java`), 8 Character (all dead in Java — including two mentor
+penalties that assign to the *same* field), 7 Server (a JDBC driver name, a
+mysqldump path, two HWID keys this client cannot feed, and a
+precautionary-restart manager Java only creates when a key that is `False` says
+so), 4 General (three with no reader, plus `BookmarkConsumeItemId`, which needs
+the unported teleport-bookmark subsystem) and 2 NPC (parsed, read nowhere).
+
+Every "no reader" claim was checked with a `Config.FIELD` grep across `java/`
+**and** the datapack scripts, because the row's own dead-bucket had two live
+keys in it. The per-file derivation is now a script in `PORTING_STATUS.md`
+rather than a grep that over-reports.
+
+11 tests: 2 on the buy-list floor (mechanism, and the shipped catalogue being
+unchanged), 4 on the multisell half, 4 on the birthday calendar and its
+delivery, 1 on the drop lists — plus a config test per file for the shipped
+values. Every mechanism sabotage-verified.

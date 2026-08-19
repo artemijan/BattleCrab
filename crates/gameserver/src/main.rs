@@ -71,6 +71,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         gameserver::data::DataOptions {
             max_equipable_item_grade: config.character.max_equipable_item_grade,
             maximum_player_level: config.character.maximum_player_level,
+            correct_prices: config.general.correct_prices,
             initial_equipment_event: config.character.initial_equipment_event,
             custom_npc_data: config.general.custom_npc_data,
             custom_skills_load: config.general.custom_skills_load,

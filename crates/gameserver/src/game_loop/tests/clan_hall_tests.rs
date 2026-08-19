@@ -1028,6 +1028,7 @@ fn the_item_functions_map_to_the_managers_buylists() {
         items,
         crate::data::item_data::CrystalType::S,
         true,
+        true,
     );
     let npc_id = 35447; // Korgen (Aden)
 

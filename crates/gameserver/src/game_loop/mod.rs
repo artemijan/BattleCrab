@@ -30,6 +30,7 @@ pub(crate) use bosses::{
     antharas, baium, boss_respawn, common, core_boss, dr_chaos, frintezza, grand_boss, orfen,
     queen_ant, raid_curse, sailren, valakas,
 };
+pub(crate) mod birthday;
 mod boot;
 pub(crate) mod bot_report;
 mod bypass;

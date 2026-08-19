@@ -1251,3 +1251,68 @@ fn a_row_without_items_is_a_plain_letter() {
     assert!(!msg.has_attachments);
     assert!(!world.mail.attachments.contains_key(&msg.id));
 }
+
+// ---------------------------------------------------------------------------
+// Birthday gifts (`TaskBirthday`)
+// ---------------------------------------------------------------------------
+
+/// The gift mail itself: the configured item as its attachment, and the two
+/// substitutions Java makes in the body.
+#[test]
+fn a_birthday_gift_is_mailed_with_the_name_and_age_filled_in() {
+    use crate::db::BirthdayMatch;
+
+    let (mut world, mut a_rx, _b_rx, _db) = mail_world();
+    world.cfg.general.alt_birthday_gift = 736; // Scroll of Escape
+    world.cfg.general.alt_birthday_mail_subject = "Happy Birthday!".into();
+    world.cfg.general.alt_birthday_mail_text = "Hello $c1! You are $s1 today.".into();
+    drain(&mut a_rx);
+
+    crate::game_loop::birthday::apply_loaded(
+        &mut world,
+        vec![
+            BirthdayMatch {
+                char_id: 3001,
+                name: "P3001".into(),
+                create_date: "2020-08-19".into(),
+                year: 2026,
+            },
+            // Created *this* year: Java's `age <= 0` skip — no gift on the day
+            // a character is made.
+            BirthdayMatch {
+                char_id: 3002,
+                name: "P3002".into(),
+                create_date: "2026-08-19".into(),
+                year: 2026,
+            },
+        ],
+    );
+
+    let inbox = world.mail.inbox(3001);
+    assert_eq!(inbox.len(), 1, "one gift for the character with a birthday");
+    let msg = inbox[0];
+    assert_eq!(msg.subject, "Happy Birthday!");
+    assert_eq!(
+        msg.content, "Hello P3001! You are 6 today.",
+        "$c1 is the name, $s1 the age in years"
+    );
+    assert_eq!(msg.mail_type, crate::model::mail::MailType::Birthday);
+    assert!(msg.has_attachments);
+    assert_eq!(
+        world.mail.attachments[&msg.id].count_of(736),
+        1,
+        "the gift is attached"
+    );
+    assert!(
+        world.mail.inbox(3002).is_empty(),
+        "a character created this year is not one year old"
+    );
+    // The online recipient is told, the same two packets any arriving mail
+    // sends.
+    let pkts = drain(&mut a_rx);
+    assert!(
+        pkts.iter().any(|p| p[0] == server_packets::opcodes::EX
+            && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_NOTICE_POST_ARRIVED),
+        "ExNoticePostArrived"
+    );
+}

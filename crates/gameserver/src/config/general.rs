@@ -21,6 +21,17 @@
 //!   the port validates its arguments and answers with the same usage message
 //!   Java sends after logging, so there is no exception to gate.
 //!
+//! # Read by Java, blocked on an unported feature
+//!
+//! * **`BookmarkConsumeItemId`** (20033, "My Teleport Flag") — the item
+//!   `Player.teleportBookmarkAdd` spends to save a teleport bookmark. The
+//!   bookmark subsystem is not ported: its four client packets arrive on Ex
+//!   `0x4E` and nothing here dispatches them, so `ExGetBookMarkInfo` goes out
+//!   at login declaring zero slots and no bookmark is ever saved. Unlike the
+//!   keys above this one is **not** dead in Java — the datapack does ship the
+//!   slot-granting effect and the flag item — so it is listed here rather than
+//!   with them, and it lands when the subsystem does.
+//!
 //! (`CustomTeleportTable` is dead in Java too but *does* have a field below,
 //! decided when the loader cluster landed. The two treatments are not a
 //! disagreement about the key: a field costs nothing and stops the next audit
@@ -324,6 +335,21 @@ pub struct GeneralConfig {
     /// `CustomBuyListLoad` (dist **True**) — `buylists/custom/`, the 143
     /// GM-shop lists.
     pub custom_buylist_load: bool,
+    /// `AltBirthdayGift` (dist **7541**) — the item mailed to a character on
+    /// the anniversary of its creation (Java `TaskBirthday`).
+    pub alt_birthday_gift: i32,
+    /// `AltBirthdayMailSubject` — the gift mail's subject line.
+    pub alt_birthday_mail_subject: String,
+    /// `AltBirthdayMailText` — its body, with Java's two substitutions:
+    /// `$c1` is the character's name and `$s1` its age in years.
+    pub alt_birthday_mail_text: String,
+    /// `CorrectPrices` (dist **True**) — never let a shop sell below the
+    /// item's own sell value. Java applies it in **two** loaders: `BuyListData`
+    /// floors an npc-served product's price at `referencePrice / 2`, and
+    /// `MultisellData` raises a single-adena-ingredient entry's cost to the
+    /// total sell value of what it hands out. Read by both here through
+    /// [`crate::data::DataOptions`], since it decides how the catalogue parses.
+    pub correct_prices: bool,
     /// `CustomTeleportTable` (dist **True**) — **dead in Java**: `Config`
     /// parses it into `CUSTOM_TELEPORT_TABLE` and nothing anywhere reads that
     /// field. Given a field here so the key is accounted for and the next
@@ -746,6 +772,14 @@ impl GeneralConfig {
             custom_items_load: p.get_bool("CustomItemsLoad", false),
             custom_multisell_load: p.get_bool("CustomMultisellLoad", false),
             custom_buylist_load: p.get_bool("CustomBuyListLoad", false),
+            alt_birthday_gift: p.get_int("AltBirthdayGift", 7541),
+            alt_birthday_mail_subject: p
+                .get_string("AltBirthdayMailSubject", "Happy Birthday!"),
+            alt_birthday_mail_text: p.get_string(
+                "AltBirthdayMailText",
+                "Hello Adventurer!! Seeing as you're one year older now, I thought I would send you some birthday cheer :) Please find your birthday pack attached. May these gifts bring you joy and happiness on this very special day.\n\nSincerely, Alegria",
+            ),
+            correct_prices: p.get_bool("CorrectPrices", true),
             custom_teleport_table: p.get_bool("CustomTeleportTable", false),
             // Java's code defaults are `true` for these three.
             htm_cache: p.get_bool("HtmCache", true),
@@ -859,6 +893,27 @@ impl GeneralConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The four keys row 14 wired last: the birthday trio and `CorrectPrices`.
+    /// Their shipped values are what makes the gift a Cake and the price floor
+    /// active, so a rename would go unnoticed without this.
+    #[test]
+    fn loads_the_birthday_block_and_correct_prices() {
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/config/General.ini"
+        );
+        let g = GeneralConfig::from_parser(&PropertiesParser::load(path));
+        assert_eq!(g.alt_birthday_gift, 7541, "AltBirthdayGift");
+        assert_eq!(g.alt_birthday_mail_subject, "Happy Birthday!");
+        assert!(
+            g.alt_birthday_mail_text.starts_with("Hello Adventurer!!"),
+            "the shipped body, which — despite the `$c1`/`$s1` the ini's own \
+             comment documents — uses **neither** substitution: the mail goes \
+             out impersonally unless an operator edits it"
+        );
+        assert!(g.correct_prices, "CorrectPrices=True");
+    }
 
     /// The real dist `General.ini` values (the GM block near the top of the
     /// file). Guards the key names against a config rename.

@@ -1,4 +1,5 @@
 use super::BLOCK_RELATION;
+use super::BirthdayMatch;
 use super::CmdRx;
 use super::CreateResult;
 use super::CustomMailRow;
@@ -2004,6 +2005,28 @@ pub(crate) async fn run(
                     })
                     .collect();
                 let _ = event_tx.send(DbEvent::CustomMailLoaded { rows });
+            }
+            DbCommand::LoadBirthdays { days } => {
+                // Java `TaskBirthday.QUERY`: `createDate LIKE '%-MM-DD'`, one
+                // query per day it is catching up on.
+                let mut rows = Vec::new();
+                for day in days {
+                    let matches = entity::characters::Entity::find()
+                        .filter(
+                            entity::characters::Column::CreateDate
+                                .like(format!("%-{}", day.month_day)),
+                        )
+                        .all(&db)
+                        .await
+                        .unwrap_or_default();
+                    rows.extend(matches.into_iter().map(|c| BirthdayMatch {
+                        char_id: c.char_id,
+                        name: c.char_name,
+                        create_date: c.create_date,
+                        year: day.year,
+                    }));
+                }
+                let _ = event_tx.send(DbEvent::BirthdaysLoaded { rows });
             }
             DbCommand::DeleteCustomMail { date, receiver } => {
                 warn_err(

@@ -55,6 +55,10 @@ pub(crate) fn run_reset(world: &mut World, weekly: bool) {
     super::vitality::reset_vitality(world, weekly);
     super::reco::reset_recommends(world);
     reset_world_chat_points(world);
+    // `TaskBirthday` is a separate `TYPE_GLOBAL_TASK` in Java, registered at
+    // the same "06:30:00" this beat runs on. It reads the stamp set above, so
+    // it goes after it: a run that was missed is caught up from there.
+    super::birthday::check_birthdays(world);
 }
 
 /// Java `DailyTaskManager.resetWorldChatPoints`: zero every character's spent

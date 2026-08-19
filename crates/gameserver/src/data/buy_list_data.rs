@@ -121,7 +121,7 @@ pub struct BuyListData {
 
 impl BuyListData {
     pub fn load(items: &ItemData) -> Self {
-        Self::load_from("", items, CrystalType::S, true)
+        Self::load_from("", items, CrystalType::S, true, true)
     }
 
     pub fn load_from(
@@ -129,15 +129,22 @@ impl BuyListData {
         items: &ItemData,
         max_grade: CrystalType,
         custom: bool,
+        correct_prices: bool,
     ) -> Self {
         let mut by_id = HashMap::new();
         // Java parses "data/buylists" then "data/buylists/custom"; on an id
         // collision the later (custom) file wins.
         let dir = format!("{file_path}{BUYLISTS_DIR}");
-        load_dir(&dir, items, max_grade, &mut by_id);
+        load_dir(&dir, items, max_grade, correct_prices, &mut by_id);
         // `CustomBuyListLoad` (**True** here): the 143 GM-shop lists.
         if custom {
-            load_dir(&format!("{dir}/custom"), items, max_grade, &mut by_id);
+            load_dir(
+                &format!("{dir}/custom"),
+                items,
+                max_grade,
+                correct_prices,
+                &mut by_id,
+            );
         }
         info!("BuyListData: Loaded {} buy lists.", by_id.len());
         Self { by_id }
@@ -176,6 +183,7 @@ fn load_dir(
     dir: &str,
     items: &ItemData,
     max_grade: CrystalType,
+    correct_prices: bool,
     by_id: &mut HashMap<i32, BuyList>,
 ) {
     for path in crate::data::xml::xml_files_in(dir) {
@@ -187,7 +195,7 @@ fn load_dir(
             warn!("BuyListData: non-numeric buylist file {}", path.display());
             continue;
         };
-        if let Some(list) = parse_file(&path, list_id, items, max_grade) {
+        if let Some(list) = parse_file(&path, list_id, items, max_grade, correct_prices) {
             by_id.insert(list_id, list);
         }
     }
@@ -198,6 +206,7 @@ fn parse_file(
     list_id: i32,
     items: &ItemData,
     max_grade: CrystalType,
+    correct_prices: bool,
 ) -> Option<BuyList> {
     let content = std::fs::read_to_string(path).ok()?;
     let mut list = BuyList {
@@ -235,21 +244,21 @@ fn parse_file(
                         }
                         let declared: i64 =
                             attr(b"price").and_then(|v| v.parse().ok()).unwrap_or(-1);
-                        // `Config.CORRECT_PRICES` (True on this dist): never
-                        // sell below the item's own sell value — but only on a
-                        // list an npc serves. The `getNpcsAllowed() != null`
+                        // `Config.CORRECT_PRICES` (**True** on this dist):
+                        // never sell below the item's own sell value — but
+                        // only on a list an npc serves. The `getNpcsAllowed() != null`
                         // half is what leaves the GM shop's `price="0"` lines
                         // free, and it reads the block parsed *so far*, so it
                         // is document order that decides, like Java's.
                         let sell_price = template.sell_price();
-                        let mut price = declared;
-                        if !list.npcs.is_empty() && declared > -1 && sell_price > declared {
-                            warn!(
-                                "BuyListData: buy price {declared} is less than sell price \
-                                 {sell_price} for ItemID:{item_id} of buylist {list_id}."
-                            );
-                            price = sell_price;
-                        }
+                        let mut price = corrected_price(
+                            declared,
+                            sell_price,
+                            !list.npcs.is_empty(),
+                            correct_prices,
+                            item_id,
+                            list_id,
+                        );
                         // `Product`'s constructor, not the parser: an
                         // undeclared price is the item's reference price.
                         if price < 0 {
@@ -292,6 +301,40 @@ fn parse_file(
     Some(list)
 }
 
+/// `BuyListData`'s `Config.CORRECT_PRICES` block: a product an npc sells may
+/// not go for less than the item's own sell value (`referencePrice / 2`), or
+/// players would buy from the shop and sell straight back at a profit.
+///
+/// Two halves decide whether it applies, and both matter:
+///
+/// * `getNpcsAllowed() != null` — the GM-shop lists under `custom/` declare no
+///   `<npcs>` block, which is what leaves their `price="0"` lines free. It
+///   reads the block parsed *so far*, so document order decides, as in Java.
+/// * `price > -1` — an undeclared price is resolved to the item's reference
+///   price afterwards, and is not floored here.
+///
+/// **It corrects nothing on the shipped datapack**: no npc-served line
+/// undercuts its item's sell value, so the two settings produce identical
+/// catalogues. The mechanism is pinned by the unit test below rather than by
+/// the data.
+fn corrected_price(
+    declared: i64,
+    sell_price: i64,
+    npc_served: bool,
+    correct_prices: bool,
+    item_id: i32,
+    list_id: i32,
+) -> i64 {
+    if !correct_prices || !npc_served || declared <= -1 || sell_price <= declared {
+        return declared;
+    }
+    warn!(
+        "BuyListData: buy price {declared} is less than sell price \
+         {sell_price} for ItemID:{item_id} of buylist {list_id}."
+    );
+    sell_price
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -301,7 +344,7 @@ mod tests {
     fn loads_real_dist_files() {
         let root = crate::data::DIST_GAME;
         let items = dist::items();
-        let data = BuyListData::load_from(root, items, CrystalType::S, true);
+        let data = BuyListData::load_from(root, items, CrystalType::S, true, true);
         // 338 regular merchant lists + 143 custom (GM shop) lists.
         assert_eq!(data.len(), 481);
 
@@ -412,5 +455,55 @@ mod tests {
                 );
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod correct_prices_tests {
+    use super::*;
+    use crate::data::dist;
+
+    /// The floor itself, which the shipped datapack never exercises: an
+    /// npc-served line below the item's sell value is raised to it.
+    #[test]
+    fn the_floor_applies_only_to_a_declared_price_on_an_npc_served_list() {
+        // Corrected: npc-served, declared, and under the sell value.
+        assert_eq!(corrected_price(100, 500, true, true, 1, 1), 500);
+        // The GM shop has no `<npcs>`, which is what keeps `price="0"` free.
+        assert_eq!(corrected_price(0, 500, false, true, 1, 1), 0);
+        // `price > -1`: an undeclared price is resolved to the *reference*
+        // price later, not floored here.
+        assert_eq!(corrected_price(-1, 500, true, true, 1, 1), -1);
+        // Already at or above the floor: untouched.
+        assert_eq!(corrected_price(500, 500, true, true, 1, 1), 500);
+        assert_eq!(corrected_price(900, 500, true, true, 1, 1), 900);
+        // And the key switches the whole thing off.
+        assert_eq!(corrected_price(100, 500, true, false, 1, 1), 100);
+    }
+
+    /// …and on the shipped data the key changes nothing, which is worth
+    /// asserting rather than assuming: it is why the catalogue tests do not
+    /// have to care which way it is set.
+    #[test]
+    fn the_shipped_catalogue_is_the_same_either_way() {
+        let items = dist::items();
+        let root = crate::data::DIST_GAME;
+        let on = BuyListData::load_from(root, items, CrystalType::S, true, true);
+        let off = BuyListData::load_from(root, items, CrystalType::S, true, false);
+        let differing = on
+            .by_id
+            .iter()
+            .flat_map(|(id, list)| {
+                let other = off.by_id.get(id).expect("same lists");
+                list.products
+                    .iter()
+                    .zip(other.products.iter())
+                    .filter(|(a, b)| a.price != b.price)
+            })
+            .count();
+        assert_eq!(
+            differing, 0,
+            "no npc-served line on this dist undercuts its item's sell value"
+        );
     }
 }

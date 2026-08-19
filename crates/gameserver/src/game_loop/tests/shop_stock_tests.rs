@@ -38,6 +38,7 @@ fn dist_shop_world(npc_id: i32) -> (World, db::CmdRx, UnboundedReceiver<bytes::B
         &items,
         crate::data::item_data::CrystalType::S,
         true,
+        true,
     );
     world.data.item_data = items;
     world.data.buy_lists = lists;
