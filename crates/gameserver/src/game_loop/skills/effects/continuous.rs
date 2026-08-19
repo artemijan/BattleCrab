@@ -3,6 +3,7 @@ use super::apply_buff_to_npc;
 use super::apply_mute_interrupt;
 use super::attribute_mod;
 use super::calc_general_trait_bonus;
+use super::calc_skill_mastery;
 use super::casting_resists_abnormal;
 use super::creature_level;
 use super::creature_name;
@@ -183,7 +184,22 @@ pub(crate) fn apply_continuous_effects(
     {
         return false;
     }
-    if skill.is_bad() && caster_oid != target_oid && skill.activate_rate != -1 {
+    // Java gates this on **`activateRate != -1` alone** — not on `isBad()`.
+    // `Skill.applyEffects` runs `_operateType.isContinuous() && calcEffectSuccess(…)`
+    // for every continuous skill, and `calcEffectSuccess` returns early only for
+    // the `-1` sentinel. Three learnable skills on this dist fall in the gap an
+    // `isBad()` gate would open:
+    //
+    // - **Veil (106)** — `isDebuff`, `activateRate 70`, trait `DERANGEMENT`, and
+    //   *no* `<effectPoint>` at all, so `effectPoint < 0` is false. Gated on
+    //   `isBad()` it would be an unresistable mesmerize.
+    // - **Greater Heal (1217)** / **Greater Group Heal (1219)** — `activateRate 0`
+    //   with no `<lvlBonusRate>`, so `baseMod` is a flat 30 and the
+    //   `LIFE_FORCE_OTHERS` regeneration rides along only ~30 % of the time when
+    //   the heal is cast on *someone else*. The instant heal is a separate
+    //   (non-continuous) effect and always lands; it is the over-time half that
+    //   rolls. Surprising, but it is what the formula says.
+    if caster_oid != target_oid && skill.activate_rate != -1 {
         let target_level = creature_level(world, target_oid);
         // Java: `skill.isDebuff() ? target.getStat().getValue(RESIST_ABNORMAL_DEBUFF, 1) : 1`.
         let debuff_resist_mod = if skill.is_debuff {
@@ -286,12 +302,37 @@ pub(crate) fn apply_continuous_effects(
         }
     }
 
+    // `Formulas.calcEffectAbnormalTime`, which every `BuffInfo` runs through its
+    // constructor:
+    //
+    // ```java
+    // int time = (skill == null) || skill.isPassive() || skill.isToggle() ? -1 : skill.getAbnormalTime();
+    // if ((skill != null) && !skill.isStatic() && calcSkillMastery(caster, skill)) time *= 2;
+    // ```
+    //
+    // **A Skill Mastery proc doubles the duration.** This is a second, wholly
+    // independent roll from the one `apply_reuse` makes to collapse the
+    // cooldown, and — unlike that one — it is *not* gated to `operateType A1`:
+    // Java excludes only static skills here. So an Eva's Saint who learns Skill
+    // Mastery (331, level 77) rolls it on every buff they land and sometimes
+    // gets twice the duration, which is the whole reason the skill is worth
+    // 11 M SP to a healer. `magic_type == 2` is `isStatic()`.
+    //
+    // The passive/toggle `-1` branch is shape, not behaviour: no toggle on this
+    // dist declares an `abnormalTime`, so it is already 0 → permanent.
+    let mastered = skill.magic_type != 2 && calc_skill_mastery(world, caster_oid);
+    let base_abnormal_time = if mastered {
+        skill.abnormal_time * 2
+    } else {
+        skill.abnormal_time
+    };
     // Java `BuffInfo.setAbnormalTime` is applied only for a *positive* override
     // ("if equal or lesser than zero will be ignored"), so a bad stored value
     // falls back to the skill's own duration rather than making the buff permanent.
+    // It also lands *after* the constructor, so an override beats the doubling.
     let abnormal_time = abnormal_time_override
         .filter(|&t| t > 0)
-        .unwrap_or(skill.abnormal_time);
+        .unwrap_or(base_abnormal_time);
     let permanent = abnormal_time <= 0;
     let expires_at_tick = if permanent {
         u64::MAX

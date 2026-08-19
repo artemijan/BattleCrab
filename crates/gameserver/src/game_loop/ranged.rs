@@ -291,3 +291,15 @@ fn reuse_time_ms(world: &World, object_id: i32) -> i32 {
         .max(1);
     900_000 / p_atk_spd
 }
+
+/// Java `Creature.getAttackType().isRanged()` — the **attacker**-side ranged
+/// flag that `Formulas.calcShldUse` (+30 % block rate against a bow) and
+/// `calcAutoAttackDamage` (the 154 vs 77 weapon coefficient) both read.
+///
+/// Java falls back to `_template.getBaseAttackType()` when nothing is equipped,
+/// which is how a *monster* can count as ranged. NPCs here carry no paperdoll
+/// and no `baseAttackType` is modelled, so that branch is always melee — the
+/// player-attacker case, which is the one the shield bonus is about, is exact.
+pub(crate) fn attacker_is_ranged(world: &World, object_id: i32) -> bool {
+    equipped_weapon_type(world, object_id).is_some_and(is_ranged)
+}

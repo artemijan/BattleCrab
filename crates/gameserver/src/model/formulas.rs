@@ -309,22 +309,50 @@ fn java_round_float(v: f64) -> i32 {
     ((v as f32) + 0.5f32).floor() as i32
 }
 
-/// `Formulas.calcEffectSuccess` — a debuff's landing chance in percent (0-100),
-/// reduced to the factors the port currently models. Java scales `baseMod` by an
-/// attribute (element) bonus, a trait resist/vulnerability bonus and a
-/// `RESIST_ABNORMAL_DEBUFF` mul, `constrain`s to `[minChance, maxChance]`, then
-/// scales by a `BasicPropertyResist` bonus — and subtracts an `ABNORMAL_RESIST_*`
-/// term up front. None of those stats are modeled server-side yet, so each is 1.0
-/// (or 0 for the resist subtrahend), leaving:
-///   baseMod   = (magicLevel - targetLevel + 3) * lvlBonusRate + activateRate + 30
-///   finalRate = constrain(baseMod, 10, 90)
-/// `magicLevel <= -1` falls back to `targetLevel + 3` (Java). `activateRate == -1`
-/// means the debuff always lands → 100. The 10/90 clamp is dist `Character.ini`'s
-/// Min/MaxAbnormalStateSuccessRate (no Interlude skill overrides minChance/maxChance).
-/// The trait bonus rides in through `trait_mod` (see
-/// [`calc_general_trait_bonus`]). `ABNORMAL_RESIST_*` and `BasicPropertyResist`
-/// stay at their identity values — **no skill on this dist grants either**, so
-/// nothing could move them.
+/// `Formulas.calculateSkillResurrectRestorePercent` — the reviver's WIT scales
+/// how much of the lost XP their resurrection gives back.
+///
+/// ```java
+/// if (base == 0 || base == 100) return base;
+/// restore = base * WIT.calcBonus(caster);
+/// if ((restore - base) > 20.0) restore += 20.0;
+/// return min(max(restore, base), 90.0);
+/// ```
+///
+/// Note the quirk on the third line: a bonus that already exceeds +20 gets a
+/// *further* flat +20, so high-WIT revivers jump rather than scale smoothly.
+/// Ported as written.
+pub fn calc_resurrect_restore_percent(base: f64, wit_bonus: f64) -> f64 {
+    if base == 0.0 || base == 100.0 {
+        return base;
+    }
+    let mut restore = base * wit_bonus;
+    if (restore - base) > 20.0 {
+        restore += 20.0;
+    }
+    restore.max(base).min(90.0)
+}
+
+/// `Formulas.calcEffectSuccess` — a continuous skill's landing chance in percent.
+///
+/// ```java
+/// if (activateRate == -1) return true;
+/// int magicLevel = skill.getMagicLevel();
+/// if (magicLevel <= -1) magicLevel = target.getLevel() + 3;
+/// final double targetBasicProperty = getAbnormalResist(skill.getBasicProperty(), target);
+/// final double baseMod = ((((((magicLevel - target.getLevel()) + 3) * skill.getLvlBonusRate()) + activateRate) + 30.0) - targetBasicProperty);
+/// final double rate = baseMod * elementMod * traitMod * buffDebuffMod;
+/// final double finalRate = traitMod > 0 ? CommonUtil.constrain(rate, skill.getMinChance(), skill.getMaxChance()) * basicPropertyResist : 0;
+/// ```
+///
+/// Everything up to `+ 30.0` is **integer** arithmetic in Java and is kept so
+/// here; the four mods multiply in Java's left-to-right order, which is not
+/// interchangeable in floating point.
+///
+/// `skill.getMinChance()`/`getMaxChance()` default to `Config.MIN_/MAX_ABNORMAL_
+/// STATE_SUCCESS_RATE` and are overridden by no skill this dist can reach — the
+/// 15 that declare their own bounds are all id ≥ 11537 and none is learnable —
+/// so [`LandRateBounds`] carries the config pair alone.
 /// `Character.ini`'s `MinAbnormalStateSuccessRate` / `MaxAbnormalStateSuccessRate`
 /// — the `constrain(rate, minChance, maxChance)` bounds in
 /// `Formulas.calcEffectLandRate`. Carried as a struct for the same reason
@@ -410,7 +438,8 @@ pub fn calc_effect_land_rate(
     // below the 90 ceiling but never under the 10 floor — **except** through
     // `basicPropertyResist`, which Java multiplies in after the clamp and which
     // therefore *can* reach 0.
-    (base_mod * element_mod * debuff_resist_mod * trait_mod).clamp(bounds.min, bounds.max)
+    // Java's order: `baseMod * elementMod * traitMod * buffDebuffMod`.
+    (base_mod * element_mod * trait_mod * debuff_resist_mod).clamp(bounds.min, bounds.max)
         * basic_property_resist
 }
 

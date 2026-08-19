@@ -2011,6 +2011,193 @@ fn skill_mastery_collapses_the_cooldown_and_reads_the_right_base_stat() {
     );
 }
 
+/// `calcEffectSuccess` is gated on **`activateRate != -1` alone**, not on
+/// `isBad()`:
+///
+/// ```java
+/// // Skill.applyEffects
+/// addContinuousEffects = !passive && (isToggle() || (isContinuous() && Formulas.calcEffectSuccess(effector, effected, this)));
+/// // Formulas.calcEffectSuccess
+/// if (activateRate == -1) return true;
+/// ```
+///
+/// Three learnable skills on this dist sit in the gap an `isBad()` gate opens,
+/// and the first assertion pins them **off the real dist** so the fixture below
+/// can't drift away from what it is modelling.
+#[test]
+fn a_continuous_skill_rolls_to_land_even_when_its_effect_point_is_not_negative() {
+    // Veil is a mesmerize (`isDebuff`, trait DERANGEMENT) that declares no
+    // `<effectPoint>` at all; the two heals declare a positive one. All three
+    // carry an `activateRate`, so all three roll in Java.
+    let skills = dist::skills();
+    for (id, rate) in [(106, 70), (1217, 0), (1219, 0)] {
+        let skill = skills
+            .get(id, 1)
+            .unwrap_or_else(|| panic!("skill {id} on the dist"));
+        assert_eq!(
+            skill.activate_rate, rate,
+            "skill {id} carries an activateRate"
+        );
+        assert!(
+            !skill.is_bad(),
+            "skill {id}'s effectPoint is not negative — an `isBad()` gate would skip its roll"
+        );
+    }
+
+    const TARGET: i32 = 4713;
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let _t = ingame_caster(&mut world, 2, TARGET, 0, 0);
+
+    // Veil's shape: activateRate 70, no lvlBonusRate, effectPoint absent (0).
+    let mut veil = cc_skill(106, SkillEffect::Passive, "TURN_PASSIVE");
+    veil.effect_point = 0;
+    veil.is_debuff = true;
+    veil.activate_rate = 70;
+    veil.lvl_bonus_rate = 0;
+    veil.magic_level = 40;
+    veil.abnormal_time = 120;
+    world.data.skill_data.insert_for_test(veil.clone());
+
+    // `baseMod = (magicLevel - targetLevel + 3) * 0 + 70 + 30 = 100`, clamped to
+    // the config ceiling of 90. Java resists on `finalRate <= Rnd.get(100)`.
+    world.clear_forced_rolls();
+    world.force_roll(89);
+    assert!(
+        effects::apply_continuous_effects(&mut world, CASTER, TARGET, &veil, None),
+        "89 < 90 — it lands"
+    );
+    world.clear_forced_rolls();
+    world.force_roll(90);
+    assert!(
+        !effects::apply_continuous_effects(&mut world, CASTER, TARGET, &veil, None),
+        "90 is not below 90 — resisted, which an `isBad()` gate would never allow"
+    );
+
+    // The `-1` sentinel still short-circuits, and consumes no roll.
+    let mut always = veil.clone();
+    always.activate_rate = -1;
+    world.clear_forced_rolls();
+    world.force_roll(0);
+    assert!(
+        effects::apply_continuous_effects(&mut world, CASTER, TARGET, &always, None),
+        "`activateRate == -1` returns true before any roll"
+    );
+}
+
+/// `Formulas.calcEffectAbnormalTime` — a **Skill Mastery proc doubles a buff's
+/// duration**, and does so on a roll entirely separate from the one that
+/// collapses the cooldown.
+///
+/// ```java
+/// // BuffInfo(…) constructor
+/// _abnormalTime = Formulas.calcEffectAbnormalTime(effector, effected, skill);
+/// // Formulas
+/// int time = … skill.getAbnormalTime();
+/// if (!skill.isStatic() && calcSkillMastery(caster, skill)) time *= 2;
+/// ```
+///
+/// The cooldown proc (`apply_reuse`) is gated to `operateType A1`, which
+/// excludes every buff; this one is gated only on `isStatic()`. That difference
+/// is the mechanic: an Eva's Saint who learns Skill Mastery 331 at 77 rolls it
+/// on each buff they land and sometimes gets twice the duration.
+#[test]
+fn skill_mastery_doubles_a_buffs_duration() {
+    use crate::model::components::StatModifiers;
+    use crate::model::skill::StatModifierEffect;
+    use crate::model::stats::{BaseStat, Stat, StatModifierType};
+
+    const TARGET: i32 = 4711;
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let _t = ingame_caster(&mut world, 2, TARGET, 0, 0);
+
+    let skill = Skill {
+        id: 1085,
+        level: 1,
+        abnormal_type: "MAGIC_ATTACK_UP".into(),
+        abnormal_time: 1200,
+        // Not `isStatic()` — `magicType == 2` is what would exempt it.
+        magic_type: 1,
+        effects: vec![SkillEffect::StatModifier(StatModifierEffect {
+            stat: Stat::MagicalAttack,
+            mode: StatModifierType::Diff,
+            amount: 25.0,
+            ..Default::default()
+        })],
+        ..Default::default()
+    };
+
+    world.data.skill_data.insert_for_test(skill.clone());
+
+    let duration = |world: &mut World| {
+        // Re-applying the same abnormal type replaces the live buff in place,
+        // so the freshest entry is always the one just landed.
+        assert!(
+            effects::apply_continuous_effects(world, CASTER, TARGET, &skill, None),
+            "the buff has to land for the duration to mean anything"
+        );
+        let start = world.tick;
+        world
+            .objects
+            .get_component::<Buffs>(&TARGET)
+            .and_then(|b| b.0.last().map(|x| x.expires_at_tick - start))
+            .expect("the buff landed")
+    };
+
+    // No Skill Mastery stat at all → `getAdd(SKILL_MASTERY, -1) == -1` bails
+    // before any roll, so this is the plain 1200 s.
+    assert_eq!(duration(&mut world), 12_000, "1200 s at 10 ticks/s");
+
+    // Give the caster mastery off INT, with a rate that makes the proc certain
+    // for a roll of 0 and impossible for a roll of 99.
+    let mut mods = world
+        .objects
+        .get_component::<StatModifiers>(&CASTER)
+        .cloned()
+        .unwrap_or_default();
+    mods.add
+        .insert(Stat::SkillMastery, BaseStat::Int as i32 as f64);
+    mods.mul.insert(Stat::SkillMasteryRate, 50.0);
+    world.objects.add_components(&CASTER, mods);
+
+    world.clear_forced_rolls();
+    world.force_roll(99);
+    assert_eq!(
+        duration(&mut world),
+        12_000,
+        "a losing mastery roll leaves the duration alone"
+    );
+
+    world.clear_forced_rolls();
+    world.force_roll(0);
+    assert_eq!(
+        duration(&mut world),
+        24_000,
+        "the proc doubles it — 1200 s becomes 2400 s"
+    );
+
+    // A **static** skill is exempt in Java even on a proc.
+    let static_skill = Skill {
+        magic_type: 2,
+        ..skill.clone()
+    };
+    world.data.skill_data.insert_for_test(static_skill.clone());
+    world.clear_forced_rolls();
+    world.force_roll(0);
+    effects::apply_continuous_effects(&mut world, CASTER, TARGET, &static_skill, None);
+    let start = world.tick;
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Buffs>(&TARGET)
+            .and_then(|b| b.0.last().map(|x| x.expires_at_tick - start))
+            .expect("the buff landed"),
+        12_000,
+        "`isStatic()` skips the doubling"
+    );
+}
+
 /// `Lucky` (194) is an **empty effect** in Java — its handler has only a
 /// `canStart` guard, and `Player.isLucky()` (`level <= 9 && affected by 194`)
 /// is the entire mechanic. It exempts a newbie from the death exp penalty.

@@ -150,7 +150,8 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             (false, 0, formulas::SHIELD_NONE)
         } else {
             // Shield block (`calcShldUse`): a back attack (attacker outside the
-            // 120° front arc) can't be blocked; melee only until bows land (G20).
+            // 120° front arc) can't be blocked, and a **bow** attacker raises
+            // the block rate by 30 % (`attacker.getAttackType().isRanged()`).
             // Java's `degreeside` is 360 rather than 120 while the defender is
             // affected by `PHYSICAL_SHIELD_ANGLE_ALL` (Aegis), which makes every
             // angle a front angle — so the back-attack exemption simply drops.
@@ -159,7 +160,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             let shield = formulas::calc_shield_use(
                 target.shield_rate,
                 target.con_bonus,
-                false,
+                crate::game_loop::ranged::is_ranged(weapon_type),
                 from_behind,
                 world.roll(100),
                 world.roll(100),

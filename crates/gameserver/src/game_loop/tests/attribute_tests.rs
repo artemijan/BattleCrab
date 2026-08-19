@@ -251,8 +251,10 @@ fn an_elemental_buff_reaches_plain_auto_attacks() {
                 .objects
                 .get_component_mut::<CombatStats>(&ATTACKER)
                 .expect("stats");
-            // No crit, no miss, no spread — the elemental term is the only
-            // thing allowed to move between the two runs.
+            // No crit, no spread — the elemental term is the only thing allowed
+            // to move between the two runs. Accuracy cannot buy a *certain* hit:
+            // `calcHitMiss` clamps its chance to 980/1000, so 2 % of swings miss
+            // however the stats read. The swing loop below absorbs that.
             p.crit_hit = 0.0;
             p.accuracy = 10_000;
             p.random_dmg = 0;
@@ -274,19 +276,28 @@ fn an_elemental_buff_reaches_plain_auto_attacks() {
             v.max_hp = 1_000_000;
             v.cur_hp = 1_000_000.0;
         }
-        let before = world
-            .objects
-            .get_component::<Vitals>(&TARGET)
-            .expect("target")
-            .cur_hp;
-        combat::do_auto_attack(&mut world, ATTACKER, TARGET);
-        advance_ticks(&mut world, 60);
-        before
-            - world
+        // Swing until one lands. With no crit and no spread every *landed*
+        // swing deals the identical amount, so this changes nothing but the
+        // 2 % miss floor — and 40 tries reduce an all-miss run to 1e-28.
+        for _ in 0..40 {
+            let before = world
                 .objects
                 .get_component::<Vitals>(&TARGET)
                 .expect("target")
-                .cur_hp
+                .cur_hp;
+            combat::do_auto_attack(&mut world, ATTACKER, TARGET);
+            advance_ticks(&mut world, 60);
+            let dealt = before
+                - world
+                    .objects
+                    .get_component::<Vitals>(&TARGET)
+                    .expect("target")
+                    .cur_hp;
+            if dealt > 0.0 {
+                return dealt;
+            }
+        }
+        0.0
     }
 
     let plain = damage_of(false);

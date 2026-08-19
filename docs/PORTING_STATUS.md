@@ -177,7 +177,7 @@ each one, and sweeps them against the port's own functions over a grid of
 inputs (attack, defence, level mod, power, crit/shot/ranged/position). A
 divergence fails with the inputs that produced it.
 
-**Two passes so far have found seven divergences, all live:**
+**Three passes so far have found ten divergences, all live:**
 
 | What | Effect in game |
 |---|---|
@@ -188,10 +188,22 @@ divergence fails with the inputs that produced it.
 | `calcManaDam` applied its multipliers **after** the crit clamp | `min(damage · 3, criticalLimit)` is not commutative with a later multiply, so a mana-drain crit could exceed the skill's own `criticalLimit` (the dist ships 1450, 1600 and 7000). The trait term was missing outright — and it is the one damage formula that reads traits with `ignoreResistance = false` |
 | `calcProbability` dropped **`getAbnormalResist`** | Confuse and Randomize Hate ignored the target's abnormal resistance, which the debuff land-rate already honoured. It is subtracted *inside* the parenthesis, before both multipliers |
 | `calcSkillTimeFactor` had no **spiritshot** term and no **channeling** branch | A charged mage should cast at `matkSpdMul × 1.4`; spiritshots bought damage and nothing else. And a channeled skill's factor is a flat 1 in Java, so its cancel time must not be divided by cast speed either — the port was dividing |
+| `calcShldUse` hard-coded the attacker as **melee** | All four call sites passed `false` for `attacker.getAttackType().isRanged()`, so Java's `shldRate *= 1.3` never fired: a bow lost its 30 % block bonus against every shield in the game, on skills as well as swings |
+| `calcEffectAbnormalTime` was **not run at all** | A **Skill Mastery proc doubles a buff's duration** in Java — a second roll, wholly separate from the one that collapses the cooldown, and *not* gated to `operateType A1` the way that one is. Eva's Saint, Storm Screamer and eleven other 3rd classes learn Skill Mastery at 77; the port gave them the cooldown half only |
+| `calcEffectSuccess` was gated on **`isBad()`** | Java gates it on `activateRate != -1` alone. **Veil (106)** is `isDebuff` with no `<effectPoint>` at all, so an `isBad()` gate made it an unresistable mesmerize; **Greater Heal (1217)** and **Greater Group Heal (1219)** declare `activateRate 0` and no `lvlBonusRate`, so their `LIFE_FORCE_OTHERS` regeneration should ride along only ~30 % of the time when cast on someone else |
 
 Each is fixed, sabotage-verified, and pinned twice: once in the sweep and once
 in a game-level test (a bow hitting for double a sword, an elemental buff
-moving a swing, forty rolls of a nuke's spread landing on more than one value).
+moving a swing, forty rolls of a nuke's spread landing on more than one value,
+a bow turning a losing shield roll into a block, a mastery proc turning 1200 s
+into 2400 s, Veil resisting at all).
+
+**The third pass's lesson is the mirror of the second's.** All five formulas it
+swept came back arithmetically clean; every one of its three findings was in the
+**wiring** — a hard-coded `false`, a formula never called, an extra gate on the
+call. A sweep proves a function; it says nothing about whether anyone runs it,
+or with what. Reading the Java *call site* alongside the formula is what turned
+those up, and it is what the next pass should keep doing.
 
 Three narrowings are recorded as fixed inputs rather than tolerances, because
 nothing on this dist can carry them: `SHOTS_BONUS` (no carrier),
@@ -211,13 +223,23 @@ branch's `2 · shotsBonus`, so the port's single expression is correct rather
 than lucky — an agreement nobody can re-derive is indistinguishable from an
 untested formula.
 
+**Two more narrowings** were recorded the same way. `skill.getMinChance()` /
+`getMaxChance()` default to `Config.MIN_/MAX_ABNORMAL_STATE_SUCCESS_RATE`, and
+the 15 skills that override them are all id ≥ 11537 and none learnable — so
+`LandRateBounds` carries the config pair alone. And the **cancel/steal family**
+(`calcCancelSuccess`, `calcCancelStealEffects`) is dead on this dist: the only
+`StealAbnormal` carriers are Steal Divinity (1440) and a talisman (8332),
+neither learnable nor on any NPC's skill list, and the port's "Cancel" family is
+`DispelByCategory`, a different formula.
+
 **Covered:** `calcAutoAttackDamage`, `PhysicalAttack.instant`, `calcMagicDam`,
 `calcBlowDamage`, `calcManaDam`, `Heal.instant`, `calcAttributeBonus`,
-`calcAtkSpd`, `calculateTimeBetweenAttacks`, `calcSkillTimeFactor` — nine
-sweeps, ~90 000 cases. **Not yet:** `calcEffectSuccess`/`calcMagicSuccess` (the
-land-rate pair beyond `calcProbability`), resurrect restore, `calcShldUse`,
-`calcEffectAbnormalTime`, the cancel/steal family, and the stat finalizers
-themselves — each is a sweep of the same shape, and the file is laid out for
+`calcAtkSpd`, `calculateTimeBetweenAttacks`, `calcSkillTimeFactor`,
+`calcShldUse`, `calcEffectSuccess`, `calcMagicSuccess`,
+`calculateSkillResurrectRestorePercent`, `calcEffectAbnormalTime` — fourteen
+sweeps, ~130 000 cases. **Not yet:** the stat finalizers themselves, and
+`calcSkillMastery`'s own chance (a `Rnd.nextDouble()` shape the port rounds to
+`roll(100)`) — each is a sweep of the same shape, and the file is laid out for
 adding them.
 
 ---

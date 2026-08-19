@@ -10,30 +10,6 @@ use crate::network::server_packets;
 use crate::world::World;
 use bevy_ecs::world::Mut;
 
-/// `Formulas.calculateSkillResurrectRestorePercent` — the reviver's WIT scales
-/// how much of the lost XP their resurrection gives back.
-///
-/// ```java
-/// if (base == 0 || base == 100) return base;
-/// restore = base * WIT.calcBonus(caster);
-/// if ((restore - base) > 20.0) restore += 20.0;
-/// return min(max(restore, base), 90.0);
-/// ```
-///
-/// Note the quirk on the third line: a bonus that already exceeds +20 gets a
-/// *further* flat +20, so high-WIT revivers jump rather than scale smoothly.
-/// Ported as written.
-pub(crate) fn resurrect_restore_percent(base: f64, wit_bonus: f64) -> f64 {
-    if base == 0.0 || base == 100.0 {
-        return base;
-    }
-    let mut restore = base * wit_bonus;
-    if (restore - base) > 20.0 {
-        restore += 20.0;
-    }
-    restore.max(base).min(90.0)
-}
-
 /// `Player.reviveRequest` — propose a resurrection to a dead player.
 ///
 /// Nothing is restored here: the corpse gets a `ConfirmDlg` and decides.
@@ -174,7 +150,8 @@ pub(crate) fn revive_request(
                 .bonus(crate::model::stats::BaseStat::Wit, b.wit)
         })
         .unwrap_or(1.0);
-    let restore_percent = resurrect_restore_percent(power as f64, wit_bonus);
+    let restore_percent =
+        crate::model::formulas::calc_resurrect_restore_percent(power as f64, wit_bonus);
 
     let lost = if is_pet {
         // A pet's restorable exp is the gap the death penalty opened.

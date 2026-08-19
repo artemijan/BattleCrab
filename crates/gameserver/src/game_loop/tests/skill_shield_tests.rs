@@ -247,7 +247,7 @@ fn the_shield_switch_adds_defence_or_signals_a_perfect_block() {
 
     // No shield → the rolls are still consumed, the defence is untouched.
     assert_eq!(
-        defence_after_shield(&mut world, victim, 100.0, false),
+        defence_after_shield(&mut world, CASTER, victim, 100.0, false),
         Some(100.0)
     );
 
@@ -256,22 +256,77 @@ fn the_shield_switch_adds_defence_or_signals_a_perfect_block() {
     // `100 - 2·conBonus < perfectRoll` is what promotes it.
     world.force_rolls([0, 0]);
     assert_eq!(
-        defence_after_shield(&mut world, victim, 100.0, false),
+        defence_after_shield(&mut world, CASTER, victim, 100.0, false),
         Some(228.0),
         "the shield's 128 sDef is added, unscaled"
     );
     // rate 0 blocks, perfect roll 99 → 98 < 99 → promoted.
     world.force_rolls([0, 99]);
     assert_eq!(
-        defence_after_shield(&mut world, victim, 100.0, false),
+        defence_after_shield(&mut world, CASTER, victim, 100.0, false),
         None,
         "a perfect block signals the flat-1 path"
     );
     // A losing rate roll leaves the defence alone.
     world.force_rolls([99, 99]);
     assert_eq!(
-        defence_after_shield(&mut world, victim, 100.0, false),
+        defence_after_shield(&mut world, CASTER, victim, 100.0, false),
         Some(100.0)
+    );
+}
+
+/// `calcShldUse`'s bow clause: **a ranged attacker raises the block rate by
+/// 30 %**, and Java reads that flag off `attacker.getAttackType()` with no skill
+/// involved — so it applies to a skill hit exactly as to a plain swing.
+///
+/// ```java
+/// if (attacker.getAttackType().isRanged()) shldRate *= 1.3;
+/// ```
+///
+/// The fixture sits in the 30 % band on purpose: rate 20 loses a roll of 25,
+/// rate 26 wins it. Nothing but the attacker's weapon changes between the two
+/// halves.
+#[test]
+fn a_bow_attacker_raises_the_shield_block_rate() {
+    use crate::data::item_data::{SLOT_LR_HAND, WeaponType};
+    use crate::game_loop::skills::effects::defence_after_shield;
+
+    const BOW_ID: i32 = 7701;
+    let (mut world, victim) = shield_world();
+    equip_shield(&mut world, victim);
+
+    // Roll 25 is above the shield's own rate of 20 and below 20 × 1.3 = 26.
+    // Perfect roll 99 is irrelevant while the rate roll loses.
+    let block = |world: &mut World| {
+        world.force_rolls([25, 0]);
+        defence_after_shield(world, CASTER, victim, 100.0, false) == Some(228.0)
+    };
+
+    assert!(
+        !block(&mut world),
+        "bare-handed, rate 20 does not clear a roll of 25"
+    );
+
+    world
+        .data
+        .item_data
+        .insert_for_test(gear(BOW_ID, ItemKind::Weapon, SLOT_LR_HAND));
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(BOW_ID, WeaponType::Bow);
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects
+            .get_component_mut::<Inventory>(&CASTER)
+            .expect("the attacker is a player");
+        let oid = inv.add_item(&data.item_data, 0x5100_0002, BOW_ID, 1);
+        assert!(!inv.equip_item(&data.item_data, oid).is_empty(), "bow on");
+    }
+
+    assert!(
+        block(&mut world),
+        "with a bow the same rate becomes 26 and the same roll of 25 is blocked"
     );
 }
 
@@ -288,13 +343,13 @@ fn ignore_shield_defence_skips_the_block_and_its_rolls() {
     // These two would be a perfect block if they were read.
     world.force_rolls([0, 99]);
     assert_eq!(
-        defence_after_shield(&mut world, victim, 100.0, true),
+        defence_after_shield(&mut world, CASTER, victim, 100.0, true),
         Some(100.0),
         "the shield is ignored outright"
     );
     // Untouched, so they are still queued and now *do* produce that block.
     assert_eq!(
-        defence_after_shield(&mut world, victim, 100.0, false),
+        defence_after_shield(&mut world, CASTER, victim, 100.0, false),
         None,
         "the two rolls were never consumed"
     );

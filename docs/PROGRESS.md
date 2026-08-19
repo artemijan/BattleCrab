@@ -8374,3 +8374,108 @@ the wrong forced value. That is the right kind of collateral — a forced-roll
 test is a statement about *how many* rolls a path makes.
 
 Nine sweeps, ~90 000 cases; every finding sabotage-verified in both directions.
+
+---
+
+## Formula parity, third pass: five clean formulas and three broken call sites
+
+The five remaining families all came back **arithmetically correct** — the
+sweeps for `calcShldUse`, `calcEffectSuccess`, `calcMagicSuccess`,
+`calculateSkillResurrectRestorePercent` and `calcEffectAbnormalTime` passed
+first try. All three findings this pass were in the **wiring**: a hard-coded
+argument, a formula nothing called, and an extra gate on the call.
+
+### A bow lost its shield bonus
+
+`calcShldUse` reads the *attacker's* weapon — `if (attacker.getAttackType()
+.isRanged()) shldRate *= 1.3` — and the port passed a literal `false` at all
+four of its call sites, with a comment explaining it as "melee only until bows
+land". Bows landed several slices ago. So a defender with a shield blocked an
+archer at the same rate as a swordsman, on skills as well as swings.
+
+The fix needed a small helper (`ranged::attacker_is_ranged`) and one signature
+change: `defence_after_shield` had no idea who was attacking, only who was being
+hit. Java's fallback branch (`_template.getBaseAttackType()` when nothing is
+equipped, which is how a *monster* can count as ranged) stays unmodelled — NPCs
+here carry no paperdoll — and that is now written down at the helper.
+
+### Skill Mastery doubled the cooldown half only
+
+`BuffInfo`'s constructor runs `Formulas.calcEffectAbnormalTime`, and that
+function rolls `calcSkillMastery` a **second** time, entirely independently of
+the roll `SkillCaster` makes to collapse the reuse delay. On a proc the buff's
+duration doubles. Crucially it is *not* gated on `operateType A1` the way the
+cooldown proc is — Java excludes only static skills — so it applies to exactly
+the skills the cooldown half cannot touch: buffs.
+
+The port had the proc and used it only for the cooldown. Thirteen 3rd classes
+learn Skill Mastery at 77, Eva's Saint among them; a healer paying 11 M SP for
+it was getting the half that does nothing for a buffer.
+
+### Veil could not be resisted, and Greater Heal could not fail
+
+`Skill.applyEffects` gates continuous effects on
+`isContinuous() && calcEffectSuccess(...)`, and `calcEffectSuccess` returns
+early only for the `activateRate == -1` sentinel. The port had added an
+`isBad()` gate — `effectPoint < 0` — which looks equivalent, because a debuff
+normally carries a negative effect point and a buff normally carries
+`activateRate -1`.
+
+Three learnable skills fall in the gap:
+
+- **Veil (106)** is `isDebuff`, `activateRate 70`, trait `DERANGEMENT`, and
+  declares **no `<effectPoint>` at all**. Under an `isBad()` gate it was an
+  unresistable two-minute mesmerize.
+- **Greater Heal (1217)** and **Greater Group Heal (1219)** declare
+  `activateRate 0` and no `<lvlBonusRate>`, so `baseMod` is a flat 30. Their
+  `LIFE_FORCE_OTHERS` regeneration should ride along only ~30 % of the time when
+  the heal is cast on someone *else* (a self-cast never resists — Java's
+  `target != attacker`). The instant heal is a separate, non-continuous effect
+  and is unaffected. Surprising, but it is what the formula says, and the whole
+  point of this axis is to stop deciding which of Java's surprises to keep.
+
+Enumerating the gap was the work: 240 continuous skills on this dist carry an
+`activateRate` with a non-negative effect point, and exactly three are
+learnable. The test pins all three off the real dist so the fixture below it
+cannot drift from what it models.
+
+### Two families ruled out with evidence rather than left open
+
+`skill.getMinChance()`/`getMaxChance()` default to the config pair, and the 15
+skills that override them are all id ≥ 11537 and none learnable — so
+`LandRateBounds` carrying only `Character.ini`'s 10/90 is exact here, not a
+simplification. And the cancel/steal family (`calcCancelSuccess`,
+`calcCancelStealEffects`) is dead: the only `StealAbnormal` carriers are Steal
+Divinity (1440) and a talisman (8332), neither learnable nor on any NPC's skill
+list. The port's "Cancel" family is `DispelByCategory`, a different formula that
+was already ported.
+
+### One bit-level fix worth noting
+
+`calcEffectSuccess` multiplies `baseMod * elementMod * traitMod * buffDebuffMod`
+in that order; the port had `traitMod` and `buffDebuffMod` swapped. Floating
+point multiplication is not associative, and the sweep compares `to_bits()`, so
+it caught a difference no epsilon test would. It can only change an outcome when
+the rate lands exactly on a roll boundary — but matching the order costs
+nothing, and a sweep that tolerates ULP drift stops being able to see it.
+
+### The lesson, which is the mirror of last pass's
+
+Last pass the lesson was *transcribe from the source, not from memory*. This
+pass: **a sweep proves a function, and says nothing about whether anyone calls
+it, or with what.** Every finding here would have survived a perfect sweep of a
+perfect formula. Reading the Java *call site* — `Skill.applyEffects`,
+`BuffInfo`'s constructor, `Creature.getAttackType` — alongside the formula is
+what turned them up.
+
+One unrelated flake fell out of the full-suite runs: the elemental-swing test
+from the first pass set accuracy to 10 000 and called that a certain hit, but
+`calcHitMiss` clamps its chance to **980/1000** — a 2 % miss floor no stat can
+buy past, so the test failed roughly one run in twenty-five. It now swings until
+one lands, which changes nothing else: with no crit and no spread every landed
+swing deals the identical amount.
+
+Fourteen sweeps, ~130 000 cases. Three findings, each sabotage-verified in both
+directions and pinned by a game-level test: a bow turning a losing shield roll
+into a block, a mastery proc turning 1200 s into 2400 s, and Veil resisting at
+all.

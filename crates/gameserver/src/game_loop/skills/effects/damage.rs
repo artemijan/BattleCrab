@@ -32,6 +32,7 @@ use crate::world::World;
 /// the roll that is skipped.
 pub(crate) fn defence_after_shield(
     world: &mut World,
+    attacker_oid: i32,
     target_oid: i32,
     base_defence: f64,
     ignore_shield_defence: bool,
@@ -41,11 +42,15 @@ pub(crate) fn defence_after_shield(
     }
     let (shield_def, shield_rate, con_bonus) =
         crate::game_loop::combat::shield_stats(world, target_oid);
+    // `calcShldUse` reads the *attacker's* weapon: a bow raises the block rate
+    // by 30 %, on skills exactly as on plain swings — Java takes the flag off
+    // `attacker.getAttackType()` with no skill involved either way.
+    let ranged = crate::game_loop::ranged::attacker_is_ranged(world, attacker_oid);
     let (rate_roll, perfect_roll) = (world.roll(100), world.roll(100));
     match formulas::calc_shield_use(
         shield_rate,
         con_bonus,
-        false,
+        ranged,
         false,
         rate_roll,
         perfect_roll,
@@ -763,7 +768,13 @@ pub(crate) fn physical_attack(
     // Java folds `pDefMod` in *before* the shield add, so the shield's own
     // sDef is never scaled by it.
     let base_defence = target_p_def(world, target_oid) * p_def_mod;
-    let defence = defence_after_shield(world, target_oid, base_defence, ignore_shield_defence);
+    let defence = defence_after_shield(
+        world,
+        caster_oid,
+        target_oid,
+        base_defence,
+        ignore_shield_defence,
+    );
     let crit = formulas::calc_physical_skill_crit(critical_chance, str_bonus, world.roll(100));
     let rand_roll = if random_dmg > 0 {
         world.roll(2 * random_dmg + 1) - random_dmg

@@ -401,6 +401,232 @@ mod java {
             1.0
         }
     }
+
+    /// `Formulas.calcShldUse` — the arithmetic half, with the paperdoll and
+    /// angle checks (which are the *caller's* inputs here) left out.
+    ///
+    /// ```java
+    /// double shldRate = target.getStat().getValue(Stat.SHIELD_DEFENCE_RATE) * BaseStat.CON.calcBonus(target);
+    /// if (attacker.getAttackType().isRanged()) shldRate *= 1.3;
+    /// byte shldSuccess = SHIELD_DEFENSE_FAILED;
+    /// if (shldRate > Rnd.get(100))
+    /// {
+    ///     if (((100 - (2 * BaseStat.CON.calcBonus(target))) < Rnd.get(100)))
+    ///         shldSuccess = SHIELD_DEFENSE_PERFECT_BLOCK;
+    ///     else
+    ///         shldSuccess = SHIELD_DEFENSE_SUCCEED;
+    /// }
+    /// ```
+    ///
+    /// `shldRate` arrives already multiplied by the CON bonus (the port folds
+    /// that into `shield_stats`, matching `getValue(SHIELD_DEFENCE_RATE) * CON`),
+    /// so `con_bonus` is here only for the perfect-block line — which is exactly
+    /// how Java reads it a second time.
+    pub fn shield_use(
+        shield_rate: f64,
+        con_bonus: f64,
+        ranged: bool,
+        rate_roll: i32,
+        perfect_roll: i32,
+    ) -> u8 {
+        let mut rate = shield_rate;
+        if ranged {
+            rate *= 1.3;
+        }
+        if rate > rate_roll as f64 {
+            if (100.0 - (2.0 * con_bonus)) < perfect_roll as f64 {
+                2 // SHIELD_DEFENSE_PERFECT_BLOCK
+            } else {
+                1 // SHIELD_DEFENSE_SUCCEED
+            }
+        } else {
+            0 // SHIELD_DEFENSE_FAILED
+        }
+    }
+
+    /// `Formulas.calcEffectSuccess` — everything from the `activateRate` check
+    /// down, which is the whole of the arithmetic.
+    ///
+    /// ```java
+    /// final int activateRate = skill.getActivateRate();
+    /// if ((activateRate == -1)) return true;
+    /// int magicLevel = skill.getMagicLevel();
+    /// if (magicLevel <= -1) magicLevel = target.getLevel() + 3;
+    /// final double targetBasicProperty = getAbnormalResist(skill.getBasicProperty(), target);
+    /// final double baseMod = ((((((magicLevel - target.getLevel()) + 3) * skill.getLvlBonusRate()) + activateRate) + 30.0) - targetBasicProperty);
+    /// final double elementMod = calcAttributeBonus(attacker, target, skill);
+    /// final double traitMod = calcGeneralTraitBonus(attacker, target, skill.getTraitType(), false);
+    /// final double basicPropertyResist = getBasicPropertyResistBonus(skill.getBasicProperty(), target);
+    /// final double buffDebuffMod = skill.isDebuff() ? target.getStat().getValue(Stat.RESIST_ABNORMAL_DEBUFF, 1) : 1;
+    /// final double rate = baseMod * elementMod * traitMod * buffDebuffMod;
+    /// final double finalRate = traitMod > 0 ? CommonUtil.constrain(rate, skill.getMinChance(), skill.getMaxChance()) * basicPropertyResist : 0;
+    /// ```
+    ///
+    /// `activateRate == -1` is written as 100 rather than a bare `true` so the
+    /// two sides return the same type; the port does the same.
+    #[allow(clippy::too_many_arguments)]
+    pub fn effect_land_rate(
+        magic_level: i32,
+        activate_rate: i32,
+        lvl_bonus_rate: i32,
+        target_level: i32,
+        buff_debuff_mod: f64,
+        element_mod: f64,
+        trait_mod: f64,
+        target_basic_property: f64,
+        basic_property_resist: f64,
+        min_chance: f64,
+        max_chance: f64,
+    ) -> f64 {
+        if activate_rate == -1 {
+            return 100.0;
+        }
+        let mut magic_level = magic_level;
+        if magic_level <= -1 {
+            magic_level = target_level + 3;
+        }
+        let base_mod =
+            ((((magic_level - target_level) + 3) * lvl_bonus_rate) + activate_rate) as f64 + 30.0
+                - target_basic_property;
+        let rate = base_mod * element_mod * trait_mod * buff_debuff_mod;
+        if trait_mod > 0.0 {
+            constrain(rate, min_chance, max_chance) * basic_property_resist
+        } else {
+            0.0
+        }
+    }
+
+    /// `CommonUtil.constrain(double, double, double)`.
+    fn constrain(value: f64, min: f64, max: f64) -> f64 {
+        if value < min {
+            min
+        } else if value > max {
+            max
+        } else {
+            value
+        }
+    }
+
+    /// `Formulas.calcMagicSuccess` — the rate, without the final `Rnd.get(100)`.
+    ///
+    /// ```java
+    /// double lvlModifier = 1;
+    /// float targetModifier = 1;
+    /// int mAccModifier = 1;
+    /// if (attacker.isAttackable() || target.isAttackable())
+    /// {
+    ///     lvlModifier = Math.pow(1.3, target.getLevel() - (…skill.getMagicLevel() : attacker.getLevel()));
+    ///     if ((attacker.getActingPlayer() != null) && !target.isRaid() && !target.isRaidMinion() && (target.getLevel() >= Config.MIN_NPC_LEVEL_MAGIC_PENALTY) && ((target.getLevel() - attacker.getActingPlayer().getLevel()) >= 3))
+    ///     {
+    ///         final int levelDiff = target.getLevel() - attacker.getActingPlayer().getLevel() - 2;
+    ///         if (levelDiff >= Config.NPC_SKILL_CHANCE_PENALTY.length)
+    ///             targetModifier = Config.NPC_SKILL_CHANCE_PENALTY[Config.NPC_SKILL_CHANCE_PENALTY.length - 1];
+    ///         else
+    ///             targetModifier = Config.NPC_SKILL_CHANCE_PENALTY[levelDiff];
+    ///     }
+    /// }
+    /// else
+    /// {
+    ///     final int mAccDiff = attacker.getMagicAccuracy() - target.getMagicEvasionRate();
+    ///     mAccModifier = 100;
+    ///     if (mAccDiff > -20) mAccModifier = 2;
+    ///     else if (mAccDiff > -25) mAccModifier = 30;
+    ///     else if (mAccDiff > -30) mAccModifier = 60;
+    ///     else if (mAccDiff > -35) mAccModifier = 90;
+    /// }
+    /// final double resModifier = target.getStat().getMul(Stat.MAGIC_SUCCESS_RES, 1);
+    /// final int rate = 100 - Math.round((float) (mAccModifier * lvlModifier * targetModifier * resModifier));
+    /// ```
+    ///
+    /// Two details the shape depends on: `targetModifier` is a **float**, and
+    /// the whole product is narrowed to `float` before `Math.round` — which is
+    /// what `java_round_float` reproduces on the port's side.
+    #[allow(clippy::too_many_arguments)]
+    pub fn magic_success_rate(
+        pve: bool,
+        target_level: i32,
+        effective_level: i32,
+        caster_player_level: Option<i32>,
+        target_is_raid: bool,
+        min_npc_level_for_magic_penalty: i32,
+        skill_chance_penalty: &[f64],
+        magic_accuracy: i32,
+        magic_evasion: i32,
+        res_modifier: f64,
+    ) -> i32 {
+        let mut lvl_modifier = 1.0f64;
+        let mut target_modifier = 1.0f32;
+        let mut m_acc_modifier = 1i32;
+        if pve {
+            lvl_modifier = 1.3f64.powi(target_level - effective_level);
+            if let Some(player_level) = caster_player_level
+                && !target_is_raid
+                && target_level >= min_npc_level_for_magic_penalty
+                && (target_level - player_level) >= 3
+            {
+                let level_diff = (target_level - player_level - 2) as usize;
+                target_modifier = if level_diff >= skill_chance_penalty.len() {
+                    skill_chance_penalty[skill_chance_penalty.len() - 1] as f32
+                } else {
+                    skill_chance_penalty[level_diff] as f32
+                };
+            }
+        } else {
+            let m_acc_diff = magic_accuracy - magic_evasion;
+            m_acc_modifier = 100;
+            if m_acc_diff > -20 {
+                m_acc_modifier = 2;
+            } else if m_acc_diff > -25 {
+                m_acc_modifier = 30;
+            } else if m_acc_diff > -30 {
+                m_acc_modifier = 60;
+            } else if m_acc_diff > -35 {
+                m_acc_modifier = 90;
+            }
+        }
+        let product = m_acc_modifier as f64 * lvl_modifier * target_modifier as f64 * res_modifier;
+        100 - java_round_float(product)
+    }
+
+    /// `Math.round(float)` — `floor(x + 0.5)` on the narrowed value.
+    fn java_round_float(v: f64) -> i32 {
+        ((v as f32) + 0.5f32).floor() as i32
+    }
+
+    /// `Formulas.calculateSkillResurrectRestorePercent`:
+    ///
+    /// ```java
+    /// if ((baseRestorePercent == 0) || (baseRestorePercent == 100)) return baseRestorePercent;
+    /// double restorePercent = baseRestorePercent * BaseStat.WIT.calcBonus(caster);
+    /// if ((restorePercent - baseRestorePercent) > 20.0) restorePercent += 20.0;
+    /// restorePercent = Math.max(restorePercent, baseRestorePercent);
+    /// restorePercent = Math.min(restorePercent, 90.0);
+    /// ```
+    pub fn resurrect_restore_percent(base: f64, wit_bonus: f64) -> f64 {
+        if base == 0.0 || base == 100.0 {
+            return base;
+        }
+        let mut restore = base * wit_bonus;
+        if (restore - base) > 20.0 {
+            restore += 20.0;
+        }
+        restore = restore.max(base);
+        restore.min(90.0)
+    }
+
+    /// `Formulas.calcEffectAbnormalTime`:
+    ///
+    /// ```java
+    /// int time = (skill == null) || skill.isPassive() || skill.isToggle() ? -1 : skill.getAbnormalTime();
+    /// if ((skill != null) && !skill.isStatic() && calcSkillMastery(caster, skill)) time *= 2;
+    /// ```
+    pub fn effect_abnormal_time(abnormal_time: i32, is_static: bool, mastery_procs: bool) -> i32 {
+        let mut time = abnormal_time;
+        if !is_static && mastery_procs {
+            time *= 2;
+        }
+        time
+    }
 }
 
 /// The grid. Small on purpose: every combination of these is swept, so the
@@ -842,4 +1068,225 @@ fn heal_amount_matches_java_across_the_grid() {
         }
     }
     assert!(cases > 500, "the grid collapsed to {cases} cases");
+}
+
+/// **The shield sweep.** The bug it was written for: the port hard-coded the
+/// attacker as melee at every one of its four call sites, so Java's
+/// `if (attacker.getAttackType().isRanged()) shldRate *= 1.3` never applied and
+/// a bow lost its 30 % block bonus against every shield in the game.
+#[test]
+fn shield_use_matches_java_across_the_grid() {
+    let mut cases = 0usize;
+    for &shield_rate in &[0.0, 5.0, 20.0, 37.5, 60.0, 100.0] {
+        for &con_bonus in &[0.8, 1.0, 1.24, 1.5] {
+            for &ranged in &[false, true] {
+                for rate_roll in [0, 19, 25, 26, 50, 99] {
+                    for perfect_roll in [0, 50, 71, 72, 99] {
+                        let ours = formulas::calc_shield_use(
+                            shield_rate,
+                            con_bonus,
+                            ranged,
+                            // `from_behind` is the port's name for Java's
+                            // `degreeside` gate, which is a *caller* input here.
+                            false,
+                            rate_roll,
+                            perfect_roll,
+                        );
+                        let theirs = java::shield_use(
+                            shield_rate,
+                            con_bonus,
+                            ranged,
+                            rate_roll,
+                            perfect_roll,
+                        );
+                        assert_eq!(
+                            ours, theirs,
+                            "shield use diverged — rate {shield_rate}, con {con_bonus}, ranged \
+                             {ranged}, rolls {rate_roll}/{perfect_roll}"
+                        );
+                        cases += 1;
+                    }
+                }
+            }
+        }
+    }
+    assert!(cases > 1_000, "the grid collapsed to {cases} cases");
+}
+
+/// **The land-rate sweep** (`calcEffectSuccess`). The clamp is the interesting
+/// part: `traitMod > 0` short-circuits *past* it, so invulnerability is a 0 and
+/// not the 10 floor, while `basicPropertyResist` multiplies in *after* it and so
+/// can reach 0 from the other side.
+///
+/// The port's live divergence here was not arithmetic but the **gate**: it only
+/// ran this formula for `isBad()` skills, where Java runs it for every
+/// continuous skill whose `activateRate` is not the `-1` sentinel.
+#[test]
+fn effect_land_rate_matches_java_across_the_grid() {
+    let bounds = formulas::LandRateBounds {
+        min: 10.0,
+        max: 90.0,
+    };
+    let mut cases = 0usize;
+    for &magic_level in &[-1, 0, 20, 46, 78] {
+        for &activate_rate in &[-1, 0, 35, 70, 100] {
+            for &lvl_bonus_rate in &[0, 5, 20, 30] {
+                for &target_level in &[1, 40, 80] {
+                    for &buff_debuff_mod in MODS {
+                        for &element_mod in MODS {
+                            for &trait_mod in &[0.0, 0.7, 1.0, 1.15] {
+                                for &(basic_property, basic_resist) in
+                                    &[(0.0, 1.0), (13.0, 0.6), (40.0, 0.0)]
+                                {
+                                    let ours = formulas::calc_effect_land_rate(
+                                        magic_level,
+                                        activate_rate,
+                                        lvl_bonus_rate,
+                                        target_level,
+                                        buff_debuff_mod,
+                                        element_mod,
+                                        trait_mod,
+                                        basic_property,
+                                        basic_resist,
+                                        bounds,
+                                    );
+                                    let theirs = java::effect_land_rate(
+                                        magic_level,
+                                        activate_rate,
+                                        lvl_bonus_rate,
+                                        target_level,
+                                        buff_debuff_mod,
+                                        element_mod,
+                                        trait_mod,
+                                        basic_property,
+                                        basic_resist,
+                                        bounds.min,
+                                        bounds.max,
+                                    );
+                                    assert_eq!(
+                                        ours.to_bits(),
+                                        theirs.to_bits(),
+                                        "land rate diverged: ours {ours}, Java {theirs} — mLvl \
+                                         {magic_level}, activate {activate_rate}, lvlBonus \
+                                         {lvl_bonus_rate}, tLvl {target_level}, buffDebuff \
+                                         {buff_debuff_mod}, element {element_mod}, trait \
+                                         {trait_mod}, basicProperty {basic_property}, resist \
+                                         {basic_resist}"
+                                    );
+                                    cases += 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert!(cases > 5_000, "the grid collapsed to {cases} cases");
+}
+
+/// **The magic-success sweep** (`calcMagicSuccess`). Bit-exact rather than
+/// approximate because the result is an `int`: the whole formula funnels through
+/// `Math.round((float) …)`, so the only thing that can diverge is the narrowing,
+/// and an epsilon comparison would hide exactly that.
+#[test]
+fn magic_success_rate_matches_java_across_the_grid() {
+    // `Config.NPC_SKILL_CHANCE_PENALTY` as this dist ships it.
+    const PENALTY: &[f64] = &[2.5, 3.0, 3.25, 3.5];
+    let mut cases = 0usize;
+    for &pve in &[false, true] {
+        for &target_level in &[1, 40, 77, 78, 85] {
+            for &effective_level in &[1, 40, 78, 85] {
+                for &caster_player_level in &[None, Some(40), Some(75), Some(82)] {
+                    for &target_is_raid in &[false, true] {
+                        for &(magic_accuracy, magic_evasion) in
+                            &[(100, 100), (100, 118), (100, 122), (100, 128), (100, 140)]
+                        {
+                            for &res_modifier in &[0.5, 1.0, 1.3] {
+                                let input = formulas::MagicSuccess {
+                                    pve,
+                                    target_level,
+                                    effective_level,
+                                    caster_player_level,
+                                    target_is_raid,
+                                    min_npc_level_for_magic_penalty: 78,
+                                    skill_chance_penalty: PENALTY,
+                                    magic_accuracy,
+                                    magic_evasion,
+                                    res_modifier,
+                                };
+                                let ours = formulas::calc_magic_success_rate(&input);
+                                let theirs = java::magic_success_rate(
+                                    pve,
+                                    target_level,
+                                    effective_level,
+                                    caster_player_level,
+                                    target_is_raid,
+                                    78,
+                                    PENALTY,
+                                    magic_accuracy,
+                                    magic_evasion,
+                                    res_modifier,
+                                );
+                                assert_eq!(
+                                    ours, theirs,
+                                    "magic success diverged: ours {ours}, Java {theirs} — pve \
+                                     {pve}, tLvl {target_level}, effLvl {effective_level}, caster \
+                                     {caster_player_level:?}, raid {target_is_raid}, mAcc \
+                                     {magic_accuracy}/{magic_evasion}, res {res_modifier}"
+                                );
+                                cases += 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert!(cases > 1_000, "the grid collapsed to {cases} cases");
+}
+
+/// **The resurrect sweep.** Small, but it guards a genuinely odd line — a bonus
+/// that already exceeds +20 gets a *further* flat +20, so the curve steps rather
+/// than scales. A "tidied" port that dropped the step would still look right at
+/// low WIT.
+#[test]
+fn resurrect_restore_matches_java_across_the_band() {
+    for base in [0.0, 1.0, 20.0, 35.0, 50.0, 70.0, 85.0, 100.0] {
+        for wit_bonus in [0.5, 1.0, 1.16, 1.4, 2.0, 3.0] {
+            let ours = formulas::calc_resurrect_restore_percent(base, wit_bonus);
+            let theirs = java::resurrect_restore_percent(base, wit_bonus);
+            assert_eq!(
+                ours.to_bits(),
+                theirs.to_bits(),
+                "resurrect restore diverged: ours {ours}, Java {theirs} — base {base}, wit \
+                 {wit_bonus}"
+            );
+        }
+    }
+}
+
+/// **The abnormal-time sweep** (`calcEffectAbnormalTime`). Trivial arithmetic;
+/// the bug was that the port did not run it at all, so a Skill Mastery proc
+/// never doubled a buff's duration. Swept against the port's own composition,
+/// which is the shape `apply_continuous_effects` computes inline.
+#[test]
+fn effect_abnormal_time_matches_java_across_the_grid() {
+    for abnormal_time in [-1, 0, 15, 120, 1_200, 3_600] {
+        for is_static in [false, true] {
+            for mastery in [false, true] {
+                let ours = if !is_static && mastery {
+                    abnormal_time * 2
+                } else {
+                    abnormal_time
+                };
+                let theirs = java::effect_abnormal_time(abnormal_time, is_static, mastery);
+                assert_eq!(
+                    ours, theirs,
+                    "abnormal time diverged — time {abnormal_time}, static {is_static}, mastery \
+                     {mastery}"
+                );
+            }
+        }
+    }
 }

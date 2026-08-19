@@ -60,9 +60,9 @@ pub(crate) use restart::{
     teleport_player, teleport_player_scattered, teleport_to_object, teleport_to_town,
     teleport_watchdog_tick,
 };
-pub(crate) use resurrect::{award_raid_points, do_revive, handle_revive_answer, revive_request};
 #[cfg(test)]
-pub(crate) use resurrect::{do_revive_with, resurrect_restore_percent};
+pub(crate) use resurrect::do_revive_with;
+pub(crate) use resurrect::{award_raid_points, do_revive, handle_revive_answer, revive_request};
 #[cfg(test)]
 pub(crate) use rewards::{PremiumDropRate, premium_drop_mult};
 #[cfg(test)]

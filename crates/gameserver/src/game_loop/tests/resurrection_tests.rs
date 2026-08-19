@@ -9,9 +9,7 @@ use crate::game_loop::abnormal::has_buff;
 
 use crate::model::skill::{SkillEffect, TargetType};
 
-use crate::game_loop::death::{
-    do_revive_with, handle_revive_answer, resurrect_restore_percent, revive_request,
-};
+use crate::game_loop::death::{do_revive_with, handle_revive_answer, revive_request};
 
 const REVIVER: i32 = 9601;
 const CORPSE: i32 = 9602;
@@ -44,16 +42,32 @@ fn is_dead(world: &World, oid: i32) -> bool {
 #[test]
 fn restore_percent_matches_javas_formula_including_the_plus_twenty_jump() {
     // 0 and 100 short-circuit before any scaling.
-    assert_eq!(resurrect_restore_percent(0.0, 5.0), 0.0);
-    assert_eq!(resurrect_restore_percent(100.0, 5.0), 100.0);
+    assert_eq!(
+        crate::model::formulas::calc_resurrect_restore_percent(0.0, 5.0),
+        0.0
+    );
+    assert_eq!(
+        crate::model::formulas::calc_resurrect_restore_percent(100.0, 5.0),
+        100.0
+    );
     // A modest bonus scales: 40 * 1.2 = 48, and 48 - 40 = 8 ≤ 20, no jump.
-    assert!((resurrect_restore_percent(40.0, 1.2) - 48.0).abs() < 1e-9);
+    assert!(
+        (crate::model::formulas::calc_resurrect_restore_percent(40.0, 1.2) - 48.0).abs() < 1e-9
+    );
     // A big one jumps: 40 * 1.6 = 64; 64 - 40 = 24 > 20, so +20 → 84.
-    assert!((resurrect_restore_percent(40.0, 1.6) - 84.0).abs() < 1e-9);
+    assert!(
+        (crate::model::formulas::calc_resurrect_restore_percent(40.0, 1.6) - 84.0).abs() < 1e-9
+    );
     // Clamped at 90 …
-    assert_eq!(resurrect_restore_percent(80.0, 2.0), 90.0);
+    assert_eq!(
+        crate::model::formulas::calc_resurrect_restore_percent(80.0, 2.0),
+        90.0
+    );
     // … and never below the declared base.
-    assert_eq!(resurrect_restore_percent(50.0, 0.5), 50.0);
+    assert_eq!(
+        crate::model::formulas::calc_resurrect_restore_percent(50.0, 0.5),
+        50.0
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -273,7 +287,7 @@ fn level_one_resurrection_restores_no_xp() {
     });
     assert_eq!(power, Some(0), "level 1 restores no XP");
     assert_eq!(
-        resurrect_restore_percent(0.0, 2.0),
+        crate::model::formulas::calc_resurrect_restore_percent(0.0, 2.0),
         0.0,
         "and the formula short-circuits on it"
     );

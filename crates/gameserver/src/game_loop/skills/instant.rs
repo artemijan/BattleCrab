@@ -144,6 +144,7 @@ pub(super) fn magical_attack_range(
     // The shield roll, angle-gated exactly like the melee path (Aegis makes
     // every angle a front angle). `combatant` carries the resolved shield
     // stats and positions the melee swing reads.
+    let caster_ranged = crate::game_loop::ranged::attacker_is_ranged(world, caster_oid);
     let (shield, target_shield_def) = {
         let (a, t) = (
             crate::game_loop::combat::combatant(world, caster_oid),
@@ -158,7 +159,7 @@ pub(super) fn magical_attack_range(
                     formulas::calc_shield_use(
                         t.shield_rate,
                         t.con_bonus,
-                        false,
+                        caster_ranged,
                         from_behind,
                         world.roll(100),
                         world.roll(100),
@@ -228,11 +229,12 @@ pub(super) fn magical_attack_mp(
     // `calcShldUse` — a perfect block cuts the drain to 1.
     let (shield_def, shield_rate, con_bonus) =
         crate::game_loop::combat::shield_stats(world, target_oid);
+    let caster_ranged = crate::game_loop::ranged::attacker_is_ranged(world, caster_oid);
     let (rate_roll, perfect_roll) = (world.roll(100), world.roll(100));
     let shield = formulas::calc_shield_use(
         shield_rate,
         con_bonus,
-        false,
+        caster_ranged,
         false,
         rate_roll,
         perfect_roll,
@@ -422,6 +424,7 @@ pub(super) fn blow(
     // exist on this formula, so the roll always happens.
     let defence = effects::defence_after_shield(
         world,
+        caster_oid,
         target_oid,
         effects::target_p_def(world, target_oid),
         false,
@@ -1116,8 +1119,13 @@ pub(super) fn energy_attack(
         )
     };
     let base_defence = effects::target_p_def(world, target_oid) * p_def_mod;
-    let defence =
-        effects::defence_after_shield(world, target_oid, base_defence, ignore_shield_defence);
+    let defence = effects::defence_after_shield(
+        world,
+        caster_oid,
+        target_oid,
+        base_defence,
+        ignore_shield_defence,
+    );
     let crit = formulas::calc_physical_skill_crit(critical_chance, str_bonus, world.roll(100));
     // `energyChargesBoost = 1 + (charge * 0.1)` — 10% bonus damage
     // per charge spent, the whole point of building Force first.
