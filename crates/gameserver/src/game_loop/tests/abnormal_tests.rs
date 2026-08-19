@@ -592,6 +592,87 @@ fn raid_bosses_ignore_the_mute_interrupt() {
     );
 }
 
+/// The same `isRaid()` bail, on the **stun** side — `BlockActions.onStart`:
+///
+/// ```java
+/// public void onStart(Creature effector, Creature effected, Skill skill, Item item)
+/// {
+///     if ((effected == null) || effected.isRaid()) return;
+///     …
+///     effected.startParalyze();
+///     effected.abortAllSkillCasters();
+/// }
+/// ```
+///
+/// The buff still lands and its `BLOCK_ACTIONS` flag still counts — `onStart`
+/// is the only thing Java skips — so a stun on a raid gates its *next* action
+/// while leaving the cast and the swing already in flight alone. Without the
+/// bail, a chain of stuns cancels a boss's every cast and the fight is decided
+/// by stun uptime.
+#[test]
+fn raid_bosses_ignore_the_stun_interrupt() {
+    use crate::model::components::Movement;
+
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    let mut t = crate::data::npc_data::default_template(20051);
+    t.type_name = "RaidBoss".into();
+    t.level = 40;
+    t.base_hp_max = 5000.0;
+    world.data.npc_data.insert_for_test(t);
+    let mut plain = crate::data::npc_data::default_template(20052);
+    plain.level = 40;
+    plain.base_hp_max = 5000.0;
+    world.data.npc_data.insert_for_test(plain);
+
+    // Object ids must be in the **NPC** range: `is_npc_oid` is a range test,
+    // and a player-range id would route the buff down the player branch.
+    let raid = NPC_OID;
+    let mob = NPC_OID + 1;
+    add_test_npc(&mut world, raid, 20051, "RaidBoss", 40, 100, 0, 0);
+    add_test_npc(&mut world, mob, 20052, "Monster", 40, 200, 0, 0);
+    assert!(
+        world.data.npc_data.get(20051).is_some_and(|t| t.is_raid())
+            && !world.data.npc_data.get(20052).is_some_and(|t| t.is_raid()),
+        "the fixture has to straddle `isRaid()` for this to mean anything"
+    );
+
+    // `startParalyze()`'s visible half here is that the victim is frozen where
+    // it stands — the `Movement` component is dropped.
+    let stun_and_check_frozen = |world: &mut World, oid: i32| -> bool {
+        world.objects.add_components(
+            &oid,
+            Movement(crate::model::movement::MoveData {
+                start_x: 0,
+                start_y: 0,
+                start_z: 0,
+                dest_x: 500,
+                dest_y: 0,
+                dest_z: 0,
+                start_tick: world.tick,
+                total_ticks: 50,
+                geo_path: None,
+            }),
+        );
+        land(world, STUN_ID, oid);
+        assert!(
+            abnormal::flags_of(world, oid) & effect_flag::BLOCK_ACTIONS != 0,
+            "the flag lands either way — only `onStart` is skipped"
+        );
+        !world.objects.has_component::<Movement>(&oid)
+    };
+
+    assert!(
+        stun_and_check_frozen(&mut world, mob),
+        "an ordinary monster is frozen by the stun"
+    );
+    assert!(
+        !stun_and_check_frozen(&mut world, raid),
+        "a raid boss keeps moving — Java returns before `startParalyze()`"
+    );
+}
+
 /// `DEBUFF_BLOCK` refuses incoming debuffs outright while leaving buffs alone.
 #[test]
 fn debuff_block_refuses_incoming_debuffs() {

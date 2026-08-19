@@ -8709,3 +8709,168 @@ Two findings, both sabotage-verified and pinned: Final Frenzy's bonus appearing
 at 30 % and vanishing at 31 % (Java compares with `<=`, and
 `getCurrentHpPercent()` truncates, so 30 is inside the band), and a regeneration
 parking at 700 of a 1000 HP bar.
+
+---
+
+## Effect-handler parity, batch 2: one bail, and six that were already right
+
+The crowd-control and dispel families — `BlockActions`, `BlockAbnormalSlot`,
+`ResistAbnormalByCategory`, `ResistDispelByCategory`, `DispelByCategory`,
+`DispelBySlot`, `DispelBySlotProbability`, `TargetCancel`. Batch 1's lesson was
+applied throughout: grep the port for the mechanism first, read the Java body
+second.
+
+### A stun should not interrupt a raid boss
+
+```java
+public void onStart(Creature effector, Creature effected, Skill skill, Item item)
+{
+    if ((effected == null) || effected.isRaid())
+    {
+        return;
+    }
+    …
+    effected.startParalyze();
+    effected.abortAllSkillCasters();
+}
+```
+
+The port had every other part of `onStart` — the cast abort, the swing abort,
+the freeze, the broadcast — and not the bail. So a stun landing on a raid boss
+cancelled its cast and ate its swing, and a group with enough stuns could hold
+one permanently mid-animation.
+
+The shape is worth stating precisely, because it is *not* "raids are immune to
+stun". `getEffectFlags()` is independent of `onStart`, so the buff still lands
+and `BLOCK_ACTIONS` still gates the boss's **next** action. Only what was
+already in flight survives. The port already had the identical bail on the mute
+side — `raid_bosses_ignore_the_mute_interrupt` has guarded it since an earlier
+slice — which is what made its absence here findable: the same Java idiom,
+ported once and missed once.
+
+`isRaid()` is the RaidBoss/GrandBoss subtree alone; a raid *minion* answers a
+separate predicate Java does not consult here, so minions are interrupted like
+any other monster. The port's `is_raid_npc` already drew that line in its own
+doc comment.
+
+### Six clean, checked against their carriers
+
+`ResistAbnormalByCategory` and `ResistDispelByCategory` are one line each —
+`mergeMul(stat, 1 + amount/100)` — and the port's `StatModifierType::Per` merge
+is `*entry *= (amount / 100.0) + 1.0`. Identical, and both stats reach the
+consumers that read them.
+
+`DispelByCategory` was the one worth reading closely: dances first then buffs,
+both in reverse cast order, stopping at `max`, with `calcCancelSuccess` as
+`constrain((int)(rate + (cancelMagicLvl − buffMagicLvl)·2 + (abnormalTime/120)·RESIST_DISPEL_BUFF), 25, 75)`.
+The port matches it term for term, including that `abnormalTime / 120` is
+integer division and that the truncation happens before the clamp.
+
+One open thread recorded rather than chased: Java reads
+`info.getAbnormalTime()` — the **BuffInfo's** time, which the Skill Mastery
+doubling landed earlier this session can now double — where the port reads the
+*skill's* declared `abnormalTime`. A mastery-doubled buff is therefore slightly
+easier to cancel upstream than here. Closing it means carrying the resolved
+abnormal time on `ActiveBuff`; it is narrow, and it is written down.
+
+### Two narrowings that needed their carriers named
+
+`BlockActions`' `allowedSkills` list swaps Java's flag from `BLOCK_ACTIONS` to
+`CONDITIONAL_BLOCK_ACTIONS`, and 304 skills declare a non-empty one — including
+Thunder Storm (48) and Shield Stun (92), both learnable. That looked like a
+finding until the two flags turned out to be interchangeable for every block
+test in `Creature`, and the seven skills the conditional flag would permit
+turned out to be post-Interlude to a man. A narrowing, but only after checking —
+the count alone said "live".
+
+Batch 2 also fixed a comment rather than leaving it: the Bane handler's note
+that `calcCancelSuccess` belongs to "the `Cancel` skill family, unported". It is
+ported, in the function directly above it.
+
+One finding, sabotage-verified, pinned by a test that stuns a raid and a monster
+side by side and watches only one of them stop moving. A fixture bug worth
+remembering fell out of writing it: object ids are **range-typed** here —
+`is_npc_oid` is a range test, so an NPC given a player-range id silently takes
+the player branch and no buff lands at all.
+
+---
+
+## Effect-handler parity, batch 3: a golem that cost a quarter of what it should
+
+The summon, transform and trigger families — `Transformation`, `Summon`,
+`SummonNpc`, `SummonCubic`, `CallSkill`, `TriggerSkillByAttack`,
+`TriggerSkillByDamage`, `TriggerSkillByMagicType`. One finding out of eleven
+handlers, and the seven "clean" verdicts each needed a datapack query to earn.
+
+### The siege golem's upkeep
+
+```java
+final int consumeItemInterval = (_consumeItemInterval > 0 ? _consumeItemInterval
+    : (template.getRace() != Race.SIEGE_WEAPON ? 240 : 60)) * 1000;
+```
+
+The port had 240 s as a constant, with a comment that already knew about the
+60 — *"Java's default `consumeItemInterval` for a non-siege-weapon servitor:
+240 s (siege weapons use 60)"* — and then didn't branch on it. Summon Siege
+Golem (13) is learnable, its NPC (14737) is `<race>SIEGE_WEAPON</race>`, and it
+eats **40 C-grade gemstones** per interval. On 240 s it cost a quarter of what
+retail charges.
+
+That comment is the interesting part. It is not wrong, and it is not vague — it
+names the exact number the code fails to use. A narrowing that describes a
+branch without taking it reads exactly like a narrowing that describes a branch
+with no carrier, and only the datapack can tell them apart. Worth remembering
+when auditing the rest: **a comment naming a constant the code doesn't use is a
+finding, not a note.**
+
+### `expMultiplier` is dead — upstream, not here
+
+Seven learnable summons declare an `expMultiplier` (0.1 for the Corrupted Man
+and the pets, 0.7 for Big Boom, 0.85 for the Dark Panther) and the port's parser
+drops it. That looked like a finding for about a minute. Java applies it as:
+
+```java
+for (Summon summon : attacker.getServitors().values())
+{
+    if (((Servitor) summon).getExpMultiplier() > 1)
+    {
+        penalty = ((Servitor) summon).getExpMultiplier();
+        break;
+    }
+}
+…
+exp *= penalty;
+```
+
+Every value on this dist is **below** 1, and the guard is `> 1`. The intended
+"having a servitor out costs you XP" penalty never fires in Java either. The
+port dropping the field is the same behaviour by a shorter road — and now it is
+written down *why*, which it was not before.
+
+### The rest, and what each verdict cost
+
+`Transformation` draws a random id from a `;`-separated list; no skill on this
+dist declares more than one. `SummonNpc`'s nine learnable carriers (the seven
+Symbols, Day of Doom, Anti-summoning Field) declare only `npcId` and
+`npcCount` — not one of `despawnDelay`, `randomOffset`, `singleInstance` or
+`aggressive` — and the port already gates on dead/observer/mounted.
+`SummonCubic` matches down to the drop-a-random-cubic-at-the-cap shape, and
+`Stat.MAX_CUBIC` has no carrier, so the hard-coded 1 is exact. `CallSkill` has
+exactly one learnable carrier — Anchor (1170) calling 6091 — whose target
+declares no `hitTime`, so Java's deferred-cast branch and its `skillLevel == 0`
+known-level lookup are both unreachable.
+
+The trigger family was the one I expected to find something in: Java's
+`TriggerSkillByAttack` carries eleven parameters and the port models six. It
+turned out to have **four learnable carriers in total** — Dance of Shadows (366)
+with two attack triggers and a magic-type one, Mirage (445) with a damage
+trigger — and between them they declare only `allowWeapons`, `attackerType`,
+`chance`, `isCritical`, `minDamage`, `skillId`, `skillLevel` and `targetType`.
+Every one is modelled. `attackerType` is `Creature`, the base of the hierarchy,
+so `isType` is a tautology. `allowNormalAttack`/`allowSkillAttack`/
+`allowReflect`/`skillLevelScaleTo`/multi-skill `triggerSkills` have no learnable
+carrier at all, and the port's call sites already reason about the first two in
+comments.
+
+One finding, sabotage-verified, pinned by a test that summons two servitors
+differing only in `<race>` and reads back 60 s against 240 s.

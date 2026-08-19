@@ -58,10 +58,38 @@ pub(crate) use stats::recalculate_pet_stats;
 /// Java's `Servitor.run()` period — a fixed `usedtime = 5000` ms.
 const LIFE_TICK_SECS: u64 = 5;
 
-/// Java's default `consumeItemInterval` for a non-siege-weapon servitor: 240 s
-/// (siege weapons use 60). The per-skill override is rare on this dist, so the
-/// default is what almost every summon runs on.
+/// Java's default `consumeItemInterval`:
+///
+/// ```java
+/// final int consumeItemInterval = (_consumeItemInterval > 0 ? _consumeItemInterval
+///     : (template.getRace() != Race.SIEGE_WEAPON ? 240 : 60)) * 1000;
+/// ```
+///
+/// **240 s for an ordinary servitor, 60 s for a siege weapon.** The split is
+/// not decoration: Summon Siege Golem (13) is learnable and costs 40 C-grade
+/// gemstones a go, so running it on the ordinary interval quarters the price of
+/// the most expensive summon in the game.
+///
+/// No skill on this dist declares a `consumeItemInterval` of its own, so the
+/// default arm is the whole of it.
 const CONSUME_INTERVAL_SECS: u64 = 240;
+const SIEGE_WEAPON_CONSUME_INTERVAL_SECS: u64 = 60;
+
+/// The consume period for one servitor — [`CONSUME_INTERVAL_SECS`] unless the
+/// template's `<race>` is `SIEGE_WEAPON`.
+fn consume_interval_secs(world: &World, npc_id: i32) -> u64 {
+    let siege_weapon = world
+        .data
+        .npc_data
+        .get(npc_id)
+        .and_then(|t| t.race)
+        .is_some_and(|r| r == crate::enums::Race::SiegeWeapon as i32);
+    if siege_weapon {
+        SIEGE_WEAPON_CONSUME_INTERVAL_SECS
+    } else {
+        CONSUME_INTERVAL_SECS
+    }
+}
 
 /// Java's leash: further than this from its owner and the servitor is forced
 /// back into follow, regardless of what it was doing.
@@ -130,7 +158,7 @@ pub(crate) fn summon_servitor(
             consume_item_id,
             consume_item_count,
             next_consume_tick: if consume_item_id > 0 {
-                world.tick + CONSUME_INTERVAL_SECS * TICKS_PER_SECOND
+                world.tick + consume_interval_secs(world, npc_id) * TICKS_PER_SECOND
             } else {
                 u64::MAX
             },

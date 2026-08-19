@@ -400,6 +400,32 @@ pub(crate) fn record_overhit(
 /// swing already in flight never lands either — a stun arriving between a
 /// swing's start and its hit tick eats that hit.
 pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) {
+    // ```java
+    // public void onStart(Creature effector, Creature effected, Skill skill, Item item)
+    // {
+    //     if ((effected == null) || effected.isRaid())
+    //     {
+    //         return;
+    //     }
+    //     …
+    //     effected.startParalyze();
+    //     effected.abortAllSkillCasters();
+    // }
+    // ```
+    //
+    // **A raid boss is never interrupted.** The buff still lands and its
+    // `BLOCK_ACTIONS` flag still counts — `onStart` is the only thing Java
+    // skips — so a stun on a raid still gates its *next* action while leaving
+    // the cast and the swing already in flight alone. That asymmetry is the
+    // point: without it a chain of stuns would cancel a boss's every cast, and
+    // the fight would be decided by stun uptime rather than by the encounter.
+    //
+    // `isRaid()` is the RaidBoss/GrandBoss subtree only — a raid *minion* is
+    // `isRaidMinion()`, a separate predicate Java does not consult here, so a
+    // minion is interrupted like any other monster.
+    if crate::game_loop::helpers::is_raid_npc(world, target_oid) {
+        return;
+    }
     // Order matters: abort the cast *first*. `stop_casting` resumes the move
     // the cast interrupted (`start_casting` stashes it), so clearing movement
     // before the cast would see it immediately restored — the victim would keep

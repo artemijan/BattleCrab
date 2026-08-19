@@ -196,6 +196,65 @@ regen tick. It opens with a skill-book scan for any `hp_percent > 0` effect and
 returns before allocating for everyone who has none, which is everyone but those
 two classes.
 
+### Batch 2 — the crowd-control and dispel families
+
+| What | Effect in game |
+|---|---|
+| `BlockActions.onStart` had **no `isRaid()` bail** | Java returns before `startParalyze()` and `abortAllSkillCasters()` for a raid boss, so the buff and its `BLOCK_ACTIONS` flag land but the cast and the swing already in flight are left alone. The port interrupted a raid like any monster, which turns a raid fight into a stun-uptime contest rather than an encounter |
+
+### Batch 3 — the summon, transform and trigger families
+
+| What | Effect in game |
+|---|---|
+| The servitor upkeep interval was a **flat 240 s** | Java's is `_consumeItemInterval > 0 ? … : (race != SIEGE_WEAPON ? 240 : 60)`. **Summon Siege Golem (13) is learnable** and costs 40 C-grade gemstones a go, so running the golem on the ordinary interval quartered the price of the most expensive summon in the game. No skill on this dist declares an interval of its own, so the race arm is the whole of it |
+
+**Eight came back clean.** `Transformation` picks a random id from a `;`-list —
+no skill here declares more than one, so the draw is shape. `Summon` drops
+`expMultiplier`, and that is **correct**: Java applies it through
+`if (getExpMultiplier() > 1) penalty = …`, while every value this dist ships is
+below 1 (0.1, 0.7, 0.85), so the XP penalty is dead upstream too.
+`SummonNpc`'s learnable carriers declare only `npcId`/`npcCount` — none of
+`despawnDelay`, `randomOffset`, `singleInstance` or `aggressive` — and the port
+already has the dead/observer/mounted gates. `SummonCubic` matches including the
+"drop a random cubic at the cap" shape, and `Stat.MAX_CUBIC` has no carrier.
+`CallSkill` has exactly one learnable carrier (Anchor 1170 → 6091), whose target
+declares no `hitTime`, so neither the deferred-cast branch nor the
+`skillLevel == 0` known-level lookup is reachable. And the three
+`TriggerSkillBy*` handlers have four learnable carriers between them — Dance of
+Shadows (366) and Mirage (445) — which declare only params the port models;
+`attackerType` is `Creature`, the base type, so `isType` is always true.
+
+**Six came back clean**, each checked against its carriers rather than waved
+through. `ResistAbnormalByCategory` and `ResistDispelByCategory` are
+`mergeMul(stat, 1 + amount/100)`, which is exactly what the port's
+`StatModifierType::Per` does — and both already route to the stats their
+consumers read (`RESIST_ABNORMAL_DEBUFF` into the land rate,
+`RESIST_DISPEL_BUFF` into `calcCancelSuccess`). `DispelByCategory` walks dances
+then buffs in reverse cast order to `max`, with `calcCancelSuccess`'s
+`constrain(rate + magicLvlDiff*2 + (abnormalTime/120)*resist, 25, 75)` — matched
+term for term, integer division and truncation included. `DispelBySlot`,
+`DispelBySlotProbability`, `BlockAbnormalSlot` and `TargetCancel` likewise.
+
+**One open thread recorded rather than chased.** `calcCancelSuccess` reads
+`info.getAbnormalTime()` — the **BuffInfo's** time, which the Skill Mastery
+doubling can now double — where the port reads the *skill's* declared
+`abnormalTime`, so a mastery-doubled buff is slightly easier to cancel upstream
+than here. Closing it means carrying the resolved abnormal time on `ActiveBuff`.
+
+**Two narrowings, both now with their carrier named.** `BlockActions`'
+`allowedSkills` list turns Java's flag from `BLOCK_ACTIONS` into
+`CONDITIONAL_BLOCK_ACTIONS`, and 304 skills declare a non-empty one — Thunder
+Storm (48) and Shield Stun (92) among them, both learnable. It changes nothing
+here: `Creature` line 2339 treats the two flags identically for every block
+test, and the only thing the conditional flag adds is permission to cast one of
+`10279;10517;10025;10776;11770;1904;11264`, every one post-Interlude. And
+`DispelBySlotProbability`'s `isIrreplacableBuff()` skip has carriers only in the
+22800+/23200+/27800+ files.
+
+**One stale comment corrected rather than left.** `dispel_by_slot_probability`
+said `Formulas.calcCancelSuccess` belonged to "the `Cancel` skill family,
+unported" — `dispel_by_category` runs it, and has since an earlier slice.
+
 **Two came back clean, and both were checked rather than assumed.**
 `DamOverTime`'s magic-crit burst (`power x 10` the instant a DoT lands, on 15
 learnable carriers — Poison, Venom, Decay, Inferno ...) is **already ported**,

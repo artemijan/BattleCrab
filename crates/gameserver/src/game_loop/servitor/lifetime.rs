@@ -1,7 +1,6 @@
 //! Servitor visibility and lifetime: the `SummonInfo` broadcast, the 5 s
 //! life tick with its consume cost, and owner-logout cleanup.
 
-use super::CONSUME_INTERVAL_SECS;
 use super::LEASH_DISTANCE;
 use super::LIFE_TICK_SECS;
 use super::sync_pet_row;
@@ -119,7 +118,12 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
         return;
     }
 
-    // 2. Upkeep item.
+    // 2. Upkeep item. The period is the template's, not a constant: a siege
+    // weapon pays every 60 s where every other servitor pays every 240 s.
+    let interval = super::consume_interval_secs(
+        world,
+        crate::game_loop::helpers::npc_id_of(world, servitor_oid).unwrap_or(0),
+    );
     if link.consume_item_id > 0 && world.tick >= link.next_consume_tick {
         // `destroyItemByItemId` — take the upkeep item, or fail.
         use crate::model::inventory::Inventory;
@@ -146,7 +150,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
                 .objects
                 .get_component_mut::<components::ServitorOf>(&servitor_oid)
             {
-                l.next_consume_tick = world.tick + CONSUME_INTERVAL_SECS * TICKS_PER_SECOND;
+                l.next_consume_tick = world.tick + interval * TICKS_PER_SECOND;
             }
         } else {
             notify_owner(

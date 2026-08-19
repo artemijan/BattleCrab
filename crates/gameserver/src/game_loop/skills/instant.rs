@@ -1305,8 +1305,8 @@ pub(super) fn dispel_by_slot_probability(
     //
     // Note this path deliberately does *not* consult the target's
     // `ResistDispelBuff`: Java reads that stat only in
-    // `Formulas.calcCancelSuccess` (the `Cancel` skill family,
-    // unported), never in the Bane handler.
+    // `Formulas.calcCancelSuccess`, which `dispel_by_category` runs for the
+    // `DispelByCategory` family — never in the Bane handler.
     let candidates = buffs_on(world, target_oid);
     let mut to_dispel: Vec<i32> = Vec::new();
     for (sid, slvl) in candidates {

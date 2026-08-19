@@ -6076,3 +6076,58 @@ fn a_servitors_shot_bonus_comes_from_its_owners_weapon() {
         shots_bonus_of(&world, servitor)
     );
 }
+
+/// `Summon.instant`'s upkeep period:
+///
+/// ```java
+/// final int consumeItemInterval = (_consumeItemInterval > 0 ? _consumeItemInterval
+///     : (template.getRace() != Race.SIEGE_WEAPON ? 240 : 60)) * 1000;
+/// ```
+///
+/// **A siege weapon pays four times as often.** Summon Siege Golem (13) is
+/// learnable and costs 40 C-grade gemstones a go, so running the golem on the
+/// ordinary 240 s interval quartered the price of the most expensive summon in
+/// the game. No skill on this dist declares a `consumeItemInterval` of its own,
+/// so the race arm is the whole of it.
+#[test]
+fn a_siege_weapon_pays_its_upkeep_four_times_as_often() {
+    use crate::enums::Race;
+    use crate::model::components::ServitorOf;
+
+    const GOLEM: i32 = 14737;
+    const GEMSTONE: i32 = 2131;
+
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+
+    // Two templates that differ only in `<race>`.
+    for (npc_id, race) in [(GOLEM, Some(Race::SiegeWeapon as i32)), (PANTHER, None)] {
+        let mut t = world
+            .data
+            .npc_data
+            .get(npc_id)
+            .cloned()
+            .unwrap_or_else(|| crate::data::npc_data::default_template(npc_id));
+        t.race = race;
+        world.data.npc_data.insert_for_test(t);
+    }
+
+    let period = |world: &mut World, npc_id: i32| -> u64 {
+        let oid = summon_servitor(world, OWNER, npc_id, 1, 1200, GEMSTONE, 1).expect("summoned");
+        let next = world
+            .objects
+            .get_component::<ServitorOf>(&oid)
+            .map(|l| l.next_consume_tick - world.tick)
+            .expect("linked");
+        crate::game_loop::servitor::unsummon_servitor(world, OWNER);
+        next
+    };
+
+    // 10 game ticks a second.
+    assert_eq!(period(&mut world, GOLEM), 60 * 10, "siege weapon: 60 s");
+    assert_eq!(
+        period(&mut world, PANTHER),
+        240 * 10,
+        "everything else: 240 s"
+    );
+}
