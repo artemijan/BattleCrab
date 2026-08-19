@@ -20,18 +20,12 @@
 use crate::game_loop::bot_report;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::client_for_player;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
-use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers, Vitals};
+use crate::model::components::{BaseStats, Buffs, CombatStats, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
-use crate::model::skill::{
-    ActiveBuff, BuffSlot, DispelSlot, RestorationGroup, Skill, SkillEffect, abnormal_type_client_id,
-};
+use crate::model::skill::{ActiveBuff, Skill, SkillEffect};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -39,7 +33,6 @@ use crate::world::World;
 use super::instant;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::send_to_player;
-use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_client};
 
 mod continuous;
 pub(crate) mod control;
@@ -53,16 +46,56 @@ mod traits;
 mod triggers;
 
 use crate::game_loop::npc::ai::force_attack_target;
-pub(crate) use continuous::*;
-pub(crate) use control::*;
-pub(crate) use damage::*;
-use dispel::*;
-pub(crate) use gathering::*;
-use summoning::*;
-pub(crate) use support::*;
-pub(crate) use ticks::*;
-pub(crate) use traits::*;
-pub(crate) use triggers::*;
+pub(crate) use continuous::{
+    apply_continuous_effects, broadcast_change_wait_type, refresh_abnormal_visuals,
+    restore_persisted_buffs, set_collision_grown, stop_fake_death,
+};
+#[cfg(test)]
+pub(crate) use control::creature_level_for_test;
+#[cfg(test)]
+pub(crate) use control::recharge_level_penalty;
+pub(crate) use control::{
+    ManaHealKind, add_hate, apply_block_actions_interrupt, apply_mute_interrupt, bluff,
+    break_fake_death_on_damage, call_party, call_pc, call_pc_player, casting_resists_abnormal,
+    confuse_chance_passes, cp, creature_level, creature_name, delete_hate, delete_hate_of_me,
+    fake_death, fear_action, fear_can_start, hp_by_level, mana_heal, mp_restore, random_bystander,
+    randomize_hate, rebalance_party_hp, record_overhit, retarget_onto, skill_turning,
+    stop_effects_on_damage, target_me, teleport_to_target, try_break_stun,
+};
+pub(crate) use damage::{
+    SkillHit, apply_buff_to_npc, apply_skill_damage, attribute_mod, broadcast_target_buffs,
+    broadcast_vitals, caster_m_atk, defence_after_shield, dot_interval_ticks, dot_tick_damage,
+    physical_attack, recompute_max_vitals, recompute_npc_buffed_stats, refresh_summon_info,
+    schedule_dam_over_time, skill_trait_mod, target_m_def, target_p_def,
+};
+pub(crate) use dispel::{dispel_all, dispel_by_category, dispel_by_slot_myself};
+pub(crate) use gathering::{
+    apply_consume_body, apply_harvesting, apply_sow, apply_spoil, apply_sweeper,
+};
+#[cfg(test)]
+pub(crate) use gathering::{calc_harvest_success, calc_sow_success};
+pub(crate) use summoning::{betray, summon_npc};
+pub(crate) use support::send_sm;
+pub(crate) use support::{
+    broadcast_social_action, focus_momentum, give_item, give_item_random, give_sp,
+    grant_and_notify, magic_success_input, open_recipe_book, roll_magic_failure,
+};
+pub(crate) use ticks::{
+    expire_active_buffs, expire_buffs_where, handle_buff_expire, handle_dam_over_time_tick,
+};
+#[cfg(test)]
+pub(crate) use traits::pvp_pve_bonus_for_test;
+pub(crate) use traits::{
+    buff_level, calc_attack_trait_bonus, calc_general_trait_bonus, calc_weakness_bonus,
+    calc_weapon_trait_bonus, caster_display_name, caster_str_bonus, maybe_buff_level,
+    merge_attack_traits, merge_defence_traits, merge_skill_rates, mp_consume_for,
+    player_or_npc_level, pvp_pve_bonus, refresh_passive_skill_rates, remove_attack_traits,
+    remove_defence_traits, remove_skill_rates, reuse_time_for,
+};
+pub(crate) use triggers::{
+    fire_attack_triggers, fire_damage_received_triggers, fire_magic_type_triggers,
+    fire_option_attack_triggers, fire_option_cast_triggers,
+};
 
 /// The `callSkill` → `activateSkill` → effect-handler chain for the effect
 /// kinds ported so far. Continuous stat modifiers land as an `ActiveBuff` on

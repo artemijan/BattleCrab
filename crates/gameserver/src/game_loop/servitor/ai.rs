@@ -1,7 +1,21 @@
 //! Servitor AI and owner commands: the follow tick, attack/stop orders, the
 //! action-bar packet, and ordered skill use.
 
-use super::*;
+use super::is_hungry;
+use super::is_uncontrollable;
+use super::npc_template_id;
+use super::pet_of;
+use super::servitor_of;
+use super::sync_pet_row;
+use super::unsummon_servitor;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers;
+
+use crate::game_loop::npc::ai::force_attack_target;
+use crate::model::components::Position;
+use crate::model::components::ServitorOf;
+use crate::network::server_packets;
+use crate::world::World;
 /// How close a servitor trails its owner before it stops — Java's
 /// `AI_INTENTION_FOLLOW` keeps roughly this spacing, and the port's own
 /// `FOLLOW_RANGE` for GM-controlled mobs uses the same figure.
@@ -189,7 +203,7 @@ pub(crate) fn handle_servitor_action(
 
     // Every handler opens with the same "do you even have one" check.
     if servitor_of(world, owner_oid).is_none() {
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::system_message_with(sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR, &[]),
@@ -203,7 +217,7 @@ pub(crate) fn handle_servitor_action(
             & crate::model::skill::effect_flag::BETRAYED
             != 0
     {
-        send_sm_and_action_failed(
+        helpers::send_sm_and_action_failed(
             world,
             client_id,
             sm_ids::YOUR_SERVITOR_IS_UNRESPONSIVE_AND_WILL_NOT_OBEY_ANY_ORDERS,
@@ -270,7 +284,7 @@ pub(crate) fn handle_servitor_action(
                 return;
             };
             if is_engaged(world, servitor_oid) {
-                send_sm_and_action_failed(
+                helpers::send_sm_and_action_failed(
                     world,
                     client_id,
                     sm_ids::A_SERVITOR_WHOM_IS_ENGAGED_IN_BATTLE_CANNOT_BE_DE_ACTIVATED,
@@ -332,12 +346,12 @@ pub(crate) fn handle_pet_action(
     // `player.getPet() == null || !player.getPet().isPet()`. A skill-summoned
     // servitor is not a pet, and these buttons do not reach it.
     let Some(pet_oid) = pet_of(world, owner_oid) else {
-        send_sm_and_action_failed(world, client_id, sm_ids::YOU_DO_NOT_HAVE_A_PET, &[]);
+        helpers::send_sm_and_action_failed(world, client_id, sm_ids::YOU_DO_NOT_HAVE_A_PET, &[]);
         return;
     };
     // `Pet.isUncontrollable()` — the hunger gauge is at 0.
     if is_uncontrollable(world, pet_oid) {
-        send_sm_and_action_failed(
+        helpers::send_sm_and_action_failed(
             world,
             client_id,
             sm_ids::WHEN_YOUR_PETS_HUNGER_GAUGE_IS_AT_0_YOU_CANNOT_USE_YOUR_PET,
@@ -359,7 +373,7 @@ pub(crate) fn handle_pet_action(
         } else {
             sm_ids::YOUR_SERVITOR_IS_UNRESPONSIVE_AND_WILL_NOT_OBEY_ANY_ORDERS
         };
-        send_sm_and_action_failed(world, client_id, msg, &[]);
+        helpers::send_sm_and_action_failed(world, client_id, msg, &[]);
         return;
     }
 
@@ -398,8 +412,8 @@ pub(crate) fn handle_pet_action(
 /// then `Pet.unSummon`.
 fn unsummon_pet(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32) {
     use crate::network::server_packets::sm_ids;
-    if is_dead(world, pet_oid) {
-        send_sm_and_action_failed(
+    if helpers::is_dead(world, pet_oid) {
+        helpers::send_sm_and_action_failed(
             world,
             client_id,
             sm_ids::DEAD_PETS_CANNOT_BE_RETURNED_TO_THEIR_SUMMONING_ITEM,
@@ -408,7 +422,7 @@ fn unsummon_pet(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32)
         return;
     }
     if is_engaged(world, pet_oid) {
-        send_sm_and_action_failed(
+        helpers::send_sm_and_action_failed(
             world,
             client_id,
             sm_ids::A_PET_CANNOT_BE_UNSUMMONED_DURING_BATTLE,
@@ -417,7 +431,7 @@ fn unsummon_pet(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32)
         return;
     }
     if is_hungry(world, pet_oid) {
-        send_sm_and_action_failed(
+        helpers::send_sm_and_action_failed(
             world,
             client_id,
             sm_ids::YOU_MAY_NOT_RESTORE_A_HUNGRY_PET,
@@ -462,7 +476,7 @@ fn use_pet_skill(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32
     // "Your pet is too high level to control." — a pet more than 20 levels
     // above its owner stops taking orders.
     if pet_level - owner_level > 20 {
-        send_sm_and_action_failed(
+        helpers::send_sm_and_action_failed(
             world,
             client_id,
             sm_ids::YOUR_PET_IS_TOO_HIGH_LEVEL_TO_CONTROL,
@@ -477,7 +491,7 @@ fn use_pet_skill(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32
         .map(|t| t.available_level(skill_id, pet_level, max_skill_level))
         .unwrap_or(0);
     if level > 0
-        && let Some(skill) = skill_by_id(world, skill_id, level)
+        && let Some(skill) = helpers::skill_by_id(world, skill_id, level)
     {
         // `pet.setTarget(player.getTarget())` then `useMagic` — a self-targeted
         // skill still resolves onto the pet, exactly as the servitor path does.
@@ -530,7 +544,7 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
         // cast. Silent, as it is: the client only shows buttons the summon has.
         return;
     };
-    let Some(skill) = skill_by_id(world, skill_id, level) else {
+    let Some(skill) = helpers::skill_by_id(world, skill_id, level) else {
         return;
     };
 
@@ -558,7 +572,7 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
         {
             Some(t) => t,
             None => {
-                send_sm_bare_to_player(world, owner_oid, sm_ids::INVALID_TARGET);
+                helpers::send_sm_bare_to_player(world, owner_oid, sm_ids::INVALID_TARGET);
                 return;
             }
         }

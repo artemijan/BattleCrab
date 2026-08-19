@@ -1,11 +1,23 @@
-use super::*;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::send_sm_to_player;
-use crate::game_loop::helpers::send_to_player;
-use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::helpers::stat_add;
+use super::calc_general_trait_bonus;
+use super::calc_weakness_bonus;
+use super::calc_weapon_trait_bonus;
+use super::caster_display_name;
+use super::caster_str_bonus;
+use super::creature_name;
+use super::player_or_npc_level;
+use super::pvp_pve_bonus;
+use super::record_overhit;
+use super::skill_power_mul;
+use crate::game_loop::helpers;
+use crate::model::components;
+
+use crate::model::formulas;
+use crate::model::skill::ActiveBuff;
+use crate::model::skill::Skill;
+use crate::model::skill::SkillEffect;
+use crate::network::server_packets;
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
 
 /// `calcShldUse` applied to a **skill's** defence term (Java's
 /// `PhysicalAttack`/`EnergyAttack`/`calcBlowDamage` all share this shape).
@@ -48,7 +60,10 @@ pub(crate) fn defence_after_shield(
 /// their stat pipeline, NPCs through the `MDefenseFinalizer` shape
 /// (base × MEN bonus × level mod).
 pub(crate) fn target_p_def(world: &World, target_oid: i32) -> f64 {
-    if let Some(cs) = world.objects.get_component::<CombatStats>(&target_oid) {
+    if let Some(cs) = world
+        .objects
+        .get_component::<components::CombatStats>(&target_oid)
+    {
         return cs.p_def;
     }
     world
@@ -129,7 +144,7 @@ fn element_stat(
     defence: bool,
 ) -> f64 {
     let stat = element.attribute_stat(defence);
-    let base = npc_template(world, oid)
+    let base = helpers::npc_template(world, oid)
         .map(|t| {
             if defence {
                 t.base_element_res[element.index()] as f64
@@ -141,13 +156,16 @@ fn element_stat(
             }
         })
         .unwrap_or(0.0);
-    if let Some(mods) = world.objects.get_component::<StatModifiers>(&oid) {
+    if let Some(mods) = world
+        .objects
+        .get_component::<components::StatModifiers>(&oid)
+    {
         return base * mods.mul.get(&stat).copied().unwrap_or(1.0)
             + mods.add.get(&stat).copied().unwrap_or(0.0);
     }
     // NPC: fold the active buffs' stat modifiers for this stat.
     let (mut add, mut mul) = (0.0, 1.0);
-    if let Some(buffs) = world.objects.get_component::<Buffs>(&oid) {
+    if let Some(buffs) = world.objects.get_component::<components::Buffs>(&oid) {
         for b in &buffs.0 {
             for m in &b.effects {
                 if m.stat == stat {
@@ -171,13 +189,16 @@ fn element_stat(
 pub(crate) fn caster_m_atk(world: &World, caster_oid: i32) -> f64 {
     world
         .objects
-        .get_component::<CombatStats>(&caster_oid)
+        .get_component::<components::CombatStats>(&caster_oid)
         .map(|c| c.m_atk)
         .unwrap_or(0.0)
 }
 
 pub(crate) fn target_m_def(world: &World, target_oid: i32) -> f64 {
-    if let Some(cs) = world.objects.get_component::<CombatStats>(&target_oid) {
+    if let Some(cs) = world
+        .objects
+        .get_component::<components::CombatStats>(&target_oid)
+    {
         // Players + NPCs: memoized at spawn through the MDefenseFinalizer shape.
         return cs.m_def;
     }
@@ -235,16 +256,16 @@ pub(crate) fn calc_counter_attack(
     if is_dot {
         return;
     }
-    let Some(skill) = skill_by_id(world, skill_id, 1) else {
+    let Some(skill) = helpers::skill_by_id(world, skill_id, 1) else {
         return;
     };
     if skill.magic_type == 1 || skill.cast_range > MELEE_ATTACK_RANGE {
         return;
     }
-    if is_dead(world, target_oid) {
+    if helpers::is_dead(world, target_oid) {
         return;
     }
-    let chance = stat_add(
+    let chance = helpers::stat_add(
         world,
         target_oid,
         crate::model::stats::Stat::VengeanceSkillPhysicalDamage,
@@ -255,12 +276,12 @@ pub(crate) fn calc_counter_attack(
     let (target_p_atk, attacker_p_def) = (
         world
             .objects
-            .get_component::<CombatStats>(&target_oid)
+            .get_component::<components::CombatStats>(&target_oid)
             .map(|c| c.p_atk)
             .unwrap_or(0.0),
         world
             .objects
-            .get_component::<CombatStats>(&attacker_oid)
+            .get_component::<components::CombatStats>(&attacker_oid)
             .map(|c| c.p_def)
             .unwrap_or(0.0)
             .max(1.0),
@@ -275,13 +296,13 @@ pub(crate) fn calc_counter_attack(
         creature_name(world, attacker_oid),
         creature_name(world, target_oid),
     );
-    send_sm_to_player(
+    helpers::send_sm_to_player(
         world,
         target_oid,
         server_packets::sm_ids::YOU_COUNTERED_C1_S_ATTACK,
         &[server_packets::SmParam::Text(attacker_name)],
     );
-    send_sm_to_player(
+    helpers::send_sm_to_player(
         world,
         attacker_oid,
         server_packets::sm_ids::C1_IS_PERFORMING_A_COUNTERATTACK,
@@ -361,9 +382,9 @@ pub(crate) fn apply_skill_damage(
             .map(|t| t.name.clone())
             .unwrap_or_default();
         if crit {
-            send_to_player(world, caster_oid, crit_message(is_magic, caster_name));
+            helpers::send_to_player(world, caster_oid, crit_message(is_magic, caster_name));
         }
-        send_sm_to_player(
+        helpers::send_sm_to_player(
             world,
             caster_oid,
             sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
@@ -382,7 +403,7 @@ pub(crate) fn apply_skill_damage(
         .get_component::<crate::model::Player>(&target_oid)
     {
         SmParam::PlayerName(p.name.clone())
-    } else if let Some(t) = npc_template(world, target_oid) {
+    } else if let Some(t) = helpers::npc_template(world, target_oid) {
         SmParam::NpcName(t.id)
     } else {
         return;
@@ -390,9 +411,9 @@ pub(crate) fn apply_skill_damage(
     let dmg_int = damage as i32;
 
     if crit {
-        send_to_player(world, caster_oid, crit_message(is_magic, caster_name));
+        helpers::send_to_player(world, caster_oid, crit_message(is_magic, caster_name));
     }
-    send_sm_to_player(
+    helpers::send_sm_to_player(
         world,
         caster_oid,
         sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
@@ -436,7 +457,10 @@ pub(crate) fn apply_buff_to_npc(
     buff: ActiveBuff,
     skill_id: i32,
 ) {
-    match world.objects.get_component_mut::<Buffs>(&target_oid) {
+    match world
+        .objects
+        .get_component_mut::<components::Buffs>(&target_oid)
+    {
         Some(b) => {
             b.0.retain(|x| x.skill_id != skill_id);
             b.0.push(buff);
@@ -480,7 +504,10 @@ pub(crate) fn refresh_summon_info(world: &mut World, target_oid: i32) {
 /// bar. Used for NPC targets; players get their own self bar separately.
 pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
     let now = world.tick;
-    let pkt = match world.objects.get_component::<Buffs>(&target_oid) {
+    let pkt = match world
+        .objects
+        .get_component::<components::Buffs>(&target_oid)
+    {
         Some(buffs) => crate::network::enter_world::ex_abnormal_status_update_from_target(
             target_oid, buffs, now,
         ),
@@ -495,7 +522,7 @@ pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
             }
         });
     for oid in observers {
-        send_to_player(world, oid, pkt.clone());
+        helpers::send_to_player(world, oid, pkt.clone());
     }
 }
 
@@ -504,7 +531,7 @@ pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
 /// are disjoint fields, so the template ref and the mutable component borrow
 /// coexist.
 pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
-    let Some(npc_id) = npc_id_of(world, target_oid) else {
+    let Some(npc_id) = helpers::npc_id_of(world, target_oid) else {
         return;
     };
     let Some(t) = world.data.npc_data.get(npc_id) else {
@@ -523,10 +550,12 @@ pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
             .is_some_and(|n| n.champion),
         t.is_raid() || crate::game_loop::minions::is_raid_minion(world, target_oid),
     );
-    if let Some((buffs, mut combat, mut speeds, mut vitals)) =
-        world
-            .objects
-            .get_many_mut::<(&Buffs, &mut CombatStats, &mut Speeds, &mut Vitals)>(&target_oid)
+    if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
+        &components::Buffs,
+        &mut components::CombatStats,
+        &mut components::Speeds,
+        &mut components::Vitals,
+    )>(&target_oid)
     {
         crate::model::recompute_npc_stats_from_buffs(
             &world.data,
@@ -656,8 +685,12 @@ pub(crate) fn schedule_dam_over_time(
 }
 
 pub(crate) fn broadcast_vitals(world: &World, target_oid: i32) {
-    if let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() {
-        send_to_player(
+    if let Some(v) = world
+        .objects
+        .get_component::<components::Vitals>(&target_oid)
+        .copied()
+    {
+        helpers::send_to_player(
             world,
             target_oid,
             server_packets::status_update(
@@ -692,7 +725,9 @@ pub(crate) fn physical_attack(
     hp_link: bool,
 ) {
     let (p_atk, level, str_bonus, random_dmg, caster_name) = {
-        let cs = world.objects.get_component::<CombatStats>(&caster_oid);
+        let cs = world
+            .objects
+            .get_component::<components::CombatStats>(&caster_oid);
         let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
         let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
         let str_bonus = caster_str_bonus(world, caster_oid);
@@ -744,7 +779,10 @@ pub(crate) fn physical_attack(
         }
     };
     let damage = if hp_link {
-        let v = world.objects.get_component::<Vitals>(&caster_oid).copied();
+        let v = world
+            .objects
+            .get_component::<components::Vitals>(&caster_oid)
+            .copied();
         match v {
             Some(v) if v.max_hp > 0 => damage * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0),
             _ => damage,

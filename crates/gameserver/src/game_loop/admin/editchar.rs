@@ -13,18 +13,15 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::npc_name_or_empty;
-use crate::game_loop::helpers::nth_arg;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers;
+use crate::model::components;
+
 use crate::model::Player;
-use crate::model::components::{
-    CombatStats, PartyRef, PlayerVitals, Position, PvpState, Speeds, Vitals,
-};
+
 use crate::world::World;
 
 use super::{find_online_player, send_message, send_sm};
-use crate::game_loop::helpers::npc_id_of;
+
 use crate::network::server_packets::sm_ids;
 
 /// Object ids of every in-game player (Java `World.getPlayers()`), name-sorted
@@ -44,12 +41,12 @@ fn online_players(world: &World) -> Vec<i32> {
 /// HP/MP and CP for an admin read-out, zeroed when the object carries neither
 /// component. A panel renders what it can rather than bailing, so both
 /// fallbacks are display defaults — never write them back onto a character.
-fn panel_vitals(world: &World, target: i32) -> (Vitals, PlayerVitals) {
+fn panel_vitals(world: &World, target: i32) -> (components::Vitals, components::PlayerVitals) {
     let vit = world
         .objects
-        .get_component::<Vitals>(&target)
+        .get_component::<components::Vitals>(&target)
         .copied()
-        .unwrap_or(Vitals {
+        .unwrap_or(components::Vitals {
             max_hp: 0,
             cur_hp: 0.0,
             max_mp: 0,
@@ -58,9 +55,9 @@ fn panel_vitals(world: &World, target: i32) -> (Vitals, PlayerVitals) {
         });
     let cp = world
         .objects
-        .get_component::<PlayerVitals>(&target)
+        .get_component::<components::PlayerVitals>(&target)
         .copied()
-        .unwrap_or(PlayerVitals {
+        .unwrap_or(components::PlayerVitals {
             max_cp: 0,
             cur_cp: 0.0,
         });
@@ -153,7 +150,7 @@ pub(super) fn admin_character_info(
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
         return;
     };
-    let pos = maybe_position(world, target).unwrap_or(Position {
+    let pos = maybe_position(world, target).unwrap_or(components::Position {
         x: 0,
         y: 0,
         z: 0,
@@ -162,17 +159,17 @@ pub(super) fn admin_character_info(
     let (vit, cp) = panel_vitals(world, target);
     let cs = world
         .objects
-        .get_component::<CombatStats>(&target)
+        .get_component::<components::CombatStats>(&target)
         .copied()
         .unwrap_or_default();
     let spd = world
         .objects
-        .get_component::<Speeds>(&target)
+        .get_component::<components::Speeds>(&target)
         .map(|s| s.run_spd)
         .unwrap_or(0.0);
     let pvp_flag = world
         .objects
-        .get_component::<PvpState>(&target)
+        .get_component::<components::PvpState>(&target)
         .map(|s| s.flag)
         .unwrap_or(0);
     let clan = if p.clan_id == 0 {
@@ -284,7 +281,7 @@ fn char_row(name: &str, class_id: i32, level: i32) -> String {
 /// as `charlist.htm` (Java `listCharacters`, 20 per page).
 pub(super) fn admin_character_list(world: &mut World, client_id: u32, args: &[&str]) {
     const PER_PAGE: usize = 20;
-    let page = nth_arg::<usize>(args, 0).unwrap_or(0);
+    let page = helpers::nth_arg::<usize>(args, 0).unwrap_or(0);
     let ids = online_players(world);
     let pages = ids.len().div_ceil(PER_PAGE).max(1);
     let page = page.min(pages.saturating_sub(1));
@@ -467,7 +464,7 @@ pub(super) fn admin_set_pvp_flag(world: &mut World, client_id: u32, object_id: i
     };
     let cur = world
         .objects
-        .get_component::<PvpState>(&target)
+        .get_component::<components::PvpState>(&target)
         .map_or(0, |s| s.flag);
     let next = (cur as i32 - 1).unsigned_abs() as u8;
     crate::game_loop::pvp::update_pvp_flag(world, target, next);
@@ -486,8 +483,12 @@ pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32,
             }
         },
     };
-    let target_name = player_name_or_empty(world, target);
-    let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&target).copied() else {
+    let target_name = helpers::player_name_or_empty(world, target);
+    let Some(components::PartyRef(pid)) = world
+        .objects
+        .get_component::<components::PartyRef>(&target)
+        .copied()
+    else {
         // Java: not-in-party still opens the window (empty party table).
         super::menu::show_admin_html_replace(
             world,
@@ -555,7 +556,7 @@ pub(super) fn admin_setparam(
         })
         .unwrap_or(object_id);
     if set {
-        let Some(value) = nth_arg::<f64>(args, 1) else {
+        let Some(value) = helpers::nth_arg::<f64>(args, 1) else {
             send_message(world, client_id, "Syntax: //setparam <stat> <value>");
             return;
         };
@@ -652,7 +653,7 @@ pub(super) fn admin_remove_clan_penalty(world: &mut World, client_id: u32, args:
 /// `//rec <n>` — set the targeted player's Recommend count (Java
 /// `setRecomHave` + `broadcastUserInfo` + both messages).
 pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(val) = nth_arg::<i32>(args, 0) else {
+    let Some(val) = helpers::nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //rec number");
         return;
     };
@@ -726,11 +727,11 @@ pub(super) fn admin_summon_info(world: &mut World, client_id: u32, object_id: i3
         .copied();
     let (cur_hp, max_hp, cur_mp, max_mp) = world
         .objects
-        .get_component::<Vitals>(&summon_oid)
+        .get_component::<components::Vitals>(&summon_oid)
         .map_or((0, 0, 0, 0), |v| {
             (v.cur_hp as i32, v.max_hp, v.cur_mp as i32, v.max_mp)
         });
-    let owner_name = player_name_or_empty(world, owner);
+    let owner_name = helpers::player_name_or_empty(world, owner);
     let (level, exp) = pet.map_or((npc_level, 0), |p| (p.level, p.exp));
     let (class, inv, food) = if let Some(p) = pet {
         (
@@ -778,7 +779,7 @@ pub(super) fn admin_summon_setlvl(
     object_id: i32,
     args: &[&str],
 ) {
-    let Some(level) = nth_arg::<i32>(args, 0) else {
+    let Some(level) = helpers::nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Usage: //summon_setlvl level");
         return;
     };
@@ -790,7 +791,7 @@ pub(super) fn admin_summon_setlvl(
         send_message(world, client_id, "Usable only with Pets");
         return;
     };
-    let npc_id = npc_id_of(world, pet_oid).unwrap_or(0);
+    let npc_id = helpers::npc_id_of(world, pet_oid).unwrap_or(0);
     let Some((exp, max_fed)) = world.data.pet_data.get(npc_id).and_then(|t| {
         t.level_row(level)
             .map(|_| (t.exp_for_level(level), t.max_meal(level)))
@@ -816,7 +817,7 @@ pub(super) fn admin_summon_setlvl(
 /// own inventory (or the pet of the player with the given object id).
 pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     // Java's argument is the *owner's* object id (`World.getPet(ownerId)`).
-    let pet_oid = nth_arg::<i32>(args, 0)
+    let pet_oid = helpers::nth_arg::<i32>(args, 0)
         .and_then(|owner| crate::game_loop::servitor::servitor_of(world, owner))
         .filter(|oid| {
             world
@@ -836,7 +837,7 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
         send_message(world, client_id, "Usable only with Pets");
         return;
     };
-    let name = npc_name_or_empty(world, pet_oid);
+    let name = helpers::npc_name_or_empty(world, pet_oid);
     // Java's `GMViewItemList(Pet)` ctor: `cha.getInventoryLimit()`, which for a
     // pet is `Config.INVENTORY_MAXIMUM_PET`.
     let limit = world.cfg.npc.inventory_maximum_pet as i32;
@@ -848,7 +849,7 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
         return;
     };
     let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data, limit);
-    send_to_client(world, client_id, pkt);
+    helpers::send_to_client(world, client_id, pkt);
 }
 
 // ---------------------------------------------------------------------------
@@ -875,7 +876,7 @@ pub(super) fn admin_charquestmenu(
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let name = player_name_or_empty(world, target);
+    let name = helpers::player_name_or_empty(world, target);
     let mut rows = String::new();
     if let Some(q) = world
         .objects
@@ -989,8 +990,8 @@ fn refresh_quest_journal(world: &mut World, target: i32, quest: &str) {
         .quest_id(quest)
         .filter(|&id| id > 0 && cond > 0)
         .map(|id| crate::network::server_packets::ex_show_quest_mark(id, cond));
-    send_to_client(world, target_cid, list);
+    helpers::send_to_client(world, target_cid, list);
     if let Some(mark) = mark {
-        send_to_client(world, target_cid, mark);
+        helpers::send_to_client(world, target_cid, mark);
     }
 }

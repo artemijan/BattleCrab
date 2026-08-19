@@ -15,11 +15,8 @@
 //! is abbreviated throughout.
 
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::hp_pair;
-use crate::game_loop::helpers::instance_of;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers;
+
 use crate::game_loop::instances;
 use crate::model::components::{AdminFlags, Movement, Position};
 use crate::network::server_packets;
@@ -68,7 +65,7 @@ pub(crate) fn try_enter(world: &mut World, player_oid: i32) -> bool {
 /// dungeon status machine (0→4) is handled here; the boss-fight kill branches
 /// (Scarlet2, demons, portraits) arrive with slice 4.
 pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_oid: i32, npc_id: i32) {
-    let instance_id = instance_of(world, killer_oid);
+    let instance_id = helpers::instance_of(world, killer_oid);
     if instance_id == 0 {
         return;
     }
@@ -951,7 +948,7 @@ const STEP_SECOND_MORPH_B: u8 = 3;
 /// Java `onAttack(SCARLET1)`: cross the 80 % / 20 % HP thresholds once each,
 /// arming the morphs. `scarlet_oid` is the struck Scarlet.
 pub(crate) fn on_scarlet_attack(world: &mut World, scarlet_oid: i32, npc_id: i32) {
-    let instance_id = instance_of(world, scarlet_oid);
+    let instance_id = helpers::instance_of(world, scarlet_oid);
     if instance_id == 0 {
         return;
     }
@@ -962,7 +959,7 @@ pub(crate) fn on_scarlet_attack(world: &mut World, scarlet_oid: i32, npc_id: i32
     if npc_id != SCARLET1 {
         return; // only the first form morphs
     }
-    let Some((cur, max)) = hp_pair(world, scarlet_oid) else {
+    let Some((cur, max)) = helpers::hp_pair(world, scarlet_oid) else {
         return;
     };
     let sv = world
@@ -982,7 +979,7 @@ pub(crate) fn on_scarlet_attack(world: &mut World, scarlet_oid: i32, npc_id: i32
 /// Java `onKill(SCARLET2)`: the final form falls — cut Frintezza's song and roll
 /// the finish cinematic (its death, then the doors reopen).
 pub(crate) fn on_scarlet_killed(world: &mut World, killer_oid: i32) {
-    let instance_id = instance_of(world, killer_oid);
+    let instance_id = helpers::instance_of(world, killer_oid);
     if instance_id == 0 {
         return;
     }
@@ -1115,7 +1112,7 @@ fn handle_fight_step_inner(world: &mut World, instance_id: i32, step: u8) {
                 .map(|p| (p.x, p.y, p.z, p.heading))
                 .unwrap_or(SCARLET_POS);
             if scarlet1 != 0 {
-                let region = region_cell_of(world, scarlet1).unwrap_or((0, 0));
+                let region = helpers::region_cell_of(world, scarlet1).unwrap_or((0, 0));
                 crate::game_loop::death::despawn_npc(world, scarlet1, region);
             }
             if let Some(scarlet2) = spawn_frozen(world, instance_id, SCARLET2, x, y, z, h, true) {
@@ -1245,7 +1242,7 @@ fn play_song(world: &mut World, instance_id: i32) {
         // — the song's matching debuff lands on everyone (the animation above is
         // the 5007 half). Applied directly, since the cast is one-per-target.
         let level = n as i32 + 1;
-        if let Some(skill) = skill_by_id(world, SONG_EFFECT_SKILL, level) {
+        if let Some(skill) = helpers::skill_by_id(world, SONG_EFFECT_SKILL, level) {
             for player in instance_members(world, instance_id) {
                 crate::game_loop::skills::effects::apply_skill_effects(
                     world, frintezza, player, &skill,
@@ -1297,7 +1294,7 @@ pub(crate) fn on_portrait_attacked(
 
 /// Java `onKill(PORTRAITS)`: a fallen portrait stops emitting demons.
 pub(crate) fn on_portrait_killed(world: &mut World, killer_oid: i32, portrait_oid: i32) {
-    let instance_id = instance_of(world, killer_oid);
+    let instance_id = helpers::instance_of(world, killer_oid);
     if instance_id == 0 {
         return;
     }
@@ -1312,7 +1309,7 @@ pub(crate) fn on_portrait_killed(world: &mut World, killer_oid: i32, portrait_oi
 
 /// Java `onKill(DEMONS)`: one fewer demon counts against the cap.
 pub(crate) fn on_demon_killed(world: &mut World, killer_oid: i32) {
-    let instance_id = instance_of(world, killer_oid);
+    let instance_id = helpers::instance_of(world, killer_oid);
     if instance_id == 0 {
         return;
     }
@@ -1366,7 +1363,7 @@ pub(crate) fn handle_scarlet_skill(world: &mut World, instance_id: i32) {
         return; // the fight ended — stop ticking
     }
     let scarlet = var_oid(world, instance_id, "activeScarlet");
-    let dead = is_dead(world, scarlet);
+    let dead = helpers::is_dead(world, scarlet);
     if scarlet == 0 || dead {
         world.instances.set_var(instance_id, "scarletAi", 0);
         return;
@@ -1392,7 +1389,7 @@ pub(crate) fn handle_scarlet_skill(world: &mut World, instance_id: i32) {
     let (skill_id, level) = pick_daemon_skill(world, instance_id, npc_id);
     let range = skill_range(skill_id);
     if let Some(target) = pick_target_in_range(world, instance_id, scarlet, range)
-        && let Some(skill) = skill_by_id(world, skill_id, level)
+        && let Some(skill) = helpers::skill_by_id(world, skill_id, level)
     {
         crate::game_loop::npc::cast::start_cast(world, scarlet, target, &skill);
     }

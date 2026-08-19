@@ -1,6 +1,19 @@
-use super::*;
-
+use super::broadcast_clan_status;
+use super::broadcast_to_clan;
+use super::clan_leader_of;
+use super::clan_name_or_empty;
+use super::online_members;
+use super::send_to_member;
+use crate::db::DbCommand;
+use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
+use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
+use crate::model::Player;
 use crate::model::clan::{SUBUNIT_ACADEMY, SUBUNIT_KNIGHT1, SUBUNIT_ROYAL1, SubPledge};
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 
 /// `VillageMaster.isValidName`/name-length checks shared by clan/sub-pledge
 /// names: alphanumeric, 2..=16 chars (this dist's `ClanNameTemplate = .*`, so

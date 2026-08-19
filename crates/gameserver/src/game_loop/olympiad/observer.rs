@@ -1,8 +1,13 @@
 //! Observer mode (spectating): the match list, enter/leave observer and the
 //! spectator flags.
 
-use super::*;
-
+use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::pos_of;
+use crate::game_loop::helpers::send_to_client;
+use crate::model::components::OlympiadObserver;
+use crate::model::olympiad::OlympiadMatch;
+use crate::network::server_packets as sp;
+use crate::world::World;
 /// The spectator stand — midway between the two arena spawns. (Java draws a
 /// random point from the zone's `spectatorSpawns`; the port has one arena, so a
 /// fixed vantage point suffices — matches are instance-scoped anyway.)

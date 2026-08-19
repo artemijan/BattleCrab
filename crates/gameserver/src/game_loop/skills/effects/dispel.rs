@@ -2,8 +2,14 @@
 //! match. The fixed-list variants (`DispelBySlot`/`DispelBySlotProbability`)
 //! live in `skills::instant` with the rest of the delegated one-liners.
 
-use super::*;
-
+use super::buffs_snapshot;
+use super::handle_buff_expire;
+use crate::game_loop::helpers::is_dead;
+use crate::model::components::StatModifiers;
+use crate::model::skill::BuffSlot;
+use crate::model::skill::DispelSlot;
+use crate::model::skill::Skill;
+use crate::world::World;
 /// `DispelBySlotMyself.instant` — same shape as `DispelBySlot` with two
 /// differences that both matter: the list carries **no levels** (every level
 /// of a listed abnormal goes), and an **`irreplacableBuff` is spared**, which

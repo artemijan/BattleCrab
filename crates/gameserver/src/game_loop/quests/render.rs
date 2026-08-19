@@ -1,7 +1,12 @@
 //! Result rendering: `Quest.showResult` / `showHtmlFile` / `getHtm`.
 
-use super::*;
-
+use super::QuestScript;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_to_client;
+use crate::network::server_packets;
+use crate::world::World;
+use std::sync::Arc;
+use tracing::warn;
 /// `Quest.showResult`: `.htm`/`.html` → html file; inline `<html>` → plain
 /// window; other non-empty strings are Java `sendMessage` (unported — none
 /// of the shipped scripts return one; logged).

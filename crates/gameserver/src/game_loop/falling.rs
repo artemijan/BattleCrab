@@ -34,7 +34,8 @@
 
 use crate::data::zone_data::ZoneKind;
 use crate::model::Player;
-use crate::model::components::{AdminFlags, FallingDamage, Position, Vitals, ZoneFlags};
+use crate::model::components;
+
 use crate::model::stats::Stat;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
@@ -77,7 +78,7 @@ pub(crate) fn calc_fall_dam(world: &World, object_id: i32, fall_height: i32) -> 
     }
     let Some(max_hp) = world
         .objects
-        .get_component::<Vitals>(&object_id)
+        .get_component::<components::Vitals>(&object_id)
         .map(|v| v.max_hp)
     else {
         return 0.0;
@@ -117,7 +118,7 @@ pub(crate) fn is_falling(world: &mut World, object_id: i32, client_z: i32) -> bo
     }
     if world
         .objects
-        .get_component::<ZoneFlags>(&object_id)
+        .get_component::<components::ZoneFlags>(&object_id)
         .is_some_and(|f| f.mask & ZoneKind::Water.bit() != 0)
     {
         return false;
@@ -128,7 +129,11 @@ pub(crate) fn is_falling(world: &mut World, object_id: i32, client_z: i32) -> bo
         return true;
     }
 
-    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+    let Some(pos) = world
+        .objects
+        .get_component::<components::Position>(&object_id)
+        .copied()
+    else {
         return false;
     };
     let delta_z = pos.z - client_z;
@@ -151,7 +156,7 @@ pub(crate) fn is_falling(world: &mut World, object_id: i32, client_z: i32) -> bo
     // — the height of the *first* report of this fall is the one that counts.
     let existing = world
         .objects
-        .get_component::<FallingDamage>(&object_id)
+        .get_component::<components::FallingDamage>(&object_id)
         .map(|f| f.damage)
         .unwrap_or(0);
     let damage = if existing == 0 {
@@ -164,7 +169,7 @@ pub(crate) fn is_falling(world: &mut World, object_id: i32, client_z: i32) -> bo
     // about.
     world.objects.add_components(
         &object_id,
-        FallingDamage {
+        components::FallingDamage {
             due_tick: world.tick + DAMAGE_DELAY_TICKS,
             damage,
         },
@@ -213,27 +218,29 @@ pub(crate) fn falling_damage_tick(world: &mut World) {
     let mut due: Vec<(i32, i32)> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&Player, &FallingDamage)>(|(p, fall)| {
+        .for_each_mut::<(&Player, &components::FallingDamage)>(|(p, fall)| {
             if fall.due_tick <= now {
                 due.push((p.object_id, fall.damage));
             }
         });
 
     for (oid, damage) in due {
-        world.objects.remove_component::<FallingDamage>(&oid);
+        world
+            .objects
+            .remove_component::<components::FallingDamage>(&oid);
         if damage <= 0 {
             continue;
         }
         let invul = world
             .objects
-            .get_component::<AdminFlags>(&oid)
+            .get_component::<components::AdminFlags>(&oid)
             .is_some_and(|f| f.invul);
         if invul {
             continue;
         }
         let Some(cur_hp) = world
             .objects
-            .get_component::<Vitals>(&oid)
+            .get_component::<components::Vitals>(&oid)
             .filter(|v| !v.dead)
             .map(|v| v.cur_hp)
         else {

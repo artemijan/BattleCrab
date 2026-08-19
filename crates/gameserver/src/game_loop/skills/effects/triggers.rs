@@ -1,5 +1,10 @@
-use super::*;
+use super::apply_skill_effects;
 use crate::game_loop::helpers::skill_by_id;
+use crate::model::components::Buffs;
+use crate::model::components::Vitals;
+use crate::model::skill::Skill;
+use crate::model::skill::SkillEffect;
+use crate::world::World;
 
 fn known_buffs(buffs: &Buffs) -> Vec<(i32, i32)> {
     buffs

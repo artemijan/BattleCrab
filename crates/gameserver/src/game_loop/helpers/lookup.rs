@@ -1,7 +1,10 @@
 //! Object/session/name/template lookups.
 
-use super::*;
-
+use crate::model;
+use crate::model::Player;
+use crate::model::npc::Npc;
+use crate::session::ClientSession;
+use crate::world::World;
 /// The client id of the in-game session linked to a `Player`, or `None` if
 /// they've disconnected since the task was scheduled (dead-id ⇒ no-op, per
 /// the scheduler's contract).

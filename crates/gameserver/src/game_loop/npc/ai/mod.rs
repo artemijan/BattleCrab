@@ -26,34 +26,19 @@
 //! `OnAttackableFactionCall` script event's two listeners on this dist —
 //! Queen Ant's nurses and Orfen's minions — via `on_faction_call_script`.
 
-use crate::game_loop::guard::{maybe_position, position};
-use crate::game_loop::helpers::hp_fraction;
-use crate::game_loop::helpers::hp_pair;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::is_raid_npc;
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::pos_of;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use std::collections::HashSet;
 
 use commons::util::rnd;
 
-use crate::data::npc_data::AiType;
-use crate::model::components::{
-    AttackState, Casting, Movement, Position, RegionCell, Speeds, Vitals,
-};
-use crate::model::movement::MoveData;
-use crate::model::npc::{AggroList, NpcAi, NpcIntention};
+use crate::model::components::{Casting, Movement, Speeds, Vitals};
+use crate::model::npc::{NpcAi, NpcIntention};
 use crate::network::server_packets;
-use crate::world::{World, regions_adjacent};
+use crate::world::World;
 
-use crate::game_loop::combat::{self, ATTACK_TIMEOUT_TICKS};
-use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::{broadcast_near_region_in, instance_of};
-use crate::game_loop::minions::{MinionOf, Minions};
-use crate::game_loop::walkers::WalkState;
-use crate::game_loop::{abnormal, death, minions, pvp, servitor, siege, spawn_scripts, target};
+use crate::game_loop::spawn_scripts;
 
 /// `AttackableThinkTaskManager.TASK_DELAY`: think once per second.
 pub(crate) const NPC_THINK_PERIOD: u64 = 10;
@@ -314,13 +299,27 @@ pub(crate) mod perception;
 mod tactics;
 mod think;
 
-pub(crate) use faction::*;
-pub(crate) use hate::*;
-pub(crate) use intentions::*;
-pub(crate) use movement::*;
-pub(crate) use perception::*;
-use tactics::*;
-pub(crate) use think::*;
+use faction::faction_call;
+pub(crate) use faction::faction_call_on_kill;
+#[cfg(test)]
+pub(crate) use faction::on_faction_call_script_for_test;
+use hate::check_hate;
+pub(crate) use hate::{clear_aggro, on_forget_object, stop_npc};
+pub(crate) use intentions::{
+    force_attack_target, set_active_intention, set_attack_intention, set_move_to_intention,
+};
+pub(crate) use movement::move_npc_to;
+use movement::{chase, npc_leash_return_home};
+pub(crate) use perception::notices_target;
+use perception::{
+    check_target, guard_aggro_scan, players_in_range_los, set_hate_for, target_reconsider,
+    target_reconsider_random,
+};
+use tactics::{
+    ai_type_of, archer_backs_off, movement_disabled, raid_target_chaos, shuffle_off_a_stacked_mob,
+};
+pub(crate) use think::seed_attack;
+use think::think;
 /// faction call (`AttackableAI.onEvtAggression`, which calls `setRunning` in as
 /// many words) and the minion assist (whose recruits reach `setRunning` via
 /// their next `thinkActive`) — set the intention directly and skipped it. A

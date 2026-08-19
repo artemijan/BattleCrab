@@ -11,8 +11,8 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::{disconnect_player, nth_arg};
+use crate::game_loop::helpers;
+
 use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef};
 use crate::model::npc::Npc;
@@ -21,8 +21,6 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 use super::{find_online_player, send_message, send_sm};
-use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::region_cell_of;
 
 /// `AdminAdmin`'s `//gmliston` / `//gmlistoff` — register/unregister from the
 /// GM list. Both are **message-only in Java too**: neither calls `showGm` or
@@ -83,7 +81,7 @@ pub(super) fn admin_worldchat(world: &mut World, client_id: u32, object_id: i32,
                 send_message(world, client_id, "Usage: //worldchat shout <message>");
                 return;
             }
-            let name = player_name_or_empty(world, object_id);
+            let name = helpers::player_name_or_empty(world, object_id);
             broadcast_text(world, &format!("{name}: {text}"));
         }
         _ => send_message(world, client_id, "Usage: //worldchat shout <message>"),
@@ -148,7 +146,7 @@ pub(super) fn admin_targetsay(world: &mut World, client_id: u32, object_id: i32,
 
 /// `AdminMessages`'s `//msg <id>` — send the raw `SystemMessage(id)` to the GM.
 pub(super) fn admin_msg(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(id) = nth_arg::<i16>(args, 0) else {
+    let Some(id) = helpers::nth_arg::<i16>(args, 0) else {
         send_message(world, client_id, "Command format: //msg <SYSTEM_MSG_ID>");
         return;
     };
@@ -213,7 +211,7 @@ pub(super) fn admin_html(world: &mut World, client_id: u32, args: &[&str]) {
 
 /// `AdminDebug`'s `//showdoors` — list the doors visible from the GM's region.
 pub(super) fn admin_showdoors(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(region) = region_cell_of(world, object_id) else {
+    let Some(region) = helpers::region_cell_of(world, object_id) else {
         return;
     };
     let ids = world.doors_visible_from(region);
@@ -365,7 +363,7 @@ pub(super) fn admin_kick_non_gm(world: &mut World, client_id: u32) {
         .collect();
     let n = targets.len();
     for oid in targets {
-        disconnect_player(world, oid);
+        helpers::disconnect_player(world, oid);
     }
     send_message(world, client_id, &format!("Kicked {n} non-GM player(s)."));
 }
@@ -747,7 +745,7 @@ pub(super) fn admin_show_quests(world: &mut World, client_id: u32, object_id: i3
         return;
     };
     // Java's gate is `isCreature()` — an NPC or a player, not a door/item.
-    let npc_id = npc_id_of(world, target);
+    let npc_id = helpers::npc_id_of(world, target);
     if npc_id.is_none() && !world.objects.has_component::<Player>(&target) {
         send_message(world, client_id, "Invalid Target.");
         return;
@@ -817,7 +815,7 @@ pub(super) fn admin_quest_info(world: &mut World, client_id: u32, args: &[&str])
 /// hall to the targeted player's clan, `take` frees it (the panel half of
 /// Java `AdminClanHall`; doors/teleport have their own commands).
 pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(hall_id) = nth_arg::<i32>(args, 0) else {
+    let Some(hall_id) = helpers::nth_arg::<i32>(args, 0) else {
         let mut halls: Vec<_> = world.clan_halls.values().collect();
         halls.sort_by_key(|h| h.id);
         let rows: String = halls

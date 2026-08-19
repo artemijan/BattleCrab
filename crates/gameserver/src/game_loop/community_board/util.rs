@@ -1,7 +1,17 @@
 //! Shared board plumbing: busy/zone/reputation gates, adena and item
 //! charges, html loading and the custom-page renderer.
 
-use super::*;
+use super::render_scheme_names;
+use super::send_cb_html;
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_message;
+use crate::game_loop::user_commands::in_combat;
+use crate::model::Player;
+use crate::model::components::Casting;
+use crate::model::inventory::Inventory;
+use crate::session::ClientSession;
+use crate::world::World;
+use tracing::warn;
 /// Re-render a Custom sub-page after an action (the `page` tail the action
 /// bypasses carry, e.g. `buffer/main` or `buffer/schemes.html`), with an
 /// optional error banner. No-op if the tail is missing.

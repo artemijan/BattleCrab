@@ -2,13 +2,12 @@
 
 /// `ExShowSeedSetting`'s list — every seed the castle can farm, with its
 /// catalogue limits/prices and the owner's current/next-period settings.
-use crate::network::server_packets::CropInfoEntry;
-use crate::network::server_packets::CropSettingEntry;
-use crate::network::server_packets::ManorDefaultEntry;
-use crate::network::server_packets::SeedInfoEntry;
-use crate::network::server_packets::SeedSettingEntry;
+use crate::network::server_packets;
 use crate::world::World;
-pub(super) fn seed_setting_entries(world: &World, castle_id: i32) -> Vec<SeedSettingEntry> {
+pub(super) fn seed_setting_entries(
+    world: &World,
+    castle_id: i32,
+) -> Vec<server_packets::SeedSettingEntry> {
     let rate = world.cfg.rates.rate_drop_manor;
     world
         .data
@@ -17,7 +16,7 @@ pub(super) fn seed_setting_entries(world: &World, castle_id: i32) -> Vec<SeedSet
         .iter()
         .map(|seed| {
             let price = reference_price(world, seed.seed_id);
-            SeedSettingEntry {
+            server_packets::SeedSettingEntry {
                 seed_id: seed.seed_id,
                 level: seed.level,
                 reward1_item_id: seed.reward1,
@@ -41,7 +40,10 @@ pub(super) fn seed_setting_entries(world: &World, castle_id: i32) -> Vec<SeedSet
 
 /// `ExShowCropSetting`'s list — every crop the castle can buy, with its
 /// catalogue limits/prices and the owner's current/next-period settings.
-pub(super) fn crop_setting_entries(world: &World, castle_id: i32) -> Vec<CropSettingEntry> {
+pub(super) fn crop_setting_entries(
+    world: &World,
+    castle_id: i32,
+) -> Vec<server_packets::CropSettingEntry> {
     let rate = world.cfg.rates.rate_drop_manor;
     world
         .data
@@ -50,7 +52,7 @@ pub(super) fn crop_setting_entries(world: &World, castle_id: i32) -> Vec<CropSet
         .iter()
         .map(|seed| {
             let price = reference_price(world, seed.crop_id);
-            CropSettingEntry {
+            server_packets::CropSettingEntry {
                 crop_id: seed.crop_id,
                 level: seed.level,
                 reward1_item_id: seed.reward1,
@@ -80,14 +82,14 @@ pub(super) fn seed_info_entries(
     world: &World,
     castle_id: i32,
     next_period: bool,
-) -> Vec<SeedInfoEntry> {
+) -> Vec<server_packets::SeedInfoEntry> {
     world
         .manor
         .seed_production(castle_id, next_period)
         .iter()
         .map(|sp| {
             let seed = world.data.manor.seed_by_id(sp.seed_id);
-            SeedInfoEntry {
+            server_packets::SeedInfoEntry {
                 seed_id: sp.seed_id,
                 amount: sp.amount,
                 start_amount: sp.start_amount,
@@ -109,14 +111,14 @@ pub(super) fn crop_info_entries(
     world: &World,
     castle_id: i32,
     next_period: bool,
-) -> Vec<CropInfoEntry> {
+) -> Vec<server_packets::CropInfoEntry> {
     world
         .manor
         .crop_procure(castle_id, next_period)
         .iter()
         .map(|cp| {
             let seed = world.data.manor.seed_by_crop(cp.crop_id);
-            CropInfoEntry {
+            server_packets::CropInfoEntry {
                 crop_id: cp.crop_id,
                 amount: cp.amount,
                 start_amount: cp.start_amount,
@@ -134,13 +136,13 @@ pub(super) fn crop_info_entries(
 /// ([`ManorData::all_crops`]) with the seed/crop reference prices resolved from
 /// item data (Java `Seed` resolves these from `ItemData` at load; missing item
 /// ⇒ price 1, matching Java's `(item != null) ? … : 1`).
-pub(super) fn default_entries(world: &World) -> Vec<ManorDefaultEntry> {
+pub(super) fn default_entries(world: &World) -> Vec<server_packets::ManorDefaultEntry> {
     world
         .data
         .manor
         .all_crops()
         .into_iter()
-        .map(|seed| ManorDefaultEntry {
+        .map(|seed| server_packets::ManorDefaultEntry {
             crop_id: seed.crop_id,
             level: seed.level,
             seed_reference_price: reference_price(world, seed.seed_id),

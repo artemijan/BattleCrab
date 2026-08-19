@@ -1,8 +1,24 @@
 //! Phase 0: `SkillCaster.startCasting` — and `stop_casting`, where every
 //! cast-stop path funnels.
 
-use super::*;
+use super::set_skill_reuse;
+use super::stop_channelizing;
+use super::target_state;
+use crate::game_loop::combat::run_queued_action;
+use crate::game_loop::helpers;
+
+use crate::model::Player;
+use crate::model::components::Casting;
+use crate::model::components::Position;
+use crate::model::components::QueuedAction;
+use crate::model::components::Vitals;
+use crate::model::formulas;
+use crate::model::skill::OperateType;
+use crate::model::skill::Skill;
+use crate::network::server_packets;
+use crate::scheduler::ScheduledTask;
 use crate::scheduler::ms_to_ticks;
+use crate::world::World;
 /// Port of `SkillCaster.startCasting` (phase 0). Narrowing: no skill mastery,
 /// no `MAGIC_REUSE_RATE` stat (reuse = the skill's `reuseDelay`), no fame/
 /// clan-rep consumes (item reagents ARE consumed — see below), no
@@ -97,7 +113,7 @@ pub(crate) fn start_casting(
     // intentions with idle. (Mainly done for AI_INTENTION_MOVE_TO)"). An
     // attack loop's chase leg is different: the surviving `Intent` component
     // resumes the loop (and its chase) by itself.
-    stop_movement(world, object_id);
+    helpers::stop_movement(world, object_id);
 
     // Face the target (Java: `setHeading` + broadcast `ExRotation`).
     if target_oid != object_id {
@@ -113,7 +129,7 @@ pub(crate) fn start_casting(
         if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
             pos.heading = heading;
         }
-        broadcast_including_self(
+        helpers::broadcast_including_self(
             world,
             object_id,
             &crate::network::enter_world::ex_rotation(object_id, heading),
@@ -127,14 +143,14 @@ pub(crate) fn start_casting(
             return;
         };
         if vitals.cur_mp < skill.mp_initial_consume as f64 {
-            send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_MP, &[]);
+            helpers::send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_MP, &[]);
             return;
         }
         vitals.cur_mp -= skill.mp_initial_consume as f64;
         mp_update = Some(vitals.cur_mp as i32);
     }
     if let Some(mp) = mp_update {
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::status_update(
@@ -157,7 +173,7 @@ pub(crate) fn start_casting(
         let Some(caster_pos) = world.objects.get_component::<Position>(&object_id) else {
             return;
         };
-        broadcast_including_self(
+        helpers::broadcast_including_self(
             world,
             object_id,
             &server_packets::magic_skill_use(
@@ -172,7 +188,7 @@ pub(crate) fn start_casting(
             ),
         );
     }
-    send_sm_to_client(
+    helpers::send_sm_to_client(
         world,
         client_id,
         sm_ids::YOU_USE_S1,
@@ -181,7 +197,7 @@ pub(crate) fn start_casting(
             level: skill.level,
         }],
     );
-    send_to_client(
+    helpers::send_to_client(
         world,
         client_id,
         server_packets::setup_gauge(object_id, 0, displayed_cast_time),

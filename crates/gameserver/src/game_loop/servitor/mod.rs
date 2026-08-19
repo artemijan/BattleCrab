@@ -22,33 +22,38 @@ mod shots;
 mod stats;
 
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::npc_name_or_empty;
-use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::helpers::send_sm_and_action_failed;
-use crate::game_loop::helpers::send_sm_bare_to_player;
-use crate::game_loop::helpers::send_sm_to_player;
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::restore_hp_mp;
 use crate::game_loop::helpers::send_to_player;
-use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::helpers::{is_dead, restore_hp_mp};
-use crate::game_loop::helpers::{item_id_of, send_inventory_update};
-use crate::game_loop::items::item_skills;
-use crate::game_loop::npc::ai::force_attack_target;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;
 use crate::world::World;
-pub(crate) use ai::*;
+pub(crate) use ai::{
+    handle_pet_action, handle_servitor_action, servitor_attack, servitor_follow_tick,
+};
+#[cfg(test)]
+pub(crate) use ai::{servitor_stop, servitor_toggle_follow, use_servitor_skill};
 use commons::network::PacketWriter;
-pub(crate) use death::*;
-pub(crate) use exp::*;
-pub(crate) use feeding::*;
-pub(crate) use lifetime::*;
-pub(crate) use pet::*;
-pub(crate) use restore::*;
-pub(crate) use shots::*;
-pub(crate) use stats::*;
+pub(crate) use death::{pet_decay, pet_do_die, pet_restore_exp};
+pub(crate) use exp::{add_pet_exp, split_exp_with_pet, sync_collar_enchant};
+#[cfg(test)]
+pub(crate) use feeding::apply_feed;
+use feeding::npc_template_id;
+pub(crate) use feeding::{
+    handle_feed_tick, handle_get_item_from_pet, handle_give_item_to_pet, handle_pet_use_item,
+    is_hungry, is_uncontrollable, send_pet_item_list, start_feed,
+};
+use lifetime::notify_owner;
+pub(crate) use lifetime::{broadcast_summon_info, handle_life_tick, on_owner_leave_world};
+pub(crate) use pet::{
+    active_pet_collar, equip_pet_item, handle_request_pet_get_item, pet_of, pet_pickup_think,
+    summon_pet, sync_pet_row,
+};
+pub(crate) use restore::{restore_pet_on_login, restore_servitor_on_login, sync_summon_row};
+pub(crate) use shots::{
+    recharge_shots, recharge_spiritshots, uncharge_soulshot, uncharge_spiritshot,
+};
+pub(crate) use stats::recalculate_pet_stats;
 
 /// Java's `Servitor.run()` period — a fixed `usedtime = 5000` ms.
 const LIFE_TICK_SECS: u64 = 5;

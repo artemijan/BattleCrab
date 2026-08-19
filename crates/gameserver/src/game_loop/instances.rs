@@ -221,14 +221,19 @@ pub(crate) fn enter(world: &mut World, player: i32, instance_id: i32) {
     }
 }
 
-/// Send a player out of their instance (Java the exit location: `ORIGIN` sends
-/// them back to where they entered, a fixed exit to that spot). Arms the
-/// empty-destroy timer when the last member leaves.
-pub(crate) fn exit(world: &mut World, player: i32) {
-    let instance_id = instance_of(world, player);
-    if instance_id == 0 {
-        return;
-    }
+/// Drop `player` out of `instance_id` and answer where they belong now:
+/// a `Fixed` exit's spot, or — for `ORIGIN`, and for a bare instance with no
+/// template — wherever they entered from. Returns the template id alongside it,
+/// since the caller that arms the empty-destroy timer needs it too.
+///
+/// Both exit paths do exactly this; only what they do with the answer differs.
+/// [`exit`] teleports, because there is a client to tell. The logout path just
+/// rewrites the stored position, because there is not.
+fn leave_instance(
+    world: &mut World,
+    player: i32,
+    instance_id: i32,
+) -> (i32, Option<(i32, i32, i32)>) {
     let template_id = world
         .instances
         .get(instance_id)
@@ -237,7 +242,6 @@ pub(crate) fn exit(world: &mut World, player: i32) {
         .instances
         .remove_member(instance_id, player, world.tick);
     world.objects.remove_component::<InstanceId>(&player);
-
     let dest = match world
         .data
         .instance_templates
@@ -245,8 +249,20 @@ pub(crate) fn exit(world: &mut World, player: i32) {
         .map(|t| t.exit)
     {
         Some(ExitType::Fixed(x, y, z)) => Some((x, y, z)),
-        _ => ret, // ORIGIN, or a bare instance → back where they came from
+        _ => ret,
     };
+    (template_id, dest)
+}
+
+/// Send a player out of their instance (Java the exit location: `ORIGIN` sends
+/// them back to where they entered, a fixed exit to that spot). Arms the
+/// empty-destroy timer when the last member leaves.
+pub(crate) fn exit(world: &mut World, player: i32) {
+    let instance_id = instance_of(world, player);
+    if instance_id == 0 {
+        return;
+    }
+    let (template_id, dest) = leave_instance(world, player, instance_id);
     if let Some((x, y, z)) = dest {
         crate::game_loop::death::teleport_player(world, player, x, y, z);
     }
@@ -403,23 +419,7 @@ pub(crate) fn on_player_logout(world: &mut World, player: i32) {
     }
     // Off: park them at the exit location so the stored position is somewhere
     // that still exists next time.
-    let template_id = world
-        .instances
-        .get(instance_id)
-        .map_or(0, |i| i.template_id);
-    let ret = world
-        .instances
-        .remove_member(instance_id, player, world.tick);
-    world.objects.remove_component::<InstanceId>(&player);
-    let dest = match world
-        .data
-        .instance_templates
-        .get(template_id)
-        .map(|t| t.exit)
-    {
-        Some(ExitType::Fixed(x, y, z)) => Some((x, y, z)),
-        _ => ret,
-    };
+    let (_, dest) = leave_instance(world, player, instance_id);
     if let Some((x, y, z)) = dest
         && let Some(pos) = world
             .objects

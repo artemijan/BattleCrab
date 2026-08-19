@@ -2,16 +2,8 @@ use super::attacker_display_name;
 use super::is_npc_oid;
 use super::refresh_attack_stance;
 use crate::game_loop::common::maybe_distance_too_far;
-use crate::game_loop::helpers::broadcast_including_self;
-use crate::game_loop::helpers::broadcast_near_region_in;
-use crate::game_loop::helpers::client_for_player;
-use crate::game_loop::helpers::instance_of;
-use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::stat_add;
-use crate::game_loop::helpers::stat_mul;
-use crate::game_loop::helpers::{absorb_into_hp, is_dead};
+use crate::game_loop::helpers;
+
 use crate::game_loop::skills::cast::break_cast;
 use crate::model::components::Casting;
 use crate::model::components::PlayerVitals;
@@ -145,7 +137,7 @@ fn absorb_damage_to_hp(
     if absorbed <= 0.0 {
         return;
     }
-    absorb_into_hp(world, attacker, absorbed);
+    helpers::absorb_into_hp(world, attacker, absorbed);
     crate::game_loop::skills::effects::broadcast_vitals(world, attacker);
 }
 
@@ -241,7 +233,7 @@ fn reflect_damage(
     if is_dot || damage <= 0.0 {
         return;
     }
-    if is_dead(world, target) {
+    if helpers::is_dead(world, target) {
         return;
     }
     let target_is_player = !is_npc_oid(target);
@@ -347,7 +339,7 @@ pub(crate) fn npc_receive_damage(
     damage: f64,
     auto_attack: bool,
 ) {
-    if is_dead(world, npc_oid) {
+    if helpers::is_dead(world, npc_oid) {
         return;
     }
     // `Summon.isInvul() = super.isInvul() || _owner.isSpawnProtected()`: while
@@ -403,7 +395,7 @@ pub(crate) fn npc_receive_damage(
     };
 
     let hate_attack_mul = if auto_attack {
-        stat_mul(world, attacker_oid, crate::model::stats::Stat::HateAttack)
+        helpers::stat_mul(world, attacker_oid, crate::model::stats::Stat::HateAttack)
     } else {
         1.0
     };
@@ -480,7 +472,7 @@ pub(crate) fn npc_receive_damage(
     // Orfen's `onAttack`: the half-HP relocation and the mid-range drag. Both
     // react to a hit that has already landed, so they sit alongside the raid
     // curse below. No-op for every other NPC.
-    if let Some(npc_id) = npc_id_of(world, npc_oid) {
+    if let Some(npc_id) = helpers::npc_id_of(world, npc_oid) {
         if npc_id == crate::game_loop::core_boss::CORE {
             crate::game_loop::core_boss::on_core_attacked(world, npc_oid);
         }
@@ -546,21 +538,21 @@ pub(crate) fn npc_receive_damage(
             .map(|s| (s.owner_object_id, true))
     };
     if let Some((player_oid, is_summon)) = quest_attacker {
-        let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
+        let npc_id = helpers::npc_id_of(world, npc_oid).unwrap_or(0);
         let skill_id = world.quest_attack_skill;
         crate::game_loop::quests::notify_attack(
             world, player_oid, npc_oid, npc_id, skill_id, is_summon,
         );
     }
-    let Some(region) = region_cell_of(world, npc_oid) else {
+    let Some(region) = helpers::region_cell_of(world, npc_oid) else {
         return;
     };
 
     if became_running {
-        broadcast_near_region_in(
+        helpers::broadcast_near_region_in(
             world,
             region,
-            instance_of(world, npc_oid),
+            helpers::instance_of(world, npc_oid),
             &server_packets::change_move_type(npc_oid, true),
         );
     }
@@ -569,10 +561,10 @@ pub(crate) fn npc_receive_damage(
         return;
     }
     // `broadcastStatusUpdate` — the HP bar for everyone targeting it.
-    broadcast_near_region_in(
+    helpers::broadcast_near_region_in(
         world,
         region,
-        instance_of(world, npc_oid),
+        helpers::instance_of(world, npc_oid),
         &server_packets::status_update(
             npc_oid,
             &[
@@ -593,7 +585,7 @@ pub(crate) const ATTACK_TIMEOUT_TICKS: u64 = 1200;
 /// (hate += 1), reset the calm-after-spawn counter, arm the timeout, run, and
 /// switch to the attack intention. No StatusUpdate — HP didn't move.
 pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid: i32) {
-    if is_dead(world, npc_oid) {
+    if helpers::is_dead(world, npc_oid) {
         return;
     }
     // `Attackable.addDamageHate` → `MinionList.onAssist`: hitting one member of
@@ -618,11 +610,11 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
         speeds.running = true;
         !was_running
     };
-    if became_running && let Some(region) = region_cell_of(world, npc_oid) {
-        broadcast_near_region_in(
+    if became_running && let Some(region) = helpers::region_cell_of(world, npc_oid) {
+        helpers::broadcast_near_region_in(
             world,
             region,
-            instance_of(world, npc_oid),
+            helpers::instance_of(world, npc_oid),
             &server_packets::change_move_type(npc_oid, true),
         );
     }
@@ -643,7 +635,7 @@ fn transfer_damage_to_servitor(
     attacker_oid: i32,
     damage: f64,
 ) -> f64 {
-    let percent = stat_add(
+    let percent = helpers::stat_add(
         world,
         player_oid,
         crate::model::stats::Stat::TransferDamageSummonPercent,
@@ -786,7 +778,9 @@ pub(crate) fn player_receive_damage_ex(
     // Victim-side damage message + stance. Self-inflicted damage says nothing
     // (see `attacker_is_other`) — the environmental sources send their own
     // line instead, e.g. drowning's "you were unable to breathe".
-    if let Some(client_id) = client_for_player(world, player_oid).filter(|_| attacker_is_other) {
+    if let Some(client_id) =
+        helpers::client_for_player(world, player_oid).filter(|_| attacker_is_other)
+    {
         let attacker_name = attacker_display_name(world, attacker_oid);
         let victim_name = world
             .objects
@@ -794,7 +788,7 @@ pub(crate) fn player_receive_damage_ex(
             .expect("player")
             .name
             .clone();
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::system_message_with(
@@ -811,7 +805,7 @@ pub(crate) fn player_receive_damage_ex(
         refresh_attack_stance(world, player_oid);
     }
 
-    broadcast_including_self(
+    helpers::broadcast_including_self(
         world,
         player_oid,
         &server_packets::status_update(

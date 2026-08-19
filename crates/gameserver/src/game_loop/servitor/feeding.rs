@@ -1,8 +1,22 @@
 //! Pet feeding: hunger state, the feed tick, and the give/get/use
 //! pet-inventory packets.
 
-use super::*;
-
+use super::PetInfoKind;
+use super::equip_pet_item;
+use super::notify_owner;
+use super::pet_of;
+use super::send_pet_info;
+use super::sync_pet_row;
+use super::unsummon_servitor;
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::send_inventory_update;
+use crate::game_loop::helpers::send_to_player;
+use crate::game_loop::items::item_skills;
+use crate::game_loop::time::TICKS_PER_SECOND;
+use crate::model::components::ServitorOf;
+use crate::network::server_packets;
+use crate::world::World;
 /// Java `Pet.FeedTask`'s fixed period: `scheduleAtFixedRate(..., 10000, 10000)`.
 const FEED_TICK_SECS: u64 = 10;
 

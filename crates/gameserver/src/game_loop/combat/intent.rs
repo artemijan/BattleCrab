@@ -6,25 +6,12 @@ use super::refresh_attack_stance;
 use super::target_is_dead;
 use super::wields_two_handed;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::broadcast_including_self;
-use crate::game_loop::helpers::broadcast_near_region_in;
-use crate::game_loop::helpers::client_for_player;
-use crate::game_loop::helpers::instance_of;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::helpers::send_action_failed;
-use crate::game_loop::helpers::stop_movement;
+use crate::game_loop::helpers;
+use crate::model::components;
+
 use crate::game_loop::skills::effects::target_p_def;
 use crate::model::PlayerIntent;
-use crate::model::components::AttackState;
-use crate::model::components::Casting;
-use crate::model::components::Following;
-use crate::model::components::Intent;
-use crate::model::components::MoveToPawnState;
-use crate::model::components::Movement;
-use crate::model::components::Position;
-use crate::model::components::Speeds;
-use crate::model::components::Vitals;
+
 use crate::model::formulas;
 use crate::model::movement;
 use crate::model::movement::MoveData;
@@ -53,8 +40,8 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
         return;
     };
 
-    if is_dead(world, object_id) {
-        send_action_failed(world, client_id);
+    if helpers::is_dead(world, object_id) {
+        helpers::send_action_failed(world, client_id);
         return;
     }
 
@@ -71,7 +58,7 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
         || crate::game_loop::abnormal::is_targeting_disabled(world, object_id)
         || crate::game_loop::abnormal::is_untargetable(world, pkt.object_id)
     {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // A Ctrl-click (force attack) both selects *and* engages the target. When
@@ -153,11 +140,11 @@ pub(crate) fn start_attack_intent(
         // RelationChanged). The server just refuses inside a peace zone; the
         // clean-player "needs Ctrl" gate is enforced client-side.
         if target_dead {
-            send_action_failed(world, client_id);
+            helpers::send_action_failed(world, client_id);
             return;
         }
         if crate::game_loop::zones::is_inside_peace_zone(world, object_id, target_object_id) {
-            if let Some(client_id) = client_for_player(world, object_id) {
+            if let Some(client_id) = helpers::client_for_player(world, object_id) {
                 crate::game_loop::helpers::send_sm_and_action_failed(
                     world,
                     client_id,
@@ -175,13 +162,13 @@ pub(crate) fn start_attack_intent(
         let attackable =
             crate::game_loop::target::is_auto_attackable(world, object_id, target_object_id);
         if !attackable || target_dead {
-            send_action_failed(world, client_id);
+            helpers::send_action_failed(world, client_id);
             return;
         }
     }
     world.objects.add_components(
         &object_id,
-        Intent(PlayerIntent::Attack { target_object_id }),
+        components::Intent(PlayerIntent::Attack { target_object_id }),
     );
     // Think immediately — first swing shouldn't wait for the next tick.
     player_attack_think(world, object_id);
@@ -195,7 +182,7 @@ pub(crate) fn start_attack_intent(
 pub(crate) fn resume_attack_intent(world: &mut World, object_id: i32, target_object_id: i32) {
     world.objects.add_components(
         &object_id,
-        Intent(PlayerIntent::Attack { target_object_id }),
+        components::Intent(PlayerIntent::Attack { target_object_id }),
     );
     player_attack_think(world, object_id);
 }
@@ -211,7 +198,9 @@ pub(crate) fn resume_attack_intent(world: &mut World, object_id: i32, target_obj
 fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     // Re-check the siege gate (the loop can outlive the siege ending).
     if !crate::game_loop::siege::attackable_door(world, door_oid) {
-        world.objects.remove_component::<Intent>(&attacker_oid);
+        world
+            .objects
+            .remove_component::<components::Intent>(&attacker_oid);
         return;
     }
     let Some(attacker) = combatant(world, attacker_oid) else {
@@ -237,7 +226,10 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     // Face the gate (Java `doAttack` `setHeading`).
     let heading =
         movement::calculate_heading((dpos.x - attacker.x) as f64, (dpos.y - attacker.y) as f64);
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&attacker_oid) {
+    if let Some(pos) = world
+        .objects
+        .get_component_mut::<components::Position>(&attacker_oid)
+    {
         pos.heading = heading;
     }
 
@@ -248,7 +240,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     let mut swing_seq = 0;
     if let Some(st) = world
         .objects
-        .get_component_mut::<AttackState>(&attacker_oid)
+        .get_component_mut::<components::AttackState>(&attacker_oid)
     {
         st.attack_end_tick = now + ms_to_ticks(time_atk);
         swing_seq = st.swing_seq;
@@ -295,7 +287,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
         dpos.y,
         dpos.z,
     );
-    broadcast_including_self(world, attacker_oid, &pkt);
+    helpers::broadcast_including_self(world, attacker_oid, &pkt);
     refresh_attack_stance(world, attacker_oid);
 }
 
@@ -316,11 +308,11 @@ pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
                 .unwrap_or(1),
         )
     };
-    if let Some(region) = region_cell_of(world, door_oid) {
-        broadcast_near_region_in(
+    if let Some(region) = helpers::region_cell_of(world, door_oid) {
+        helpers::broadcast_near_region_in(
             world,
             region,
-            instance_of(world, door_oid),
+            helpers::instance_of(world, door_oid),
             &server_packets::status_update(
                 door_oid,
                 &[
@@ -342,9 +334,14 @@ pub(crate) fn player_combat_tick(world: &mut World) {
     let mut orphaned: Vec<i32> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::Player, &Following)>(|(p, _)| orphaned.push(p.object_id));
+        .for_each_mut::<(&crate::model::Player, &components::Following)>(|(p, _)| {
+            orphaned.push(p.object_id)
+        });
     for object_id in orphaned {
-        if !world.objects.has_component::<Intent>(&object_id) {
+        if !world
+            .objects
+            .has_component::<components::Intent>(&object_id)
+        {
             stop_follow(world, object_id);
         }
     }
@@ -352,13 +349,27 @@ pub(crate) fn player_combat_tick(world: &mut World) {
     let mut ids: Vec<i32> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::Player, &Intent)>(|(p, _)| ids.push(p.object_id));
+        .for_each_mut::<(&crate::model::Player, &components::Intent)>(|(p, _)| {
+            ids.push(p.object_id)
+        });
     for object_id in ids {
-        match world.objects.get_component::<Intent>(&object_id).copied() {
-            Some(Intent(PlayerIntent::Attack { .. })) => player_attack_think(world, object_id),
-            Some(Intent(PlayerIntent::Cast { .. })) => player_cast_think(world, object_id),
-            Some(Intent(PlayerIntent::Interact { .. })) => player_interact_think(world, object_id),
-            Some(Intent(PlayerIntent::PickUp { .. })) => player_pickup_think(world, object_id),
+        match world
+            .objects
+            .get_component::<components::Intent>(&object_id)
+            .copied()
+        {
+            Some(components::Intent(PlayerIntent::Attack { .. })) => {
+                player_attack_think(world, object_id)
+            }
+            Some(components::Intent(PlayerIntent::Cast { .. })) => {
+                player_cast_think(world, object_id)
+            }
+            Some(components::Intent(PlayerIntent::Interact { .. })) => {
+                player_interact_think(world, object_id)
+            }
+            Some(components::Intent(PlayerIntent::PickUp { .. })) => {
+                player_pickup_think(world, object_id)
+            }
             None => {}
         }
     }
@@ -374,27 +385,35 @@ fn player_attack_think(world: &mut World, object_id: i32) {
     else {
         return;
     };
-    let Some(Intent(PlayerIntent::Attack { target_object_id })) =
-        world.objects.get_component::<Intent>(&object_id).copied()
+    let Some(components::Intent(PlayerIntent::Attack { target_object_id })) = world
+        .objects
+        .get_component::<components::Intent>(&object_id)
+        .copied()
     else {
         return;
     };
 
-    let dead = is_dead(world, object_id);
-    if dead || world.objects.has_component::<Casting>(&object_id) {
+    let dead = helpers::is_dead(world, object_id);
+    if dead
+        || world
+            .objects
+            .has_component::<components::Casting>(&object_id)
+    {
         return; // casting pauses the loop (Java: CAST intention), death ends it via do_die.
     }
     // Target gone or dead → drop the intent (Java `checkTargetLostOrDead` →
     // ACTIVE intention). A breached siege gate counts as dead.
     if target_is_dead(world, target_object_id) {
-        world.objects.remove_component::<Intent>(&object_id);
+        world
+            .objects
+            .remove_component::<components::Intent>(&object_id);
         return;
     }
     // Mid-swing: wait for the attack period to pass (`isAttackingNow`).
     let _ = player;
     if world
         .objects
-        .get_component::<AttackState>(&object_id)
+        .get_component::<components::AttackState>(&object_id)
         .is_some_and(|st| st.attack_end_tick > world.tick)
     {
         return;
@@ -408,7 +427,10 @@ fn player_attack_think(world: &mut World, object_id: i32) {
         .has_component::<crate::model::components::QueuedAction>(&object_id)
     {
         run_queued_action(world, object_id);
-        if world.objects.has_component::<Casting>(&object_id) {
+        if world
+            .objects
+            .has_component::<components::Casting>(&object_id)
+        {
             return;
         }
     }
@@ -431,7 +453,7 @@ fn player_attack_think(world: &mut World, object_id: i32) {
         return;
     }
     // In reach: stop the chase and swing.
-    stop_movement(world, object_id);
+    helpers::stop_movement(world, object_id);
     // A siege door takes damage through the gate path (no miss/crit/shield/AI);
     // everything else goes through the shared creature swing.
     if world
@@ -481,7 +503,9 @@ const FOLLOW_ABANDON_DISTANCE: f64 = 3000.0;
 
 /// `AbstractAI.stopFollow()` — drop the actor out of the follow registry.
 fn stop_follow(world: &mut World, object_id: i32) {
-    world.objects.remove_component::<Following>(&object_id);
+    world
+        .objects
+        .remove_component::<components::Following>(&object_id);
 }
 
 /// Port of `CreatureAI.maybeMoveToPawn(target, offsetValue)` — the one helper
@@ -524,7 +548,9 @@ fn maybe_move_to_pawn(
     // followed. A siege gate or a ground item is walked to with a plain
     // `moveToPawn`, so it never enters the follow registry and therefore never
     // earns the hysteresis below (`isFollowing()` is false for it).
-    let followable = world.objects.has_component::<Vitals>(&target_object_id)
+    let followable = world
+        .objects
+        .has_component::<components::Vitals>(&target_object_id)
         && !world
             .objects
             .has_component::<crate::model::door::Door>(&target_object_id);
@@ -535,7 +561,7 @@ fn maybe_move_to_pawn(
     // fleeing target: swing, chase, swing, rather than chase forever.
     let following = world
         .objects
-        .get_component::<Following>(&object_id)
+        .get_component::<components::Following>(&object_id)
         .copied()
         .filter(|f| f.target_object_id == target_object_id);
     if followable && let Some(follow) = following {
@@ -554,14 +580,18 @@ fn maybe_move_to_pawn(
     if crate::game_loop::abnormal::is_movement_disabled(world, object_id)
         || world
             .objects
-            .get_component::<Speeds>(&object_id)
+            .get_component::<components::Speeds>(&object_id)
             .is_none_or(|s| s.move_speed() <= 0.0)
     {
         if matches!(
-            world.objects.get_component::<Intent>(&object_id),
-            Some(Intent(PlayerIntent::Attack { .. }))
+            world
+                .objects
+                .get_component::<components::Intent>(&object_id),
+            Some(components::Intent(PlayerIntent::Attack { .. }))
         ) {
-            world.objects.remove_component::<Intent>(&object_id);
+            world
+                .objects
+                .remove_component::<components::Intent>(&object_id);
         }
         stop_follow(world, object_id);
         return true;
@@ -573,8 +603,10 @@ fn maybe_move_to_pawn(
     // !t.isCombat())` in Java — so an untransformed player, or one in a COMBAT
     // form (89 of the 174 templates on this dist), is unaffected.
     if matches!(
-        world.objects.get_component::<Intent>(&object_id),
-        Some(Intent(PlayerIntent::Cast { .. }))
+        world
+            .objects
+            .get_component::<components::Intent>(&object_id),
+        Some(components::Intent(PlayerIntent::Cast { .. }))
     ) {
         let non_combat_form = world
             .objects
@@ -583,7 +615,7 @@ fn maybe_move_to_pawn(
             .and_then(|p| world.data.transforms.get(p.transform_id))
             .is_some_and(|tr| !tr.combat);
         if non_combat_form {
-            if let Some(cid) = client_for_player(world, object_id) {
+            if let Some(cid) = helpers::client_for_player(world, object_id) {
                 crate::game_loop::helpers::send_sm_and_action_failed(
                     world,
                     cid,
@@ -599,13 +631,16 @@ fn maybe_move_to_pawn(
     if followable {
         // `startFollow(target, offset)`. A moving pawn is chased 100 units
         // deeper so the walk actually catches it.
-        if world.objects.has_component::<Movement>(&target_object_id) {
+        if world
+            .objects
+            .has_component::<components::Movement>(&target_object_id)
+        {
             offset -= FOLLOW_MOVING_OFFSET;
         }
         offset = offset.max(FOLLOW_MIN_OFFSET);
         world.objects.add_components(
             &object_id,
-            Following {
+            components::Following {
                 target_object_id,
                 offset,
             },
@@ -648,7 +683,9 @@ fn follow_step(
         return; // already inside the follow range: the task does nothing
     }
     if distance_3d > FOLLOW_ABANDON_DISTANCE {
-        world.objects.remove_component::<Intent>(&object_id);
+        world
+            .objects
+            .remove_component::<components::Intent>(&object_id);
         stop_follow(world, object_id);
         return;
     }
@@ -691,17 +728,19 @@ fn chase_pawn(
     // movetopawn packets too often": while already walking toward this same
     // pawn, a re-path at an unchanged offset waits out the 1 s timeout, and a
     // *changed* offset still waits 2 s if the current path came from geodata.
-    if world.objects.has_component::<Movement>(&object_id)
+    if world
+        .objects
+        .has_component::<components::Movement>(&object_id)
         && let Some(state) = world
             .objects
-            .get_component::<MoveToPawnState>(&object_id)
+            .get_component::<components::MoveToPawnState>(&object_id)
             .copied()
         && state.target_object_id == target_object_id
     {
         let on_geodata_path = world
             .objects
-            .get_component::<Movement>(&object_id)
-            .is_some_and(|Movement(m)| m.geo_path.is_some());
+            .get_component::<components::Movement>(&object_id)
+            .is_some_and(|components::Movement(m)| m.geo_path.is_some());
         if state.offset == offset {
             if world.tick < state.timeout_tick {
                 return;
@@ -721,10 +760,13 @@ fn chase_pawn(
     };
 
     let (speed, start) = {
-        let Some(speeds) = world.objects.get_component::<Speeds>(&object_id) else {
+        let Some(speeds) = world
+            .objects
+            .get_component::<components::Speeds>(&object_id)
+        else {
             return;
         };
-        let pos = maybe_position(world, object_id).unwrap_or(Position {
+        let pos = maybe_position(world, object_id).unwrap_or(components::Position {
             x: 0,
             y: 0,
             z: 0,
@@ -739,12 +781,15 @@ fn chase_pawn(
         (((dest_x - start.0) as f64).powi(2) + ((dest_y - start.1) as f64).powi(2)).sqrt();
     let total_ticks = ((10.0 * distance / speed).round() as u64).max(1);
     let start_tick = world.tick;
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+    if let Some(pos) = world
+        .objects
+        .get_component_mut::<components::Position>(&object_id)
+    {
         pos.heading = heading;
     }
     world.objects.add_components(
         &object_id,
-        Movement(MoveData {
+        components::Movement(MoveData {
             start_x: start.0,
             start_y: start.1,
             start_z: start.2,
@@ -761,7 +806,7 @@ fn chase_pawn(
     // way.
     world.objects.add_components(
         &object_id,
-        MoveToPawnState {
+        components::MoveToPawnState {
             target_object_id,
             offset,
             timeout_tick: world.tick + MOVE_TO_PAWN_TIMEOUT_TICKS,
@@ -778,7 +823,7 @@ fn chase_pawn(
         target.y,
         target.z,
     );
-    broadcast_including_self(world, object_id, &pkt);
+    helpers::broadcast_including_self(world, object_id, &pkt);
 }
 
 /// `Creature.moveToLocation`'s offset handling: the point `offset_value − 5`
@@ -822,16 +867,23 @@ pub(crate) fn pawn_destination(
 /// spot, MP, reuse) at the target snapshotted in the intent — Java casts at
 /// the intention's cast target even if the player re-targeted mid-walk.
 pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
-    let Some(Intent(PlayerIntent::Cast {
+    let Some(components::Intent(PlayerIntent::Cast {
         skill_id,
         ctrl,
         shift,
         target_object_id,
-    })) = world.objects.get_component::<Intent>(&object_id).copied()
+    })) = world
+        .objects
+        .get_component::<components::Intent>(&object_id)
+        .copied()
     else {
         return;
     };
-    if is_dead(world, object_id) || world.objects.has_component::<Casting>(&object_id) {
+    if helpers::is_dead(world, object_id)
+        || world
+            .objects
+            .has_component::<components::Casting>(&object_id)
+    {
         return;
     }
     // `checkTargetLost`: a dead or vanished target drops the intention. A
@@ -839,7 +891,9 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
     // use the door-aware `target_is_dead` — otherwise `vitals_of` reads `None`
     // for a door and the walk-to-cast is abandoned before it starts.
     if target_is_dead(world, target_object_id) {
-        world.objects.remove_component::<Intent>(&object_id);
+        world
+            .objects
+            .remove_component::<components::Intent>(&object_id);
         return;
     }
     let cast_range = world
@@ -849,7 +903,9 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
         .and_then(|&level| world.data.skill_data.get(skill_id, level))
         .map(|s| s.cast_range);
     let Some(cast_range) = cast_range else {
-        world.objects.remove_component::<Intent>(&object_id);
+        world
+            .objects
+            .remove_component::<components::Intent>(&object_id);
         return;
     };
     // `maybeMoveToPawn(target, getMagicalAttackRange(skill))` — the same helper
@@ -862,9 +918,11 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
     }
     // Arrived: consume the intention, stop the chase leg (`clientStopMoving`
     // in `thinkCast`), and cast.
-    world.objects.remove_component::<Intent>(&object_id);
-    stop_movement(world, object_id);
-    let Some(client_id) = client_for_player(world, object_id) else {
+    world
+        .objects
+        .remove_component::<components::Intent>(&object_id);
+    helpers::stop_movement(world, object_id);
+    let Some(client_id) = helpers::client_for_player(world, object_id) else {
         return;
     };
     crate::game_loop::skills::cast::use_magic_on(
@@ -895,7 +953,7 @@ pub(crate) fn start_interact_intent(world: &mut World, object_id: i32, target_ob
     }
     world.objects.add_components(
         &object_id,
-        Intent(PlayerIntent::Interact { target_object_id }),
+        components::Intent(PlayerIntent::Interact { target_object_id }),
     );
     player_interact_think(world, object_id);
 }
@@ -906,17 +964,25 @@ pub(crate) fn start_interact_intent(world: &mut World, object_id: i32, target_ob
 /// re-runs the same click handler now that `canInteract` (250 units) passes
 /// comfortably inside this 36-unit arrival range.
 fn player_interact_think(world: &mut World, object_id: i32) {
-    let Some(Intent(PlayerIntent::Interact { target_object_id })) =
-        world.objects.get_component::<Intent>(&object_id).copied()
+    let Some(components::Intent(PlayerIntent::Interact { target_object_id })) = world
+        .objects
+        .get_component::<components::Intent>(&object_id)
+        .copied()
     else {
         return;
     };
-    if is_dead(world, object_id) || world.objects.has_component::<Casting>(&object_id) {
+    if helpers::is_dead(world, object_id)
+        || world
+            .objects
+            .has_component::<components::Casting>(&object_id)
+    {
         return;
     }
     // Target gone → drop the intention (Java `checkTargetLost`).
     let Some(target) = combatant(world, target_object_id) else {
-        world.objects.remove_component::<Intent>(&object_id);
+        world
+            .objects
+            .remove_component::<components::Intent>(&object_id);
         return;
     };
     const INTERACT_APPROACH_RANGE: i32 = 36;
@@ -930,9 +996,11 @@ fn player_interact_think(world: &mut World, object_id: i32) {
         return;
     }
     // Arrived: stop the chase leg and re-run the interact click.
-    world.objects.remove_component::<Intent>(&object_id);
-    stop_movement(world, object_id);
-    let Some(client_id) = client_for_player(world, object_id) else {
+    world
+        .objects
+        .remove_component::<components::Intent>(&object_id);
+    helpers::stop_movement(world, object_id);
+    let Some(client_id) = helpers::client_for_player(world, object_id) else {
         return;
     };
     // Re-entry after walking into interaction range: only the chat/interact
@@ -955,16 +1023,19 @@ pub(crate) fn start_pickup_intent(world: &mut World, object_id: i32, item_object
     // `if (getIntention() == AI_INTENTION_REST) { clientActionFailed(); return; }`
     // — loot stays on the floor until the player stands up.
     if crate::game_loop::sit_stand::is_resting(world, object_id) {
-        if let Some(client_id) = client_for_player(world, object_id) {
-            send_action_failed(world, client_id);
+        if let Some(client_id) = helpers::client_for_player(world, object_id) {
+            helpers::send_action_failed(world, client_id);
         }
         return;
     }
     // `if (_actor.isAllSkillsDisabled() || _actor.isCastingNow())` — same
     // refusal, same bare ActionFailed.
-    if world.objects.has_component::<Casting>(&object_id) {
-        if let Some(client_id) = client_for_player(world, object_id) {
-            send_action_failed(world, client_id);
+    if world
+        .objects
+        .has_component::<components::Casting>(&object_id)
+    {
+        if let Some(client_id) = helpers::client_for_player(world, object_id) {
+            helpers::send_action_failed(world, client_id);
         }
         return;
     }
@@ -972,9 +1043,10 @@ pub(crate) fn start_pickup_intent(world: &mut World, object_id: i32, item_object
     // running, so an attack loop in progress ends here. (Java's preceding
     // `clientStopAutoAttack()` sends nothing for a player — it only tops up the
     // attack-stance task — so there is no packet to port.)
-    world
-        .objects
-        .add_components(&object_id, Intent(PlayerIntent::PickUp { item_object_id }));
+    world.objects.add_components(
+        &object_id,
+        components::Intent(PlayerIntent::PickUp { item_object_id }),
+    );
     // Java's `moveToPawn(object, 20)` fires from the intention itself; thinking
     // once synchronously reaches the same place via `thinkPickUp`, and also
     // lifts the item immediately when the player already stands on it.
@@ -984,15 +1056,21 @@ pub(crate) fn start_pickup_intent(world: &mut World, object_id: i32, item_object
 /// `PlayerAI.thinkPickUp`: chase to `maybeMoveToPawn(target, 36)` range, then
 /// `setIntention(AI_INTENTION_IDLE)` + `Player.doPickupItem`.
 fn player_pickup_think(world: &mut World, object_id: i32) {
-    let Some(Intent(PlayerIntent::PickUp { item_object_id })) =
-        world.objects.get_component::<Intent>(&object_id).copied()
+    let Some(components::Intent(PlayerIntent::PickUp { item_object_id })) = world
+        .objects
+        .get_component::<components::Intent>(&object_id)
+        .copied()
     else {
         return;
     };
     // `Player.doPickupItem`'s `isAlikeDead()` guard plus thinkPickUp's own
     // `isAllSkillsDisabled() || isCastingNow()` bail (which does *not* drop the
     // intention — the walk resumes once the cast ends).
-    if is_dead(world, object_id) || world.objects.has_component::<Casting>(&object_id) {
+    if helpers::is_dead(world, object_id)
+        || world
+            .objects
+            .has_component::<components::Casting>(&object_id)
+    {
         return;
     }
     // `checkTargetLost` — someone else got there first, or it decayed.
@@ -1002,7 +1080,9 @@ fn player_pickup_think(world: &mut World, object_id: i32) {
             .objects
             .has_component::<crate::model::components::GroundItem>(&item_object_id),
     ) else {
-        world.objects.remove_component::<Intent>(&object_id);
+        world
+            .objects
+            .remove_component::<components::Intent>(&object_id);
         return;
     };
     // The item is a plain `WorldObject`, so `maybeMoveToPawn` adds only the
@@ -1021,9 +1101,11 @@ fn player_pickup_think(world: &mut World, object_id: i32) {
     }
     // Arrived: `setIntention(AI_INTENTION_IDLE)` then `doPickupItem`, which
     // itself sends the `StopMove` that ends the walk client-side.
-    world.objects.remove_component::<Intent>(&object_id);
-    stop_movement(world, object_id);
-    let Some(client_id) = client_for_player(world, object_id) else {
+    world
+        .objects
+        .remove_component::<components::Intent>(&object_id);
+    helpers::stop_movement(world, object_id);
+    let Some(client_id) = helpers::client_for_player(world, object_id) else {
         return;
     };
     crate::game_loop::ground_items::pickup_ground_item(world, client_id, object_id, item_object_id);
@@ -1033,7 +1115,7 @@ fn player_pickup_think(world: &mut World, object_id: i32) {
 /// geometry (`distance_2d`/`pawn_destination`/`chase_pawn`) run against a plain
 /// `WorldObject` such as a ground item, which carries none of the combat
 /// components. Every stat field is inert; only the coordinates are read.
-pub(crate) fn stationary_pawn(pos: Position) -> Combatant {
+pub(crate) fn stationary_pawn(pos: components::Position) -> Combatant {
     Combatant {
         x: pos.x,
         y: pos.y,
@@ -1076,12 +1158,12 @@ pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
             .objects
             .get_component::<AttackState>(&object_id)
             .is_some_and(|st| st.attack_end_tick > world.tick)
-        || is_dead(world, object_id)
+        || helpers::is_dead(world, object_id)
     {
         return;
     }
     world.objects.remove_component::<QueuedAction>(&object_id);
-    let Some(client_id) = client_for_player(world, object_id) else {
+    let Some(client_id) = helpers::client_for_player(world, object_id) else {
         return;
     };
     match action {

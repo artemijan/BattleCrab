@@ -1,20 +1,31 @@
 //! Servitor visibility and lifetime: the `SummonInfo` broadcast, the 5 s
 //! life tick with its consume cost, and owner-logout cleanup.
 
-use super::*;
+use super::CONSUME_INTERVAL_SECS;
+use super::LEASH_DISTANCE;
+use super::LIFE_TICK_SECS;
+use super::sync_pet_row;
+use super::sync_summon_row;
+use super::unsummon_servitor;
+use crate::game_loop::helpers;
+use crate::model::components;
 
+use crate::game_loop::time::TICKS_PER_SECOND;
+
+use crate::network::server_packets;
+use crate::world::World;
 /// `SummonInfo` to every nearby player except the owner (who has the
 /// `PetInfo` view). Used when the servitor first appears.
 pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summoned: bool) {
     use crate::model::components::RegionCell;
     let Some(link) = world
         .objects
-        .get_component::<ServitorOf>(&servitor_oid)
+        .get_component::<components::ServitorOf>(&servitor_oid)
         .copied()
     else {
         return;
     };
-    let Some(region) = region_cell_of(world, servitor_oid) else {
+    let Some(region) = helpers::region_cell_of(world, servitor_oid) else {
         return;
     };
     let Some(npc) = world
@@ -25,10 +36,18 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
     };
     let Some(t) = npc.template(world) else { return };
     let (Some(pos), Some(vitals), Some(speeds), Some(combat)) = (
-        world.objects.get_component::<Position>(&servitor_oid),
-        world.objects.get_component::<Vitals>(&servitor_oid),
-        world.objects.get_component::<Speeds>(&servitor_oid),
-        world.objects.get_component::<CombatStats>(&servitor_oid),
+        world
+            .objects
+            .get_component::<components::Position>(&servitor_oid),
+        world
+            .objects
+            .get_component::<components::Vitals>(&servitor_oid),
+        world
+            .objects
+            .get_component::<components::Speeds>(&servitor_oid),
+        world
+            .objects
+            .get_component::<components::CombatStats>(&servitor_oid),
     ) else {
         return;
     };
@@ -82,13 +101,13 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     use crate::network::server_packets::{SmParam, sm_ids};
     let Some(link) = world
         .objects
-        .get_component::<ServitorOf>(&servitor_oid)
+        .get_component::<components::ServitorOf>(&servitor_oid)
         .copied()
     else {
         return;
     };
     // Dead or already gone → the chain ends (Java cancels the task).
-    if is_dead(world, servitor_oid) {
+    if helpers::is_dead(world, servitor_oid) {
         return;
     }
     let owner = link.owner_object_id;
@@ -116,14 +135,17 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
                 .get_component_mut::<Inventory>(&owner)
                 .map(|inv| inv.remove_item(link.consume_item_id, link.consume_item_count))
                 .unwrap_or_default();
-            send_inventory_update(world, owner, changes);
+            helpers::send_inventory_update(world, owner, changes);
             notify_owner(
                 world,
                 owner,
                 sm_ids::A_SUMMONED_MONSTER_USES_S1,
                 &[SmParam::ItemName(link.consume_item_id)],
             );
-            if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
+            if let Some(l) = world
+                .objects
+                .get_component_mut::<components::ServitorOf>(&servitor_oid)
+            {
                 l.next_consume_tick = world.tick + CONSUME_INTERVAL_SECS * TICKS_PER_SECOND;
             }
         } else {
@@ -141,7 +163,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     // 3. The remaining-time bar.
     if link.life_time_secs > 0 {
         let remaining = (link.expires_at_tick.saturating_sub(world.tick) / TICKS_PER_SECOND) as i32;
-        send_to_player(
+        helpers::send_to_player(
             world,
             owner,
             server_packets::set_summon_remain_time(link.life_time_secs, remaining),
@@ -154,7 +176,10 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     if crate::geo::distance::distance_3d(world, servitor_oid, owner)
         .is_some_and(|d| d > LEASH_DISTANCE)
     {
-        if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
+        if let Some(l) = world
+            .objects
+            .get_component_mut::<components::ServitorOf>(&servitor_oid)
+        {
             l.following = true;
         }
         crate::game_loop::npc::ai::set_active_intention(world, servitor_oid);
@@ -172,7 +197,7 @@ pub(super) fn notify_owner(
     sm: i16,
     params: &[server_packets::SmParam],
 ) {
-    send_sm_to_player(world, owner_oid, sm, params);
+    helpers::send_sm_to_player(world, owner_oid, sm, params);
 }
 
 /// The owner left the world (logout/disconnect) — their servitor goes with

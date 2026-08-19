@@ -1,8 +1,27 @@
 //! The siege packet handlers (`RequestJoinSiege` family) and the
 //! attacker/defender list builders.
 
-use super::*;
-
+use super::RegisterOutcome;
+use super::approve_defender;
+use super::broadcast_sm;
+use super::can_pick_siege_time;
+use super::effective_siege_millis;
+use super::is_registration_over;
+use super::next_siege_millis;
+use super::owner_clan_id_opt;
+use super::register;
+use super::remove_registration;
+use crate::db::DbCommand;
+use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::send_sm_bare_to_client as send_sm_to;
+use crate::game_loop::helpers::send_sm_to_client;
+use crate::game_loop::helpers::send_to_client;
+use crate::model::Player;
+use crate::model::siege::SiegeClanType;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 /// The SystemMessage for a refusal, or `None` when nothing is said.
 ///
 /// Two outcomes are absent on purpose. `Approved` says nothing (Java's success

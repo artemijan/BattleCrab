@@ -1,7 +1,12 @@
 //! The retail clan and region boards: clan list, clan home and the clan
 //! notice page.
 
-use super::*;
+use super::first_token;
+use super::read_html;
+use super::send_cb_html;
+use crate::game_loop::helpers::send_to_client;
+use crate::world::World;
+use tracing::warn;
 /// `RegionBoard`: `_bbsloc` renders the nine regions off the castles — name
 /// fstring, owning clan + alliance, buy-tax. The per-region detail
 /// (`_bbsloc;id`) is left unimplemented in Java itself, so a valid id gets

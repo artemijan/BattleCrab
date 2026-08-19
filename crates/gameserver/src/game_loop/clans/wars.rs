@@ -1,6 +1,25 @@
-use super::*;
+use super::MS_PER_TICK;
+use super::academy;
+use super::add_clan_reputation;
+use super::broadcast_clan_status;
+use super::broadcast_to_clan;
+use super::by_name;
+use super::clan_membership;
+use super::clan_name_or_empty;
+use super::online_members;
+use super::send_to_member;
+use crate::db::DbCommand;
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 use crate::game_loop::helpers::send_to_client;
+use crate::model::Player;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
+use commons::network::PacketReader;
+use commons::util::now_millis;
 
 use crate::model::clan::{CL_PLEDGE_WAR, ClanWar, ClanWarState, WAR_TIMEOUT_MS};
 

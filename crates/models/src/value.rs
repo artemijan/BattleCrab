@@ -1,6 +1,6 @@
 //! Value types for columns SQLite stores in more than one storage class.
 
-use sea_orm::sea_query::{ArrayType, ColumnType, Nullable, ValueType, ValueTypeErr};
+use sea_orm::sea_query;
 use sea_orm::{DbErr, QueryResult, TryGetError, TryGetable, Value};
 
 /// A number that may be stored as either `INTEGER` or `REAL`.
@@ -50,14 +50,14 @@ impl TryGetable for LooseF64 {
     }
 }
 
-impl ValueType for LooseF64 {
-    fn try_from(v: Value) -> Result<Self, ValueTypeErr> {
+impl sea_query::ValueType for LooseF64 {
+    fn try_from(v: Value) -> Result<Self, sea_query::ValueTypeErr> {
         match v {
             Value::Double(Some(v)) => Ok(Self(v)),
             Value::Float(Some(v)) => Ok(Self(v as f64)),
             Value::BigInt(Some(v)) => Ok(Self(v as f64)),
             Value::Int(Some(v)) => Ok(Self(f64::from(v))),
-            _ => Err(ValueTypeErr),
+            _ => Err(sea_query::ValueTypeErr),
         }
     }
 
@@ -65,16 +65,16 @@ impl ValueType for LooseF64 {
         stringify!(LooseF64).to_owned()
     }
 
-    fn array_type() -> ArrayType {
-        ArrayType::Double
+    fn array_type() -> sea_query::ArrayType {
+        sea_query::ArrayType::Double
     }
 
-    fn column_type() -> ColumnType {
-        ColumnType::Double
+    fn column_type() -> sea_query::ColumnType {
+        sea_query::ColumnType::Double
     }
 }
 
-impl Nullable for LooseF64 {
+impl sea_query::Nullable for LooseF64 {
     fn null() -> Value {
         Value::Double(None)
     }
@@ -103,11 +103,11 @@ mod tests {
     #[test]
     fn accepts_an_integer_value() {
         assert_eq!(
-            <LooseF64 as ValueType>::try_from(Value::BigInt(Some(1234))).unwrap(),
+            <LooseF64 as sea_query::ValueType>::try_from(Value::BigInt(Some(1234))).unwrap(),
             LooseF64(1234.0)
         );
         assert_eq!(
-            <LooseF64 as ValueType>::try_from(Value::Double(Some(1234.5))).unwrap(),
+            <LooseF64 as sea_query::ValueType>::try_from(Value::Double(Some(1234.5))).unwrap(),
             LooseF64(1234.5)
         );
     }

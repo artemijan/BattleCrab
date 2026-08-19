@@ -1,6 +1,9 @@
 //! Favorites and the homepage board.
 
-use super::*;
+use super::read_html;
+use super::send_cb_html;
+use crate::world::World;
+use tracing::warn;
 /// Port of `HomepageBoard.parseCommunityBoardCommand` (`_bbslink`): serve the
 /// static `homepage.html` verbatim (a plain retail page, no navigation inject).
 pub(super) fn show_homepage(world: &World, client_id: u32) {

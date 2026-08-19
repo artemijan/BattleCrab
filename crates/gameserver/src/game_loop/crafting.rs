@@ -20,7 +20,8 @@ use crate::data::recipe_data::RecipeList;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::{send_to_client, send_to_player};
-use crate::model::components::{ManufactureStore, RecipeBook, SkillBook, StatModifiers, Vitals};
+use crate::model::components;
+
 use crate::model::inventory::Inventory;
 use crate::model::stats::Stat;
 use crate::network::client_packets as cp;
@@ -47,7 +48,7 @@ fn craft_skill_level(world: &World, oid: i32, is_dwarven: bool) -> i32 {
     };
     world
         .objects
-        .get_component::<SkillBook>(&oid)
+        .get_component::<components::SkillBook>(&oid)
         .and_then(|b| b.0.get(&skill_id).copied())
         .unwrap_or(0)
 }
@@ -72,7 +73,7 @@ fn set_store_type(world: &mut World, oid: i32, ty: u8) {
 fn vitals(world: &World, oid: i32) -> Option<(f64, i32, f64)> {
     world
         .objects
-        .get_component::<Vitals>(&oid)
+        .get_component::<components::Vitals>(&oid)
         .map(|v| (v.cur_mp, v.max_mp, v.cur_hp))
 }
 
@@ -94,7 +95,7 @@ pub(crate) fn request_book_open(world: &mut World, client_id: u32, is_dwarven: b
 fn send_recipe_book(world: &mut World, client_id: u32, oid: i32, is_dwarven: bool) {
     let max_mp = world
         .objects
-        .get_component::<Vitals>(&oid)
+        .get_component::<components::Vitals>(&oid)
         .map(|v| v.max_mp)
         .unwrap_or(0);
     let recipes = book_ids(world, oid, is_dwarven);
@@ -116,7 +117,10 @@ pub(crate) fn handle_book_destroy(world: &mut World, client_id: u32, recipe_id: 
     let Some(is_dwarven) = world.data.recipes.get(recipe_id).map(|r| r.is_dwarven) else {
         return;
     };
-    if let Some(book) = world.objects.get_component_mut::<RecipeBook>(&oid) {
+    if let Some(book) = world
+        .objects
+        .get_component_mut::<components::RecipeBook>(&oid)
+    {
         book.dwarven.retain(|&id| id != recipe_id);
         book.common.retain(|&id| id != recipe_id);
     }
@@ -126,7 +130,7 @@ pub(crate) fn handle_book_destroy(world: &mut World, client_id: u32, recipe_id: 
 fn book_ids(world: &World, oid: i32, is_dwarven: bool) -> Vec<i32> {
     world
         .objects
-        .get_component::<RecipeBook>(&oid)
+        .get_component::<components::RecipeBook>(&oid)
         .map(|b| {
             if is_dwarven {
                 b.dwarven.clone()
@@ -167,7 +171,7 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
     // Already registered?
     if world
         .objects
-        .get_component::<RecipeBook>(&object_id)
+        .get_component::<components::RecipeBook>(&object_id)
         .is_some_and(|b| b.contains(recipe.id))
     {
         send(world, sm_ids::THAT_RECIPE_IS_ALREADY_REGISTERED, &[]);
@@ -176,7 +180,9 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
 
     let craft_level = craft_skill_level(world, object_id, recipe.is_dwarven);
     let (limit, book_len) = {
-        let book = world.objects.get_component::<RecipeBook>(&object_id);
+        let book = world
+            .objects
+            .get_component::<components::RecipeBook>(&object_id);
         let (stat, base, len) = if recipe.is_dwarven {
             (
                 Stat::RecipeDwarven,
@@ -192,7 +198,10 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
         };
         // Expand Dwarven/Common Craft (1368/1369, `EnlargeSlot`): the base
         // config limit plus whatever the learned passive raises it to.
-        let limit = match world.objects.get_component::<StatModifiers>(&object_id) {
+        let limit = match world
+            .objects
+            .get_component::<components::StatModifiers>(&object_id)
+        {
             Some(mods) => crate::model::finalize(mods, stat, base as f64) as i32,
             None => base,
         };
@@ -226,14 +235,17 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
     }
 
     // Register (memory-first; persists on the next flush).
-    if let Some(book) = world.objects.get_component_mut::<RecipeBook>(&object_id) {
+    if let Some(book) = world
+        .objects
+        .get_component_mut::<components::RecipeBook>(&object_id)
+    {
         if recipe.is_dwarven {
             book.dwarven.push(recipe.id);
         } else {
             book.common.push(recipe.id);
         }
     } else {
-        let mut book = RecipeBook::default();
+        let mut book = components::RecipeBook::default();
         if recipe.is_dwarven {
             book.dwarven.push(recipe.id);
         } else {
@@ -324,12 +336,15 @@ pub(crate) fn handle_message_set(world: &mut World, client_id: u32, name: String
     if name.chars().count() > MAX_MSG_LENGTH {
         return;
     }
-    if let Some(store) = world.objects.get_component_mut::<ManufactureStore>(&oid) {
+    if let Some(store) = world
+        .objects
+        .get_component_mut::<components::ManufactureStore>(&oid)
+    {
         store.title = name;
     } else {
         world.objects.add_components(
             &oid,
-            ManufactureStore {
+            components::ManufactureStore {
                 items: Vec::new(),
                 title: name,
             },
@@ -369,7 +384,7 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
     for line in &lines {
         let known = world
             .objects
-            .get_component::<RecipeBook>(&oid)
+            .get_component::<components::RecipeBook>(&oid)
             .is_some_and(|b| b.contains(line.recipe_id));
         if !known {
             super::punishment::illegal_action(
@@ -390,13 +405,16 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
     }
 
     let title = {
-        if let Some(store) = world.objects.get_component_mut::<ManufactureStore>(&oid) {
+        if let Some(store) = world
+            .objects
+            .get_component_mut::<components::ManufactureStore>(&oid)
+        {
             store.items = items;
             store.title.clone()
         } else {
             world.objects.add_components(
                 &oid,
-                ManufactureStore {
+                components::ManufactureStore {
                     items,
                     title: String::new(),
                 },
@@ -450,7 +468,7 @@ pub(crate) fn open_sell_list(world: &mut World, client_id: u32, buyer: i32, manu
 fn mp_gauge(world: &World, oid: i32) -> (i32, i32) {
     world
         .objects
-        .get_component::<Vitals>(&oid)
+        .get_component::<components::Vitals>(&oid)
         .map(|v| (v.cur_mp as i32, v.max_mp))
         .unwrap_or((0, 0))
 }
@@ -494,7 +512,7 @@ pub(crate) fn handle_shop_make_item(
     // whatever they set for it.
     let Some(price) = world
         .objects
-        .get_component::<ManufactureStore>(&manufacturer)
+        .get_component::<components::ManufactureStore>(&manufacturer)
         .and_then(|s| {
             s.items
                 .iter()
@@ -546,7 +564,7 @@ fn do_craft(
     // in the book punishes the requester (Java `RecipeManager`).
     if !world
         .objects
-        .get_component::<RecipeBook>(&crafter)
+        .get_component::<components::RecipeBook>(&crafter)
         .is_some_and(|b| b.contains(recipe.id))
     {
         super::punishment::illegal_action(
@@ -623,7 +641,10 @@ fn do_craft(
 
     // Reduce the crafter's MP/HP + StatusUpdate.
     if recipe.mp_use > 0 || recipe.hp_use > 0 {
-        if let Some(v) = world.objects.get_component_mut::<Vitals>(&crafter) {
+        if let Some(v) = world
+            .objects
+            .get_component_mut::<components::Vitals>(&crafter)
+        {
             v.cur_mp = (v.cur_mp - recipe.mp_use as f64).max(0.0);
             v.cur_hp = (v.cur_hp - recipe.hp_use as f64).max(1.0);
         }
@@ -763,7 +784,10 @@ pub(crate) fn handle_craft_pass(world: &mut World, crafter: i32) {
         );
         return;
     }
-    if let Some(v) = world.objects.get_component_mut::<Vitals>(&crafter) {
+    if let Some(v) = world
+        .objects
+        .get_component_mut::<components::Vitals>(&crafter)
+    {
         v.cur_mp = (v.cur_mp - mp_share).max(0.0);
         v.cur_hp = (v.cur_hp - hp_share).max(1.0);
     }
@@ -1142,7 +1166,7 @@ fn update_make_info(
 
 /// The crafter's `StatusUpdate(CUR_MP/CUR_HP)` after a craft consumed vitals.
 fn send_crafter_mp(world: &World, crafter: i32) {
-    let Some(v) = world.objects.get_component::<Vitals>(&crafter) else {
+    let Some(v) = world.objects.get_component::<components::Vitals>(&crafter) else {
         return;
     };
     send_to_player(
@@ -1161,7 +1185,10 @@ fn send_crafter_mp(world: &World, crafter: i32) {
 /// The seller's active manufacture list `(recipe_id, cost)`, filtered to the
 /// book side being shown and recipes still in the book (Java `RecipeShopManageList`).
 fn active_store_items(world: &World, oid: i32, is_dwarven: bool) -> Vec<(i32, i64)> {
-    let Some(store) = world.objects.get_component::<ManufactureStore>(&oid) else {
+    let Some(store) = world
+        .objects
+        .get_component::<components::ManufactureStore>(&oid)
+    else {
         return Vec::new();
     };
     if store_type(world, oid) != STORE_TYPE_MANUFACTURE {
@@ -1174,7 +1201,7 @@ fn active_store_items(world: &World, oid: i32, is_dwarven: bool) -> Vec<(i32, i6
             world.data.recipes.get(*id).map(|r| r.is_dwarven) == Some(is_dwarven)
                 && world
                     .objects
-                    .get_component::<RecipeBook>(&oid)
+                    .get_component::<components::RecipeBook>(&oid)
                     .is_some_and(|b| b.contains(*id))
         })
         .copied()
@@ -1185,7 +1212,7 @@ fn active_store_items(world: &World, oid: i32, is_dwarven: bool) -> Vec<(i32, i6
 fn current_store_items(world: &World, oid: i32) -> Vec<(i32, i64)> {
     world
         .objects
-        .get_component::<ManufactureStore>(&oid)
+        .get_component::<components::ManufactureStore>(&oid)
         .map(|s| s.items.clone())
         .unwrap_or_default()
 }

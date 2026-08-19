@@ -1,7 +1,12 @@
 //! Vitals, zones, stats and death checks.
 
-use super::*;
-
+use crate::model;
+use crate::model::Player;
+use crate::model::components::StatModifiers;
+use crate::model::components::Vitals;
+use crate::model::inventory::Inventory;
+use crate::model::stats::Stat;
+use crate::world::World;
 /// Whether an object currently stands inside `zone` — Java
 /// `ZoneType.isInsideZone(object)`.
 ///

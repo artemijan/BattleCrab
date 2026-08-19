@@ -3,6 +3,9 @@
 //! `network/clientpackets` registry. Handlers small enough not to warrant a
 //! module of their own live inline here.
 
+use super::friends;
+use super::lobby;
+use super::party;
 use tracing::{error, trace};
 
 use crate::network::client_packets::{self as cp, ex_opcodes as exop, opcodes as cop};
@@ -15,26 +18,14 @@ use super::chat::handle_say2;
 use super::combat::handle_attack_request;
 use super::death::{handle_appearing, handle_request_restart_point};
 use super::flood;
-use super::friends::{
-    handle_request_answer_friend_invite, handle_request_friend_del, handle_request_friend_invite,
-    handle_request_friend_list, handle_request_send_friend_msg,
-};
+
 use super::items::{
     handle_request_item_list, handle_request_save_inventory_order, handle_request_un_equip_item,
     handle_use_item,
 };
-use super::lobby::{
-    handle_auth_login, handle_character_create, handle_character_delete, handle_character_restore,
-    handle_character_select, handle_enter_world, handle_new_character,
-    handle_request_character_name_creatable,
-};
+
 use super::net::{handle_logout, handle_request_restart};
-use super::party::{
-    handle_answer_party_loot_modification, handle_request_answer_join_party,
-    handle_request_change_party_leader, handle_request_join_party,
-    handle_request_oust_party_member, handle_request_party_loot_modification,
-    handle_request_withdrawal_party,
-};
+
 use super::position::{
     handle_ex_send_selected_quest_zone_id, handle_move_backward_to_location,
     handle_request_stop_move, handle_validate_position,
@@ -105,13 +96,13 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         super::spawn_protection::on_action_request(world, client_id, player);
     }
     match opcode {
-        cop::AUTH_LOGIN => handle_auth_login(world, client_id, body),
-        cop::NEW_CHARACTER => handle_new_character(world, client_id),
-        cop::CHARACTER_CREATE => handle_character_create(world, client_id, body),
-        cop::CHARACTER_DELETE => handle_character_delete(world, client_id, body),
-        cop::CHARACTER_RESTORE => handle_character_restore(world, client_id, body),
-        cop::CHARACTER_SELECT => handle_character_select(world, client_id, body),
-        cop::ENTER_WORLD => handle_enter_world(world, client_id),
+        cop::AUTH_LOGIN => lobby::handle_auth_login(world, client_id, body),
+        cop::NEW_CHARACTER => lobby::handle_new_character(world, client_id),
+        cop::CHARACTER_CREATE => lobby::handle_character_create(world, client_id, body),
+        cop::CHARACTER_DELETE => lobby::handle_character_delete(world, client_id, body),
+        cop::CHARACTER_RESTORE => lobby::handle_character_restore(world, client_id, body),
+        cop::CHARACTER_SELECT => lobby::handle_character_select(world, client_id, body),
+        cop::ENTER_WORLD => lobby::handle_enter_world(world, client_id),
         // Boats (G24.5): board / step off a ferry — boatId + (x, y, z).
         cop::REQUEST_GET_ON_VEHICLE => {
             super::boats::handle_get_on_off_vehicle(world, client_id, body, true)
@@ -432,10 +423,14 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::ALLY_LEAVE => super::clans::handle_ally_leave(world, client_id),
         cop::ALLY_DISMISS => super::clans::handle_ally_dismiss(world, client_id, body),
         cop::REQUEST_DISMISS_ALLY => super::clans::handle_request_dismiss_ally(world, client_id),
-        cop::REQUEST_JOIN_PARTY => handle_request_join_party(world, client_id, body),
-        cop::REQUEST_ANSWER_JOIN_PARTY => handle_request_answer_join_party(world, client_id, body),
-        cop::REQUEST_WITH_DRAWAL_PARTY => handle_request_withdrawal_party(world, client_id),
-        cop::REQUEST_OUST_PARTY_MEMBER => handle_request_oust_party_member(world, client_id, body),
+        cop::REQUEST_JOIN_PARTY => party::handle_request_join_party(world, client_id, body),
+        cop::REQUEST_ANSWER_JOIN_PARTY => {
+            party::handle_request_answer_join_party(world, client_id, body)
+        }
+        cop::REQUEST_WITH_DRAWAL_PARTY => party::handle_request_withdrawal_party(world, client_id),
+        cop::REQUEST_OUST_PARTY_MEMBER => {
+            party::handle_request_oust_party_member(world, client_id, body)
+        }
         cop::REQUEST_PARTY_MATCH_CONFIG => {
             super::party_room::handle_request_party_match_config(world, client_id, body)
         }
@@ -445,13 +440,15 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_PARTY_MATCH_DETAIL => {
             super::party_room::handle_request_party_match_detail(world, client_id, body)
         }
-        cop::REQUEST_FRIEND_INVITE => handle_request_friend_invite(world, client_id, body),
+        cop::REQUEST_FRIEND_INVITE => friends::handle_request_friend_invite(world, client_id, body),
         cop::REQUEST_ANSWER_FRIEND_INVITE => {
-            handle_request_answer_friend_invite(world, client_id, body)
+            friends::handle_request_answer_friend_invite(world, client_id, body)
         }
-        cop::REQUEST_FRIEND_LIST => handle_request_friend_list(world, client_id),
-        cop::REQUEST_FRIEND_DEL => handle_request_friend_del(world, client_id, body),
-        cop::REQUEST_SEND_FRIEND_MSG => handle_request_send_friend_msg(world, client_id, body),
+        cop::REQUEST_FRIEND_LIST => friends::handle_request_friend_list(world, client_id),
+        cop::REQUEST_FRIEND_DEL => friends::handle_request_friend_del(world, client_id, body),
+        cop::REQUEST_SEND_FRIEND_MSG => {
+            friends::handle_request_send_friend_msg(world, client_id, body)
+        }
         // RequestShowMiniMap (IN_GAME): empty body; open the world map.
         cop::REQUEST_SHOW_MINI_MAP => {
             if let Some(cs @ ClientSession::InGame(_)) = world.clients.get(&client_id) {
@@ -554,7 +551,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
     }
     match sub {
         exop::REQUEST_CHARACTER_NAME_CREATABLE => {
-            handle_request_character_name_creatable(world, client_id, ex_body)
+            lobby::handle_request_character_name_creatable(world, client_id, ex_body)
         }
         // `RequestKeyMapping` (ENTERING + IN_GAME): replay the stored UI key
         // mapping. Java answers nothing at all when `StoreCharUiSettings` is
@@ -814,13 +811,13 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             super::augment::handle_refine_cancel(world, client_id, ex_body)
         }
         exop::REQUEST_CHANGE_PARTY_LEADER => {
-            handle_request_change_party_leader(world, client_id, ex_body)
+            party::handle_request_change_party_leader(world, client_id, ex_body)
         }
         exop::REQUEST_PARTY_LOOT_MODIFICATION => {
-            handle_request_party_loot_modification(world, client_id, ex_body)
+            party::handle_request_party_loot_modification(world, client_id, ex_body)
         }
         exop::ANSWER_PARTY_LOOT_MODIFICATION => {
-            handle_answer_party_loot_modification(world, client_id, ex_body)
+            party::handle_answer_party_loot_modification(world, client_id, ex_body)
         }
         exop::REQUEST_VOTE_NEW => super::reco::handle_request_vote_new(world, client_id, ex_body),
         // Clan ranks & power grades (G18 slice 3).

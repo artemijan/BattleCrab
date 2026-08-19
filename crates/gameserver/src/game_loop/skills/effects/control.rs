@@ -1,16 +1,23 @@
-use super::*;
+use super::attribute_mod;
+use super::broadcast_change_wait_type;
+use super::broadcast_vitals;
+use super::calc_general_trait_bonus;
+use super::caster_display_name;
+use super::expire_buffs_where;
+use super::max_recoverable;
+use super::player_or_npc_level;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::is_raid_npc;
-use crate::game_loop::helpers::npc_name_or_empty;
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::send_to_player;
-use crate::game_loop::helpers::set_position;
+use crate::game_loop::helpers;
+
+use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
+
 use crate::game_loop::npc::ai::force_attack_target;
+use crate::model::components::StatModifiers;
+use crate::model::components::Vitals;
+use crate::model::formulas;
+use crate::model::skill::Skill;
+use crate::network::server_packets;
+use crate::world::World;
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
 pub(crate) fn confuse_chance_passes(
@@ -55,7 +62,7 @@ pub(crate) fn random_bystander(
 /// Java `((Attackable) cha).isInMyClan(effectedMob)` — two NPCs sharing a clan
 /// tag. A player is never in an NPC's faction.
 fn same_npc_faction(world: &World, a_oid: i32, b_oid: i32) -> bool {
-    let clan_of = |oid: i32| npc_template(world, oid).map(|t| t.clans.clone());
+    let clan_of = |oid: i32| helpers::npc_template(world, oid).map(|t| t.clans.clone());
     match (clan_of(a_oid), clan_of(b_oid)) {
         (Some(a), Some(b)) => a.iter().any(|c| b.contains(c)),
         _ => false,
@@ -68,7 +75,7 @@ fn same_npc_faction(world: &World, a_oid: i32, b_oid: i32) -> bool {
 pub(crate) fn retarget_onto(world: &mut World, victim_oid: i32, new_target_oid: i32) {
     if crate::game_loop::combat::is_npc_oid(victim_oid) {
         force_attack_target(world, victim_oid, new_target_oid);
-    } else if let Some(client_id) = client_for_player(world, victim_oid) {
+    } else if let Some(client_id) = helpers::client_for_player(world, victim_oid) {
         crate::game_loop::target::set_target(world, client_id, victim_oid, Some(new_target_oid));
     }
 }
@@ -120,7 +127,7 @@ pub(crate) fn recharge_level_penalty(target_level: i32, skill_magic_level: i32) 
 pub(crate) fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, amount: f64) {
     use server_packets::{SmParam, sm_ids};
     // `effected.isDead() || effected.isDoor() || effected.isMpBlocked()`.
-    if is_dead(world, target_oid) {
+    if helpers::is_dead(world, target_oid) {
         return;
     }
     if crate::game_loop::abnormal::is_mp_blocked(world, target_oid) {
@@ -142,7 +149,7 @@ pub(crate) fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, am
         broadcast_vitals(world, target_oid);
     }
     // Java sends the message even when the amount rounded to nothing.
-    if let Some(cid) = client_for_player(world, target_oid) {
+    if let Some(cid) = helpers::client_for_player(world, target_oid) {
         let pkt = if caster_oid != target_oid {
             server_packets::system_message_with(
                 sm_ids::S2_MP_HAS_BEEN_RESTORED_BY_C1,
@@ -157,7 +164,7 @@ pub(crate) fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, am
                 &[SmParam::Int(restored as i32)],
             )
         };
-        send_to_client(world, cid, pkt);
+        helpers::send_to_client(world, cid, pkt);
     }
 }
 
@@ -280,7 +287,7 @@ pub(crate) fn fear_action(world: &mut World, effector: Option<i32>, effected: i3
     // `getAI().setIntention(AI_INTENTION_MOVE_TO, destination)` — the player and
     // NPC halves of Java's shared `Creature.moveToLocation` (each already does
     // its own geodata/pathfinding pass on top of the clamp above).
-    if let Some(client_id) = client_for_player(world, effected) {
+    if let Some(client_id) = helpers::client_for_player(world, effected) {
         crate::game_loop::position::intention_move_to(
             world,
             client_id,
@@ -308,7 +315,7 @@ pub(crate) fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &S
     if !mutes {
         return;
     }
-    let is_raid = is_raid_npc(world, target_oid);
+    let is_raid = helpers::is_raid_npc(world, target_oid);
     if is_raid {
         return;
     }
@@ -400,7 +407,7 @@ pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) 
             .objects
             .remove_component::<crate::model::components::Movement>(&target_oid);
         if let Some(pos) = maybe_position(world, target_oid)
-            && let Some(region) = region_cell_of(world, target_oid)
+            && let Some(region) = helpers::region_cell_of(world, target_oid)
         {
             crate::game_loop::helpers::broadcast_near_region(
                 world,
@@ -430,7 +437,9 @@ pub(crate) fn creature_level(world: &World, oid: i32) -> i32 {
             .unwrap_or(1);
     }
     if crate::game_loop::combat::is_npc_oid(oid) {
-        npc_template(world, oid).map(|t| t.level).unwrap_or(1)
+        helpers::npc_template(world, oid)
+            .map(|t| t.level)
+            .unwrap_or(1)
     } else {
         world
             .objects
@@ -575,9 +584,9 @@ pub(crate) fn creature_level_for_test(world: &World, oid: i32) -> i32 {
 /// landed/resisted caster line — an NPC's template name or the player's name.
 pub(crate) fn creature_name(world: &World, oid: i32) -> String {
     if crate::game_loop::combat::is_npc_oid(oid) {
-        npc_name_or_empty(world, oid)
+        helpers::npc_name_or_empty(world, oid)
     } else {
-        player_name_or_empty(world, oid)
+        helpers::player_name_or_empty(world, oid)
     }
 }
 
@@ -634,13 +643,13 @@ pub(crate) fn check_summon_target_status(
 ) -> Option<(i16, Vec<server_packets::SmParam>)> {
     use server_packets::{SmParam, sm_ids};
 
-    let name = player_name_or_empty(world, member);
+    let name = helpers::player_name_or_empty(world, member);
     let pc = || vec![SmParam::PlayerName(name.clone())];
     // `addString`, not `addPcName` — see the doc comment.
     let text = || vec![SmParam::Text(name.clone())];
 
     // `isAlikeDead()` — dead, or faking it.
-    if is_dead(world, member)
+    if helpers::is_dead(world, member)
         || crate::game_loop::abnormal::flags_of(world, member)
             & crate::model::skill::effect_flag::FAKE_DEATH
             != 0
@@ -783,7 +792,7 @@ pub(crate) fn call_pc_player(
         // The quest engine's take-items path is the port's one item-removal
         // primitive that also sends the `InventoryUpdate`; the toll needs that,
         // or the client keeps drawing the ore it no longer has.
-        let target_client = client_for_player(world, target_oid).unwrap_or(0);
+        let target_client = helpers::client_for_player(world, target_oid).unwrap_or(0);
         crate::game_loop::quests::take_items(world, target_client, target_oid, item_id, item_count);
         send_sm_with(
             world,
@@ -793,8 +802,8 @@ pub(crate) fn call_pc_player(
         );
     }
 
-    let (x, y, z) = pos_of(world, caster_oid).unwrap_or((0, 0, 0));
-    let name = player_name_or_empty(world, caster_oid);
+    let (x, y, z) = helpers::pos_of(world, caster_oid).unwrap_or((0, 0, 0));
+    let name = helpers::player_name_or_empty(world, caster_oid);
     if let Some(p) = world
         .objects
         .get_component_mut::<crate::model::Player>(&target_oid)
@@ -806,7 +815,7 @@ pub(crate) fn call_pc_player(
             z,
         });
     }
-    send_to_player(
+    helpers::send_to_player(
         world,
         target_oid,
         server_packets::confirm_dlg_with(
@@ -922,7 +931,7 @@ pub(crate) fn teleport_to_target(world: &mut World, caster_oid: i32, target_oid:
             server_packets::FlyType::Dummy,
         ),
     );
-    set_position(world, caster_oid, (dest.0, dest.1, dest.2));
+    helpers::set_position(world, caster_oid, (dest.0, dest.1, dest.2));
     world.set_player_region(caster_oid, crate::world::region_of(dest.0, dest.1));
     crate::game_loop::helpers::broadcast_including_self(
         world,
@@ -1017,7 +1026,7 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
         ),
     );
 
-    set_position(world, target_oid, (dest.x, dest.y, dest.z));
+    helpers::set_position(world, target_oid, (dest.x, dest.y, dest.z));
     // Same reason as the respawn teleport: the region index has to move with
     // the cell. No-op on the index for a non-player target.
     world.set_player_region(target_oid, crate::world::region_of(dest.x, dest.y));
@@ -1076,7 +1085,7 @@ pub(crate) fn bluff(
     skill: &Skill,
     chance: i32,
 ) {
-    let is_raid = is_raid_npc(world, target_oid)
+    let is_raid = helpers::is_raid_npc(world, target_oid)
         // Java's `isRaidMinion()` is `Monster.onSpawn`'s
         // `setIsRaidMinion(_master.isRaid())` — a minion inherits its master's
         // raid immunity. The port tracks the link as `MinionOf`, so ask the
@@ -1097,7 +1106,7 @@ pub(crate) fn bluff(
         .get_component::<crate::model::components::Position>(&target_oid)
         .map(|p| p.heading)
         .unwrap_or(0);
-    if let Some(region) = region_cell_of(world, target_oid) {
+    if let Some(region) = helpers::region_cell_of(world, target_oid) {
         for pkt in [
             server_packets::start_rotation(target_oid, target_heading, 1, 65535),
             server_packets::stop_rotation(target_oid, caster_heading, 65535),
@@ -1124,7 +1133,7 @@ pub(crate) fn bluff(
 pub(crate) fn fake_death(world: &mut World, target_oid: i32) {
     // Players only — Java's `startFakeDeath` returns immediately for anything
     // else.
-    if client_for_player(world, target_oid).is_none() {
+    if helpers::client_for_player(world, target_oid).is_none() {
         return;
     }
     world
@@ -1162,7 +1171,7 @@ pub(crate) fn skill_turning(
     chance: i32,
     static_chance: bool,
 ) {
-    let is_raid = is_raid_npc(world, target_oid);
+    let is_raid = helpers::is_raid_npc(world, target_oid);
     if caster_oid == target_oid || is_raid {
         return;
     }
@@ -1208,7 +1217,7 @@ pub(crate) fn target_me(
         .get_component::<crate::model::components::TargetRef>(&target_oid)
         .and_then(|t| t.0);
     if already != Some(caster_oid)
-        && let Some(client_id) = client_for_player(world, target_oid)
+        && let Some(client_id) = helpers::client_for_player(world, target_oid)
     {
         crate::game_loop::target::set_target(world, client_id, target_oid, Some(caster_oid));
     }
@@ -1365,7 +1374,7 @@ pub(crate) fn hp_by_level(world: &mut World, caster_oid: i32, power: f64) {
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
         v.cur_hp += restored;
     }
-    send_sm_to_player(
+    helpers::send_sm_to_player(
         world,
         caster_oid,
         sm_ids::S1_HP_HAS_BEEN_RESTORED,

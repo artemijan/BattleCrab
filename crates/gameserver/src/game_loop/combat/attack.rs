@@ -9,17 +9,8 @@ use super::refresh_attack_stance;
 use super::vitals_of;
 use super::wields_two_handed;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::broadcast_including_self;
-use crate::game_loop::helpers::broadcast_near_region_in;
-use crate::game_loop::helpers::client_for_player;
-use crate::game_loop::helpers::instance_of;
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::helpers::send_sm_bare_to_client;
-use crate::game_loop::helpers::send_sm_bare_to_player;
-use crate::game_loop::helpers::send_sm_to_client;
-use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::stat_add;
+use crate::game_loop::helpers;
+
 use crate::model::components::AttackState;
 use crate::model::components::Intent;
 use crate::model::components::Position;
@@ -51,7 +42,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     if !world.geo.can_see_target(
         attacker.x, attacker.y, attacker.z, target.x, target.y, target.z,
     ) {
-        if let Some(client_id) = client_for_player(world, attacker_oid) {
+        if let Some(client_id) = helpers::client_for_player(world, attacker_oid) {
             crate::game_loop::helpers::send_sm_and_action_failed(
                 world,
                 client_id,
@@ -226,7 +217,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         // "succeeded" message; the perfect block reuses it) — per hit, like
         // Java's `calcShldUse`.
         if shield != formulas::SHIELD_NONE {
-            send_sm_bare_to_player(world, target_oid, sm_ids::SHIELD_DEFENSE_SUCCEEDED);
+            helpers::send_sm_bare_to_player(world, target_oid, sm_ids::SHIELD_DEFENSE_SUCCEEDED);
         }
         rolled.push((miss, crit, damage, ss, shield));
     }
@@ -333,12 +324,17 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         target.z,
     );
     if is_npc_oid(attacker_oid) {
-        let Some(region) = region_cell_of(world, attacker_oid) else {
+        let Some(region) = helpers::region_cell_of(world, attacker_oid) else {
             return;
         };
-        broadcast_near_region_in(world, region, instance_of(world, attacker_oid), &pkt);
+        helpers::broadcast_near_region_in(
+            world,
+            region,
+            helpers::instance_of(world, attacker_oid),
+            &pkt,
+        );
     } else {
-        broadcast_including_self(world, attacker_oid, &pkt);
+        helpers::broadcast_including_self(world, attacker_oid, &pkt);
     }
 
     // `Creature.doAttack` tail: outside a PVP zone, and not self-targeting, the
@@ -375,7 +371,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
 /// Its two stat halves landed long before the sweep gate did, so until G34 S4
 /// the toggle was a pure bonus with no cost.
 fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: i32) -> Vec<i32> {
-    let max_targets = stat_add(
+    let max_targets = helpers::stat_add(
         world,
         attacker_oid,
         crate::model::stats::Stat::AttackCountMax,
@@ -410,7 +406,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
     let Some(origin) = maybe_position(world, attacker_oid) else {
         return Vec::new();
     };
-    let Some(region) = region_cell_of(world, attacker_oid) else {
+    let Some(region) = helpers::region_cell_of(world, attacker_oid) else {
         return Vec::new();
     };
     let heading_deg = origin.heading as f64 * 360.0 / 65536.0;
@@ -428,7 +424,8 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
             continue;
         }
         // Only auto-attackable creatures are swept up (Java `isAutoAttackable`).
-        let attackable = npc_template(world, candidate).is_some_and(|t| t.is_auto_attackable());
+        let attackable =
+            helpers::npc_template(world, candidate).is_some_and(|t| t.is_auto_attackable());
         if !attackable {
             continue;
         }
@@ -516,14 +513,14 @@ pub(crate) fn handle_attack_hit(
 
     if miss {
         // `sendDamageMessage(miss)` + `notifyAttackAvoid`.
-        if let Some(client_id) = client_for_player(world, attacker) {
+        if let Some(client_id) = helpers::client_for_player(world, attacker) {
             let name = world
                 .objects
                 .get_component::<crate::model::Player>(&attacker)
                 .expect("player")
                 .name
                 .clone();
-            send_to_client(
+            helpers::send_to_client(
                 world,
                 client_id,
                 server_packets::system_message_with(
@@ -532,9 +529,9 @@ pub(crate) fn handle_attack_hit(
                 ),
             );
         }
-        if let Some(client_id) = client_for_player(world, target) {
+        if let Some(client_id) = helpers::client_for_player(world, target) {
             let attacker_name = attacker_display_name(world, attacker);
-            send_to_client(
+            helpers::send_to_client(
                 world,
                 client_id,
                 server_packets::system_message_with(
@@ -558,7 +555,7 @@ pub(crate) fn handle_attack_hit(
     }
 
     // Crit + damage messages (`Player.sendDamageMessage`).
-    if let Some(client_id) = client_for_player(world, attacker) {
+    if let Some(client_id) = helpers::client_for_player(world, attacker) {
         let attacker_name = world
             .objects
             .get_component::<crate::model::Player>(&attacker)
@@ -578,7 +575,7 @@ pub(crate) fn handle_attack_hit(
             .get_component::<crate::model::components::AdminFlags>(&target)
             .is_some_and(|f| f.invul);
         if crit {
-            send_sm_to_client(
+            helpers::send_sm_to_client(
                 world,
                 client_id,
                 sm_ids::C1_LANDED_A_CRITICAL_HIT,
@@ -586,9 +583,9 @@ pub(crate) fn handle_attack_hit(
             );
         }
         if target_blocked {
-            send_sm_bare_to_client(world, client_id, sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED);
+            helpers::send_sm_bare_to_client(world, client_id, sm_ids::THE_ATTACK_HAS_BEEN_BLOCKED);
         } else {
-            send_sm_to_client(
+            helpers::send_sm_to_client(
                 world,
                 client_id,
                 sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
@@ -629,7 +626,7 @@ pub(crate) fn attacker_display_name(world: &World, attacker: i32) -> SmParam {
         .get_component::<crate::model::Player>(&attacker)
     {
         SmParam::PlayerName(p.name.clone())
-    } else if let Some(t) = npc_template(world, attacker) {
+    } else if let Some(t) = helpers::npc_template(world, attacker) {
         SmParam::NpcName(t.id)
     } else {
         SmParam::Text(String::new())

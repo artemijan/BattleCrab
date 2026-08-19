@@ -1,8 +1,16 @@
 //! Pet experience: exp split with the owner, levelling, and collar enchant
 //! sync.
 
-use super::*;
-
+use super::PetInfoKind;
+use super::is_uncontrollable;
+use super::notify_owner;
+use super::npc_template_id;
+use super::pet_of;
+use super::recalculate_pet_stats;
+use super::send_pet_info;
+use crate::game_loop::helpers::is_dead;
+use crate::network::server_packets;
+use crate::world::World;
 /// Java `Config.ALT_PARTY_RANGE` — the pet only earns while it is near enough
 /// to its owner to have plausibly helped.
 const PET_EXP_RANGE: f64 = 1500.0;

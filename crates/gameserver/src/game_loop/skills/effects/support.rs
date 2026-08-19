@@ -1,9 +1,19 @@
-use super::*;
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::stat_mul;
+use super::arm_charge_decay;
+use super::caster_display_name;
+use super::creature_level;
+use super::creature_name;
+use super::player_or_npc_level;
+use crate::game_loop::helpers;
+
 pub(crate) use crate::game_loop::helpers::{
     send_sm_bare_to_player as send_sm, send_sm_to_player as send_sm_with,
 };
+use crate::model::components::CombatStats;
+use crate::model::formulas;
+use crate::model::skill::RestorationGroup;
+use crate::model::skill::Skill;
+use crate::network::server_packets;
+use crate::world::World;
 
 /// `handlers/effecthandlers/Restoration.java` — instant single-item grant.
 /// Backs item-use skills wrapping a fixed pack/box reward (spiritshot packs,
@@ -103,7 +113,7 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
         }
         // Snapshot after the enchant stamp, so the packet carries the `+N`.
         let changes = crate::game_loop::helpers::added_changes(world, target_oid, &added);
-        if let Some(client_id) = client_for_player(world, target_oid) {
+        if let Some(client_id) = helpers::client_for_player(world, target_oid) {
             // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
             // single enchanted → "obtained a +S1 S2"; else "obtained S1".
             let sm = if amount <= 1 && enchant > 0 {
@@ -114,7 +124,7 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
             } else {
                 server_packets::obtained_item_sm(item_id, amount)
             };
-            send_to_client(world, client_id, sm);
+            helpers::send_to_client(world, client_id, sm);
             crate::game_loop::helpers::send_inventory_update(world, target_oid, changes);
         }
     }
@@ -143,7 +153,7 @@ pub(crate) fn magic_success_input<'a>(
     // `isAutoAttackable` — a peaceful Folk on either side takes the PvP branch.
     let is_attackable = |oid: i32| {
         crate::game_loop::combat::is_npc_oid(oid)
-            && npc_template(world, oid).is_some_and(|t| t.is_attackable_class())
+            && helpers::npc_template(world, oid).is_some_and(|t| t.is_attackable_class())
     };
 
     let caster_player_level = world
@@ -154,11 +164,11 @@ pub(crate) fn magic_success_input<'a>(
     // `target.isRaid() || target.isRaidMinion()` — a minion counts as a raid
     // only when its leader is one (Java sets `_isRaidMinion` from the spawning
     // raid boss, not from the minion's own template).
-    let target_is_raid = is_raid_npc(world, target_oid)
+    let target_is_raid = helpers::is_raid_npc(world, target_oid)
         || world
             .objects
             .get_component::<crate::game_loop::minions::MinionOf>(&target_oid)
-            .is_some_and(|leader| is_raid_npc(world, leader.0));
+            .is_some_and(|leader| helpers::is_raid_npc(world, leader.0));
 
     formulas::MagicSuccess {
         pve: is_attackable(caster_oid) || is_attackable(target_oid),
@@ -179,7 +189,7 @@ pub(crate) fn magic_success_input<'a>(
         skill_chance_penalty: penalty,
         // `target.getStat().getMul(MAGIC_SUCCESS_RES, 1)` — read off the
         // *target*, and 1.0 for anyone without Anti Magic / M. Def.
-        res_modifier: stat_mul(
+        res_modifier: helpers::stat_mul(
             world,
             target_oid,
             crate::model::stats::Stat::MagicSuccessRes,
@@ -257,7 +267,11 @@ pub(crate) fn roll_magic_failure(
                     creature_name(world, target_oid),
                     creature_name(world, caster_oid),
                 );
-                send_to_player(world, caster_oid, server_packets::system_message(&message));
+                helpers::send_to_player(
+                    world,
+                    caster_oid,
+                    server_packets::system_message(&message),
+                );
             }
             formulas::MagicFailure::Half
         } else {
@@ -313,7 +327,7 @@ pub(crate) fn give_sp(world: &mut World, caster_oid: i32, target_oid: i32, sp: i
         && world
             .objects
             .has_component::<crate::model::Player>(&target_oid);
-    let dead = is_dead(world, target_oid);
+    let dead = helpers::is_dead(world, target_oid);
     if both_players && !dead {
         crate::game_loop::death::add_exp_and_sp(world, caster_oid, 0.0, sp as f64, false);
     }
@@ -340,7 +354,7 @@ pub(crate) fn open_recipe_book(world: &mut World, caster_oid: i32, dwarven: bool
                 caster_oid,
                 sm_ids::ITEM_CREATION_IS_NOT_POSSIBLE_WHILE_ENGAGED_IN_A_TRADE,
             );
-        } else if let Some(cid) = client_for_player(world, caster_oid) {
+        } else if let Some(cid) = helpers::client_for_player(world, caster_oid) {
             crate::game_loop::crafting::request_book_open(world, cid, dwarven);
         }
     }
@@ -357,11 +371,11 @@ pub(crate) fn focus_momentum(world: &mut World, target_oid: i32, amount: i32, ma
         .get_component::<crate::model::Player>(&target_oid)
         .map(|p| p.charges)
         .unwrap_or(0);
-    let Some(client_id) = client_for_player(world, target_oid) else {
+    let Some(client_id) = helpers::client_for_player(world, target_oid) else {
         return;
     };
     if current >= max {
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::system_message_with(
@@ -381,13 +395,13 @@ pub(crate) fn focus_momentum(world: &mut World, target_oid: i32, amount: i32, ma
     // `setCharges` restarts the decay clock.
     arm_charge_decay(world, target_oid);
     if new_charge == max {
-        send_sm_bare_to_client(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY,
         );
     } else {
-        send_sm_to_client(
+        helpers::send_sm_to_client(
             world,
             client_id,
             sm_ids::YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1,

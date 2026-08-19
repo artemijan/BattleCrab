@@ -1,6 +1,12 @@
 //! The drop-search board: item search, drop tables and NPC trace.
 
-use super::*;
+use super::read_html;
+use super::send_cb_html;
+use crate::game_loop::helpers::send_message;
+use crate::game_loop::helpers::send_to_client;
+use crate::network::server_packets as sp;
+use crate::world::World;
+use tracing::warn;
 /// Port of `DropSearchBoard.parseCommunityBoardCommand`. Java splits the raw
 /// command on spaces and switches on `params[0]`, so the nav "Search" button
 /// (`_bbs_search_item;`, trailing `;`, no space) matches no case and just

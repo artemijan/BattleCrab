@@ -1,9 +1,28 @@
-use super::*;
+use super::apply_block_actions_interrupt;
+use super::apply_buff_to_npc;
+use super::apply_mute_interrupt;
+use super::attribute_mod;
+use super::calc_general_trait_bonus;
+use super::casting_resists_abnormal;
+use super::creature_level;
+use super::creature_name;
+use super::merge_attack_traits;
+use super::merge_defence_traits;
+use super::merge_skill_rates;
+use super::recompute_max_vitals;
+use super::schedule_dam_over_time;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::send_to_player;
-use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::helpers::stat_mul;
+use crate::game_loop::helpers;
+
+use crate::model::components::Buffs;
+use crate::model::formulas;
+use crate::model::skill::ActiveBuff;
+use crate::model::skill::Skill;
+use crate::model::skill::SkillEffect;
+use crate::model::skill::abnormal_type_client_id;
+use crate::network::server_packets;
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
 
 /// The continuous half of Java `Skill.applyEffects` — everything that turns a
 /// cast into one timed `ActiveBuff` on the target — split out from the instant
@@ -168,7 +187,7 @@ pub(crate) fn apply_continuous_effects(
         let target_level = creature_level(world, target_oid);
         // Java: `skill.isDebuff() ? target.getStat().getValue(RESIST_ABNORMAL_DEBUFF, 1) : 1`.
         let debuff_resist_mod = if skill.is_debuff {
-            stat_mul(
+            helpers::stat_mul(
                 world,
                 target_oid,
                 crate::model::stats::Stat::ResistAbnormalDebuff,
@@ -220,7 +239,7 @@ pub(crate) fn apply_continuous_effects(
             } else {
                 S1_LANDED_ON_C2_CHANCE_WAS_S3::new(spell, target_name, chance)
             };
-            send_to_player(world, caster_oid, server_packets::system_message(&message));
+            helpers::send_to_player(world, caster_oid, server_packets::system_message(&message));
         }
         if resisted {
             return false;
@@ -388,7 +407,7 @@ pub(crate) fn apply_continuous_effects(
         }
         let now = world.tick;
         if let Some(buffs) = world.objects.get_component::<Buffs>(&target_oid) {
-            send_to_player(
+            helpers::send_to_player(
                 world,
                 target_oid,
                 crate::network::enter_world::abnormal_status_update(buffs, now),
@@ -452,7 +471,7 @@ pub(crate) fn restore_persisted_buffs(
     rows: &[crate::db::SkillBuffRow],
 ) {
     for row in rows {
-        let Some(skill) = skill_by_id(world, row.skill_id, row.skill_level) else {
+        let Some(skill) = helpers::skill_by_id(world, row.skill_id, row.skill_level) else {
             continue;
         };
         apply_continuous_effects(
@@ -470,7 +489,7 @@ pub(crate) fn restore_persisted_buffs(
 /// `CharInfo` that `broadcast_user_info` already sends; this is the self-facing
 /// half, without which a stunned player sees no swirl on themselves.
 pub(crate) fn refresh_abnormal_visuals(world: &World, object_id: i32) {
-    let Some(client_id) = client_for_player(world, object_id) else {
+    let Some(client_id) = helpers::client_for_player(world, object_id) else {
         return;
     };
     let visuals = crate::game_loop::abnormal::visual_effects(world, object_id);
@@ -482,7 +501,7 @@ pub(crate) fn refresh_abnormal_visuals(world: &World, object_id: i32) {
         .objects
         .get_component::<crate::model::Player>(&object_id)
         .map_or(0, |p| p.transform_display_id);
-    send_to_client(
+    helpers::send_to_client(
         world,
         client_id,
         crate::network::user_info::ex_user_info_abnormal_visual_effect(

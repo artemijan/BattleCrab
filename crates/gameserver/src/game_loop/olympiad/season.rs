@@ -1,8 +1,23 @@
 //! Season transitions: noble ranks, trade points, the olympiad-end crowning,
 //! the end-of-month snapshot, leaderboards and the validation-day end.
 
-use super::*;
-
+use super::LEADER_BOARD_LIMIT;
+use super::UNCLAIMED_POINTS_VAR;
+use super::arm_comp_schedule;
+use super::compute_heroes;
+use super::fire_at;
+use super::is_online;
+use super::next_olympiad_end;
+use super::save_all;
+use crate::db::DbCommand;
+use crate::db::HeroRow;
+use crate::db::OlympiadEomRow;
+use crate::game_loop::guard::clan_of_or_zero;
+use crate::network::server_packets as sp;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
 /// `Olympiad.loadNoblesRank`: rank the classified nobles (≥ 10 matches) by points
 /// into percentile tiers — 1 (top 1 %), 2 (10 %), 3 (25 %), 4 (50 %), 5 (rest).
 fn compute_noble_ranks(world: &World) -> std::collections::HashMap<i32, u8> {

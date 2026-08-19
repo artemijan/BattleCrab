@@ -1,8 +1,25 @@
 //! NPC movement: the leash snap-back and the chase/geo-move walk paths
 //! shared by every think.
 
-use super::*;
-
+use super::clear_aggro;
+use super::set_active;
+use super::stop_npc;
+use crate::game_loop::abnormal;
+use crate::game_loop::combat;
+use crate::game_loop::death;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::broadcast_near_region_in;
+use crate::game_loop::helpers::instance_of;
+use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::minions;
+use crate::game_loop::walkers::WalkState;
+use crate::model::components::Movement;
+use crate::model::components::Position;
+use crate::model::components::Speeds;
+use crate::model::components::Vitals;
+use crate::model::movement::MoveData;
+use crate::network::server_packets;
+use crate::world::World;
 /// `AttackableAI.thinkAttack`'s AggroDistanceCheck leash body: if `npc_oid` is
 /// a leashable monster now beyond its configured range from spawn, forget every
 /// target, heal to full when `AggroDistanceCheckRestoreLife` is set, and send it

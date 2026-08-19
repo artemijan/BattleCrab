@@ -39,16 +39,9 @@
 //! All of it unreachable in production — `CustomCommunityBoard = True` never
 //! links here — ported per the config-disabled rule.
 
-use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_message;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::user_commands::in_combat;
-use crate::model::Player;
-use crate::model::components::Casting;
-use crate::model::inventory::Inventory;
 use crate::network::server_packets as sp;
-use crate::session::ClientSession;
 use crate::world::World;
 use tracing::warn;
 
@@ -205,14 +198,20 @@ mod merchant;
 mod scheme;
 mod util;
 
-use actions::*;
-use clan::*;
-use drop_search::*;
-use favorites::*;
-pub(crate) use home::*;
-use merchant::*;
-pub(crate) use scheme::*;
-use util::*;
+use actions::{do_buff, do_delevel, do_heal, do_premium, do_teleport};
+use clan::{show_clan_board, show_region_board};
+use drop_search::do_drop_search;
+use favorites::{add_favorite, del_favorite, show_favorites, show_homepage};
+pub(crate) use home::open_home_for_admin;
+use home::{show_home, show_shell};
+use merchant::{do_multisell, do_sell};
+#[cfg(test)]
+pub(crate) use scheme::apply_scheme;
+use scheme::{do_scheme, render_scheme_names};
+use util::{
+    account_of, charge, charge_item, finalize_custom, first_token, is_busy, is_custom_action,
+    read_html, reputation, serve_page,
+};
 /// Port of `Util.sendCBHtml`: split the html into ≤3 chunks tagged 101/102/103
 /// and send each as a `ShowBoard`. Split by char boundaries (htmls are ASCII,
 /// so this matches Java's UTF-16-length branches for the content we serve).

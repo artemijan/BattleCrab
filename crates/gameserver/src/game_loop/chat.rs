@@ -15,9 +15,8 @@
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
 use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::helpers::{
-    count_of, is_friend, player_var_int, send_to_client, send_to_player, set_player_var_int,
-};
+use crate::game_loop::helpers;
+
 use commons::audit;
 use serde_json::json;
 use tracing::warn;
@@ -489,7 +488,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             // Relation mask: bit 0x01 = sender on the receiver's friend list
             // (wired with the friend system); other bits need clans/mentors.
             let mask = whisper_relation_mask(world, sender_oid, receiver_oid);
-            send_to_client(
+            helpers::send_to_client(
                 world,
                 receiver_cid,
                 server_packets::creature_say(
@@ -500,7 +499,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                     Some((mask, sender_level)),
                 ),
             );
-            send_to_client(
+            helpers::send_to_client(
                 world,
                 client_id,
                 server_packets::creature_say(
@@ -562,7 +561,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                     .map(|r| r.all_members())
                     .unwrap_or_default();
                 for oid in members {
-                    send_to_player(world, oid, say.clone());
+                    helpers::send_to_player(world, oid, say.clone());
                 }
             }
         }
@@ -666,7 +665,7 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
 
     let min_level = world.cfg.general.world_chat_min_level;
     if level < min_level {
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::system_message_with(
@@ -706,7 +705,7 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         // Java `Duration.between(now, instant).getSeconds()` truncates, so a
         // 19.4 s wait reports 19 — matched by the integer division here.
         let remaining = ((until - now) / 1000) as i32;
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::system_message_with(
@@ -736,20 +735,20 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         .map(|(&cid, _)| cid)
         .collect();
     for cid in listeners {
-        send_to_client(world, cid, say.clone());
+        helpers::send_to_client(world, cid, say.clone());
     }
 
     // Spend the point, then tell the speaker what is left. Java writes the
     // variable through `setWorldChatUsed`, which the memory-first autosave
     // flushes with the rest of the character.
-    set_player_var_int(
+    helpers::set_player_var_int(
         world,
         sender_oid,
         crate::model::components::WORLD_CHAT_USED,
         used + 1,
     );
     let left = world_chat_points_left(world, sender_oid);
-    send_to_client(world, client_id, server_packets::ex_world_chat_cnt(left));
+    helpers::send_to_client(world, client_id, server_packets::ex_world_chat_cnt(left));
     if interval_secs > 0 {
         world
             .world_chat_reuse
@@ -813,7 +812,7 @@ fn hero_voice(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         .map(|(&cid, _)| cid)
         .collect();
     for cid in listeners {
-        send_to_client(world, cid, say.clone());
+        helpers::send_to_client(world, cid, say.clone());
     }
 }
 
@@ -821,7 +820,7 @@ fn hero_voice(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
 /// sender). Only the friend bit (0x01) is representable so far — the
 /// clan/mentor/ally bits need their systems.
 fn whisper_relation_mask(world: &World, sender_oid: i32, receiver_oid: i32) -> u8 {
-    if is_friend(world, sender_oid, receiver_oid) {
+    if helpers::is_friend(world, sender_oid, receiver_oid) {
         0x01
     } else {
         0
@@ -872,7 +871,7 @@ fn broadcast_snoop(
     };
     let snoop = server_packets::snoop(speaker, speaker_name, chat_type, speaker_name, text);
     for gm in listeners {
-        send_to_player(world, gm, snoop.clone());
+        helpers::send_to_player(world, gm, snoop.clone());
     }
 }
 
@@ -985,7 +984,7 @@ pub(crate) fn handle_request_item_link(world: &World, client_id: u32, body: &[u8
     let Some(template) = world.data.item_data.get(item.item_id) else {
         return;
     };
-    send_to_client(
+    helpers::send_to_client(
         world,
         client_id,
         crate::network::enter_world::ex_rp_item_link(&item, template, equipped),
@@ -1065,7 +1064,7 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
             crate::game_loop::admin::send_message(world, client_id, &text);
         }
         "deposit" => {
-            if count_of(world, player_oid, ADENA_ITEM_ID) < adena {
+            if helpers::count_of(world, player_oid, ADENA_ITEM_ID) < adena {
                 let text = format!(
                     "You do not have enough Adena to convert to Goldbar(s), \
                      you need {adena} Adena."
@@ -1080,7 +1079,7 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
             crate::game_loop::admin::send_message(world, client_id, &text);
         }
         "withdraw" => {
-            if count_of(world, player_oid, GOLDBAR_ITEM_ID) < goldbars {
+            if helpers::count_of(world, player_oid, GOLDBAR_ITEM_ID) < goldbars {
                 let text = format!("You do not have any Goldbars to turn into {adena} Adena.");
                 crate::game_loop::admin::send_message(world, client_id, &text);
                 return;
@@ -1128,7 +1127,7 @@ fn handle_voiced_chat_admin(
     }
 }
 fn get_used_world_chat(world: &World, player_oid: i32) -> i32 {
-    player_var_int(
+    helpers::player_var_int(
         world,
         player_oid,
         crate::model::components::WORLD_CHAT_USED,

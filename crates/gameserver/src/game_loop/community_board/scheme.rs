@@ -1,7 +1,13 @@
 //! The scheme buffer: create/delete/apply named buff schemes and their
 //! rendering.
 
-use super::*;
+use super::MAX_SCHEMES;
+use super::charge;
+use super::serve_page;
+use crate::game_loop::helpers::skill_by_id;
+use crate::model::inventory::Inventory;
+use crate::world::World;
+use tracing::warn;
 /// `HomeBoard`'s `_bbs_buff_scheme_*` branch: create a scheme from the player's
 /// active buffs, delete one, or execute (re-cast) one, then re-render the
 /// return page with any validation error banner. The bypass carries

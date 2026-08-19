@@ -18,21 +18,9 @@
 //! stadium instancing (needs G27) remains a follow-up.
 
 use crate::config::OlympiadConfig;
-use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
-use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::send_sm_bare_to_player as send_sm;
-use crate::game_loop::helpers::send_sm_to_player;
-use crate::game_loop::helpers::send_to_client;
+use crate::db::{DbCommand, OlympiadEomRow, OlympiadNobleRow};
 use crate::game_loop::time::MILLIS_PER_DAY;
-use crate::model::Player;
-use crate::model::components::OlympiadObserver;
-use crate::model::olympiad::{
-    CompetitionType, NobleStats, OlympiadMatch, OlympiadState, REG_CLOSE_BEFORE_END_MS,
-};
-use crate::network::server_packets::{self as sp, SmParam, sm_ids};
+use crate::model::olympiad::NobleStats;
 use crate::scheduler::{ScheduledTask, ms_to_ticks};
 use crate::world::World;
 
@@ -223,11 +211,20 @@ mod observer;
 mod registration;
 mod season;
 
-pub(crate) use heroes::*;
-pub(crate) use matches::*;
-pub(crate) use observer::*;
-pub(crate) use registration::*;
-pub(crate) use season::*;
+pub(crate) use heroes::{
+    apply_heroes_loaded, claim_hero, compute_heroes, on_enter_world, send_hero_list,
+    show_hero_diary,
+};
+use matches::is_online;
+#[cfg(test)]
+pub(crate) use matches::start_match;
+pub(crate) use matches::{
+    handle_countdown, handle_game_manager, handle_match_tick, in_match, strip_buffs,
+};
+pub(crate) use observer::{enter_observer, is_observing, leave_observer, send_match_list};
+use registration::send_sm_int;
+pub(crate) use registration::{register, unregister};
+pub(crate) use season::{class_leader_board, handle_olympiad_end, handle_validation_end};
 
 /// Apply the boot-loaded `olympiad_data` + `olympiad_nobles` (Java
 /// `Olympiad.load` / `loadNoblesRank`) into the live state.

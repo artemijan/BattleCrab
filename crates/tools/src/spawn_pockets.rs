@@ -36,7 +36,8 @@
 //! rows fixed and confirmed in game. The sweep recovers all ten.
 
 use crate::datapack::{Bbox, SpawnRow};
-use gameserver::geo::{GeoEngine, NSWE_EAST, NSWE_NORTH, NSWE_SOUTH, NSWE_WEST};
+use gameserver::geo;
+
 use std::collections::{HashSet, VecDeque};
 
 /// A sub-floor slab sits tens of units under the floor; a real storey is
@@ -127,7 +128,7 @@ impl Report {
 }
 
 /// Layers at a cell, ascending, walking `getNextHigherZ` from the bottom.
-fn layers(geo: &GeoEngine, gx: i32, gy: i32) -> Vec<i32> {
+fn layers(geo: &geo::GeoEngine, gx: i32, gy: i32) -> Vec<i32> {
     let mut out = Vec::new();
     let mut z = -32000;
     for _ in 0..64 {
@@ -144,7 +145,11 @@ fn layers(geo: &GeoEngine, gx: i32, gy: i32) -> Vec<i32> {
 /// Flood fill the walkable surface from `seeds` with the engine's own step
 /// rule (`checkNearestNswe` + `getNearestZ(neighbour, prevZ)`), clipped to the
 /// bbox.
-fn reachable(geo: &GeoEngine, seeds: &[(i32, i32, i32)], bbox: Bbox) -> HashSet<(i32, i32, i32)> {
+fn reachable(
+    geo: &geo::GeoEngine,
+    seeds: &[(i32, i32, i32)],
+    bbox: Bbox,
+) -> HashSet<(i32, i32, i32)> {
     let (gminx, gminy) = (geo.get_geo_x(bbox.0), geo.get_geo_y(bbox.1));
     let (gmaxx, gmaxy) = (geo.get_geo_x(bbox.2), geo.get_geo_y(bbox.3));
     let mut seen: HashSet<(i32, i32, i32)> = HashSet::new();
@@ -164,10 +169,10 @@ fn reachable(geo: &GeoEngine, seeds: &[(i32, i32, i32)], bbox: Bbox) -> HashSet<
             break;
         }
         for (dx, dy, bit) in [
-            (0, -1, NSWE_NORTH),
-            (0, 1, NSWE_SOUTH),
-            (1, 0, NSWE_EAST),
-            (-1, 0, NSWE_WEST),
+            (0, -1, geo::NSWE_NORTH),
+            (0, 1, geo::NSWE_SOUTH),
+            (1, 0, geo::NSWE_EAST),
+            (-1, 0, geo::NSWE_WEST),
         ] {
             if !geo.check_nearest_nswe(cx, cy, cz, bit) {
                 continue;
@@ -188,7 +193,7 @@ fn reachable(geo: &GeoEngine, seeds: &[(i32, i32, i32)], bbox: Bbox) -> HashSet<
 /// Vantage cells inside `walkable`, on `floor_z`'s own storey, spread over the
 /// distance band around `(x, y)`.
 fn vantages(
-    geo: &GeoEngine,
+    geo: &geo::GeoEngine,
     walkable: &HashSet<(i32, i32, i32)>,
     floor_z: i32,
     x: i32,
@@ -217,7 +222,7 @@ fn vantages(
         .collect()
 }
 
-fn visible_from(geo: &GeoEngine, points: &[(i32, i32, i32)], x: i32, y: i32, z: i32) -> usize {
+fn visible_from(geo: &geo::GeoEngine, points: &[(i32, i32, i32)], x: i32, y: i32, z: i32) -> usize {
     points
         .iter()
         .filter(|&&(vx, vy, vz)| geo.can_see_target(vx, vy, vz, x, y, z))
@@ -227,7 +232,7 @@ fn visible_from(geo: &GeoEngine, points: &[(i32, i32, i32)], x: i32, y: i32, z: 
 /// How many vantage points can walk to `(x, y, z)`. `get_valid_location`
 /// returns the origin when the walk ends on a layer other than the one asked
 /// for, so "moved, and landed at the requested z" is the test.
-fn walkable_to(geo: &GeoEngine, points: &[(i32, i32, i32)], x: i32, y: i32, z: i32) -> usize {
+fn walkable_to(geo: &geo::GeoEngine, points: &[(i32, i32, i32)], x: i32, y: i32, z: i32) -> usize {
     points
         .iter()
         .filter(|&&(vx, vy, vz)| {
@@ -239,7 +244,7 @@ fn walkable_to(geo: &GeoEngine, points: &[(i32, i32, i32)], x: i32, y: i32, z: i
 
 /// Sweep one area. `geo` must already have the region(s) covering
 /// `cfg.bbox` loaded.
-pub fn sweep(geo: &GeoEngine, cfg: &Config) -> Report {
+pub fn sweep(geo: &geo::GeoEngine, cfg: &Config) -> Report {
     let (min_x, min_y, max_x, max_y) = cfg.bbox;
     let in_box = |x: i32, y: i32| x >= min_x && x <= max_x && y >= min_y && y <= max_y;
 

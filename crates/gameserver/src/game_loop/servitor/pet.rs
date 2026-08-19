@@ -1,8 +1,22 @@
 //! Pets — the collar-summoned half: collar/owner links, DB row sync,
 //! summoning from a collar, and pet equipment.
 
-use super::*;
+use super::PetInfoKind;
+use super::SIN_EATER_DISPLAY_ID;
+use super::broadcast_summon_info;
+use super::is_uncontrollable;
+use super::recalculate_pet_stats;
+use super::send_pet_info;
+use super::send_pet_item_list;
+use super::set_summon_link;
+use super::start_feed;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers;
 
+use crate::model::components::ServitorOf;
+use crate::model::components::Vitals;
+use crate::network::server_packets;
+use crate::world::World;
 /// The object id of the collar that summoned the player's currently-out pet.
 ///
 /// Java reads this as `player.getPet().getControlObjectId()` at each use site;
@@ -52,7 +66,7 @@ pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
         .map(|v| (v.cur_hp, v.cur_mp))
         .unwrap_or((0.0, 0.0));
     // Java stores `getName()`, which for an unnamed pet is the template name.
-    let name = npc_name_or_empty(world, pet_oid);
+    let name = helpers::npc_name_or_empty(world, pet_oid);
     let row = crate::db::PetRow {
         collar_object_id: pet.collar_object_id,
         name,
@@ -101,7 +115,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
             .get_component::<crate::model::Player>(&owner_oid)
             .is_some_and(crate::model::Player::is_mounted)
     {
-        send_sm_bare_to_player(world, owner_oid, sm_ids::YOU_ALREADY_HAVE_A_PET);
+        helpers::send_sm_bare_to_player(world, owner_oid, sm_ids::YOU_ALREADY_HAVE_A_PET);
         return None;
     }
     // Java logs and bails when the holder is missing — the effect was reached
@@ -112,7 +126,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
         .and_then(|p| p.pending_pet_collar.take())?;
 
     // The collar must still be in the owner's inventory (Java re-checks).
-    let collar_item_id = item_id_of(world, owner_oid, collar_object_id)?;
+    let collar_item_id = helpers::item_id_of(world, owner_oid, collar_object_id)?;
 
     let npc_id = world.data.pet_data.by_item_id(collar_item_id)?.npc_id;
 
@@ -320,7 +334,7 @@ pub(crate) fn handle_request_pet_get_item(world: &mut World, client_id: u32, bod
         crate::game_loop::helpers::send_action_failed(world, client_id);
         return;
     }
-    if is_dead(world, pet_oid) {
+    if helpers::is_dead(world, pet_oid) {
         crate::game_loop::helpers::send_action_failed(world, client_id);
         return;
     }
@@ -369,7 +383,7 @@ pub(crate) fn pet_pickup_think(world: &mut World, pet_oid: i32) -> bool {
     let gone = !world
         .objects
         .has_component::<crate::model::components::GroundItem>(&item_oid);
-    if gone || is_dead(world, pet_oid) {
+    if gone || helpers::is_dead(world, pet_oid) {
         end_pickup(world, pet_oid);
         return false;
     }
@@ -453,7 +467,7 @@ fn pet_pickup_item(world: &mut World, pet_oid: i32, item_oid: i32) {
         );
         return;
     }
-    let Some(region) = region_cell_of(world, item_oid) else {
+    let Some(region) = helpers::region_cell_of(world, item_oid) else {
         return;
     };
     crate::game_loop::ground_items::despawn_ground_item(world, item_oid, region);

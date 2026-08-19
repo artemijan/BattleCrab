@@ -20,8 +20,6 @@
 //! tested from macOS — left as a future upgrade. What is here is platform-neutral
 //! and self-contained.
 
-use egui::{Color32, CornerRadius, Mesh, Pos2, Rect, Shape, Stroke, StrokeKind, Vec2};
-
 /// Colours sampled from the BattleCrab logo so the shell and the art agree.
 pub mod palette {
     use egui::Color32;
@@ -54,12 +52,12 @@ pub fn install(ctx: &egui::Context) {
         let v = &mut style.visuals;
         v.dark_mode = true;
         v.override_text_color = Some(palette::TEXT);
-        v.panel_fill = Color32::TRANSPARENT;
-        v.window_fill = Color32::TRANSPARENT;
+        v.panel_fill = egui::Color32::TRANSPARENT;
+        v.window_fill = egui::Color32::TRANSPARENT;
         // Widgets draw their own glass backgrounds; the default opaque greys would
         // punch holes in it.
-        v.widgets.noninteractive.bg_fill = Color32::TRANSPARENT;
-        v.widgets.noninteractive.weak_bg_fill = Color32::TRANSPARENT;
+        v.widgets.noninteractive.bg_fill = egui::Color32::TRANSPARENT;
+        v.widgets.noninteractive.weak_bg_fill = egui::Color32::TRANSPARENT;
         v.widgets.inactive.bg_fill = glass_fill(18);
         v.widgets.inactive.weak_bg_fill = glass_fill(18);
         v.widgets.hovered.bg_fill = glass_fill(34);
@@ -67,9 +65,9 @@ pub fn install(ctx: &egui::Context) {
         v.widgets.active.bg_fill = glass_fill(46);
         v.widgets.active.weak_bg_fill = glass_fill(46);
 
-        v.widgets.inactive.bg_stroke = Stroke::new(1.0, glass_edge(40));
-        v.widgets.hovered.bg_stroke = Stroke::new(1.0, glass_edge(90));
-        v.widgets.active.bg_stroke = Stroke::new(1.0, glass_edge(120));
+        v.widgets.inactive.bg_stroke = egui::Stroke::new(1.0, glass_edge(40));
+        v.widgets.hovered.bg_stroke = egui::Stroke::new(1.0, glass_edge(90));
+        v.widgets.active.bg_stroke = egui::Stroke::new(1.0, glass_edge(120));
 
         for w in [
             &mut v.widgets.inactive,
@@ -77,7 +75,7 @@ pub fn install(ctx: &egui::Context) {
             &mut v.widgets.active,
             &mut v.widgets.noninteractive,
         ] {
-            w.corner_radius = CornerRadius::same(8);
+            w.corner_radius = egui::CornerRadius::same(8);
         }
 
         v.selection.bg_fill = palette::GLOW.gamma_multiply(0.35);
@@ -87,13 +85,13 @@ pub fn install(ctx: &egui::Context) {
 }
 
 /// Translucent white with a cool tint — the body of a glass pane.
-pub fn glass_fill(alpha: u8) -> Color32 {
-    Color32::from_rgba_unmultiplied(0x9E, 0xC6, 0xE6, alpha)
+pub fn glass_fill(alpha: u8) -> egui::Color32 {
+    egui::Color32::from_rgba_unmultiplied(0x9E, 0xC6, 0xE6, alpha)
 }
 
 /// The lit rim of a glass pane.
-pub fn glass_edge(alpha: u8) -> Color32 {
-    Color32::from_rgba_unmultiplied(0xCF, 0xE6, 0xFA, alpha)
+pub fn glass_edge(alpha: u8) -> egui::Color32 {
+    egui::Color32::from_rgba_unmultiplied(0xCF, 0xE6, 0xFA, alpha)
 }
 
 /// Pre-rendered gradients, uploaded once at startup.
@@ -156,7 +154,7 @@ fn backdrop_image() -> egui::ColorImage {
                     rgb = add_rgb(rgb, colour, f);
                 }
             }
-            pixels.push(Color32::from_rgb(rgb[0], rgb[1], rgb[2]));
+            pixels.push(egui::Color32::from_rgb(rgb[0], rgb[1], rgb[2]));
         }
     }
     egui::ColorImage::new([BACKDROP_W, BACKDROP_H], pixels)
@@ -178,8 +176,8 @@ fn glass_image() -> egui::ColorImage {
         let alpha = 16.0 + 26.0 * sheen;
         // Premultiplied, which is what the texture upload expects.
         let a = alpha.round() as u8;
-        let c = Color32::from_rgba_unmultiplied(0x9E, 0xC6, 0xE6, a);
-        let premul = Color32::from_rgba_premultiplied(
+        let c = egui::Color32::from_rgba_unmultiplied(0x9E, 0xC6, 0xE6, a);
+        let premul = egui::Color32::from_rgba_premultiplied(
             (c.r() as u16 * a as u16 / 255) as u8,
             (c.g() as u16 * a as u16 / 255) as u8,
             (c.b() as u16 * a as u16 / 255) as u8,
@@ -191,12 +189,12 @@ fn glass_image() -> egui::ColorImage {
     egui::ColorImage::new([2, GLASS_H], pixels)
 }
 
-fn lerp_rgb(a: Color32, b: Color32, t: f32) -> [u8; 3] {
+fn lerp_rgb(a: egui::Color32, b: egui::Color32, t: f32) -> [u8; 3] {
     let f = |x: u8, y: u8| (x as f32 + (y as f32 - x as f32) * t).round() as u8;
     [f(a.r(), b.r()), f(a.g(), b.g()), f(a.b(), b.b())]
 }
 
-fn add_rgb(base: [u8; 3], glow: Color32, amount: f32) -> [u8; 3] {
+fn add_rgb(base: [u8; 3], glow: egui::Color32, amount: f32) -> [u8; 3] {
     let f = |b: u8, g: u8| (b as f32 + g as f32 * amount).min(255.0) as u8;
     [
         f(base[0], glow.r()),
@@ -206,18 +204,22 @@ fn add_rgb(base: [u8; 3], glow: Color32, amount: f32) -> [u8; 3] {
 }
 
 /// Full texture, as `RectShape::with_texture` expects.
-fn full_uv() -> Rect {
-    Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0))
+fn full_uv() -> egui::Rect {
+    egui::Rect::from_min_max(egui::Pos2::ZERO, egui::Pos2::new(1.0, 1.0))
 }
 
 /// Paints the window backdrop as one rounded, texture-filled rect.
 ///
 /// Rounded because the window is undecorated — outside this shape the window is fully
 /// transparent, and nothing may bleed past the curve.
-pub fn paint_backdrop(painter: &egui::Painter, rect: Rect, surfaces: &Surfaces) {
-    painter.add(Shape::Rect(
-        egui::epaint::RectShape::filled(rect, CornerRadius::same(WINDOW_RADIUS), Color32::WHITE)
-            .with_texture(surfaces.backdrop.id(), full_uv()),
+pub fn paint_backdrop(painter: &egui::Painter, rect: egui::Rect, surfaces: &Surfaces) {
+    painter.add(egui::Shape::Rect(
+        egui::epaint::RectShape::filled(
+            rect,
+            egui::CornerRadius::same(WINDOW_RADIUS),
+            egui::Color32::WHITE,
+        )
+        .with_texture(surfaces.backdrop.id(), full_uv()),
     ));
 }
 
@@ -226,18 +228,18 @@ pub fn paint_backdrop(painter: &egui::Painter, rect: Rect, surfaces: &Surfaces) 
 /// The sheen is what sells it as glass — a flat translucent box with no gradient just
 /// reads as a grey rectangle — and baking it into the texture keeps it inside the
 /// rounded corners.
-pub fn glass_panel_shape(rect: Rect, radius: u8, surfaces: &Surfaces) -> Shape {
-    let cr = CornerRadius::same(radius);
-    Shape::Vec(vec![
-        Shape::Rect(
-            egui::epaint::RectShape::filled(rect, cr, Color32::WHITE)
+pub fn glass_panel_shape(rect: egui::Rect, radius: u8, surfaces: &Surfaces) -> egui::Shape {
+    let cr = egui::CornerRadius::same(radius);
+    egui::Shape::Vec(vec![
+        egui::Shape::Rect(
+            egui::epaint::RectShape::filled(rect, cr, egui::Color32::WHITE)
                 .with_texture(surfaces.glass.id(), full_uv()),
         ),
-        Shape::rect_stroke(
+        egui::Shape::rect_stroke(
             rect,
             cr,
-            Stroke::new(1.0, glass_edge(46)),
-            StrokeKind::Inside,
+            egui::Stroke::new(1.0, glass_edge(46)),
+            egui::StrokeKind::Inside,
         ),
     ])
 }
@@ -262,7 +264,7 @@ pub fn glass_group<R>(
     surfaces: &Surfaces,
     add_contents: impl FnOnce(&mut egui::Ui) -> R,
 ) -> egui::InnerResponse<R> {
-    let bg = ui.painter().add(Shape::Noop);
+    let bg = ui.painter().add(egui::Shape::Noop);
     let inner = egui::Frame::NONE
         .inner_margin(egui::Margin::symmetric(16, 14))
         .show(ui, |ui| {
@@ -290,18 +292,18 @@ pub fn progress_section_height() -> f32 {
 /// which is honest about not knowing the total rather than faking a position.
 pub fn glass_progress(ui: &mut egui::Ui, fraction: Option<f32>) {
     let (rect, _) = ui.allocate_exact_size(
-        Vec2::new(ui.available_width(), BAR_HEIGHT),
+        egui::Vec2::new(ui.available_width(), BAR_HEIGHT),
         egui::Sense::hover(),
     );
-    let cr = CornerRadius::same((BAR_HEIGHT / 2.0) as u8);
+    let cr = egui::CornerRadius::same((BAR_HEIGHT / 2.0) as u8);
     let painter = ui.painter();
 
-    painter.rect_filled(rect, cr, Color32::from_rgba_unmultiplied(0, 0, 0, 90));
+    painter.rect_filled(rect, cr, egui::Color32::from_rgba_unmultiplied(0, 0, 0, 90));
     painter.rect_stroke(
         rect,
         cr,
-        Stroke::new(1.0, glass_edge(30)),
-        StrokeKind::Inside,
+        egui::Stroke::new(1.0, glass_edge(30)),
+        egui::StrokeKind::Inside,
     );
 
     let fill_rect = match fraction {
@@ -310,7 +312,7 @@ pub fn glass_progress(ui: &mut egui::Ui, fraction: Option<f32>) {
             if f <= f32::EPSILON {
                 return;
             }
-            Rect::from_min_size(rect.min, Vec2::new(rect.width() * f, rect.height()))
+            egui::Rect::from_min_size(rect.min, egui::Vec2::new(rect.width() * f, rect.height()))
         }
         None => {
             // Sweep a band roughly a fifth of the track wide, looping every 1.6s.
@@ -320,8 +322,10 @@ pub fn glass_progress(ui: &mut egui::Ui, fraction: Option<f32>) {
             let band = rect.width() * 0.22;
             // Travel from fully off the left to fully off the right, then clip.
             let x = rect.left() - band + phase * (rect.width() + band * 2.0);
-            let band_rect =
-                Rect::from_min_size(Pos2::new(x, rect.top()), Vec2::new(band, rect.height()));
+            let band_rect = egui::Rect::from_min_size(
+                egui::Pos2::new(x, rect.top()),
+                egui::Vec2::new(band, rect.height()),
+            );
             ui.ctx().request_repaint();
             band_rect.intersect(rect)
         }
@@ -337,12 +341,12 @@ pub fn glass_progress(ui: &mut egui::Ui, fraction: Option<f32>) {
     // mesh cannot spill outside the rounded fill.
     let inset = BAR_HEIGHT / 2.0;
     if fill_rect.width() > BAR_HEIGHT {
-        let grad = Rect::from_min_max(
-            Pos2::new(fill_rect.left() + inset, fill_rect.top()),
-            Pos2::new(fill_rect.right() - inset, fill_rect.bottom()),
+        let grad = egui::Rect::from_min_max(
+            egui::Pos2::new(fill_rect.left() + inset, fill_rect.top()),
+            egui::Pos2::new(fill_rect.right() - inset, fill_rect.bottom()),
         );
-        let mut mesh = Mesh::default();
-        let clear = Color32::from_rgba_unmultiplied(
+        let mut mesh = egui::Mesh::default();
+        let clear = egui::Color32::from_rgba_unmultiplied(
             palette::GOLD.r(),
             palette::GOLD.g(),
             palette::GOLD.b(),
@@ -354,7 +358,7 @@ pub fn glass_progress(ui: &mut egui::Ui, fraction: Option<f32>) {
         mesh.colored_vertex(grad.left_bottom(), clear);
         mesh.add_triangle(0, 1, 2);
         mesh.add_triangle(0, 2, 3);
-        painter.add(Shape::mesh(mesh));
+        painter.add(egui::Shape::mesh(mesh));
     }
 }
 
@@ -371,16 +375,16 @@ const FLASH_SECS: f64 = 0.4;
 /// Everything that distinguishes one button family from another; the motion is
 /// shared by all of them in [`animated_button`].
 struct ButtonLook {
-    fill: Color32,
-    fill_hovered: Color32,
-    stroke: Color32,
-    stroke_hovered: Color32,
+    fill: egui::Color32,
+    fill_hovered: egui::Color32,
+    stroke: egui::Color32,
+    stroke_hovered: egui::Color32,
     /// Applied to the label explicitly — the style's `override_text_color` would
     /// otherwise be baked into the galley, defeating the disabled dimming.
-    text: Color32,
+    text: egui::Color32,
     radius: u8,
     /// Colour of the click ripple.
-    flash: Color32,
+    flash: egui::Color32,
 }
 
 /// The one prominent call to action — Play, or Install. Gold, lit, and larger than
@@ -389,14 +393,14 @@ pub fn primary_button(ui: &mut egui::Ui, label: &str) -> egui::Response {
     let text = egui::RichText::new(label).size(19.0).strong();
     let look = ButtonLook {
         fill: palette::GOLD,
-        fill_hovered: mix(palette::GOLD, Color32::WHITE, 0.16),
+        fill_hovered: mix(palette::GOLD, egui::Color32::WHITE, 0.16),
         stroke: palette::GOLD_DIM,
         stroke_hovered: palette::GOLD,
-        text: Color32::from_rgb(0x1A, 0x12, 0x04),
+        text: egui::Color32::from_rgb(0x1A, 0x12, 0x04),
         radius: 10,
         flash: palette::GOLD,
     };
-    animated_button(ui, Some(Vec2::new(190.0, 46.0)), text, &look, true)
+    animated_button(ui, Some(egui::Vec2::new(190.0, 46.0)), text, &look, true)
 }
 
 /// A quieter secondary action that sits on the glass without competing with it.
@@ -409,7 +413,7 @@ pub fn ghost_button_sized(
     ui: &mut egui::Ui,
     label: &str,
     enabled: bool,
-    size: Vec2,
+    size: egui::Vec2,
 ) -> egui::Response {
     animated_button(
         ui,
@@ -444,7 +448,7 @@ fn ghost_look() -> ButtonLook {
 /// `size` of `None` sizes the button to its label plus the style's button padding.
 fn animated_button(
     ui: &mut egui::Ui,
-    size: Option<Vec2>,
+    size: Option<egui::Vec2>,
     text: egui::RichText,
     look: &ButtonLook,
     enabled: bool,
@@ -494,8 +498,8 @@ fn animated_button(
 
     if ui.is_rect_visible(rect) {
         let rect =
-            Rect::from_center_size(rect.center(), rect.size() * (1.0 - PRESS_SQUISH * press));
-        let cr = CornerRadius::same(look.radius);
+            egui::Rect::from_center_size(rect.center(), rect.size() * (1.0 - PRESS_SQUISH * press));
+        let cr = egui::CornerRadius::same(look.radius);
 
         let mut fill = mix(look.fill, look.fill_hovered, hover);
         let mut stroke = mix(look.stroke, look.stroke_hovered, hover);
@@ -506,7 +510,12 @@ fn animated_button(
 
         let painter = ui.painter();
         painter.rect_filled(rect, cr, fill);
-        painter.rect_stroke(rect, cr, Stroke::new(1.0, stroke), StrokeKind::Inside);
+        painter.rect_stroke(
+            rect,
+            cr,
+            egui::Stroke::new(1.0, stroke),
+            egui::StrokeKind::Inside,
+        );
 
         // The click ripple: an expanding, fading ring. Driven off the clock rather
         // than the press animation, so it plays out in full even though the press
@@ -519,9 +528,9 @@ fn animated_button(
                 let ring = rect.expand(1.0 + 6.0 * ease);
                 painter.rect_stroke(
                     ring,
-                    CornerRadius::same(look.radius.saturating_add(3)),
-                    Stroke::new(2.0, look.flash.gamma_multiply(0.7 * (1.0 - t))),
-                    StrokeKind::Outside,
+                    egui::CornerRadius::same(look.radius.saturating_add(3)),
+                    egui::Stroke::new(2.0, look.flash.gamma_multiply(0.7 * (1.0 - t))),
+                    egui::StrokeKind::Outside,
                 );
                 ctx.request_repaint();
             } else {
@@ -536,9 +545,9 @@ fn animated_button(
 
 /// Linear blend in premultiplied space — correct for the translucent glass
 /// colours, whose alpha changes between the resting and hovered states.
-fn mix(a: Color32, b: Color32, t: f32) -> Color32 {
+fn mix(a: egui::Color32, b: egui::Color32, t: f32) -> egui::Color32 {
     let f = |x: u8, y: u8| (x as f32 + (y as f32 - x as f32) * t).round() as u8;
-    Color32::from_rgba_premultiplied(
+    egui::Color32::from_rgba_premultiplied(
         f(a.r(), b.r()),
         f(a.g(), b.g()),
         f(a.b(), b.b()),

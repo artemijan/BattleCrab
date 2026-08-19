@@ -3,14 +3,12 @@
 //! model. Connection tasks talk to it via messages; DB work runs inside the
 //! actor (acceptable at login rates, see PLAN_LOGIN_SERVER.md §5).
 
+use crate::gs_table;
 use std::collections::HashMap;
 
 use crate::dao;
 use crate::enums::LoginFailReason;
-use crate::gs_table::{
-    GameServerEntry, GameServerTable, GsCommand, Subnet, hexid_to_string, login_server_fail,
-    server_status,
-};
+
 use crate::session::SessionKey;
 use commons::crypt::hash_password;
 use commons::util;
@@ -123,7 +121,7 @@ pub enum Msg {
         max_players: i32,
         hex_id: Vec<u8>,
         hosts: Vec<(String, String)>,
-        link: mpsc::Sender<GsCommand>,
+        link: mpsc::Sender<gs_table::GsCommand>,
         reply: oneshot::Sender<Result<GsRegistration, u8>>,
     },
     GsDisconnected {
@@ -203,7 +201,7 @@ struct Controller {
     authed_clients: HashMap<String, AuthedEntry>,
     failed_login_attempts: HashMap<String, i32>,
     banned_ips: HashMap<String, i64>,
-    gs: GameServerTable,
+    gs: gs_table::GameServerTable,
     /// `LoginServer._loginStatus` — global override (STATUS_NORMAL default).
     login_status: i32,
 }
@@ -216,7 +214,7 @@ pub struct ControllerHandle {
 pub fn spawn(
     settings: ControllerSettings,
     db: DatabaseConnection,
-    gs: GameServerTable,
+    gs: gs_table::GameServerTable,
 ) -> ControllerHandle {
     let (tx, mut rx) = mpsc::channel(256);
     let mut controller = Controller {
@@ -226,7 +224,7 @@ pub fn spawn(
         failed_login_attempts: HashMap::new(),
         banned_ips: HashMap::new(),
         gs,
-        login_status: server_status::STATUS_NORMAL,
+        login_status: gs_table::server_status::STATUS_NORMAL,
     };
     tokio::spawn(async move {
         while let Some(msg) = rx.recv().await {
@@ -310,7 +308,7 @@ impl ControllerHandle {
         max_players: i32,
         hex_id: Vec<u8>,
         hosts: Vec<(String, String)>,
-        link: mpsc::Sender<GsCommand>,
+        link: mpsc::Sender<gs_table::GsCommand>,
     ) -> Result<GsRegistration, u8> {
         let (reply, rx) = oneshot::channel();
         let _ = self
@@ -326,7 +324,8 @@ impl ControllerHandle {
                 reply,
             })
             .await;
-        rx.await.unwrap_or(Err(login_server_fail::NOT_AUTHED))
+        rx.await
+            .unwrap_or(Err(gs_table::login_server_fail::NOT_AUTHED))
     }
 
     pub async fn gs_disconnected(&self, server_id: i32) {
@@ -708,19 +707,19 @@ impl Controller {
         max_players: i32,
         hex_id: Vec<u8>,
         hosts: Vec<(String, String)>,
-        link: mpsc::Sender<GsCommand>,
+        link: mpsc::Sender<gs_table::GsCommand>,
     ) -> Result<GsRegistration, u8> {
         let assigned_id = match self.gs.servers.get(&desired_id) {
             Some(existing) if existing.hex_id == hex_id => {
                 if existing.authed {
-                    return Err(login_server_fail::REASON_ALREADY_LOGGED_IN);
+                    return Err(gs_table::login_server_fail::REASON_ALREADY_LOGGED_IN);
                 }
                 desired_id
             }
             Some(_) => {
                 // Registered with a different hexid: try an alternative id.
                 if !(self.settings.accept_new_gameserver && accept_alternative) {
-                    return Err(login_server_fail::REASON_WRONG_HEXID);
+                    return Err(gs_table::login_server_fail::REASON_WRONG_HEXID);
                 }
                 let free = self
                     .gs
@@ -728,20 +727,21 @@ impl Controller {
                     .keys()
                     .copied()
                     .find(|id| !self.gs.servers.contains_key(id))
-                    .ok_or(login_server_fail::REASON_NO_FREE_ID)?;
+                    .ok_or(gs_table::login_server_fail::REASON_NO_FREE_ID)?;
                 self.gs
                     .servers
-                    .insert(free, GameServerEntry::new(free, hex_id.clone()));
+                    .insert(free, gs_table::GameServerEntry::new(free, hex_id.clone()));
                 self.register_server_on_db(free, &hex_id, &hosts).await;
                 free
             }
             None => {
                 if !self.settings.accept_new_gameserver {
-                    return Err(login_server_fail::REASON_WRONG_HEXID);
+                    return Err(gs_table::login_server_fail::REASON_WRONG_HEXID);
                 }
-                self.gs
-                    .servers
-                    .insert(desired_id, GameServerEntry::new(desired_id, hex_id.clone()));
+                self.gs.servers.insert(
+                    desired_id,
+                    gs_table::GameServerEntry::new(desired_id, hex_id.clone()),
+                );
                 self.register_server_on_db(desired_id, &hex_id, &hosts)
                     .await;
                 desired_id
@@ -753,7 +753,7 @@ impl Controller {
         entry.max_players = max_players;
         entry.addresses = hosts
             .iter()
-            .filter_map(|(subnet, host)| Subnet::parse(subnet).map(|s| (s, host.clone())))
+            .filter_map(|(subnet, host)| gs_table::Subnet::parse(subnet).map(|s| (s, host.clone())))
             .collect();
         entry.link = Some(link);
         entry.authed = true;
@@ -792,7 +792,7 @@ impl Controller {
         else {
             return; // Java: no GS has the account → silently drop.
         };
-        let respond = |message: &str| GsCommand::ChangePasswordResponse {
+        let respond = |message: &str| gs_table::GsCommand::ChangePasswordResponse {
             character_name: character_name.clone(),
             message: message.to_string(),
         };
@@ -831,7 +831,7 @@ impl Controller {
         let _ = models::repo::gameservers::register(
             &self.db,
             id,
-            &hexid_to_string(hex_id),
+            &gs_table::hexid_to_string(hex_id),
             &external_host,
         )
         .await;
@@ -845,18 +845,24 @@ impl Controller {
         };
         for (kind, value) in attributes {
             match kind {
-                server_status::SERVER_LIST_STATUS => {
+                gs_table::server_status::SERVER_LIST_STATUS => {
                     // GameServerInfo.setStatus: the global LS status wins.
                     entry.status = match login_status {
-                        server_status::STATUS_DOWN => server_status::STATUS_DOWN,
-                        server_status::STATUS_GM_ONLY => server_status::STATUS_GM_ONLY,
+                        gs_table::server_status::STATUS_DOWN => {
+                            gs_table::server_status::STATUS_DOWN
+                        }
+                        gs_table::server_status::STATUS_GM_ONLY => {
+                            gs_table::server_status::STATUS_GM_ONLY
+                        }
                         _ => value,
                     };
                 }
-                server_status::SERVER_TYPE => entry.server_type = value,
-                server_status::SERVER_LIST_SQUARE_BRACKET => entry.showing_brackets = value == 1,
-                server_status::MAX_PLAYERS => entry.max_players = value,
-                server_status::SERVER_AGE => entry.age_limit = value,
+                gs_table::server_status::SERVER_TYPE => entry.server_type = value,
+                gs_table::server_status::SERVER_LIST_SQUARE_BRACKET => {
+                    entry.showing_brackets = value == 1
+                }
+                gs_table::server_status::MAX_PLAYERS => entry.max_players = value,
+                gs_table::server_status::SERVER_AGE => entry.age_limit = value,
                 _ => {}
             }
         }
@@ -876,9 +882,9 @@ impl Controller {
                     .and_then(resolve_host)
                     .unwrap_or([127, 0, 0, 1]);
                 let status = if access_level < 0
-                    || (gsi.status == server_status::STATUS_GM_ONLY && access_level <= 0)
+                    || (gsi.status == gs_table::server_status::STATUS_GM_ONLY && access_level <= 0)
                 {
-                    server_status::STATUS_DOWN
+                    gs_table::server_status::STATUS_DOWN
                 } else {
                     gsi.status
                 };
@@ -890,7 +896,7 @@ impl Controller {
                     pvp: true, // GameServerInfo.IS_PVP
                     current_players: gsi.accounts.len() as u16,
                     max_players: gsi.max_players as u16,
-                    up: status != server_status::STATUS_DOWN,
+                    up: status != gs_table::server_status::STATUS_DOWN,
                     server_type: gsi.server_type,
                     brackets: gsi.showing_brackets,
                 }
@@ -1016,7 +1022,7 @@ impl Controller {
             if entry.authed
                 && let Some(link) = &entry.link
             {
-                let _ = link.try_send(GsCommand::KickPlayer {
+                let _ = link.try_send(gs_table::GsCommand::KickPlayer {
                     account: info.login.clone(),
                 });
             }
@@ -1048,7 +1054,7 @@ impl Controller {
             if entry.authed
                 && let Some(link) = &entry.link
             {
-                let _ = link.try_send(GsCommand::RequestCharacters {
+                let _ = link.try_send(gs_table::GsCommand::RequestCharacters {
                     account: info.login.clone(),
                 });
                 expected += 1;

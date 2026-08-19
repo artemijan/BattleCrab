@@ -1,7 +1,9 @@
 //! Broadcast helpers over regions and onlookers.
 
-use super::*;
-
+use super::client_for_player;
+use super::instance_of;
+use super::region_cell_of;
+use crate::world::World;
 /// `World.forEachVisibleObject`: only players whose world region is in the
 /// broadcaster's 3×3 surrounding-region block **and same instance** receive it.
 pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[u8]) {

@@ -1,6 +1,28 @@
-use super::*;
+use super::academy;
+use super::add_clan_reputation;
+use super::add_clan_skill;
+use super::broadcast_to_clan;
+use super::clan_leader_of;
+use super::clan_membership;
+use super::clan_skill_pairs;
+use super::has_clan_privilege;
+use super::online_members;
+use super::send_to_member;
+use super::set_clan_level;
+use crate::db::DbCommand;
 use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
+use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 use crate::game_loop::helpers::send_to_client;
+use crate::model::Player;
+use crate::model::clan::ClanMember;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
+use commons::network::PacketReader;
+use commons::util::now_millis;
 
 /// `AcquireSkillType.PLEDGE` on the wire (skill lists + acquire packets).
 const ACQUIRE_TYPE_PLEDGE: i16 = 2;

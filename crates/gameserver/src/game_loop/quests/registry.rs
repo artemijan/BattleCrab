@@ -1,6 +1,9 @@
 //! The quest registry: script list plus the per-event npc-id indices.
 
-use super::*;
+use super::QuestScript;
+use std::collections::HashMap;
+use std::sync::Arc;
+use tracing::warn;
 /// The village-master `onEvent` tail: a dialog page of one of `npcs`
 /// (`<npcId>-xx.htm`) coming back through a `Quest <name> <page>` bypass,
 /// which the script simply echoes for [`show_result`] to render. `None` for

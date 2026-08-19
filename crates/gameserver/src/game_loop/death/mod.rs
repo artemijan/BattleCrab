@@ -44,6 +44,7 @@ mod rewards;
 
 #[cfg(test)]
 pub(crate) use player_death::apply_death_exp_penalty_ex;
+
 #[cfg(test)]
 pub(crate) use player_death::stop_effects_on_death_for_test;
 pub(crate) use player_death::{apply_death_exp_penalty, is_lucky, player_do_die};
@@ -474,7 +475,3 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
     let pkt = server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &visuals, clan);
     broadcast_near_region_in(world, region, instance_of(world, object_id), &pkt);
 }
-
-// ---------------------------------------------------------------------------
-// Rewards (`Attackable.calculateRewards`)
-// ---------------------------------------------------------------------------

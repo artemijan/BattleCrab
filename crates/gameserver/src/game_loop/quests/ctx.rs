@@ -2,8 +2,21 @@
 //! (cond/var/state, start/exit), and the send primitives that respect the
 //! simulated-probe rule.
 
-use super::*;
-
+use super::QuestScript;
+use super::no_quest_html;
+use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::helpers::send_to_client;
+use crate::model::components::Quests;
+use crate::model::quest;
+use crate::model::quest::COND_VAR;
+use crate::model::quest::FLAGS_VAR;
+use crate::model::quest::QuestState;
+use crate::model::quest::state;
+use crate::network::enter_world as ew;
+use crate::network::server_packets;
+use crate::network::server_packets::quest_sounds;
+use crate::world::World;
+use std::sync::Arc;
 /// Everything a script callback gets to work with: the world plus the
 /// identities of the involved parties, with the `QuestState`/`AbstractScript`
 /// primitive methods ported onto it.

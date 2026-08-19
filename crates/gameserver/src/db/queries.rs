@@ -1,5 +1,42 @@
-use super::*;
+use super::ClanHallBidRow;
+use super::ClanHallRow;
+use super::CreateResult;
+use super::CursedWeaponRow;
+use super::DbEvent;
+use super::EventTx;
+use super::FIRST_OID;
+use super::GroundItemRow;
+use super::HeroRow;
+use super::ManorProcureRow;
+use super::ManorProductionRow;
+use super::NewCharacter;
+use super::OlympiadEomRow;
+use super::OlympiadNobleRow;
+use super::PetRow;
+use super::PlayerSaveData;
+use super::ResidenceFunctionRow;
+use super::SiegeClanRow;
+use super::SkillBuffRow;
+use super::SkillReuseRow;
+use super::SummonRow;
+use crate::character::CharData;
+use crate::character::ItemRow;
+use commons::util::now_millis;
+use models::entity;
 
+use models::sea_orm::ActiveValue::Set;
+use models::sea_orm::ActiveValue::Unchanged;
+use models::sea_orm::DatabaseConnection;
+use models::sea_orm::DbErr;
+use models::sea_orm::sea_query::Expr;
+use models::sea_orm::sea_query::OnConflict;
+use models::sea_orm::{
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
+    QuerySelect, TransactionTrait,
+};
+use tracing::error;
+use tracing::info;
+use tracing::warn;
 pub(crate) async fn reload(
     db: &DatabaseConnection,
     event_tx: &EventTx,
@@ -21,7 +58,7 @@ pub(crate) async fn reload(
 /// (e.g. the table absent in a minimal test schema), mirroring Java's
 /// catch-and-default-empty behaviour.
 async fn load_account_var(db: &DatabaseConnection, account: &str, var: &str) -> Option<String> {
-    account_gsdata::Entity::find_by_id((account.to_string(), var.to_string()))
+    entity::account_gsdata::Entity::find_by_id((account.to_string(), var.to_string()))
         .one(db)
         .await
         .ok()
@@ -33,7 +70,7 @@ async fn load_account_var(db: &DatabaseConnection, account: &str, var: &str) -> 
 /// `PremiumManager` has no table-wide load; this port caches all rows so the
 /// admin `//premium_*` commands work for offline accounts). Missing table → empty.
 pub(crate) async fn load_premium(db: &DatabaseConnection) -> Vec<(String, i64)> {
-    account_premium::Entity::find()
+    entity::account_premium::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -47,9 +84,9 @@ pub(crate) async fn load_premium(db: &DatabaseConnection) -> Vec<(String, i64)> 
 pub(crate) async fn load_lottery(
     db: &DatabaseConnection,
 ) -> Option<crate::model::lottery::LotteryRow> {
-    let row = lottery::Entity::find()
-        .filter(lottery::Column::Id.eq(1))
-        .order_by_desc(lottery::Column::Idnr)
+    let row = entity::lottery::Entity::find()
+        .filter(entity::lottery::Column::Id.eq(1))
+        .order_by_desc(entity::lottery::Column::Idnr)
         .one(db)
         .await
         .ok()
@@ -68,9 +105,9 @@ pub(crate) async fn load_lottery(
 pub(crate) async fn load_lottery_draws(
     db: &DatabaseConnection,
 ) -> Vec<(i32, crate::model::lottery::DrawnRound)> {
-    lottery::Entity::find()
-        .filter(lottery::Column::Id.eq(1))
-        .filter(lottery::Column::Finished.eq(1))
+    entity::lottery::Entity::find()
+        .filter(entity::lottery::Column::Id.eq(1))
+        .filter(entity::lottery::Column::Finished.eq(1))
         .all(db)
         .await
         .unwrap_or_default()
@@ -95,8 +132,8 @@ pub(crate) async fn load_lottery_draws(
 pub(crate) async fn load_mdt_history(
     db: &DatabaseConnection,
 ) -> Vec<crate::model::monster_race::HistoryInfo> {
-    mdt_history::Entity::find()
-        .order_by_asc(mdt_history::Column::RaceId)
+    entity::mdt_history::Entity::find()
+        .order_by_asc(entity::mdt_history::Column::RaceId)
         .all(db)
         .await
         .unwrap_or_default()
@@ -112,7 +149,7 @@ pub(crate) async fn load_mdt_history(
 
 /// The current lane bets (Java `MonsterRace.loadBets`): `(lane_id, bet)`.
 pub(crate) async fn load_mdt_bets(db: &DatabaseConnection) -> Vec<(i32, i64)> {
-    mdt_bets::Entity::find()
+    entity::mdt_bets::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -133,8 +170,8 @@ pub(crate) async fn load_mail(
 
     // The flag columns are enum('true','false') text; older rows may carry '1'.
     let truthy = |v: &str| v.eq_ignore_ascii_case("true") || v == "1";
-    let messages = messages::Entity::find()
-        .order_by_asc(messages::Column::Expiration)
+    let messages = entity::messages::Entity::find()
+        .order_by_asc(entity::messages::Column::Expiration)
         .all(db)
         .await
         .unwrap_or_default()
@@ -158,8 +195,8 @@ pub(crate) async fn load_mail(
 
     let mut by_message: std::collections::HashMap<i32, Vec<ItemRow>> =
         std::collections::HashMap::new();
-    for r in items::Entity::find()
-        .filter(items::Column::Loc.eq("MAIL"))
+    for r in entity::items::Entity::find()
+        .filter(entity::items::Column::Loc.eq("MAIL"))
         .all(db)
         .await
         .unwrap_or_default()
@@ -189,7 +226,7 @@ pub(crate) async fn load_mail(
 /// addressed by name to characters who need not be online; nothing else in the
 /// port needs this, so it is loaded once and maintained on creation/deletion.
 pub(crate) async fn load_char_ids_by_name(db: &DatabaseConnection) -> Vec<(String, i32)> {
-    characters::Entity::find()
+    entity::characters::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -203,7 +240,7 @@ pub(crate) async fn load_item_auctions(
 ) -> (i32, Vec<crate::model::item_auction::ItemAuction>) {
     use crate::model::item_auction::{AuctionState, ItemAuction, ItemAuctionBid};
 
-    let mut auctions: Vec<ItemAuction> = item_auction::Entity::find()
+    let mut auctions: Vec<ItemAuction> = entity::item_auction::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -222,7 +259,7 @@ pub(crate) async fn load_item_auctions(
         .collect();
 
     // Attach each auction's bids.
-    for bid in item_auction_bid::Entity::find()
+    for bid in entity::item_auction_bid::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -246,7 +283,7 @@ pub(crate) async fn load_item_auctions(
 /// Java `BotReportTable.loadReportedCharData` — every stored report row.
 /// Fail-open (empty) if the table is absent, like the other boot loaders.
 pub(crate) async fn load_bot_reports(db: &DatabaseConnection) -> Vec<(i32, i32, i64)> {
-    bot_reported_char_data::Entity::find()
+    entity::bot_reported_char_data::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -261,7 +298,7 @@ pub(crate) async fn load_punishments(
     use crate::model::punishment::{Punishment, PunishmentAffect, PunishmentType};
 
     let now = now_millis();
-    let all = punishments::Entity::find()
+    let all = entity::punishments::Entity::find()
         .all(db)
         .await
         .unwrap_or_default();
@@ -327,9 +364,9 @@ pub struct NpcRespawnRow {
 
 /// `RESTORE_CHAR_SUBCLASSES` — a character's subclass slots.
 async fn load_subclasses(db: &DatabaseConnection, char_id: i32) -> Vec<crate::model::SubClass> {
-    character_subclasses::Entity::find()
-        .filter(character_subclasses::Column::CharId.eq(char_id))
-        .order_by_asc(character_subclasses::Column::ClassIndex)
+    entity::character_subclasses::Entity::find()
+        .filter(entity::character_subclasses::Column::CharId.eq(char_id))
+        .order_by_asc(entity::character_subclasses::Column::ClassIndex)
         .all(db)
         .await
         .unwrap_or_default()
@@ -347,7 +384,7 @@ async fn load_subclasses(db: &DatabaseConnection, char_id: i32) -> Vec<crate::mo
 /// Boot load of the whole `npc_respawns` table (Java `DBSpawnManager.load`).
 /// Missing table → empty, like the other boot loads.
 pub(crate) async fn load_npc_respawns(db: &DatabaseConnection) -> Vec<NpcRespawnRow> {
-    npc_respawns::Entity::find()
+    entity::npc_respawns::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -370,7 +407,7 @@ pub(crate) async fn load_npc_respawns(db: &DatabaseConnection) -> Vec<NpcRespawn
 /// filtering (skills still in the buffer table) happens on the game thread,
 /// where the datapack lives. Missing table → empty.
 pub(crate) async fn load_buffer_schemes(db: &DatabaseConnection) -> Vec<(i32, String, Vec<i32>)> {
-    buffer_schemes::Entity::find()
+    entity::buffer_schemes::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -393,8 +430,8 @@ pub(crate) async fn load_buffer_schemes(db: &DatabaseConnection) -> Vec<(i32, St
 pub(crate) async fn load_favorites(
     db: &DatabaseConnection,
 ) -> Vec<(i32, i32, String, String, String)> {
-    bbs_favorites::Entity::find()
-        .order_by_desc(bbs_favorites::Column::FavAddDate)
+    entity::bbs_favorites::Entity::find()
+        .order_by_desc(entity::bbs_favorites::Column::FavAddDate)
         .all(db)
         .await
         .unwrap_or_default()
@@ -416,9 +453,9 @@ pub(crate) async fn load_favorites(
 /// every table that stores one — not just `characters` (a fresh id here that
 /// collides with an existing `items.object_id` fails its INSERT silently).
 pub(crate) async fn load_next_id(db: &DatabaseConnection) -> i64 {
-    let max_char = characters::Entity::find()
+    let max_char = entity::characters::Entity::find()
         .select_only()
-        .column_as(characters::Column::CharId.max(), "m")
+        .column_as(entity::characters::Column::CharId.max(), "m")
         .into_tuple::<Option<i64>>()
         .one(db)
         .await
@@ -426,9 +463,9 @@ pub(crate) async fn load_next_id(db: &DatabaseConnection) -> i64 {
         .flatten()
         .flatten()
         .unwrap_or(0);
-    let max_item = items::Entity::find()
+    let max_item = entity::items::Entity::find()
         .select_only()
-        .column_as(items::Column::ObjectId.max(), "m")
+        .column_as(entity::items::Column::ObjectId.max(), "m")
         .into_tuple::<Option<i64>>()
         .one(db)
         .await
@@ -441,9 +478,9 @@ pub(crate) async fn load_next_id(db: &DatabaseConnection) -> i64 {
 
 /// `loadCharacterSelectInfo`: rows for an account, expired deletions purged.
 async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData> {
-    let rows = match characters::Entity::find()
-        .filter(characters::Column::AccountName.eq(account))
-        .order_by_asc(characters::Column::CreateDate)
+    let rows = match entity::characters::Entity::find()
+        .filter(entity::characters::Column::AccountName.eq(account))
+        .order_by_asc(entity::characters::Column::CreateDate)
         .all(db)
         .await
     {
@@ -487,7 +524,7 @@ async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData
 /// single character can be loaded by id without going through an account.
 async fn char_data_of(
     db: &DatabaseConnection,
-    row: &characters::Model,
+    row: &entity::characters::Model,
     slot: i32,
     prime_points: i32,
 ) -> CharData {
@@ -599,14 +636,14 @@ async fn char_data_of(
 /// character no longer exists is dropped (Java's `Player.load` returning null
 /// lands in its catch block).
 pub(crate) async fn load_offline_traders(db: &DatabaseConnection) -> Vec<OfflineTraderRow> {
-    let rows = character_offline_trade::Entity::find()
+    let rows = entity::character_offline_trade::Entity::find()
         .all(db)
         .await
         .unwrap_or_default();
     let mut out = Vec::new();
     for row in rows {
-        let items = character_offline_trade_items::Entity::find()
-            .filter(character_offline_trade_items::Column::CharId.eq(row.char_id))
+        let items = entity::character_offline_trade_items::Entity::find()
+            .filter(entity::character_offline_trade_items::Column::CharId.eq(row.char_id))
             .all(db)
             .await
             .unwrap_or_default();
@@ -635,7 +672,7 @@ pub(crate) async fn load_offline_traders(db: &DatabaseConnection) -> Vec<Offline
 /// needs a full `CharData` for a character it reaches through
 /// `character_offline_trade`, not through an account's list.
 async fn load_character(db: &DatabaseConnection, char_id: i32) -> Option<CharData> {
-    let row = characters::Entity::find_by_id(char_id)
+    let row = entity::characters::Entity::find_by_id(char_id)
         .one(db)
         .await
         .ok()??;
@@ -656,8 +693,8 @@ async fn load_skills(
     db: &DatabaseConnection,
     owner_id: i32,
 ) -> std::collections::HashMap<i32, Vec<(i32, i32, i32)>> {
-    let rows = character_skills::Entity::find()
-        .filter(character_skills::Column::CharId.eq(owner_id))
+    let rows = entity::character_skills::Entity::find()
+        .filter(entity::character_skills::Column::CharId.eq(owner_id))
         .all(db)
         .await
         .unwrap_or_default();
@@ -679,8 +716,8 @@ async fn load_hennas(
     db: &DatabaseConnection,
     owner_id: i32,
 ) -> std::collections::HashMap<i32, Vec<(i32, i32)>> {
-    let rows = character_hennas::Entity::find()
-        .filter(character_hennas::Column::CharId.eq(owner_id))
+    let rows = entity::character_hennas::Entity::find()
+        .filter(entity::character_hennas::Column::CharId.eq(owner_id))
         .all(db)
         .await
         .unwrap_or_default();
@@ -699,9 +736,9 @@ async fn load_hennas(
 /// re-derived from `RecipeData` on the game thread, so the DB layer just
 /// returns the ids. `classIndex = 0` — no subclasses on this dist.
 async fn load_recipe_book(db: &DatabaseConnection, owner_id: i32) -> Vec<i32> {
-    character_recipebook::Entity::find()
-        .filter(character_recipebook::Column::CharId.eq(owner_id))
-        .filter(character_recipebook::Column::ClassIndex.eq(0))
+    entity::character_recipebook::Entity::find()
+        .filter(entity::character_recipebook::Column::CharId.eq(owner_id))
+        .filter(entity::character_recipebook::Column::ClassIndex.eq(0))
         .all(db)
         .await
         .unwrap_or_default()
@@ -714,8 +751,8 @@ async fn load_recipe_book(db: &DatabaseConnection, owner_id: i32) -> Vec<i32> {
 /// as `(var, val)` pairs. Values stay strings — the component parses on read,
 /// like Java's `StatSet` getters.
 async fn load_variables(db: &DatabaseConnection, owner_id: i32) -> Vec<(String, String)> {
-    character_variables::Entity::find()
-        .filter(character_variables::Column::CharId.eq(owner_id))
+    entity::character_variables::Entity::find()
+        .filter(entity::character_variables::Column::CharId.eq(owner_id))
         .all(db)
         .await
         .unwrap_or_default()
@@ -731,8 +768,8 @@ async fn load_variables(db: &DatabaseConnection, owner_id: i32) -> Vec<(String, 
 /// The servitor this character had out at logout, if any (Java
 /// `CharSummonTable.LOAD_SUMMON`).
 async fn load_summons(db: &DatabaseConnection, owner_id: i32) -> Vec<SummonRow> {
-    let rows = character_summons::Entity::find()
-        .filter(character_summons::Column::OwnerId.eq(owner_id))
+    let rows = entity::character_summons::Entity::find()
+        .filter(entity::character_summons::Column::OwnerId.eq(owner_id))
         .all(db)
         .await
         .unwrap_or_default();
@@ -757,11 +794,11 @@ async fn load_summon_buffs(
     owner_id: i32,
     summon_skill_id: i32,
 ) -> Vec<SkillBuffRow> {
-    character_summon_skills_save::Entity::find()
-        .filter(character_summon_skills_save::Column::OwnerId.eq(owner_id))
-        .filter(character_summon_skills_save::Column::OwnerClassIndex.eq(0))
-        .filter(character_summon_skills_save::Column::SummonSkillId.eq(summon_skill_id))
-        .order_by_asc(character_summon_skills_save::Column::BuffIndex)
+    entity::character_summon_skills_save::Entity::find()
+        .filter(entity::character_summon_skills_save::Column::OwnerId.eq(owner_id))
+        .filter(entity::character_summon_skills_save::Column::OwnerClassIndex.eq(0))
+        .filter(entity::character_summon_skills_save::Column::SummonSkillId.eq(summon_skill_id))
+        .order_by_asc(entity::character_summon_skills_save::Column::BuffIndex)
         .all(db)
         .await
         .unwrap_or_default()
@@ -775,8 +812,8 @@ async fn load_summon_buffs(
 }
 
 async fn load_pets(db: &DatabaseConnection, owner_id: i32) -> Vec<PetRow> {
-    pets::Entity::find()
-        .filter(pets::Column::OwnerId.eq(owner_id))
+    entity::pets::Entity::find()
+        .filter(entity::pets::Column::OwnerId.eq(owner_id))
         .all(db)
         .await
         .unwrap_or_default()
@@ -806,10 +843,10 @@ async fn load_skill_reuses(
     class_index: i32,
 ) -> Vec<SkillReuseRow> {
     let now = now_millis();
-    character_skills_save::Entity::find()
-        .filter(character_skills_save::Column::CharId.eq(owner_id))
-        .filter(character_skills_save::Column::ClassIndex.eq(class_index))
-        .filter(character_skills_save::Column::RestoreType.eq(1))
+    entity::character_skills_save::Entity::find()
+        .filter(entity::character_skills_save::Column::CharId.eq(owner_id))
+        .filter(entity::character_skills_save::Column::ClassIndex.eq(class_index))
+        .filter(entity::character_skills_save::Column::RestoreType.eq(1))
         .all(db)
         .await
         .unwrap_or_default()
@@ -839,11 +876,11 @@ async fn load_skill_buffs(
     owner_id: i32,
     class_index: i32,
 ) -> Vec<SkillBuffRow> {
-    character_skills_save::Entity::find()
-        .filter(character_skills_save::Column::CharId.eq(owner_id))
-        .filter(character_skills_save::Column::ClassIndex.eq(class_index))
-        .filter(character_skills_save::Column::RestoreType.eq(0))
-        .order_by_asc(character_skills_save::Column::BuffIndex)
+    entity::character_skills_save::Entity::find()
+        .filter(entity::character_skills_save::Column::CharId.eq(owner_id))
+        .filter(entity::character_skills_save::Column::ClassIndex.eq(class_index))
+        .filter(entity::character_skills_save::Column::RestoreType.eq(0))
+        .order_by_asc(entity::character_skills_save::Column::BuffIndex)
         .all(db)
         .await
         .unwrap_or_default()
@@ -863,7 +900,7 @@ async fn load_skill_buffs(
 /// Java's field defaults for a character whose `character_reco_bonus` row
 /// hasn't been written yet.
 async fn load_reco_bonus(db: &DatabaseConnection, owner_id: i32) -> (i32, i32) {
-    match character_reco_bonus::Entity::find_by_id(owner_id)
+    match entity::character_reco_bonus::Entity::find_by_id(owner_id)
         .one(db)
         .await
     {
@@ -881,8 +918,8 @@ async fn load_shortcuts(
     db: &DatabaseConnection,
     owner_id: i32,
 ) -> std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>> {
-    let rows = character_shortcuts::Entity::find()
-        .filter(character_shortcuts::Column::CharId.eq(owner_id))
+    let rows = entity::character_shortcuts::Entity::find()
+        .filter(entity::character_shortcuts::Column::CharId.eq(owner_id))
         .all(db)
         .await
         .unwrap_or_default();
@@ -921,8 +958,8 @@ pub(crate) async fn load_all_block_lists(
 ) -> Vec<(i32, std::collections::HashSet<i32>)> {
     let mut out: std::collections::HashMap<i32, std::collections::HashSet<i32>> =
         std::collections::HashMap::new();
-    for row in character_friends::Entity::find()
-        .filter(character_friends::Column::Relation.eq(BLOCK_RELATION))
+    for row in entity::character_friends::Entity::find()
+        .filter(entity::character_friends::Column::Relation.eq(BLOCK_RELATION))
         .all(db)
         .await
         .unwrap_or_default()
@@ -947,9 +984,9 @@ async fn load_friends(db: &DatabaseConnection, owner_id: i32) -> Vec<crate::char
     // The join is two reads instead of one: `character_friends` declares no
     // foreign key, so there is no relation to traverse — and a friend list is a
     // handful of rows.
-    let ids: Vec<i32> = character_friends::Entity::find()
-        .filter(character_friends::Column::CharId.eq(owner_id))
-        .filter(character_friends::Column::Relation.eq(FRIEND_RELATION))
+    let ids: Vec<i32> = entity::character_friends::Entity::find()
+        .filter(entity::character_friends::Column::CharId.eq(owner_id))
+        .filter(entity::character_friends::Column::Relation.eq(FRIEND_RELATION))
         .all(db)
         .await
         .unwrap_or_default()
@@ -981,8 +1018,8 @@ async fn load_quests(
     owner_id: i32,
 ) -> std::collections::HashMap<String, crate::model::quest::QuestState> {
     use crate::model::quest::{QuestState, STATE_VAR, state};
-    let rows = character_quests::Entity::find()
-        .filter(character_quests::Column::CharId.eq(owner_id))
+    let rows = entity::character_quests::Entity::find()
+        .filter(entity::character_quests::Column::CharId.eq(owner_id))
         .all(db)
         .await
         .unwrap_or_default();
@@ -1011,8 +1048,8 @@ async fn load_quests(
 /// `Olympiad.load` — the single `olympiad_data` row (defaults if absent: cycle
 /// 1, period 0) plus every `olympiad_nobles` record.
 pub(crate) async fn load_olympiad(db: &DatabaseConnection) -> DbEvent {
-    let data = olympiad_data::Entity::find()
-        .filter(olympiad_data::Column::Id.eq(0))
+    let data = entity::olympiad_data::Entity::find()
+        .filter(entity::olympiad_data::Column::Id.eq(0))
         .one(db)
         .await
         .ok()
@@ -1028,7 +1065,7 @@ pub(crate) async fn load_olympiad(db: &DatabaseConnection) -> DbEvent {
         // Java's defaults for a database with no olympiad row yet.
         None => (1, 0, 0, 0, 0),
     };
-    let nobles = olympiad_nobles::Entity::find()
+    let nobles = entity::olympiad_nobles::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1059,7 +1096,7 @@ pub(crate) async fn load_olympiad(db: &DatabaseConnection) -> DbEvent {
 /// snapshot, joined to `characters` for the display names exactly as Java's
 /// `GET_EACH_CLASS_LEADER` does. Ranking happens in memory at read time.
 async fn load_olympiad_eom(db: &DatabaseConnection) -> Vec<OlympiadEomRow> {
-    let rows = olympiad_nobles_eom::Entity::find()
+    let rows = entity::olympiad_nobles_eom::Entity::find()
         .all(db)
         .await
         .unwrap_or_default();
@@ -1098,9 +1135,9 @@ async fn load_olympiad_eom(db: &DatabaseConnection) -> Vec<OlympiadEomRow> {
 async fn characters_by_id(
     db: &DatabaseConnection,
     ids: impl IntoIterator<Item = i32>,
-) -> Vec<characters::Model> {
-    characters::Entity::find()
-        .filter(characters::Column::CharId.is_in(ids))
+) -> Vec<entity::characters::Model> {
+    entity::characters::Entity::find()
+        .filter(entity::characters::Column::CharId.is_in(ids))
         .all(db)
         .await
         .unwrap_or_default()
@@ -1110,8 +1147,8 @@ async fn characters_by_id(
 pub(crate) async fn load_heroes(db: &DatabaseConnection) -> Vec<HeroRow> {
     // The name/clan half of the row lives on `characters`; Java reads it
     // through `CharInfoTable` for the same reason there is no FK to follow.
-    let heroes = heroes::Entity::find()
-        .filter(heroes::Column::Played.eq(1))
+    let heroes = entity::heroes::Entity::find()
+        .filter(entity::heroes::Column::Played.eq(1))
         .all(db)
         .await
         .unwrap_or_default();
@@ -1141,8 +1178,8 @@ pub(crate) async fn load_heroes(db: &DatabaseConnection) -> Vec<HeroRow> {
 /// Every hero-diary entry (Java `Hero.loadDiary` per hero, batched here into one
 /// query), oldest first: `(charId, time, action, param)`.
 pub(crate) async fn load_hero_diary(db: &DatabaseConnection) -> Vec<(i32, i64, i8, i32)> {
-    heroes_diary::Entity::find()
-        .order_by_asc(heroes_diary::Column::Time)
+    entity::heroes_diary::Entity::find()
+        .order_by_asc(entity::heroes_diary::Column::Time)
         .all(db)
         .await
         .unwrap_or_default()
@@ -1154,8 +1191,8 @@ pub(crate) async fn load_hero_diary(db: &DatabaseConnection) -> Vec<(i32, i64, i
 pub(crate) async fn load_grandboss_data(
     db: &DatabaseConnection,
 ) -> Vec<crate::model::grand_boss::GrandBoss> {
-    grandboss_data::Entity::find()
-        .order_by_asc(grandboss_data::Column::BossId)
+    entity::grandboss_data::Entity::find()
+        .order_by_asc(entity::grandboss_data::Column::BossId)
         .all(db)
         .await
         .unwrap_or_default()
@@ -1176,7 +1213,7 @@ pub(crate) async fn load_grandboss_data(
 
 /// `CursedWeaponsManager.restore`: every `cursed_weapons` state row.
 pub(crate) async fn load_cursed_weapons(db: &DatabaseConnection) -> Vec<CursedWeaponRow> {
-    cursed_weapons::Entity::find()
+    entity::cursed_weapons::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1198,7 +1235,7 @@ pub(crate) async fn load_cursed_weapons(db: &DatabaseConnection) -> Vec<CursedWe
 /// after parsing the XML. Rows for lists or items the datapack no longer
 /// declares are dropped on the game thread, where the lists are.
 pub(crate) async fn load_buy_list_stock(db: &DatabaseConnection) -> Vec<(i32, i32, i64, i64)> {
-    buylists::Entity::find()
+    entity::buylists::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1227,8 +1264,8 @@ async fn load_guards_where(
     db: &DatabaseConnection,
     is_hired: i32,
 ) -> Vec<(i32, crate::model::siege::SiegeSpawn)> {
-    castle_siege_guards::Entity::find()
-        .filter(castle_siege_guards::Column::IsHired.eq(is_hired))
+    entity::castle_siege_guards::Entity::find()
+        .filter(entity::castle_siege_guards::Column::IsHired.eq(is_hired))
         .all(db)
         .await
         .unwrap_or_default()
@@ -1250,7 +1287,7 @@ async fn load_guards_where(
 
 /// `Siege.loadSiegeClan`: every `siege_clans` row.
 pub(crate) async fn load_siege_clans(db: &DatabaseConnection) -> Vec<SiegeClanRow> {
-    siege_clans::Entity::find()
+    entity::siege_clans::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1266,7 +1303,7 @@ pub(crate) async fn load_siege_clans(db: &DatabaseConnection) -> Vec<SiegeClanRo
 /// `CastleManorManager.loadDb`: the `castle_manor_production` rows (seeds the
 /// manor sells). Missing table → empty (the manor is simply unset).
 pub(crate) async fn load_manor_production(db: &DatabaseConnection) -> Vec<ManorProductionRow> {
-    castle_manor_production::Entity::find()
+    entity::castle_manor_production::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1285,7 +1322,7 @@ pub(crate) async fn load_manor_production(db: &DatabaseConnection) -> Vec<ManorP
 /// `CastleManorManager.loadDb`: the `castle_manor_procure` rows (crops the manor
 /// buys). Missing table → empty.
 pub(crate) async fn load_manor_procure(db: &DatabaseConnection) -> Vec<ManorProcureRow> {
-    castle_manor_procure::Entity::find()
+    entity::castle_manor_procure::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1304,7 +1341,7 @@ pub(crate) async fn load_manor_procure(db: &DatabaseConnection) -> Vec<ManorProc
 
 /// The `clanhall` table — persisted hall ownership (id → owner/paidUntil).
 pub(crate) async fn load_clan_hall_owners(db: &DatabaseConnection) -> Vec<ClanHallRow> {
-    clanhall::Entity::find()
+    entity::clanhall::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1319,7 +1356,7 @@ pub(crate) async fn load_clan_hall_owners(db: &DatabaseConnection) -> Vec<ClanHa
 
 /// The `clanhall_auctions_bidders` table — the live auction bids.
 pub(crate) async fn load_clan_hall_bidders(db: &DatabaseConnection) -> Vec<ClanHallBidRow> {
-    clanhall_auctions_bidders::Entity::find()
+    entity::clanhall_auctions_bidders::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1335,7 +1372,7 @@ pub(crate) async fn load_clan_hall_bidders(db: &DatabaseConnection) -> Vec<ClanH
 
 /// The `residence_functions` table — active hall function upgrades.
 pub(crate) async fn load_residence_functions(db: &DatabaseConnection) -> Vec<ResidenceFunctionRow> {
-    residence_functions::Entity::find()
+    entity::residence_functions::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1352,7 +1389,7 @@ pub(crate) async fn load_residence_functions(db: &DatabaseConnection) -> Vec<Res
 /// `CastleManager.load`: every `castle` row (id/name/side).
 /// `GlobalVariablesManager.restoreMe` — the whole `global_variables` table.
 pub(crate) async fn load_global_variables(db: &DatabaseConnection) -> Vec<(String, String)> {
-    global_variables::Entity::find()
+    entity::global_variables::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1362,8 +1399,8 @@ pub(crate) async fn load_global_variables(db: &DatabaseConnection) -> Vec<(Strin
 }
 
 pub(crate) async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::castle::Castle> {
-    castle::Entity::find()
-        .order_by_asc(castle::Column::Id)
+    entity::castle::Entity::find()
+        .order_by_asc(entity::castle::Column::Id)
         .all(db)
         .await
         .unwrap_or_default()
@@ -1387,7 +1424,7 @@ pub(crate) async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::c
 
 /// The whole `clan_notices` table (Java `Clan.restoreNotice`).
 pub(crate) async fn load_clan_notices(db: &DatabaseConnection) -> Vec<(i32, bool, String)> {
-    clan_notices::Entity::find()
+    entity::clan_notices::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -1397,13 +1434,16 @@ pub(crate) async fn load_clan_notices(db: &DatabaseConnection) -> Vec<(i32, bool
 }
 
 pub(crate) async fn load_clans(db: &DatabaseConnection) -> Vec<crate::model::clan::Clan> {
-    let clan_rows = clan_data::Entity::find().all(db).await.unwrap_or_default();
+    let clan_rows = entity::clan_data::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default();
     let mut out = Vec::with_capacity(clan_rows.len());
     for row in &clan_rows {
         let clan_id = row.clan_id;
 
-        let member_rows = characters::Entity::find()
-            .filter(characters::Column::Clanid.eq(clan_id))
+        let member_rows = entity::characters::Entity::find()
+            .filter(entity::characters::Column::Clanid.eq(clan_id))
             .all(db)
             .await
             .unwrap_or_default();
@@ -1412,9 +1452,9 @@ pub(crate) async fn load_clans(db: &DatabaseConnection) -> Vec<crate::model::cla
         // Clan skills (Java `Clan.restoreSkills`) — the main-pledge set
         // (`sub_pledge_id = -2`); sub-unit skills aren't modelled, so other
         // sub_pledge ids are ignored.
-        let skills = clan_skills::Entity::find()
-            .filter(clan_skills::Column::ClanId.eq(clan_id))
-            .filter(clan_skills::Column::SubPledgeId.is_in([-2, 0]))
+        let skills = entity::clan_skills::Entity::find()
+            .filter(entity::clan_skills::Column::ClanId.eq(clan_id))
+            .filter(entity::clan_skills::Column::SubPledgeId.is_in([-2, 0]))
             .all(db)
             .await
             .unwrap_or_default()
@@ -1422,8 +1462,8 @@ pub(crate) async fn load_clans(db: &DatabaseConnection) -> Vec<crate::model::cla
             .map(|s| (s.skill_id, s.skill_level))
             .collect();
         // Rank → privilege-mask rows (Java `restoreRankPrivs`; rank -1 skipped).
-        let rank_privs = clan_privs::Entity::find()
-            .filter(clan_privs::Column::ClanId.eq(clan_id))
+        let rank_privs = entity::clan_privs::Entity::find()
+            .filter(entity::clan_privs::Column::ClanId.eq(clan_id))
             .all(db)
             .await
             .unwrap_or_default()
@@ -1433,8 +1473,8 @@ pub(crate) async fn load_clans(db: &DatabaseConnection) -> Vec<crate::model::cla
             .collect();
         // Sub-pledges (Java `Clan.restoreSubPledges`).
         let sub_pledges: std::collections::HashMap<i32, crate::model::clan::SubPledge> =
-            clan_subpledges::Entity::find()
-                .filter(clan_subpledges::Column::ClanId.eq(clan_id))
+            entity::clan_subpledges::Entity::find()
+                .filter(entity::clan_subpledges::Column::ClanId.eq(clan_id))
                 .all(db)
                 .await
                 .unwrap_or_default()
@@ -1496,8 +1536,8 @@ pub(crate) async fn load_clans(db: &DatabaseConnection) -> Vec<crate::model::cla
 /// A character's `character_macroses` rows (Java `MacroList.restoreMe`),
 /// commands decoded from the `type,d1,d2[,cmd];…` column encoding.
 async fn load_macros(db: &DatabaseConnection, owner_id: i32) -> Vec<crate::model::shortcut::Macro> {
-    character_macroses::Entity::find()
-        .filter(character_macroses::Column::CharId.eq(owner_id))
+    entity::character_macroses::Entity::find()
+        .filter(entity::character_macroses::Column::CharId.eq(owner_id))
         .all(db)
         .await
         .unwrap_or_default()
@@ -1527,8 +1567,8 @@ fn shortcut_upsert(
     kind: i32,
     shortcut_id: i32,
     level: i32,
-) -> models::sea_orm::Insert<character_shortcuts::ActiveModel> {
-    character_shortcuts::Entity::insert(character_shortcuts::ActiveModel {
+) -> models::sea_orm::Insert<entity::character_shortcuts::ActiveModel> {
+    entity::character_shortcuts::Entity::insert(entity::character_shortcuts::ActiveModel {
         char_id: Set(char_id),
         slot: Set(slot),
         page: Set(page),
@@ -1540,15 +1580,15 @@ fn shortcut_upsert(
     })
     .on_conflict(
         OnConflict::columns([
-            character_shortcuts::Column::CharId,
-            character_shortcuts::Column::Slot,
-            character_shortcuts::Column::Page,
-            character_shortcuts::Column::ClassIndex,
+            entity::character_shortcuts::Column::CharId,
+            entity::character_shortcuts::Column::Slot,
+            entity::character_shortcuts::Column::Page,
+            entity::character_shortcuts::Column::ClassIndex,
         ])
         .update_columns([
-            character_shortcuts::Column::Type,
-            character_shortcuts::Column::ShortcutId,
-            character_shortcuts::Column::Level,
+            entity::character_shortcuts::Column::Type,
+            entity::character_shortcuts::Column::ShortcutId,
+            entity::character_shortcuts::Column::Level,
         ])
         .to_owned(),
     )
@@ -1577,8 +1617,8 @@ async fn upsert_shortcut(
 fn macro_upsert(
     char_id: i32,
     m: &crate::model::shortcut::Macro,
-) -> models::sea_orm::Insert<character_macroses::ActiveModel> {
-    character_macroses::Entity::insert(character_macroses::ActiveModel {
+) -> models::sea_orm::Insert<entity::character_macroses::ActiveModel> {
+    entity::character_macroses::Entity::insert(entity::character_macroses::ActiveModel {
         char_id: Set(char_id),
         id: Set(m.id),
         icon: Set(Some(m.icon)),
@@ -1589,15 +1629,15 @@ fn macro_upsert(
     })
     .on_conflict(
         OnConflict::columns([
-            character_macroses::Column::CharId,
-            character_macroses::Column::Id,
+            entity::character_macroses::Column::CharId,
+            entity::character_macroses::Column::Id,
         ])
         .update_columns([
-            character_macroses::Column::Icon,
-            character_macroses::Column::Name,
-            character_macroses::Column::Descr,
-            character_macroses::Column::Acronym,
-            character_macroses::Column::Commands,
+            entity::character_macroses::Column::Icon,
+            entity::character_macroses::Column::Name,
+            entity::character_macroses::Column::Descr,
+            entity::character_macroses::Column::Acronym,
+            entity::character_macroses::Column::Commands,
         ])
         .to_owned(),
     )
@@ -1615,16 +1655,16 @@ async fn upsert_macro(db: &DatabaseConnection, char_id: i32, m: &crate::model::s
 async fn load_items(db: &DatabaseConnection, owner_id: i32) -> Vec<ItemRow> {
     // Java `PlayerInventory.restore` orders by `loc_data` so a client's saved
     // inventory arrangement (`RequestSaveInventoryOrder`) survives relog.
-    let rows = items::Entity::find()
-        .filter(items::Column::OwnerId.eq(owner_id))
-        .order_by_asc(items::Column::LocData)
+    let rows = entity::items::Entity::find()
+        .filter(entity::items::Column::OwnerId.eq(owner_id))
+        .order_by_asc(entity::items::Column::LocData)
         .all(db)
         .await
         .unwrap_or_default();
     // Augmentations (Java `Item.restoreAttributes`): object_id → (mineral, o1, o2).
     let variations: std::collections::HashMap<i32, (i32, i32, i32)> =
-        item_variations::Entity::find()
-            .filter(item_variations::Column::ItemId.is_in(rows.iter().map(|r| r.object_id)))
+        entity::item_variations::Entity::find()
+            .filter(entity::item_variations::Column::ItemId.is_in(rows.iter().map(|r| r.object_id)))
             .all(db)
             .await
             .unwrap_or_default()
@@ -1659,7 +1699,7 @@ pub(crate) async fn name_exists(db: &DatabaseConnection, name: &str) -> bool {
     // `COLLATE NOCASE` is the point of this query — two characters may not
     // differ only by case — and sea-query cannot attach a collation, so the
     // comparison stays a bound custom expression.
-    characters::Entity::find()
+    entity::characters::Entity::find()
         .filter(Expr::cust_with_values(
             "char_name = ? COLLATE NOCASE",
             [name],
@@ -1704,12 +1744,12 @@ pub(crate) fn item_row_model(
     owner_id: i32,
     it: &ItemRow,
     loc_override: Option<(&str, i32)>,
-) -> items::ActiveModel {
+) -> entity::items::ActiveModel {
     let (loc, loc_data) = match loc_override {
         Some((loc, loc_data)) => (loc.to_string(), loc_data),
         None => (it.loc.clone(), it.loc_data),
     };
-    items::ActiveModel {
+    entity::items::ActiveModel {
         owner_id: Set(Some(owner_id)),
         object_id: Set(it.object_id),
         item_id: Set(Some(it.item_id)),
@@ -1734,8 +1774,8 @@ pub(crate) async fn create_character(
     if name_exists(db, &data.name).await {
         return CreateResult::NameExists;
     }
-    let count = characters::Entity::find()
-        .filter(characters::Column::AccountName.eq(&data.account))
+    let count = entity::characters::Entity::find()
+        .filter(entity::characters::Column::AccountName.eq(&data.account))
         .count(db)
         .await
         .unwrap_or(0) as i64;
@@ -1747,7 +1787,7 @@ pub(crate) async fn create_character(
     *next_id += 1;
     // Columns the template does not set keep their DDL defaults, exactly as the
     // old INSERT's column list did. `createDate` is SQLite's `date('now')`.
-    let row = characters::ActiveModel {
+    let row = entity::characters::ActiveModel {
         account_name: Set(Some(data.account.clone())),
         char_id: Set(char_id as i32),
         char_name: Set(data.name.clone()),
@@ -1782,7 +1822,7 @@ pub(crate) async fn create_character(
         vitality_points: Set(data.vitality_points),
         ..Default::default()
     };
-    if let Err(e) = characters::Entity::insert(row).exec(db).await {
+    if let Err(e) = entity::characters::Entity::insert(row).exec(db).await {
         error!("DB thread: character insert failed: {e}");
         return CreateResult::Fail;
     }
@@ -1792,7 +1832,7 @@ pub(crate) async fn create_character(
     // disconnects back to the lobby.
     insert_or_warn(
         db,
-        character_reco_bonus::Entity::insert(character_reco_bonus::ActiveModel {
+        entity::character_reco_bonus::Entity::insert(entity::character_reco_bonus::ActiveModel {
             char_id: Set(char_id as i32),
             rec_have: Set(0),
             rec_left: Set(20),
@@ -1805,7 +1845,7 @@ pub(crate) async fn create_character(
     for (skill_id, skill_level) in &data.skills {
         insert_or_warn(
             db,
-            character_skills::Entity::insert(character_skills::ActiveModel {
+            entity::character_skills::Entity::insert(entity::character_skills::ActiveModel {
                 char_id: Set(char_id as i32),
                 skill_id: Set(*skill_id),
                 skill_level: Set(*skill_level),
@@ -1832,7 +1872,7 @@ pub(crate) async fn create_character(
         };
         insert_or_warn(
             db,
-            items::Entity::insert(items::ActiveModel {
+            entity::items::Entity::insert(entity::items::ActiveModel {
                 owner_id: Set(Some(char_id as i32)),
                 object_id: Set(item_object_id as i32),
                 item_id: Set(Some(item.item_id)),
@@ -1920,7 +1960,7 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
     // sets it to 1, and char-select doesn't read it — a periodic save of an
     // online player must not diverge from that. Columns left `NotSet` keep
     // their stored values, which is what the old UPDATE's column list did.
-    characters::ActiveModel {
+    entity::characters::ActiveModel {
         char_id: Unchanged(char_id),
         level: Set(Some(b.level)),
         max_hp: Set(Some(b.max_hp)),
@@ -1958,18 +1998,18 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
 
     // character_reco_bonus (Java `Player.storeRecommendations`). `time_left` is
     // always 0 — the reco bonus timer isn't used in Interlude Classic.
-    character_reco_bonus::Entity::insert(character_reco_bonus::ActiveModel {
+    entity::character_reco_bonus::Entity::insert(entity::character_reco_bonus::ActiveModel {
         char_id: Set(char_id),
         rec_have: Set(b.rec_have),
         rec_left: Set(b.rec_left),
         time_left: Set(0),
     })
     .on_conflict(
-        OnConflict::column(character_reco_bonus::Column::CharId)
+        OnConflict::column(entity::character_reco_bonus::Column::CharId)
             .update_columns([
-                character_reco_bonus::Column::RecHave,
-                character_reco_bonus::Column::RecLeft,
-                character_reco_bonus::Column::TimeLeft,
+                entity::character_reco_bonus::Column::RecHave,
+                entity::character_reco_bonus::Column::RecLeft,
+                entity::character_reco_bonus::Column::TimeLeft,
             ])
             .to_owned(),
     )
@@ -1981,12 +2021,12 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
     // `autoSave` gate — the rows then survive untouched until a path that
     // writes them directly (logout, a trade, an enchant) does so.
     if s.store_items {
-        items::Entity::delete_many()
-            .filter(items::Column::OwnerId.eq(char_id))
+        entity::items::Entity::delete_many()
+            .filter(entity::items::Column::OwnerId.eq(char_id))
             .exec(&tx)
             .await?;
         for it in &s.items {
-            items::Entity::insert(item_row_model(char_id, it, None))
+            entity::items::Entity::insert(item_row_model(char_id, it, None))
                 .exec(&tx)
                 .await?;
         }
@@ -1994,8 +2034,10 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
 
     // Augmentations, keyed to the item rows just written (the old statement
     // sub-selected the same set).
-    item_variations::Entity::delete_many()
-        .filter(item_variations::Column::ItemId.is_in(s.items.iter().map(|it| it.object_id)))
+    entity::item_variations::Entity::delete_many()
+        .filter(
+            entity::item_variations::Column::ItemId.is_in(s.items.iter().map(|it| it.object_id)),
+        )
         .exec(&tx)
         .await?;
     for it in s
@@ -2003,7 +2045,7 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         .iter()
         .filter(|it| it.augment_option1 != 0 || it.augment_option2 != 0)
     {
-        item_variations::Entity::insert(item_variations::ActiveModel {
+        entity::item_variations::Entity::insert(entity::item_variations::ActiveModel {
             item_id: Set(it.object_id),
             mineral_id: Set(it.augment_mineral),
             option1: Set(it.augment_option1),
@@ -2013,13 +2055,13 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         .await?;
     }
 
-    character_skills::Entity::delete_many()
-        .filter(character_skills::Column::CharId.eq(char_id))
+    entity::character_skills::Entity::delete_many()
+        .filter(entity::character_skills::Column::CharId.eq(char_id))
         .exec(&tx)
         .await?;
 
-    character_hennas::Entity::delete_many()
-        .filter(character_hennas::Column::CharId.eq(char_id))
+    entity::character_hennas::Entity::delete_many()
+        .filter(entity::character_hennas::Column::CharId.eq(char_id))
         .exec(&tx)
         .await?;
     let mut henna_idx: Vec<(i32, &Vec<(i32, i32)>)> =
@@ -2027,7 +2069,7 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
     henna_idx.push((s.class_index, &s.hennas));
     for (class_index, hennas) in henna_idx {
         for (slot, symbol_id) in hennas {
-            character_hennas::Entity::insert(character_hennas::ActiveModel {
+            entity::character_hennas::Entity::insert(entity::character_hennas::ActiveModel {
                 char_id: Set(char_id),
                 symbol_id: Set(Some(*symbol_id)),
                 slot: Set(*slot),
@@ -2035,11 +2077,11 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
             })
             .on_conflict(
                 OnConflict::columns([
-                    character_hennas::Column::CharId,
-                    character_hennas::Column::Slot,
-                    character_hennas::Column::ClassIndex,
+                    entity::character_hennas::Column::CharId,
+                    entity::character_hennas::Column::Slot,
+                    entity::character_hennas::Column::ClassIndex,
                 ])
-                .update_column(character_hennas::Column::SymbolId)
+                .update_column(entity::character_hennas::Column::SymbolId)
                 .to_owned(),
             )
             .exec(&tx)
@@ -2051,7 +2093,7 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
     per_index.push((s.class_index, &s.skills));
     for (class_index, skills) in per_index {
         for (skill_id, level, sub_level) in skills {
-            character_skills::Entity::insert(character_skills::ActiveModel {
+            entity::character_skills::Entity::insert(entity::character_skills::ActiveModel {
                 char_id: Set(char_id),
                 skill_id: Set(*skill_id),
                 skill_level: Set(*level),
@@ -2060,13 +2102,13 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
             })
             .on_conflict(
                 OnConflict::columns([
-                    character_skills::Column::CharId,
-                    character_skills::Column::SkillId,
-                    character_skills::Column::ClassIndex,
+                    entity::character_skills::Column::CharId,
+                    entity::character_skills::Column::SkillId,
+                    entity::character_skills::Column::ClassIndex,
                 ])
                 .update_columns([
-                    character_skills::Column::SkillLevel,
-                    character_skills::Column::SkillSubLevel,
+                    entity::character_skills::Column::SkillLevel,
+                    entity::character_skills::Column::SkillSubLevel,
                 ])
                 .to_owned(),
             )
@@ -2075,13 +2117,13 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         }
     }
 
-    character_recipebook::Entity::delete_many()
-        .filter(character_recipebook::Column::CharId.eq(char_id))
-        .filter(character_recipebook::Column::ClassIndex.eq(0))
+    entity::character_recipebook::Entity::delete_many()
+        .filter(entity::character_recipebook::Column::CharId.eq(char_id))
+        .filter(entity::character_recipebook::Column::ClassIndex.eq(0))
         .exec(&tx)
         .await?;
     for (list_id, is_dwarven) in &s.recipe_book {
-        character_recipebook::Entity::insert(character_recipebook::ActiveModel {
+        entity::character_recipebook::Entity::insert(entity::character_recipebook::ActiveModel {
             char_id: Set(char_id),
             id: Set((*list_id).into()),
             class_index: Set(0),
@@ -2091,12 +2133,12 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         .await?;
     }
 
-    character_variables::Entity::delete_many()
-        .filter(character_variables::Column::CharId.eq(char_id))
+    entity::character_variables::Entity::delete_many()
+        .filter(entity::character_variables::Column::CharId.eq(char_id))
         .exec(&tx)
         .await?;
     for (var, val) in &s.variables {
-        character_variables::Entity::insert(character_variables::ActiveModel {
+        entity::character_variables::Entity::insert(entity::character_variables::ActiveModel {
             char_id: Set(char_id),
             var: Set(var.clone()),
             val: Set(val.clone()),
@@ -2106,7 +2148,7 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
     }
 
     for pet in &s.pets {
-        pets::Entity::insert(pets::ActiveModel {
+        entity::pets::Entity::insert(entity::pets::ActiveModel {
             item_obj_id: Set(pet.collar_object_id),
             name: Set(Some(pet.name.clone())),
             level: Set(pet.level),
@@ -2119,17 +2161,17 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
             restore: Set(if pet.restore { "true" } else { "false" }.to_string()),
         })
         .on_conflict(
-            OnConflict::column(pets::Column::ItemObjId)
+            OnConflict::column(entity::pets::Column::ItemObjId)
                 .update_columns([
-                    pets::Column::Name,
-                    pets::Column::Level,
-                    pets::Column::CurHp,
-                    pets::Column::CurMp,
-                    pets::Column::Exp,
-                    pets::Column::Sp,
-                    pets::Column::Fed,
-                    pets::Column::OwnerId,
-                    pets::Column::Restore,
+                    entity::pets::Column::Name,
+                    entity::pets::Column::Level,
+                    entity::pets::Column::CurHp,
+                    entity::pets::Column::CurMp,
+                    entity::pets::Column::Exp,
+                    entity::pets::Column::Sp,
+                    entity::pets::Column::Fed,
+                    entity::pets::Column::OwnerId,
+                    entity::pets::Column::Restore,
                 ])
                 .to_owned(),
         )
@@ -2139,12 +2181,12 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
 
     // Summons are best-effort, as they were before: a servitor that fails to
     // persist costs a resummon, and must not roll back the character save.
-    let _ = character_summons::Entity::delete_many()
-        .filter(character_summons::Column::OwnerId.eq(char_id))
+    let _ = entity::character_summons::Entity::delete_many()
+        .filter(entity::character_summons::Column::OwnerId.eq(char_id))
         .exec(&tx)
         .await;
     for summon in &s.summons {
-        let _ = character_summons::Entity::insert(character_summons::ActiveModel {
+        let _ = entity::character_summons::Entity::insert(entity::character_summons::ActiveModel {
             owner_id: Set(char_id),
             summon_id: Set(0),
             summon_skill_id: Set(summon.summon_skill_id),
@@ -2154,15 +2196,18 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         })
         .exec(&tx)
         .await;
-        let _ = character_summon_skills_save::Entity::delete_many()
-            .filter(character_summon_skills_save::Column::OwnerId.eq(char_id))
-            .filter(character_summon_skills_save::Column::OwnerClassIndex.eq(0))
-            .filter(character_summon_skills_save::Column::SummonSkillId.eq(summon.summon_skill_id))
+        let _ = entity::character_summon_skills_save::Entity::delete_many()
+            .filter(entity::character_summon_skills_save::Column::OwnerId.eq(char_id))
+            .filter(entity::character_summon_skills_save::Column::OwnerClassIndex.eq(0))
+            .filter(
+                entity::character_summon_skills_save::Column::SummonSkillId
+                    .eq(summon.summon_skill_id),
+            )
             .exec(&tx)
             .await;
         for (i, buff) in summon.buffs.iter().enumerate() {
-            let _ = character_summon_skills_save::Entity::insert(
-                character_summon_skills_save::ActiveModel {
+            let _ = entity::character_summon_skills_save::Entity::insert(
+                entity::character_summon_skills_save::ActiveModel {
                     owner_id: Set(char_id),
                     owner_class_index: Set(0),
                     summon_skill_id: Set(summon.summon_skill_id),
@@ -2178,8 +2223,8 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         }
     }
 
-    character_shortcuts::Entity::delete_many()
-        .filter(character_shortcuts::Column::CharId.eq(char_id))
+    entity::character_shortcuts::Entity::delete_many()
+        .filter(entity::character_shortcuts::Column::CharId.eq(char_id))
         .exec(&tx)
         .await?;
     let mut sc_idx: Vec<(i32, &Vec<crate::model::shortcut::Shortcut>)> =
@@ -2201,16 +2246,16 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         }
     }
 
-    character_macroses::Entity::delete_many()
-        .filter(character_macroses::Column::CharId.eq(char_id))
+    entity::character_macroses::Entity::delete_many()
+        .filter(entity::character_macroses::Column::CharId.eq(char_id))
         .exec(&tx)
         .await?;
     for m in &s.macros {
         macro_upsert(char_id, m).exec(&tx).await?;
     }
 
-    character_quests::Entity::delete_many()
-        .filter(character_quests::Column::CharId.eq(char_id))
+    entity::character_quests::Entity::delete_many()
+        .filter(entity::character_quests::Column::CharId.eq(char_id))
         .exec(&tx)
         .await?;
     for (name, qs) in &s.quests {
@@ -2218,7 +2263,7 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         if qs.state == state::CREATED && qs.vars.is_empty() {
             continue;
         }
-        character_quests::Entity::insert(character_quests::ActiveModel {
+        entity::character_quests::Entity::insert(entity::character_quests::ActiveModel {
             char_id: Set(char_id),
             name: Set(name.clone()),
             var: Set(STATE_VAR.to_string()),
@@ -2227,7 +2272,7 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         .exec(&tx)
         .await?;
         for (var, value) in &qs.vars {
-            character_quests::Entity::insert(character_quests::ActiveModel {
+            entity::character_quests::Entity::insert(entity::character_quests::ActiveModel {
                 char_id: Set(char_id),
                 name: Set(name.clone()),
                 var: Set(var.clone()),
@@ -2238,13 +2283,13 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         }
     }
 
-    character_skills_save::Entity::delete_many()
-        .filter(character_skills_save::Column::CharId.eq(char_id))
-        .filter(character_skills_save::Column::ClassIndex.eq(s.class_index))
+    entity::character_skills_save::Entity::delete_many()
+        .filter(entity::character_skills_save::Column::CharId.eq(char_id))
+        .filter(entity::character_skills_save::Column::ClassIndex.eq(s.class_index))
         .exec(&tx)
         .await?;
     for (i, b) in s.skill_buffs.iter().enumerate() {
-        character_skills_save::Entity::insert(character_skills_save::ActiveModel {
+        entity::character_skills_save::Entity::insert(entity::character_skills_save::ActiveModel {
             char_id: Set(char_id),
             skill_id: Set(b.skill_id),
             skill_level: Set(b.skill_level),
@@ -2261,7 +2306,7 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
     }
     let buff_rows = s.skill_buffs.len() as i32;
     for (i, r) in s.skill_reuses.iter().enumerate() {
-        character_skills_save::Entity::insert(character_skills_save::ActiveModel {
+        entity::character_skills_save::Entity::insert(entity::character_skills_save::ActiveModel {
             char_id: Set(char_id),
             skill_id: Set(r.reuse_key),
             skill_level: Set(r.skill_level),
@@ -2288,8 +2333,8 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
 /// char-select list the client sees on entry (the port has no separate global
 /// expired-char sweep, so counting raw rows would over-report).
 pub(crate) async fn count_characters(db: &DatabaseConnection, account: &str) -> (u8, Vec<i64>) {
-    let rows = characters::Entity::find()
-        .filter(characters::Column::AccountName.eq(account))
+    let rows = entity::characters::Entity::find()
+        .filter(entity::characters::Column::AccountName.eq(account))
         .all(db)
         .await
         .unwrap_or_default();
@@ -2310,7 +2355,10 @@ pub(crate) async fn count_characters(db: &DatabaseConnection, account: &str) -> 
 }
 
 pub(crate) async fn delete_char(db: &DatabaseConnection, char_id: i32) {
-    if let Err(e) = characters::Entity::delete_by_id(char_id).exec(db).await {
+    if let Err(e) = entity::characters::Entity::delete_by_id(char_id)
+        .exec(db)
+        .await
+    {
         warn!("DB thread: delete_char failed: {e}");
     }
 }
@@ -2326,7 +2374,7 @@ pub(crate) async fn load_clan_wars(db: &DatabaseConnection) -> Vec<crate::model:
     fn id(raw: &str) -> i32 {
         raw.trim().parse().unwrap_or(0)
     }
-    clan_wars::Entity::find()
+    entity::clan_wars::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -2346,7 +2394,7 @@ pub(crate) async fn load_clan_wars(db: &DatabaseConnection) -> Vec<crate::model:
 
 /// `CrestTable.load` — every stored crest bitmap (`crests` table).
 pub(crate) async fn load_crests(db: &DatabaseConnection) -> Vec<crate::model::clan::Crest> {
-    crests::Entity::find()
+    entity::crests::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -2365,7 +2413,7 @@ pub(crate) async fn load_crests(db: &DatabaseConnection) -> Vec<crate::model::cl
 pub(crate) async fn load_recruit_clans(
     db: &DatabaseConnection,
 ) -> Vec<crate::model::clan_entry::PledgeRecruitInfo> {
-    pledge_recruit::Entity::find()
+    entity::pledge_recruit::Entity::find()
         .all(db)
         .await
         .unwrap_or_default()
@@ -2386,7 +2434,7 @@ pub(crate) async fn load_recruit_clans(
 pub(crate) async fn load_recruit_waiting(
     db: &DatabaseConnection,
 ) -> Vec<crate::model::clan_entry::PledgeWaitingInfo> {
-    let waiting = pledge_waiting_list::Entity::find()
+    let waiting = entity::pledge_waiting_list::Entity::find()
         .all(db)
         .await
         .unwrap_or_default();
@@ -2415,7 +2463,7 @@ pub(crate) async fn load_recruit_waiting(
 pub(crate) async fn load_recruit_applicants(
     db: &DatabaseConnection,
 ) -> Vec<crate::model::clan_entry::PledgeApplicantInfo> {
-    let applicants = pledge_applicant::Entity::find()
+    let applicants = entity::pledge_applicant::Entity::find()
         .all(db)
         .await
         .unwrap_or_default();
@@ -2441,7 +2489,7 @@ pub(crate) async fn load_recruit_applicants(
 
 /// `ItemsOnGroundManager.load()`'s `SELECT` — every persisted ground item.
 pub(crate) async fn load_ground_items(db: &DatabaseConnection) -> Vec<GroundItemRow> {
-    match itemsonground::Entity::find().all(db).await {
+    match entity::itemsonground::Entity::find().all(db).await {
         Ok(rows) => rows
             .into_iter()
             .map(|r| GroundItemRow {
@@ -2465,7 +2513,7 @@ pub(crate) async fn load_ground_items(db: &DatabaseConnection) -> Vec<GroundItem
 
 /// `ItemsOnGroundManager.emptyTable()`.
 pub(crate) async fn clear_ground_items(db: &DatabaseConnection) {
-    warn_err(itemsonground::Entity::delete_many().exec(db).await);
+    warn_err(entity::itemsonground::Entity::delete_many().exec(db).await);
 }
 
 /// `ItemsOnGroundManager.run()` — empty, then reinsert the live set. Java does
@@ -2482,7 +2530,7 @@ pub(crate) async fn store_ground_items(db: &DatabaseConnection, items: &[GroundI
     };
     for it in items {
         warn_err(
-            itemsonground::Entity::insert(itemsonground::ActiveModel {
+            entity::itemsonground::Entity::insert(entity::itemsonground::ActiveModel {
                 object_id: Set(it.object_id),
                 item_id: Set(Some(it.item_id)),
                 count: Set(it.count),

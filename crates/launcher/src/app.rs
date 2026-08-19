@@ -10,8 +10,6 @@
 use std::sync::mpsc;
 use std::thread;
 
-use egui::{Align, Color32, Layout, Pos2, Rect, Vec2, ViewportCommand};
-
 use crate::assets::Assets;
 use crate::config::{self, Config};
 use crate::install::{self, Cancel, InstallRequest};
@@ -42,7 +40,7 @@ const STATUS_HEIGHT: f32 = 20.0;
 
 /// Secondary actions (Reinstall, Cancel) match the primary button's height so a row
 /// of them lines up.
-const SECONDARY_BUTTON: Vec2 = Vec2::new(140.0, 46.0);
+const SECONDARY_BUTTON: egui::Vec2 = egui::Vec2::new(140.0, 46.0);
 /// Play + gap + Reinstall, used to centre that row.
 const ACTION_ROW_WIDTH: f32 = 190.0 + 10.0 + 140.0;
 
@@ -264,40 +262,43 @@ impl LauncherApp {
 
     /// Undecorated windows have no OS title bar, so this provides the drag region
     /// and the window buttons.
-    fn title_bar(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, screen: Rect) {
-        let bar = Rect::from_min_size(screen.min, Vec2::new(screen.width(), TITLE_BAR_HEIGHT));
+    fn title_bar(&mut self, ui: &mut egui::Ui, ctx: &egui::Context, screen: egui::Rect) {
+        let bar = egui::Rect::from_min_size(
+            screen.min,
+            egui::Vec2::new(screen.width(), TITLE_BAR_HEIGHT),
+        );
         let response = ui.interact(
             bar,
             ui.id().with("title_bar"),
             egui::Sense::click_and_drag(),
         );
         if response.drag_started() {
-            ctx.send_viewport_cmd(ViewportCommand::StartDrag);
+            ctx.send_viewport_cmd(egui::ViewportCommand::StartDrag);
         }
 
         let mut bar_ui = ui.new_child(
             egui::UiBuilder::new()
-                .max_rect(bar.shrink2(Vec2::new(12.0, 6.0)))
-                .layout(Layout::right_to_left(Align::Center)),
+                .max_rect(bar.shrink2(egui::Vec2::new(12.0, 6.0)))
+                .layout(egui::Layout::right_to_left(egui::Align::Center)),
         );
         // `×` (U+00D7) rather than `✕` (U+2715): the latter is not in egui's default
         // font and renders as a tofu box.
         if window_button(&mut bar_ui, "×", palette::DANGER).clicked() {
-            ctx.send_viewport_cmd(ViewportCommand::Close);
+            ctx.send_viewport_cmd(egui::ViewportCommand::Close);
         }
         if window_button(&mut bar_ui, "—", palette::TEXT_WEAK).clicked() {
-            ctx.send_viewport_cmd(ViewportCommand::Minimized(true));
+            ctx.send_viewport_cmd(egui::ViewportCommand::Minimized(true));
         }
     }
 
     fn logo(&mut self, ui: &mut egui::Ui) {
-        let size = Vec2::new(LOGO_WIDTH, LOGO_WIDTH / LOGO_ASPECT);
+        let size = egui::Vec2::new(LOGO_WIDTH, LOGO_WIDTH / LOGO_ASPECT);
         let (rect, _) = ui.allocate_exact_size(size, egui::Sense::hover());
         ui.painter().image(
             self.assets.logo.id(),
             rect,
-            Rect::from_min_max(Pos2::ZERO, Pos2::new(1.0, 1.0)),
-            Color32::WHITE,
+            egui::Rect::from_min_max(egui::Pos2::ZERO, egui::Pos2::new(1.0, 1.0)),
+            egui::Color32::WHITE,
         );
     }
 
@@ -323,7 +324,7 @@ impl LauncherApp {
     fn status_line(&mut self, ui: &mut egui::Ui) {
         let width = ui.available_width();
         let Some(status) = self.status.clone() else {
-            ui.allocate_exact_size(Vec2::new(width, STATUS_HEIGHT), egui::Sense::hover());
+            ui.allocate_exact_size(egui::Vec2::new(width, STATUS_HEIGHT), egui::Sense::hover());
             return;
         };
 
@@ -333,7 +334,7 @@ impl LauncherApp {
             palette::TEXT_WEAK
         };
         ui.add_sized(
-            Vec2::new(width, STATUS_HEIGHT),
+            egui::Vec2::new(width, STATUS_HEIGHT),
             egui::Label::new(egui::RichText::new(&status).size(13.0).color(colour)).truncate(),
         )
         .on_hover_text(&status);
@@ -347,7 +348,7 @@ impl LauncherApp {
                     .color(palette::TEXT_WEAK),
             );
             // Right-aligned so the button keeps its position regardless of path length.
-            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 // Changing the target mid-download would strand a partial install.
                 if theme::ghost_button(ui, "Change…", !self.busy()).clicked() {
                     self.pick_install_dir();
@@ -391,7 +392,7 @@ impl LauncherApp {
 
         ui.horizontal(|ui| {
             ui.label(egui::RichText::new(caption).size(13.0));
-            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 ui.label(
                     egui::RichText::new(detail)
                         .size(13.0)
@@ -449,12 +450,12 @@ impl LauncherApp {
 
 /// Small square title-bar button. Tinted on hover only, so the bar stays quiet —
 /// the tint fades in and out rather than snapping.
-fn window_button(ui: &mut egui::Ui, glyph: &str, hover_colour: Color32) -> egui::Response {
+fn window_button(ui: &mut egui::Ui, glyph: &str, hover_colour: egui::Color32) -> egui::Response {
     let response = ui.add(
         egui::Button::new(egui::RichText::new(glyph).size(15.0))
-            .fill(Color32::TRANSPARENT)
+            .fill(egui::Color32::TRANSPARENT)
             .stroke(egui::Stroke::NONE)
-            .min_size(Vec2::new(26.0, 26.0)),
+            .min_size(egui::Vec2::new(26.0, 26.0)),
     );
     let hover =
         ui.ctx()

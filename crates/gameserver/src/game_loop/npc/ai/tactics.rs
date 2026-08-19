@@ -1,7 +1,21 @@
 //! Attack-think tactics: unstacking piled mobs, archer back-off and raid
 //! target chaos. All share the "did I end this think?" bool contract.
 
-use super::*;
+use super::move_npc_to;
+use super::target_reconsider_random;
+use crate::data::npc_data::AiType;
+use crate::game_loop::abnormal;
+use crate::game_loop::combat;
+use crate::game_loop::helpers::hp_fraction;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::minions::MinionOf;
+use crate::game_loop::minions::Minions;
+use crate::model::components::Position;
+use crate::model::components::Vitals;
+use crate::model::npc::AggroList;
+use crate::model::npc::NpcAi;
+use crate::world::World;
 /// `npc.getAiType()`, defaulting to `FIGHTER` for a template we can't read.
 pub(super) fn ai_type_of(world: &World, npc_oid: i32) -> AiType {
     npc_template(world, npc_oid)

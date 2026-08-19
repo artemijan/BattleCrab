@@ -1,8 +1,8 @@
 //! `QuestCtx` player-side predicates and state: clan/race/class checks,
 //! player variables, memo state, radar and teleports.
 
-use super::*;
-
+use super::QuestCtx;
+use crate::network::server_packets;
 impl<'w> QuestCtx<'w> {
     /// Java `isOwningClan` — the player's clan is `owner_id`.
     ///

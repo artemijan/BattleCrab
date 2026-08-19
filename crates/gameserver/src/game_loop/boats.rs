@@ -23,9 +23,8 @@ use crate::enums::ChatType;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::{send_inventory_update, set_position};
 use crate::geo::distance::{dist3d_xyz, distance_2d_xy};
-use crate::model::boat::{
-    Boat, DockSchedule, DwellStage, Fare, InVehicle, RouteDef, RouteId, VehiclePathPoint,
-};
+use crate::model::boat;
+
 use crate::model::components::{Position, RegionCell};
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
@@ -35,8 +34,8 @@ use super::helpers::broadcast_near_region;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::scheduler::ms_to_ticks;
 
-fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> VehiclePathPoint {
-    VehiclePathPoint {
+fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> boat::VehiclePathPoint {
+    boat::VehiclePathPoint {
         x,
         y,
         z,
@@ -58,8 +57,8 @@ fn dka(
     move_speed: i32,
     rotation_speed: i32,
     schedule: u16,
-) -> VehiclePathPoint {
-    VehiclePathPoint {
+) -> boat::VehiclePathPoint {
+    boat::VehiclePathPoint {
         x,
         y,
         z,
@@ -79,8 +78,8 @@ const DWELL_MS: u64 = 60_000;
 const BOAT_CHAR_ID: i32 = 801;
 
 /// One dwell stage: shout `messages`, then wait `then_ms`.
-fn stage(messages: &[u32], then_ms: u64) -> DwellStage {
-    DwellStage {
+fn stage(messages: &[u32], then_ms: u64) -> boat::DwellStage {
+    boat::DwellStage {
         messages: messages.to_vec(),
         then_ms,
     }
@@ -98,15 +97,15 @@ fn shouts(list: &[(u64, &[u32])]) -> Vec<(u64, Vec<u32>)> {
 /// lines, then the 5-minute / 1-minute / "leaving soon" warnings, then the
 /// "leaving now" shout after which the ferry departs.
 fn ten_minute_dwell(
-    fare: Fare,
+    fare: boat::Fare,
     voyage: &[(u64, &[u32])],
     arrival: &[u32],
     leave_5min: &[u32],
     leave_1min: &[u32],
     leaving_soon: &[u32],
     leaving_now: &[u32],
-) -> DockSchedule {
-    DockSchedule {
+) -> boat::DockSchedule {
+    boat::DockSchedule {
         char_id: BOAT_CHAR_ID,
         fare,
         voyage: shouts(voyage),
@@ -122,8 +121,8 @@ fn ten_minute_dwell(
 
 /// The 3-minute dwell of the Rune ↔ Primeval ferry (Java `BoatRunePrimeval`):
 /// the "arrived" lines, then after 3 minutes the "now departing" shout + depart.
-fn three_minute_dwell(fare: Fare, arrival: &[u32], leaving: &[u32]) -> DockSchedule {
-    DockSchedule {
+fn three_minute_dwell(fare: boat::Fare, arrival: &[u32], leaving: &[u32]) -> boat::DockSchedule {
+    boat::DockSchedule {
         char_id: BOAT_CHAR_ID,
         fare,
         voyage: Vec::new(), // Rune↔Primeval makes no in-transit announcements
@@ -132,8 +131,8 @@ fn three_minute_dwell(fare: Fare, arrival: &[u32], leaving: &[u32]) -> DockSched
 }
 
 /// A boat-ticket fare (`payForRide(itemId, 1, oustX, oustY, oustZ)`).
-const fn fare(ticket_item_id: i32, oust_x: i32, oust_y: i32, oust_z: i32) -> Fare {
-    Fare {
+const fn fare(ticket_item_id: i32, oust_x: i32, oust_y: i32, oust_z: i32) -> boat::Fare {
+    boat::Fare {
         ticket_item_id,
         oust_x,
         oust_y,
@@ -170,7 +169,7 @@ const V_INNADRIL_TOUR: &[(u64, &[u32])] = &[
 /// The Talking Island ↔ Gludin ferry (Java `BoatTalkingGludin`), all legs
 /// flattened into one cycle: Talking → Gludin dock → Gludin → Talking dock.
 /// 983 = "make haste to board".
-fn talking_gludin() -> RouteDef {
+fn talking_gludin() -> boat::RouteDef {
     let gludin = ten_minute_dwell(
         fare(1075, -90015, 150422, -3610),
         V_GLUDIN_TO_TALKING,
@@ -189,7 +188,7 @@ fn talking_gludin() -> RouteDef {
         &[984],
         &[985],
     ); // leaves for Gludin
-    RouteDef {
+    boat::RouteDef {
         waypoints: vec![
             vp(-121385, 261660, -3610, 180, 800),
             vp(-127694, 253312, -3610, 200, 800),
@@ -218,7 +217,7 @@ fn talking_gludin() -> RouteDef {
 }
 
 /// Giran <-> Talking Island ferry (`BoatGiranTalking`) — no "make haste" line.
-fn giran_talking() -> RouteDef {
+fn giran_talking() -> boat::RouteDef {
     let talking = ten_minute_dwell(
         fare(3945, -96777, 258970, -3623),
         V_TALKING_TO_GIRAN,
@@ -237,7 +236,7 @@ fn giran_talking() -> RouteDef {
         &[990],
         &[991],
     ); // leaves for Talking
-    RouteDef {
+    boat::RouteDef {
         waypoints: vec![
             vp(51914, 189023, -3610, 150, 800),
             vp(60567, 189789, -3610, 150, 800),
@@ -284,7 +283,7 @@ fn giran_talking() -> RouteDef {
 
 /// Innadril scenic tour (`BoatInnadrilTour`) — a single-harbor loop, free
 /// passage (ticket id 0).
-fn innadril_tour() -> RouteDef {
+fn innadril_tour() -> boat::RouteDef {
     let innadril = ten_minute_dwell(
         fare(0, 107092, 219098, -3952),
         V_INNADRIL_TOUR,
@@ -294,7 +293,7 @@ fn innadril_tour() -> RouteDef {
         &[1001],
         &[1002],
     );
-    RouteDef {
+    boat::RouteDef {
         waypoints: vec![
             vp(105129, 226240, -3610, 150, 800),
             vp(90604, 238797, -3610, 150, 800),
@@ -335,10 +334,10 @@ fn innadril_tour() -> RouteDef {
 
 /// Rune <-> Primeval Isle ferry (`BoatRunePrimeval`). 1620 = "Welcome to Rune
 /// Harbor".
-fn rune_primeval() -> RouteDef {
+fn rune_primeval() -> boat::RouteDef {
     let primeval = three_minute_dwell(fare(8924, 10447, -24982, -3664), &[1988, 1991], &[1990]); // leaves for Rune
     let rune = three_minute_dwell(fare(8925, 34513, -38009, -3640), &[1620, 1989], &[1992]); // leaves for Primeval
-    RouteDef {
+    boat::RouteDef {
         waypoints: vec![
             vp(32750, -39300, -3610, 180, 800),
             vp(27440, -39328, -3610, 250, 1000),
@@ -389,7 +388,7 @@ pub(crate) fn spawn_boats(world: &mut World) {
 
 /// Spawn one ferry docked at its last waypoint and set it sailing; returns the
 /// boat's object id.
-pub(crate) fn spawn_boat(world: &mut World, route: RouteId) -> i32 {
+pub(crate) fn spawn_boat(world: &mut World, route: boat::RouteId) -> i32 {
     let oid = world.next_npc_object_id;
     world.next_npc_object_id += 1;
     // Start at the last waypoint. If it's a harbor, anchor there (leg points at
@@ -402,7 +401,7 @@ pub(crate) fn spawn_boat(world: &mut World, route: RouteId) -> i32 {
     world.objects.spawn(
         oid,
         (
-            Boat {
+            boat::Boat {
                 route,
                 leg,
                 heading: 0,
@@ -429,14 +428,14 @@ pub(crate) fn spawn_boat(world: &mut World, route: RouteId) -> i32 {
 }
 
 /// The waypoint the ferry is currently sailing toward (or anchored at).
-fn target_of(world: &World, boat_oid: i32) -> Option<VehiclePathPoint> {
-    let b = world.objects.get_component::<Boat>(&boat_oid)?;
+fn target_of(world: &World, boat_oid: i32) -> Option<boat::VehiclePathPoint> {
+    let b = world.objects.get_component::<boat::Boat>(&boat_oid)?;
     Some(b.target(world.boat_routes.get(b.route)))
 }
 
 /// Advance the ferry to the next waypoint of its cycle.
 fn advance_boat(world: &mut World, boat_oid: i32) {
-    if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
+    if let Some(b) = world.objects.get_component_mut::<boat::Boat>(&boat_oid) {
         b.advance(world.boat_routes.get(b.route));
     }
 }
@@ -457,7 +456,7 @@ fn begin_dwell(world: &mut World, boat_oid: i32) {
 /// `broadcastPacket(fromDock, toDock, ...)`). A single-harbor tour returns
 /// its own dock.
 fn next_dock(world: &World, boat_oid: i32) -> Option<(i32, i32)> {
-    let boat = world.objects.get_component::<Boat>(&boat_oid)?;
+    let boat = world.objects.get_component::<boat::Boat>(&boat_oid)?;
     let waypoints = &world.boat_routes.get(boat.route).waypoints;
     let n = waypoints.len();
     (1..=n)
@@ -470,7 +469,7 @@ fn next_dock(world: &World, boat_oid: i32) -> Option<(i32, i32)> {
 /// harbor and the destination harbor), then schedule the next stage — or depart
 /// after the last one. Driven by the `BoatDwellStage` scheduler task.
 pub(crate) fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize) {
-    let Some(boat) = world.objects.get_component::<Boat>(&boat_oid) else {
+    let Some(boat) = world.objects.get_component::<boat::Boat>(&boat_oid) else {
         return;
     };
     let route = world.boat_routes.get(boat.route);
@@ -528,9 +527,9 @@ fn schedule_depart(world: &mut World, boat_oid: i32) {
 pub(crate) fn depart(world: &mut World, boat_oid: i32) {
     // Capture the departing dock's fare and voyage shout delays (by schedule
     // index, for the scheduler tasks) before advancing off it.
-    let dock_info: Option<(u16, Fare, Vec<u64>)> = world
+    let dock_info: Option<(u16, boat::Fare, Vec<u64>)> = world
         .objects
-        .get_component::<Boat>(&boat_oid)
+        .get_component::<boat::Boat>(&boat_oid)
         .and_then(|b| {
             let route = world.boat_routes.get(b.route);
             b.target(route).schedule.map(|si| {
@@ -567,7 +566,7 @@ pub(crate) fn depart(world: &mut World, boat_oid: i32) {
 /// schedule/shout index into the boat's route. Skipped if the ferry has already
 /// docked (a late shout from the previous leg).
 pub(crate) fn handle_voyage_shout(world: &mut World, boat_oid: i32, schedule: u16, shout: u16) {
-    let Some(boat) = world.objects.get_component::<Boat>(&boat_oid) else {
+    let Some(boat) = world.objects.get_component::<boat::Boat>(&boat_oid) else {
         return;
     };
     if !boat.moving {
@@ -589,7 +588,7 @@ pub(crate) fn handle_voyage_shout(world: &mut World, boat_oid: i32, schedule: u1
 /// Broadcast to the region around every harbor on the ferry's route (Java sends
 /// arrival announcements to both the source and destination docks).
 fn broadcast_to_route_docks(world: &World, boat_oid: i32, packet: &[u8]) {
-    let Some(boat) = world.objects.get_component::<Boat>(&boat_oid) else {
+    let Some(boat) = world.objects.get_component::<boat::Boat>(&boat_oid) else {
         return;
     };
     let mut regions: Vec<(i32, i32)> = Vec::new();
@@ -608,7 +607,7 @@ fn broadcast_to_route_docks(world: &World, boat_oid: i32, packet: &[u8]) {
 /// `Vehicle.payForRide`: charge each rider the boat ticket as the ferry leaves.
 /// A rider who holds the ticket has one consumed (free for Innadril, ticket id
 /// 0); one who does not is told so and put ashore at the harbor.
-fn pay_for_ride(world: &mut World, boat_oid: i32, fare: Fare) {
+fn pay_for_ride(world: &mut World, boat_oid: i32, fare: boat::Fare) {
     // The ticket item id 0 means free passage — nobody is charged or ousted.
     if fare.ticket_item_id == 0 {
         return;
@@ -639,7 +638,7 @@ fn collect_riders(world: &mut World, boat_oid: i32) -> Vec<i32> {
     let mut riders = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::Player, &InVehicle)>(|(p, v)| {
+        .for_each_mut::<(&crate::model::Player, &boat::InVehicle)>(|(p, v)| {
             if v.boat_object_id == boat_oid {
                 riders.push(p.object_id);
             }
@@ -649,8 +648,8 @@ fn collect_riders(world: &mut World, boat_oid: i32) -> Vec<i32> {
 
 /// Put a ticketless rider ashore: drop them from the boat and teleport them to
 /// the harbor `oust` location.
-fn oust_rider(world: &mut World, player: i32, boat_oid: i32, fare: Fare) {
-    world.objects.remove_component::<InVehicle>(&player);
+fn oust_rider(world: &mut World, player: i32, boat_oid: i32, fare: boat::Fare) {
+    world.objects.remove_component::<boat::InVehicle>(&player);
     let off = sp::get_off_vehicle(player, boat_oid, fare.oust_x, fare.oust_y, fare.oust_z);
     crate::game_loop::helpers::broadcast_including_self(world, player, &off);
     crate::game_loop::death::teleport_player(world, player, fare.oust_x, fare.oust_y, fare.oust_z);
@@ -664,7 +663,7 @@ fn move_to_next(world: &mut World, boat_oid: i32) {
         return;
     };
     let heading = heading_toward(cur.x, cur.y, target.x, target.y);
-    if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
+    if let Some(b) = world.objects.get_component_mut::<boat::Boat>(&boat_oid) {
         b.heading = heading;
         b.moving = true;
     }
@@ -702,7 +701,7 @@ pub(crate) fn handle_arrive(world: &mut World, boat_oid: i32) {
     };
     let heading = world
         .objects
-        .get_component::<Boat>(&boat_oid)
+        .get_component::<boat::Boat>(&boat_oid)
         .map(|b| b.heading)
         .unwrap_or(0);
     set_position(world, boat_oid, (target.x, target.y, target.z));
@@ -718,7 +717,7 @@ pub(crate) fn handle_arrive(world: &mut World, boat_oid: i32) {
     // At a harbor: anchor (leg stays on the dock so its dwell schedule resolves)
     // and begin the dwell. Elsewhere: advance the cycle and sail on.
     if target.dock {
-        if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
+        if let Some(b) = world.objects.get_component_mut::<boat::Boat>(&boat_oid) {
             b.moving = false;
         }
         begin_dwell(world, boat_oid);
@@ -733,7 +732,7 @@ fn move_passengers(world: &mut World, boat_oid: i32, bx: i32, by: i32, bz: i32) 
     let mut riders: Vec<(i32, (i32, i32, i32))> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&crate::model::Player, &InVehicle)>(|(p, v)| {
+        .for_each_mut::<(&crate::model::Player, &boat::InVehicle)>(|(p, v)| {
             if v.boat_object_id == boat_oid {
                 riders.push((p.object_id, (v.seat_x, v.seat_y, v.seat_z)));
             }
@@ -748,7 +747,11 @@ fn move_passengers(world: &mut World, boat_oid: i32, bx: i32, by: i32, bz: i32) 
 /// `seat` is the seat position relative to the boat.
 pub(crate) fn board(world: &mut World, player: i32, boat_oid: i32, seat: (i32, i32, i32)) {
     // Not already aboard.
-    if world.objects.get_component::<InVehicle>(&player).is_some() {
+    if world
+        .objects
+        .get_component::<boat::InVehicle>(&player)
+        .is_some()
+    {
         return;
     }
     let Some((bx, by, bz, moving)) = boat_state(world, boat_oid) else {
@@ -765,7 +768,7 @@ pub(crate) fn board(world: &mut World, player: i32, boat_oid: i32, seat: (i32, i
     }
     world.objects.add_components(
         &player,
-        InVehicle {
+        boat::InVehicle {
             boat_object_id: boat_oid,
             seat_x: seat.0,
             seat_y: seat.1,
@@ -780,7 +783,11 @@ pub(crate) fn board(world: &mut World, player: i32, boat_oid: i32, seat: (i32, i
 /// `RequestGetOffVehicle`: step off onto the dock at `(x,y,z)`. Only while the
 /// boat this player rides is anchored.
 pub(crate) fn disembark(world: &mut World, player: i32, boat_oid: i32, exit: (i32, i32, i32)) {
-    let Some(iv) = world.objects.get_component::<InVehicle>(&player).copied() else {
+    let Some(iv) = world
+        .objects
+        .get_component::<boat::InVehicle>(&player)
+        .copied()
+    else {
         return;
     };
     if iv.boat_object_id != boat_oid {
@@ -789,7 +796,7 @@ pub(crate) fn disembark(world: &mut World, player: i32, boat_oid: i32, exit: (i3
     if boat_state(world, boat_oid).is_some_and(|(_, _, _, moving)| moving) {
         return;
     }
-    world.objects.remove_component::<InVehicle>(&player);
+    world.objects.remove_component::<boat::InVehicle>(&player);
     set_position(world, player, (exit.0, exit.1, exit.2));
     let pkt = sp::get_off_vehicle(player, boat_oid, exit.0, exit.1, exit.2);
     crate::game_loop::helpers::broadcast_including_self(world, player, &pkt);
@@ -809,7 +816,11 @@ pub(crate) fn move_in_vehicle(
 ) {
     // Must actually be aboard this boat (Java resolves/repairs the vehicle ref;
     // we require the rider to already hold the matching InVehicle).
-    let Some(iv) = world.objects.get_component::<InVehicle>(&player).copied() else {
+    let Some(iv) = world
+        .objects
+        .get_component::<boat::InVehicle>(&player)
+        .copied()
+    else {
         return;
     };
     if iv.boat_object_id != boat_oid {
@@ -830,7 +841,7 @@ pub(crate) fn move_in_vehicle(
 
     // Update the rider's seat so `move_passengers` keeps them at the new spot,
     // and snap their absolute position to it now.
-    if let Some(v) = world.objects.get_component_mut::<InVehicle>(&player) {
+    if let Some(v) = world.objects.get_component_mut::<boat::InVehicle>(&player) {
         v.seat_x = dest.0;
         v.seat_y = dest.1;
         v.seat_z = dest.2;
@@ -848,7 +859,7 @@ pub(crate) fn move_in_vehicle(
 
 /// A boat's `(x, y, z, moving)`, if the object is a boat.
 fn boat_state(world: &World, boat_oid: i32) -> Option<(i32, i32, i32, bool)> {
-    let moving = world.objects.get_component::<Boat>(&boat_oid)?.moving;
+    let moving = world.objects.get_component::<boat::Boat>(&boat_oid)?.moving;
     let p = world.objects.get_component::<Position>(&boat_oid)?;
     Some((p.x, p.y, p.z, moving))
 }

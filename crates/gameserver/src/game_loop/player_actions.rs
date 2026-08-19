@@ -25,7 +25,8 @@ use crate::game_loop::helpers::{
     broadcast_including_self, is_dead, send_action_failed, send_sm_bare_to_client,
 };
 use crate::model::Player;
-use crate::model::components::{Casting, FishingSession, Intent, Movement, PendingTrade, Speeds};
+use crate::model::components;
+
 use crate::network::client_packets::RequestActionUse;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
@@ -197,7 +198,7 @@ fn transform_allows(world: &World, object_id: i32, action_id: i32) -> bool {
 pub(crate) fn run_walk(world: &mut World, object_id: i32) {
     let running = world
         .objects
-        .get_component::<Speeds>(&object_id)
+        .get_component::<components::Speeds>(&object_id)
         .is_some_and(|s| s.running);
     set_running(world, object_id, !running);
 }
@@ -211,7 +212,10 @@ pub(crate) fn run_walk(world: &mut World, object_id: i32) {
 /// run or walk figure live off this same flag, so movement follows the moment
 /// it changes.
 pub(crate) fn set_running(world: &mut World, object_id: i32, running: bool) {
-    let Some(speeds) = world.objects.get_component_mut::<Speeds>(&object_id) else {
+    let Some(speeds) = world
+        .objects
+        .get_component_mut::<components::Speeds>(&object_id)
+    else {
         return;
     };
     if speeds.running == running {
@@ -274,7 +278,7 @@ fn social_action(world: &mut World, client_id: u32, object_id: i32, option: i32)
 fn use_social(world: &mut World, client_id: u32, object_id: i32, social_id: i32) -> bool {
     if world
         .objects
-        .get_component::<FishingSession>(&object_id)
+        .get_component::<components::FishingSession>(&object_id)
         .is_some_and(|f| f.is_fishing)
     {
         send_sm_bare_to_client(world, client_id, sm_ids::YOU_CANNOT_DO_THAT_WHILE_FISHING_3);
@@ -308,12 +312,20 @@ fn can_make_social_action(world: &World, object_id: i32) -> bool {
         .get_component::<Player>(&object_id)
         .is_some_and(|p| p.store_type == 0);
     store_none
-        && !world.objects.has_component::<PendingTrade>(&object_id)
+        && !world
+            .objects
+            .has_component::<components::PendingTrade>(&object_id)
         && !is_alike_dead(world, object_id)
         && !crate::game_loop::abnormal::all_skills_disabled(world, object_id)
-        && !world.objects.has_component::<Casting>(&object_id)
-        && !world.objects.has_component::<Intent>(&object_id)
-        && !world.objects.has_component::<Movement>(&object_id)
+        && !world
+            .objects
+            .has_component::<components::Casting>(&object_id)
+        && !world
+            .objects
+            .has_component::<components::Intent>(&object_id)
+        && !world
+            .objects
+            .has_component::<components::Movement>(&object_id)
         && !crate::game_loop::sit_stand::is_resting(world, object_id)
 }
 

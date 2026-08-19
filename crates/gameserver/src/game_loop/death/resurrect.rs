@@ -1,13 +1,6 @@
 use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::helpers::broadcast_including_self;
-use crate::game_loop::helpers::broadcast_near_region_in;
-use crate::game_loop::helpers::instance_of;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::helpers::send_sm_bare_to_player;
-use crate::game_loop::helpers::send_sm_to_player;
-use crate::game_loop::helpers::send_to_player;
-use crate::game_loop::helpers::vitals_pair;
+use crate::game_loop::helpers;
+
 use crate::model::Player;
 use crate::model::components::BaseStats;
 use crate::model::components::PlayerVitals;
@@ -110,7 +103,7 @@ pub(crate) fn revive_request(
 ) {
     use crate::network::server_packets::sm_ids;
     let send_to_reviver = |world: &World, id: i16| {
-        send_sm_bare_to_player(world, reviver_oid, id);
+        helpers::send_sm_bare_to_player(world, reviver_oid, id);
     };
     // **Java's first clause skips the whole condition for an AoE resurrection**
     // — `if (skill.getAffectRange() > 0) return true;`, carrying the comment
@@ -163,7 +156,7 @@ pub(crate) fn revive_request(
         return;
     }
     if target.revive_request.is_some() {
-        send_sm_bare_to_player(
+        helpers::send_sm_bare_to_player(
             world,
             reviver_oid,
             sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED,
@@ -212,8 +205,8 @@ pub(crate) fn revive_request(
     // Java's `ConfirmDlg(C1_IS_ATTEMPTING_TO_DO_A_RESURRECTION_THAT_RESTORES_S2_S3_XP_ACCEPT)`.
     // This port has only the generic text dialog, so the message is rendered
     // rather than composed from the client's string table.
-    let reviver_name = player_name_or_empty(world, reviver_oid);
-    send_to_player(
+    let reviver_name = helpers::player_name_or_empty(world, reviver_oid);
+    helpers::send_to_player(
         world,
         target_oid,
         server_packets::confirm_dlg_text(&format!(
@@ -359,12 +352,12 @@ pub(crate) fn do_revive(world: &mut World, player_oid: i32) {
         p.pending_revive = false;
         restore_pools(&mut vitals, &mut pvitals, hp, mp, cp);
     }
-    broadcast_including_self(world, player_oid, &server_packets::revive(player_oid));
+    helpers::broadcast_including_self(world, player_oid, &server_packets::revive(player_oid));
     crate::game_loop::party::notify_party_vitals(world, player_oid);
-    let Some((vitals, pvitals)) = vitals_pair(world, player_oid) else {
+    let Some((vitals, pvitals)) = helpers::vitals_pair(world, player_oid) else {
         return;
     };
-    broadcast_including_self(
+    helpers::broadcast_including_self(
         world,
         player_oid,
         &server_packets::status_update(
@@ -463,11 +456,11 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
 
     // `broadcastPacket(CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL)` — everyone
     // present hears it, not just the earner.
-    if let Some(region) = region_cell_of(world, npc_oid) {
-        broadcast_near_region_in(
+    if let Some(region) = helpers::region_cell_of(world, npc_oid) {
+        helpers::broadcast_near_region_in(
             world,
             region,
-            instance_of(world, npc_oid),
+            helpers::instance_of(world, npc_oid),
             &server_packets::system_message_with(
                 sm_ids::CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL,
                 &[],
@@ -500,7 +493,7 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
         if let Some(p) = world.objects.get_component_mut::<Player>(&m) {
             p.raidboss_points += each;
         }
-        send_sm_to_player(
+        helpers::send_sm_to_player(
             world,
             m,
             sm_ids::YOU_HAVE_EARNED_S1_RAID_POINTS,

@@ -14,7 +14,8 @@ use crate::data::henna_data::HennaStatSums;
 use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::class_level;
 use crate::model::Player;
-use crate::model::components::{BaseStats, CombatStats, HennaSlots, Speeds, StatModifiers, Vitals};
+use crate::model::components;
+
 use crate::model::inventory::Inventory;
 use crate::model::stats::BaseStat;
 use crate::network::server_packets::{self as sp, HennaStatWire, SmParam, StatPreview, sm_ids};
@@ -37,7 +38,7 @@ fn empty_slots(world: &World, oid: i32) -> i32 {
     };
     let worn = world
         .objects
-        .get_component::<HennaSlots>(&oid)
+        .get_component::<components::HennaSlots>(&oid)
         .map(|h| h.worn() as i32)
         .unwrap_or(0);
     (total - worn).max(0)
@@ -54,7 +55,7 @@ fn class_id_of(world: &World, oid: i32) -> i32 {
 fn worn_sums(world: &World, oid: i32) -> HennaStatSums {
     let slots = world
         .objects
-        .get_component::<HennaSlots>(&oid)
+        .get_component::<components::HennaSlots>(&oid)
         .map(|h| h.0)
         .unwrap_or_default();
     world.data.hennas.stat_sums(&slots)
@@ -84,7 +85,7 @@ pub(crate) fn handle_remove_list(world: &mut World, client_id: u32) {
     let class_id = class_id_of(world, oid);
     let worn = world
         .objects
-        .get_component::<HennaSlots>(&oid)
+        .get_component::<components::HennaSlots>(&oid)
         .map(|h| h.0)
         .unwrap_or_default();
     let lines: Vec<sp::HennaLine> = worn
@@ -121,7 +122,11 @@ pub(crate) fn handle_item_info(world: &mut World, client_id: u32, symbol_id: i32
         return;
     };
     let class_id = class_id_of(world, oid);
-    let Some(base) = world.objects.get_component::<BaseStats>(&oid).copied() else {
+    let Some(base) = world
+        .objects
+        .get_component::<components::BaseStats>(&oid)
+        .copied()
+    else {
         return;
     };
     let stats = stat_preview(&base, |s| current(&base, s) + henna.base_stat(s));
@@ -152,7 +157,11 @@ pub(crate) fn handle_item_remove_info(world: &mut World, client_id: u32, symbol_
         return;
     };
     let class_id = class_id_of(world, oid);
-    let Some(base) = world.objects.get_component::<BaseStats>(&oid).copied() else {
+    let Some(base) = world
+        .objects
+        .get_component::<components::BaseStats>(&oid)
+        .copied()
+    else {
         return;
     };
     let stats = stat_preview(&base, |s| current(&base, s) - henna.base_stat(s));
@@ -219,7 +228,7 @@ pub(crate) fn handle_equip(world: &mut World, client_id: u32, symbol_id: i32) {
     // Assign the first empty slot.
     let Some(slot) = world
         .objects
-        .get_component_mut::<HennaSlots>(&oid)
+        .get_component_mut::<components::HennaSlots>(&oid)
         .and_then(|h| {
             let idx = h.0.iter().position(|s| s.is_none())?;
             h.0[idx] = Some(henna.dye_id);
@@ -259,7 +268,7 @@ pub(crate) fn handle_remove(world: &mut World, client_id: u32, symbol_id: i32) {
     // Find the slot holding this dye.
     let slot = world
         .objects
-        .get_component::<HennaSlots>(&oid)
+        .get_component::<components::HennaSlots>(&oid)
         .and_then(|h| h.0.iter().position(|s| *s == Some(symbol_id)));
     let Some(slot) = slot else { return };
     let Some(henna) = world.data.hennas.get(symbol_id).cloned() else {
@@ -276,7 +285,10 @@ pub(crate) fn handle_remove(world: &mut World, client_id: u32, symbol_id: i32) {
     }
 
     // Clear the slot.
-    if let Some(h) = world.objects.get_component_mut::<HennaSlots>(&oid) {
+    if let Some(h) = world
+        .objects
+        .get_component_mut::<components::HennaSlots>(&oid)
+    {
         h.0[slot] = None;
     }
     // Charge the cancel fee, refund the cancel count of dyes.
@@ -318,7 +330,7 @@ pub(crate) fn handle_remove(world: &mut World, client_id: u32, symbol_id: i32) {
 pub(crate) fn henna_info_packet(
     data: &crate::data::GameData,
     class_id: i32,
-    slots: &HennaSlots,
+    slots: &components::HennaSlots,
 ) -> Vec<u8> {
     let sums = data.hennas.stat_sums(&slots.0);
     let wire = HennaStatWire {
@@ -349,7 +361,7 @@ pub(crate) fn send_henna_info(world: &World, client_id: u32, oid: i32) {
     let class_id = class_id_of(world, oid);
     let slots = world
         .objects
-        .get_component::<HennaSlots>(&oid)
+        .get_component::<components::HennaSlots>(&oid)
         .cloned()
         .unwrap_or_default();
     let pkt = henna_info_packet(&world.data, class_id, &slots);
@@ -376,15 +388,15 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
     if let Some((player, mut base, mods, inventory, mut vitals, mut speeds, mut combat)) =
         world.objects.get_many_mut::<(
             &Player,
-            &mut BaseStats,
-            &StatModifiers,
+            &mut components::BaseStats,
+            &components::StatModifiers,
             &Inventory,
-            &mut Vitals,
-            &mut Speeds,
-            &mut CombatStats,
+            &mut components::Vitals,
+            &mut components::Speeds,
+            &mut components::CombatStats,
         )>(&oid)
     {
-        *base = BaseStats {
+        *base = components::BaseStats {
             str_: t.base_str + sums.str_,
             dex: t.base_dex + sums.dex,
             con: t.base_con + sums.con,
@@ -430,7 +442,7 @@ fn equip_henna_lines(world: &World, oid: i32) -> Vec<sp::HennaLine> {
 }
 
 /// The current effective value of a base stat (already includes worn henna).
-fn current(base: &BaseStats, stat: BaseStat) -> i32 {
+fn current(base: &components::BaseStats, stat: BaseStat) -> i32 {
     match stat {
         BaseStat::Str => base.str_,
         BaseStat::Con => base.con,
@@ -443,7 +455,7 @@ fn current(base: &BaseStats, stat: BaseStat) -> i32 {
 
 /// Build the six `(current, preview)` stat pairs in INT/STR/CON/MEN/DEX/WIT
 /// wire order, where `preview` is produced by `f`.
-fn stat_preview(base: &BaseStats, f: impl Fn(BaseStat) -> i32) -> StatPreview {
+fn stat_preview(base: &components::BaseStats, f: impl Fn(BaseStat) -> i32) -> StatPreview {
     [
         (current(base, BaseStat::Int), f(BaseStat::Int) as i16),
         (current(base, BaseStat::Str), f(BaseStat::Str) as i16),
@@ -470,7 +482,7 @@ pub(crate) fn drop_hennas_the_class_cannot_wear(world: &mut World, oid: i32) -> 
     };
     let slots = world
         .objects
-        .get_component::<HennaSlots>(&oid)
+        .get_component::<components::HennaSlots>(&oid)
         .map(|h| h.0)
         .unwrap_or_default();
     let mut removed = false;
@@ -481,7 +493,11 @@ pub(crate) fn drop_hennas_the_class_cannot_wear(world: &mut World, oid: i32) -> 
             .hennas
             .get(dye_id)
             .is_some_and(|h| h.is_allowed_class(class_id));
-        if !allowed && let Some(h) = world.objects.get_component_mut::<HennaSlots>(&oid) {
+        if !allowed
+            && let Some(h) = world
+                .objects
+                .get_component_mut::<components::HennaSlots>(&oid)
+        {
             h.0[i] = None;
             removed = true;
         }

@@ -2,16 +2,12 @@
 //! `ValidatePosition`) and the path-worker reply handler (`handle_path_result`).
 
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::send_action_failed;
-use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::set_position;
-use crate::game_loop::helpers::set_position_heading;
+use crate::game_loop::helpers;
+use crate::model::components;
+
 use crate::geo::worker::{PathEvent, PathRequest};
 use crate::model::Player;
-use crate::model::components::{
-    AttackState, Casting, ClientPos, Intent, Movement, PathWait, Position, QueuedAction, Speeds,
-};
+
 use crate::model::movement::GeoPath;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -46,12 +42,12 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
 
     if pkt.target_x == pkt.origin_x && pkt.target_y == pkt.origin_y && pkt.target_z == pkt.origin_z
     {
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::stop_move(object_id, cur.x, cur.y, cur.z, cur.heading),
         );
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
 
@@ -87,12 +83,12 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // Stunned/asleep/paralyzed or rooted players can't move either — the rest
     // of `isMovementDisabled`'s effect-driven terms.
     if super::abnormal::is_movement_disabled(world, object_id) {
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::stop_move(object_id, cur.x, cur.y, cur.z, cur.heading),
         );
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // `PlayerAI.onIntentionMoveTo`'s first branch: `if (getIntention() ==
@@ -102,12 +98,12 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // covers the 2.5 s stand-up animation too, since REST is only released by
     // `StandUpTask` (which clears the seated flag in the same breath).
     if super::sit_stand::is_resting(world, object_id) {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // Dead players can't move at all (`isMovementDisabled`).
-    if is_dead(world, object_id) {
-        send_action_failed(world, client_id);
+    if helpers::is_dead(world, object_id) {
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // Java `PlayerAI.onIntentionMoveTo`: a move request while busy (mid-cast
@@ -119,24 +115,35 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // swings.
     let mid_swing = world
         .objects
-        .get_component::<AttackState>(&object_id)
+        .get_component::<components::AttackState>(&object_id)
         .is_some_and(|st| st.attack_end_tick > world.tick);
-    if mid_swing || world.objects.has_component::<Casting>(&object_id) {
-        world.objects.remove_component::<Intent>(&object_id);
+    if mid_swing
+        || world
+            .objects
+            .has_component::<components::Casting>(&object_id)
+    {
+        world
+            .objects
+            .remove_component::<components::Intent>(&object_id);
         world.objects.add_components(
             &object_id,
-            QueuedAction::Move {
+            components::QueuedAction::Move {
                 x: pkt.target_x,
                 y: pkt.target_y,
                 z: target_z,
             },
         );
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // A manual move click replaces an attack loop (MOVE_TO intention).
-    if world.objects.has_component::<Intent>(&object_id) {
-        world.objects.remove_component::<Intent>(&object_id);
+    if world
+        .objects
+        .has_component::<components::Intent>(&object_id)
+    {
+        world
+            .objects
+            .remove_component::<components::Intent>(&object_id);
     }
 
     intention_move_to(
@@ -179,7 +186,7 @@ fn take_admin_tele_mode(
     match mode {
         crate::enums::AdminTeleportType::Normal => return false,
         crate::enums::AdminTeleportType::Demonic => {
-            send_action_failed(world, client_id);
+            helpers::send_action_failed(world, client_id);
             super::death::teleport_player(world, object_id, x, y, z);
             set_tele_mode(world, object_id, crate::enums::AdminTeleportType::Normal);
         }
@@ -240,7 +247,7 @@ fn take_admin_tele_mode(
                 &[object_id],
             );
             broadcast_including_self(world, object_id, &launched);
-            send_action_failed(world, client_id);
+            helpers::send_action_failed(world, client_id);
         }
     }
     true
@@ -273,14 +280,18 @@ fn slide_to(
         return;
     };
     let (x, y, z) = dest;
-    set_position(world, object_id, (x, y, z));
+    helpers::set_position(world, object_id, (x, y, z));
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.blink_active = true;
     }
     // A slide leaves any in-flight walk behind: without dropping it the mover
     // keeps interpolating from the new point toward the old destination.
-    world.objects.remove_component::<Movement>(&object_id);
-    world.objects.remove_component::<PathWait>(&object_id);
+    world
+        .objects
+        .remove_component::<components::Movement>(&object_id);
+    world
+        .objects
+        .remove_component::<components::PathWait>(&object_id);
     broadcast_including_self(
         world,
         object_id,
@@ -307,8 +318,12 @@ pub(crate) fn handle_request_stop_move(world: &mut World, client_id: u32) {
         return;
     };
 
-    world.objects.remove_component::<Movement>(&object_id);
-    world.objects.remove_component::<PathWait>(&object_id);
+    world
+        .objects
+        .remove_component::<components::Movement>(&object_id);
+    world
+        .objects
+        .remove_component::<components::PathWait>(&object_id);
 
     broadcast_including_self(
         world,
@@ -344,12 +359,15 @@ pub(crate) fn handle_ex_send_selected_quest_zone_id(
 pub(crate) fn is_in_water(world: &World, object_id: i32) -> bool {
     if !world
         .objects
-        .get_component::<Speeds>(&object_id)
+        .get_component::<components::Speeds>(&object_id)
         .is_some_and(|s| s.swimming)
     {
         return false;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&object_id) else {
+    let Some(pos) = world
+        .objects
+        .get_component::<components::Position>(&object_id)
+    else {
         return false;
     };
     !world.data.zone_data.in_castle_zone(pos.x, pos.y, pos.z)
@@ -363,7 +381,7 @@ pub(crate) fn intention_move_to(
     world: &mut World,
     client_id: u32,
     object_id: i32,
-    cur: Position,
+    cur: components::Position,
     target: (i32, i32, i32),
 ) {
     let (mut target_x, mut target_y, mut target_z) = target;
@@ -371,7 +389,7 @@ pub(crate) fn intention_move_to(
     let mut dy = (target_y - cur.y) as f64;
     if dx * dx + dy * dy > 98_010_000.0 {
         // 9900² — Java's max single-click move distance.
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
     let mut distance = (dx * dx + dy * dy).sqrt();
@@ -413,7 +431,9 @@ pub(crate) fn intention_move_to(
         // (Java `isOnGeodataPath()` → same gtx/gty return / index = -1).
         let gtx = world.geo.get_geo_x(original_x);
         let gty = world.geo.get_geo_y(original_y);
-        if let Some(mv) = world.objects.get_component_mut::<Movement>(&object_id)
+        if let Some(mv) = world
+            .objects
+            .get_component_mut::<components::Movement>(&object_id)
             && let Some(gp) = &mv.0.geo_path
             && gp.has_next()
         {
@@ -448,7 +468,9 @@ pub(crate) fn intention_move_to(
     // ActionFailed) in `handle_path_result` when the reply lands.
     if world.path_finding > 0 && !floating && (original_distance - distance) > 30.0 {
         let seq = world.next_path_seq();
-        world.objects.add_components(&object_id, PathWait { seq });
+        world
+            .objects
+            .add_components(&object_id, components::PathWait { seq });
         let _ = world.path.send(PathRequest {
             seq,
             client_id,
@@ -465,7 +487,7 @@ pub(crate) fn intention_move_to(
     // `verticalMovementOnly` (flying, dx=dy=0, dz≠0) sets `distance = |dz|`
     // first, so a straight up/down flight click goes through.
     if distance < 1.0 && !(is_flying && target_z != cur.z) {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
 
@@ -493,11 +515,16 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
         path,
     } = ev;
     // Stale reply: the player left, or clicked again (newer seq) — drop it.
-    match world.objects.get_component::<PathWait>(&object_id) {
+    match world
+        .objects
+        .get_component::<components::PathWait>(&object_id)
+    {
         Some(w) if w.seq == seq => {}
         _ => return,
     }
-    world.objects.remove_component::<PathWait>(&object_id);
+    world
+        .objects
+        .remove_component::<components::PathWait>(&object_id);
 
     // Java `found = (geoPath != null) && (geoPath.size() > 1)`; a player
     // with no path gets ActionFailed (any in-flight move keeps running).
@@ -509,17 +536,21 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
         Some(p) if p.len() > 1 => p,
         _ => {
             if is_player {
-                send_action_failed(world, client_id);
+                helpers::send_action_failed(world, client_id);
             }
             return;
         }
     };
 
     // Move gates re-checked after the round-trip (same set as the click).
-    let is_dead = is_dead(world, object_id);
-    if world.objects.has_component::<Casting>(&object_id) || is_dead {
+    let is_dead = helpers::is_dead(world, object_id);
+    if world
+        .objects
+        .has_component::<components::Casting>(&object_id)
+        || is_dead
+    {
         if is_player {
-            send_action_failed(world, client_id);
+            helpers::send_action_failed(world, client_id);
         }
         return;
     }
@@ -548,7 +579,7 @@ pub(crate) fn start_move(
     world: &mut World,
     client_id: u32,
     object_id: i32,
-    cur: Position,
+    cur: components::Position,
     dest: (i32, i32, i32),
     geo_path: Option<GeoPath>,
 ) {
@@ -573,8 +604,8 @@ pub(crate) fn start_move(
     let heading = crate::model::movement::calculate_heading(dx, dy);
     let Some(speed) = world
         .objects
-        .get_component::<Speeds>(&object_id)
-        .map(Speeds::move_speed)
+        .get_component::<components::Speeds>(&object_id)
+        .map(components::Speeds::move_speed)
     else {
         return;
     };
@@ -585,12 +616,15 @@ pub(crate) fn start_move(
     };
     let start_tick = world.tick;
 
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+    if let Some(pos) = world
+        .objects
+        .get_component_mut::<components::Position>(&object_id)
+    {
         pos.heading = heading;
     }
     world.objects.add_components(
         &object_id,
-        Movement(crate::model::movement::MoveData {
+        components::Movement(crate::model::movement::MoveData {
             start_x,
             start_y,
             start_z,
@@ -609,7 +643,7 @@ pub(crate) fn start_move(
     // The mover's own copy (Java's `includeSelf` override on `Player`); an NPC
     // has no client, and `broadcast_to_others` covers the onlookers either way.
     if world.objects.has_component::<Player>(&object_id) {
-        send_to_client(world, client_id, move_pkt.clone());
+        helpers::send_to_client(world, client_id, move_pkt.clone());
     }
     broadcast_to_others(world, object_id, &move_pkt);
 }
@@ -632,7 +666,9 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     // and sends Appearing — without the bail, the out-of-sync snap below
     // reverts the server position to the pre-teleport spot and the client
     // hangs on the black loading screen.
-    if world.objects.has_component::<Casting>(&object_id)
+    if world
+        .objects
+        .has_component::<components::Casting>(&object_id)
         || world
             .objects
             .has_component::<crate::model::components::Observing>(&object_id)
@@ -648,7 +684,7 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
         && pkt.y == 0
         && world
             .objects
-            .get_component::<Position>(&object_id)
+            .get_component::<components::Position>(&object_id)
             .is_some_and(|p| p.x != 0)
     {
         return;
@@ -669,9 +705,12 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
         geo,
         ..
     } = world;
-    let Some((mut player, mut pos, speeds, mut client)) =
-        objects.get_many_mut::<(&mut Player, &mut Position, &Speeds, &mut ClientPos)>(&object_id)
-    else {
+    let Some((mut player, mut pos, speeds, mut client)) = objects.get_many_mut::<(
+        &mut Player,
+        &mut components::Position,
+        &components::Speeds,
+        &mut components::ClientPos,
+    )>(&object_id) else {
         return;
     };
 
@@ -776,24 +815,30 @@ pub(crate) fn handle_cannot_move_anymore(world: &mut World, client_id: u32, body
         return;
     };
 
-    world.objects.remove_component::<Movement>(&object_id);
-    world.objects.remove_component::<PathWait>(&object_id);
+    world
+        .objects
+        .remove_component::<components::Movement>(&object_id);
+    world
+        .objects
+        .remove_component::<components::PathWait>(&object_id);
     // `if (getIntention() == MOVE_TO || getIntention() == CAST) setIntention(ACTIVE)`
     // — an attack or interact intention survives, and its own think re-issues
     // the walk.
     let clear = matches!(
         world
             .objects
-            .get_component::<Intent>(&object_id)
+            .get_component::<components::Intent>(&object_id)
             .map(|i| i.0),
         Some(crate::model::PlayerIntent::Cast { .. })
     );
     if clear {
-        world.objects.remove_component::<Intent>(&object_id);
+        world
+            .objects
+            .remove_component::<components::Intent>(&object_id);
     }
 
     // `clientStopMoving(location)`: land where the client says it stopped.
-    set_position_heading(world, object_id, (x, y, z), heading);
+    helpers::set_position_heading(world, object_id, (x, y, z), heading);
     super::zones::revalidate_zone(world, object_id, true);
     broadcast_including_self(
         world,
@@ -844,7 +889,10 @@ pub(crate) fn handle_finish_rotating(world: &mut World, client_id: u32, body: &[
     let Some(object_id) = world.player_oid(client_id) else {
         return;
     };
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+    if let Some(pos) = world
+        .objects
+        .get_component_mut::<components::Position>(&object_id)
+    {
         pos.heading = degree;
     }
     broadcast_to_others(
@@ -890,7 +938,10 @@ pub(crate) fn handle_cannot_move_anymore_in_vehicle(
         v.seat_y = y;
         v.seat_z = z;
     }
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+    if let Some(pos) = world
+        .objects
+        .get_component_mut::<components::Position>(&object_id)
+    {
         pos.heading = heading;
     }
     broadcast_including_self(

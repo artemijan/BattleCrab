@@ -1,7 +1,15 @@
 //! Pet death: the death penalty, exp restore, and corpse decay.
 
-use super::*;
-
+use super::PetInfoKind;
+use super::notify_owner;
+use super::npc_template_id;
+use super::send_pet_info;
+use super::send_pet_item_list;
+use super::set_summon_link;
+use super::sync_pet_row;
+use crate::game_loop::helpers::send_inventory_update;
+use crate::model::components::ServitorOf;
+use crate::world::World;
 /// Java `Pet.doDie` — the pet-specific half, called from the NPC death path
 /// once a dying NPC turns out to be a pet.
 ///

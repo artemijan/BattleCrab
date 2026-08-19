@@ -1,8 +1,21 @@
 //! `QuestCtx` NPC manipulation: spawn/despawn, casts, soul-crystal
 //! absorbing, retargeting, NPC variables/say and quest timers.
 
-use super::*;
+use super::QuestCtx;
+use super::load_quest_html;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::hp_fraction;
+use crate::game_loop::helpers::pos_of;
+use crate::game_loop::npc::cast;
+use crate::model::components::QuestTimerSeqs;
+use crate::model::components::Quests;
+use crate::model::inventory::Inventory;
+use crate::model::quest::state;
+use crate::network::server_packets;
+use crate::scheduler::ScheduledTask;
 use crate::scheduler::ms_to_ticks;
+use crate::world::World;
 
 impl<'w> QuestCtx<'w> {
     /// `Attackable.isSpoiled()` — whether a Spoil landed on the involved NPC.

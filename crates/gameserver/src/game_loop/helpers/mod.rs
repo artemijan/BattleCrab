@@ -8,17 +8,6 @@
 //! `helpers` look like the home of something it does not own — `ms_to_ticks`
 //! belongs to `crate::scheduler`, `npc_say` to `npc::say`, and so on.
 
-use crate::game_loop::guard::maybe_position;
-use crate::model;
-use crate::model::Player;
-use crate::model::components::{Movement, RegionCell, StatModifiers, Vitals};
-use crate::model::inventory::Inventory;
-use crate::model::npc::Npc;
-use crate::model::stats::Stat;
-use crate::network::server_packets;
-use crate::session::ClientSession;
-use crate::world::World;
-
 mod broadcast;
 mod inventory;
 mod lookup;
@@ -26,12 +15,35 @@ mod position;
 mod send;
 mod vitals;
 
-pub(crate) use broadcast::*;
-pub(crate) use inventory::*;
-pub(crate) use lookup::*;
-pub(crate) use position::*;
-pub(crate) use send::*;
-pub(crate) use vitals::*;
+pub(crate) use broadcast::{
+    broadcast_from, broadcast_including_self, broadcast_near_region, broadcast_near_region_in,
+    broadcast_to_others,
+};
+pub(crate) use inventory::{
+    add_inventory_item_changes, added_changes, adena, carried_item, count_of,
+    get_inventory_items_oids, give_transferred_item, item_id_of, modified_changes,
+    remove_inventory_item_change, send_inventory_item_list, send_inventory_update,
+};
+pub(crate) use lookup::{
+    class_level, client_for_player, format_amount, get_others_in_matching_room, instance_of, is_gm,
+    is_playable, is_raid_npc, level_of, lvl_of_npc, maybe_object_name, npc_id_of,
+    npc_name_or_empty, npc_template, npc_template_name, nth_arg, object_name, player, player_name,
+    player_name_or_empty, player_of, player_race, player_race_or_human, player_var, player_var_int,
+    reuses_mut, set_npc_title, set_player_var, set_player_var_int, skill_by_id, unset_player_var,
+    update_admin_flags,
+};
+pub(crate) use position::{
+    pos_of, region_cell_of, set_position, set_position_heading, stop_movement,
+};
+pub(crate) use send::{
+    announce_to_all_online, disconnect_player, send_action_failed, send_etc_status_update,
+    send_message, send_sm_and_action_failed, send_sm_bare_to_client, send_sm_bare_to_player,
+    send_sm_to_client, send_sm_to_player, send_to_client, send_to_player, skill_list_packet,
+};
+pub(crate) use vitals::{
+    absorb_into_hp, hp_fraction, hp_pair, in_zone, is_dead, is_friend, recalculate_player_stats,
+    recalculate_player_stats_and_vitals, restore_hp_mp, spend_mp, stat_add, stat_mul, vitals_pair,
+};
 
 #[cfg(test)]
 mod tests {

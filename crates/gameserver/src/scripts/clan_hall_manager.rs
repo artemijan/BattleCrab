@@ -10,9 +10,8 @@
 //! merchant buy window).
 
 use crate::game_loop::clans::hall_auction::{banish_others, hall_ownership, open_close_hall_doors};
-use crate::game_loop::clans::hall_function::{
-    BuffCastOutcome, FunctionOutcome, buy_function, cast_hall_buff, function_level, remove_function,
-};
+use crate::game_loop::clans::hall_function;
+
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::clan::{CH_DISMISS, CH_OPEN_DOOR, CH_OTHER_RIGHTS, CH_SET_FUNCTIONS};
 use crate::model::components::Vitals;
@@ -137,7 +136,7 @@ impl ClanHallManager {
             Some("teleport") => {
                 // The hall's TELEPORT function level picks the `tel<level>` list.
                 let func_id = ctx.world.data.residence_functions.id_of_type("TELEPORT")?;
-                let level = function_level(ctx.world, hall_id, func_id);
+                let level = hall_function::function_level(ctx.world, hall_id, func_id);
                 if level == 0 {
                     // No teleport function bought.
                     return Some("ClanHallManager-noFunction.html".to_string());
@@ -181,7 +180,7 @@ impl ClanHallManager {
             }
             Some("buffs") => {
                 let func_id = ctx.world.data.residence_functions.id_of_type("BUFF")?;
-                let level = function_level(ctx.world, hall_id, func_id);
+                let level = hall_function::function_level(ctx.world, hall_id, func_id);
                 if level == 0 {
                     return Some("ClanHallManager-noFunction.html".to_string());
                 }
@@ -192,12 +191,20 @@ impl ClanHallManager {
                     ),
                     // `<skillId>_<skillLevel>` from a menu button.
                     Some(token) => {
-                        let page = match cast_hall_buff(ctx.world, ctx.npc, ctx.player, token) {
+                        let page = match hall_function::cast_hall_buff(
+                            ctx.world, ctx.npc, ctx.player, token,
+                        ) {
                             // Java silently ignores an unlisted/bad skill.
-                            BuffCastOutcome::NotAllowed => return Some(page("01")),
-                            BuffCastOutcome::NotEnoughMp => "ClanHallManager-funcBuffsNoMp.html",
-                            BuffCastOutcome::OnReuse => "ClanHallManager-funcBuffsNoReuse.html",
-                            BuffCastOutcome::Cast => "ClanHallManager-funcBuffsDone.html",
+                            hall_function::BuffCastOutcome::NotAllowed => return Some(page("01")),
+                            hall_function::BuffCastOutcome::NotEnoughMp => {
+                                "ClanHallManager-funcBuffsNoMp.html"
+                            }
+                            hall_function::BuffCastOutcome::OnReuse => {
+                                "ClanHallManager-funcBuffsNoReuse.html"
+                            }
+                            hall_function::BuffCastOutcome::Cast => {
+                                "ClanHallManager-funcBuffsDone.html"
+                            }
                         };
                         Some(self.buff_html(ctx, page))
                     }
@@ -205,7 +212,7 @@ impl ClanHallManager {
             }
             Some("items") => {
                 let func_id = ctx.world.data.residence_functions.id_of_type("ITEM")?;
-                match function_level(ctx.world, hall_id, func_id) {
+                match hall_function::function_level(ctx.world, hall_id, func_id) {
                     // Java `showBuyWindow(player, npcId·"0"·(level-1))` — the
                     // three item-function tiers map to buylists npcId*100 + 0/1/2.
                     level @ 1..=3 => {
@@ -261,10 +268,16 @@ impl ClanHallManager {
                     return Some(page("01"));
                 };
                 let now = commons::util::now_millis();
-                let outcome = buy_function(ctx.world, hall_id, ctx.player, func_id, level, now);
+                let outcome = hall_function::buy_function(
+                    ctx.world, hall_id, ctx.player, func_id, level, now,
+                );
                 Some(match outcome {
-                    FunctionOutcome::Bought => "ClanHallManager-manageFuncDone.html".to_string(),
-                    FunctionOutcome::NotEnough => "ClanHallManager-noAdena.html".to_string(),
+                    hall_function::FunctionOutcome::Bought => {
+                        "ClanHallManager-manageFuncDone.html".to_string()
+                    }
+                    hall_function::FunctionOutcome::NotEnough => {
+                        "ClanHallManager-noAdena.html".to_string()
+                    }
                     // AlreadyActive / NoSuchFunction → back to the console.
                     _ => page("01"),
                 })
@@ -275,7 +288,7 @@ impl ClanHallManager {
                 let type_name = parts.next().unwrap_or("");
                 if act == "remove" {
                     if let Some(func_id) = ctx.world.data.residence_functions.id_of_type(type_name)
-                        && remove_function(ctx.world, hall_id, func_id)
+                        && hall_function::remove_function(ctx.world, hall_id, func_id)
                     {
                         return Some("ClanHallManager-removeFunctionDone.html".to_string());
                     }

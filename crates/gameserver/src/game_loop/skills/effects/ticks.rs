@@ -1,11 +1,38 @@
-use super::*;
+use super::SkillHit;
+use super::apply_skill_damage;
+use super::apply_skill_effects;
+use super::broadcast_target_buffs;
+use super::broadcast_vitals;
+use super::buff_level;
+use super::buffs_snapshot;
+use super::dot_interval_ticks;
+use super::dot_tick_damage;
+use super::fear_action;
+use super::maybe_buff_level;
+use super::recompute_max_vitals;
+use super::recompute_npc_buffed_stats;
+use super::refresh_abnormal_visuals;
+use super::refresh_summon_info;
+use super::remove_attack_traits;
+use super::remove_defence_traits;
+use super::remove_skill_rates;
+use super::set_collision_grown;
+use super::stop_bot_report_punishment;
+use super::stop_fake_death;
 use crate::game_loop::abnormal::has_buff;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::send_sm_bare_to_player;
-use crate::game_loop::helpers::send_to_player;
-use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::helpers::spend_mp;
+use crate::game_loop::bot_report;
+use crate::game_loop::helpers;
+
+use crate::model::components::Buffs;
+use crate::model::components::StatModifiers;
+use crate::model::components::Vitals;
+use crate::model::punishment::PunishmentType;
+use crate::model::skill::ActiveBuff;
+use crate::model::skill::Skill;
+use crate::model::skill::SkillEffect;
+use crate::network::server_packets;
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
 
 /// `DamOverTime.onActionTime` — one poison/bleed tick. Deals
 /// `power * getTicksMultiplier()` from `caster` to `target` for each of the
@@ -29,15 +56,15 @@ pub(crate) fn handle_dam_over_time_tick(
         return;
     }
     // Dead target → stop (Java `onActionTime`: `isDead()` bails).
-    if is_dead(world, target_oid) {
+    if helpers::is_dead(world, target_oid) {
         return;
     }
-    let Some(skill) = skill_by_id(world, skill_id, skill_level) else {
+    let Some(skill) = helpers::skill_by_id(world, skill_id, skill_level) else {
         return;
     };
     // Effector name for the damage message (`Player.sendDamageMessage`); empty
     // for an NPC effector (no client to message — the base no-op).
-    let caster_name = player_name_or_empty(world, caster_oid);
+    let caster_name = helpers::player_name_or_empty(world, caster_oid);
 
     let ratio_ms = world.cfg.character.effect_tick_ratio_ms;
     let mut interval = 0;
@@ -113,11 +140,11 @@ pub(crate) fn handle_dam_over_time_tick(
                 // Java compares before spending and bails on `>`, so a tick that
                 // costs exactly the remaining MP still runs.
                 if drain > v.cur_mp {
-                    send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
+                    helpers::send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
                     deactivate_toggle = true;
                     continue;
                 }
-                spend_mp(world, target_oid, drain);
+                helpers::spend_mp(world, target_oid, drain);
                 broadcast_vitals(world, target_oid);
             }
             // `ManaHealOverTime.onActionTime` — the mirror of the drain arm
@@ -174,17 +201,17 @@ pub(crate) fn handle_dam_over_time_tick(
                 // to regenerate, so it retires itself once there is nothing left
                 // to heal — with its own message, distinct from running dry.
                 if v.cur_hp + 1.0 > v.max_hp as f64 && is_toggle {
-                    send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED);
+                    helpers::send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED);
                     deactivate_toggle = true;
                     continue;
                 }
                 let drain = dot_tick_damage(*power, *ticks, ratio_ms);
                 if drain > v.cur_mp && is_toggle {
-                    send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
+                    helpers::send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
                     deactivate_toggle = true;
                     continue;
                 }
-                spend_mp(world, target_oid, drain);
+                helpers::spend_mp(world, target_oid, drain);
                 broadcast_vitals(world, target_oid);
             }
             SkillEffect::ManaDamOverTime { power, ticks }
@@ -199,11 +226,11 @@ pub(crate) fn handle_dam_over_time_tick(
                 let drain = dot_tick_damage(*power, *ticks, ratio_ms);
                 if drain > v.cur_mp && is_toggle {
                     // Out of MP: the toggle switches itself off.
-                    send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
+                    helpers::send_sm_bare_to_player(world, target_oid, server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP);
                     deactivate_toggle = true;
                     continue;
                 }
-                spend_mp(world, target_oid, drain);
+                helpers::spend_mp(world, target_oid, drain);
                 broadcast_vitals(world, target_oid);
             }
             _ => {}
@@ -254,7 +281,7 @@ pub(crate) fn handle_dam_over_time_tick(
                 },
             );
             // A `canKill` tick can kill outright — stop then.
-            if is_dead(world, target_oid) {
+            if helpers::is_dead(world, target_oid) {
                 return;
             }
         }
@@ -347,7 +374,7 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         let called = Skill {
             self_continuous: false,
             effects: end_effects,
-            ..skill_by_id(world, skill_id, 1).unwrap_or_default()
+            ..helpers::skill_by_id(world, skill_id, 1).unwrap_or_default()
         };
         apply_skill_effects(world, player_object_id, player_object_id, &called);
     }
@@ -509,7 +536,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
         }
     }
     // `MagicMpCost.onExit` / `Reuse.onExit`.
-    if let Some(skill) = skill_by_id(
+    if let Some(skill) = helpers::skill_by_id(
         world,
         skill_id,
         buff_level(world, player_object_id, skill_id),
@@ -609,7 +636,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
         refresh_abnormal_visuals(world, player_object_id);
     }
     if let Some(buffs) = world.objects.get_component::<Buffs>(&player_object_id) {
-        send_to_player(
+        helpers::send_to_player(
             world,
             player_object_id,
             crate::network::enter_world::abnormal_status_update(buffs, now),

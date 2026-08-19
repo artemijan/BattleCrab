@@ -1,8 +1,16 @@
 //! Registration: `NobleInfo`, the eligibility and waiting-list gates, and
 //! `register`/`unregister` with their refusal messages.
 
-use super::*;
-
+use crate::game_loop::helpers::send_sm_bare_to_player as send_sm;
+use crate::game_loop::helpers::send_sm_to_player;
+use crate::model::Player;
+use crate::model::olympiad::CompetitionType;
+use crate::model::olympiad::NobleStats;
+use crate::model::olympiad::OlympiadState;
+use crate::model::olympiad::REG_CLOSE_BEFORE_END_MS;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 /// The player fields the registration gates and the noble record need.
 struct NobleInfo {
     name: String,

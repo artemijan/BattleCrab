@@ -1,8 +1,11 @@
 //! Summoning-flavored instant effects: NPC/totem summons and the servitor
 //! betrayal flip, extracted from the `apply_skill_effects` match.
 
-use super::*;
-
+use super::servitor_owner_of;
+use crate::game_loop::helpers::pos_of;
+use crate::model::components::Vitals;
+use crate::model::skill::Skill;
+use crate::world::World;
 /// `SummonNpc.instant` — the `EffectPoint` branch drops the symbol totems
 /// (PLAN_G19_SYMBOLS.md); every other template type takes Java's **default**
 /// plain-spawn branch (the Holiday Trees and Squash/Watermelon seeds —

@@ -1,18 +1,9 @@
 use crate::data::npc_data::NpcTemplate;
-use crate::game_loop::helpers::broadcast_including_self;
-use crate::game_loop::helpers::client_for_player;
-use crate::game_loop::helpers::vitals_pair;
-use crate::game_loop::helpers::{
-    player_var_int, send_sm_bare_to_client, send_sm_bare_to_player, send_sm_to_client,
-    send_sm_to_player, send_to_client, set_player_var_int,
-};
+use crate::game_loop::helpers;
+use crate::model::components;
+
 use crate::model::Player;
-use crate::model::components::BaseStats;
-use crate::model::components::PlayerVitals;
-use crate::model::components::SkillBook;
-use crate::model::components::Speeds;
-use crate::model::components::StatModifiers;
-use crate::model::components::Vitals;
+
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
@@ -35,7 +26,7 @@ pub(crate) fn overhit_bonus(world: &mut World, npc_oid: i32, attacker_oid: i32, 
     }
     let max_hp = world
         .objects
-        .get_component::<Vitals>(&npc_oid)
+        .get_component::<components::Vitals>(&npc_oid)
         .map(|v| v.max_hp as f64)
         .unwrap_or(0.0);
     if max_hp <= 0.0 {
@@ -43,7 +34,7 @@ pub(crate) fn overhit_bonus(world: &mut World, npc_oid: i32, attacker_oid: i32, 
     }
     world.objects.remove_component::<Overhit>(&npc_oid);
     let percentage = ((oh.damage * 100.0) / max_hp).min(25.0);
-    send_sm_bare_to_player(world, attacker_oid, sm_ids::OVER_HIT);
+    helpers::send_sm_bare_to_player(world, attacker_oid, sm_ids::OVER_HIT);
     (percentage / 100.0) * exp
 }
 
@@ -166,7 +157,7 @@ pub(crate) fn add_exp_and_sp(
         (p.level, p.exp)
     };
     if exp > 0 || sp > 0 {
-        send_sm_to_player(
+        helpers::send_sm_to_player(
             world,
             player_oid,
             sm_ids::YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4,
@@ -330,7 +321,7 @@ fn add_reputation_to_clan_for_levels(world: &mut World, player_oid: i32, new_lev
     if world.clans.get(&clan_id).is_none_or(|c| c.level < 3) {
         return;
     }
-    let last_paid = player_var_int(world, player_oid, LAST_PLEDGE_REPUTATION_LEVEL, 0);
+    let last_paid = helpers::player_var_int(world, player_oid, LAST_PLEDGE_REPUTATION_LEVEL, 0);
     if last_paid >= new_level {
         return;
     }
@@ -340,7 +331,7 @@ fn add_reputation_to_clan_for_levels(world: &mut World, player_oid: i32, new_lev
         .map(|level| f.reputation_for_level(level))
         .sum();
     let multiplier = f.level_obtained_reputation_multiplier;
-    set_player_var_int(world, player_oid, LAST_PLEDGE_REPUTATION_LEVEL, new_level);
+    helpers::set_player_var_int(world, player_oid, LAST_PLEDGE_REPUTATION_LEVEL, new_level);
     if raw == 0 {
         return;
     }
@@ -385,12 +376,12 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
         let Some((p, mut vitals, mut pvitals, base, mods, inventory, mut speeds, mut combat)) =
             world.objects.get_many_mut::<(
                 &mut Player,
-                &mut Vitals,
-                &mut PlayerVitals,
-                &BaseStats,
-                &StatModifiers,
+                &mut components::Vitals,
+                &mut components::PlayerVitals,
+                &components::BaseStats,
+                &components::StatModifiers,
                 &crate::model::inventory::Inventory,
-                &mut Speeds,
+                &mut components::Speeds,
                 &mut crate::model::components::CombatStats,
             )>(&player_oid)
         else {
@@ -428,7 +419,7 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     check_player_skills(world, player_oid);
 
     if leveled_up {
-        broadcast_including_self(
+        helpers::broadcast_including_self(
             world,
             player_oid,
             &server_packets::social_action(player_oid, server_packets::SOCIAL_ACTION_LEVEL_UP),
@@ -436,10 +427,10 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     }
     // Status + full info refresh (`broadcastStatusUpdate` + `updateUserInfo`
     // + `SkillList`).
-    let Some((vitals, pvitals)) = vitals_pair(world, player_oid) else {
+    let Some((vitals, pvitals)) = helpers::vitals_pair(world, player_oid) else {
         return;
     };
-    broadcast_including_self(
+    helpers::broadcast_including_self(
         world,
         player_oid,
         &server_packets::status_update(
@@ -465,17 +456,17 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     );
     // Java `PlayerStat.addLevel` → `PartySmallWindowUpdate(this, true)`.
     crate::game_loop::party::notify_party_all(world, player_oid);
-    if let Some(client_id) = client_for_player(world, player_oid)
+    if let Some(client_id) = helpers::client_for_player(world, player_oid)
         && let Some(user_info) = crate::game_loop::player_info::user_info_packet(world, player_oid)
     {
         if leveled_up {
-            send_sm_bare_to_client(world, client_id, sm_ids::YOUR_LEVEL_HAS_INCREASED);
+            helpers::send_sm_bare_to_client(world, client_id, sm_ids::YOUR_LEVEL_HAS_INCREASED);
         }
-        send_to_client(world, client_id, user_info);
+        helpers::send_to_client(world, client_id, user_info);
         let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player_oid) else {
             return;
         };
-        send_to_client(world, client_id, pkt);
+        helpers::send_to_client(world, client_id, pkt);
     }
 }
 
@@ -525,7 +516,7 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
         };
         let skills = world
             .objects
-            .get_component::<SkillBook>(&player_oid)
+            .get_component::<components::SkillBook>(&player_oid)
             .cloned()
             .unwrap_or_default();
         (p.class_id, p.level, skills.0, p.is_gm(&world.data))
@@ -541,7 +532,10 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
     if granted.is_empty() {
         return;
     }
-    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&player_oid) {
+    if let Some(book) = world
+        .objects
+        .get_component_mut::<components::SkillBook>(&player_oid)
+    {
         for &(id, lvl) in &granted {
             book.0.insert(id, lvl);
         }
@@ -553,7 +547,7 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
         crate::game_loop::shortcuts::update_skill_shortcuts(world, player_oid, id, lvl);
     }
     if world.cfg.character.auto_learn_skills
-        && let Some(client_id) = client_for_player(world, player_oid)
+        && let Some(client_id) = helpers::client_for_player(world, player_oid)
     {
         let count = granted
             .iter()
@@ -564,9 +558,9 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
             .objects
             .get_component::<crate::model::components::Shortcuts>(&player_oid)
         {
-            send_to_client(world, client_id, server_packets::shortcut_init(shortcuts));
+            helpers::send_to_client(world, client_id, server_packets::shortcut_init(shortcuts));
         }
-        send_sm_to_client(
+        helpers::send_sm_to_client(
             world,
             client_id,
             sm_ids::S1_TEXT,
@@ -631,7 +625,7 @@ pub(crate) fn check_player_skills(world: &mut World, player_oid: i32) {
         };
         let skills = world
             .objects
-            .get_component::<SkillBook>(&player_oid)
+            .get_component::<components::SkillBook>(&player_oid)
             .cloned()
             .unwrap_or_default();
         (p.class_id, p.level, skills.0)
@@ -641,7 +635,10 @@ pub(crate) fn check_player_skills(world: &mut World, player_oid: i32) {
         return;
     }
     // Write the filtered book back, then sync the panel shortcuts.
-    if let Some(book) = world.objects.get_component_mut::<SkillBook>(&player_oid) {
+    if let Some(book) = world
+        .objects
+        .get_component_mut::<components::SkillBook>(&player_oid)
+    {
         book.0 = known;
     }
     for &(skill_id, action) in &changes {

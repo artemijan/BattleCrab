@@ -18,8 +18,8 @@
 //! `<skillList>`.
 
 use crate::game_loop::guard::{in_zone, maybe_position};
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers;
+
 use commons::util::rnd;
 
 use crate::data::npc_ai_skills::AiSkillScope;
@@ -33,9 +33,6 @@ use crate::model::skill::Skill;
 use crate::network::server_packets;
 use crate::world::World;
 
-use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::helpers::{broadcast_near_region_in, instance_of};
 use crate::game_loop::skills::cast::set_skill_reuse;
 
 /// Java's literal cut between the SHORT_RANGE and LONG_RANGE buckets.
@@ -49,7 +46,7 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
         return false;
     }
 
-    let Some(npc_id) = npc_id_of(world, npc_oid) else {
+    let Some(npc_id) = helpers::npc_id_of(world, npc_oid) else {
         return false;
     };
     let Some(template) = world.data.npc_data.get(npc_id) else {
@@ -442,7 +439,7 @@ pub(crate) fn resolve_npc_cast_target(
             if selected_oid == npc_oid {
                 return None;
             }
-            if is_dead(world, selected_oid) && !skill.stay_after_death {
+            if helpers::is_dead(world, selected_oid) && !skill.stay_after_death {
                 return None;
             }
             if !target::is_auto_attackable(world, npc_oid, selected_oid) {
@@ -467,7 +464,7 @@ pub(crate) fn resolve_npc_cast_target(
         }
         // `NpcBody.java` / `PcBody.java`: a corpse of the matching kind.
         TargetType::NpcBody => {
-            if !is_dead(world, selected_oid)
+            if !helpers::is_dead(world, selected_oid)
                 || !world
                     .objects
                     .has_component::<crate::model::npc::Npc>(&selected_oid)
@@ -477,7 +474,7 @@ pub(crate) fn resolve_npc_cast_target(
             selected_oid
         }
         TargetType::PcBody => {
-            if !is_dead(world, selected_oid)
+            if !helpers::is_dead(world, selected_oid)
                 || !world
                     .objects
                     .has_component::<crate::model::Player>(&selected_oid)
@@ -552,7 +549,7 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     if world
         .objects
         .has_component::<crate::model::components::Movement>(&npc_oid)
-        && npc_template(world, npc_oid).is_some_and(|t| t.is_attackable_class())
+        && helpers::npc_template(world, npc_oid).is_some_and(|t| t.is_attackable_class())
     {
         return;
     }
@@ -624,11 +621,11 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
 
     set_skill_reuse(world, npc_oid, skill);
 
-    if let Some(region) = region_cell_of(world, npc_oid) {
-        broadcast_near_region_in(
+    if let Some(region) = helpers::region_cell_of(world, npc_oid) {
+        helpers::broadcast_near_region_in(
             world,
             region,
-            instance_of(world, npc_oid),
+            helpers::instance_of(world, npc_oid),
             &server_packets::magic_skill_use_raw(
                 (npc_oid, cx, cy, cz),
                 (target_oid, tx, ty, tz),
@@ -780,13 +777,13 @@ fn pick_random(_world: &World, candidates: &[i32]) -> Option<i32> {
 /// Living NPCs within `range` that share a faction with this one (the same
 /// `shares_clan_with` test the help-call uses), excluding the caller.
 fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
-    let Some(npc_id) = npc_id_of(world, npc_oid) else {
+    let Some(npc_id) = helpers::npc_id_of(world, npc_oid) else {
         return Vec::new();
     };
     let (Some(mine), Some(pos), Some(region)) = (
         world.data.npc_data.get(npc_id),
         maybe_position(world, npc_oid),
-        region_cell_of(world, npc_oid),
+        helpers::region_cell_of(world, npc_oid),
     ) else {
         return Vec::new();
     };

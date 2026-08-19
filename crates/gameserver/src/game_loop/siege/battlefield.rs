@@ -1,7 +1,16 @@
 //! The battlefield NPCs: control/flame towers, siege guards, siege flags
 //! and the advanced headquarter.
 
-use super::*;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::model::Player;
+use crate::model::components::AdvancedHeadquarter;
+use crate::model::components::Position;
+use crate::model::siege::SiegeClanType;
+use crate::model::siege::SiegeSpawn;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 /// Spawn a set of siege NPCs (the stationed guards / control + flame towers)
 /// onto the battlefield, tracking their object ids on the siege for despawn at
 /// the end. NPCs carry their template AI, so aggressive guards engage attackers.

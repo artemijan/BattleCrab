@@ -1,7 +1,9 @@
 //! Pet stats: per-level template substitution and stat recalculation.
 
-use super::*;
-
+use super::npc_template_id;
+use crate::model::components::ServitorOf;
+use crate::model::components::Vitals;
+use crate::world::World;
 /// A pet's NPC template with its **per-level pet stats substituted in**.
 ///
 /// Java does this at the finalizer level: `MaxHpFinalizer`, `PDefenseFinalizer`,

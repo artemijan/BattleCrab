@@ -1,11 +1,8 @@
 use super::do_revive;
 use crate::game_loop::guard::clan_of;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::broadcast_including_self;
-use crate::game_loop::helpers::client_for_player;
-use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::set_position;
-use crate::game_loop::helpers::{send_to_client, send_to_player};
+use crate::game_loop::helpers;
+
 use crate::model::Player;
 use crate::model::components::Intent;
 use crate::model::components::Movement;
@@ -285,7 +282,7 @@ fn siege_restart_location(
         }
         4 if role == Some(SiegeClanType::Attacker) => {
             let flag_oid = siege.flag_of(clan_id)?;
-            pos_of(world, flag_oid)
+            helpers::pos_of(world, flag_oid)
         }
         _ => None,
     }
@@ -378,7 +375,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     // the cast animation; a skill that teleports on landing (`/unstuck`'s
     // Escape, Recall) would otherwise leave the FX playing at the destination
     // for the client's own skill duration.
-    send_to_player(world, player_oid, server_packets::action_failed());
+    helpers::send_to_player(world, player_oid, server_packets::action_failed());
     crate::game_loop::skills::cast::abort_cast_when_untargeted(world, player_oid);
     crate::game_loop::target::drop_target_notify(world, player_oid);
     let Some(heading) = world
@@ -388,7 +385,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     else {
         return;
     };
-    broadcast_including_self(
+    helpers::broadcast_including_self(
         world,
         player_oid,
         &server_packets::teleport_to_location(player_oid, x, y, z, heading),
@@ -401,7 +398,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     }
     // Java `Player.setTeleporting(true)` arms the watchdog here.
     arm_teleport_watchdog(world, player_oid);
-    set_position(world, player_oid, (x, y, z));
+    helpers::set_position(world, player_oid, (x, y, z));
     // Through `World`, not the component directly, so `player_regions` moves
     // with the cell (an untracked teleport would leave the player receiving
     // broadcasts for the region they left).
@@ -409,7 +406,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     // "Send teleport finished packet to player" (Java, right after `setXYZ`):
     // the client sits on the black loading screen until this arrives, then
     // loads the destination and answers with `Appearing`.
-    send_to_player(
+    helpers::send_to_player(
         world,
         player_oid,
         server_packets::ex_teleport_to_location_activate(player_oid, x, y, z, heading),
@@ -420,7 +417,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     // `teleporting` for ever: the flag gates position validation and the
     // watchdog cannot clear it either, so a GM-teleported shop was left in a
     // state nothing could resolve short of a relog.
-    if client_for_player(world, player_oid).is_none() {
+    if helpers::client_for_player(world, player_oid).is_none() {
         on_teleported(world, None, player_oid);
     }
 }
@@ -483,7 +480,7 @@ fn on_teleported(world: &mut World, client_id: Option<u32>, object_id: i32) {
         crate::game_loop::player_info::user_info_packet(world, object_id),
         client_id,
     ) {
-        send_to_client(world, cid, pkt);
+        helpers::send_to_client(world, cid, pkt);
     }
 }
 
@@ -553,7 +550,7 @@ pub(crate) fn teleport_watchdog_tick(world: &mut World) {
         // exchange and `UserInfo` to. A player with no client left (logout
         // raced the sweep) has nothing to be made visible *to*; the logout
         // path despawns them regardless.
-        let Some(client_id) = client_for_player(world, oid) else {
+        let Some(client_id) = helpers::client_for_player(world, oid) else {
             continue;
         };
         tracing::warn!(

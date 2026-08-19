@@ -25,16 +25,13 @@
 //! - `recruit` — the clan-entry board: recruit list, waiting list, draft
 //!   list and applications.
 
-pub(crate) use crate::game_loop::helpers::class_level;
 use crate::game_loop::helpers::{send_to_client, send_to_player};
 use commons::network::PacketReader;
 use tracing::warn;
 
 use crate::db::DbCommand;
 use crate::model::Player;
-use crate::model::clan::{ALL_CLAN_PRIVILEGES, CL_DISMISS, CL_JOIN_CLAN, Clan, ClanMember};
-use crate::model::components::ClanSkills;
-use crate::model::skill::ActiveBuff;
+use crate::model::clan::{ALL_CLAN_PRIVILEGES, Clan, ClanMember};
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
@@ -56,14 +53,61 @@ pub(crate) use crate::game_loop::helpers::player_name_or_empty;
 pub(crate) use crate::game_loop::helpers::{
     send_sm_bare_to_client as send_sm, send_sm_to_player as send_sm_with,
 };
-pub(crate) use alliance::*;
-pub(crate) use crests::*;
-pub(crate) use membership::*;
-pub(crate) use ranks::*;
-pub(crate) use recruit::*;
-pub(crate) use skills::*;
-pub(crate) use sub_pledge::*;
-pub(crate) use wars::*;
+pub(crate) use alliance::{
+    ally_clan_ids, handle_ally_dismiss, handle_ally_leave, handle_create_ally,
+    handle_dissolve_ally, handle_request_ally_info, handle_request_answer_join_ally,
+    handle_request_dismiss_ally, handle_request_join_ally,
+};
+#[cfg(test)]
+pub(crate) use crests::refresh_clan_crest_on_members_for_test;
+pub(crate) use crests::{
+    handle_request_ally_crest, handle_request_ex_pledge_crest_large,
+    handle_request_ex_set_pledge_crest_large, handle_request_pledge_crest,
+    handle_request_set_ally_crest, handle_request_set_pledge_crest,
+};
+pub(crate) use membership::{
+    add_clan_member, handle_clan_dissolve_task, handle_dissolve_clan, handle_recover_clan,
+    handle_request_answer_join_pledge, handle_request_join_pledge,
+    handle_request_oust_pledge_member, handle_request_withdrawal_pledge, remove_clan_member,
+    schedule_clan_dissolve,
+};
+pub(crate) use ranks::{
+    broadcast_clan_status, handle_cancel_clan_leader_change, handle_change_clan_leader,
+    handle_increase_clan_level, handle_learn_pledge_skill, handle_request_give_nick_name,
+    handle_request_pledge_member_info, handle_request_pledge_member_list,
+    handle_request_pledge_member_power_info, handle_request_pledge_power,
+    handle_request_pledge_power_grade_list, handle_request_pledge_reorganize_member,
+    handle_request_pledge_set_member_power_grade, handle_request_pledge_skill_info,
+    show_pledge_skill_list,
+};
+pub(crate) use recruit::{
+    handle_request_pledge_draft_list_apply, handle_request_pledge_draft_list_search,
+    handle_request_pledge_recruit_board_access, handle_request_pledge_recruit_board_detail,
+    handle_request_pledge_recruit_board_search,
+    handle_request_pledge_sign_in_for_open_joining_method, handle_request_pledge_waiting_applied,
+    handle_request_pledge_waiting_apply, handle_request_pledge_waiting_list,
+    handle_request_pledge_waiting_user, handle_request_pledge_waiting_user_accept,
+};
+pub(crate) use skills::{
+    add_clan_skill, apply_clan_advent, apply_clan_advent_on_login, apply_clan_skills_to_member,
+    apply_siege_skills_to_leader, clan_skill_pairs, force_new_leader, give_clan_skills,
+    grant_residential_skills_to_clan, online_members, remove_clan_advent,
+    remove_clan_skills_from_member, strip_residential_skills_from_clan,
+};
+#[cfg(test)]
+pub(crate) use skills::{give_residential_skills, remove_residential_skills};
+pub(crate) use sub_pledge::{
+    handle_assign_subpledge_leader, handle_create_academy, handle_create_knight,
+    handle_create_royal, handle_rename_pledge,
+};
+#[cfg(test)]
+pub(crate) use wars::war_between;
+pub(crate) use wars::{
+    at_war_between, clan_is_at_war, clan_war_on_kill, delete_clan_wars, handle_clan_war_timeout,
+    handle_request_pledge_war_list, handle_request_start_pledge_war,
+    handle_request_stop_pledge_war, handle_request_surrender_pledge_war, mutual_war_between,
+    rearm_clan_wars_at_boot, war_relation_bits,
+};
 
 // Every `clans` submodule reaches this through `use super::*`, so it is
 // re-exported here rather than imported once per file.

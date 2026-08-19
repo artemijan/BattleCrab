@@ -1,9 +1,17 @@
-use super::*;
+use super::ally_clan_ids;
+use super::clan_membership;
+use super::online_members;
+use crate::db::DbCommand;
+use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 use crate::game_loop::helpers::send_to_client;
-
-use crate::model::clan::{
-    CL_REGISTER_CREST, CREST_TYPE_ALLY, CREST_TYPE_PLEDGE, CREST_TYPE_PLEDGE_LARGE, Crest,
-};
+use crate::model::Player;
+use crate::model::clan;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
+use commons::network::PacketReader;
+use commons::util::now_millis;
 
 /// `CrestTable.createCrest`: allocate the next id, store the bitmap, persist.
 fn create_crest(world: &mut World, data: &[u8], kind: i32) -> i32 {
@@ -11,7 +19,7 @@ fn create_crest(world: &mut World, data: &[u8], kind: i32) -> i32 {
     world.next_crest_id += 1;
     world.crests.insert(
         id,
-        Crest {
+        clan::Crest {
             id,
             data: data.to_vec(),
             kind,
@@ -84,7 +92,7 @@ fn may_edit_crest(world: &mut World, player: i32, clan_id: i32, privs: i32) -> b
         );
         return false;
     }
-    if !clan.has_privilege(player, privs, CL_REGISTER_CREST) {
+    if !clan.has_privilege(player, privs, clan::CL_REGISTER_CREST) {
         send_sm_with(
             world,
             player,
@@ -144,7 +152,7 @@ pub(crate) fn handle_request_set_pledge_crest(world: &mut World, client_id: u32,
         );
         return;
     }
-    let crest_id = create_crest(world, &data, CREST_TYPE_PLEDGE);
+    let crest_id = create_crest(world, &data, clan::CREST_TYPE_PLEDGE);
     if let Some(c) = world.clans.get_mut(&clan_id) {
         c.crest_id = crest_id;
     }
@@ -240,7 +248,7 @@ pub(crate) fn handle_request_ex_set_pledge_crest_large(
         );
         return;
     }
-    let crest_id = create_crest(world, &data, CREST_TYPE_PLEDGE_LARGE);
+    let crest_id = create_crest(world, &data, clan::CREST_TYPE_PLEDGE_LARGE);
     if let Some(c) = world.clans.get_mut(&clan_id) {
         c.crest_large_id = crest_id;
     }
@@ -344,7 +352,7 @@ pub(crate) fn handle_request_set_ally_crest(world: &mut World, client_id: u32, b
         }
         return;
     }
-    let crest_id = create_crest(world, &data, CREST_TYPE_ALLY);
+    let crest_id = create_crest(world, &data, clan::CREST_TYPE_ALLY);
     set_alliance_crest(world, ally_id, crest_id);
     send_sm_with(
         world,

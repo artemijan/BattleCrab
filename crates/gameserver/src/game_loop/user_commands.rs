@@ -15,13 +15,8 @@
 
 use super::helpers::send_sm_to_client as send_sm;
 use crate::game_loop::guard::clan_of;
-use crate::game_loop::helpers::class_level;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::send_action_failed;
-use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers;
+
 use crate::model::components::{Casting, Position};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -136,7 +131,7 @@ fn loc(world: &World, client_id: u32, object_id: i32) {
             &[SmParam::Text(format!("{}, {}, {}", pos.x, pos.y, pos.z))],
         )
     };
-    send_to_client(world, client_id, packet);
+    helpers::send_to_client(world, client_id, packet);
 }
 
 /// Port of `usercommandhandlers/Unstuck.java`: cast the escape skill and let
@@ -145,7 +140,7 @@ fn loc(world: &World, client_id: u32, object_id: i32) {
 /// flag, `isMovementDisabled` beyond death.
 fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
     // `isCastingNow || isAlikeDead` → refuse silently (Java returns false).
-    if world.objects.has_component::<Casting>(&object_id) || is_dead(world, object_id) {
+    if world.objects.has_component::<Casting>(&object_id) || helpers::is_dead(world, object_id) {
         return;
     }
     let (is_gm, interval) = {
@@ -160,14 +155,14 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
 
     if is_gm {
         // GM: the stock 1-second escape.
-        if let Some(skill) = skill_by_id(world, GM_ESCAPE_SKILL_ID, 1) {
+        if let Some(skill) = helpers::skill_by_id(world, GM_ESCAPE_SKILL_ID, 1) {
             super::skills::cast::start_casting(world, client_id, object_id, &skill, object_id);
         } else {
             super::admin::send_message(world, client_id, "You use Escape: 1 second.");
         }
         return;
     }
-    let Some(mut skill) = skill_by_id(world, ESCAPE_SKILL_ID, 1) else {
+    let Some(mut skill) = helpers::skill_by_id(world, ESCAPE_SKILL_ID, 1) else {
         return;
     };
     if interval == 300 {
@@ -195,7 +190,7 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
     // `Casting` and the guard at the top of this fn already proved the slot
     // was empty — so the component is the "cast started" signal.
     if !world.objects.has_component::<Casting>(&object_id) {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         world
             .objects
             .remove_component::<crate::model::components::Intent>(&object_id);
@@ -224,7 +219,7 @@ fn time(world: &World, client_id: u32) {
     // Java pads the minutes to two digits and passes both as *strings*.
     let packet =
         server_packets::system_message_with(message, &[SmParam::Text(hour), SmParam::Text(minute)]);
-    send_to_client(world, client_id, packet);
+    helpers::send_to_client(world, client_id, packet);
 }
 
 /// The message id and the two string params `/time` sends for `now_millis`:
@@ -324,7 +319,7 @@ fn clan_wars_list(world: &World, client_id: u32, object_id: i32, command_id: i32
                 &[SmParam::Text(clan.name.clone())],
             )
         };
-        send_to_client(world, client_id, packet);
+        helpers::send_to_client(world, client_id, packet);
     }
     send_sm(world, client_id, sm_ids::EMPTY_3, &[]);
 }
@@ -347,7 +342,7 @@ fn instance_zone(world: &World, client_id: u32, object_id: i32) {
         .map(|i| i.template_id)
         .filter(|&id| id >= 0)
         .unwrap_or(-1);
-    send_to_client(
+    helpers::send_to_client(
         world,
         client_id,
         server_packets::ex_inzone_waiting(template_id, &[]),
@@ -390,7 +385,7 @@ fn channel_leave(world: &mut World, client_id: u32, object_id: i32) {
     let Some(cc_id) = super::command_channel::cc_id_of_party(world, party_id) else {
         return;
     };
-    let leader_name = player_name_or_empty(world, object_id);
+    let leader_name = helpers::player_name_or_empty(world, object_id);
     // Java: the leaving party's leader is told, and the channel is told whose
     // party left — both *before* the party is unhooked.
     send_sm(
@@ -441,7 +436,7 @@ fn channel_info(world: &World, client_id: u32, object_id: i32) {
     let member_count = parties.iter().map(|(_, _, n)| n).sum::<i32>();
     let packet =
         server_packets::ex_multi_party_command_channel_info(&leader_name, member_count, &parties);
-    send_to_client(world, client_id, packet);
+    helpers::send_to_client(world, client_id, packet);
 }
 
 /// The command channel this player leads — Java's compound guard for
@@ -529,7 +524,7 @@ fn siege_status(world: &World, client_id: u32, object_id: i32) {
         .replace("%kill_count%", "0")
         .replace("%death_count%", "0")
         .replace("%member_list%", &rows);
-    send_to_client(world, client_id, server_packets::npc_html_message(0, &page));
+    helpers::send_to_client(world, client_id, server_packets::npc_html_message(0, &page));
 }
 
 /// Every online member of `clan_id` with whether they stand in **this castle's**
@@ -611,7 +606,7 @@ fn clan_penalty(world: &World, client_id: u32, object_id: i32) {
 <table width=270 border=0><tr>{rows}</tr></table>\
 <img src=\"L2UI.SquareWhite\" width=270 height=1></center></body></html>"
     );
-    send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
+    helpers::send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
 }
 
 /// Port of `usercommandhandlers/OlympiadStat.java`: the *target's* Olympiad
@@ -638,7 +633,7 @@ fn olympiad_stat(world: &World, client_id: u32, object_id: i32) {
             world
                 .objects
                 .get_component::<crate::model::Player>(oid)
-                .is_some_and(|p| class_level(world, p.class_id) >= 2)
+                .is_some_and(|p| helpers::class_level(world, p.class_id) >= 2)
         });
     let Some(target) = target else {
         send_sm(
@@ -725,7 +720,7 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
     let Some(pet) = super::servitor::pet_of(world, object_id) else {
         return; // Java: no pet → the whole branch is skipped
     };
-    let Some(pet_npc_id) = npc_id_of(world, pet) else {
+    let Some(pet_npc_id) = helpers::npc_id_of(world, pet) else {
         return;
     };
     let Some(mount_type) = mount_type_of(world, pet_npc_id) else {
@@ -733,10 +728,10 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
     };
 
     let refuse = |world: &World, sm: i16| {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         send_sm(world, client_id, sm, &[]);
     };
-    let dead = |world: &World, oid: i32| is_dead(world, oid);
+    let dead = |world: &World, oid: i32| helpers::is_dead(world, oid);
     if dead(world, object_id) {
         refuse(world, sm_ids::A_STRIDER_CANNOT_BE_RIDDEN_WHEN_DEAD);
         return;
@@ -768,7 +763,7 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
             .get_component::<Player>(&object_id)
             .is_some_and(|p| p.transform_id != 0)
     {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
     if !crate::geo::distance::within_3d(world, object_id, pet, MOUNT_RANGE) {

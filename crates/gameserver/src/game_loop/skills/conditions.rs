@@ -36,14 +36,15 @@
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::abnormal::flags_of;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::{
-    is_dead, level_of, player, send_action_failed, send_sm_bare_to_client, send_sm_to_client,
-};
+use crate::game_loop::helpers;
+use crate::model::components;
+use crate::model::skill;
+
 use crate::model::Player;
-use crate::model::components::{OlympiadObserver, PartyRef, ServitorOf, Vitals, ZoneFlags};
+
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::skill::effect_flag::BLOCK_RESURRECTION;
-use crate::model::skill::{AffectType, MountKind, Skill, SkillCondition, Vital};
+
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 
@@ -72,7 +73,7 @@ pub(crate) enum RefusalLine {
 pub(crate) fn check_cast(
     world: &World,
     caster_oid: i32,
-    skill: &Skill,
+    skill: &skill::Skill,
     target_oid: i32,
 ) -> Result<(), Refusal> {
     // Java: `creature.canOverrideCond(SKILL_CONDITIONS) && !Config.GM_SKILL_RESTRICTION`.
@@ -144,17 +145,19 @@ pub(crate) fn check_cast(
 /// deliberate switch-off — reproducing it would delete an advertised bonus to
 /// match what is plainly a Java-side accident.
 pub(crate) fn passive_stat_gate(
-    skill: &Skill,
+    skill: &skill::Skill,
     inventory: &Inventory,
     items: &crate::data::item_data::ItemData,
 ) -> bool {
     skill.passive_conditions.iter().all(|c| match c {
-        SkillCondition::EquipWeapon { mask } => {
+        skill::SkillCondition::EquipWeapon { mask } => {
             weapon_mask_of(inventory, items).is_some_and(|(equipped, _)| equipped & mask != 0)
         }
-        SkillCondition::HandedWeapon { mask, two_handed } => weapon_mask_of(inventory, items)
-            .is_some_and(|(equipped, lr)| equipped & mask != 0 && lr == *two_handed),
-        SkillCondition::EquipShield => {
+        skill::SkillCondition::HandedWeapon { mask, two_handed } => {
+            weapon_mask_of(inventory, items)
+                .is_some_and(|(equipped, lr)| equipped & mask != 0 && lr == *two_handed)
+        }
+        skill::SkillCondition::EquipShield => {
             inventory.paperdoll_item_id(PaperdollSlot::LHand) != 0
                 && items.armor_type(inventory.paperdoll_item_id(PaperdollSlot::LHand))
                     == crate::data::item_data::ArmorType::Shield
@@ -173,13 +176,13 @@ pub(crate) fn send_refusal(
     world: &World,
     client_id: u32,
     caster_oid: i32,
-    skill: &Skill,
+    skill: &skill::Skill,
     target_oid: i32,
     refusal: &Refusal,
 ) {
     match &refusal.0 {
-        Some(RefusalLine::Sm(sm)) => send_sm_bare_to_client(world, client_id, *sm),
-        Some(RefusalLine::Text(text)) => send_sm_to_client(
+        Some(RefusalLine::Sm(sm)) => helpers::send_sm_bare_to_client(world, client_id, *sm),
+        Some(RefusalLine::Text(text)) => helpers::send_sm_to_client(
             world,
             client_id,
             sm_ids::S1_TEXT,
@@ -188,7 +191,7 @@ pub(crate) fn send_refusal(
         None => {}
     }
     if !(caster_oid == target_oid && skill.is_bad()) {
-        send_sm_to_client(
+        helpers::send_sm_to_client(
             world,
             client_id,
             sm_ids::S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS,
@@ -198,7 +201,7 @@ pub(crate) fn send_refusal(
             }],
         );
     }
-    send_action_failed(world, client_id);
+    helpers::send_action_failed(world, client_id);
 }
 
 /// `skill` is deliberately unused: every ported condition reads world state
@@ -216,9 +219,9 @@ pub(crate) fn check_for_test(
     world: &World,
     caster: i32,
     target: i32,
-    conds: &[SkillCondition],
+    conds: &[skill::SkillCondition],
 ) -> bool {
-    let skill = Skill::default();
+    let skill = skill::Skill::default();
     conds
         .iter()
         .all(|c| eval(world, caster, &skill, target, c).is_ok())
@@ -227,49 +230,49 @@ pub(crate) fn check_for_test(
 fn eval(
     world: &World,
     caster: i32,
-    _skill: &Skill,
+    _skill: &skill::Skill,
     target: i32,
-    cond: &SkillCondition,
+    cond: &skill::SkillCondition,
 ) -> Result<(), Refusal> {
     let ok = |b: bool| if b { Ok(()) } else { Err(Refusal(None)) };
     match cond {
         // ---- equipment ---------------------------------------------------
-        SkillCondition::EquipWeapon { mask } => {
+        skill::SkillCondition::EquipWeapon { mask } => {
             ok(weapon_mask(world, caster).is_some_and(|(equipped, _)| equipped & mask != 0))
         }
-        SkillCondition::EquipShield => ok(has_shield(world, caster)),
+        skill::SkillCondition::EquipShield => ok(has_shield(world, caster)),
         // Java returns on the **first** type match instead of continuing the
         // loop, so a listed weapon held in the wrong number of hands fails
         // rather than falling through to another entry. With a mask the two
         // are equivalent: match the type, then test the hand count.
-        SkillCondition::HandedWeapon { mask, two_handed } => ok(weapon_mask(world, caster)
+        skill::SkillCondition::HandedWeapon { mask, two_handed } => ok(weapon_mask(world, caster)
             .is_some_and(|(equipped, lr_hand)| equipped & mask != 0 && lr_hand == *two_handed)),
         // ---- caster resources --------------------------------------------
-        SkillCondition::Encumbered {
+        skill::SkillCondition::Encumbered {
             weight_percent,
             slots_percent,
         } => ok(free_percent(world, caster)
             .is_some_and(|(slots, weight)| slots >= *slots_percent && weight >= *weight_percent)),
-        SkillCondition::RemainVital {
+        skill::SkillCondition::RemainVital {
             vital,
             amount,
             percent,
             affect,
         } => {
             let subject = match affect {
-                AffectType::Caster => Some(caster),
-                AffectType::Target => Some(target).filter(|t| *t != 0),
+                skill::AffectType::Caster => Some(caster),
+                skill::AffectType::Target => Some(target).filter(|t| *t != 0),
                 // Java's switch covers CASTER and TARGET only and falls
                 // through to `return false`, so BOTH refuses outright.
-                AffectType::Both => None,
+                skill::AffectType::Both => None,
             };
             ok(subject.is_some_and(|oid| {
                 vital_percent(world, oid, *vital).is_some_and(|cur| percent.test(cur, *amount))
             }))
         }
-        SkillCondition::EnergySaved { amount } => ok(charges(world, caster) >= *amount),
+        skill::SkillCondition::EnergySaved { amount } => ok(charges(world, caster) >= *amount),
         // The inverse, and the one with its own message: refuse *at* the cap.
-        SkillCondition::EnergyMax { amount } => {
+        skill::SkillCondition::EnergyMax { amount } => {
             if charges(world, caster) >= *amount {
                 Err(Refusal(Some(RefusalLine::Sm(
                     sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY,
@@ -279,21 +282,21 @@ fn eval(
             }
         }
         // ---- caster state -------------------------------------------------
-        SkillCondition::CanEscape => ok(!super::abnormal::cannot_escape(world, caster)),
-        SkillCondition::InsideSiegeZone => ok(in_zone(world, caster, ZoneKind::Siege)),
-        SkillCondition::NotInUnderwater => ok(!in_zone(world, caster, ZoneKind::Water)),
-        SkillCondition::Mounted { kind } => {
+        skill::SkillCondition::CanEscape => ok(!super::abnormal::cannot_escape(world, caster)),
+        skill::SkillCondition::InsideSiegeZone => ok(in_zone(world, caster, ZoneKind::Siege)),
+        skill::SkillCondition::NotInUnderwater => ok(!in_zone(world, caster, ZoneKind::Water)),
+        skill::SkillCondition::Mounted { kind } => {
             let want = match kind {
-                MountKind::Strider => MOUNT_STRIDER,
-                MountKind::Wyvern => MOUNT_WYVERN,
+                skill::MountKind::Strider => MOUNT_STRIDER,
+                skill::MountKind::Wyvern => MOUNT_WYVERN,
             };
-            ok(player(world, caster).is_some_and(|p| p.mount_type == want))
+            ok(helpers::player(world, caster).is_some_and(|p| p.mount_type == want))
         }
-        SkillCondition::CheckSex { is_female } => {
-            ok(player(world, caster).is_some_and(|p| p.is_female == *is_female))
+        skill::SkillCondition::CheckSex { is_female } => {
+            ok(helpers::player(world, caster).is_some_and(|p| p.is_female == *is_female))
         }
-        SkillCondition::SocialClass { social_class } => {
-            ok(player(world, caster).is_some_and(|p| {
+        skill::SkillCondition::SocialClass { social_class } => {
+            ok(helpers::player(world, caster).is_some_and(|p| {
                 if p.clan_id == 0 {
                     return false;
                 }
@@ -302,50 +305,52 @@ fn eval(
                 leader || (*social_class != -1 && p.pledge_type >= *social_class)
             }))
         }
-        SkillCondition::CheckLevel { min, max, affect } => {
+        skill::SkillCondition::CheckLevel { min, max, affect } => {
             let subject = match affect {
-                AffectType::Caster => Some(caster),
+                skill::AffectType::Caster => Some(caster),
                 // Java's TARGET leg requires a **player**, unlike the vital one.
-                AffectType::Target => Some(target).filter(|t| is_player(world, *t)),
-                AffectType::Both => None,
+                skill::AffectType::Target => Some(target).filter(|t| is_player(world, *t)),
+                skill::AffectType::Both => None,
             };
             ok(subject
-                .and_then(|oid| level_of(world, oid))
+                .and_then(|oid| helpers::level_of(world, oid))
                 .is_some_and(|lvl| lvl >= *min && lvl <= *max))
         }
-        SkillCondition::CanTransform => can_transform(world, caster),
-        SkillCondition::CanSummon => ok(can_summon(world, caster)),
+        skill::SkillCondition::CanTransform => can_transform(world, caster),
+        skill::SkillCondition::CanSummon => ok(can_summon(world, caster)),
         // Java adds `isAlikeDead` and checks `inObserverMode` twice; the
         // duplicate is dropped, the rest is the summon gate minus teleporting.
-        SkillCondition::CanSummonCubic => ok(!is_dead(world, caster) && can_summon(world, caster)),
-        SkillCondition::CanSummonSiegeGolem | SkillCondition::BuildCamp => {
+        skill::SkillCondition::CanSummonCubic => {
+            ok(!helpers::is_dead(world, caster) && can_summon(world, caster))
+        }
+        skill::SkillCondition::CanSummonSiegeGolem | skill::SkillCondition::BuildCamp => {
             ok(siege_deployable(world, caster))
         }
-        SkillCondition::CallPc => call_pc(world, caster),
-        SkillCondition::CanUntransform => can_untransform(world, caster),
+        skill::SkillCondition::CallPc => call_pc(world, caster),
+        skill::SkillCondition::CanUntransform => can_untransform(world, caster),
         // ---- target state --------------------------------------------------
-        SkillCondition::TargetPc => ok(is_player(world, target)),
-        SkillCondition::TargetRace { race } => ok(race_of(world, target) == Some(*race)),
-        SkillCondition::TargetMyParty { include_me } => {
+        skill::SkillCondition::TargetPc => ok(is_player(world, target)),
+        skill::SkillCondition::TargetRace { race } => ok(race_of(world, target) == Some(*race)),
+        skill::SkillCondition::TargetMyParty { include_me } => {
             ok(target_in_my_party(world, caster, target, *include_me))
         }
-        SkillCondition::ConsumeBody => {
+        skill::SkillCondition::ConsumeBody => {
             if is_consumable_corpse(world, target) {
                 Ok(())
             } else {
                 Err(Refusal(Some(RefusalLine::Sm(sm_ids::INVALID_TARGET))))
             }
         }
-        SkillCondition::Unlock => ok(is_door(world, target) || is_chest(world, target)),
-        SkillCondition::Resurrection => resurrection(world, caster, target),
-        SkillCondition::SkillAcquire {
+        skill::SkillCondition::Unlock => ok(is_door(world, target) || is_chest(world, target)),
+        skill::SkillCondition::Resurrection => resurrection(world, caster, target),
+        skill::SkillCondition::SkillAcquire {
             skill_id,
             has_learned,
         } => ok(knows_skill(world, target, *skill_id) == *has_learned),
         // `OpSkill` — the *caster's* own book, and the level must match
         // exactly. The negative form is "not at that level", not "absent", so
         // an Ancient Book stays usable at every level below the one it grants.
-        SkillCondition::SkillKnown {
+        skill::SkillCondition::SkillKnown {
             skill_id,
             skill_level,
             has_learned,
@@ -358,16 +363,16 @@ fn eval(
             ok(at_level == *has_learned)
         }
         // ---- residences ----------------------------------------------------
-        SkillCondition::Home { residence } => ok(owns_residence(world, caster, *residence)),
+        skill::SkillCondition::Home { residence } => ok(owns_residence(world, caster, *residence)),
         // ---- target identity -----------------------------------------------
-        SkillCondition::TargetDoor { door_ids } => {
+        skill::SkillCondition::TargetDoor { door_ids } => {
             ok(is_door(world, target) && door_ids.contains(&template_id_of(world, target)))
         }
         // Java re-reads `caster.getTarget()` here for a player caster rather
         // than trusting the resolved target — for a `SELF` skill like Nectar
         // (2005) those are different objects, and it is the *selection* the
         // condition is about.
-        SkillCondition::TargetNpc { npc_ids } => {
+        skill::SkillCondition::TargetNpc { npc_ids } => {
             let actual = if is_player(world, caster) {
                 world
                     .objects
@@ -381,7 +386,7 @@ fn eval(
                     && npc_ids.contains(&template_id_of(world, t))
             }))
         }
-        SkillCondition::Companion { kind } => ok(match kind {
+        skill::SkillCondition::Companion { kind } => ok(match kind {
             crate::model::skill::CompanionKind::Pet => is_pet(world, target),
             // `caster.getServitor(target.getObjectId()) != null` — *my*
             // servitor, not merely any summon.
@@ -391,7 +396,7 @@ fn eval(
         }),
         // `OpAlignment` — `LAWFUL` is reputation >= 0, `CHAOTIC` below it. The
         // `TARGET` form requires an actual player; a monster fails it.
-        SkillCondition::Alignment { affect, chaotic } => {
+        skill::SkillCondition::Alignment { affect, chaotic } => {
             let test = |oid: i32| {
                 world
                     .objects
@@ -399,17 +404,17 @@ fn eval(
                     .is_some_and(|p| (p.reputation < 0) == *chaotic)
             };
             ok(match affect {
-                AffectType::Caster => test(caster),
-                AffectType::Target => is_player(world, target) && test(target),
+                skill::AffectType::Caster => test(caster),
+                skill::AffectType::Target => is_player(world, target) && test(target),
                 // `SkillConditionAffectType` has only CASTER and TARGET, and
                 // every carrier on this dist declares one of them — this arm
                 // exists because the port shares one wider `AffectType` across
                 // conditions. Requiring both ends is the strict reading.
-                AffectType::Both => test(caster) && is_player(world, target) && test(target),
+                skill::AffectType::Both => test(caster) && is_player(world, target) && test(target),
             })
         }
         // ---- the pre-G34 hold-out -------------------------------------------
-        SkillCondition::ExistNpc(c) => {
+        skill::SkillCondition::ExistNpc(c) => {
             let found = super::cast::op_exist_npc_around(world, caster, c);
             ok(if found { c.is_around } else { !c.is_around })
         }
@@ -482,12 +487,12 @@ fn is_player(world: &World, object_id: i32) -> bool {
 fn in_zone(world: &World, object_id: i32, kind: ZoneKind) -> bool {
     world
         .objects
-        .get_component::<ZoneFlags>(&object_id)
+        .get_component::<components::ZoneFlags>(&object_id)
         .is_some_and(|f| f.contains(kind))
 }
 
 fn charges(world: &World, object_id: i32) -> i32 {
-    player(world, object_id).map_or(0, |p| p.charges)
+    helpers::player(world, object_id).map_or(0, |p| p.charges)
 }
 
 /// `(equipped weapon's type mask, is it two-handed)` — Java's
@@ -542,14 +547,16 @@ fn free_percent(world: &World, object_id: i32) -> Option<(i32, i32)> {
     ))
 }
 
-fn vital_percent(world: &World, object_id: i32, vital: Vital) -> Option<i32> {
-    let v = world.objects.get_component::<Vitals>(&object_id)?;
+fn vital_percent(world: &World, object_id: i32, vital: skill::Vital) -> Option<i32> {
+    let v = world
+        .objects
+        .get_component::<components::Vitals>(&object_id)?;
     let (cur, max) = match vital {
-        Vital::Hp => (v.cur_hp, v.max_hp as f64),
-        Vital::Mp => (v.cur_mp, v.max_mp as f64),
+        skill::Vital::Hp => (v.cur_hp, v.max_hp as f64),
+        skill::Vital::Mp => (v.cur_mp, v.max_mp as f64),
         // CP is the player-only vitals extension, so an NPC has no CP
         // percentage at all — Java's `getCurrentCpPercent` is on `Playable`.
-        Vital::Cp => {
+        skill::Vital::Cp => {
             let cp = world
                 .objects
                 .get_component::<crate::model::components::PlayerVitals>(&object_id)?;
@@ -586,7 +593,12 @@ fn target_in_my_party(world: &World, caster: i32, target: i32, include_me: bool)
     if !is_player(world, target) {
         return false;
     }
-    let party_of = |oid: i32| world.objects.get_component::<PartyRef>(&oid).map(|p| p.0);
+    let party_of = |oid: i32| {
+        world
+            .objects
+            .get_component::<components::PartyRef>(&oid)
+            .map(|p| p.0)
+    };
     match party_of(caster) {
         // Java: no party → only self-targeting, and only when includeMe.
         None => include_me && caster == target,
@@ -613,7 +625,7 @@ fn is_consumable_corpse(world: &World, target: i32) -> bool {
         .get_component::<crate::model::npc::Npc>(&target)
         .and_then(|npc| world.data.npc_data.get(npc.npc_id))
         .is_some_and(|t| t.is_monster())
-        && is_dead(world, target)
+        && helpers::is_dead(world, target)
 }
 
 fn is_door(world: &World, target: i32) -> bool {
@@ -655,11 +667,11 @@ fn is_clan_leader(world: &World, p: &Player) -> bool {
 /// message; the generic refusal follows it, which is the behaviour change from
 /// the inline block this replaces (that one sent only the specific message).
 fn can_transform(world: &World, caster: i32) -> Result<(), Refusal> {
-    let Some(p) = player(world, caster) else {
+    let Some(p) = helpers::player(world, caster) else {
         return Err(Refusal(None));
     };
     // `isAlikeDead() || isCursedWeaponEquipped()` — silent.
-    if is_dead(world, caster) || p.cursed_weapon_equipped_id != 0 {
+    if helpers::is_dead(world, caster) || p.cursed_weapon_equipped_id != 0 {
         return Err(Refusal(None));
     }
     if p.sitting {
@@ -707,10 +719,12 @@ fn can_transform(world: &World, caster: i32) -> Result<(), Refusal> {
 /// Java's `isSpawnProtected`/`isTeleportProtected` are the post-login and
 /// post-teleport grace windows; the port models the teleport half only.
 fn can_summon(world: &World, caster: i32) -> bool {
-    player(world, caster).is_some_and(|p| {
+    helpers::player(world, caster).is_some_and(|p| {
         !p.is_mounted()
             && !p.teleporting
-            && !world.objects.has_component::<OlympiadObserver>(&caster)
+            && !world
+                .objects
+                .has_component::<components::OlympiadObserver>(&caster)
     })
 }
 
@@ -718,10 +732,10 @@ fn can_summon(world: &World, caster: i32) -> bool {
 /// gate twice in Java: alive, uncursed, in a clan, standing in a residence
 /// whose siege is in progress, and on the attacker side of it.
 fn siege_deployable(world: &World, caster: i32) -> bool {
-    let Some(p) = player(world, caster) else {
+    let Some(p) = helpers::player(world, caster) else {
         return false;
     };
-    if is_dead(world, caster) || p.cursed_weapon_equipped_id != 0 || p.clan_id == 0 {
+    if helpers::is_dead(world, caster) || p.cursed_weapon_equipped_id != 0 || p.clan_id == 0 {
         return false;
     }
     // Java asks `CastleManager.getCastle(player)` / `FortManager.getFort`
@@ -755,11 +769,11 @@ fn siege_deployable(world: &World, caster: i32) -> bool {
 /// The third is the one the `LandingZone` kind exists for: a wyvern rider has
 /// to be low enough, and the 69 landing zones are where "low enough" is.
 fn can_untransform(world: &World, caster: i32) -> Result<(), Refusal> {
-    let Some(p) = player(world, caster) else {
+    let Some(p) = helpers::player(world, caster) else {
         return Err(Refusal(None));
     };
     // `isAlikeDead() || isCursedWeaponEquipped()`.
-    if is_dead(world, caster)
+    if helpers::is_dead(world, caster)
         || flags_of(world, caster) & crate::model::skill::effect_flag::FAKE_DEATH != 0
         || p.cursed_weapon_equipped_id != 0
     {
@@ -781,7 +795,7 @@ fn can_untransform(world: &World, caster: i32) -> Result<(), Refusal> {
 
 /// `OpCallPcSkillCondition` — Summon Friend's caster-side gate.
 fn call_pc(world: &World, caster: i32) -> Result<(), Refusal> {
-    let Some(p) = player(world, caster) else {
+    let Some(p) = helpers::player(world, caster) else {
         return Err(Refusal(None));
     };
     if world
@@ -794,7 +808,10 @@ fn call_pc(world: &World, caster: i32) -> Result<(), Refusal> {
             sm_ids::A_USER_PARTICIPATING_IN_THE_OLYMPIAD_CANNOT_USE_SUMMONING_OR_TELEPORTING,
         ))));
     }
-    if world.objects.has_component::<OlympiadObserver>(&caster) {
+    if world
+        .objects
+        .has_component::<components::OlympiadObserver>(&caster)
+    {
         return Err(Refusal(None));
     }
     // `isInsideZone(NO_SUMMON_FRIEND) || isInsideZone(JAIL) || isFlyingMounted()`
@@ -829,17 +846,17 @@ fn resurrection(world: &World, caster: i32, target: i32) -> Result<(), Refusal> 
     // for a pet/servitor the flag lives on the **owner** (Java's
     // `player.isRevivingPet()`). Pet and servitor are one branch here because
     // both carry `ServitorOf`. Anything that is neither is not a valid target.
-    let request_holder = if player(world, target).is_some() {
+    let request_holder = if helpers::player(world, target).is_some() {
         target
     } else {
         world
             .objects
-            .get_component::<ServitorOf>(&target)
+            .get_component::<components::ServitorOf>(&target)
             .map(|s| s.owner_object_id)
             .ok_or(Refusal(None))?
     };
 
-    if !is_dead(world, target) {
+    if !helpers::is_dead(world, target) {
         // Java sends `S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS` with the skill
         // name on the summon leg, but `RefusalLine` has no skill-name form and
         // the player leg refuses silently — so both refuse silently.
@@ -848,7 +865,7 @@ fn resurrection(world: &World, caster: i32, target: i32) -> Result<(), Refusal> 
     if flags_of(world, target) & BLOCK_RESURRECTION != 0 {
         return Err(Refusal(Some(RefusalLine::Sm(sm_ids::REJECT_RESURRECTION))));
     }
-    if player(world, request_holder).is_some_and(|p| p.revive_request.is_some()) {
+    if helpers::player(world, request_holder).is_some_and(|p| p.revive_request.is_some()) {
         return Err(Refusal(Some(RefusalLine::Sm(
             sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED,
         ))));

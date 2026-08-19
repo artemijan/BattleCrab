@@ -14,13 +14,14 @@
 use super::helpers::{
     get_others_in_matching_room, send_sm_to_player as send_sm, send_to_player as send,
 };
+use crate::model::components;
 // Called on every room membership change, because Java's
 // `broadcastUserInfo(UserInfoType.CLAN)` carries the `isInMatchingRoom` flag in
 // the CLAN block.
 use super::player_info::broadcast_user_info;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::Player;
-use crate::model::components::{InMatchingRoom, PartyRef, PendingRequest, Position, RequestKind};
+
 use crate::model::matching_room::{MatchingMemberType, RoomKind, RoomLevelFilter};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{
@@ -37,7 +38,7 @@ use crate::world::World;
 pub(crate) fn location_of(world: &World, object_id: i32) -> i32 {
     world
         .objects
-        .get_component::<Position>(&object_id)
+        .get_component::<components::Position>(&object_id)
         .map_or(0, |p| world.data.map_region.bbs_at(p.x, p.y))
 }
 
@@ -60,8 +61,8 @@ fn member_type(world: &World, room_id: i32, object_id: i32) -> MatchingMemberTyp
     let party_of = |oid: i32| {
         world
             .objects
-            .get_component::<PartyRef>(&oid)
-            .map(|PartyRef(id)| *id)
+            .get_component::<components::PartyRef>(&oid)
+            .map(|components::PartyRef(id)| *id)
     };
     match (party_of(room.leader), party_of(object_id)) {
         (Some(a), Some(b)) if a == b => MatchingMemberType::PartyMember,
@@ -132,9 +133,13 @@ fn broadcast_room_info(world: &World, room_id: i32) {
 /// authority; this is the only writer (shared with the MPCC room flows).
 pub(crate) fn set_in_room_flag(world: &mut World, object_id: i32, in_room: bool) {
     if in_room {
-        world.objects.add_components(&object_id, InMatchingRoom);
+        world
+            .objects
+            .add_components(&object_id, components::InMatchingRoom);
     } else {
-        world.objects.remove_component::<InMatchingRoom>(&object_id);
+        world
+            .objects
+            .remove_component::<components::InMatchingRoom>(&object_id);
     }
 }
 
@@ -155,7 +160,7 @@ pub(crate) fn handle_request_party_match_config(world: &mut World, client_id: u3
     // other member of a channelled party is refused the screen.
     if let Some(party_id) = world
         .objects
-        .get_component::<PartyRef>(&player)
+        .get_component::<components::PartyRef>(&player)
         .map(|r| r.0)
         && let Some(cc_id) = super::command_channel::cc_id_of_party(world, party_id)
     {
@@ -182,8 +187,8 @@ pub(crate) fn handle_request_party_match_config(world: &mut World, client_id: u3
     // party leader.
     let in_party_but_not_leader = world
         .objects
-        .get_component::<PartyRef>(&player)
-        .and_then(|PartyRef(id)| world.parties.get(id))
+        .get_component::<components::PartyRef>(&player)
+        .and_then(|components::PartyRef(id)| world.parties.get(id))
         .is_some_and(|p| !p.is_leader(player));
     if in_party_but_not_leader {
         send_sm(
@@ -600,8 +605,8 @@ pub(crate) fn handle_oust_from_party_room(world: &mut World, client_id: u32, bod
     // UI. (Java reads `player.getParty()` twice here, so the rule never fires.)
     let party_of = |w: &World, oid: i32| {
         w.objects
-            .get_component::<PartyRef>(&oid)
-            .map(|PartyRef(id)| *id)
+            .get_component::<components::PartyRef>(&oid)
+            .map(|components::PartyRef(id)| *id)
     };
     if let (Some(a), Some(b)) = (party_of(world, player), party_of(world, target))
         && a == b
@@ -687,7 +692,10 @@ pub(crate) fn handle_ask_join_party_room(world: &mut World, client_id: u32, body
     if target == player {
         return;
     }
-    if world.objects.has_component::<PendingRequest>(&target) {
+    if world
+        .objects
+        .has_component::<components::PendingRequest>(&target)
+    {
         send_sm(
             world,
             player,
@@ -701,7 +709,7 @@ pub(crate) fn handle_ask_join_party_room(world: &mut World, client_id: u32, body
         world,
         player,
         target,
-        RequestKind::PartyRoomInvite { room_id },
+        components::RequestKind::PartyRoomInvite { room_id },
         super::party::REQUEST_TIMEOUT_TICKS,
     );
     let inviter = player_name_or_empty(world, player);
@@ -730,7 +738,7 @@ pub(crate) fn handle_answer_join_party_room(world: &mut World, client_id: u32, b
         send_sm(world, player, sm_ids::THAT_PLAYER_IS_NOT_ONLINE, &[]);
         return;
     };
-    let RequestKind::PartyRoomInvite { room_id } = req.kind else {
+    let components::RequestKind::PartyRoomInvite { room_id } = req.kind else {
         return;
     };
     if answer != 1 {

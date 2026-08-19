@@ -14,7 +14,8 @@ use ratatui::crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind, Ke
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
-use ratatui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph, Wrap};
+use ratatui::widgets;
+
 use std::path::PathBuf;
 use tools::dat_schema::SchemaSet;
 use tools::system_msg::{MsgFile, PRESETS};
@@ -55,7 +56,7 @@ struct App {
     query: String,
     /// Indices into `file.messages` matching `query`, in order.
     matches: Vec<usize>,
-    list: ListState,
+    list: widgets::ListState,
     mode: Mode,
     status: String,
     quit: bool,
@@ -67,7 +68,7 @@ impl App {
             file,
             query: String::new(),
             matches: Vec::new(),
-            list: ListState::default(),
+            list: widgets::ListState::default(),
             mode: Mode::Search,
             status: "Type to search, Tab to browse, Enter to recolour, Esc to close".into(),
             quit: false,
@@ -301,21 +302,21 @@ fn draw(frame: &mut Frame, app: &mut App) {
         app.file.messages.len()
     );
     frame.render_widget(
-        Paragraph::new(app.query.as_str()).block(
-            Block::default()
-                .borders(Borders::ALL)
+        widgets::Paragraph::new(app.query.as_str()).block(
+            widgets::Block::default()
+                .borders(widgets::Borders::ALL)
                 .title(" search by id or text ")
                 .title_bottom(title),
         ),
         areas[0],
     );
 
-    let items: Vec<ListItem> = app
+    let items: Vec<widgets::ListItem> = app
         .matches
         .iter()
         .map(|&i| {
             let m = &app.file.messages[i];
-            ListItem::new(Line::from(vec![
+            widgets::ListItem::new(Line::from(vec![
                 Span::styled(
                     format!("{:>6} ", m.id),
                     Style::default().fg(Color::DarkGray),
@@ -337,10 +338,10 @@ fn draw(frame: &mut Frame, app: &mut App) {
         .collect();
 
     frame.render_stateful_widget(
-        List::new(items)
+        widgets::List::new(items)
             .block(
-                Block::default()
-                    .borders(Borders::ALL)
+                widgets::Block::default()
+                    .borders(widgets::Borders::ALL)
                     .title(format!(" {} match(es) ", app.matches.len())),
             )
             .highlight_style(Style::default().add_modifier(Modifier::REVERSED)),
@@ -359,7 +360,7 @@ fn draw(frame: &mut Frame, app: &mut App) {
         Mode::ConfirmQuit => "y save and close · n discard and close · Esc keep editing",
     };
     frame.render_widget(
-        Paragraph::new(Line::from(vec![
+        widgets::Paragraph::new(Line::from(vec![
             Span::styled(
                 format!(" {help} "),
                 Style::default().fg(Color::Black).bg(Color::Gray),
@@ -374,7 +375,8 @@ fn draw(frame: &mut Frame, app: &mut App) {
 fn draw_detail(frame: &mut Frame, app: &App, area: Rect) {
     let Some(index) = app.selected() else {
         frame.render_widget(
-            Paragraph::new("no match").block(Block::default().borders(Borders::ALL)),
+            widgets::Paragraph::new("no match")
+                .block(widgets::Block::default().borders(widgets::Borders::ALL)),
             area,
         );
         return;
@@ -437,9 +439,13 @@ fn draw_detail(frame: &mut Frame, app: &App, area: Rect) {
     };
 
     frame.render_widget(
-        Paragraph::new(body)
-            .wrap(Wrap { trim: false })
-            .block(Block::default().borders(Borders::ALL).title(" message ")),
+        widgets::Paragraph::new(body)
+            .wrap(widgets::Wrap { trim: false })
+            .block(
+                widgets::Block::default()
+                    .borders(widgets::Borders::ALL)
+                    .title(" message "),
+            ),
         area,
     );
 }

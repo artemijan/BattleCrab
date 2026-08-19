@@ -1,8 +1,26 @@
 //! The scheduled cast phases: launch, finish (per-target effects, witnesses,
 //! shot consume) and the cool-down end with its queued-action replay.
 
-use super::*;
+use super::apply_cast_consequences;
+use super::calc_buff_debuff_reflection;
+use super::in_cast_range;
+use super::matchup_effects;
+use super::stop_casting;
+use super::target_state;
+use crate::game_loop::common::maybe_distance_too_far;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers;
+
+use crate::game_loop::skills::effects::apply_skill_effects;
+use crate::model::Player;
+use crate::model::components::Casting;
+use crate::model::components::Position;
+use crate::model::components::Vitals;
+use crate::model::skill::Skill;
+use crate::network::server_packets;
+use crate::scheduler::ScheduledTask;
 use crate::scheduler::ms_to_ticks;
+use crate::world::World;
 
 /// A cast task's `CastState` if it's still the live one (seq matches);
 /// stale/aborted tasks resolve to `None` and no-op.
@@ -70,7 +88,7 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
         }
     }
 
-    broadcast_including_self(
+    helpers::broadcast_including_self(
         world,
         player_object_id,
         &server_packets::magic_skill_launched(
@@ -106,7 +124,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     let Some((cast, skill)) = live_cast_skill(world, player_object_id, cast_seq) else {
         return;
     };
-    let client_id = client_for_player(world, player_object_id);
+    let client_id = helpers::client_for_player(world, player_object_id);
 
     // MP/HP re-check at landing (no refund of the initial consume).
     let scaled_mp_consume =
@@ -123,7 +141,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             } else {
                 sm_ids::NOT_ENOUGH_HP
             };
-            send_sm_and_action_failed(world, client_id, sm, &[]);
+            helpers::send_sm_and_action_failed(world, client_id, sm, &[]);
         }
         stop_casting(world, player_object_id);
         return;
@@ -151,7 +169,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     }
     if !updates.is_empty() {
         if let Some(client_id) = client_id {
-            send_to_client(
+            helpers::send_to_client(
                 world,
                 client_id,
                 server_packets::status_update(player_object_id, &updates),
@@ -204,7 +222,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // watches) and so looked correct.
     const SKILL_SEE_RANGE: f64 = 1000.0;
     let caster_pos = maybe_position(world, player_object_id);
-    let caster_region = region_cell_of(world, player_object_id);
+    let caster_region = helpers::region_cell_of(world, player_object_id);
     let skill_see_witnesses: Vec<i32> = match (caster_pos, caster_region) {
         (Some(pos), Some(region)) => world
             .npcs_visible_from(region)
@@ -263,7 +281,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // `Npc.onSkillSee` for each NPC that saw the cast, plus the support-aggro
     // rule that shares Java's scan.
     for witness in skill_see_witnesses {
-        let npc_id = npc_id_of(world, witness);
+        let npc_id = helpers::npc_id_of(world, witness);
         if let Some(npc_id) = npc_id {
             crate::game_loop::quests::notify_skill_see(
                 world,
@@ -289,7 +307,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             .objects
             .get_component::<crate::model::npc::NpcAi>(&witness)
             .is_some_and(|ai| ai.intention == crate::model::npc::NpcIntention::Attack)
-            && npc_template(world, witness).is_some_and(|tpl| tpl.is_auto_attackable());
+            && helpers::npc_template(world, witness).is_some_and(|tpl| tpl.is_auto_attackable());
         if skill.effect_point > 0 && fighting {
             let npc_target = world
                 .objects
@@ -299,7 +317,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
                 .iter()
                 .any(|&t| Some(t) == npc_target || t == witness);
             if relevant {
-                let level = npc_template(world, witness).map_or(1, |tpl| tpl.level);
+                let level = helpers::npc_template(world, witness).map_or(1, |tpl| tpl.level);
                 let hate = f64::from(skill.effect_point) * 150.0 / f64::from(level + 7);
                 crate::game_loop::minions::add_hate(world, witness, player_object_id, hate);
             }
@@ -385,7 +403,7 @@ pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq
     resume_action_after_cast(world, player_object_id, target, skill_id, skill_level);
     // `EVT_FINISH_CASTING` → script `onSpellFinished`, for NPC casters a
     // script registered (the Primeval Isle Tyrannosaurus's berserk chains).
-    let npc_id = npc_id_of(world, player_object_id);
+    let npc_id = helpers::npc_id_of(world, player_object_id);
     if let Some(npc_id) = npc_id {
         crate::game_loop::quests::notify_spell_finished(
             world,

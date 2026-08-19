@@ -12,16 +12,13 @@
 use crate::data::npc_data::NpcTemplate;
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::npc_template_name;
-use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::{format_amount, nth_arg};
+use crate::game_loop::helpers;
+
 use crate::model::components::Position;
 use crate::model::npc::Npc;
 use crate::world::World;
 
 use super::send_message;
-use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::region_cell_of;
 
 /// Resolve a spawn-menu "Id/Name" token to an npc id. All-digit tokens are npc
 /// ids (Java `monsterId.matches("[0-9]*")`); anything else is a name — `_` maps
@@ -60,8 +57,8 @@ pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, arg
         send_message(world, client_id, &format!("NPC {token} doesnt exist"));
         return;
     };
-    let template_name = npc_template_name(world, npc_id);
-    let count = nth_arg::<i32>(args, 1).unwrap_or(1);
+    let template_name = helpers::npc_template_name(world, npc_id);
+    let count = helpers::nth_arg::<i32>(args, 1).unwrap_or(1);
     // Anchor object = current target (any object) or the GM (Java
     // `target == null ? activeChar : target`); the message reports its id.
     let anchor = guard::target(world, object_id).unwrap_or(object_id);
@@ -96,10 +93,10 @@ pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, arg
 /// explicit coordinates.
 pub(super) fn admin_spawnat(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let (Some(npc_id), Some(x), Some(y), Some(z)) = (
-        nth_arg::<i32>(args, 0),
-        nth_arg::<i32>(args, 1),
-        nth_arg::<i32>(args, 2),
-        nth_arg::<i32>(args, 3),
+        helpers::nth_arg::<i32>(args, 0),
+        helpers::nth_arg::<i32>(args, 1),
+        helpers::nth_arg::<i32>(args, 2),
+        helpers::nth_arg::<i32>(args, 3),
     ) else {
         send_message(
             world,
@@ -116,7 +113,7 @@ pub(super) fn admin_spawnat(world: &mut World, client_id: u32, object_id: i32, a
         );
         return;
     }
-    let heading = nth_arg::<i32>(args, 4).unwrap_or_else(|| {
+    let heading = helpers::nth_arg::<i32>(args, 4).unwrap_or_else(|| {
         world
             .objects
             .get_component::<Position>(&object_id)
@@ -187,11 +184,11 @@ fn render_npc_listing(
 /// button carrying the running offset and a `Back` to the spawn menu. A missing
 /// or non-numeric level falls back to `spawns.htm` (Java's `catch`).
 pub(super) fn admin_spawn_index(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(level) = nth_arg::<i32>(args, 0) else {
+    let Some(level) = helpers::nth_arg::<i32>(args, 0) else {
         super::menu::show_admin_html(world, client_id, "spawns.htm");
         return;
     };
-    let from = nth_arg::<usize>(args, 1).unwrap_or(0);
+    let from = helpers::nth_arg::<usize>(args, 1).unwrap_or(0);
     let mobs = world.data.npc_data.monsters_of_level(level);
     let html = render_npc_listing(
         &format!("Level : {level}<br>Total NPCs : {}", mobs.len()),
@@ -213,7 +210,7 @@ pub(super) fn admin_npc_index(world: &mut World, client_id: u32, args: &[&str]) 
         super::menu::show_admin_html(world, client_id, "npcs.htm");
         return;
     };
-    let from = nth_arg::<usize>(args, 1).unwrap_or(0);
+    let from = helpers::nth_arg::<usize>(args, 1).unwrap_or(0);
     let mobs = world.data.npc_data.folk_starting_with(starting);
     let html = render_npc_listing(
         &format!(
@@ -254,7 +251,7 @@ pub(super) fn admin_list_spawns(
     args: &[&str],
     show_position: bool,
 ) {
-    let Some(npc_id) = nth_arg::<i32>(args, 0) else {
+    let Some(npc_id) = helpers::nth_arg::<i32>(args, 0) else {
         send_message(
             world,
             client_id,
@@ -262,7 +259,7 @@ pub(super) fn admin_list_spawns(
         );
         return;
     };
-    let tele_index = nth_arg::<i32>(args, 1);
+    let tele_index = helpers::nth_arg::<i32>(args, 1);
 
     // Configured spawn points for this id, in file order — the 1-based index
     // space shared by both listing and the teleport form.
@@ -280,8 +277,8 @@ pub(super) fn admin_list_spawns(
     // Live NPCs of this id (for `//list_positions` current-location reporting).
     let live: Vec<(i32, i32, i32)> = all_npc_ids(world)
         .into_iter()
-        .filter(|oid| npc_id_of(world, *oid) == Some(npc_id))
-        .filter_map(|oid| pos_of(world, oid))
+        .filter(|oid| helpers::npc_id_of(world, *oid) == Some(npc_id))
+        .filter_map(|oid| helpers::pos_of(world, oid))
         .collect();
 
     // For `//list_positions`, resolve an entry to the nearest live NPC's current
@@ -320,7 +317,7 @@ pub(super) fn admin_list_spawns(
         send_message(world, client_id, "AdminSpawn: No current spawns found.");
         return;
     }
-    let name = npc_template_name(world, npc_id);
+    let name = helpers::npc_template_name(world, npc_id);
     for (i, &entry) in entries.iter().enumerate() {
         let (x, y, z) = resolve(entry);
         // Java line: `index + " - " + name + " (" + spawn + "): " + x + " " + y + " " + z`.
@@ -337,7 +334,7 @@ pub(super) fn admin_list_spawns(
 /// `AdminSpawn`'s `//top_spawn_count [n]` — the `n` most-spawned NPC ids in the
 /// live world.
 pub(super) fn admin_top_spawn_count(world: &mut World, client_id: u32, args: &[&str]) {
-    let top = nth_arg::<usize>(args, 0).unwrap_or(5).max(1);
+    let top = helpers::nth_arg::<usize>(args, 0).unwrap_or(5).max(1);
     let mut counts: std::collections::HashMap<i32, i32> = std::collections::HashMap::new();
     for oid in all_npc_ids(world) {
         if let Some(npc) = world.objects.get_component::<Npc>(&oid) {
@@ -348,7 +345,7 @@ pub(super) fn admin_top_spawn_count(world: &mut World, client_id: u32, args: &[&
     sorted.sort_by_key(|b| std::cmp::Reverse(b.1));
     send_message(world, client_id, &format!("=== Top {top} spawns ==="));
     for (npc_id, count) in sorted.into_iter().take(top) {
-        let name = npc_template_name(world, npc_id);
+        let name = helpers::npc_template_name(world, npc_id);
         send_message(world, client_id, &format!("  {count} x {name} ({npc_id})"));
     }
 }
@@ -370,7 +367,7 @@ pub(super) fn admin_spawn_debug_print(world: &mut World, client_id: u32, object_
         .objects
         .get_component::<Npc>(&target)
         .map_or(0, |n| n.npc_id);
-    let name = npc_template_name(world, npc_id);
+    let name = helpers::npc_template_name(world, npc_id);
     let pos = maybe_position(world, target).unwrap_or(Position {
         x: 0,
         y: 0,
@@ -424,7 +421,7 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
         .max(0);
 
     let (Some(region), Some(gm_pos)) = (
-        region_cell_of(world, object_id),
+        helpers::region_cell_of(world, object_id),
         maybe_position(world, object_id),
     ) else {
         return;
@@ -457,7 +454,7 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
         {
             continue;
         }
-        let tname = npc_template_name(world, npc_id);
+        let tname = helpers::npc_template_name(world, npc_id);
         // `processBypass`'s condition: id beats name beats everything.
         if id > 0 {
             if npc_id != id {
@@ -523,7 +520,7 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
             row.x,
             row.y,
             row.z,
-            format_amount(row.dist_2d.round() as i64),
+            helpers::format_amount(row.dist_2d.round() as i64),
             row.oid,
         ));
     }
@@ -665,7 +662,7 @@ pub(super) fn admin_delete_npc_by_object_id(
         // not-an-NPC branch below (findObject(0) == null).
         send_message(world, client_id, "objectId is not set!");
     }
-    let Some(region) = region_cell_of(world, target_oid)
+    let Some(region) = helpers::region_cell_of(world, target_oid)
         .filter(|_| world.objects.has_component::<Npc>(&target_oid))
     else {
         send_message(
@@ -679,7 +676,7 @@ pub(super) fn admin_delete_npc_by_object_id(
         .objects
         .get_component::<Npc>(&target_oid)
         .map_or(0, |n| n.npc_id);
-    let name = npc_template_name(world, npc_id);
+    let name = helpers::npc_template_name(world, npc_id);
     super::death::despawn_npc(world, target_oid, region);
     send_message(world, client_id, &format!("{name} have been deleted."));
     // Java `processBypass` re-renders the scan list with the same parser —
@@ -699,11 +696,11 @@ fn bypass_param<'a>(args: &[&'a str], key: &str) -> Option<&'a str> {
 /// `AdminSummon`'s `//summon <id> [count]` — Java delegates: `id < 1000000` is
 /// `//create_item id count`; otherwise a one-off spawn of `id - 1000000`.
 pub(super) fn admin_summon(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(id) = nth_arg::<i32>(args, 0) else {
+    let Some(id) = helpers::nth_arg::<i32>(args, 0) else {
         send_message(world, client_id, "Incorrect format for command 'summon'");
         return;
     };
-    let count = nth_arg::<i64>(args, 1).unwrap_or(1);
+    let count = helpers::nth_arg::<i64>(args, 1).unwrap_or(1);
     if id <= 0 || count <= 0 {
         return;
     }

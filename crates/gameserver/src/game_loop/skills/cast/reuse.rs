@@ -1,7 +1,12 @@
 //! The reuse (cooldown) gate: check and set, keyed by shared reuse groups.
 
-use super::*;
+use crate::game_loop::helpers::send_sm_and_action_failed;
+use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::model::skill::OperateType;
+use crate::model::skill::Skill;
+use crate::network::server_packets;
 use crate::scheduler::ms_to_ticks;
+use crate::world::World;
 /// Reuse gate shared by `use_magic_on` and the `ItemSkills` item handler
 /// (Java `Player.isSkillDisabled`/`getSkillRemainingReuseTime`), keyed by the
 /// shared reuse group when the skill has one. `true` means the skill is off

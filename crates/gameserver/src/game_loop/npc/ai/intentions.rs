@@ -1,8 +1,12 @@
 //! NPC intention setters and hate-table entry points, shared by scripts,
 //! quests and events (moved from helpers).
 
-use super::*;
-
+use super::move_npc_to;
+use crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
+use crate::model::npc::AggroList;
+use crate::model::npc::NpcAi;
+use crate::model::npc::NpcIntention;
+use crate::world::World;
 pub(crate) fn max_hate(world: &World, victim_oid: i32) -> f64 {
     world
         .objects

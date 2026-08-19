@@ -1,8 +1,23 @@
 //! Boot-time world population and the shutdown flush — the ordered subsystem
 //! registry `run` used to inline.
 
-use super::*;
-
+use super::area_npcs;
+use super::boats;
+use super::bosses;
+use super::bot_report;
+use super::cursed_weapon;
+use super::daily_tasks;
+use super::doors;
+use super::events;
+use super::ground_items;
+use super::manor;
+use super::net;
+use super::offline_trade;
+use super::olympiad;
+use super::restart;
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
+use bosses::boss_respawn;
 /// The boot sequence: place the static world content and arm the self-
 /// rescheduling cycles before accepting anyone in.
 pub(super) fn boot(world: &mut World) {

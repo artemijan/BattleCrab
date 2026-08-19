@@ -14,7 +14,8 @@
 
 use crate::data::GameData;
 use crate::model::Player;
-use crate::model::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers};
+use crate::model::components;
+
 use crate::model::inventory::Inventory;
 use crate::model::skill::ActiveBuff;
 use crate::world::World;
@@ -23,12 +24,12 @@ use crate::world::World;
 pub(crate) struct StatCtx<'a> {
     data: &'a GameData,
     player: &'a Player,
-    base: &'a BaseStats,
-    mods: &'a mut StatModifiers,
+    base: &'a components::BaseStats,
+    mods: &'a mut components::StatModifiers,
     inventory: &'a Inventory,
-    buffs: &'a mut Buffs,
-    speeds: &'a mut Speeds,
-    combat: &'a mut CombatStats,
+    buffs: &'a mut components::Buffs,
+    speeds: &'a mut components::Speeds,
+    combat: &'a mut components::CombatStats,
 }
 
 impl StatCtx<'_> {
@@ -79,12 +80,12 @@ pub(crate) fn with_stat_ctx<R>(
     let (player, base, mut mods, inventory, mut buffs, mut speeds, mut combat) = objects
         .get_many_mut::<(
             &Player,
-            &BaseStats,
-            &mut StatModifiers,
+            &components::BaseStats,
+            &mut components::StatModifiers,
             &Inventory,
-            &mut Buffs,
-            &mut Speeds,
-            &mut CombatStats,
+            &mut components::Buffs,
+            &mut components::Speeds,
+            &mut components::CombatStats,
         )>(&object_id)?;
     let mut ctx = StatCtx {
         data,

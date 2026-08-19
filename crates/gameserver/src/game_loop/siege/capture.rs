@@ -2,7 +2,16 @@
 //! bookkeeping (blood alliance, hero diary, ticket reset, hour-window reopen),
 //! and the battlefield teleports.
 
-use super::*;
+use super::mercenaries;
+use super::owner_clan_id_opt;
+use super::spawn_castle_doors;
+use super::spawn_siege_npcs;
+use super::update_player_siege_state_flags;
+use crate::db::DbCommand;
+use crate::game_loop::helpers::npc_template;
+use crate::model::Player;
+use crate::model::siege::SiegeClanType;
+use crate::world::World;
 /// Java `Siege.saveCastleSiege()`'s registration half: when a siege ends, the
 /// castle's owner gets **24 hours** to pick the next siege's hour, so
 /// `regTimeEnd` is stamped `now + 1 day` and `regTimeOver` reopens.

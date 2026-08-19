@@ -1,8 +1,22 @@
 //! The match runtime: the game-manager sweep, match-making draws, the
 //! pre-fight countdown ceremony, the match poll and its resolution.
 
-use super::*;
+use super::GAME_MANAGER_PERIOD_MS;
+use super::NUM_ARENAS;
+use super::fire_at;
+use super::save_all;
+use super::send_sm_int;
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::pos_of;
+use crate::game_loop::helpers::send_sm_bare_to_player as send_sm;
+use crate::model::Player;
+use crate::model::components::OlympiadObserver;
+use crate::model::olympiad::NobleStats;
+use crate::model::olympiad::OlympiadMatch;
+use crate::network::server_packets::sm_ids;
+use crate::scheduler::ScheduledTask;
 use crate::scheduler::ms_to_ticks;
+use crate::world::World;
 /// Java `Player.isInOlympiadMode()` — the player is *in a running match*, not
 /// merely registered or spectating.
 ///

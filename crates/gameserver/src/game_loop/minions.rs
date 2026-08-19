@@ -19,12 +19,13 @@ use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::npc_template;
+use crate::model::npc;
 use commons::util::rnd;
 
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::npc::ai::set_attack_intention;
 use crate::model::components::Vitals;
-use crate::model::npc::{AggroInfo, AggroList, Npc, NpcAi, NpcIntention};
+
 use crate::scheduler::{ScheduledTask, ms_to_ticks};
 use crate::world::World;
 
@@ -121,7 +122,7 @@ fn count_alive_minions(world: &World, master_oid: i32, npc_id: i32) -> i32 {
         .filter(|&&oid| {
             world
                 .objects
-                .get_component::<Npc>(&oid)
+                .get_component::<npc::Npc>(&oid)
                 .is_some_and(|n| n.npc_id == npc_id)
                 && world
                     .objects
@@ -214,7 +215,7 @@ fn clear_champion_for_raid_minion(world: &mut World, master_oid: i32, minion_oid
     }
     let Some(npc_id) = world
         .objects
-        .get_component_mut::<Npc>(&minion_oid)
+        .get_component_mut::<npc::Npc>(&minion_oid)
         .map(|npc| {
             npc.champion = false;
             npc.npc_id
@@ -347,8 +348,8 @@ pub(crate) fn on_assist(world: &mut World, victim_oid: i32, attacker_oid: i32) {
         .is_some_and(|v| !v.dead);
     let master_engaged = world
         .objects
-        .get_component::<NpcAi>(&master_oid)
-        .is_some_and(|ai| ai.intention == NpcIntention::Attack);
+        .get_component::<npc::NpcAi>(&master_oid)
+        .is_some_and(|ai| ai.intention == npc::NpcIntention::Attack);
     if master_alive && !master_engaged {
         add_hate(world, master_oid, attacker_oid, 1.0);
     }
@@ -360,8 +361,8 @@ pub(crate) fn on_assist(world: &mut World, victim_oid: i32, attacker_oid: i32) {
         // leader itself was the one struck.
         let engaged = world
             .objects
-            .get_component::<NpcAi>(&oid)
-            .is_some_and(|ai| ai.intention == NpcIntention::Attack);
+            .get_component::<npc::NpcAi>(&oid)
+            .is_some_and(|ai| ai.intention == npc::NpcIntention::Attack);
         if caller_is_master || !engaged {
             add_hate(world, oid, attacker_oid, aggro);
         }
@@ -370,8 +371,8 @@ pub(crate) fn on_assist(world: &mut World, victim_oid: i32, attacker_oid: i32) {
 
 /// `addDamageHate(attacker, 0, n)` — hate without damage, plus the AI wake.
 pub(crate) fn add_hate(world: &mut World, npc_oid: i32, attacker_oid: i32, hate: f64) {
-    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
-        let entry = aggro.0.entry(attacker_oid).or_insert(AggroInfo {
+    if let Some(aggro) = world.objects.get_component_mut::<npc::AggroList>(&npc_oid) {
+        let entry = aggro.0.entry(attacker_oid).or_insert(npc::AggroInfo {
             hate: 0.0,
             damage: 0.0,
         });
@@ -384,8 +385,8 @@ pub(crate) fn add_hate(world: &mut World, npc_oid: i32, attacker_oid: i32, hate:
     // otherwise have done — without it an assisting minion walks to the fight.
     if world
         .objects
-        .get_component::<NpcAi>(&npc_oid)
-        .is_some_and(|ai| ai.intention != NpcIntention::Attack)
+        .get_component::<npc::NpcAi>(&npc_oid)
+        .is_some_and(|ai| ai.intention != npc::NpcIntention::Attack)
     {
         super::ai::set_running(world, npc_oid);
         set_attack_intention(world, npc_oid);

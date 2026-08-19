@@ -1,7 +1,18 @@
 //! Perception and target selection: `checkTarget`, the reconsider paths,
 //! aggro-range candidate scans, `isAggressiveTowards` and guard PK scans.
 
-use super::*;
+use super::movement_disabled;
+use crate::game_loop::combat;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::is_raid_npc;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::target;
+use crate::model::components::Position;
+use crate::model::components::Vitals;
+use crate::model::npc::AggroList;
+use crate::world::World;
 /// `AttackableAI.checkTarget` — is this still something worth walking to?
 ///
 /// Alive, and (for an **immobilised** mob only) inside physical attack reach

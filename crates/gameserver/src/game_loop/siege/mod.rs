@@ -30,28 +30,43 @@ mod packets;
 mod registration;
 mod schedule;
 
-use crate::db::DbCommand;
-use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
-use crate::model::components::{AdvancedHeadquarter, Position};
-use crate::model::door::Door;
-use crate::model::siege::{SiegeClanType, SiegeSpawn};
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
-pub(crate) use battlefield::*;
-pub(crate) use capture::*;
-pub(crate) use doors::*;
-pub(crate) use packets::*;
-pub(crate) use registration::*;
-pub(crate) use schedule::*;
+use battlefield::spawn_siege_npcs;
+pub(crate) use battlefield::{
+    active_siege_castle_at, active_siege_guard_castle, attackable_siege_flag,
+    attackable_siege_guard, attackable_siege_tower, is_siege_defender, killed_control_tower,
+    killed_siege_flag, place_siege_flag,
+};
+#[cfg(test)]
+pub(crate) use capture::BLOOD_ALLIANCE_REWARD;
+#[cfg(test)]
+pub(crate) use capture::spawn_towers_for_test;
+pub(crate) use capture::{capture, set_show_npc_crest};
+use capture::{
+    increase_blood_alliance, record_castle_taken_for_nobles, reopen_time_registration,
+    reset_castle_ticket_count, teleport_all_to_town,
+};
+pub(crate) use doors::{attackable_door, damage_door, oust_all_players, try_capture_artifact};
+use doors::{despawn_siege_npcs, spawn_castle_doors, teleport_non_owners};
+pub(crate) use packets::{
+    handle_request_confirm_siege_waiting_list, handle_request_join_siege,
+    handle_request_set_castle_siege_time, handle_request_siege_attacker_list,
+    handle_request_siege_defender_list, list_register_clan, send_siege_info,
+};
+#[cfg(test)]
+pub(crate) use registration::check_can_register;
+pub(crate) use registration::{
+    RegisterOutcome, approve_defender, is_registration_over, register, remove_registration,
+};
+#[cfg(test)]
+pub(crate) use schedule::run_auto_task;
+use schedule::{can_pick_siege_time, effective_siege_millis};
+pub(crate) use schedule::{handle_scheduled_siege_start, next_siege_millis, schedule_all_at_boot};
 
-use super::helpers::send_sm_bare_to_client as send_sm_to;
-use super::helpers::{send_sm_bare_to_player, send_sm_to_client};
 use crate::scheduler::ms_to_ticks;
 
 /// `SiegeManager.getSiegeLength()` — `SiegeLength = 120` (minutes) in Siege.ini.

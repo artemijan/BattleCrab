@@ -1,8 +1,25 @@
 //! The "player clicked a skill" pipeline: the two `RequestMagicSkillUse`
 //! packets and the `use_magic_on` validation gauntlet.
 
-use super::*;
+use super::check_skill_reuse;
+use super::in_cast_range;
+use super::known_skill_level;
+use super::resolve_cast_target;
+use super::set_skill_reuse;
+use super::start_casting;
+use super::target_state;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers;
+use crate::model::components;
 
+use crate::game_loop::skills::effects::apply_skill_effects;
+use crate::model::Player;
+
+use crate::model::skill::OperateType;
+use crate::model::skill::TargetType;
+use crate::network::client_packets as cp;
+use crate::network::server_packets;
+use crate::world::World;
 /// Port of `clientpackets/RequestMagicSkillUse.runImpl`: parse and hand to
 /// `use_magic`.
 pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, body: &[u8]) {
@@ -29,7 +46,7 @@ pub(crate) fn op_exist_npc_around(
     caster_oid: i32,
     cond: &crate::model::skill::OpExistNpcCondition,
 ) -> bool {
-    let Some(region) = region_cell_of(world, caster_oid) else {
+    let Some(region) = helpers::region_cell_of(world, caster_oid) else {
         return false;
     };
     let Some(origin) = maybe_position(world, caster_oid) else {
@@ -71,7 +88,10 @@ pub(crate) fn handle_request_magic_skill_use_ground(
             z: pkt.z,
         },
     );
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+    if let Some(pos) = world
+        .objects
+        .get_component_mut::<components::Position>(&object_id)
+    {
         pos.heading = crate::model::movement::calculate_heading(
             (pkt.x - pos.x) as f64,
             (pkt.y - pos.y) as f64,
@@ -128,8 +148,8 @@ pub(crate) fn use_magic_on(
     use server_packets::sm_ids;
 
     // The dead can't cast (`checkUseConditions` → `isDead`).
-    if is_dead(world, object_id) {
-        send_action_failed(world, client_id);
+    if helpers::is_dead(world, object_id) {
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // `Creature.isAllSkillsDisabled()` — `_allSkillsDisabled ||
@@ -137,7 +157,7 @@ pub(crate) fn use_magic_on(
     // a script has locked skills outright (the TvT freeze). Checked before the
     // skill lookup, like Java's `useMagic` guard order.
     if crate::game_loop::abnormal::all_skills_disabled(world, object_id) {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // Unknown skill → ActionFailed (RequestMagicSkillUse.runImpl).
@@ -149,7 +169,7 @@ pub(crate) fn use_magic_on(
     // skill appears on the bar (it is in the `SkillList`) and then answers
     // every click with `ActionFailed`.
     let Some(skill_level) = known_skill_level(world, object_id, magic_id) else {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     };
     // An enchanted skill resolves to its sub-level variant (Java's known
@@ -173,7 +193,7 @@ pub(crate) fn use_magic_on(
     // Passive → ActionFailed (useMagic); toggles/unsupported targeting are
     // not castable yet and are consumed silently, same as before.
     if skill.operate_type == OperateType::Passive {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // `Player.useMagic`: "Check if the caster is sitting" — a seated player may
@@ -187,7 +207,7 @@ pub(crate) fn use_magic_on(
     // there and the chair here; ours always names the chair. Every other
     // ordering (passive first, toggles after) matches.
     if crate::game_loop::sit_stand::is_resting(world, object_id) {
-        send_sm_and_action_failed(
+        helpers::send_sm_and_action_failed(
             world,
             client_id,
             sm_ids::YOU_CANNOT_USE_ACTIONS_AND_SKILLS_WHILE_THE_CHARACTER_IS_SITTING,
@@ -211,7 +231,7 @@ pub(crate) fn use_magic_on(
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill.id));
         if already_on {
             crate::game_loop::skills::effects::handle_buff_expire(world, object_id, skill.id);
-            send_action_failed(world, client_id);
+            helpers::send_action_failed(world, client_id);
             return;
         }
         if skill.toggle_group_id > 0 {
@@ -263,11 +283,11 @@ pub(crate) fn use_magic_on(
                 skill.reuse_delay_group,
                 skill.reuse_delay,
             );
-            broadcast_including_self(world, object_id, &pkt);
+            helpers::broadcast_including_self(world, object_id, &pkt);
         }
         apply_skill_effects(world, object_id, object_id, &skill);
         set_skill_reuse(world, object_id, &skill);
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     } else if !matches!(
         skill.operate_type,
@@ -286,7 +306,7 @@ pub(crate) fn use_magic_on(
             .objects
             .has_component::<crate::model::components::GroundSkillTarget>(&object_id)
     {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // `SkillCaster.checkDoCastConditions`' mute checks: a magic skill is
@@ -300,7 +320,7 @@ pub(crate) fn use_magic_on(
             crate::game_loop::abnormal::is_physical_muted(world, object_id)
         };
         if muted {
-            send_action_failed(world, client_id);
+            helpers::send_action_failed(world, client_id);
             return;
         }
     }
@@ -335,7 +355,12 @@ pub(crate) fn use_magic_on(
                 .has_component::<crate::model::components::ServitorOf>(&t))
         && crate::game_loop::pvp::protection_blessing_blocks(world, object_id, t)
     {
-        send_sm_and_action_failed(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET, &[]);
+        helpers::send_sm_and_action_failed(
+            world,
+            client_id,
+            sm_ids::THAT_IS_AN_INCORRECT_TARGET,
+            &[],
+        );
         return;
     }
     // Fetched here rather than at the top of the function: the toggle branch
@@ -354,7 +379,7 @@ pub(crate) fn use_magic_on(
     ) {
         Ok(oid) => oid,
         Err(sm_id) => {
-            send_sm_and_action_failed(world, client_id, sm_id, &[]);
+            helpers::send_sm_and_action_failed(world, client_id, sm_id, &[]);
             return;
         }
     };
@@ -380,18 +405,22 @@ pub(crate) fn use_magic_on(
     // Java checks MP only after this, so a low-MP click still queues.
     let mid_swing = world
         .objects
-        .get_component::<AttackState>(&object_id)
+        .get_component::<components::AttackState>(&object_id)
         .is_some_and(|st| st.attack_end_tick > world.tick);
-    if mid_swing || world.objects.has_component::<Casting>(&object_id) {
+    if mid_swing
+        || world
+            .objects
+            .has_component::<components::Casting>(&object_id)
+    {
         world.objects.add_components(
             &object_id,
-            QueuedAction::Skill {
+            components::QueuedAction::Skill {
                 skill_id: magic_id,
                 ctrl,
                 shift,
             },
         );
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
 
@@ -400,15 +429,18 @@ pub(crate) fn use_magic_on(
     // — the consume is rate-scaled, the *initial* consume is not.
     let scaled_mp_consume =
         crate::game_loop::skills::effects::mp_consume_for(world, object_id, &skill);
-    let Some(v) = world.objects.get_component::<Vitals>(&object_id) else {
+    let Some(v) = world
+        .objects
+        .get_component::<components::Vitals>(&object_id)
+    else {
         return;
     };
     if v.cur_mp < (skill.mp_initial_consume + scaled_mp_consume) as f64 {
-        send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_MP, &[]);
+        helpers::send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_MP, &[]);
         return;
     }
     if v.cur_hp <= skill.hp_consume as f64 {
-        send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_HP, &[]);
+        helpers::send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_HP, &[]);
         return;
     }
     // Reagent gate (`SkillCaster.checkUseConditions`): the skill's
@@ -422,7 +454,7 @@ pub(crate) fn use_magic_on(
             .map(|inv| inv.count_of(skill.item_consume_id))
             .unwrap_or(0);
         if have < skill.item_consume_count as i64 {
-            send_sm_and_action_failed(
+            helpers::send_sm_and_action_failed(
                 world,
                 client_id,
                 sm_ids::THERE_ARE_NOT_ENOUGH_NECESSARY_ITEMS_TO_USE_THE_SKILL,
@@ -445,7 +477,7 @@ pub(crate) fn use_magic_on(
     {
         let (dx, dy) = ((tx - caster_pos.x) as f64, (ty - caster_pos.y) as f64);
         if dx * dx + dy * dy > (skill.cast_range as f64).powi(2) {
-            send_sm_and_action_failed(
+            helpers::send_sm_and_action_failed(
                 world,
                 client_id,
                 sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED,
@@ -473,16 +505,20 @@ pub(crate) fn use_magic_on(
     // still in flight is superseded (Java: each accepted `useMagic` sets a
     // fresh CAST intention; a rejected one leaves the old intention running).
     if matches!(
-        world.objects.get_component::<Intent>(&object_id),
-        Some(Intent(crate::model::PlayerIntent::Cast { .. }))
+        world
+            .objects
+            .get_component::<components::Intent>(&object_id),
+        Some(components::Intent(crate::model::PlayerIntent::Cast { .. }))
     ) {
-        world.objects.remove_component::<Intent>(&object_id);
+        world
+            .objects
+            .remove_component::<components::Intent>(&object_id);
     }
 
     if out_of_range {
         world.objects.add_components(
             &object_id,
-            Intent(crate::model::PlayerIntent::Cast {
+            components::Intent(crate::model::PlayerIntent::Cast {
                 skill_id: magic_id,
                 ctrl,
                 shift,

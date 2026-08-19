@@ -1,5 +1,41 @@
-use super::*;
+use super::MS_PER_TICK;
+use super::academy;
+use super::apply_clan_advent;
+use super::apply_clan_skills_to_member;
+use super::broadcast_to_clan;
+use super::clan_create_cooldown_ms;
+use super::clan_dissolve_delay_ms;
+use super::clan_is_at_war;
+use super::clan_join_penalty_ms;
+use super::clan_leader_of;
+use super::clan_name_or_empty;
+use super::destroy_clan;
+use super::in_siege_zone;
+use super::online_members;
+use super::refuse_if_busy;
+use super::refuse_if_clanless;
+use super::remove_clan_advent;
+use super::remove_clan_skills_from_member;
+use super::send_to_member;
+use super::sync_clan_insignia;
+use crate::db::DbCommand;
 use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::class_level;
+use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
+use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
+use crate::model::Player;
+use crate::model::clan::CL_DISMISS;
+use crate::model::clan::CL_JOIN_CLAN;
+use crate::model::clan::ClanMember;
+use crate::network::server_packets;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
+use commons::network::PacketReader;
+use commons::util::now_millis;
+use tracing::warn;
 
 /// Java `Clan.checkClanJoinCondition(player, target, pledgeType)` — the invite
 /// guard chain, with each reject's system message sent to the inviter. Run at

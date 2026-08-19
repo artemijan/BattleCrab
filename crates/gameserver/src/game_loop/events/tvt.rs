@@ -14,11 +14,8 @@
 //! `SkillsDisabled` like Java's `disableAllSkills`.
 
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::announce_to_all_online;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::send_message;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers;
+
 use crate::game_loop::time::TICKS_PER_SECOND;
 use commons::util::rnd;
 use tracing::warn;
@@ -133,11 +130,11 @@ pub(crate) fn event_start(world: &mut World) -> bool {
         ScheduledTask::TvtTeleportToArena,
     );
 
-    announce_to_all_online(
+    helpers::announce_to_all_online(
         world,
         &format!("TvT Event: Registration opened for {REGISTRATION_TIME_MIN} minutes."),
     );
-    announce_to_all_online(
+    helpers::announce_to_all_online(
         world,
         "TvT Event: You can register at Giran TvT Event Manager.",
     );
@@ -166,7 +163,7 @@ pub(crate) fn event_stop(world: &mut World) -> bool {
     }
     world.events.tvt.reset();
     world.events.active = None;
-    announce_to_all_online(world, "TvT Event: Event was canceled.");
+    helpers::announce_to_all_online(world, "TvT Event: Event was canceled.");
     true
 }
 
@@ -182,7 +179,7 @@ pub(crate) fn teleport_to_arena(world: &mut World) {
     prune_offline(world);
 
     if world.events.tvt.player_list.len() < MINIMUM_PARTICIPANT_COUNT {
-        announce_to_all_online(
+        helpers::announce_to_all_online(
             world,
             "TvT Event: Event was canceled, not enough participants.",
         );
@@ -195,7 +192,7 @@ pub(crate) fn teleport_to_arena(world: &mut World) {
     // Enough players — stand the arena up.
     let Some(instance_id) = instances::create_from_template(world, INSTANCE_ID) else {
         warn!("TvT: failed to create coliseum instance {INSTANCE_ID}; canceling.");
-        announce_to_all_online(world, "TvT Event: Event was canceled.");
+        helpers::announce_to_all_online(world, "TvT Event: Event was canceled.");
         clear_registrations(world);
         world.events.tvt.reset();
         world.events.active = None;
@@ -344,7 +341,7 @@ pub(crate) fn end_fight(world: &mut World) {
     // arena empties with everybody standing.
     for player in world.events.tvt.player_list.clone() {
         set_frozen(world, player, true);
-        if is_dead(world, player) {
+        if helpers::is_dead(world, player) {
             crate::game_loop::death::do_revive(world, player);
         }
     }
@@ -475,7 +472,7 @@ pub(crate) fn on_player_death(world: &mut World, victim: i32, killer: i32) {
 /// revive them at their team spawn behind the Ghost Walking invulnerability
 /// (Java `"ResurrectPlayer"`).
 pub(crate) fn resurrect_player(world: &mut World, player: i32) {
-    if !is_on_event(world, player) || !is_dead(world, player) {
+    if !is_on_event(world, player) || !helpers::is_dead(world, player) {
         return;
     }
     let spawn = match team_of(world, player) {
@@ -486,7 +483,7 @@ pub(crate) fn resurrect_player(world: &mut World, player: i32) {
     teleport_player(world, player, spawn.0, spawn.1, spawn.2);
     crate::game_loop::death::do_revive(world, player);
     // Ghost Walking: 30s of DamageBlock (HP/MP) invulnerability + speed.
-    if let Some(skill) = skill_by_id(world, GHOST_WALKING, 1) {
+    if let Some(skill) = helpers::skill_by_id(world, GHOST_WALKING, 1) {
         crate::game_loop::skills::effects::apply_skill_effects(world, player, player, &skill);
     }
     // Java resets the clock here too — a player who died *inside* their own
@@ -715,7 +712,7 @@ pub(crate) fn inactivity_tick(world: &mut World, player: i32, warning: bool, seq
     }
     // Kick: strip the participant, oust them from the arena, and either forfeit
     // the match (their team is now empty) or announce the kick.
-    let name = player_name_or_empty(world, player);
+    let name = helpers::player_name_or_empty(world, player);
     set_team(world, player, 0);
     instances::exit(world, player);
     world.events.tvt.player_list.retain(|&p| p != player);
@@ -891,7 +888,7 @@ const MAGE_BUFFS: &[(i32, i32)] = &[
 /// Java `TvT.canRegister(player)` — every gate ported.
 fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
     if world.events.tvt.player_list.contains(&player) {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "You are already registered on this event.",
@@ -911,19 +908,19 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         return false;
     };
     if level < MINIMUM_PARTICIPANT_LEVEL {
-        send_message(world, client_id, "Your level is too low to participate.");
+        helpers::send_message(world, client_id, "Your level is too low to participate.");
         return false;
     }
     if level > MAXIMUM_PARTICIPANT_LEVEL {
-        send_message(world, client_id, "Your level is too high to participate.");
+        helpers::send_message(world, client_id, "Your level is too high to participate.");
         return false;
     }
     if already_reg {
-        send_message(world, client_id, "You are already registered on an event.");
+        helpers::send_message(world, client_id, "You are already registered on an event.");
         return false;
     }
     if world.events.tvt.player_list.len() >= MAXIMUM_PARTICIPANT_COUNT {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "There are too many players registered on the event.",
@@ -931,7 +928,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         return false;
     }
     if cursed || reputation < 0 {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "People with bad reputation can't register.",
@@ -939,7 +936,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         return false;
     }
     if world.olympiad.is_registered(player) {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "You cannot participate while registered on the Olympiad.",
@@ -947,13 +944,13 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         return false;
     }
     if is_fishing(world, player) {
-        send_message(world, client_id, "You cannot register while fishing.");
+        helpers::send_message(world, client_id, "You cannot register while fishing.");
         return false;
     }
     // `isInOlympiadMode()` — Java ORs this with the registration check above;
     // a noble already *fighting* a bout is not in the waiting list.
     if world.olympiad.in_competition.contains(&player) {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "You cannot participate while registered on the Olympiad.",
@@ -965,7 +962,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         .get_component::<Player>(&player)
         .map_or((false, false), |p| (p.is_flying(), p.transform_id != 0));
     if flying {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "You cannot register on the event while flying.",
@@ -973,7 +970,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         return false;
     }
     if transformed {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "You cannot register on the event while on a transformed state.",
@@ -981,12 +978,12 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         return false;
     }
     if crate::game_loop::duel::is_in_duel(world, player) {
-        send_message(world, client_id, "You cannot register while on a duel.");
+        helpers::send_message(world, client_id, "You cannot register while on a duel.");
         return false;
     }
     // `isInInstance()` — the overworld is instance 0.
     if crate::game_loop::helpers::instance_of(world, player) != 0 {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "You cannot register while in an instance.",
@@ -1001,26 +998,26 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         .get_component::<crate::model::components::ZoneFlags>(&player)
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Siege));
     if crate::game_loop::pvp::is_in_siege(world, player) || in_siege_zone {
-        send_message(world, client_id, "You cannot register while on a siege.");
+        helpers::send_message(world, client_id, "You cannot register while on a siege.");
         return false;
     }
     if !crate::game_loop::weight::is_inventory_under_80(world, player) {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "There are too many items in your inventory.",
         );
-        send_message(world, client_id, "Try removing some items.");
+        helpers::send_message(world, client_id, "Try removing some items.");
         return false;
     }
     // `getWeightPenalty() != 0` — *any* penalty band, not just overloaded.
     if crate::game_loop::weight::current_penalty(world, player) != 0 {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "Your invetory weight has exceeded the normal limit.",
         );
-        send_message(world, client_id, "Try removing some items.");
+        helpers::send_message(world, client_id, "Try removing some items.");
         return false;
     }
     true

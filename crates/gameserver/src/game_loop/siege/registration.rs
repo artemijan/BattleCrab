@@ -1,8 +1,11 @@
 //! Registration rules: who may register on which side, the caps, and the
 //! same-day exclusivity check.
 
-use super::*;
-
+use super::effective_siege_millis;
+use super::owner_clan_id_opt;
+use crate::db::DbCommand;
+use crate::model::siege::SiegeClanType;
+use crate::world::World;
 /// `dist/game/config/Siege.ini` (Interlude): a clan must be at least level 3,
 /// and each side holds up to 500 clans.
 const SIEGE_CLAN_MIN_LEVEL: i32 = 3;

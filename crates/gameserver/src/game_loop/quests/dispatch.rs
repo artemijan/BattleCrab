@@ -1,8 +1,23 @@
 //! Entry points: the `QuestLink` bypass router, the `notify_*` event hooks,
 //! the creature-see sweep, quest timers and the list/abort packets.
 
-use super::*;
+use super::QuestCtx;
+use super::QuestScript;
+use super::no_quest_html;
+use super::send_no_quest_html;
+use super::show_result;
+use crate::game_loop::helpers;
 
+use crate::model::components::LastFolkNpc;
+use crate::model::components::QuestTimerSeqs;
+use crate::model::components::Quests;
+use crate::model::quest::state;
+use crate::network::enter_world as ew;
+use crate::network::server_packets;
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
+use std::sync::Arc;
+use tracing::warn;
 /// The `QuestLink` bypass handler: `Quest` (chooser), `Quest <Name>`
 /// (talk), `Quest <Name> <event>` (html-button event). `command` is the
 /// full bypass command starting with `Quest`.
@@ -32,7 +47,7 @@ pub(crate) fn quest_link(
 /// message are dropped first, exactly as Java does — see
 /// [`talk_shows_no_quest`].
 fn show_quest_window_all(world: &mut World, client_id: u32, player: i32, npc_oid: i32) {
-    let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
+    let npc_id = helpers::npc_id_of(world, npc_oid).unwrap_or(0);
     let registry = world.quests.clone();
     // Opted-in utility scripts (`bare_talk`, e.g. TeleportWithCharm) run
     // their `on_talk` from the bare quest-window route; a returned html
@@ -132,7 +147,7 @@ fn show_quest_choose_window(
     npc_oid: i32,
     quests: &[Arc<dyn QuestScript>],
 ) {
-    let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
+    let npc_id = helpers::npc_id_of(world, npc_oid).unwrap_or(0);
     let registry = world.quests.clone();
     let mut started = String::new();
     let mut can_start = String::new();
@@ -207,12 +222,12 @@ fn show_quest_choose_window(
         format!("<html><body>{started}{can_start}{cant_start}{completed}</body></html>")
     };
     let content = content.replace("%objectId%", &npc_oid.to_string());
-    send_to_client(
+    helpers::send_to_client(
         world,
         client_id,
         server_packets::npc_html_message(npc_oid, &content),
     );
-    send_action_failed(world, client_id);
+    helpers::send_action_failed(world, client_id);
 }
 
 /// `QuestLink.showQuestWindow(player, npc, questId)` → `Quest.notifyTalk`:
@@ -229,11 +244,11 @@ fn show_quest_window(
     let registry = world.quests.clone();
     let Some(script) = registry.by_name(quest_name) else {
         send_no_quest_html(world, client_id, npc_oid);
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     };
     world.objects.add_components(&player, LastFolkNpc(npc_oid));
-    let npc_id = npc_id_of(world, npc_oid).unwrap_or(0);
+    let npc_id = helpers::npc_id_of(world, npc_oid).unwrap_or(0);
     let res = {
         let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
         let gate = if registry.is_start_npc(quest_name, npc_id) && ctx.is_created() {
@@ -305,7 +320,7 @@ pub(crate) fn notify_aggro_range_enter(
     if scripts.is_empty() {
         return;
     }
-    let Some(client_id) = client_for_player(world, player_oid) else {
+    let Some(client_id) = helpers::client_for_player(world, player_oid) else {
         return;
     };
     for script in scripts {
@@ -334,7 +349,7 @@ pub(crate) fn notify_spell_finished(
         .get_component::<crate::model::Player>(&target_oid)
         .is_some();
     let (player, client_id) = if is_player_target {
-        match client_for_player(world, target_oid) {
+        match helpers::client_for_player(world, target_oid) {
             Some(c) => (target_oid, c),
             None => (target_oid, 0),
         }
@@ -362,7 +377,7 @@ pub(crate) fn notify_kill(
     if scripts.is_empty() {
         return;
     }
-    let Some(client_id) = client_for_player(world, killer_oid) else {
+    let Some(client_id) = helpers::client_for_player(world, killer_oid) else {
         return;
     };
     for script in scripts {
@@ -394,7 +409,7 @@ pub(crate) fn notify_attack(
     if scripts.is_empty() {
         return;
     }
-    let Some(client_id) = client_for_player(world, player_oid) else {
+    let Some(client_id) = helpers::client_for_player(world, player_oid) else {
         return;
     };
     for script in scripts {
@@ -420,7 +435,7 @@ pub(crate) fn notify_skill_see(
     if scripts.is_empty() {
         return;
     }
-    let Some(client_id) = client_for_player(world, caster_oid) else {
+    let Some(client_id) = helpers::client_for_player(world, caster_oid) else {
         return;
     };
     for script in scripts {
@@ -471,7 +486,7 @@ pub(crate) fn handle_tutorial_bypass(world: &mut World, client_id: u32, bypass: 
     };
     let bypass = bypass.trim();
     if bypass == "tutorial_close" {
-        send_to_client(world, client_id, server_packets::tutorial_close_html());
+        helpers::send_to_client(world, client_id, server_packets::tutorial_close_html());
         return;
     }
     if let Some(rest) = bypass.strip_prefix("Quest ") {
@@ -519,7 +534,7 @@ pub(crate) fn handle_creature_see_sweep(world: &mut World) {
             if crate::game_loop::helpers::instance_of(world, oid) != instance {
                 return false;
             }
-            if is_dead(world, oid) {
+            if helpers::is_dead(world, oid) {
                 return false;
             }
             crate::geo::distance::within_3d_xyz(world, oid, pos.x, pos.y, pos.z, range)
@@ -570,7 +585,10 @@ pub(crate) fn handle_creature_see_sweep(world: &mut World) {
                 .objects
                 .has_component::<crate::model::Player>(&creature);
             let (player, client_id) = if is_player {
-                (creature, client_for_player(world, creature).unwrap_or(0))
+                (
+                    creature,
+                    helpers::client_for_player(world, creature).unwrap_or(0),
+                )
             } else {
                 (0, 0)
             };
@@ -614,7 +632,7 @@ pub(crate) fn handle_quest_timer(
     if let Some(t) = world.objects.get_component_mut::<QuestTimerSeqs>(&player) {
         t.0.remove(&(quest, name.to_string()));
     }
-    let Some(client_id) = client_for_player(world, player) else {
+    let Some(client_id) = helpers::client_for_player(world, player) else {
         return;
     };
     let registry = world.quests.clone();
@@ -637,7 +655,7 @@ pub(crate) fn handle_request_quest_list(world: &World, client_id: u32) {
         return;
     };
     let pkt = ew::quest_list(quests, &world.quests);
-    send_to_client(world, client_id, pkt);
+    helpers::send_to_client(world, client_id, pkt);
 }
 
 pub(crate) fn handle_request_quest_abort(world: &mut World, client_id: u32, body: &[u8]) {

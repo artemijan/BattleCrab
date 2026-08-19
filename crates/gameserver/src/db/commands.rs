@@ -1,5 +1,40 @@
-use super::*;
+use super::BLOCK_RELATION;
+use super::CmdRx;
+use super::CreateResult;
+use super::CustomMailRow;
+use super::DbCommand;
+use super::DbEvent;
+use super::EventTx;
+use super::ID_BLOCK_SIZE;
+use super::boot;
+use super::clean_up_database;
+use super::clear_ground_items;
+use super::count_characters;
+use super::create_character;
+use super::delete_char;
+use super::item_row_model;
+use super::load_next_id;
+use super::name_exists;
+use super::reload;
+use super::send_boot_events;
+use super::store_ground_items;
+use super::store_player;
+use super::verify_schema;
+use super::warn_err;
+use boot::GroundItemBootConfig;
+use models::entity;
 
+use models::sea_orm::ActiveValue::NotSet;
+use models::sea_orm::ActiveValue::Set;
+use models::sea_orm::Condition;
+use models::sea_orm::DatabaseConnection;
+use models::sea_orm::sea_query::CaseStatement;
+use models::sea_orm::sea_query::Expr;
+use models::sea_orm::sea_query::OnConflict;
+use models::sea_orm::sea_query::SimpleExpr;
+use models::sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use tracing::error;
+use tracing::info;
 pub(crate) async fn run(
     url: String,
     max_connections: u32,
@@ -77,7 +112,7 @@ pub(crate) async fn run(
                 set_char_col(
                     &db,
                     char_id,
-                    characters::Column::Deletetime,
+                    entity::characters::Column::Deletetime,
                     delete_time.into(),
                 )
                 .await;
@@ -88,7 +123,13 @@ pub(crate) async fn run(
                 account,
                 char_id,
             } => {
-                set_char_col(&db, char_id, characters::Column::Deletetime, 0.into()).await;
+                set_char_col(
+                    &db,
+                    char_id,
+                    entity::characters::Column::Deletetime,
+                    0.into(),
+                )
+                .await;
                 reload(&db, &event_tx, client_id, account, true).await;
             }
             DbCommand::DeleteCharacter { char_id } => {
@@ -96,25 +137,35 @@ pub(crate) async fn run(
             }
             DbCommand::StoreGrandBoss { boss } => {
                 warn_err(
-                    grandboss_data::Entity::update_many()
-                        .col_expr(grandboss_data::Column::LocX, boss.loc_x.into())
-                        .col_expr(grandboss_data::Column::LocY, boss.loc_y.into())
-                        .col_expr(grandboss_data::Column::LocZ, boss.loc_z.into())
-                        .col_expr(grandboss_data::Column::Heading, boss.heading.into())
+                    entity::grandboss_data::Entity::update_many()
+                        .col_expr(entity::grandboss_data::Column::LocX, boss.loc_x.into())
+                        .col_expr(entity::grandboss_data::Column::LocY, boss.loc_y.into())
+                        .col_expr(entity::grandboss_data::Column::LocZ, boss.loc_z.into())
+                        .col_expr(entity::grandboss_data::Column::Heading, boss.heading.into())
                         .col_expr(
-                            grandboss_data::Column::RespawnTime,
+                            entity::grandboss_data::Column::RespawnTime,
                             boss.respawn_time.into(),
                         )
-                        .col_expr(grandboss_data::Column::CurrentHp, boss.current_hp.into())
-                        .col_expr(grandboss_data::Column::CurrentMp, boss.current_mp.into())
-                        .col_expr(grandboss_data::Column::Status, boss.status.into())
-                        .filter(grandboss_data::Column::BossId.eq(boss.boss_id))
+                        .col_expr(
+                            entity::grandboss_data::Column::CurrentHp,
+                            boss.current_hp.into(),
+                        )
+                        .col_expr(
+                            entity::grandboss_data::Column::CurrentMp,
+                            boss.current_mp.into(),
+                        )
+                        .col_expr(entity::grandboss_data::Column::Status, boss.status.into())
+                        .filter(entity::grandboss_data::Column::BossId.eq(boss.boss_id))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::DeletePetRow { collar_object_id } => {
-                warn_err(pets::Entity::delete_by_id(collar_object_id).exec(&db).await);
+                warn_err(
+                    entity::pets::Entity::delete_by_id(collar_object_id)
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::CountCharacters { account } => {
                 let (count, del_times) = count_characters(&db, &account).await;
@@ -144,9 +195,9 @@ pub(crate) async fn run(
                 quest_names,
             } => {
                 warn_err(
-                    character_quests::Entity::delete_many()
-                        .filter(character_quests::Column::CharId.eq(char_id))
-                        .filter(character_quests::Column::Name.is_in(quest_names))
+                    entity::character_quests::Entity::delete_many()
+                        .filter(entity::character_quests::Column::CharId.eq(char_id))
+                        .filter(entity::character_quests::Column::Name.is_in(quest_names))
                         .exec(&db)
                         .await,
                 );
@@ -167,14 +218,14 @@ pub(crate) async fn run(
             DbCommand::InsertFriendPair { a, b } => {
                 // Both directions in one statement, as Java's two-row INSERT does.
                 warn_err(
-                    character_friends::Entity::insert_many([
-                        character_friends::ActiveModel {
+                    entity::character_friends::Entity::insert_many([
+                        entity::character_friends::ActiveModel {
                             char_id: Set(a),
                             friend_id: Set(b),
                             relation: Set(0),
                             memo: NotSet,
                         },
-                        character_friends::ActiveModel {
+                        entity::character_friends::ActiveModel {
                             char_id: Set(b),
                             friend_id: Set(a),
                             relation: Set(0),
@@ -183,8 +234,8 @@ pub(crate) async fn run(
                     ])
                     .on_conflict(
                         OnConflict::columns([
-                            character_friends::Column::CharId,
-                            character_friends::Column::FriendId,
+                            entity::character_friends::Column::CharId,
+                            entity::character_friends::Column::FriendId,
                         ])
                         .do_nothing()
                         .to_owned(),
@@ -197,16 +248,18 @@ pub(crate) async fn run(
                 // Java `BlockList.updateInDB(add)` — one row, one direction,
                 // `relation = 1`. Unlike a friendship, blocking is not mutual.
                 warn_err(
-                    character_friends::Entity::insert(character_friends::ActiveModel {
-                        char_id: Set(owner),
-                        friend_id: Set(target),
-                        relation: Set(BLOCK_RELATION),
-                        memo: NotSet,
-                    })
+                    entity::character_friends::Entity::insert(
+                        entity::character_friends::ActiveModel {
+                            char_id: Set(owner),
+                            friend_id: Set(target),
+                            relation: Set(BLOCK_RELATION),
+                            memo: NotSet,
+                        },
+                    )
                     .on_conflict(
                         OnConflict::columns([
-                            character_friends::Column::CharId,
-                            character_friends::Column::FriendId,
+                            entity::character_friends::Column::CharId,
+                            entity::character_friends::Column::FriendId,
                         ])
                         .do_nothing()
                         .to_owned(),
@@ -217,10 +270,10 @@ pub(crate) async fn run(
             }
             DbCommand::DeleteBlock { owner, target } => {
                 warn_err(
-                    character_friends::Entity::delete_many()
-                        .filter(character_friends::Column::CharId.eq(owner))
-                        .filter(character_friends::Column::FriendId.eq(target))
-                        .filter(character_friends::Column::Relation.eq(BLOCK_RELATION))
+                    entity::character_friends::Entity::delete_many()
+                        .filter(entity::character_friends::Column::CharId.eq(owner))
+                        .filter(entity::character_friends::Column::FriendId.eq(target))
+                        .filter(entity::character_friends::Column::Relation.eq(BLOCK_RELATION))
                         .exec(&db)
                         .await,
                 );
@@ -235,18 +288,18 @@ pub(crate) async fn run(
             // relation-scoped precisely so they cannot do the reverse.
             DbCommand::DeleteFriendPair { a, b } => {
                 warn_err(
-                    character_friends::Entity::delete_many()
+                    entity::character_friends::Entity::delete_many()
                         .filter(
                             Condition::any()
                                 .add(
                                     Condition::all()
-                                        .add(character_friends::Column::CharId.eq(a))
-                                        .add(character_friends::Column::FriendId.eq(b)),
+                                        .add(entity::character_friends::Column::CharId.eq(a))
+                                        .add(entity::character_friends::Column::FriendId.eq(b)),
                                 )
                                 .add(
                                     Condition::all()
-                                        .add(character_friends::Column::CharId.eq(b))
-                                        .add(character_friends::Column::FriendId.eq(a)),
+                                        .add(entity::character_friends::Column::CharId.eq(b))
+                                        .add(entity::character_friends::Column::FriendId.eq(a)),
                                 ),
                         )
                         .exec(&db)
@@ -259,7 +312,7 @@ pub(crate) async fn run(
                 leader_id,
             } => {
                 warn_err(
-                    clan_data::Entity::insert(clan_data::ActiveModel {
+                    entity::clan_data::Entity::insert(entity::clan_data::ActiveModel {
                         clan_id: Set(clan_id),
                         clan_name: Set(Some(name)),
                         clan_level: Set(Some(0)),
@@ -285,10 +338,10 @@ pub(crate) async fn run(
                 clan_privs,
             } => {
                 warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::Clanid, clan_id.into())
-                        .col_expr(characters::Column::ClanPrivs, clan_privs.into())
-                        .filter(characters::Column::CharId.eq(char_id))
+                    entity::characters::Entity::update_many()
+                        .col_expr(entity::characters::Column::Clanid, clan_id.into())
+                        .col_expr(entity::characters::Column::ClanPrivs, clan_privs.into())
+                        .filter(entity::characters::Column::CharId.eq(char_id))
                         .exec(&db)
                         .await,
                 );
@@ -300,7 +353,7 @@ pub(crate) async fn run(
                 skill_name,
             } => {
                 warn_err(
-                    clan_skills::Entity::insert(clan_skills::ActiveModel {
+                    entity::clan_skills::Entity::insert(entity::clan_skills::ActiveModel {
                         clan_id: Set(clan_id),
                         skill_id: Set(skill_id),
                         skill_level: Set(skill_level),
@@ -309,13 +362,13 @@ pub(crate) async fn run(
                     })
                     .on_conflict(
                         OnConflict::columns([
-                            clan_skills::Column::ClanId,
-                            clan_skills::Column::SkillId,
-                            clan_skills::Column::SubPledgeId,
+                            entity::clan_skills::Column::ClanId,
+                            entity::clan_skills::Column::SkillId,
+                            entity::clan_skills::Column::SubPledgeId,
                         ])
                         .update_columns([
-                            clan_skills::Column::SkillLevel,
-                            clan_skills::Column::SkillName,
+                            entity::clan_skills::Column::SkillLevel,
+                            entity::clan_skills::Column::SkillName,
                         ])
                         .to_owned(),
                     )
@@ -325,9 +378,9 @@ pub(crate) async fn run(
             }
             DbCommand::DeleteClanSkill { clan_id, skill_id } => {
                 warn_err(
-                    clan_skills::Entity::delete_many()
-                        .filter(clan_skills::Column::ClanId.eq(clan_id))
-                        .filter(clan_skills::Column::SkillId.eq(skill_id))
+                    entity::clan_skills::Entity::delete_many()
+                        .filter(entity::clan_skills::Column::ClanId.eq(clan_id))
+                        .filter(entity::clan_skills::Column::SkillId.eq(skill_id))
                         .exec(&db)
                         .await,
                 );
@@ -341,7 +394,7 @@ pub(crate) async fn run(
                 end_time,
             } => {
                 warn_err(
-                    cursed_weapons::Entity::insert(cursed_weapons::ActiveModel {
+                    entity::cursed_weapons::Entity::insert(entity::cursed_weapons::ActiveModel {
                         item_id: Set(item_id),
                         char_id: Set(char_id),
                         player_reputation: Set(Some(reputation)),
@@ -350,13 +403,13 @@ pub(crate) async fn run(
                         end_time: Set(end_time),
                     })
                     .on_conflict(
-                        OnConflict::column(cursed_weapons::Column::ItemId)
+                        OnConflict::column(entity::cursed_weapons::Column::ItemId)
                             .update_columns([
-                                cursed_weapons::Column::CharId,
-                                cursed_weapons::Column::PlayerReputation,
-                                cursed_weapons::Column::PlayerPkKills,
-                                cursed_weapons::Column::NbKills,
-                                cursed_weapons::Column::EndTime,
+                                entity::cursed_weapons::Column::CharId,
+                                entity::cursed_weapons::Column::PlayerReputation,
+                                entity::cursed_weapons::Column::PlayerPkKills,
+                                entity::cursed_weapons::Column::NbKills,
+                                entity::cursed_weapons::Column::EndTime,
                             ])
                             .to_owned(),
                     )
@@ -375,7 +428,7 @@ pub(crate) async fn run(
                 cur_mp,
             } => {
                 warn_err(
-                    npc_respawns::Entity::insert(npc_respawns::ActiveModel {
+                    entity::npc_respawns::Entity::insert(entity::npc_respawns::ActiveModel {
                         id: Set(npc_id),
                         x: Set(x),
                         y: Set(y),
@@ -386,15 +439,15 @@ pub(crate) async fn run(
                         current_mp: Set(cur_mp),
                     })
                     .on_conflict(
-                        OnConflict::column(npc_respawns::Column::Id)
+                        OnConflict::column(entity::npc_respawns::Column::Id)
                             .update_columns([
-                                npc_respawns::Column::X,
-                                npc_respawns::Column::Y,
-                                npc_respawns::Column::Z,
-                                npc_respawns::Column::Heading,
-                                npc_respawns::Column::RespawnTime,
-                                npc_respawns::Column::CurrentHp,
-                                npc_respawns::Column::CurrentMp,
+                                entity::npc_respawns::Column::X,
+                                entity::npc_respawns::Column::Y,
+                                entity::npc_respawns::Column::Z,
+                                entity::npc_respawns::Column::Heading,
+                                entity::npc_respawns::Column::RespawnTime,
+                                entity::npc_respawns::Column::CurrentHp,
+                                entity::npc_respawns::Column::CurrentMp,
                             ])
                             .to_owned(),
                     )
@@ -408,16 +461,16 @@ pub(crate) async fn run(
                 notice,
             } => {
                 warn_err(
-                    clan_notices::Entity::insert(clan_notices::ActiveModel {
+                    entity::clan_notices::Entity::insert(entity::clan_notices::ActiveModel {
                         clan_id: Set(clan_id),
                         enabled: Set(if enabled { "true" } else { "false" }.to_string()),
                         notice: Set(notice),
                     })
                     .on_conflict(
-                        OnConflict::column(clan_notices::Column::ClanId)
+                        OnConflict::column(entity::clan_notices::Column::ClanId)
                             .update_columns([
-                                clan_notices::Column::Enabled,
-                                clan_notices::Column::Notice,
+                                entity::clan_notices::Column::Enabled,
+                                entity::clan_notices::Column::Notice,
                             ])
                             .to_owned(),
                     )
@@ -431,30 +484,30 @@ pub(crate) async fn run(
                 old_class_id,
             } => {
                 warn_err(
-                    character_subclasses::Entity::delete_many()
-                        .filter(character_subclasses::Column::CharId.eq(char_id))
-                        .filter(character_subclasses::Column::ClassId.eq(old_class_id))
+                    entity::character_subclasses::Entity::delete_many()
+                        .filter(entity::character_subclasses::Column::CharId.eq(char_id))
+                        .filter(entity::character_subclasses::Column::ClassId.eq(old_class_id))
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    character_skills::Entity::delete_many()
-                        .filter(character_skills::Column::CharId.eq(char_id))
-                        .filter(character_skills::Column::ClassIndex.eq(class_index))
+                    entity::character_skills::Entity::delete_many()
+                        .filter(entity::character_skills::Column::CharId.eq(char_id))
+                        .filter(entity::character_skills::Column::ClassIndex.eq(class_index))
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    character_hennas::Entity::delete_many()
-                        .filter(character_hennas::Column::CharId.eq(char_id))
-                        .filter(character_hennas::Column::ClassIndex.eq(class_index))
+                    entity::character_hennas::Entity::delete_many()
+                        .filter(entity::character_hennas::Column::CharId.eq(char_id))
+                        .filter(entity::character_hennas::Column::ClassIndex.eq(class_index))
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    character_shortcuts::Entity::delete_many()
-                        .filter(character_shortcuts::Column::CharId.eq(char_id))
-                        .filter(character_shortcuts::Column::ClassIndex.eq(class_index))
+                    entity::character_shortcuts::Entity::delete_many()
+                        .filter(entity::character_shortcuts::Column::CharId.eq(char_id))
+                        .filter(entity::character_shortcuts::Column::ClassIndex.eq(class_index))
                         .exec(&db)
                         .await,
                 );
@@ -468,26 +521,28 @@ pub(crate) async fn run(
                 sp,
             } => {
                 warn_err(
-                    character_subclasses::Entity::insert(character_subclasses::ActiveModel {
-                        char_id: Set(char_id),
-                        class_id: Set(class_id),
-                        exp: Set(exp),
-                        sp: Set(sp),
-                        level: Set(level),
-                        vitality_points: Set(0),
-                        class_index: Set(class_index),
-                        dual_class: Set(0),
-                    })
+                    entity::character_subclasses::Entity::insert(
+                        entity::character_subclasses::ActiveModel {
+                            char_id: Set(char_id),
+                            class_id: Set(class_id),
+                            exp: Set(exp),
+                            sp: Set(sp),
+                            level: Set(level),
+                            vitality_points: Set(0),
+                            class_index: Set(class_index),
+                            dual_class: Set(0),
+                        },
+                    )
                     .on_conflict(
                         OnConflict::columns([
-                            character_subclasses::Column::CharId,
-                            character_subclasses::Column::ClassId,
+                            entity::character_subclasses::Column::CharId,
+                            entity::character_subclasses::Column::ClassId,
                         ])
                         .update_columns([
-                            character_subclasses::Column::Exp,
-                            character_subclasses::Column::Sp,
-                            character_subclasses::Column::Level,
-                            character_subclasses::Column::ClassIndex,
+                            entity::character_subclasses::Column::Exp,
+                            entity::character_subclasses::Column::Sp,
+                            entity::character_subclasses::Column::Level,
+                            entity::character_subclasses::Column::ClassIndex,
                         ])
                         .to_owned(),
                     )
@@ -496,11 +551,15 @@ pub(crate) async fn run(
                 );
             }
             DbCommand::DeleteNpcRespawn { npc_id } => {
-                warn_err(npc_respawns::Entity::delete_by_id(npc_id).exec(&db).await);
+                warn_err(
+                    entity::npc_respawns::Entity::delete_by_id(npc_id)
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::RemoveCursedWeapon { item_id } => {
                 warn_err(
-                    cursed_weapons::Entity::delete_by_id(item_id)
+                    entity::cursed_weapons::Entity::delete_by_id(item_id)
                         .exec(&db)
                         .await,
                 );
@@ -513,9 +572,9 @@ pub(crate) async fn run(
                 skill_ids,
             } => {
                 warn_err(
-                    items::Entity::delete_many()
-                        .filter(items::Column::OwnerId.eq(char_id))
-                        .filter(items::Column::ItemId.eq(item_id))
+                    entity::items::Entity::delete_many()
+                        .filter(entity::items::Column::OwnerId.eq(char_id))
+                        .filter(entity::items::Column::ItemId.eq(item_id))
                         .exec(&db)
                         .await,
                 );
@@ -523,50 +582,68 @@ pub(crate) async fn run(
                     &db,
                     char_id,
                     vec![
-                        (characters::Column::Reputation, reputation.into()),
-                        (characters::Column::Pkkills, pk_kills.into()),
+                        (entity::characters::Column::Reputation, reputation.into()),
+                        (entity::characters::Column::Pkkills, pk_kills.into()),
                     ],
                 )
                 .await;
                 if !skill_ids.is_empty() {
                     warn_err(
-                        character_skills::Entity::delete_many()
-                            .filter(character_skills::Column::CharId.eq(char_id))
-                            .filter(character_skills::Column::SkillId.is_in(skill_ids))
+                        entity::character_skills::Entity::delete_many()
+                            .filter(entity::character_skills::Column::CharId.eq(char_id))
+                            .filter(entity::character_skills::Column::SkillId.is_in(skill_ids))
                             .exec(&db)
                             .await,
                     );
                 }
             }
             DbCommand::UpdateCastleSide { castle_id, side } => {
-                set_castle_col(&db, castle_id, castle::Column::Side, side.into()).await;
+                set_castle_col(&db, castle_id, entity::castle::Column::Side, side.into()).await;
             }
             DbCommand::UpdateCastleShowNpcCrest { castle_id, show } => {
                 set_castle_col(
                     &db,
                     castle_id,
-                    castle::Column::ShowNpcCrest,
+                    entity::castle::Column::ShowNpcCrest,
                     if show { "true" } else { "false" }.into(),
                 )
                 .await;
             }
             DbCommand::UpdateClanLeader { clan_id, leader_id } => {
-                set_clan_col(&db, clan_id, clan_data::Column::LeaderId, leader_id.into()).await;
+                set_clan_col(
+                    &db,
+                    clan_id,
+                    entity::clan_data::Column::LeaderId,
+                    leader_id.into(),
+                )
+                .await;
             }
             DbCommand::UpdateClanCastle { clan_id, castle_id } => {
-                set_clan_col(&db, clan_id, clan_data::Column::HasCastle, castle_id.into()).await;
+                set_clan_col(
+                    &db,
+                    clan_id,
+                    entity::clan_data::Column::HasCastle,
+                    castle_id.into(),
+                )
+                .await;
             }
             DbCommand::UpdateClanBloodAlliance { clan_id, count } => {
                 set_clan_col(
                     &db,
                     clan_id,
-                    clan_data::Column::BloodAllianceCount,
+                    entity::clan_data::Column::BloodAllianceCount,
                     count.into(),
                 )
                 .await;
             }
             DbCommand::UpdateCastleTicketCount { castle_id, count } => {
-                set_castle_col(&db, castle_id, castle::Column::TicketBuyCount, count.into()).await;
+                set_castle_col(
+                    &db,
+                    castle_id,
+                    entity::castle::Column::TicketBuyCount,
+                    count.into(),
+                )
+                .await;
             }
             DbCommand::SaveBuyListStock {
                 list_id,
@@ -575,7 +652,7 @@ pub(crate) async fn run(
                 next_restock_time,
             } => {
                 warn_err(
-                    buylists::Entity::insert(buylists::ActiveModel {
+                    entity::buylists::Entity::insert(entity::buylists::ActiveModel {
                         buylist_id: Set(list_id),
                         item_id: Set(item_id),
                         count: Set(count),
@@ -583,12 +660,12 @@ pub(crate) async fn run(
                     })
                     .on_conflict(
                         OnConflict::columns([
-                            buylists::Column::BuylistId,
-                            buylists::Column::ItemId,
+                            entity::buylists::Column::BuylistId,
+                            entity::buylists::Column::ItemId,
                         ])
                         .update_columns([
-                            buylists::Column::Count,
-                            buylists::Column::NextRestockTime,
+                            entity::buylists::Column::Count,
+                            entity::buylists::Column::NextRestockTime,
                         ])
                         .to_owned(),
                     )
@@ -605,38 +682,40 @@ pub(crate) async fn run(
                 heading,
             } => {
                 warn_err(
-                    castle_siege_guards::Entity::insert(castle_siege_guards::ActiveModel {
-                        castle_id: Set(castle_id),
-                        npc_id: Set(npc_id),
-                        x: Set(x),
-                        y: Set(y),
-                        z: Set(z),
-                        heading: Set(heading),
-                        respawn_delay: Set(0),
-                        is_hired: Set(1),
-                        ..Default::default()
-                    })
+                    entity::castle_siege_guards::Entity::insert(
+                        entity::castle_siege_guards::ActiveModel {
+                            castle_id: Set(castle_id),
+                            npc_id: Set(npc_id),
+                            x: Set(x),
+                            y: Set(y),
+                            z: Set(z),
+                            heading: Set(heading),
+                            respawn_delay: Set(0),
+                            is_hired: Set(1),
+                            ..Default::default()
+                        },
+                    )
                     .exec(&db)
                     .await,
                 );
             }
             DbCommand::RemoveHiredSiegeGuard { npc_id, x, y, z } => {
                 warn_err(
-                    castle_siege_guards::Entity::delete_many()
-                        .filter(castle_siege_guards::Column::NpcId.eq(npc_id))
-                        .filter(castle_siege_guards::Column::X.eq(x))
-                        .filter(castle_siege_guards::Column::Y.eq(y))
-                        .filter(castle_siege_guards::Column::Z.eq(z))
-                        .filter(castle_siege_guards::Column::IsHired.eq(1))
+                    entity::castle_siege_guards::Entity::delete_many()
+                        .filter(entity::castle_siege_guards::Column::NpcId.eq(npc_id))
+                        .filter(entity::castle_siege_guards::Column::X.eq(x))
+                        .filter(entity::castle_siege_guards::Column::Y.eq(y))
+                        .filter(entity::castle_siege_guards::Column::Z.eq(z))
+                        .filter(entity::castle_siege_guards::Column::IsHired.eq(1))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::ClearHiredSiegeGuards { castle_id } => {
                 warn_err(
-                    castle_siege_guards::Entity::delete_many()
-                        .filter(castle_siege_guards::Column::CastleId.eq(castle_id))
-                        .filter(castle_siege_guards::Column::IsHired.eq(1))
+                    entity::castle_siege_guards::Entity::delete_many()
+                        .filter(entity::castle_siege_guards::Column::CastleId.eq(castle_id))
+                        .filter(entity::castle_siege_guards::Column::IsHired.eq(1))
                         .exec(&db)
                         .await,
                 );
@@ -644,7 +723,7 @@ pub(crate) async fn run(
             DbCommand::AddFreightItems { owner_id, items } => {
                 for it in &items {
                     warn_err(
-                        items::Entity::insert(items::ActiveModel {
+                        entity::items::Entity::insert(entity::items::ActiveModel {
                             owner_id: Set(Some(owner_id)),
                             object_id: Set(it.object_id),
                             item_id: Set(Some(it.item_id)),
@@ -673,31 +752,33 @@ pub(crate) async fn run(
                 // Java rewrites both tables for this trader (`onTransaction`
                 // clears the item rows first, then re-inserts).
                 warn_err(
-                    character_offline_trade_items::Entity::delete_many()
-                        .filter(character_offline_trade_items::Column::CharId.eq(char_id))
+                    entity::character_offline_trade_items::Entity::delete_many()
+                        .filter(entity::character_offline_trade_items::Column::CharId.eq(char_id))
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    character_offline_trade::Entity::delete_many()
-                        .filter(character_offline_trade::Column::CharId.eq(char_id))
+                    entity::character_offline_trade::Entity::delete_many()
+                        .filter(entity::character_offline_trade::Column::CharId.eq(char_id))
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    character_offline_trade::Entity::insert(character_offline_trade::ActiveModel {
-                        char_id: Set(char_id),
-                        time: Set(time),
-                        r#type: Set(store_type),
-                        title: Set(Some(title)),
-                    })
+                    entity::character_offline_trade::Entity::insert(
+                        entity::character_offline_trade::ActiveModel {
+                            char_id: Set(char_id),
+                            time: Set(time),
+                            r#type: Set(store_type),
+                            title: Set(Some(title)),
+                        },
+                    )
                     .exec(&db)
                     .await,
                 );
                 for (item, count, price) in &items {
                     warn_err(
-                        character_offline_trade_items::Entity::insert(
-                            character_offline_trade_items::ActiveModel {
+                        entity::character_offline_trade_items::Entity::insert(
+                            entity::character_offline_trade_items::ActiveModel {
                                 char_id: Set(char_id),
                                 item: Set(*item),
                                 count: Set(*count),
@@ -711,14 +792,14 @@ pub(crate) async fn run(
             }
             DbCommand::ClearOfflineTrader { char_id } => {
                 warn_err(
-                    character_offline_trade_items::Entity::delete_many()
-                        .filter(character_offline_trade_items::Column::CharId.eq(char_id))
+                    entity::character_offline_trade_items::Entity::delete_many()
+                        .filter(entity::character_offline_trade_items::Column::CharId.eq(char_id))
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    character_offline_trade::Entity::delete_many()
-                        .filter(character_offline_trade::Column::CharId.eq(char_id))
+                    entity::character_offline_trade::Entity::delete_many()
+                        .filter(entity::character_offline_trade::Column::CharId.eq(char_id))
                         .exec(&db)
                         .await,
                 );
@@ -729,15 +810,15 @@ pub(crate) async fn run(
                 procure,
             } => {
                 warn_err(
-                    castle_manor_production::Entity::delete_many()
-                        .filter(castle_manor_production::Column::CastleId.eq(castle_id))
+                    entity::castle_manor_production::Entity::delete_many()
+                        .filter(entity::castle_manor_production::Column::CastleId.eq(castle_id))
                         .exec(&db)
                         .await,
                 );
                 for r in &production {
                     warn_err(
-                        castle_manor_production::Entity::insert(
-                            castle_manor_production::ActiveModel {
+                        entity::castle_manor_production::Entity::insert(
+                            entity::castle_manor_production::ActiveModel {
                                 castle_id: Set(r.castle_id),
                                 seed_id: Set(r.seed_id),
                                 amount: Set(r.amount as i32),
@@ -751,22 +832,24 @@ pub(crate) async fn run(
                     );
                 }
                 warn_err(
-                    castle_manor_procure::Entity::delete_many()
-                        .filter(castle_manor_procure::Column::CastleId.eq(castle_id))
+                    entity::castle_manor_procure::Entity::delete_many()
+                        .filter(entity::castle_manor_procure::Column::CastleId.eq(castle_id))
                         .exec(&db)
                         .await,
                 );
                 for r in &procure {
                     warn_err(
-                        castle_manor_procure::Entity::insert(castle_manor_procure::ActiveModel {
-                            castle_id: Set(r.castle_id),
-                            crop_id: Set(r.crop_id),
-                            amount: Set(r.amount as i32),
-                            start_amount: Set(r.start_amount as i32),
-                            price: Set(r.price as i32),
-                            reward_type: Set(r.reward_type),
-                            next_period: Set(i32::from(r.next_period)),
-                        })
+                        entity::castle_manor_procure::Entity::insert(
+                            entity::castle_manor_procure::ActiveModel {
+                                castle_id: Set(r.castle_id),
+                                crop_id: Set(r.crop_id),
+                                amount: Set(r.amount as i32),
+                                start_amount: Set(r.start_amount as i32),
+                                price: Set(r.price as i32),
+                                reward_type: Set(r.reward_type),
+                                next_period: Set(i32::from(r.next_period)),
+                            },
+                        )
                         .exec(&db)
                         .await,
                     );
@@ -776,7 +859,13 @@ pub(crate) async fn run(
                 castle_id,
                 treasury,
             } => {
-                set_castle_col(&db, castle_id, castle::Column::Treasury, treasury.into()).await;
+                set_castle_col(
+                    &db,
+                    castle_id,
+                    entity::castle::Column::Treasury,
+                    treasury.into(),
+                )
+                .await;
             }
             DbCommand::UpdateCastleSiegeTime {
                 castle_id,
@@ -790,28 +879,30 @@ pub(crate) async fn run(
                 } else {
                     "false"
                 };
-                let mut update = castle::Entity::update_many()
-                    .col_expr(castle::Column::SiegeDate, siege_date.into())
-                    .col_expr(castle::Column::RegTimeOver, flag.into());
+                let mut update = entity::castle::Entity::update_many()
+                    .col_expr(entity::castle::Column::SiegeDate, siege_date.into())
+                    .col_expr(entity::castle::Column::RegTimeOver, flag.into());
                 if let Some(end) = siege_time_registration_end {
-                    update = update.col_expr(castle::Column::RegTimeEnd, end.into());
+                    update = update.col_expr(entity::castle::Column::RegTimeEnd, end.into());
                 }
                 warn_err(
                     update
-                        .filter(castle::Column::Id.eq(castle_id))
+                        .filter(entity::castle::Column::Id.eq(castle_id))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::SaveGlobalVariable { var, value } => {
                 warn_err(
-                    global_variables::Entity::insert(global_variables::ActiveModel {
-                        var: Set(var),
-                        value: Set(Some(value)),
-                    })
+                    entity::global_variables::Entity::insert(
+                        entity::global_variables::ActiveModel {
+                            var: Set(var),
+                            value: Set(Some(value)),
+                        },
+                    )
                     .on_conflict(
-                        OnConflict::column(global_variables::Column::Var)
-                            .update_column(global_variables::Column::Value)
+                        OnConflict::column(entity::global_variables::Column::Var)
+                            .update_column(entity::global_variables::Column::Value)
                             .to_owned(),
                     )
                     .exec(&db)
@@ -824,7 +915,7 @@ pub(crate) async fn run(
                 kind,
             } => {
                 warn_err(
-                    siege_clans::Entity::insert(siege_clans::ActiveModel {
+                    entity::siege_clans::Entity::insert(entity::siege_clans::ActiveModel {
                         clan_id: Set(clan_id),
                         castle_id: Set(castle_id),
                         r#type: Set(Some(kind)),
@@ -832,12 +923,12 @@ pub(crate) async fn run(
                     })
                     .on_conflict(
                         OnConflict::columns([
-                            siege_clans::Column::ClanId,
-                            siege_clans::Column::CastleId,
+                            entity::siege_clans::Column::ClanId,
+                            entity::siege_clans::Column::CastleId,
                         ])
                         .update_columns([
-                            siege_clans::Column::Type,
-                            siege_clans::Column::CastleOwner,
+                            entity::siege_clans::Column::Type,
+                            entity::siege_clans::Column::CastleOwner,
                         ])
                         .to_owned(),
                     )
@@ -847,9 +938,9 @@ pub(crate) async fn run(
             }
             DbCommand::RemoveSiegeClan { castle_id, clan_id } => {
                 warn_err(
-                    siege_clans::Entity::delete_many()
-                        .filter(siege_clans::Column::CastleId.eq(castle_id))
-                        .filter(siege_clans::Column::ClanId.eq(clan_id))
+                    entity::siege_clans::Entity::delete_many()
+                        .filter(entity::siege_clans::Column::CastleId.eq(castle_id))
+                        .filter(entity::siege_clans::Column::ClanId.eq(clan_id))
                         .exec(&db)
                         .await,
                 );
@@ -861,8 +952,8 @@ pub(crate) async fn run(
                 bid_time,
             } => {
                 warn_err(
-                    clanhall_auctions_bidders::Entity::insert(
-                        clanhall_auctions_bidders::ActiveModel {
+                    entity::clanhall_auctions_bidders::Entity::insert(
+                        entity::clanhall_auctions_bidders::ActiveModel {
                             clan_hall_id: Set(hall_id),
                             clan_id: Set(clan_id),
                             bid: Set(bid),
@@ -871,12 +962,12 @@ pub(crate) async fn run(
                     )
                     .on_conflict(
                         OnConflict::columns([
-                            clanhall_auctions_bidders::Column::ClanHallId,
-                            clanhall_auctions_bidders::Column::ClanId,
+                            entity::clanhall_auctions_bidders::Column::ClanHallId,
+                            entity::clanhall_auctions_bidders::Column::ClanId,
                         ])
                         .update_columns([
-                            clanhall_auctions_bidders::Column::Bid,
-                            clanhall_auctions_bidders::Column::BidTime,
+                            entity::clanhall_auctions_bidders::Column::Bid,
+                            entity::clanhall_auctions_bidders::Column::BidTime,
                         ])
                         .to_owned(),
                     )
@@ -886,15 +977,15 @@ pub(crate) async fn run(
             }
             DbCommand::RemoveClanHallBid { hall_id, clan_id } => {
                 warn_err(
-                    clanhall_auctions_bidders::Entity::delete_by_id((hall_id, clan_id))
+                    entity::clanhall_auctions_bidders::Entity::delete_by_id((hall_id, clan_id))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::ClearClanHallBids { hall_id } => {
                 warn_err(
-                    clanhall_auctions_bidders::Entity::delete_many()
-                        .filter(clanhall_auctions_bidders::Column::ClanHallId.eq(hall_id))
+                    entity::clanhall_auctions_bidders::Entity::delete_many()
+                        .filter(entity::clanhall_auctions_bidders::Column::ClanHallId.eq(hall_id))
                         .exec(&db)
                         .await,
                 );
@@ -905,16 +996,16 @@ pub(crate) async fn run(
                 paid_until,
             } => {
                 warn_err(
-                    clanhall::Entity::insert(clanhall::ActiveModel {
+                    entity::clanhall::Entity::insert(entity::clanhall::ActiveModel {
                         id: Set(id),
                         owner_id: Set(owner_id),
                         paid_until: Set(paid_until),
                     })
                     .on_conflict(
-                        OnConflict::column(clanhall::Column::Id)
+                        OnConflict::column(entity::clanhall::Column::Id)
                             .update_columns([
-                                clanhall::Column::OwnerId,
-                                clanhall::Column::PaidUntil,
+                                entity::clanhall::Column::OwnerId,
+                                entity::clanhall::Column::PaidUntil,
                             ])
                             .to_owned(),
                     )
@@ -929,19 +1020,21 @@ pub(crate) async fn run(
                 expiration,
             } => {
                 warn_err(
-                    residence_functions::Entity::insert(residence_functions::ActiveModel {
-                        id: Set(func_id),
-                        level: Set(level),
-                        expiration: Set(expiration),
-                        residence_id: Set(residence_id),
-                    })
+                    entity::residence_functions::Entity::insert(
+                        entity::residence_functions::ActiveModel {
+                            id: Set(func_id),
+                            level: Set(level),
+                            expiration: Set(expiration),
+                            residence_id: Set(residence_id),
+                        },
+                    )
                     .on_conflict(
                         OnConflict::columns([
-                            residence_functions::Column::Id,
-                            residence_functions::Column::Level,
-                            residence_functions::Column::ResidenceId,
+                            entity::residence_functions::Column::Id,
+                            entity::residence_functions::Column::Level,
+                            entity::residence_functions::Column::ResidenceId,
                         ])
-                        .update_column(residence_functions::Column::Expiration)
+                        .update_column(entity::residence_functions::Column::Expiration)
                         .to_owned(),
                     )
                     .exec(&db)
@@ -953,9 +1046,9 @@ pub(crate) async fn run(
                 func_id,
             } => {
                 warn_err(
-                    residence_functions::Entity::delete_many()
-                        .filter(residence_functions::Column::ResidenceId.eq(residence_id))
-                        .filter(residence_functions::Column::Id.eq(func_id))
+                    entity::residence_functions::Entity::delete_many()
+                        .filter(entity::residence_functions::Column::ResidenceId.eq(residence_id))
+                        .filter(entity::residence_functions::Column::Id.eq(func_id))
                         .exec(&db)
                         .await,
                 );
@@ -969,7 +1062,7 @@ pub(crate) async fn run(
                 nobles,
             } => {
                 warn_err(
-                    olympiad_data::Entity::insert(olympiad_data::ActiveModel {
+                    entity::olympiad_data::Entity::insert(entity::olympiad_data::ActiveModel {
                         id: Set(0),
                         current_cycle: Set(current_cycle),
                         period: Set(period),
@@ -978,13 +1071,13 @@ pub(crate) async fn run(
                         next_weekly_change: Set(next_weekly_change),
                     })
                     .on_conflict(
-                        OnConflict::column(olympiad_data::Column::Id)
+                        OnConflict::column(entity::olympiad_data::Column::Id)
                             .update_columns([
-                                olympiad_data::Column::CurrentCycle,
-                                olympiad_data::Column::Period,
-                                olympiad_data::Column::OlympiadEnd,
-                                olympiad_data::Column::ValidationEnd,
-                                olympiad_data::Column::NextWeeklyChange,
+                                entity::olympiad_data::Column::CurrentCycle,
+                                entity::olympiad_data::Column::Period,
+                                entity::olympiad_data::Column::OlympiadEnd,
+                                entity::olympiad_data::Column::ValidationEnd,
+                                entity::olympiad_data::Column::NextWeeklyChange,
                             ])
                             .to_owned(),
                     )
@@ -993,26 +1086,28 @@ pub(crate) async fn run(
                 );
                 for n in nobles {
                     warn_err(
-                        olympiad_nobles::Entity::insert(olympiad_nobles::ActiveModel {
-                            char_id: Set(n.char_id),
-                            class_id: Set(n.class_id),
-                            olympiad_points: Set(n.points),
-                            competitions_done: Set(n.comp_done),
-                            competitions_won: Set(n.comp_won),
-                            competitions_lost: Set(n.comp_lost),
-                            competitions_drawn: Set(n.comp_drawn),
-                            competitions_done_week: Set(n.comp_done_week),
-                        })
+                        entity::olympiad_nobles::Entity::insert(
+                            entity::olympiad_nobles::ActiveModel {
+                                char_id: Set(n.char_id),
+                                class_id: Set(n.class_id),
+                                olympiad_points: Set(n.points),
+                                competitions_done: Set(n.comp_done),
+                                competitions_won: Set(n.comp_won),
+                                competitions_lost: Set(n.comp_lost),
+                                competitions_drawn: Set(n.comp_drawn),
+                                competitions_done_week: Set(n.comp_done_week),
+                            },
+                        )
                         .on_conflict(
-                            OnConflict::column(olympiad_nobles::Column::CharId)
+                            OnConflict::column(entity::olympiad_nobles::Column::CharId)
                                 .update_columns([
-                                    olympiad_nobles::Column::ClassId,
-                                    olympiad_nobles::Column::OlympiadPoints,
-                                    olympiad_nobles::Column::CompetitionsDone,
-                                    olympiad_nobles::Column::CompetitionsWon,
-                                    olympiad_nobles::Column::CompetitionsLost,
-                                    olympiad_nobles::Column::CompetitionsDrawn,
-                                    olympiad_nobles::Column::CompetitionsDoneWeek,
+                                    entity::olympiad_nobles::Column::ClassId,
+                                    entity::olympiad_nobles::Column::OlympiadPoints,
+                                    entity::olympiad_nobles::Column::CompetitionsDone,
+                                    entity::olympiad_nobles::Column::CompetitionsWon,
+                                    entity::olympiad_nobles::Column::CompetitionsLost,
+                                    entity::olympiad_nobles::Column::CompetitionsDrawn,
+                                    entity::olympiad_nobles::Column::CompetitionsDoneWeek,
                                 ])
                                 .to_owned(),
                         )
@@ -1023,10 +1118,10 @@ pub(crate) async fn run(
             }
             DbCommand::SaveHeroes { heroes } => {
                 // `Hero.computeNewHeroes` replaces the active crown.
-                warn_err(heroes::Entity::delete_many().exec(&db).await);
+                warn_err(entity::heroes::Entity::delete_many().exec(&db).await);
                 for h in heroes {
                     warn_err(
-                        heroes::Entity::insert(heroes::ActiveModel {
+                        entity::heroes::Entity::insert(entity::heroes::ActiveModel {
                             char_id: Set(h.char_id),
                             class_id: Set(h.class_id),
                             count: Set(h.count),
@@ -1035,12 +1130,12 @@ pub(crate) async fn run(
                             ..Default::default()
                         })
                         .on_conflict(
-                            OnConflict::column(heroes::Column::CharId)
+                            OnConflict::column(entity::heroes::Column::CharId)
                                 .update_columns([
-                                    heroes::Column::ClassId,
-                                    heroes::Column::Count,
-                                    heroes::Column::Played,
-                                    heroes::Column::Claimed,
+                                    entity::heroes::Column::ClassId,
+                                    entity::heroes::Column::Count,
+                                    entity::heroes::Column::Played,
+                                    entity::heroes::Column::Claimed,
                                 ])
                                 .to_owned(),
                         )
@@ -1052,22 +1147,28 @@ pub(crate) async fn run(
             DbCommand::SnapshotOlympiadEom => {
                 // Java runs `TRUNCATE olympiad_nobles_eom` then
                 // `INSERT INTO olympiad_nobles_eom SELECT … FROM olympiad_nobles`.
-                warn_err(olympiad_nobles_eom::Entity::delete_many().exec(&db).await);
-                let live = olympiad_nobles::Entity::find()
+                warn_err(
+                    entity::olympiad_nobles_eom::Entity::delete_many()
+                        .exec(&db)
+                        .await,
+                );
+                let live = entity::olympiad_nobles::Entity::find()
                     .all(&db)
                     .await
                     .unwrap_or_default();
                 for n in live {
                     warn_err(
-                        olympiad_nobles_eom::Entity::insert(olympiad_nobles_eom::ActiveModel {
-                            char_id: Set(n.char_id),
-                            class_id: Set(n.class_id),
-                            olympiad_points: Set(n.olympiad_points),
-                            competitions_done: Set(n.competitions_done),
-                            competitions_won: Set(n.competitions_won),
-                            competitions_lost: Set(n.competitions_lost),
-                            competitions_drawn: Set(n.competitions_drawn),
-                        })
+                        entity::olympiad_nobles_eom::Entity::insert(
+                            entity::olympiad_nobles_eom::ActiveModel {
+                                char_id: Set(n.char_id),
+                                class_id: Set(n.class_id),
+                                olympiad_points: Set(n.olympiad_points),
+                                competitions_done: Set(n.competitions_done),
+                                competitions_won: Set(n.competitions_won),
+                                competitions_lost: Set(n.competitions_lost),
+                                competitions_drawn: Set(n.competitions_drawn),
+                            },
+                        )
                         .exec(&db)
                         .await,
                     );
@@ -1075,9 +1176,9 @@ pub(crate) async fn run(
             }
             DbCommand::ClaimHero { char_id } => {
                 warn_err(
-                    heroes::Entity::update_many()
-                        .col_expr(heroes::Column::Claimed, "true".into())
-                        .filter(heroes::Column::CharId.eq(char_id))
+                    entity::heroes::Entity::update_many()
+                        .col_expr(entity::heroes::Column::Claimed, "true".into())
+                        .filter(entity::heroes::Column::CharId.eq(char_id))
                         .exec(&db)
                         .await,
                 );
@@ -1089,7 +1190,7 @@ pub(crate) async fn run(
                 param,
             } => {
                 warn_err(
-                    heroes_diary::Entity::insert(heroes_diary::ActiveModel {
+                    entity::heroes_diary::Entity::insert(entity::heroes_diary::ActiveModel {
                         char_id: Set(char_id),
                         time: Set(time),
                         action: Set(action),
@@ -1100,7 +1201,13 @@ pub(crate) async fn run(
                 );
             }
             DbCommand::UpdateClanLevel { clan_id, level } => {
-                set_clan_col(&db, clan_id, clan_data::Column::ClanLevel, level.into()).await;
+                set_clan_col(
+                    &db,
+                    clan_id,
+                    entity::clan_data::Column::ClanLevel,
+                    level.into(),
+                )
+                .await;
             }
             DbCommand::UpdateClanReputation {
                 clan_id,
@@ -1109,7 +1216,7 @@ pub(crate) async fn run(
                 set_clan_col(
                     &db,
                     clan_id,
-                    clan_data::Column::ReputationScore,
+                    entity::clan_data::Column::ReputationScore,
                     reputation.into(),
                 )
                 .await;
@@ -1124,11 +1231,11 @@ pub(crate) async fn run(
                     clan_id,
                     vec![
                         (
-                            clan_data::Column::CharPenaltyExpiryTime,
+                            entity::clan_data::Column::CharPenaltyExpiryTime,
                             char_penalty_expiry_time.into(),
                         ),
                         (
-                            clan_data::Column::DissolvingExpiryTime,
+                            entity::clan_data::Column::DissolvingExpiryTime,
                             dissolving_expiry_time.into(),
                         ),
                     ],
@@ -1144,15 +1251,15 @@ pub(crate) async fn run(
                     &db,
                     char_id,
                     vec![
-                        (characters::Column::Clanid, 0.into()),
-                        (characters::Column::Title, "".into()),
-                        (characters::Column::ClanPrivs, 0.into()),
+                        (entity::characters::Column::Clanid, 0.into()),
+                        (entity::characters::Column::Title, "".into()),
+                        (entity::characters::Column::ClanPrivs, 0.into()),
                         (
-                            characters::Column::ClanJoinExpiryTime,
+                            entity::characters::Column::ClanJoinExpiryTime,
                             clan_join_expiry.into(),
                         ),
                         (
-                            characters::Column::ClanCreateExpiryTime,
+                            entity::characters::Column::ClanCreateExpiryTime,
                             clan_create_expiry.into(),
                         ),
                     ],
@@ -1165,7 +1272,7 @@ pub(crate) async fn run(
                 privs,
             } => {
                 warn_err(
-                    clan_privs::Entity::insert(clan_privs::ActiveModel {
+                    entity::clan_privs::Entity::insert(entity::clan_privs::ActiveModel {
                         clan_id: Set(clan_id),
                         rank: Set(rank),
                         party: Set(0),
@@ -1173,11 +1280,11 @@ pub(crate) async fn run(
                     })
                     .on_conflict(
                         OnConflict::columns([
-                            clan_privs::Column::ClanId,
-                            clan_privs::Column::Rank,
-                            clan_privs::Column::Party,
+                            entity::clan_privs::Column::ClanId,
+                            entity::clan_privs::Column::Rank,
+                            entity::clan_privs::Column::Party,
                         ])
-                        .update_column(clan_privs::Column::Privs)
+                        .update_column(entity::clan_privs::Column::Privs)
                         .to_owned(),
                     )
                     .exec(&db)
@@ -1191,7 +1298,7 @@ pub(crate) async fn run(
                 set_char_col(
                     &db,
                     char_id,
-                    characters::Column::PowerGrade,
+                    entity::characters::Column::PowerGrade,
                     power_grade.into(),
                 )
                 .await;
@@ -1207,13 +1314,16 @@ pub(crate) async fn run(
                     &db,
                     clan_id,
                     vec![
-                        (clan_data::Column::AllyId, ally_id.into()),
-                        (clan_data::Column::AllyName, ally_name.into()),
+                        (entity::clan_data::Column::AllyId, ally_id.into()),
+                        (entity::clan_data::Column::AllyName, ally_name.into()),
                         (
-                            clan_data::Column::AllyPenaltyExpiryTime,
+                            entity::clan_data::Column::AllyPenaltyExpiryTime,
                             penalty_expiry.into(),
                         ),
-                        (clan_data::Column::AllyPenaltyType, penalty_type.into()),
+                        (
+                            entity::clan_data::Column::AllyPenaltyType,
+                            penalty_type.into(),
+                        ),
                     ],
                 )
                 .await;
@@ -1225,7 +1335,7 @@ pub(crate) async fn run(
                 leader_id,
             } => {
                 warn_err(
-                    clan_subpledges::Entity::insert(clan_subpledges::ActiveModel {
+                    entity::clan_subpledges::Entity::insert(entity::clan_subpledges::ActiveModel {
                         clan_id: Set(clan_id),
                         sub_pledge_id: Set(pledge_type),
                         name: Set(Some(name)),
@@ -1242,11 +1352,11 @@ pub(crate) async fn run(
                 leader_id,
             } => {
                 warn_err(
-                    clan_subpledges::Entity::update_many()
-                        .col_expr(clan_subpledges::Column::LeaderId, leader_id.into())
-                        .col_expr(clan_subpledges::Column::Name, name.into())
-                        .filter(clan_subpledges::Column::ClanId.eq(clan_id))
-                        .filter(clan_subpledges::Column::SubPledgeId.eq(pledge_type))
+                    entity::clan_subpledges::Entity::update_many()
+                        .col_expr(entity::clan_subpledges::Column::LeaderId, leader_id.into())
+                        .col_expr(entity::clan_subpledges::Column::Name, name.into())
+                        .filter(entity::clan_subpledges::Column::ClanId.eq(clan_id))
+                        .filter(entity::clan_subpledges::Column::SubPledgeId.eq(pledge_type))
                         .exec(&db)
                         .await,
                 );
@@ -1258,7 +1368,7 @@ pub(crate) async fn run(
                 set_char_col(
                     &db,
                     char_id,
-                    characters::Column::LvlJoinedAcademy,
+                    entity::characters::Column::LvlJoinedAcademy,
                     lvl_joined_academy.into(),
                 )
                 .await;
@@ -1272,8 +1382,8 @@ pub(crate) async fn run(
                     &db,
                     char_id,
                     vec![
-                        (characters::Column::Apprentice, apprentice.into()),
-                        (characters::Column::Sponsor, sponsor.into()),
+                        (entity::characters::Column::Apprentice, apprentice.into()),
+                        (entity::characters::Column::Sponsor, sponsor.into()),
                     ],
                 )
                 .await;
@@ -1285,14 +1395,14 @@ pub(crate) async fn run(
                 set_char_col(
                     &db,
                     char_id,
-                    characters::Column::Subpledge,
+                    entity::characters::Column::Subpledge,
                     pledge_type.into(),
                 )
                 .await;
             }
             DbCommand::InsertCrest { id, data, kind } => {
                 warn_err(
-                    crests::Entity::insert(crests::ActiveModel {
+                    entity::crests::Entity::insert(entity::crests::ActiveModel {
                         crest_id: Set(id),
                         data: Set(data),
                         r#type: Set(kind),
@@ -1303,14 +1413,20 @@ pub(crate) async fn run(
             }
             DbCommand::DeleteCrest { id } => {
                 warn_err(
-                    crests::Entity::delete_many()
-                        .filter(crests::Column::CrestId.eq(id))
+                    entity::crests::Entity::delete_many()
+                        .filter(entity::crests::Column::CrestId.eq(id))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::UpdateClanCrest { clan_id, crest_id } => {
-                set_clan_col(&db, clan_id, clan_data::Column::CrestId, crest_id.into()).await;
+                set_clan_col(
+                    &db,
+                    clan_id,
+                    entity::clan_data::Column::CrestId,
+                    crest_id.into(),
+                )
+                .await;
             }
             DbCommand::UpdateClanCrestLarge {
                 clan_id,
@@ -1319,7 +1435,7 @@ pub(crate) async fn run(
                 set_clan_col(
                     &db,
                     clan_id,
-                    clan_data::Column::CrestLargeId,
+                    entity::clan_data::Column::CrestLargeId,
                     crest_large_id.into(),
                 )
                 .await;
@@ -1331,7 +1447,7 @@ pub(crate) async fn run(
                 set_clan_col(
                     &db,
                     clan_id,
-                    clan_data::Column::AllyCrestId,
+                    entity::clan_data::Column::AllyCrestId,
                     ally_crest_id.into(),
                 )
                 .await;
@@ -1341,9 +1457,9 @@ pub(crate) async fn run(
                 ally_crest_id,
             } => {
                 warn_err(
-                    clan_data::Entity::update_many()
-                        .col_expr(clan_data::Column::AllyCrestId, ally_crest_id.into())
-                        .filter(clan_data::Column::AllyId.eq(ally_id))
+                    entity::clan_data::Entity::update_many()
+                        .col_expr(entity::clan_data::Column::AllyCrestId, ally_crest_id.into())
+                        .filter(entity::clan_data::Column::AllyId.eq(ally_id))
                         .exec(&db)
                         .await,
                 );
@@ -1355,20 +1471,22 @@ pub(crate) async fn run(
                 message,
             } => {
                 warn_err(
-                    pledge_applicant::Entity::insert(pledge_applicant::ActiveModel {
-                        char_id: Set(player_id),
-                        clan_id: Set(clan_id),
-                        karma: Set(karma),
-                        message: Set(message),
-                    })
+                    entity::pledge_applicant::Entity::insert(
+                        entity::pledge_applicant::ActiveModel {
+                            char_id: Set(player_id),
+                            clan_id: Set(clan_id),
+                            karma: Set(karma),
+                            message: Set(message),
+                        },
+                    )
                     .on_conflict(
                         OnConflict::columns([
-                            pledge_applicant::Column::CharId,
-                            pledge_applicant::Column::ClanId,
+                            entity::pledge_applicant::Column::CharId,
+                            entity::pledge_applicant::Column::ClanId,
                         ])
                         .update_columns([
-                            pledge_applicant::Column::Karma,
-                            pledge_applicant::Column::Message,
+                            entity::pledge_applicant::Column::Karma,
+                            entity::pledge_applicant::Column::Message,
                         ])
                         .to_owned(),
                     )
@@ -1378,25 +1496,27 @@ pub(crate) async fn run(
             }
             DbCommand::DeletePledgeApplicant { player_id, clan_id } => {
                 warn_err(
-                    pledge_applicant::Entity::delete_by_id((player_id, clan_id))
+                    entity::pledge_applicant::Entity::delete_by_id((player_id, clan_id))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::InsertPledgeWaiting { player_id, karma } => {
                 warn_err(
-                    pledge_waiting_list::Entity::insert(pledge_waiting_list::ActiveModel {
-                        char_id: Set(player_id),
-                        karma: Set(karma),
-                    })
+                    entity::pledge_waiting_list::Entity::insert(
+                        entity::pledge_waiting_list::ActiveModel {
+                            char_id: Set(player_id),
+                            karma: Set(karma),
+                        },
+                    )
                     .exec(&db)
                     .await,
                 );
             }
             DbCommand::DeletePledgeWaiting { player_id } => {
                 warn_err(
-                    pledge_waiting_list::Entity::delete_many()
-                        .filter(pledge_waiting_list::Column::CharId.eq(player_id))
+                    entity::pledge_waiting_list::Entity::delete_many()
+                        .filter(entity::pledge_waiting_list::Column::CharId.eq(player_id))
                         .exec(&db)
                         .await,
                 );
@@ -1410,7 +1530,7 @@ pub(crate) async fn run(
                 recruit_type,
             } => {
                 warn_err(
-                    pledge_recruit::Entity::insert(pledge_recruit::ActiveModel {
+                    entity::pledge_recruit::Entity::insert(entity::pledge_recruit::ActiveModel {
                         clan_id: Set(clan_id),
                         karma: Set(karma),
                         information: Set(information),
@@ -1431,27 +1551,33 @@ pub(crate) async fn run(
                 recruit_type,
             } => {
                 warn_err(
-                    pledge_recruit::Entity::update_many()
-                        .col_expr(pledge_recruit::Column::Karma, karma.into())
-                        .col_expr(pledge_recruit::Column::Information, information.into())
+                    entity::pledge_recruit::Entity::update_many()
+                        .col_expr(entity::pledge_recruit::Column::Karma, karma.into())
                         .col_expr(
-                            pledge_recruit::Column::DetailedInformation,
+                            entity::pledge_recruit::Column::Information,
+                            information.into(),
+                        )
+                        .col_expr(
+                            entity::pledge_recruit::Column::DetailedInformation,
                             detailed_information.into(),
                         )
                         .col_expr(
-                            pledge_recruit::Column::ApplicationType,
+                            entity::pledge_recruit::Column::ApplicationType,
                             application_type.into(),
                         )
-                        .col_expr(pledge_recruit::Column::RecruitType, recruit_type.into())
-                        .filter(pledge_recruit::Column::ClanId.eq(clan_id))
+                        .col_expr(
+                            entity::pledge_recruit::Column::RecruitType,
+                            recruit_type.into(),
+                        )
+                        .filter(entity::pledge_recruit::Column::ClanId.eq(clan_id))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::DeletePledgeRecruit { clan_id } => {
                 warn_err(
-                    pledge_recruit::Entity::delete_many()
-                        .filter(pledge_recruit::Column::ClanId.eq(clan_id))
+                    entity::pledge_recruit::Entity::delete_many()
+                        .filter(entity::pledge_recruit::Column::ClanId.eq(clan_id))
                         .exec(&db)
                         .await,
                 );
@@ -1469,7 +1595,7 @@ pub(crate) async fn run(
                 // The clan-id columns are `varchar(35)`; SQLite stored the bound
                 // integers as text anyway, and `load_clan_wars` parses them back.
                 warn_err(
-                    clan_wars::Entity::insert(clan_wars::ActiveModel {
+                    entity::clan_wars::Entity::insert(entity::clan_wars::ActiveModel {
                         clan1: Set(attacker.to_string()),
                         clan2: Set(attacked.to_string()),
                         clan1_kill: Set(attacker_kills),
@@ -1480,16 +1606,19 @@ pub(crate) async fn run(
                         state: Set(state),
                     })
                     .on_conflict(
-                        OnConflict::columns([clan_wars::Column::Clan1, clan_wars::Column::Clan2])
-                            .update_columns([
-                                clan_wars::Column::Clan1Kill,
-                                clan_wars::Column::Clan2Kill,
-                                clan_wars::Column::WinnerClan,
-                                clan_wars::Column::StartTime,
-                                clan_wars::Column::EndTime,
-                                clan_wars::Column::State,
-                            ])
-                            .to_owned(),
+                        OnConflict::columns([
+                            entity::clan_wars::Column::Clan1,
+                            entity::clan_wars::Column::Clan2,
+                        ])
+                        .update_columns([
+                            entity::clan_wars::Column::Clan1Kill,
+                            entity::clan_wars::Column::Clan2Kill,
+                            entity::clan_wars::Column::WinnerClan,
+                            entity::clan_wars::Column::StartTime,
+                            entity::clan_wars::Column::EndTime,
+                            entity::clan_wars::Column::State,
+                        ])
+                        .to_owned(),
                     )
                     .exec(&db)
                     .await,
@@ -1498,18 +1627,18 @@ pub(crate) async fn run(
             DbCommand::DeleteClanWar { clan1, clan2 } => {
                 let (a, b) = (clan1.to_string(), clan2.to_string());
                 warn_err(
-                    clan_wars::Entity::delete_many()
+                    entity::clan_wars::Entity::delete_many()
                         .filter(
                             Condition::any()
                                 .add(
                                     Condition::all()
-                                        .add(clan_wars::Column::Clan1.eq(a.clone()))
-                                        .add(clan_wars::Column::Clan2.eq(b.clone())),
+                                        .add(entity::clan_wars::Column::Clan1.eq(a.clone()))
+                                        .add(entity::clan_wars::Column::Clan2.eq(b.clone())),
                                 )
                                 .add(
                                     Condition::all()
-                                        .add(clan_wars::Column::Clan1.eq(b))
-                                        .add(clan_wars::Column::Clan2.eq(a)),
+                                        .add(entity::clan_wars::Column::Clan1.eq(b))
+                                        .add(entity::clan_wars::Column::Clan2.eq(a)),
                                 ),
                         )
                         .exec(&db)
@@ -1523,7 +1652,7 @@ pub(crate) async fn run(
                 set_clan_col(
                     &db,
                     clan_id,
-                    clan_data::Column::NewLeaderId,
+                    entity::clan_data::Column::NewLeaderId,
                     new_leader_id.into(),
                 )
                 .await;
@@ -1532,7 +1661,7 @@ pub(crate) async fn run(
                 set_char_col(
                     &db,
                     char_id,
-                    characters::Column::ClanJoinExpiryTime,
+                    entity::characters::Column::ClanJoinExpiryTime,
                     expiry.into(),
                 )
                 .await;
@@ -1543,50 +1672,56 @@ pub(crate) async fn run(
                 leader_expiry,
             } => {
                 warn_err(
-                    clan_data::Entity::delete_many()
-                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                    entity::clan_data::Entity::delete_many()
+                        .filter(entity::clan_data::Column::ClanId.eq(clan_id))
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    clan_skills::Entity::delete_many()
-                        .filter(clan_skills::Column::ClanId.eq(clan_id))
+                    entity::clan_skills::Entity::delete_many()
+                        .filter(entity::clan_skills::Column::ClanId.eq(clan_id))
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::Clanid, 0.into())
-                        .col_expr(characters::Column::ClanPrivs, 0.into())
-                        .filter(characters::Column::Clanid.eq(clan_id))
+                    entity::characters::Entity::update_many()
+                        .col_expr(entity::characters::Column::Clanid, 0.into())
+                        .col_expr(entity::characters::Column::ClanPrivs, 0.into())
+                        .filter(entity::characters::Column::Clanid.eq(clan_id))
                         .exec(&db)
                         .await,
                 );
                 set_char_col(
                     &db,
                     leader_id,
-                    characters::Column::ClanCreateExpiryTime,
+                    entity::characters::Column::ClanCreateExpiryTime,
                     leader_expiry.into(),
                 )
                 .await;
             }
             DbCommand::StoreClanWarehouse { clan_id, items } => {
                 warn_err(
-                    items::Entity::delete_many()
-                        .filter(items::Column::OwnerId.eq(clan_id))
+                    entity::items::Entity::delete_many()
+                        .filter(entity::items::Column::OwnerId.eq(clan_id))
                         .exec(&db)
                         .await,
                 );
                 for it in &items {
                     warn_err(
-                        items::Entity::insert(item_row_model(clan_id, it, None))
+                        entity::items::Entity::insert(item_row_model(clan_id, it, None))
                             .exec(&db)
                             .await,
                     );
                 }
             }
             DbCommand::SetAccessLevel { char_id, level } => {
-                set_char_col(&db, char_id, characters::Column::Accesslevel, level.into()).await;
+                set_char_col(
+                    &db,
+                    char_id,
+                    entity::characters::Column::Accesslevel,
+                    level.into(),
+                )
+                .await;
             }
             DbCommand::StoreAccountVar {
                 account_name,
@@ -1594,17 +1729,17 @@ pub(crate) async fn run(
                 value,
             } => {
                 warn_err(
-                    account_gsdata::Entity::insert(account_gsdata::ActiveModel {
+                    entity::account_gsdata::Entity::insert(entity::account_gsdata::ActiveModel {
                         account_name: Set(account_name),
                         var: Set(var),
                         value: Set(value),
                     })
                     .on_conflict(
                         OnConflict::columns([
-                            account_gsdata::Column::AccountName,
-                            account_gsdata::Column::Var,
+                            entity::account_gsdata::Column::AccountName,
+                            entity::account_gsdata::Column::Var,
                         ])
-                        .update_column(account_gsdata::Column::Value)
+                        .update_column(entity::account_gsdata::Column::Value)
                         .to_owned(),
                     )
                     .exec(&db)
@@ -1619,18 +1754,20 @@ pub(crate) async fn run(
                 // The table has no unique key, so replace by delete + insert
                 // (Java `REMOVE_UNCLAIMED_POINTS` then `INSERT_UNCLAIMED_POINTS`).
                 warn_err(
-                    character_variables::Entity::delete_many()
-                        .filter(character_variables::Column::CharId.eq(char_id))
-                        .filter(character_variables::Column::Var.eq(var.clone()))
+                    entity::character_variables::Entity::delete_many()
+                        .filter(entity::character_variables::Column::CharId.eq(char_id))
+                        .filter(entity::character_variables::Column::Var.eq(var.clone()))
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    character_variables::Entity::insert(character_variables::ActiveModel {
-                        char_id: Set(char_id),
-                        var: Set(var),
-                        val: Set(value),
-                    })
+                    entity::character_variables::Entity::insert(
+                        entity::character_variables::ActiveModel {
+                            char_id: Set(char_id),
+                            var: Set(var),
+                            val: Set(value),
+                        },
+                    )
                     .exec(&db)
                     .await,
                 );
@@ -1640,13 +1777,13 @@ pub(crate) async fn run(
                 enddate,
             } => {
                 warn_err(
-                    account_premium::Entity::insert(account_premium::ActiveModel {
+                    entity::account_premium::Entity::insert(entity::account_premium::ActiveModel {
                         account_name: Set(account_name),
                         enddate: Set(enddate),
                     })
                     .on_conflict(
-                        OnConflict::column(account_premium::Column::AccountName)
-                            .update_column(account_premium::Column::Enddate)
+                        OnConflict::column(entity::account_premium::Column::AccountName)
+                            .update_column(entity::account_premium::Column::Enddate)
                             .to_owned(),
                     )
                     .exec(&db)
@@ -1655,7 +1792,7 @@ pub(crate) async fn run(
             }
             DbCommand::DeletePremium { account_name } => {
                 warn_err(
-                    account_premium::Entity::delete_by_id(account_name)
+                    entity::account_premium::Entity::delete_by_id(account_name)
                         .exec(&db)
                         .await,
                 );
@@ -1664,7 +1801,7 @@ pub(crate) async fn run(
                 // The boolean-ish columns are enum('true','false') text.
                 let b = |v: bool| if v { "true" } else { "false" }.to_string();
                 warn_err(
-                    messages::Entity::insert(messages::ActiveModel {
+                    entity::messages::Entity::insert(entity::messages::ActiveModel {
                         message_id: Set(message.message_id),
                         sender_id: Set(message.sender_id),
                         receiver_id: Set(message.receiver_id),
@@ -1681,20 +1818,20 @@ pub(crate) async fn run(
                         ..Default::default()
                     })
                     .on_conflict(
-                        OnConflict::column(messages::Column::MessageId)
+                        OnConflict::column(entity::messages::Column::MessageId)
                             .update_columns([
-                                messages::Column::SenderId,
-                                messages::Column::ReceiverId,
-                                messages::Column::Subject,
-                                messages::Column::Content,
-                                messages::Column::Expiration,
-                                messages::Column::ReqAdena,
-                                messages::Column::HasAttachments,
-                                messages::Column::IsUnread,
-                                messages::Column::IsDeletedBySender,
-                                messages::Column::IsDeletedByReceiver,
-                                messages::Column::SendBySystem,
-                                messages::Column::IsReturned,
+                                entity::messages::Column::SenderId,
+                                entity::messages::Column::ReceiverId,
+                                entity::messages::Column::Subject,
+                                entity::messages::Column::Content,
+                                entity::messages::Column::Expiration,
+                                entity::messages::Column::ReqAdena,
+                                entity::messages::Column::HasAttachments,
+                                entity::messages::Column::IsUnread,
+                                entity::messages::Column::IsDeletedBySender,
+                                entity::messages::Column::IsDeletedByReceiver,
+                                entity::messages::Column::SendBySystem,
+                                entity::messages::Column::IsReturned,
                             ])
                             .to_owned(),
                     )
@@ -1711,48 +1848,59 @@ pub(crate) async fn run(
             } => {
                 let b = |v: bool| if v { "true" } else { "false" };
                 warn_err(
-                    messages::Entity::update_many()
-                        .col_expr(messages::Column::IsUnread, b(unread).into())
-                        .col_expr(messages::Column::HasAttachments, b(has_attachments).into())
+                    entity::messages::Entity::update_many()
+                        .col_expr(entity::messages::Column::IsUnread, b(unread).into())
                         .col_expr(
-                            messages::Column::IsDeletedBySender,
+                            entity::messages::Column::HasAttachments,
+                            b(has_attachments).into(),
+                        )
+                        .col_expr(
+                            entity::messages::Column::IsDeletedBySender,
                             b(deleted_by_sender).into(),
                         )
                         .col_expr(
-                            messages::Column::IsDeletedByReceiver,
+                            entity::messages::Column::IsDeletedByReceiver,
                             b(deleted_by_receiver).into(),
                         )
-                        .filter(messages::Column::MessageId.eq(message_id))
+                        .filter(entity::messages::Column::MessageId.eq(message_id))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::DeleteMail { message_id } => {
-                warn_err(messages::Entity::delete_by_id(message_id).exec(&db).await);
+                warn_err(
+                    entity::messages::Entity::delete_by_id(message_id)
+                        .exec(&db)
+                        .await,
+                );
                 clear_mail_items(&db, message_id).await;
             }
             DbCommand::StoreOfflineWarehouseItems { owner_id, items } => {
                 for it in &items {
                     warn_err(
-                        items::Entity::insert(item_row_model(owner_id, it, Some(("WAREHOUSE", 0))))
-                            .on_conflict(
-                                OnConflict::column(items::Column::ObjectId)
-                                    .update_columns([
-                                        items::Column::OwnerId,
-                                        items::Column::ItemId,
-                                        items::Column::Count,
-                                        items::Column::EnchantLevel,
-                                        items::Column::Loc,
-                                        items::Column::LocData,
-                                        items::Column::CustomType1,
-                                        items::Column::CustomType2,
-                                        items::Column::ManaLeft,
-                                        items::Column::Time,
-                                    ])
-                                    .to_owned(),
-                            )
-                            .exec(&db)
-                            .await,
+                        entity::items::Entity::insert(item_row_model(
+                            owner_id,
+                            it,
+                            Some(("WAREHOUSE", 0)),
+                        ))
+                        .on_conflict(
+                            OnConflict::column(entity::items::Column::ObjectId)
+                                .update_columns([
+                                    entity::items::Column::OwnerId,
+                                    entity::items::Column::ItemId,
+                                    entity::items::Column::Count,
+                                    entity::items::Column::EnchantLevel,
+                                    entity::items::Column::Loc,
+                                    entity::items::Column::LocData,
+                                    entity::items::Column::CustomType1,
+                                    entity::items::Column::CustomType2,
+                                    entity::items::Column::ManaLeft,
+                                    entity::items::Column::Time,
+                                ])
+                                .to_owned(),
+                        )
+                        .exec(&db)
+                        .await,
                     );
                 }
             }
@@ -1764,7 +1912,7 @@ pub(crate) async fn run(
                 clear_mail_items(&db, message_id).await;
                 for it in &items {
                     warn_err(
-                        items::Entity::insert(item_row_model(
+                        entity::items::Entity::insert(item_row_model(
                             owner_id,
                             it,
                             Some(("MAIL", message_id)),
@@ -1780,7 +1928,7 @@ pub(crate) async fn run(
                 prize,
             } => {
                 warn_err(
-                    lottery::Entity::insert(lottery::ActiveModel {
+                    entity::lottery::Entity::insert(entity::lottery::ActiveModel {
                         id: Set(1),
                         idnr: Set(idnr),
                         enddate: Set(enddate),
@@ -1789,13 +1937,16 @@ pub(crate) async fn run(
                         ..Default::default()
                     })
                     .on_conflict(
-                        OnConflict::columns([lottery::Column::Id, lottery::Column::Idnr])
-                            .update_columns([
-                                lottery::Column::Enddate,
-                                lottery::Column::Prize,
-                                lottery::Column::Newprize,
-                            ])
-                            .to_owned(),
+                        OnConflict::columns([
+                            entity::lottery::Column::Id,
+                            entity::lottery::Column::Idnr,
+                        ])
+                        .update_columns([
+                            entity::lottery::Column::Enddate,
+                            entity::lottery::Column::Prize,
+                            entity::lottery::Column::Newprize,
+                        ])
+                        .to_owned(),
                     )
                     .exec(&db)
                     .await,
@@ -1812,34 +1963,34 @@ pub(crate) async fn run(
                 prize3,
             } => {
                 warn_err(
-                    lottery::Entity::update_many()
-                        .col_expr(lottery::Column::Finished, 1.into())
-                        .col_expr(lottery::Column::Prize, prize.into())
-                        .col_expr(lottery::Column::Newprize, newprize.into())
-                        .col_expr(lottery::Column::Number1, number1.into())
-                        .col_expr(lottery::Column::Number2, number2.into())
-                        .col_expr(lottery::Column::Prize1, prize1.into())
-                        .col_expr(lottery::Column::Prize2, prize2.into())
-                        .col_expr(lottery::Column::Prize3, prize3.into())
-                        .filter(lottery::Column::Id.eq(1))
-                        .filter(lottery::Column::Idnr.eq(idnr))
+                    entity::lottery::Entity::update_many()
+                        .col_expr(entity::lottery::Column::Finished, 1.into())
+                        .col_expr(entity::lottery::Column::Prize, prize.into())
+                        .col_expr(entity::lottery::Column::Newprize, newprize.into())
+                        .col_expr(entity::lottery::Column::Number1, number1.into())
+                        .col_expr(entity::lottery::Column::Number2, number2.into())
+                        .col_expr(entity::lottery::Column::Prize1, prize1.into())
+                        .col_expr(entity::lottery::Column::Prize2, prize2.into())
+                        .col_expr(entity::lottery::Column::Prize3, prize3.into())
+                        .filter(entity::lottery::Column::Id.eq(1))
+                        .filter(entity::lottery::Column::Idnr.eq(idnr))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::IncreaseLotteryPrize { idnr, prize } => {
                 warn_err(
-                    lottery::Entity::update_many()
-                        .col_expr(lottery::Column::Prize, prize.into())
-                        .col_expr(lottery::Column::Newprize, prize.into())
-                        .filter(lottery::Column::Id.eq(1))
-                        .filter(lottery::Column::Idnr.eq(idnr))
+                    entity::lottery::Entity::update_many()
+                        .col_expr(entity::lottery::Column::Prize, prize.into())
+                        .col_expr(entity::lottery::Column::Newprize, prize.into())
+                        .filter(entity::lottery::Column::Id.eq(1))
+                        .filter(entity::lottery::Column::Idnr.eq(idnr))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::LoadCustomMail => {
-                let rows = custom_mail::Entity::find()
+                let rows = entity::custom_mail::Entity::find()
                     .all(&db)
                     .await
                     .unwrap_or_default()
@@ -1856,9 +2007,9 @@ pub(crate) async fn run(
             }
             DbCommand::DeleteCustomMail { date, receiver } => {
                 warn_err(
-                    custom_mail::Entity::delete_many()
-                        .filter(custom_mail::Column::Date.eq(date))
-                        .filter(custom_mail::Column::Receiver.eq(receiver))
+                    entity::custom_mail::Entity::delete_many()
+                        .filter(entity::custom_mail::Column::Date.eq(date))
+                        .filter(entity::custom_mail::Column::Receiver.eq(receiver))
                         .exec(&db)
                         .await,
                 );
@@ -1866,9 +2017,9 @@ pub(crate) async fn run(
             DbCommand::LoadLotteryTickets { round } => {
                 // Lottery tickets are ordinary items (id 4442) whose
                 // `custom_type1` is the round they were bought in.
-                let rows = items::Entity::find()
-                    .filter(items::Column::ItemId.eq(4442))
-                    .filter(items::Column::CustomType1.eq(round))
+                let rows = entity::items::Entity::find()
+                    .filter(entity::items::Column::ItemId.eq(4442))
+                    .filter(entity::items::Column::CustomType1.eq(round))
                     .all(&db)
                     .await
                     .unwrap_or_default()
@@ -1890,18 +2041,18 @@ pub(crate) async fn run(
                 odd_rate,
             } => {
                 warn_err(
-                    mdt_history::Entity::insert(mdt_history::ActiveModel {
+                    entity::mdt_history::Entity::insert(entity::mdt_history::ActiveModel {
                         race_id: Set(race_id),
                         first: Set(Some(first)),
                         second: Set(Some(second)),
                         odd_rate: Set(Some(odd_rate)),
                     })
                     .on_conflict(
-                        OnConflict::column(mdt_history::Column::RaceId)
+                        OnConflict::column(entity::mdt_history::Column::RaceId)
                             .update_columns([
-                                mdt_history::Column::First,
-                                mdt_history::Column::Second,
-                                mdt_history::Column::OddRate,
+                                entity::mdt_history::Column::First,
+                                entity::mdt_history::Column::Second,
+                                entity::mdt_history::Column::OddRate,
                             ])
                             .to_owned(),
                     )
@@ -1911,13 +2062,13 @@ pub(crate) async fn run(
             }
             DbCommand::SaveMdtBet { lane, bet } => {
                 warn_err(
-                    mdt_bets::Entity::insert(mdt_bets::ActiveModel {
+                    entity::mdt_bets::Entity::insert(entity::mdt_bets::ActiveModel {
                         lane_id: Set(lane),
                         bet: Set(Some(bet)),
                     })
                     .on_conflict(
-                        OnConflict::column(mdt_bets::Column::LaneId)
-                            .update_column(mdt_bets::Column::Bet)
+                        OnConflict::column(entity::mdt_bets::Column::LaneId)
+                            .update_column(entity::mdt_bets::Column::Bet)
                             .to_owned(),
                     )
                     .exec(&db)
@@ -1926,8 +2077,8 @@ pub(crate) async fn run(
             }
             DbCommand::ClearMdtBets => {
                 warn_err(
-                    mdt_bets::Entity::update_many()
-                        .col_expr(mdt_bets::Column::Bet, 0.into())
+                    entity::mdt_bets::Entity::update_many()
+                        .col_expr(entity::mdt_bets::Column::Bet, 0.into())
                         .exec(&db)
                         .await,
                 );
@@ -1941,7 +2092,7 @@ pub(crate) async fn run(
                 state_id,
             } => {
                 warn_err(
-                    item_auction::Entity::insert(item_auction::ActiveModel {
+                    entity::item_auction::Entity::insert(entity::item_auction::ActiveModel {
                         auction_id: Set(auction_id),
                         instance_id: Set(instance_id),
                         auction_item_id: Set(auction_item_id),
@@ -1950,13 +2101,13 @@ pub(crate) async fn run(
                         auction_state_id: Set(state_id.into()),
                     })
                     .on_conflict(
-                        OnConflict::column(item_auction::Column::AuctionId)
+                        OnConflict::column(entity::item_auction::Column::AuctionId)
                             .update_columns([
-                                item_auction::Column::InstanceId,
-                                item_auction::Column::AuctionItemId,
-                                item_auction::Column::StartingTime,
-                                item_auction::Column::EndingTime,
-                                item_auction::Column::AuctionStateId,
+                                entity::item_auction::Column::InstanceId,
+                                entity::item_auction::Column::AuctionItemId,
+                                entity::item_auction::Column::StartingTime,
+                                entity::item_auction::Column::EndingTime,
+                                entity::item_auction::Column::AuctionStateId,
                             ])
                             .to_owned(),
                     )
@@ -1970,17 +2121,19 @@ pub(crate) async fn run(
                 bid,
             } => {
                 warn_err(
-                    item_auction_bid::Entity::insert(item_auction_bid::ActiveModel {
-                        auction_id: Set(auction_id),
-                        player_obj_id: Set(player_obj_id),
-                        player_bid: Set(bid),
-                    })
+                    entity::item_auction_bid::Entity::insert(
+                        entity::item_auction_bid::ActiveModel {
+                            auction_id: Set(auction_id),
+                            player_obj_id: Set(player_obj_id),
+                            player_bid: Set(bid),
+                        },
+                    )
                     .on_conflict(
                         OnConflict::columns([
-                            item_auction_bid::Column::AuctionId,
-                            item_auction_bid::Column::PlayerObjId,
+                            entity::item_auction_bid::Column::AuctionId,
+                            entity::item_auction_bid::Column::PlayerObjId,
                         ])
-                        .update_column(item_auction_bid::Column::PlayerBid)
+                        .update_column(entity::item_auction_bid::Column::PlayerBid)
                         .to_owned(),
                     )
                     .exec(&db)
@@ -1992,20 +2145,20 @@ pub(crate) async fn run(
                 player_obj_id,
             } => {
                 warn_err(
-                    item_auction_bid::Entity::delete_by_id((auction_id, player_obj_id))
+                    entity::item_auction_bid::Entity::delete_by_id((auction_id, player_obj_id))
                         .exec(&db)
                         .await,
                 );
             }
             DbCommand::DeleteItemAuction { auction_id } => {
                 warn_err(
-                    item_auction::Entity::delete_by_id(auction_id)
+                    entity::item_auction::Entity::delete_by_id(auction_id)
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    item_auction_bid::Entity::delete_many()
-                        .filter(item_auction_bid::Column::AuctionId.eq(auction_id))
+                    entity::item_auction_bid::Entity::delete_many()
+                        .filter(entity::item_auction_bid::Column::AuctionId.eq(auction_id))
                         .exec(&db)
                         .await,
                 );
@@ -2013,14 +2166,14 @@ pub(crate) async fn run(
             DbCommand::StoreBotReports { rows } => {
                 // Java clears first and re-inserts the whole table.
                 warn_err(
-                    bot_reported_char_data::Entity::delete_many()
+                    entity::bot_reported_char_data::Entity::delete_many()
                         .exec(&db)
                         .await,
                 );
                 for (bot_id, reporter_id, report_date) in rows {
                     warn_err(
-                        bot_reported_char_data::Entity::insert(
-                            bot_reported_char_data::ActiveModel {
+                        entity::bot_reported_char_data::Entity::insert(
+                            entity::bot_reported_char_data::ActiveModel {
                                 bot_id: Set(bot_id),
                                 reporter_id: Set(reporter_id),
                                 report_date: Set(report_date),
@@ -2041,7 +2194,7 @@ pub(crate) async fn run(
                 punished_by,
             } => {
                 warn_err(
-                    punishments::Entity::insert(punishments::ActiveModel {
+                    entity::punishments::Entity::insert(entity::punishments::ActiveModel {
                         id: Set(id),
                         key: Set(key),
                         affect: Set(affect),
@@ -2051,14 +2204,14 @@ pub(crate) async fn run(
                         punished_by: Set(punished_by),
                     })
                     .on_conflict(
-                        OnConflict::column(punishments::Column::Id)
+                        OnConflict::column(entity::punishments::Column::Id)
                             .update_columns([
-                                punishments::Column::Key,
-                                punishments::Column::Affect,
-                                punishments::Column::Type,
-                                punishments::Column::Expiration,
-                                punishments::Column::Reason,
-                                punishments::Column::PunishedBy,
+                                entity::punishments::Column::Key,
+                                entity::punishments::Column::Affect,
+                                entity::punishments::Column::Type,
+                                entity::punishments::Column::Expiration,
+                                entity::punishments::Column::Reason,
+                                entity::punishments::Column::PunishedBy,
                             ])
                             .to_owned(),
                     )
@@ -2067,7 +2220,11 @@ pub(crate) async fn run(
                 );
             }
             DbCommand::DeletePunishment { id } => {
-                warn_err(punishments::Entity::delete_by_id(id).exec(&db).await);
+                warn_err(
+                    entity::punishments::Entity::delete_by_id(id)
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::StorePetitionFeedback {
                 char_name,
@@ -2077,13 +2234,15 @@ pub(crate) async fn run(
                 date,
             } => {
                 warn_err(
-                    petition_feedback::Entity::insert(petition_feedback::ActiveModel {
-                        char_name: Set(char_name),
-                        gm_name: Set(gm_name),
-                        rate: Set(rate),
-                        message: Set(message),
-                        date: Set(date),
-                    })
+                    entity::petition_feedback::Entity::insert(
+                        entity::petition_feedback::ActiveModel {
+                            char_name: Set(char_name),
+                            gm_name: Set(gm_name),
+                            rate: Set(rate),
+                            message: Set(message),
+                            date: Set(date),
+                        },
+                    )
                     .exec(&db)
                     .await,
                 );
@@ -2096,7 +2255,7 @@ pub(crate) async fn run(
                 enchant,
             } => {
                 warn_err(
-                    items::Entity::insert(items::ActiveModel {
+                    entity::items::Entity::insert(entity::items::ActiveModel {
                         owner_id: Set(Some(owner_id)),
                         object_id: Set(object_id),
                         item_id: Set(Some(item_id)),
@@ -2107,14 +2266,14 @@ pub(crate) async fn run(
                         ..Default::default()
                     })
                     .on_conflict(
-                        OnConflict::column(items::Column::ObjectId)
+                        OnConflict::column(entity::items::Column::ObjectId)
                             .update_columns([
-                                items::Column::OwnerId,
-                                items::Column::ItemId,
-                                items::Column::Count,
-                                items::Column::EnchantLevel,
-                                items::Column::Loc,
-                                items::Column::LocData,
+                                entity::items::Column::OwnerId,
+                                entity::items::Column::ItemId,
+                                entity::items::Column::Count,
+                                entity::items::Column::EnchantLevel,
+                                entity::items::Column::Loc,
+                                entity::items::Column::LocData,
                             ])
                             .to_owned(),
                     )
@@ -2128,17 +2287,17 @@ pub(crate) async fn run(
                 skills,
             } => {
                 warn_err(
-                    buffer_schemes::Entity::insert(buffer_schemes::ActiveModel {
+                    entity::buffer_schemes::Entity::insert(entity::buffer_schemes::ActiveModel {
                         object_id: Set(object_id),
                         scheme_name: Set(scheme_name),
                         skills: Set(skills),
                     })
                     .on_conflict(
                         OnConflict::columns([
-                            buffer_schemes::Column::ObjectId,
-                            buffer_schemes::Column::SchemeName,
+                            entity::buffer_schemes::Column::ObjectId,
+                            entity::buffer_schemes::Column::SchemeName,
                         ])
-                        .update_column(buffer_schemes::Column::Skills)
+                        .update_column(entity::buffer_schemes::Column::Skills)
                         .to_owned(),
                     )
                     .exec(&db)
@@ -2150,7 +2309,7 @@ pub(crate) async fn run(
                 scheme_name,
             } => {
                 warn_err(
-                    buffer_schemes::Entity::delete_by_id((object_id, scheme_name))
+                    entity::buffer_schemes::Entity::delete_by_id((object_id, scheme_name))
                         .exec(&db)
                         .await,
                 );
@@ -2163,7 +2322,7 @@ pub(crate) async fn run(
                 add_date,
             } => {
                 warn_err(
-                    bbs_favorites::Entity::insert(bbs_favorites::ActiveModel {
+                    entity::bbs_favorites::Entity::insert(entity::bbs_favorites::ActiveModel {
                         fav_id: Set(fav_id),
                         player_id: Set(player_id),
                         fav_title: Set(title),
@@ -2171,12 +2330,12 @@ pub(crate) async fn run(
                         fav_add_date: Set(add_date),
                     })
                     .on_conflict(
-                        OnConflict::column(bbs_favorites::Column::FavId)
+                        OnConflict::column(entity::bbs_favorites::Column::FavId)
                             .update_columns([
-                                bbs_favorites::Column::PlayerId,
-                                bbs_favorites::Column::FavTitle,
-                                bbs_favorites::Column::FavBypass,
-                                bbs_favorites::Column::FavAddDate,
+                                entity::bbs_favorites::Column::PlayerId,
+                                entity::bbs_favorites::Column::FavTitle,
+                                entity::bbs_favorites::Column::FavBypass,
+                                entity::bbs_favorites::Column::FavAddDate,
                             ])
                             .to_owned(),
                     )
@@ -2186,9 +2345,9 @@ pub(crate) async fn run(
             }
             DbCommand::DeleteFavorite { player_id, fav_id } => {
                 warn_err(
-                    bbs_favorites::Entity::delete_many()
-                        .filter(bbs_favorites::Column::PlayerId.eq(player_id))
-                        .filter(bbs_favorites::Column::FavId.eq(fav_id))
+                    entity::bbs_favorites::Entity::delete_many()
+                        .filter(entity::bbs_favorites::Column::PlayerId.eq(player_id))
+                        .filter(entity::bbs_favorites::Column::FavId.eq(fav_id))
                         .exec(&db)
                         .await,
                 );
@@ -2197,10 +2356,10 @@ pub(crate) async fn run(
                 // Java `DailyTaskManager.resetRecommends`: rec_left → 0 for
                 // everyone; rec_have → 0 for those at/under 20, else -20.
                 warn_err(
-                    character_reco_bonus::Entity::update_many()
-                        .col_expr(character_reco_bonus::Column::RecLeft, 0.into())
-                        .col_expr(character_reco_bonus::Column::RecHave, 0.into())
-                        .filter(character_reco_bonus::Column::RecHave.lte(20))
+                    entity::character_reco_bonus::Entity::update_many()
+                        .col_expr(entity::character_reco_bonus::Column::RecLeft, 0.into())
+                        .col_expr(entity::character_reco_bonus::Column::RecHave, 0.into())
+                        .filter(entity::character_reco_bonus::Column::RecHave.lte(20))
                         .exec(&db)
                         .await,
                 );
@@ -2209,13 +2368,13 @@ pub(crate) async fn run(
                 // `Ord` ones everywhere else in this file.
                 use models::sea_orm::sea_query::ExprTrait as _;
                 warn_err(
-                    character_reco_bonus::Entity::update_many()
-                        .col_expr(character_reco_bonus::Column::RecLeft, 0.into())
+                    entity::character_reco_bonus::Entity::update_many()
+                        .col_expr(entity::character_reco_bonus::Column::RecLeft, 0.into())
                         .col_expr(
-                            character_reco_bonus::Column::RecHave,
-                            Expr::col(character_reco_bonus::Column::RecHave).sub(20),
+                            entity::character_reco_bonus::Column::RecHave,
+                            Expr::col(entity::character_reco_bonus::Column::RecHave).sub(20),
                         )
-                        .filter(character_reco_bonus::Column::RecHave.gt(20))
+                        .filter(entity::character_reco_bonus::Column::RecHave.gt(20))
                         .exec(&db)
                         .await,
                 );
@@ -2225,10 +2384,10 @@ pub(crate) async fn run(
                 // `UPDATE character_variables SET val = 0 WHERE var = ?`,
                 // unfiltered by character exactly as upstream.
                 warn_err(
-                    character_variables::Entity::update_many()
-                        .col_expr(character_variables::Column::Val, "0".into())
+                    entity::character_variables::Entity::update_many()
+                        .col_expr(entity::character_variables::Column::Val, "0".into())
                         .filter(
-                            character_variables::Column::Var
+                            entity::character_variables::Column::Var
                                 .eq(crate::model::components::WORLD_CHAT_USED),
                         )
                         .exec(&db)
@@ -2257,19 +2416,19 @@ pub(crate) async fn run(
                     }
                 }
                 warn_err(
-                    characters::Entity::update_many()
+                    entity::characters::Entity::update_many()
                         .col_expr(
-                            characters::Column::VitalityPoints,
-                            refill(characters::Column::VitalityPoints, weekly),
+                            entity::characters::Column::VitalityPoints,
+                            refill(entity::characters::Column::VitalityPoints, weekly),
                         )
                         .exec(&db)
                         .await,
                 );
                 warn_err(
-                    character_subclasses::Entity::update_many()
+                    entity::character_subclasses::Entity::update_many()
                         .col_expr(
-                            character_subclasses::Column::VitalityPoints,
-                            refill(character_subclasses::Column::VitalityPoints, weekly),
+                            entity::character_subclasses::Column::VitalityPoints,
+                            refill(entity::character_subclasses::Column::VitalityPoints, weekly),
                         )
                         .exec(&db)
                         .await,
@@ -2279,16 +2438,16 @@ pub(crate) async fn run(
                 // Java `AdminRepairChar`, verbatim. Best-effort: each statement
                 // is independent, keyed by name / resolved id.
                 warn_err(
-                    characters::Entity::update_many()
-                        .col_expr(characters::Column::X, (-84318).into())
-                        .col_expr(characters::Column::Y, 244579.into())
-                        .col_expr(characters::Column::Z, (-3730).into())
-                        .filter(characters::Column::CharName.eq(&char_name))
+                    entity::characters::Entity::update_many()
+                        .col_expr(entity::characters::Column::X, (-84318).into())
+                        .col_expr(entity::characters::Column::Y, 244579.into())
+                        .col_expr(entity::characters::Column::Z, (-3730).into())
+                        .filter(entity::characters::Column::CharName.eq(&char_name))
                         .exec(&db)
                         .await,
                 );
-                let obj_id = characters::Entity::find()
-                    .filter(characters::Column::CharName.eq(&char_name))
+                let obj_id = entity::characters::Entity::find()
+                    .filter(entity::characters::Column::CharName.eq(&char_name))
                     .one(&db)
                     .await
                     .ok()
@@ -2296,15 +2455,15 @@ pub(crate) async fn run(
                     .map(|c| c.char_id);
                 if let Some(obj_id) = obj_id {
                     warn_err(
-                        character_shortcuts::Entity::delete_many()
-                            .filter(character_shortcuts::Column::CharId.eq(obj_id))
+                        entity::character_shortcuts::Entity::delete_many()
+                            .filter(entity::character_shortcuts::Column::CharId.eq(obj_id))
                             .exec(&db)
                             .await,
                     );
                     warn_err(
-                        items::Entity::update_many()
-                            .col_expr(items::Column::Loc, "INVENTORY".into())
-                            .filter(items::Column::OwnerId.eq(obj_id))
+                        entity::items::Entity::update_many()
+                            .col_expr(entity::items::Column::Loc, "INVENTORY".into())
+                            .filter(entity::items::Column::OwnerId.eq(obj_id))
                             .exec(&db)
                             .await,
                     );
@@ -2329,9 +2488,9 @@ pub(crate) async fn run(
 /// stale row would leave items the sender has already taken back.
 async fn clear_mail_items(db: &DatabaseConnection, message_id: i32) {
     warn_err(
-        items::Entity::delete_many()
-            .filter(items::Column::Loc.eq("MAIL"))
-            .filter(items::Column::LocData.eq(message_id))
+        entity::items::Entity::delete_many()
+            .filter(entity::items::Column::Loc.eq("MAIL"))
+            .filter(entity::items::Column::LocData.eq(message_id))
             .exec(db)
             .await,
     );
@@ -2376,7 +2535,7 @@ async fn set_col<E: EntityTrait>(
 async fn set_char_col(
     db: &DatabaseConnection,
     char_id: i32,
-    col: characters::Column,
+    col: entity::characters::Column,
     val: SimpleExpr,
 ) {
     set_char_cols(db, char_id, vec![(col, val)]).await;
@@ -2386,25 +2545,27 @@ async fn set_char_col(
 async fn set_char_cols(
     db: &DatabaseConnection,
     char_id: i32,
-    cols: Vec<(characters::Column, SimpleExpr)>,
+    cols: Vec<(entity::characters::Column, SimpleExpr)>,
 ) {
-    set_cols::<characters::Entity>(db, characters::Column::CharId, char_id, cols).await;
+    set_cols::<entity::characters::Entity>(db, entity::characters::Column::CharId, char_id, cols)
+        .await;
 }
 
 /// [`set_cols`] on `clan_data`, keyed by `clan_id`.
 async fn set_clan_cols(
     db: &DatabaseConnection,
     clan_id: i32,
-    cols: Vec<(clan_data::Column, SimpleExpr)>,
+    cols: Vec<(entity::clan_data::Column, SimpleExpr)>,
 ) {
-    set_cols::<clan_data::Entity>(db, clan_data::Column::ClanId, clan_id, cols).await;
+    set_cols::<entity::clan_data::Entity>(db, entity::clan_data::Column::ClanId, clan_id, cols)
+        .await;
 }
 
 /// [`set_col`] on `clan_data`, keyed by `clan_id`.
 async fn set_clan_col(
     db: &DatabaseConnection,
     clan_id: i32,
-    col: clan_data::Column,
+    col: entity::clan_data::Column,
     val: SimpleExpr,
 ) {
     set_clan_cols(db, clan_id, vec![(col, val)]).await;
@@ -2414,8 +2575,8 @@ async fn set_clan_col(
 async fn set_castle_col(
     db: &DatabaseConnection,
     castle_id: i32,
-    col: castle::Column,
+    col: entity::castle::Column,
     val: SimpleExpr,
 ) {
-    set_col::<castle::Entity>(db, castle::Column::Id, castle_id, col, val).await;
+    set_col::<entity::castle::Entity>(db, entity::castle::Column::Id, castle_id, col, val).await;
 }

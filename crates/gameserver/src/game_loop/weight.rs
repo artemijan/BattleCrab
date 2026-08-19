@@ -14,9 +14,8 @@
 
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
-use crate::model::components::{
-    BaseStats, Buffs, CombatStats, Speeds, StatModifiers, WeightPenalty,
-};
+use crate::model::components;
+
 use crate::model::inventory::Inventory;
 use crate::model::skill::{ActiveBuff, StatModifierEffect};
 use crate::world::World;
@@ -51,7 +50,10 @@ pub(crate) fn total_load(inventory: &Inventory, data: &crate::data::GameData) ->
 /// 1.0 would put every character permanently overloaded on an operator's
 /// server that raised it.
 pub(crate) fn max_load(world: &World, object_id: i32) -> i32 {
-    let Some(base) = world.objects.get_component::<BaseStats>(&object_id) else {
+    let Some(base) = world
+        .objects
+        .get_component::<components::BaseStats>(&object_id)
+    else {
         return 0;
     };
     let bonus = world.data.stat_bonus.con_bonus(base.con);
@@ -72,7 +74,10 @@ pub(crate) fn max_load(world: &World, object_id: i32) -> i32 {
 /// Java `CreatureStat.getValue(stat, base)` for the two stats this module
 /// reads: `(base + add) × mul`, identity when the creature carries neither.
 fn stat_value(world: &World, object_id: i32, stat: crate::model::stats::Stat, base: f64) -> f64 {
-    let Some(mods) = world.objects.get_component::<StatModifiers>(&object_id) else {
+    let Some(mods) = world
+        .objects
+        .get_component::<components::StatModifiers>(&object_id)
+    else {
         return base;
     };
     (base + mods.add.get(&stat).copied().unwrap_or(0.0))
@@ -175,7 +180,7 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
 
     let current = world
         .objects
-        .get_component::<WeightPenalty>(&object_id)
+        .get_component::<components::WeightPenalty>(&object_id)
         .copied()
         .unwrap_or_default();
     if current.level == level && current.overloaded == overloaded {
@@ -187,12 +192,12 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
         let Some((player, base, mut mods, inv, mut buffs, mut speeds, mut combat)) =
             world.objects.get_many_mut::<(
                 &Player,
-                &BaseStats,
-                &mut StatModifiers,
+                &components::BaseStats,
+                &mut components::StatModifiers,
                 &Inventory,
-                &mut Buffs,
-                &mut Speeds,
-                &mut CombatStats,
+                &mut components::Buffs,
+                &mut components::Speeds,
+                &mut components::CombatStats,
             )>(&object_id)
         else {
             return;
@@ -225,7 +230,7 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
 
     world
         .objects
-        .add_components(&object_id, WeightPenalty { level, overloaded });
+        .add_components(&object_id, components::WeightPenalty { level, overloaded });
 
     // Java: `sendPacket(new EtcStatusUpdate(this)); broadcastUserInfo();`
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id)
@@ -326,7 +331,10 @@ pub(crate) fn inventory_limit(world: &World, object_id: i32) -> i32 {
     };
     let cfg = &world.cfg.character;
     let base = cfg.inventory_limit_for(player.race, player.is_gm(&world.data));
-    let Some(mods) = world.objects.get_component::<StatModifiers>(&object_id) else {
+    let Some(mods) = world
+        .objects
+        .get_component::<components::StatModifiers>(&object_id)
+    else {
         return base;
     };
     crate::model::finalize(

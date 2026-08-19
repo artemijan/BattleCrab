@@ -10,30 +10,6 @@
 //! then build a [`QuestCtx`] around `&mut World` and hand that to the
 //! script. Scripts are stateless; all state flows through the ctx.
 
-use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::hp_fraction;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::send_action_failed;
-use crate::game_loop::helpers::send_to_client;
-use std::collections::HashMap;
-use std::sync::Arc;
-
-use tracing::warn;
-
-use crate::model::components::{LastFolkNpc, QuestTimerSeqs, Quests};
-use crate::model::inventory::Inventory;
-use crate::model::quest::{self, COND_VAR, FLAGS_VAR, QuestState, state};
-use crate::network::enter_world as ew;
-use crate::network::server_packets::{self, quest_sounds};
-use crate::scheduler::ScheduledTask;
-use crate::world::World;
-
-use super::death::ADENA_ID;
-use super::helpers::client_for_player;
-use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::npc::cast;
-
 /// One compiled-in script (Java: a `Quest` subclass). Implementations are
 /// stateless — everything they touch goes through the [`QuestCtx`]. `id() >
 /// 0` = a real quest (QuestList/quest window/DB rows); `id() <= 0` = a
@@ -203,10 +179,15 @@ pub(crate) mod dispatch;
 mod registry;
 mod render;
 
-pub use ctx::*;
-pub(crate) use dispatch::*;
-pub use registry::*;
-use render::*;
+pub(crate) use ctx::{QuestCtx, add_quest_exp_and_sp};
+pub(crate) use dispatch::{
+    handle_creature_see_sweep, handle_quest_timer, handle_request_quest_abort,
+    handle_request_quest_list, handle_tutorial_bypass, notify_aggro_range_enter, notify_attack,
+    notify_first_talk, notify_item_pickup, notify_kill, notify_login, notify_skill_see,
+    notify_spawn, notify_spell_finished, notify_tutorial_mark, quest_link,
+};
+pub(crate) use registry::{QuestRegistry, echoed_page};
+use render::{load_quest_html, no_quest_html, send_no_quest_html, show_result};
 
 // The quest-style item primitives moved to `items`; re-exported here so the
 // ~20 existing `quests::give_item_*`/`quests::take_items` callers are stable.

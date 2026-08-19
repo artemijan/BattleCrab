@@ -1,6 +1,14 @@
-use super::*;
+use super::creature_level;
 use crate::game_loop::helpers::npc_name_or_empty;
 use crate::game_loop::helpers::npc_template;
+use crate::model::components::BaseStats;
+use crate::model::components::Buffs;
+use crate::model::components::StatModifiers;
+use crate::model::formulas;
+use crate::model::skill::BuffSlot;
+use crate::model::skill::Skill;
+use crate::model::skill::SkillEffect;
+use crate::world::World;
 
 /// The caster's name for the damage system messages. NPCs cast skills as of
 /// G21, so this can't `expect` a `Player` — a monster resolves to its template

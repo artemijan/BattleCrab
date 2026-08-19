@@ -7,11 +7,8 @@ use super::destroy_item_by_id;
 use super::item_skills;
 use crate::data::item_data::ItemHandler;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::item_id_of;
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::send_action_failed;
-use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers;
+
 use crate::model::inventory::Inventory;
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
@@ -43,7 +40,7 @@ pub(super) fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, it
         ItemHandler::ItemSkills => use_item_skills(world, client_id, object_id, item_object_id),
         ItemHandler::Seed => use_seed_item(world, client_id, object_id, item_object_id),
         ItemHandler::SoulShots | ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot => {
-            let item_id = item_id_of(world, object_id, item_object_id);
+            let item_id = helpers::item_id_of(world, object_id, item_object_id);
             if let Some(item_id) = item_id {
                 charge_shot(world, object_id, item_id, handler, false);
             }
@@ -61,7 +58,7 @@ pub(super) fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, it
         // A fishing shot used by hand charges immediately (the fishing engine
         // otherwise charges it on cast via `rechargeShots(fish=true)`).
         ItemHandler::FishShots => {
-            let item_id = item_id_of(world, object_id, item_object_id);
+            let item_id = helpers::item_id_of(world, object_id, item_object_id);
             if let Some(item_id) = item_id {
                 charge_fish_shot(world, object_id, item_id);
             }
@@ -79,7 +76,7 @@ pub(super) fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, it
         ItemHandler::RollingDice => roll_dice(world, client_id, object_id, item_object_id),
         ItemHandler::PetFood => feed_mount(world, client_id, object_id, item_object_id),
         ItemHandler::MercTicket => {
-            if let Some(item_id) = item_id_of(world, object_id, item_object_id) {
+            if let Some(item_id) = helpers::item_id_of(world, object_id, item_object_id) {
                 crate::game_loop::siege::use_mercenary_ticket(
                     world,
                     client_id,
@@ -156,7 +153,7 @@ fn summon_item_allowed(world: &mut World, client_id: u32, object_id: i32) -> boo
 /// The book is **not** consumed, and Java answers with `ActionFailed` after the
 /// page so the client stops waiting on the use.
 fn read_book(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
-    let Some(item_id) = item_id_of(world, object_id, item_object_id) else {
+    let Some(item_id) = helpers::item_id_of(world, object_id, item_object_id) else {
         return;
     };
     let path = format!("{}data/html/help/{item_id}.htm", world.data.root);
@@ -165,19 +162,19 @@ fn read_book(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
     let html = crate::data::htm_cache::read_htm_for(world, object_id, &path).unwrap_or_else(|| {
         format!("<html><body>My Text is missing:<br>data/html/help/{item_id}.htm</body></html>")
     });
-    send_to_client(
+    helpers::send_to_client(
         world,
         client_id,
         server_packets::npc_html_message_item(0, item_id, &html),
     );
-    send_action_failed(world, client_id);
+    helpers::send_action_failed(world, client_id);
 }
 
 /// `handlers/itemhandlers/RollingDice` — roll 1–6 and land the die in front of
 /// the roller.
 fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     use crate::network::server_packets::sm_ids;
-    let Some(item_id) = item_id_of(world, object_id, item_object_id) else {
+    let Some(item_id) = helpers::item_id_of(world, object_id, item_object_id) else {
         return;
     };
     // Java's `rollDice` returns 0 when the flood protector refuses, and the
@@ -223,7 +220,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
         sm_ids::C1_HAS_ROLLED_A_S2,
         &[SmParam::Text(name), SmParam::Int(number)],
     );
-    send_to_client(world, client_id, sm.clone());
+    helpers::send_to_client(world, client_id, sm.clone());
     let in_peace = world
         .objects
         .get_component::<crate::model::components::ZoneFlags>(&object_id)
@@ -243,7 +240,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
 /// with G29; only this half was missing.
 fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id: i32) {
     use crate::network::server_packets::sm_ids;
-    let Some(item_id) = item_id_of(world, object_id, item_object_id) else {
+    let Some(item_id) = helpers::item_id_of(world, object_id, item_object_id) else {
         return;
     };
     let mount_npc_id = world
@@ -275,7 +272,7 @@ fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id
     }
     crate::game_loop::helpers::send_inventory_update(world, object_id, changes);
     for (skill_id, skill_level) in item_skills(world, item_id) {
-        if let Some(skill) = skill_by_id(world, skill_id, skill_level) {
+        if let Some(skill) = helpers::skill_by_id(world, skill_id, skill_level) {
             crate::game_loop::skills::effects::apply_skill_effects(
                 world, object_id, object_id, &skill,
             );
@@ -325,12 +322,12 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
     if !world.cfg.general.allow_manor {
         return;
     }
-    let item_id = item_id_of(world, object_id, item_object_id);
+    let item_id = helpers::item_id_of(world, object_id, item_object_id);
     let Some(item_id) = item_id else {
         return;
     };
     let send = |world: &World, sm: i16| {
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::system_message_with(sm, &[]),
@@ -348,7 +345,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
         return;
     };
     // Must be a live, `canBeSown` monster that isn't already seeded.
-    let can_be_sown = npc_template(world, target_oid).is_some_and(|t| t.can_be_sown);
+    let can_be_sown = helpers::npc_template(world, target_oid).is_some_and(|t| t.can_be_sown);
     let dead = world
         .objects
         .get_component::<crate::model::components::Vitals>(&target_oid)
@@ -365,7 +362,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
         return;
     }
     if already_seeded {
-        send_action_failed(world, client_id);
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // The seed must be in the catalogue (Java `getSeed(itemId)`)…
@@ -433,7 +430,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     // Park the collar's object id the same way; the effect *takes* it, so an
     // unused one cannot linger into an unrelated cast.
     {
-        let is_collar = item_id_of(world, object_id, item_object_id)
+        let is_collar = helpers::item_id_of(world, object_id, item_object_id)
             .is_some_and(|item_id| world.data.pet_data.is_pet_collar(item_id));
         if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
             p.pending_pet_collar = if is_collar {
@@ -449,7 +446,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     // the per-skill `continue`s, so a skill that never fires still counts.
     let mut has_consume_skill = false;
     for (skill_id, skill_level) in item_skills {
-        let Some(skill) = skill_by_id(world, skill_id, skill_level) else {
+        let Some(skill) = helpers::skill_by_id(world, skill_id, skill_level) else {
             continue;
         };
         if skill.item_consume_id > 0 {
@@ -595,7 +592,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     // replaces read the plain race cap, dropping the GM cap and the
     // `EnlargeSlot` passive bonus `weight::inventory_limit` folds in.
     if !crate::game_loop::weight::is_inventory_under_80(world, object_id) {
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::system_message_with(sm_ids::YOUR_INVENTORY_IS_FULL, &[]),
@@ -630,7 +627,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     }
 
     if granted.is_empty() {
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::system_message_with(sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE, &[]),
@@ -645,7 +642,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
             warn!("ExtractableItems: object-id pool exhausted, dropping {item_id}x{amount}");
             continue;
         };
-        send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             server_packets::obtained_item_sm(item_id, amount),

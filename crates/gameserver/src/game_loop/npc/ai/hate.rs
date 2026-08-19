@@ -1,8 +1,19 @@
 //! Hate-list management: stop, calm-down, the periodic hate check and
 //! `onEvtForgetObject`.
 
-use super::*;
-
+use super::set_active;
+use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::broadcast_near_region_in;
+use crate::game_loop::helpers::instance_of;
+use crate::game_loop::helpers::region_cell_of;
+use crate::model::components::Movement;
+use crate::model::components::RegionCell;
+use crate::model::components::Vitals;
+use crate::model::npc::AggroList;
+use crate::model::npc::NpcAi;
+use crate::network::server_packets;
+use crate::world::World;
+use crate::world::regions_adjacent;
 /// Stop a mob dead (remove its move, broadcast `StopMove`) — the NPC half of
 /// `AbstractAI.clientStopMoving(null)`.
 pub(crate) fn stop_npc(world: &mut World, npc_oid: i32) {

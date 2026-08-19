@@ -1,8 +1,14 @@
 //! The automatic weekly schedule (`SiegeSchedule.xml`): boot scheduling,
 //! `Siege.startAutoTask` countdown chain, and the owner hour-picking window.
 
-use super::*;
+use super::broadcast_sm;
+use super::start_siege;
+use crate::db::DbCommand;
 use crate::game_loop::time::{MILLIS_PER_DAY, MILLIS_PER_HOUR};
+use crate::model::siege::SiegeClanType;
+use crate::network::server_packets::sm_ids;
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
 
 /// The next `weekday`@`hour`:00 **UTC** strictly after `now_millis` (Java
 /// `SiegeScheduleDate` + `Calendar` next-occurrence, computed in UTC — Rust std

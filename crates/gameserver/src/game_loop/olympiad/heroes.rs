@@ -1,7 +1,16 @@
 //! Heroes: the boot-loaded crown, login re-apply, `claim_hero`, the
 //! season-end hero computation, the hero diary and the `ExHeroList` roll.
 
-use super::*;
+use super::HERO_ACTION_GAINED_HERO;
+use super::HERO_SOCIAL_ACTION;
+use crate::db::DbCommand;
+use crate::db::HeroRow;
+use crate::game_loop::helpers::send_to_client;
+use crate::model::Player;
+use crate::network::server_packets as sp;
+use crate::network::server_packets::SmParam;
+use crate::network::server_packets::sm_ids;
+use crate::world::World;
 /// Apply the boot-loaded `heroes` rows (Java `Hero.init`) into the live crown.
 pub(crate) fn apply_heroes_loaded(
     world: &mut World,

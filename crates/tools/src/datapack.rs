@@ -4,13 +4,13 @@
 //! location* of every row (file and line) so its report can be applied back to
 //! the datapack by hand or by script, and the server's parsers throw that away.
 
-use gameserver::geo::region::REGION_CELLS_X;
-use gameserver::geo::{TILE_X_MAX, TILE_X_MIN, TILE_Y_MAX, TILE_Y_MIN, WORLD_MIN_X, WORLD_MIN_Y};
+use gameserver::geo;
+
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 /// World units spanned by one geodata region file (`x_y.l2j`).
-pub const REGION_SPAN: i32 = REGION_CELLS_X * 16;
+pub const REGION_SPAN: i32 = geo::region::REGION_CELLS_X * 16;
 
 /// An axis-aligned world-coordinate box, `(min_x, min_y, max_x, max_y)`.
 pub type Bbox = (i32, i32, i32, i32);
@@ -104,15 +104,15 @@ pub fn teleport_locations(dir: &Path) -> Vec<(i32, i32, i32)> {
 /// The geodata region tile a world position falls in.
 pub fn region_of(x: i32, y: i32) -> (i32, i32) {
     (
-        (x - WORLD_MIN_X).div_euclid(REGION_SPAN),
-        (y - WORLD_MIN_Y).div_euclid(REGION_SPAN),
+        (x - geo::WORLD_MIN_X).div_euclid(REGION_SPAN),
+        (y - geo::WORLD_MIN_Y).div_euclid(REGION_SPAN),
     )
 }
 
 /// The world bbox covered by a region tile.
 pub fn region_bbox(tile_x: i32, tile_y: i32) -> Bbox {
-    let x0 = tile_x * REGION_SPAN + WORLD_MIN_X;
-    let y0 = tile_y * REGION_SPAN + WORLD_MIN_Y;
+    let x0 = tile_x * REGION_SPAN + geo::WORLD_MIN_X;
+    let y0 = tile_y * REGION_SPAN + geo::WORLD_MIN_Y;
     (x0, y0, x0 + REGION_SPAN - 1, y0 + REGION_SPAN - 1)
 }
 
@@ -122,7 +122,8 @@ pub fn regions_with_spawns(rows: &[SpawnRow]) -> Vec<(i32, i32)> {
     rows.iter()
         .map(|r| region_of(r.x, r.y))
         .filter(|&(tx, ty)| {
-            (TILE_X_MIN..=TILE_X_MAX).contains(&tx) && (TILE_Y_MIN..=TILE_Y_MAX).contains(&ty)
+            (geo::TILE_X_MIN..=geo::TILE_X_MAX).contains(&tx)
+                && (geo::TILE_Y_MIN..=geo::TILE_Y_MAX).contains(&ty)
         })
         .collect::<BTreeSet<_>>()
         .into_iter()

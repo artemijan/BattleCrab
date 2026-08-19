@@ -1,6 +1,12 @@
 //! The merchant board: multisell, sell and the merchant page.
 
-use super::*;
+use super::finalize_custom;
+use super::read_html;
+use super::send_cb_html;
+use crate::game_loop::helpers::send_to_client;
+use crate::model::inventory::Inventory;
+use crate::world::World;
+use tracing::warn;
 /// `HomeBoard`'s `_bbsmultisell;<id>,<page>` / `_bbsexcmultisell;<id>,<page>`
 /// branch: open the multisell window, then re-render the named Custom page (the
 /// nav pages pass `_bbstop`, whose file is absent → no re-render, exactly like

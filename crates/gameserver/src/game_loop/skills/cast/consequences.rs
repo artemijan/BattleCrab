@@ -1,7 +1,12 @@
 //! Post-cast consequences per target: reflection, PvP/PvE matchup effects,
 //! flagging, hate and the AI wake.
 
-use super::*;
+use crate::game_loop::helpers::npc_template;
+use crate::game_loop::helpers::stat_add;
+use crate::model::Player;
+use crate::model::skill::Skill;
+use crate::model::skill::SkillEffect;
+use crate::world::World;
 /// `Formulas.calcBuffDebuffReflection` — the chance that `target` bounces this
 /// skill back at its caster.
 ///

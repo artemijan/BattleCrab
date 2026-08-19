@@ -1,7 +1,15 @@
 //! Castle doors, the artifact capture, battlefield despawn and the
 //! end-of-siege ousting teleports.
 
-use super::*;
+use super::capture;
+use super::teleport_all_to_town;
+use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::guard::maybe_position;
+use crate::model::Player;
+use crate::model::components::Position;
+use crate::model::door::Door;
+use crate::model::siege::SiegeClanType;
+use crate::world::World;
 /// Despawn every NPC spawned for this siege (Java `removeSiegeGuards` + the
 /// control/flame towers — the latter unported yet).
 pub(super) fn despawn_siege_npcs(world: &mut World, castle_id: i32) {

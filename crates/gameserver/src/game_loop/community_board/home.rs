@@ -1,6 +1,10 @@
 //! The home page and the shell wrapper the custom boards render into.
 
-use super::*;
+use super::finalize_custom;
+use super::read_html;
+use super::send_cb_html;
+use crate::world::World;
+use tracing::warn;
 /// A retail board that is just an html shell in Java (`MailBoard`,
 /// `MemoBoard`, `FriendsBoard` — their writes are Java TODOs).
 pub(super) fn show_shell(
