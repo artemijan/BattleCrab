@@ -71,6 +71,13 @@ pub struct LoginState {
     /// Assigned once the login server registers us.
     pub server_id: Option<i32>,
     pub server_name: Option<String>,
+    /// The last `SERVER_LIST_STATUS` pushed over the link (Java
+    /// `LoginServerThread._status`, which starts at `STATUS_AUTO`). Kept
+    /// because `//server_login`'s page prints it back.
+    pub server_status: i32,
+    /// The last `MAX_PLAYERS` pushed (Java `LoginServerThread._maxPlayer`,
+    /// seeded from `MaximumOnlineUsers`). Same reason.
+    pub max_players: i32,
     /// Fired once all boot data is loaded (static datapack synchronously at
     /// startup, then clans from the DB) to release the login-link task into its
     /// connect loop — Java runs `LoginServerThread.start()` dead-last, after
@@ -87,6 +94,8 @@ impl LoginState {
             accounts_in_gameserver: HashMap::new(),
             server_id: None,
             server_name: None,
+            server_status: crate::loginlink::status::STATUS_AUTO,
+            max_players: 0,
             ready: None,
         }
     }

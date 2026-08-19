@@ -769,3 +769,70 @@ pub(super) fn admin_spawn_reload(world: &mut World, client_id: u32) {
     send_message(world, client_id, "Spawn data reloaded from disk.");
     admin_respawnall(world, client_id);
 }
+
+/// `AdminSpawn`'s `//instance_spawns <instance_id>` — the live NPCs of one
+/// instance, first 50 with a "Go" link and the rest counted as skipped ("Only
+/// 50 because of client html limitation", as Java's comment puts it).
+///
+/// Java's guard is `instance >= 300000`, which is where its `InstanceManager`
+/// starts allocating ids. The port allocates from 1 and keeps **0** for the
+/// shared overworld, so the same guard reads `> 0` here — it exists to reject
+/// "not an instance", not to name a number.
+pub(super) fn admin_instance_spawns(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(instance_id) = helpers::nth_arg::<i32>(args, 0) else {
+        send_message(
+            world,
+            client_id,
+            "Usage //instance_spawns <instance_number>",
+        );
+        return;
+    };
+    if instance_id <= 0 {
+        send_message(world, client_id, "Invalid instance number.");
+        return;
+    }
+    let Some(instance) = world.instances.get(instance_id) else {
+        send_message(
+            world,
+            client_id,
+            &format!("Cannot find instance {instance_id}"),
+        );
+        return;
+    };
+    // Java walks `inst.getNpcs()` and skips the dead — a corpse still in the
+    // instance is not a spawn you can go to.
+    let npcs: Vec<i32> = instance.npcs.clone();
+    let mut rows = String::new();
+    let (mut shown, mut skipped) = (0, 0);
+    for npc_oid in npcs {
+        if crate::game_loop::helpers::is_dead(world, npc_oid) {
+            continue;
+        }
+        if shown >= 50 {
+            skipped += 1;
+            continue;
+        }
+        let Some(pos) = guard::maybe_position(world, npc_oid) else {
+            continue;
+        };
+        rows.push_str(&format!(
+            "<tr><td>{}</td><td><a action=\"bypass -h admin_move_to {} {} {}\">Go</a></td></tr>",
+            helpers::npc_name_or_empty(world, npc_oid),
+            pos.x,
+            pos.y,
+            pos.z
+        ));
+        shown += 1;
+    }
+    let html = format!(
+        "<html><table width=\"100%\"><tr>\
+         <td width=45><button value=\"Main\" action=\"bypass admin_admin\" width=45 height=21 \
+         back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td>\
+         <td width=180><center><font color=\"LEVEL\">Spawns for {instance_id}</font></td>\
+         <td width=45><button value=\"Back\" action=\"bypass -h admin_current_player\" width=45 \
+         height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr></table><br>\
+         <table width=\"100%\"><tr><td width=200>NpcName</td><td width=70>Action</td></tr>\
+         {rows}<tr><td>Skipped:</td><td>{skipped}</td></tr></table></body></html>"
+    );
+    super::menu::send_admin_html_content(world, client_id, &html);
+}

@@ -8090,3 +8090,74 @@ rather than a grep that over-reports.
 unchanged), 4 on the multisell half, 4 on the birthday calendar and its
 delivery, 1 on the drop lists — plus a config test per file for the shipped
 values. Every mechanism sabotage-verified.
+
+---
+
+## Row 16: seven admin commands that needed no machinery
+
+The row said the 76 absent commands were what "needs machinery the port does
+not model" and named four. Re-deriving it — case-insensitively, because the XML
+spells some commands in camelCase while the dispatch arms are lower-cased —
+and then checking every survivor against Java's **own** handler registry found
+seven that needed nothing at all, two of them from the row's own list of four.
+
+### What landed
+
+`//config_server` + `//setconfig` are a live-rates panel and its setter. Java's
+`switch` has exactly three cases and no default, so any other parameter is
+announced as set and silently ignored, and the panel is re-shown in a `finally`
+whichever way it went. Both quirks ported as written.
+
+`//server_login` is `AdminLogin.showMainPage` — and the interesting part is
+that `data/html/admin/login.htm` ships in the datapack with buttons wired to
+`//server_gm_only`, `//server_all`, `//server_max_player` and `//kick_non_gm`,
+all of which were **already ported**. The page was a file nothing served: the
+same dead-button shape rows 7 and 8 closed. Java ends every `AdminLogin` branch
+with `showMainPage`, so the five status commands now redraw it, which is what
+makes it a panel; and because the page prints the status and max-player count
+last pushed over the link, `LoginState` remembers them the way Java's
+`LoginServerThread` does.
+
+`//instance_spawns` lists an instance's live NPCs (first 50, rest counted).
+Java's `instance >= 300000` guard is where *its* `InstanceManager` starts
+allocating ids; the port allocates from 1 and keeps 0 for the overworld, so the
+guard reads `> 0` here — it rejects "not an instance", it does not name a
+number.
+
+`//instancezone` and `//instancezone_clear` draw the per-character reuse page.
+The row called them blocked on a table that is permanently empty, and the table
+claim holds — LastImperialTomb's `<reenter>` block declares no `apply`, so its
+reenter type is `NONE` and `setReenterTime` never runs — but an always-empty
+list is still a page Java draws, and drawing it is 30 lines.
+
+`//skill_test <id>` plays a skill's animation. Java's version can only ever
+animate: it chooses between `MagicSkillUse` and `doCast` on
+`command.startsWith("admin_skill_test")` *inside the branch that already
+matched that prefix*, so the cast arm is unreachable. With no target it prints
+the usage line, because the null target throws into the surrounding `catch`.
+
+### What the remaining 69 are
+
+Almost half — **32** — are commands **no Java handler registers**: the siegable
+clan-hall block (9), territory war (5), `ge_*` (4), `tvt_*` (3), Hellbound (2),
+the Mammon merchants (2), `camera`, `pointpicking`, `set_vitality_level`, and
+four `banchat`-family entries that are *voiced* commands appearing in
+`AdminCommands.xml` only for their access level. None of them can be typed on
+the Java server either.
+
+The rest: 24 off-chronicle (fort sieges, elemental attributes, fences, Gracia),
+4 script-loader commands with no runtime loader to drive, 3 fight-calculator
+dev tools, 2 (`teleportto`/`recall`) that `AdminTeleport` registers **without**
+the `admin_` prefix so nothing can dispatch them, 1 (`set_mod`) that Java lists
+and then has no branch for, and 3 genuinely blocked on unported features —
+`fakechat` (FakePlayers, disabled here), `event_bypass` (Java routes it into a
+quest script; the port's events are not scripts) and `delete_group` (a live NPC
+here keeps no back-reference to the spawn group that placed it).
+
+That last one is the honest residue of the row: three commands, none
+player-facing, each waiting on a subsystem rather than on the command.
+
+5 tests, every mechanism sabotage-verified. One existing test had to move: it
+used `//instancezone` as its example of a declared-but-unimplemented command,
+and now needs one that is still absent **and** carries no `confirmDlg` — a
+confirm prompt is a `ConfirmDlg` packet, not the system message it counts.

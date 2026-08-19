@@ -262,3 +262,105 @@ fn kv_int(args: &[&str], key: &str) -> Option<i32> {
         }
     })
 }
+
+// ---------------------------------------------------------------------------
+// `AdminInstanceZone` — the per-character instance-reuse view
+// ---------------------------------------------------------------------------
+
+/// `//instancezone [playername]` — the reuse ("re-enter") times a character is
+/// holding, as a page with a Clear button per row. Falls back to the current
+/// **target** when no name is given, and to the GM themself when there is no
+/// target either.
+///
+/// **The list is always empty on this dist, in Java as much as here.** The one
+/// template with a `<reenter>` block (LastImperialTomb, 136) declares no
+/// `apply` attribute, so its reenter type is `NONE` and `Instance.setReenterTime`
+/// — which only fires for `ON_ENTER`/`ON_FINISH` — never runs. Nothing ever
+/// writes `character_instance_time`, which is why the port has no reuse store
+/// to read: the page renders the header and no rows, exactly as Java's does.
+pub(super) fn admin_instancezone(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let subject = match args.first() {
+        Some(name) if !name.trim().is_empty() => {
+            match super::find_online_player(world, name.trim()) {
+                Some(oid) => oid,
+                None => {
+                    send_message(
+                        world,
+                        client_id,
+                        &format!("The player {name} is not online"),
+                    );
+                    send_message(world, client_id, "Usage: //instancezone [playername]");
+                    return;
+                }
+            }
+        }
+        // No name: Java uses the target if it is a player, and otherwise falls
+        // through to `display(activeChar, activeChar)`.
+        _ => crate::game_loop::guard::player_target(world, object_id).unwrap_or(object_id),
+    };
+    display_instance_times(world, client_id, subject);
+}
+
+/// `//instancezone_clear <playername> <instanceId>` — drop one reuse entry.
+///
+/// With nothing ever stored (see [`admin_instancezone`]), the clear has no row
+/// to remove; what it still does is Java's messaging — the GM is told, the
+/// player is told, and the panel is redrawn — so the button on the (empty)
+/// page behaves the same way it would with a row under it.
+pub(super) fn admin_instancezone_clear(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let usage = "Usage: //instancezone_clear <playername> [instanceId]";
+    let (Some(name), Some(template_id)) = (args.first(), nth_arg::<i32>(args, 1)) else {
+        send_message(world, client_id, "Failed clearing instance time: ");
+        send_message(world, client_id, usage);
+        return;
+    };
+    // Java resolves the player first and throws (into the same message pair)
+    // when they are offline.
+    let Some(target) = super::find_online_player(world, name.trim()) else {
+        send_message(world, client_id, "Failed clearing instance time: ");
+        send_message(world, client_id, usage);
+        return;
+    };
+    let instance_name: String = world
+        .data
+        .instance_templates
+        .get(template_id)
+        .and_then(|t| t.name.clone())
+        .unwrap_or_default();
+    send_message(
+        world,
+        client_id,
+        &format!("Instance zone {instance_name} cleared for player {name}"),
+    );
+    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, target) {
+        send_message(
+            world,
+            cid,
+            &format!("Admin cleared instance zone {instance_name} for you"),
+        );
+    }
+    // "for refreshing instance window" — Java redraws the *GM's* own page.
+    display_instance_times(world, client_id, object_id);
+}
+
+/// `AdminInstanceZone.display` — the page itself.
+fn display_instance_times(world: &World, client_id: u32, subject: i32) {
+    let name = crate::game_loop::helpers::player_name_or_empty(world, subject);
+    let html = format!(
+        "<html><center><table width=260>\
+         <tr><td width=40><button value=\"Main\" action=\"bypass admin_admin\" width=40 height=21 \
+         back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td>\
+         <td width=180><center>Character Instances</center></td>\
+         <td width=40><button value=\"Back\" action=\"bypass -h admin_current_player\" width=40 \
+         height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr></table><br>\
+         <font color=\"LEVEL\">Instances for {name}</font><center><br>\
+         <table><tr><td width=150>Name</td><td width=50>Time</td><td width=70>Action</td></tr>\
+         </table></html>"
+    );
+    super::menu::send_admin_html_content(world, client_id, &html);
+}

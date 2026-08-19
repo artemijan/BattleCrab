@@ -204,7 +204,6 @@ same work. Closed rows move to [§ Closed](#closed).
 
 | # | Area | Gap | Evidence | Effect in game |
 |---|---|---|---|---|
-| 16 | Admin commands | **76** of 458 absent (case-insensitively), and the earlier "~10 against ported systems" was wrong — see below. What is left needs machinery the port does not model: `delete_group` (spawn-territory groups), `instance_spawns`, `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), and `instancezone`/`_clear` (whose table is permanently empty on this dist — see `user_commands::instance_zone`) | a diff of `AdminCommands.xml` against the port's dispatch, then each survivor against Java's own registered handlers | Four GM commands, none of them player-facing |
 | 18 | Skill census residue | 133 `<effect>` names, 60 `<condition>`, 8 `<targetType>` unhandled; 975 *reachable* skills lose an effect | `datapack_skill_coverage_census` | Listed for completeness: only **11 learnable** skills are affected and each is recorded out of scope above. This axis is the one that is under control |
 
 ### Closed
@@ -230,6 +229,7 @@ same work. Closed rows move to [§ Closed](#closed).
 | 20 | Item conditions | 2026-08-19 | `ItemTemplate.checkCondition` and the `<cond>` parser under it — the whole tree, all 24 condition kinds, both message forms, and the four call sites Java gates with it. See below |
 | 19 | Player level cap | 2026-08-19 | `ExperienceData`'s two `+ 1`s and the `MaximumPlayerLevel` clamp, `PlayerStat.setLevel`'s ceiling, and `AdminLevel`'s accept range. **The row's own figures were wrong on the Java side** — see below |
 | 14 | Config | 2026-08-19 | **59** keys still unread, and every one of them accounted for: dead in Java, off-chronicle, or blocked on an unported subsystem. The last live ones — `CorrectPrices`, the birthday trio and the two `PVP.ini` drop lists — landed with it. See below |
+| 16 | Admin commands | 2026-08-19 | **69** of 458 absent, every one of them classified — and the row's "what is left" list was wrong about four of the seven that were still portable. See below |
 
 **Row 16 mostly corrected itself.** The audit's original figure was 79 missing
 of 458 with "~10 against ported systems, so the G13 row's 'all off-chronicle'
@@ -985,6 +985,62 @@ arguments and answers with the same usage message Java sends after logging, so
 there is no exception to gate. Recorded in `config::general`'s header rather
 than given a field, following `config::character`'s convention.
 
+## Row 16 closed: seven more were portable, and the residue is 69
+
+The row recorded 76 absent and said what was left "needs machinery the port
+does not model", naming four commands. Re-deriving it and checking every
+survivor against Java's **own** handler registry found seven that needed no
+machinery at all — including two of the four the row named.
+
+Ported:
+
+* **`//config_server` + `//setconfig`** — the live-rates panel and its setter.
+  Java's `switch` has exactly three cases (`RateXp`, `RateSp`,
+  `RateDropSpoil`) and no default, so any other parameter is announced as set
+  and quietly ignored; the panel is re-shown in a `finally` whatever happened.
+  Both ported as written.
+* **`//server_login`** — `AdminLogin.showMainPage`, the Server Management Menu.
+  `data/html/admin/login.htm` ships in the datapack and its buttons drive
+  `//server_gm_only`, `//server_all`, `//server_max_player` and `//kick_non_gm`,
+  all of which were already ported: the page was a file nothing served. Java
+  ends **every** `AdminLogin` branch with `showMainPage`, so the five status
+  commands now redraw it too — which is what makes it a panel rather than a
+  page. It prints the status and max-player count last pushed over the link, so
+  `LoginState` remembers them the way Java's `LoginServerThread` does.
+* **`//instance_spawns <id>`** — the live NPCs of one instance, first 50 with a
+  "Go" link and the rest counted. Java guards on `instance >= 300000` because
+  that is where its `InstanceManager` starts allocating; the port allocates
+  from 1 and keeps 0 for the overworld, so the same guard reads `> 0` here.
+* **`//instancezone` + `//instancezone_clear`** — the per-character reuse page.
+  The row called these blocked on a table that is "permanently empty on this
+  dist", and the *table* claim is right for a reason worth restating: the one
+  template with a `<reenter>` block (LastImperialTomb) declares no `apply`
+  attribute, so its reenter type is `NONE` and `Instance.setReenterTime` — which
+  only fires for `ON_ENTER`/`ON_FINISH` — never runs. But an always-empty list
+  is still a page Java draws, and drawing it is 30 lines.
+* **`//skill_test <id>`** — play a skill's animation from the targeted creature
+  (or the GM) at the GM. Java's own version can only ever animate: it picks
+  between `MagicSkillUse` and `doCast` on `command.startsWith("admin_skill_test")`
+  *inside the branch that already matched that prefix*, so the cast arm is
+  unreachable. With no target it answers with the usage line, because the null
+  target throws into the surrounding `catch`.
+
+### The 69 that remain, by why
+
+| Why | # | Which |
+|---|---:|---|
+| No handler registers it **in Java** | 32 | `chsiege_*` (9, siegable clan halls), `territory_war*` (5), `ge_*` (4), `tvt_*` (3), `hellbound*` (2), `mammon_*` (2), `camera`, `pointpicking`, `set_vitality_level` — plus `banchat`/`chatban`/`unbanchat`/`chatunban`, which are **voiced** commands (`ChatAdmin`, an `IVoicedCommandHandler`) and appear in `AdminCommands.xml` only for their access level |
+| Off-chronicle content | 24 | fort sieges (9, `AdminFortSiege`), the elemental attribute setters (7, `AdminElement`), fences (5, `AdminFence`), Gracia seeds (3, `AdminGraciaSeeds`) |
+| Architecturally N/A | 4 | `quest_reload`, `script_load`, `script_unload`, `script_dir` — the port compiles its scripts in, so there is no runtime loader to drive |
+| Dev tooling with no game effect | 3 | `fight_calculator`, `fight_calculator_show`, `fcs` — a damage-simulator UI |
+| Unreachable by name | 2 | `teleportto` and `recall`, which `AdminTeleport` registers **without** the `admin_` prefix; every `//command` arrives prefixed, so nothing can dispatch them. Their prefixed twins are both ported |
+| Registered, no branch | 1 | `set_mod` — `AdminAdmin` lists it and `useAdminCommand` has no arm for it, so it silently does nothing in Java |
+| Blocked on an unported feature | 3 | `fakechat` (FakePlayers, disabled on this dist), `event_bypass` (Java routes it into an `Event` *quest script*; the port's events are not scripts), `delete_group` (a live NPC here carries no back-reference to the spawn group that placed it, so "is this a territory spawn?" cannot be asked) |
+
+32 + 24 + 4 + 3 + 2 + 1 + 3 = 69. The first row is the important one: **almost
+half the residue cannot be typed in Java either**, which is why the count was
+never a measure of missing behaviour.
+
 ## Row 14 closed, and two of its own classifications were wrong
 
 The row measured **65** unread keys and sorted them into buckets. Working the
@@ -1509,11 +1565,23 @@ grep -h -A4 '<cond' dist/game/data/stats/items/*.xml \
 # …and the same figures out of the *parser*, which is what
 # `the_dist_parses_to_the_blocks_the_datapack_declares` asserts.
 
-# row 16 — admin commands
+# row 16 — admin commands. **Case-insensitively**: the XML spells some
+# commands in camelCase (`admin_deleteNpcByObjectId`,
+# `admin_chsiege_addAttacker`) and the dispatch arms are lower-cased, so a
+# case-sensitive diff over-reports by one.
 grep -oE 'command="[a-zA-Z_0-9]+"' dist/game/config/AdminCommands.xml \
-  | sed 's/.*command="//;s/"//' | sort -u > /tmp/ja.txt
-grep -rhoE '"admin_[a-z_0-9]+"' crates/ --include='*.rs' | tr -d '"' | sort -u > /tmp/ra.txt
-comm -23 /tmp/ja.txt /tmp/ra.txt
+  | sed 's/.*command="//;s/"//' | tr 'A-Z' 'a-z' | sort -u > /tmp/ja.txt
+grep -rhoiE '"admin_[a-z_0-9]+"' crates/ --include='*.rs' \
+  | tr -d '"' | tr 'A-Z' 'a-z' | sort -u > /tmp/ra.txt
+comm -23 /tmp/ja.txt /tmp/ra.txt > /tmp/absent.txt
+
+# …then the half that decides what the number *means*: which of the survivors
+# any Java handler actually registers. Anything printing NONE cannot be typed
+# on the Java server either.
+cd ../interlude_classic/dist/game/data/scripts/handlers
+for c in $(cat /tmp/absent.txt); do
+  echo "$c -> $(grep -rli "\"$c\"" admincommandhandlers/ | head -1)"
+done
 
 # row 17 — buy-list product lines, by whether they declare a price and a stock
 grep -rhoE '<item [^>]*/>' dist/game/data/buylists/*.xml dist/game/data/buylists/custom/*.xml \

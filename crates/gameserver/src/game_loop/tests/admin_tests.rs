@@ -99,17 +99,15 @@ fn admin_unknown_vs_unimplemented() {
         "does-not-exist line"
     );
 
-    // In AdminCommands.xml (admin_instancezone, level 100) but no body yet (the
-    // per-player instance-reuse view is deferred with reuse-time tracking) →
-    // not-implemented path, does not crash.
+    // In AdminCommands.xml (admin_fakechat, level 100) but no body: it drives
+    // the FakePlayers subsystem, which this dist disables outright → the
+    // not-implemented path, which must answer rather than crash. (The command
+    // has to be one **without** `confirmDlg`, or the reply is a ConfirmDlg
+    // rather than a system message.)
     on_packet(
         &mut world,
         1,
-        [
-            vec![cop::SEND_BYPASS_BUILD_CMD],
-            build_cmd_body("instancezone"),
-        ]
-        .concat(),
+        [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("fakechat")].concat(),
     );
     assert_eq!(
         count_system_messages(&drain(&mut rx)),
@@ -7033,5 +7031,213 @@ fn zone_visual_takes_a_zone_id() {
     assert!(
         world.zone_debug_items.is_empty(),
         "an unknown id outlines nothing"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Row 16: the last commands that were absent against ported systems
+// ---------------------------------------------------------------------------
+
+/// `//config_server` draws the live rates, and `//setconfig` writes them back —
+/// the only three parameters Java's `switch` has cases for.
+#[test]
+fn admin_setconfig_edits_the_three_live_rates() {
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 7401, 100);
+    world.cfg.rates.rate_xp = 1.0;
+    world.cfg.rates.rate_sp = 1.0;
+    world.cfg.rates.spoil_drop_chance_multiplier = 1.0;
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, build_admin("config_server"));
+    let page = last_admin_html(&drain(&mut rx)).expect("config page");
+    assert!(page.contains("Config Server Panel"));
+    assert!(page.contains("Rate EXP</font> = 1"), "the value in force");
+    assert!(
+        page.contains("bypass -h admin_setconfig RateXp $param1"),
+        "each row posts back through //setconfig"
+    );
+
+    on_packet(&mut world, 1, build_admin("setconfig RateXp 3"));
+    assert_eq!(world.cfg.rates.rate_xp, 3.0, "the live rate moved");
+    let after = drain(&mut rx);
+    assert!(
+        last_admin_html(&after)
+            .expect("panel redrawn")
+            .contains("Rate EXP</font> = 3"),
+        "Java's `finally` re-shows the panel with the new value"
+    );
+
+    on_packet(&mut world, 1, build_admin("setconfig RateSp 2.5"));
+    on_packet(&mut world, 1, build_admin("setconfig RateDropSpoil 4"));
+    assert_eq!(world.cfg.rates.rate_sp, 2.5);
+    assert_eq!(world.cfg.rates.spoil_drop_chance_multiplier, 4.0);
+
+    // A parameter Java has no case for is announced and does nothing; a
+    // non-numeric value is the usage line.
+    drain(&mut rx);
+    on_packet(&mut world, 1, build_admin("setconfig RateDropItems 9"));
+    assert_eq!(world.cfg.rates.rate_xp, 3.0, "nothing else moved");
+    on_packet(&mut world, 1, build_admin("setconfig RateXp lots"));
+    assert_eq!(world.cfg.rates.rate_xp, 3.0, "not a number, not applied");
+}
+
+/// `//instance_spawns <id>` lists an instance's live NPCs with a Go link, caps
+/// the table at 50 rows and counts the rest as skipped.
+#[test]
+fn admin_instance_spawns_lists_the_instances_npcs() {
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 7402, 100);
+    drain(&mut rx);
+
+    // Not an instance id at all → Java's "Invalid instance number."
+    on_packet(&mut world, 1, build_admin("instance_spawns 0"));
+    assert!(
+        last_admin_html(&drain(&mut rx)).is_none(),
+        "no page for a rejected id"
+    );
+
+    let instance_id = world.instances.create(136);
+    {
+        // `add_test_npc`'s 4th argument is the *type* name; the listing prints
+        // the template's display name, so it is set here.
+        let mut t = crate::data::npc_data::default_template(20001);
+        t.name = "Imperial Guard".into();
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 20, 100, 0, 0);
+    world.instances.record_npc(instance_id, NPC_OID);
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!("instance_spawns {instance_id}")),
+    );
+    let page = last_admin_html(&drain(&mut rx)).expect("spawn page");
+    assert!(page.contains(&format!("Spawns for {instance_id}")));
+    assert!(page.contains("Imperial Guard"), "the live NPC is listed");
+    assert!(
+        page.contains("bypass -h admin_move_to"),
+        "with a Go link to its position"
+    );
+    assert!(page.contains("Skipped:</td><td>0"), "nothing was skipped");
+
+    // An id with no instance behind it.
+    drain(&mut rx);
+    on_packet(&mut world, 1, build_admin("instance_spawns 999"));
+    assert!(last_admin_html(&drain(&mut rx)).is_none());
+}
+
+/// `//instancezone` draws the per-character reuse page. The table is always
+/// empty here — no template on this dist ever writes a reuse time — so what
+/// this pins is the page, the subject resolution and the clear's messaging.
+#[test]
+fn admin_instancezone_draws_the_reuse_page_for_a_named_player() {
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 7403, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7404, 0);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, build_admin("instancezone P7404"));
+    let page = last_admin_html(&drain(&mut rx)).expect("instance page");
+    assert!(page.contains("Character Instances"));
+    assert!(
+        page.contains("Instances for P7404"),
+        "the named player is the subject, not the GM"
+    );
+
+    // Offline / unknown name: two lines and no page.
+    on_packet(&mut world, 1, build_admin("instancezone Nobody"));
+    let pkts = drain(&mut rx);
+    assert!(last_admin_html(&pkts).is_none());
+    assert_eq!(count_system_messages(&pkts), 2, "not-online + usage");
+
+    // The clear tells both sides and redraws the GM's page.
+    drain(&mut victim_rx);
+    on_packet(&mut world, 1, build_admin("instancezone_clear P7404 136"));
+    assert!(
+        count_system_messages(&drain(&mut victim_rx)) >= 1,
+        "the player is told their reuse was cleared"
+    );
+    assert!(
+        last_admin_html(&drain(&mut rx))
+            .expect("page redrawn")
+            .contains("Character Instances")
+    );
+}
+
+/// `//skill_test <id>` plays a skill animation from the target (or the GM)
+/// aimed at the GM. With no target it answers with the usage line, because
+/// Java's null target throws into the same `catch`.
+#[test]
+fn admin_skill_test_plays_the_animation_at_the_gm() {
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 7405, 100);
+    add_test_npc(&mut world, NPC_OID, 20002, "Monster", 20, 100, 0, 0);
+    // The animation needs a real skill to read `hitTime` off.
+    world.data.skill_data.insert_for_test(Skill {
+        id: 1177,
+        level: 1,
+        hit_time: 1500,
+        ..Skill::default()
+    });
+    drain(&mut rx);
+
+    // No target: the usage line, no packet.
+    on_packet(&mut world, 1, build_admin("skill_test 1177"));
+    let pkts = drain(&mut rx);
+    assert_eq!(count_system_messages(&pkts), 1, "usage line");
+    assert!(!has_opcode(&pkts, server_packets::opcodes::MAGIC_SKILL_USE));
+
+    world
+        .objects
+        .add_components(&7405, TargetRef(Some(NPC_OID)));
+    on_packet(&mut world, 1, build_admin("skill_test 1177"));
+    assert!(
+        has_opcode(&drain(&mut rx), server_packets::opcodes::MAGIC_SKILL_USE),
+        "the targeted NPC casts it at the GM"
+    );
+
+    // An unknown skill id is the usage line again, not a packet.
+    on_packet(&mut world, 1, build_admin("skill_test 999999"));
+    let pkts = drain(&mut rx);
+    assert!(!has_opcode(&pkts, server_packets::opcodes::MAGIC_SKILL_USE));
+    assert_eq!(count_system_messages(&pkts), 1);
+}
+
+/// `//server_login` serves the Server Management Menu — the page every other
+/// `//server_*` command is a button on, and which nothing served before.
+#[test]
+fn admin_server_login_draws_the_management_page() {
+    let (mut world, ..) = admin_world();
+    // The page is a datapack file (`data/html/admin/login.htm`), so the world
+    // needs the real root to read it.
+    world.data.root = crate::data::DIST_GAME.to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 7406, 100);
+    world.login.server_name = Some("Bartz".into());
+    world.login.max_players = 100;
+    world.cfg.server.server_list_type = 0x01 | 0x40; // Normal+Free
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, build_admin("server_login"));
+    let page = last_admin_html(&drain(&mut rx)).expect("login page");
+    assert!(page.contains("Server Management Menu"));
+    assert!(page.contains("Bartz"), "registered-as name");
+    assert!(page.contains("Auto"), "the status it starts on");
+    assert!(page.contains("Normal+Free"), "the type mask spelled out");
+    assert!(page.contains("100"), "max players");
+
+    // The status commands remember what they pushed and redraw the page with
+    // it — Java's `showMainPage` at the end of every branch.
+    on_packet(&mut world, 1, build_admin("server_gm_only"));
+    let page = last_admin_html(&drain(&mut rx)).expect("page redrawn");
+    assert!(page.contains("Gm Only"), "the pushed status is shown back");
+
+    on_packet(&mut world, 1, build_admin("server_max_player 42"));
+    assert_eq!(world.login.max_players, 42);
+    assert!(
+        last_admin_html(&drain(&mut rx))
+            .expect("page redrawn")
+            .contains("42")
     );
 }

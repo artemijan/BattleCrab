@@ -658,6 +658,19 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_showdoors" => admin_showdoors(world, client_id, object_id),
         "admin_debug" => admin_debug(world, client_id, object_id, &args),
         "admin_stats" => admin_stats(world, client_id),
+        // `AdminAdmin`'s live-rates panel and its setter.
+        "admin_config_server" => admin_config_server(world, client_id),
+        "admin_setconfig" => admin_setconfig(world, client_id, &args),
+        // `AdminTest`'s `//skill_test <id>` — play a skill's animation.
+        "admin_skill_test" => admin_skill_test(world, client_id, object_id, &args),
+        // `AdminLogin`'s Server Management Menu — the page the `//server_*`
+        // buttons sit on.
+        "admin_server_login" => admin_server_login(world, client_id),
+        // `AdminSpawn`'s per-instance NPC listing.
+        "admin_instance_spawns" => admin_instance_spawns(world, client_id, &args),
+        // `AdminInstanceZone` — the per-character reuse view and its clear.
+        "admin_instancezone" => admin_instancezone(world, client_id, object_id, &args),
+        "admin_instancezone_clear" => admin_instancezone_clear(world, client_id, object_id, &args),
         "admin_kick_non_gm" => admin_kick_non_gm(world, client_id),
         "admin_gmchat_menu" => show_admin_html(world, client_id, "gm_menu.htm"),
         // --- AdminMenu action buttons — delegate to the underlying handlers ---

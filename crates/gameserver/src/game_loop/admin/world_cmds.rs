@@ -587,6 +587,16 @@ pub(super) fn admin_server_status(world: &mut World, client_id: u32, cmd: &str, 
         }
         _ => return,
     };
+    // Java's `setServerStatus`/`setMaxPlayer` keep the pushed value on the
+    // `LoginServerThread`, which is where `//server_login`'s page reads it
+    // back from. Remember it here for the same reason.
+    for &(attr, value) in &attrs {
+        match attr {
+            status::SERVER_LIST_STATUS => world.login.server_status = value,
+            status::MAX_PLAYERS => world.login.max_players = value,
+            _ => {}
+        }
+    }
     let _ = world
         .login
         .link
@@ -596,4 +606,60 @@ pub(super) fn admin_server_status(world: &mut World, client_id: u32, cmd: &str, 
         client_id,
         "Server status updated on the login server.",
     );
+    // Every branch of `AdminLogin` ends with `showMainPage(activeChar)` — the
+    // page is the panel these buttons live on, so it redraws with the value
+    // that just changed.
+    admin_server_login(world, client_id);
+}
+
+/// `AdminLogin.showMainPage` — `//server_login`, the Server Management Menu.
+/// `data/html/admin/login.htm` is the page the five `//server_*` commands
+/// above are buttons on; without this it was a file nothing served.
+pub(super) fn admin_server_login(world: &World, client_id: u32) {
+    use crate::loginlink::status;
+    // `ServerStatus.STATUS_STRING[_status]`.
+    let status_name = match world.login.server_status {
+        status::STATUS_AUTO => "Auto",
+        1 => "Good",
+        2 => "Normal",
+        3 => "Full",
+        4 => "Down",
+        status::STATUS_GM_ONLY => "Gm Only",
+        _ => "",
+    };
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "login.htm",
+        &[
+            (
+                "server_name",
+                world.login.server_name.clone().unwrap_or_default(),
+            ),
+            ("status", status_name.to_string()),
+            ("clock", server_type_name(world.cfg.server.server_list_type)),
+            ("brackets", world.cfg.server.server_list_bracket.to_string()),
+            ("max_players", world.login.max_players.to_string()),
+        ],
+    );
+}
+
+/// `AdminLogin.getServerTypeName` — the `ServerListType` bitmask spelled out,
+/// `+`-joined in bit order.
+fn server_type_name(server_type: i32) -> String {
+    const NAMES: [(i32, &str); 7] = [
+        (0x01, "Normal"),
+        (0x02, "Relax"),
+        (0x04, "Test"),
+        (0x08, "NoLabel"),
+        (0x10, "Restricted"),
+        (0x20, "Event"),
+        (0x40, "Free"),
+    ];
+    NAMES
+        .iter()
+        .filter(|(bit, _)| server_type & bit != 0)
+        .map(|(_, name)| *name)
+        .collect::<Vec<_>>()
+        .join("+")
 }

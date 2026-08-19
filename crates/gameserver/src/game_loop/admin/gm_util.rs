@@ -960,3 +960,145 @@ pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
 pub(super) fn admin_switch_gm_buffs(world: &World, client_id: u32) {
     send_message(world, client_id, "There is nothing to switch.");
 }
+
+/// `AdminAdmin.showConfigPage` — `//config_server`, the three-row live-rates
+/// panel: each row prints the value in force and offers an edit box that posts
+/// back through `//setconfig`.
+///
+/// The page is assembled here rather than read from `data/html/admin` because
+/// Java assembles it too: the values are interpolated into the markup, so
+/// there is no file to read.
+pub(super) fn admin_config_server(world: &World, client_id: u32) {
+    let r = &world.cfg.rates;
+    let row = |label: &str, value: f64, var: &str, key: &str| {
+        format!(
+            "<tr><td><font color=\"LEVEL\">{label}</font> = {value}</td>\
+             <td><edit var=\"{var}\" width=40 height=15></td>\
+             <td><button value=\"Set\" action=\"bypass -h admin_setconfig {key} ${var}\" \
+             width=40 height=25 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr>"
+        )
+    };
+    let html = format!(
+        "<html><title>L2J :: Config</title><body>\
+         <center><table width=270><tr>\
+         <td width=60><button value=\"Main\" action=\"bypass admin_admin\" width=60 height=25 \
+         back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td>\
+         <td width=150>Config Server Panel</td>\
+         <td width=60><button value=\"Back\" action=\"bypass admin_admin4\" width=60 height=25 \
+         back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr></table></center><br>\
+         <center><table width=260><tr><td width=140></td><td width=40></td><td width=40></td></tr>\
+         <tr><td><font color=\"00AA00\">Drop:</font></td><td></td><td></td></tr>\
+         {}{}{}\
+         <tr><td width=140></td><td width=40></td><td width=40></td></tr>\
+         </table></body></html>",
+        row("Rate EXP", r.rate_xp, "param1", "RateXp"),
+        row("Rate SP", r.rate_sp, "param2", "RateSp"),
+        row(
+            "Rate Drop Spoil",
+            r.spoil_drop_chance_multiplier,
+            "param4",
+            "RateDropSpoil"
+        ),
+    );
+    super::menu::send_admin_html_content(world, client_id, &html);
+}
+
+/// `AdminAdmin`'s `//setconfig <parameter> <value>` — the setter behind the
+/// panel above, and **only** these three parameters: Java's `switch` has three
+/// cases and no default, so any other name is accepted, announced as set, and
+/// silently does nothing. Reproduced, because the panel is the only thing that
+/// posts here and it can only post these three.
+///
+/// Java validates with `Float.valueOf(pValue) == null`, which never fires (the
+/// method throws instead of returning null) — the `NumberFormatException`
+/// lands in the surrounding `catch` and prints the usage line. The port checks
+/// the parse directly, which is the same outcome by the shorter road.
+pub(super) fn admin_setconfig(world: &mut World, client_id: u32, args: &[&str]) {
+    let (Some(name), Some(raw)) = (args.first(), args.get(1)) else {
+        send_message(world, client_id, "Usage: //setconfig <parameter> <value>");
+        return;
+    };
+    let Ok(value) = raw.parse::<f64>() else {
+        send_message(world, client_id, "Usage: //setconfig <parameter> <value>");
+        return;
+    };
+    match *name {
+        "RateXp" => world.cfg.rates.rate_xp = value,
+        "RateSp" => world.cfg.rates.rate_sp = value,
+        "RateDropSpoil" => world.cfg.rates.spoil_drop_chance_multiplier = value,
+        // No default arm in Java either — the message goes out regardless.
+        _ => {}
+    }
+    send_message(
+        world,
+        client_id,
+        &format!("Config parameter {name} set to {raw}"),
+    );
+    // Java's `finally`: the panel is re-shown whatever happened.
+    admin_config_server(world, client_id);
+}
+
+/// `AdminTest`'s `//skill_test <id>` — play a skill's cast animation, from the
+/// **targeted** creature if there is one and from the GM otherwise, aimed at
+/// the GM either way. A builder's eyeball on what a skill looks like.
+///
+/// Two things about Java's version are ported as written:
+///
+/// * it only ever **animates**. The handler picks between `MagicSkillUse` and
+///   `doCast` on `command.startsWith("admin_skill_test")` — inside the branch
+///   that already matched that prefix — so the `doCast` arm is unreachable and
+///   the skill is never actually cast.
+/// * with **no target** it answers with the usage line: `activeChar.getTarget()`
+///   is null, `target.isCreature()` throws, and the surrounding `catch` prints
+///   `Command format is //skill_test <ID>`.
+pub(super) fn admin_skill_test(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let usage = "Command format is //skill_test <ID>";
+    let target = world
+        .objects
+        .get_component::<crate::model::components::TargetRef>(&object_id)
+        .and_then(|t| t.0);
+    let (Some(skill_id), Some(target_oid)) = (super::helpers::nth_arg::<i32>(args, 0), target)
+    else {
+        send_message(world, client_id, usage);
+        return;
+    };
+    // Java's `target.isCreature() ? target : activeChar` — a targeted *item*
+    // or door falls back to the GM as the animation's source.
+    let caster_oid = if super::helpers::is_playable(world, target_oid)
+        || crate::game_loop::combat::is_npc_oid(target_oid)
+    {
+        target_oid
+    } else {
+        object_id
+    };
+    let Some(skill) = super::helpers::skill_by_id(world, skill_id, 1) else {
+        send_message(world, client_id, usage);
+        return;
+    };
+    let (Some(caster_pos), Some(gm_pos)) = (
+        crate::game_loop::guard::maybe_position(world, caster_oid),
+        crate::game_loop::guard::maybe_position(world, object_id),
+    ) else {
+        return;
+    };
+    // `caster.setTarget(activeChar)` before the broadcast: the animation's
+    // source looks at the GM. `Creature.setTarget` is a plain assignment for
+    // an NPC and the broadcasting override for a player, so the GM-as-caster
+    // case goes through the player path.
+    if caster_oid == object_id {
+        crate::game_loop::target::set_target(world, client_id, object_id, Some(object_id));
+    } else {
+        world.objects.add_components(
+            &caster_oid,
+            crate::model::components::TargetRef(Some(object_id)),
+        );
+    }
+    let pkt = server_packets::magic_skill_use_raw(
+        (caster_oid, caster_pos.x, caster_pos.y, caster_pos.z),
+        (object_id, gm_pos.x, gm_pos.y, gm_pos.z),
+        skill_id,
+        1,
+        skill.hit_time,
+    );
+    crate::game_loop::helpers::broadcast_including_self(world, caster_oid, &pkt);
+}

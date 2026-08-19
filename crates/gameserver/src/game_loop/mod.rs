@@ -263,6 +263,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     world.path_cfg = path_cfg;
     world.geoedit_path = geoedit_path;
     world.cfg = cfg;
+    // Java seeds `LoginServerThread._maxPlayer` from `MaximumOnlineUsers` when
+    // the thread is built; `//server_login`'s page prints it back, and
+    // `//server_max_player` overwrites it.
+    world.login.max_players = world.cfg.server.maximum_online_users;
     // `Config.ALT_DEV_NO_QUESTS` — Java returns from
     // `ScriptEngineManager.executeScriptList()` before loading anything, so
     // despite the name it drops **every** script (AI and events included), not
