@@ -55,6 +55,7 @@ fn crit_stats_do_not_touch_a_normal_hit() {
         false,
         CritDamage::default(),
         false,
+        1.0,
         false,
         1.0,
         1.0,
@@ -68,6 +69,7 @@ fn crit_stats_do_not_touch_a_normal_hit() {
         false,
         huge,
         false,
+        1.0,
         false,
         1.0,
         1.0,
@@ -92,6 +94,7 @@ fn default_crit_damage_reproduces_the_old_hard_coded_double() {
         false,
         CritDamage::default(),
         false,
+        1.0,
         false,
         1.0,
         1.0,
@@ -105,6 +108,7 @@ fn default_crit_damage_reproduces_the_old_hard_coded_double() {
         true,
         CritDamage::default(),
         false,
+        1.0,
         false,
         1.0,
         1.0,
@@ -130,6 +134,7 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
         true,
         CritDamage { mul: 4.0, add: 0.0 },
         false,
+        1.0,
         false,
         1.0,
         1.0,
@@ -143,6 +148,7 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
         true,
         CritDamage::default(),
         false,
+        1.0,
         false,
         1.0,
         1.0,
@@ -165,6 +171,7 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
             add: 50.0,
         },
         false,
+        1.0,
         false,
         1.0,
         1.0,
@@ -188,6 +195,7 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
             add: 50.0,
         },
         true,
+        1.0,
         false,
         1.0,
         1.0,
@@ -512,7 +520,7 @@ fn a_blow_reads_the_crit_damage_stats() {
     use crate::model::formulas::BlowCritDamage;
 
     let blow = |cd: BlowCritDamage| {
-        formulas::calc_blow_damage(200.0, 80.0, 60.0, Position::Back, 1.0, false, cd)
+        formulas::calc_blow_damage(200.0, 80.0, 60.0, Position::Back, 1.0, false, 1.0, cd)
     };
     let base = blow(BlowCritDamage::default());
     assert!(base > 0.0);

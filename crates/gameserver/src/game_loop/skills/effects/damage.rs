@@ -803,6 +803,9 @@ pub(crate) fn physical_attack(
                 crit,
                 crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
                 ss,
+                // `Stat.SHOTS_BONUS` — the enchant-scaled shot multiplier
+                // (`ShotsBonusFinalizer`), read live off the attacker.
+                crate::game_loop::combat::shots_bonus_of(world, caster_oid),
                 ranged,
             ) * attribute_mod(world, caster_oid, target_oid, skill)
                 * skill_trait_mod(world, caster_oid, target_oid, skill, true)

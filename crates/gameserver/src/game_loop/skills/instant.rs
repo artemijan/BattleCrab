@@ -34,8 +34,9 @@ pub(super) struct CastCtx {
     pub bss: bool,
     /// The spiritshot damage multiplier those two flags resolve to: 1, 2 or 4.
     pub magic_shots_bonus: f64,
-    /// Stands in for Java `isMageClass()` in the heal static bonus.
-    pub caster_is_player: bool,
+    /// Which of `Heal.instant`'s three caster arms the effector answers to —
+    /// `isPlayer() && isMageClass()`, `isSummon()` or `isNpc()`.
+    pub heal_caster: formulas::HealCaster,
 }
 
 /// Java `Formulas.calcMagicDam` together with the multiplier tail every
@@ -444,6 +445,9 @@ pub(super) fn blow(
                 position,
                 formulas::random_damage_multiplier(rand_roll),
                 ss,
+                // `Stat.SHOTS_BONUS` — the enchant-scaled shot multiplier
+                // (`ShotsBonusFinalizer`), read live off the attacker.
+                crate::game_loop::combat::shots_bonus_of(world, caster_oid),
                 // `cdMult` and `cdPatk` — the crit-damage block a dagger
                 // scales with. Without them Death Whisper and its family did
                 // nothing to a blow while working on ordinary swings.
@@ -946,7 +950,7 @@ pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) 
         mcrit,
         sps,
         bss,
-        caster_is_player,
+        heal_caster,
         ..
     } = *ctx;
     let m_atk = effects::caster_m_atk(world, caster_oid);
@@ -957,7 +961,10 @@ pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) 
         sps,
         bss,
         skill.mp_consume,
-        caster_is_player,
+        heal_caster,
+        // `Stat.SHOTS_BONUS` scales the spiritshot branch's mAtk multiplier —
+        // an enchanted weapon heals for more (`ShotsBonusFinalizer`).
+        crate::game_loop::combat::shots_bonus_of(world, caster_oid),
     );
     // Java `Heal`: `amount *= effected.HEAL_EFFECT; amount +=
     // effected.HEAL_EFFECT_ADD` — the *recipient's* stats decide
@@ -1144,6 +1151,9 @@ pub(super) fn energy_attack(
                 crit,
                 crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
                 ss,
+                // `Stat.SHOTS_BONUS` — the enchant-scaled shot multiplier
+                // (`ShotsBonusFinalizer`), read live off the attacker.
+                crate::game_loop::combat::shots_bonus_of(world, caster_oid),
                 // Java's EnergyAttack has no ranged branch at all —
                 // its `weaponMod` is a flat 77.
                 false,

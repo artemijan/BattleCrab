@@ -177,7 +177,7 @@ each one, and sweeps them against the port's own functions over a grid of
 inputs (attack, defence, level mod, power, crit/shot/ranged/position). A
 divergence fails with the inputs that produced it.
 
-**Three passes so far have found ten divergences, all live:**
+**Four passes so far have found sixteen divergences, all live:**
 
 | What | Effect in game |
 |---|---|
@@ -191,6 +191,12 @@ divergence fails with the inputs that produced it.
 | `calcShldUse` hard-coded the attacker as **melee** | All four call sites passed `false` for `attacker.getAttackType().isRanged()`, so Java's `shldRate *= 1.3` never fired: a bow lost its 30 % block bonus against every shield in the game, on skills as well as swings |
 | `calcEffectAbnormalTime` was **not run at all** | A **Skill Mastery proc doubles a buff's duration** in Java — a second roll, wholly separate from the one that collapses the cooldown, and *not* gated to `operateType A1` the way that one is. Eva's Saint, Storm Screamer and eleven other 3rd classes learn Skill Mastery at 77; the port gave them the cooldown half only |
 | `calcEffectSuccess` was gated on **`isBad()`** | Java gates it on `activateRate != -1` alone. **Veil (106)** is `isDebuff` with no `<effectPoint>` at all, so an `isBad()` gate made it an unresistable mesmerize; **Greater Heal (1217)** and **Greater Group Heal (1219)** declare `activateRate 0` and no `lvlBonusRate`, so their `LIFE_FORCE_OTHERS` regeneration should ride along only ~30 % of the time when cast on someone else |
+| `calcEnchantedItemBonus` was **not ported at all** | Enchanting added **nothing** to P.Atk, M.Atk, P.Def or M.Def — three grade tables and the +3 cliff (`k·enchant + 2k·max(0, enchant−3)`) were simply absent. Java folds the bonus into the weapon base *before* STR and the level mod, so on a level-80 character a +6 S-grade two-hander is worth far more than the flat 72 the table names |
+| `ShotsBonusFinalizer` was **not ported**, and was recorded here as having *no carrier* | Its carrier is the **weapon's enchant level** (`1 + enchant·0.003`), not a skill — so it was live all along. `Stat.SHOTS_BONUS` multiplies every `ssmod`/`mAtkMul` in the game: auto-attacks, the six physical-skill handlers, `calcMagicDam`, `calcManaDam`, `Heal`, `HpCpHeal`. And because `Summon.getActingPlayer()` returns the owner, a servitor's shots ride its **master's** enchant |
+| `PEvasionRateFinalizer` had a floor it should not have | Java's `validateValue(…, Double.NEGATIVE_INFINITY, MAX_EVASION)` is a **ceiling only**; the port floored evasion at 0. 309 skills on this dist carry a `PhysicalEvasion` effect and the largest is −60, more than a low-level character's whole base — so the floor was handing back evasion a debuff had already taken |
+| `MEvasionRateFinalizer` had no ceiling | The magic twin runs through the *same* `validateValue` cap (250 here) and the port applied none, so a buffed caster's magic evasion ran past it |
+| `calcSkillMastery` rolled a **whole percent** | Java draws `Rnd.nextDouble() * 100`, a continuous value; `roll(100) < chance` rounds every fractional chance **up** — a 30.5 % mastery landed on 31 integers out of 100. Fractions are the normal case, since the chance is a base-stat *bonus* off a per-point curve times a rate multiplier |
+| `Heal.instant` collapsed three caster arms into one | Java asks `isPlayer() && isMageClass()`, then `isSummon()`, then `isNpc()`, and the arms differ in both `mAtkMul` and the static bonus. A **fighter** with a spiritshot should fall through to the grade arm and get no `mpConsume` bonus at all — the port handed it to every player. A **summon** takes the mage arm with **no shot charged**. And an **NPC** with plain spiritshots reaches `4 · shotsBonus` and pays `2.4 × mpConsume`, where the port gave 2 and nothing |
 
 Each is fixed, sabotage-verified, and pinned twice: once in the sweep and once
 in a game-level test (a bow hitting for double a sword, an elemental buff
@@ -205,10 +211,19 @@ call. A sweep proves a function; it says nothing about whether anyone runs it,
 or with what. Reading the Java *call site* alongside the formula is what turned
 those up, and it is what the next pass should keep doing.
 
-Three narrowings are recorded as fixed inputs rather than tolerances, because
-nothing on this dist can carry them: `SHOTS_BONUS` (no carrier),
+**The fourth pass's lesson is about this document.** `SHOTS_BONUS` was written
+down below, after the first pass, as one of three terms "nothing on this dist can
+carry". Two of the three were right. This one was not — `ShotsBonusFinalizer`
+reads the equipped weapon's **enchant level**, so every geared character carries
+it — and the note had frozen a wrong reading into the record where it looked
+settled, which is worse than not having looked. A narrowing is a claim like any
+other: it needs the same "which datapack rows could move this?" check the
+findings get, and it should name the *carrier it looked for* rather than only
+concluding there is none.
+
+Two narrowings survive that re-check and are recorded as fixed inputs:
 `AUTO_ATTACK_DAMAGE_BONUS` (its only skill is in the 30500 range) and blessed
-soulshots (post-Interlude).
+soulshots (post-Interlude). The third, `SHOTS_BONUS`, is now a swept input.
 
 **One lesson is worth more than the findings.** The first draft of the
 attribute-bonus transcription was written from memory as a linear band, and the
@@ -232,15 +247,35 @@ the 15 skills that override them are all id ≥ 11537 and none learnable — so
 neither learnable nor on any NPC's skill list, and the port's "Cancel" family is
 `DispelByCategory`, a different formula.
 
+**The fourth pass's own narrowings**, each named with the carrier that was
+looked for: `Config.SKILL_MASTERY_CHANCE_MULTIPLIERS` (the dist leaves the table
+unpopulated, so it defaults to `1f` per class); `calcEnchantBodyPart` (gated on
+`getCrystalTypePlus() == R` and nothing here is R-grade — which is also why
+`blessedBonus` never leaves 1.0, since only the R arms of the three enchant
+tables read it); `Stat.defaultValue`'s `getMoveTypeValue` term (written only by
+`StatByMoveType`, which *is* ported — Acrobatic Move 225 among four learnable
+carriers, so this one is modelled rather than narrowed away); `STAT_BONUS_SPEED`,
+`SPEED_LIMIT`, `ADD_MAX_PHYSICAL_CRITICAL_RATE` and
+`ADD_MAX_MAGIC_CRITICAL_RATE` (zero `stat="…"` rows across the whole datapack);
+the Olympiad enchant limits (`-1`, which Java reads as no limit); and
+`getActiveRubyJewel`/`getActiveShappireJewel` in `ShotsBonusFinalizer` and
+`calcManaDam` (brooch jewels, post-Interlude).
+
 **Covered:** `calcAutoAttackDamage`, `PhysicalAttack.instant`, `calcMagicDam`,
 `calcBlowDamage`, `calcManaDam`, `Heal.instant`, `calcAttributeBonus`,
 `calcAtkSpd`, `calculateTimeBetweenAttacks`, `calcSkillTimeFactor`,
 `calcShldUse`, `calcEffectSuccess`, `calcMagicSuccess`,
-`calculateSkillResurrectRestorePercent`, `calcEffectAbnormalTime` — fourteen
-sweeps, ~130 000 cases. **Not yet:** the stat finalizers themselves, and
-`calcSkillMastery`'s own chance (a `Rnd.nextDouble()` shape the port rounds to
-`roll(100)`) — each is a sweep of the same shape, and the file is laid out for
-adding them.
+`calculateSkillResurrectRestorePercent`, `calcEffectAbnormalTime`,
+`calcEnchantedItemBonus`'s three tables and `ShotsBonusFinalizer` — sixteen
+sweeps, ~180 000 cases, with `SHOTS_BONUS` now a **swept input** on all six
+damage/heal grids rather than a hard-coded 1.
+
+**Not yet.** All 28 finalizers under `model/stats/finalizers/` were read against
+the port side-by-side this pass and the six findings above are what that turned
+up, but only the two enchant families are *swept*: `Stat.defaultValue` and the
+`P/MDefence` (mul ≥ 0.5, result ≥ base·0.2) and `P/MAttackSpeed` (mul ≥ 0.7)
+overrides are private to `model` and covered by unit tests there rather than by a
+cross-crate sweep.
 
 ---
 

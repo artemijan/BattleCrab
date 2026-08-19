@@ -318,6 +318,9 @@ pub fn npc_combat_stats(
         accuracy,
         magic_evasion: 0,
         magic_accuracy: 0,
+        // `ShotsBonusFinalizer` bails on a null `getActingPlayer()`, which is
+        // every plain NPC — a flat 1, i.e. no increment.
+        shots_bonus_add: 0.0,
         atk_range: t.base_atk_range,
         random_dmg: t.base_rnd_dam,
     }

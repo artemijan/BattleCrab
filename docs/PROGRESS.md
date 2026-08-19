@@ -8469,13 +8469,147 @@ perfect formula. Reading the Java *call site* — `Skill.applyEffects`,
 what turned them up.
 
 One unrelated flake fell out of the full-suite runs: the elemental-swing test
-from the first pass set accuracy to 10 000 and called that a certain hit, but
-`calcHitMiss` clamps its chance to **980/1000** — a 2 % miss floor no stat can
-buy past, so the test failed roughly one run in twenty-five. It now swings until
-one lands, which changes nothing else: with no crit and no spread every landed
-swing deals the identical amount.
+from the first pass measured a **single** swing per sample, and about one run in
+twenty-five a crit landed in one of the two samples and moved the ratio by the
+crit multiplier — which dwarfs the 5 % the elemental term is worth. (`calcHitMiss`
+also clamps its chance to 980/1000, so 2 % of swings miss whatever the accuracy
+reads.) It now takes the **smallest landed** damage over 40 swings: with the
+spread off every plain swing deals exactly the same amount, a crit deals strictly
+more, and a miss deals nothing and is skipped.
 
 Fourteen sweeps, ~130 000 cases. Three findings, each sabotage-verified in both
 directions and pinned by a game-level test: a bow turning a losing shield roll
 into a block, a mastery proc turning 1200 s into 2400 s, and Veil resisting at
 all.
+
+---
+
+## Formula parity, fourth pass: the stat finalizers, and a narrowing that was wrong
+
+All 28 classes under `model/stats/finalizers/` read side-by-side against the
+port. Four findings — and the largest of them was hiding behind a line *this
+repo had written down as settled*.
+
+### Enchanting did nothing
+
+`IStatFunction.calcEnchantedItemBonus` was **not ported at all**. Three grade
+tables — `calcEnchantedPAtkBonus`, `calcEnchantMatkBonus`, `calcEnchantDefBonus`
+— feed `PAttackFinalizer`, `MAttackFinalizer`, `PDefenseFinalizer` and
+`MDefenseFinalizer`, and none of them existed here. A +16 weapon hit for exactly
+what a +0 one did.
+
+All three share one shape, `k·enchant + 2k·max(0, enchant − 3)`: the first three
+levels pay `k`, every level past +3 pays three times that. It is why +4 is the
+wall retail players talk about. The weapon table then splits each grade three
+ways on `(bodyPart == SLOT_LR_HAND) && (itemType != POLE)` — "two-handed, but a
+polearm doesn't count", so a polearm occupying the two-handed slot is paid as a
+one-hander — and again on ranged. The defence table, by contrast, is
+**grade-independent** for every grade Interlude ships: a +4 D-grade helmet gains
+what a +4 S-grade one does.
+
+Java adds the bonus to the weapon base *before* STR and the level mod, which is
+why the game-level test asserts the **ratio** against the unenchanted swing
+rather than an absolute number: the multipliers cancel and the table is what is
+left.
+
+One quirk is transcribed rather than tidied. A **hair accessory** counts for both
+defences whether or not it declares one — Java's own comment there says the
+client shows pDef while the scroll promises mDef, and it settles the
+disagreement by paying both.
+
+### The narrowing that was wrong
+
+`Stat.SHOTS_BONUS` was recorded in `PORTING_STATUS.md` after the *first* parity
+pass as one of three terms "nothing on this dist can carry", and both sides had
+a hard-coded 1.0 — so the sweep agreed, every pass, for three passes.
+
+Its carrier is not a skill. `ShotsBonusFinalizer` reads the **equipped weapon's
+enchant level**: `1 + enchant·0.003`. Every geared character carries it, and it
+multiplies *every* shot term in the game — `ssmod` in the auto-attack and the six
+physical-skill handlers, `mAtkMul` in `calcMagicDam`, `calcManaDam`, `Heal` and
+`HpCpHeal`. A +10 weapon is worth 3 % on top of the flat ×2.
+
+Threading it through turned up a branch the port had collapsed: `Heal`'s
+`mAtkMul` reaches 2 by two different roads — `2 · shotsBonus` on the
+mage-with-spiritshots branch, and `gradeBonus + 1` (grade 1 on this chronicle) on
+the plain one. Identical while `shotsBonus` is 1; not identical once it isn't.
+The second pass had noted that coincidence approvingly. It was load-bearing.
+
+The finalizer resolves through `getActingPlayer()`, and `Summon.getActingPlayer()`
+returns the **owner** — so a servitor's soulshots ride its master's weapon
+enchant, and follow the master swapping weapons with no recompute on the summon.
+That is why `shots_bonus_of` is a live lookup rather than a stored field.
+
+### Evasion had the wrong bound at both ends
+
+`PEvasionRateFinalizer` ends on
+`validateValue(creature, …, Double.NEGATIVE_INFINITY, Config.MAX_EVASION)` — a
+**ceiling with no floor**. The port clamped at 0. 309 skills on this dist carry a
+`PhysicalEvasion` effect and the largest is −60, more than a low-level
+character's entire base, so the floor was quietly handing back evasion a debuff
+had already taken. And `MEvasionRateFinalizer` runs through the *same* ceiling,
+which the port applied to the physical stat only.
+
+### What the survey ruled out, and how
+
+Seven terms were checked and narrowed with the carrier named, not just the
+conclusion: `SKILL_MASTERY_CHANCE_MULTIPLIERS` (table unpopulated → `1f`),
+`calcEnchantBodyPart` (gated on `getCrystalTypePlus() == R`, and nothing here is
+R-grade — which is also why `blessedBonus` never leaves 1.0), `STAT_BONUS_SPEED`,
+`SPEED_LIMIT`, `ADD_MAX_PHYSICAL_CRITICAL_RATE`, `ADD_MAX_MAGIC_CRITICAL_RATE`
+(zero `stat="…"` rows datapack-wide) and the Olympiad enchant limits (`-1` = no
+limit).
+
+One near-miss is worth recording. `Stat.defaultValue`'s third term,
+`getMoveTypeValue(stat, moveType)`, looked dead — `mergeMoveTypeValue` has no
+caller anywhere under `java/`. Its only caller is `StatByMoveType`, which lives
+under `dist/game/data/scripts/`, and Acrobatic Move (225) uses it to grant
+evasion while running. The port already models it. The lesson is the same one as
+`SHOTS_BONUS`, one level down: a grep that finds nothing has to be a grep over
+the right tree.
+
+### Two more, closed straight after
+
+Both items this pass left open turned out to be worth more than their size
+suggested.
+
+**`calcSkillMastery` was rolling a whole percent.** Java draws
+`Rnd.nextDouble() * 100`, a continuous value; `roll(100) < chance` has no
+integer strictly between 30 and 31, so a 30.5 % mastery landed on 31 draws in
+100. Fractions are not the exception here — the chance is a base-stat *bonus*
+off a per-point curve, times a rate multiplier, so almost every real value has
+one. `World::roll_f64` already existed for exactly this (it quantizes by 1e-6 so
+`force_roll` still works), and the fix is one line. The two existing mastery
+tests had to move to the new forced-roll scale, where a forced `v` now reads as
+`v / 10_000` percent — and the one that derives its roll from the midpoint of two
+real stat-bonus chances got to keep the fraction its `as i32` had been throwing
+away.
+
+**`Heal.instant` had three caster arms collapsed into one.** Java asks
+`isPlayer() && isMageClass()`, then `isSummon()`, then `isNpc()`, and the arms
+disagree about *both* the mAtk multiplier and the static bonus. Fixing the NPC
+arm meant modelling the choice properly, which surfaced two more:
+
+- a **fighter** with a spiritshot charged falls through to the grade arm and gets
+  no `mpConsume` bonus at all — the port had stood `isPlayer()` in for the class
+  test and handed it to everyone;
+- a **summon** takes the mage arm with **no shot charged**, the only arm that
+  fires without one;
+- an **NPC** with *plain* spiritshots reaches `4 · shotsBonus` and pays
+  `2.4 × mpConsume` — Java's comment there calls it "always blessed
+  spiritshots".
+
+The class test needed a real `isMageClass()`. `ClassId._isMage` is a hard-coded
+enum flag with no datapack equivalent — but `CategoryData.xml`'s `MAGE_GROUP`
+turns out to match it **exactly** for every id ≤ 142; the two sets differ only at
+143, 145, 146 vs 171, 174, 175, all Ertheia and awakened classes no character
+here can hold. So the proxy is exact rather than close, and the test loads the
+real `CategoryData.xml` to say so.
+
+Sixteen sweeps, ~180 000 cases, `SHOTS_BONUS` a swept input on all six damage and
+heal grids and the heal grid now driving all four caster kinds. Each finding
+sabotage-verified in both directions and pinned by a game-level test: a +6
+S-grade two-hander's P.Atk ratio landing on `(500 + 72) / 500`, a servitor
+reading its owner's +10 weapon, evasion sinking below zero and stopping at 250, a
+30.4 % draw beating a 30.5 % chance, and a cleric's spiritshot heal beating a
+warrior's by exactly the skill's `mpConsume`.

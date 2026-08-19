@@ -291,6 +291,7 @@ fn melee_kill_rewards_and_decay() {
         false,
         formulas::CritDamage::default(),
         false,
+        1.0,
         false,
         1.0,
         1.0,

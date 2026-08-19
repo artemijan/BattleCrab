@@ -251,10 +251,11 @@ fn an_elemental_buff_reaches_plain_auto_attacks() {
                 .objects
                 .get_component_mut::<CombatStats>(&ATTACKER)
                 .expect("stats");
-            // No crit, no spread — the elemental term is the only thing allowed
-            // to move between the two runs. Accuracy cannot buy a *certain* hit:
-            // `calcHitMiss` clamps its chance to 980/1000, so 2 % of swings miss
-            // however the stats read. The swing loop below absorbs that.
+            // No spread, and the crit rate zeroed — but neither can be relied
+            // on to survive: `calcHitMiss` clamps its chance to 980/1000, so
+            // 2 % of swings miss whatever the accuracy reads, and any stat
+            // recompute in between restores the class crit rate. The sampling
+            // below is built to survive both.
             p.crit_hit = 0.0;
             p.accuracy = 10_000;
             p.random_dmg = 0;
@@ -276,9 +277,14 @@ fn an_elemental_buff_reaches_plain_auto_attacks() {
             v.max_hp = 1_000_000;
             v.cur_hp = 1_000_000.0;
         }
-        // Swing until one lands. With no crit and no spread every *landed*
-        // swing deals the identical amount, so this changes nothing but the
-        // 2 % miss floor — and 40 tries reduce an all-miss run to 1e-28.
+        // The **smallest landed** swing over 40, which is the ordinary
+        // non-crit hit: with the spread off, every plain swing deals exactly
+        // the same amount, a crit deals strictly more, and a miss deals
+        // nothing and is skipped. Taking the first landed swing instead made
+        // this test fail about one run in fifty — a single crit slipping into
+        // one of the two samples moved the ratio by the crit multiplier, which
+        // dwarfs the 5 % the elemental term is worth.
+        let mut smallest = f64::MAX;
         for _ in 0..40 {
             let before = world
                 .objects
@@ -294,10 +300,10 @@ fn an_elemental_buff_reaches_plain_auto_attacks() {
                     .expect("target")
                     .cur_hp;
             if dealt > 0.0 {
-                return dealt;
+                smallest = smallest.min(dealt);
             }
         }
-        0.0
+        if smallest == f64::MAX { 0.0 } else { smallest }
     }
 
     let plain = damage_of(false);

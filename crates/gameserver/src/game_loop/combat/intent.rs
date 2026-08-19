@@ -221,6 +221,9 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
         // A door swing never crits, so the crit stats are never read.
         formulas::CritDamage::default(),
         false,
+        // No shot is spent on a door, so `SHOTS_BONUS` never multiplies
+        // anything — Java's `ssBonus` is a flat 1 on the `ss == false` arm.
+        1.0,
         // Doors are hit with whatever is in hand; the weapon mod still
         // applies, so a bow batters a gate on 154 like it does anything else.
         crate::game_loop::ranged::is_ranged(

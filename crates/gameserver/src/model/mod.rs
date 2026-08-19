@@ -12,6 +12,7 @@ pub mod command_channel;
 pub mod components;
 pub mod cursed_weapon;
 pub mod door;
+pub mod enchant_bonus;
 pub mod event;
 pub mod formulas;
 pub mod grand_boss;
@@ -1021,7 +1022,6 @@ impl PlayerData {
 ///     base) — `calcWeaponBaseValue`, the equipped weapon only;
 ///   * **sum-add** contributions (0.0 when nothing equipped adds them) —
 ///     summed across every equipped piece.
-#[derive(Default)]
 struct EquippedBonuses {
     weapon_p_atk: Option<f64>,
     weapon_m_atk: Option<f64>,
@@ -1042,6 +1042,45 @@ struct EquippedBonuses {
     /// `PDefenseFinalizer`/`MDefenseFinalizer`.
     p_def_slot_sub: f64,
     m_def_slot_sub: f64,
+    /// `calcEnchantedItemBonus` per stat — the extra attack/defence an
+    /// **enchanted** piece contributes on top of its own declared value. Java
+    /// folds each into its finalizer *before* the stat bonus and level mod, so
+    /// they are carried separately rather than merged into `p_def`/`weapon_p_atk`.
+    enchant_p_atk: f64,
+    enchant_m_atk: f64,
+    enchant_p_def: f64,
+    enchant_m_def: f64,
+    /// `ShotsBonusFinalizer` — `1 + enchantLevel·0.003` off the equipped weapon.
+    shots_bonus: f64,
+}
+
+/// Hand-written rather than derived: `shots_bonus`'s identity is **1**, and a
+/// derived `0.0` would silently delete every soulshot's damage bonus.
+impl Default for EquippedBonuses {
+    fn default() -> Self {
+        Self {
+            weapon_p_atk: None,
+            weapon_m_atk: None,
+            weapon_p_atk_spd: None,
+            weapon_crit: None,
+            weapon_m_crit: None,
+            weapon_atk_range: None,
+            weapon_random_dmg: None,
+            p_def: 0.0,
+            m_def: 0.0,
+            accuracy: 0.0,
+            magic_accuracy: 0.0,
+            evasion: 0.0,
+            magic_evasion: 0.0,
+            p_def_slot_sub: 0.0,
+            m_def_slot_sub: 0.0,
+            enchant_p_atk: 0.0,
+            enchant_m_atk: 0.0,
+            enchant_p_def: 0.0,
+            enchant_m_def: 0.0,
+            shots_bonus: 1.0,
+        }
+    }
 }
 
 impl EquippedBonuses {
@@ -1084,6 +1123,57 @@ impl EquippedBonuses {
         ] {
             if occupied(slot) {
                 eq.m_def_slot_sub += t.base_def_by_slot(slot as usize) as f64;
+            }
+        }
+
+        // `ShotsBonusFinalizer`: `1 + enchantLevel·0.003`, read off the active
+        // weapon instance. Java's `getActiveWeaponInstance()` is the right hand.
+        if let Some(weapon) = inventory.paperdoll_item(PaperdollSlot::RHand) {
+            eq.shots_bonus = crate::model::enchant_bonus::shots_bonus(weapon.enchant_level);
+        }
+
+        // `calcEnchantedItemBonus`, run once over the paperdoll instead of once
+        // per finalizer: Java calls it from `PAttackFinalizer`,
+        // `MAttackFinalizer`, `PDefenseFinalizer` and `MDefenseFinalizer`, each
+        // asking about its own stat, and the per-item gate differs by stat only
+        // through `enchant_bonus_applies`.
+        for item in inventory
+            .equipped_items()
+            .into_iter()
+            .filter(|i| i.enchant_level > 0)
+        {
+            let Some(tpl) = data.item_data.get(item.item_id) else {
+                continue;
+            };
+            let declares = |stat: Stat| {
+                data.item_data
+                    .item_stats(item.item_id)
+                    .is_some_and(|st| st.bonuses.iter().any(|&(s, v)| s == stat && v > 0.0))
+            };
+            let body_part = tpl.body_part;
+            use crate::model::enchant_bonus::{
+                enchant_bonus_applies, enchant_def_bonus, enchant_m_atk_bonus, enchant_p_atk_bonus,
+            };
+            // `stat == PHYSICAL_ATTACK && equippedItem.isWeapon()` — the extra
+            // weapon test Java applies only on this arm.
+            if tpl.kind == crate::data::item_data::ItemKind::Weapon
+                && enchant_bonus_applies(body_part, declares(Stat::PhysicalAttack), false)
+            {
+                eq.enchant_p_atk += enchant_p_atk_bonus(
+                    tpl.crystal_type,
+                    body_part,
+                    data.item_data.weapon_type(item.item_id),
+                    item.enchant_level,
+                );
+            }
+            if enchant_bonus_applies(body_part, declares(Stat::MagicalAttack), false) {
+                eq.enchant_m_atk += enchant_m_atk_bonus(tpl.crystal_type, item.enchant_level);
+            }
+            if enchant_bonus_applies(body_part, declares(Stat::PhysicalDefence), true) {
+                eq.enchant_p_def += enchant_def_bonus(tpl.crystal_type, item.enchant_level);
+            }
+            if enchant_bonus_applies(body_part, declares(Stat::MagicalDefence), true) {
+                eq.enchant_m_def += enchant_def_bonus(tpl.crystal_type, item.enchant_level);
             }
         }
 
@@ -1667,23 +1757,27 @@ impl Player {
         // the ceiling for creatures with the MAX_STATS_VALUE cond override —
         // granted to GMs on login (Player.restore). Floors still apply.
         let cap = |max: f64| if self.is_gm(data) { f64::MAX } else { max };
+        // Java adds `calcEnchantedItemBonus` to the weapon base *before* the
+        // stat bonus and level mod, so an enchant on a level-80 character is
+        // worth far more than the flat table suggests.
         combat.p_atk = finalize(
             mods,
             Stat::PhysicalAttack,
-            p_atk_base * str_bonus * level_mod,
+            (p_atk_base + eq.enchant_p_atk) * str_bonus * level_mod,
         )
         .clamp(0.0, cap(caps.max_p_atk));
         combat.m_atk = finalize(
             mods,
             Stat::MagicalAttack,
-            m_atk_base * (int_bonus * level_mod).powf(2.2072),
+            (m_atk_base + eq.enchant_m_atk) * (int_bonus * level_mod).powf(2.2072),
         )
         .clamp(0.0, cap(caps.max_m_atk));
 
         // P/MDefenseFinalizer: (naked base + summed gear def − the naked defense
         // of every occupied slot) × levelMod (mDef also × MEN bonus), then the
         // `defaultValue` mul(≥0.5)/add and the `base × 0.2` floor.
-        let p_def_pre = (t.base_p_def as f64 + eq.p_def - eq.p_def_slot_sub) * level_mod;
+        let p_def_pre =
+            (t.base_p_def as f64 + eq.enchant_p_def + eq.p_def - eq.p_def_slot_sub) * level_mod;
         combat.p_def = finalize_def(
             mods,
             Stat::PhysicalDefence,
@@ -1695,8 +1789,9 @@ impl Player {
         } else {
             1.0
         };
-        let m_def_pre =
-            (t.base_m_def as f64 + eq.m_def - eq.m_def_slot_sub) * men_bonus * level_mod;
+        let m_def_pre = (t.base_m_def as f64 + eq.enchant_m_def + eq.m_def - eq.m_def_slot_sub)
+            * men_bonus
+            * level_mod;
         combat.m_def = finalize_def(
             mods,
             Stat::MagicalDefence,
@@ -1783,17 +1878,26 @@ impl Player {
             Stat::AccuracyMagic,
             (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_accuracy,
         ) as i32;
+        // `PEvasionRateFinalizer` ends on `validateValue(…, Double.NEGATIVE_INFINITY,
+        // MAX_EVASION)` — a **ceiling only**. Evasion is allowed to go negative,
+        // and 309 skills on this dist carry a `PhysicalEvasion` effect reaching
+        // −60, which is more than a low-level character's whole base; flooring
+        // it at 0 would hand them evasion they should not have.
         combat.evasion = finalize(
             mods,
             Stat::EvasionRate,
             (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.evasion,
         )
-        .clamp(0.0, cap(caps.max_evasion)) as i32;
+        .min(cap(caps.max_evasion)) as i32;
+        // `MEvasionRateFinalizer` runs the **same** `validateValue` ceiling as its
+        // physical twin — `MAX_EVASION` (250 here), which a level-80 caster's
+        // `sqrt(WIT)·3 + level·2` base can pass once buffs pile on.
         combat.magic_evasion = finalize(
             mods,
             Stat::MagicEvasionRate,
             (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_evasion,
-        ) as i32;
+        )
+        .min(cap(caps.max_evasion)) as i32;
 
         // Weapon range / damage spread replace the class template constants
         // while a weapon is equipped (`PRangeFinalizer` / `RandomDamageFinalizer`).
@@ -1819,6 +1923,10 @@ impl Player {
             eq.weapon_random_dmg.map(|d| d as f64),
             10.0,
         ) as i32;
+        // `ShotsBonusFinalizer`. Nothing on this dist declares a `shotBonus`
+        // stat modifier, so `Stat.defaultValue`'s mul/add pair is the identity
+        // and the weapon enchant is the whole of it.
+        combat.shots_bonus_add = eq.shots_bonus - 1.0;
 
         // SpeedFinalizer: every player speed stat gets `Config.RUN_SPD_BOOST`
         // added in `getBaseSpeed` (35 on this dist — see `CombatCaps`).
@@ -2258,6 +2366,9 @@ pub(crate) fn npc_finalized_stats(
         // Range / random-damage aren't buffable here — keep the template values.
         atk_range: base.atk_range,
         random_dmg: base.random_dmg,
+        // Buffs cannot move it: no skill on this dist declares a `shotBonus`
+        // modifier, so an NPC's stays at the template's flat 1.
+        shots_bonus_add: base.shots_bonus_add,
     };
     let speeds = Speeds {
         // No `RUN_SPD_BOOST` for NPCs (that's a player-only base add).

@@ -23,7 +23,16 @@ fn heal_on_other_restores_hp_with_formula() {
 
     advance_ticks(&mut world, 10); // hit 500 ms + cancel 500 ms
 
-    let heal = formulas::calc_heal(83.0, pcs(&world, 3001).m_atk, false, false, false, 0, false);
+    let heal = formulas::calc_heal(
+        83.0,
+        pcs(&world, 3001).m_atk,
+        false,
+        false,
+        false,
+        0,
+        formulas::HealCaster::PlayerMage,
+        1.0,
+    );
     assert!(
         heal > 50.0,
         "sanity: heal ({heal}) overflows the missing 50 HP"
@@ -509,6 +518,229 @@ fn equipping_gear_updates_combat_stats() {
         base_p_atk,
         "unequipping the weapon restores naked P.Atk"
     );
+}
+
+/// `P/MEvasionRateFinalizer` end on
+/// `validateValue(creature, …, Double.NEGATIVE_INFINITY, Config.MAX_EVASION)` —
+/// a **ceiling with no floor**.
+///
+/// Both halves matter here. Evasion may go **negative**: 309 skills on this dist
+/// carry a `PhysicalEvasion` effect and the largest is −60, more than a
+/// low-level character's entire base, so a 0 floor would hand them evasion the
+/// debuff was supposed to take. And **magic** evasion runs through the same
+/// ceiling as the physical one, which a buffed level-80 caster can reach.
+#[test]
+fn evasion_may_go_negative_but_never_past_the_ceiling() {
+    use crate::model::components::StatModifiers;
+    use crate::model::stats::Stat;
+
+    let (mut world, ..) = cast_test_world();
+    let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    let base_evasion = pcs(&world, 3001).evasion;
+    let base_magic_evasion = pcs(&world, 3001).magic_evasion;
+    assert!(base_evasion > 0, "the fixture starts with some evasion");
+
+    let set_mods = |world: &mut World, evasion: f64, magic: f64| {
+        let mut mods = world
+            .objects
+            .get_component::<StatModifiers>(&3001)
+            .cloned()
+            .unwrap_or_default();
+        mods.add.insert(Stat::EvasionRate, evasion);
+        mods.add.insert(Stat::MagicEvasionRate, magic);
+        world.objects.add_components(&3001, mods);
+        crate::game_loop::helpers::recalculate_player_stats(world, 3001);
+    };
+
+    // A debuff bigger than the whole base drives it under zero rather than to it.
+    // The exact landing point is ±1 because the *stored* base is truncated
+    // toward zero (`as i32`) while the finalizer works in f64, so this asserts
+    // the band rather than a single number — the point is the sign.
+    set_mods(&mut world, -(base_evasion as f64) - 40.0, 0.0);
+    let sunk = pcs(&world, 3001).evasion;
+    assert!(
+        (-41..=-39).contains(&sunk),
+        "no floor — Java's minValue is NEGATIVE_INFINITY, got {sunk}"
+    );
+
+    // And both stats stop at `MaxEvasion` (250 on this dist).
+    set_mods(&mut world, 10_000.0, 10_000.0);
+    assert_eq!(pcs(&world, 3001).evasion, 250, "the physical ceiling holds");
+    assert_eq!(
+        pcs(&world, 3001).magic_evasion,
+        250,
+        "and the magic one runs through the same `validateValue`"
+    );
+
+    set_mods(&mut world, 0.0, 0.0);
+    assert_eq!(pcs(&world, 3001).evasion, base_evasion);
+    assert_eq!(pcs(&world, 3001).magic_evasion, base_magic_evasion);
+}
+
+/// `IStatFunction.calcEnchantedItemBonus` — **enchanting gear raises its stats**,
+/// on a curve that pays triple past +3:
+///
+/// ```java
+/// // calcEnchantedPAtkBonus, S-grade, two-handed non-polearm melee
+/// return (6 * enchant) + (12 * Math.max(0, enchant - 3));
+/// // calcEnchantDefBonus, every grade Interlude ships
+/// return enchant + (3 * Math.max(0, enchant - 3));
+/// ```
+///
+/// Java folds it into the weapon base *before* STR and the level mod, so this
+/// asserts the **ratio** against the un-enchanted swing rather than an absolute
+/// number — the multipliers cancel and the table is what is left.
+#[test]
+fn enchanting_gear_raises_attack_and_defence() {
+    use crate::data::item_data::{
+        CrystalType, ItemHandler, ItemKind, ItemStats, ItemTemplate, SLOT_CHEST, SLOT_LR_HAND,
+        WeaponType,
+    };
+    use crate::model::inventory::Inventory;
+    use crate::model::stats::Stat;
+
+    const SWORD: i32 = 530;
+    const ARMOUR: i32 = 531;
+    const SWORD_OID: i32 = 9101;
+    const ARMOUR_OID: i32 = 9102;
+    const WEAPON_P_ATK: f64 = 500.0;
+    const ARMOUR_P_DEF: f64 = 300.0;
+
+    let (mut world, ..) = cast_test_world();
+    let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    let template = |item_id: i32, kind: ItemKind, body_part: i32| ItemTemplate {
+        trade_flags: Default::default(),
+        pre_conditions: Vec::new(),
+        is_oly_restricted: false,
+        is_event_restricted: false,
+        for_npc: false,
+        time: -1,
+        duration: -1,
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
+        item_id,
+        name: format!("enchant{item_id}"),
+        kind,
+        body_part,
+        weight: 0,
+        is_stackable: false,
+        is_infinite: false,
+        type1: 0,
+        type2: 0,
+        is_quest_item: false,
+        is_sellable: true,
+        is_freightable: false,
+        price: 0,
+        handler: ItemHandler::None,
+        // S-grade: the top arm of both weapon tables that Interlude can reach.
+        crystal_type: CrystalType::S,
+        crystal_count: 0,
+        attack_radius: 40,
+        attack_angle: 0,
+        mp_consume: 0,
+        reduced_mp_consume: 0,
+        reduced_mp_consume_chance: 0,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        enchant_enabled: true,
+        enchant_limit: 0,
+        is_magic_weapon: false,
+    };
+
+    world
+        .data
+        .item_data
+        .insert_for_test(template(SWORD, ItemKind::Weapon, SLOT_LR_HAND));
+    // A two-handed **sword**: `SLOT_LR_HAND && itemType != POLE` is the arm that
+    // pays 6/12 rather than the one-handed 5/10.
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(SWORD, WeaponType::Sword);
+    world.data.item_data.set_item_stats_for_test(
+        SWORD,
+        ItemStats {
+            bonuses: vec![(Stat::PhysicalAttack, WEAPON_P_ATK)],
+            ..Default::default()
+        },
+    );
+    world
+        .data
+        .item_data
+        .insert_for_test(template(ARMOUR, ItemKind::Armor, SLOT_CHEST));
+    world.data.item_data.set_item_stats_for_test(
+        ARMOUR,
+        ItemStats {
+            bonuses: vec![(Stat::PhysicalDefence, ARMOUR_P_DEF)],
+            ..Default::default()
+        },
+    );
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, SWORD_OID, SWORD, 1);
+        inv.add_item(&data.item_data, ARMOUR_OID, ARMOUR, 1);
+    }
+    items::handle_use_item(&mut world, 1, &use_item_body(SWORD_OID));
+    items::handle_use_item(&mut world, 1, &use_item_body(ARMOUR_OID));
+
+    let plain_p_atk = pcs(&world, 3001).p_atk;
+    let plain_p_def = pcs(&world, 3001).p_def;
+    assert!(plain_p_atk > 0.0 && plain_p_def > 0.0, "the gear is on");
+
+    let enchant_to = |world: &mut World, level: i32| {
+        if let Some(inv) = world.objects.get_component_mut::<Inventory>(&3001) {
+            inv.set_item_enchant(SWORD_OID, level);
+            inv.set_item_enchant(ARMOUR_OID, level);
+        }
+        crate::game_loop::helpers::recalculate_player_stats(world, 3001);
+    };
+
+    // +3 is still on the cheap half of both curves: 6·3 = 18 P.Atk, 3 P.Def.
+    enchant_to(&mut world, 3);
+    let p_atk_3 = pcs(&world, 3001).p_atk;
+    assert!(
+        ((p_atk_3 / plain_p_atk) - (WEAPON_P_ATK + 18.0) / WEAPON_P_ATK).abs() < 1e-9,
+        "+3 S-grade two-hander adds 6·3 = 18 P.Atk (ratio {})",
+        p_atk_3 / plain_p_atk
+    );
+    assert!(
+        ((pcs(&world, 3001).p_def / plain_p_def) - (ARMOUR_P_DEF + 3.0) / ARMOUR_P_DEF).abs()
+            < 1e-9,
+        "+3 armour adds a flat 3 P.Def"
+    );
+
+    // +6 crosses the +3 wall: 6·6 + 12·3 = 72 P.Atk, 6 + 3·3 = 15 P.Def.
+    enchant_to(&mut world, 6);
+    assert!(
+        ((pcs(&world, 3001).p_atk / plain_p_atk) - (WEAPON_P_ATK + 72.0) / WEAPON_P_ATK).abs()
+            < 1e-9,
+        "past +3 each level pays triple — 6·6 + 12·3 = 72"
+    );
+    assert!(
+        ((pcs(&world, 3001).p_def / plain_p_def) - (ARMOUR_P_DEF + 15.0) / ARMOUR_P_DEF).abs()
+            < 1e-9,
+        "and the defence curve steps the same way — 6 + 3·3 = 15"
+    );
+
+    // `ShotsBonusFinalizer` rides the same enchant: `1 + level·0.003`.
+    assert!(
+        (pcs(&world, 3001).shots_bonus() - 1.018).abs() < 1e-12,
+        "a +6 weapon lifts every soulshot by 1.8 %, got {}",
+        pcs(&world, 3001).shots_bonus()
+    );
+
+    // Unenchanted again → both fall back exactly.
+    enchant_to(&mut world, 0);
+    assert!((pcs(&world, 3001).p_atk - plain_p_atk).abs() < 1e-9);
+    assert!((pcs(&world, 3001).p_def - plain_p_def).abs() < 1e-9);
+    assert_eq!(pcs(&world, 3001).shots_bonus(), 1.0);
 }
 
 /// Companion to the combat-stat test: `maxMp` (and `maxHp`) item bonuses live

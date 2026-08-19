@@ -237,7 +237,17 @@ pub(crate) fn calc_skill_mastery(world: &mut World, caster_oid: i32) -> bool {
         return false;
     };
     let chance = world.data.stat_bonus.bonus(base_stat, base) * rate;
-    (world.roll(100) as f64) < chance
+    // Java draws a **continuous** value, not a 0-99 integer:
+    //
+    // ```java
+    // return ((Rnd.nextDouble() * 100.) < (chance * Config.SKILL_MASTERY_CHANCE_MULTIPLIERS[…]));
+    // ```
+    //
+    // `roll(100) < chance` rounds every fractional chance *up* — a 30.2 %
+    // mastery lands on 31 of 100 integers. The base-stat bonus table is full of
+    // fractions (it is a per-point curve, not a per-point step), so almost every
+    // real chance here has one.
+    (world.roll_f64() * 100.0) < chance
 }
 
 /// Java `CreatureStat.getMaxRecoverableHp()` / `getMaxRecoverableCp()` —
@@ -348,12 +358,34 @@ pub(crate) fn apply_skill_effects(
     // Spiritshots (magic skills only, `useSpiritShot() == _magic == 1`): read
     // the charged flag once per cast for the damage/heal bonus; the shot is
     // spent below after every effect has been applied (Java `Skill` uncharges
-    // post-`applyEffects`). `caster_is_player` stands in for `isMageClass()` in
-    // the heal static bonus — this fn's caster is always a player.
-    let caster_is_player = world
-        .objects
-        .get_component::<crate::model::Player>(&caster_oid)
-        .is_some();
+    // post-`applyEffects`).
+    //
+    // `Heal.instant` asks three questions of its caster in order —
+    // `isPlayer() && isMageClass()`, `isSummon()`, `isNpc()` — and its arms
+    // differ in both the mAtk multiplier and the static bonus, so the choice is
+    // resolved once here. `MAGE_GROUP` is `ClassId.isMage()` exactly for every
+    // id this chronicle can reach: the two sets differ only at ids ≥ 143
+    // (Ertheia and the awakened classes), which no character here holds.
+    let heal_caster = {
+        use crate::model::formulas::HealCaster;
+        match world
+            .objects
+            .get_component::<crate::model::Player>(&caster_oid)
+        {
+            Some(p) if world.data.categories.contains("MAGE_GROUP", p.class_id) => {
+                HealCaster::PlayerMage
+            }
+            Some(_) => HealCaster::PlayerFighter,
+            None if world
+                .objects
+                .get_component::<crate::model::components::ServitorOf>(&caster_oid)
+                .is_some() =>
+            {
+                HealCaster::Summon
+            }
+            None => HealCaster::Npc,
+        }
+    };
     let (sps, bss) = if skill.magic_type != 1 {
         (false, false)
     } else if crate::game_loop::combat::is_npc_oid(caster_oid) {
@@ -378,10 +410,14 @@ pub(crate) fn apply_skill_effects(
             })
             .unwrap_or((false, false))
     };
+    // Java: `bss ? 4 * shotsBonus : sps ? 2 * shotsBonus : 1` — the shotless
+    // arm takes no `SHOTS_BONUS`, so an enchanted weapon only pays while a
+    // spiritshot is actually charged (`ShotsBonusFinalizer`).
+    let shots_bonus = crate::game_loop::combat::shots_bonus_of(world, caster_oid);
     let magic_shots_bonus = if bss {
-        4.0
+        4.0 * shots_bonus
     } else if sps {
-        2.0
+        2.0 * shots_bonus
     } else {
         1.0
     };
@@ -403,7 +439,7 @@ pub(crate) fn apply_skill_effects(
         sps,
         bss,
         magic_shots_bonus,
-        caster_is_player,
+        heal_caster,
     };
 
     for effect in &skill.effects {

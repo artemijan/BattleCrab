@@ -20,7 +20,7 @@ const CASTER: i32 = 3001;
 const CID: u32 = 1;
 const SHIELD_ID: i32 = 7700;
 
-fn gear(item_id: i32, kind: ItemKind, body_part: i32) -> ItemTemplate {
+pub(super) fn gear(item_id: i32, kind: ItemKind, body_part: i32) -> ItemTemplate {
     ItemTemplate {
         trade_flags: Default::default(),
         pre_conditions: Vec::new(),

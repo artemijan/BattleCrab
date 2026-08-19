@@ -6005,3 +6005,73 @@ fn only_a_for_npc_item_reaches_the_pet_at_all() {
         crate::network::server_packets::sm_ids::THIS_PET_CANNOT_USE_THIS_ITEM
     ));
 }
+
+/// `ShotsBonusFinalizer` resolves through **`getActingPlayer()`**, and
+/// `Summon.getActingPlayer()` returns the *owner*:
+///
+/// ```java
+/// final Player player = creature.getActingPlayer();
+/// if (player != null) {
+///     final Item weapon = player.getActiveWeaponInstance();
+///     if ((weapon != null) && weapon.isEnchanted()) baseValue += (weapon.getEnchantLevel() * 0.3) / 100;
+/// }
+/// ```
+///
+/// So a servitor's soulshots ride its **master's** weapon enchant — the summon
+/// has no weapon of its own, and Java re-reads the stat on every swing, so the
+/// bonus follows the master swapping weapons with no recompute on the summon.
+/// A plain monster's `getActingPlayer()` is null and stays at a flat 1.
+#[test]
+fn a_servitors_shot_bonus_comes_from_its_owners_weapon() {
+    use crate::data::item_data::{ItemKind, ItemStats, SLOT_R_HAND};
+    use crate::game_loop::combat::shots_bonus_of;
+    use crate::model::inventory::Inventory;
+    use crate::model::stats::Stat;
+
+    const SWORD: i32 = 541;
+    const SWORD_OID: i32 = 9411;
+
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).expect("summoned");
+
+    assert_eq!(
+        shots_bonus_of(&world, servitor),
+        1.0,
+        "bare-handed master, flat 1"
+    );
+
+    world
+        .data
+        .item_data
+        .insert_for_test(super::skill_shield_tests::gear(
+            SWORD,
+            ItemKind::Weapon,
+            SLOT_R_HAND,
+        ));
+    world.data.item_data.set_item_stats_for_test(
+        SWORD,
+        ItemStats {
+            bonuses: vec![(Stat::PhysicalAttack, 100.0)],
+            ..Default::default()
+        },
+    );
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&OWNER).expect("inv");
+        inv.add_item(&data.item_data, SWORD_OID, SWORD, 1);
+        inv.equip_item(&data.item_data, SWORD_OID);
+        inv.set_item_enchant(SWORD_OID, 10);
+    }
+    crate::game_loop::helpers::recalculate_player_stats(&mut world, OWNER);
+
+    assert!(
+        (shots_bonus_of(&world, OWNER) - 1.03).abs() < 1e-12,
+        "the master's +10 weapon is worth 3 %"
+    );
+    assert!(
+        (shots_bonus_of(&world, servitor) - 1.03).abs() < 1e-12,
+        "…and the servitor reads the same number through its owner, got {}",
+        shots_bonus_of(&world, servitor)
+    );
+}

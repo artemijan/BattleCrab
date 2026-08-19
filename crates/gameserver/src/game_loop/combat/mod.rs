@@ -407,6 +407,33 @@ pub(crate) fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
     (def, rate * con_bonus, con_bonus)
 }
 
+/// `Stat.SHOTS_BONUS` for whoever is swinging — Java reads it live off
+/// `creature.getStat()`, and `ShotsBonusFinalizer` resolves it through
+/// `getActingPlayer()`.
+///
+/// That indirection is the whole reason this is a lookup rather than a field
+/// read: `Summon.getActingPlayer()` returns the **owner**, so a servitor's
+/// soulshots ride its master's weapon enchant, and they follow the master
+/// swapping weapons without any recompute on the summon. `Npc.getActingPlayer()`
+/// is null, which leaves a plain monster at a flat 1.
+pub(crate) fn shots_bonus_of(world: &World, object_id: i32) -> f64 {
+    use crate::model::components::{CombatStats, ServitorOf};
+    let owner = world
+        .objects
+        .get_component::<ServitorOf>(&object_id)
+        .map(|s| s.owner_object_id);
+    let read = |oid: i32| {
+        world
+            .objects
+            .get_component::<CombatStats>(&oid)
+            .map(|cs| cs.shots_bonus())
+    };
+    owner
+        .and_then(read)
+        .or_else(|| read(object_id))
+        .unwrap_or(1.0)
+}
+
 /// 2D center-to-center distance between two combat actors.
 pub(crate) fn distance_2d(a: &Combatant, b: &Combatant) -> f64 {
     (((b.x - a.x) as f64).powi(2) + ((b.y - a.y) as f64).powi(2)).sqrt()

@@ -464,6 +464,14 @@ pub struct CombatStats {
     /// Weapon `randomDamage` (class templates all declare `baseRndDam = 10`;
     /// NPC templates carry their own).
     pub random_dmg: i32,
+    /// `ShotsBonusFinalizer`'s result **minus one** — see [`Self::shots_bonus`].
+    ///
+    /// Stored as the increment rather than the finalized value so that
+    /// `Default` (0.0) means "no bonus" instead of "shots deal nothing": this
+    /// struct is built with `..Default::default()` in dozens of fixtures, and a
+    /// derived 0.0 in the multiplier position would silently delete every
+    /// soulshot's damage.
+    pub shots_bonus_add: f64,
 }
 
 impl CombatStats {
@@ -477,6 +485,14 @@ impl CombatStats {
     ///   animation at base cadence while Super Haste quadrupled the actual p_atk_spd.
     pub fn client_atk_speed_multiplier(&self) -> f64 {
         self.p_atk_spd as f64 / 333.0
+    }
+
+    /// `Stat.SHOTS_BONUS` as the damage formulas read it — Java's
+    /// `ShotsBonusFinalizer` returns `1 + enchantLevel·0.003` for an enchanted
+    /// weapon and a flat 1 otherwise, and every `ssmod`/`mAtkMul` in the game
+    /// multiplies by it.
+    pub fn shots_bonus(&self) -> f64 {
+        1.0 + self.shots_bonus_add
     }
 }
 

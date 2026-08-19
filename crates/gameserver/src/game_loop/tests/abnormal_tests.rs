@@ -1970,7 +1970,12 @@ fn skill_mastery_collapses_the_cooldown_and_reads_the_right_base_stat() {
         int_chance > dex_chance + 2.0,
         "the fixture has to separate the two stats: INT {int_chance}, DEX {dex_chance}"
     );
-    let roll = ((int_chance + dex_chance) / 2.0) as i32;
+    // `calcSkillMastery` draws `Rnd.nextDouble() * 100`, which the port spells
+    // `roll_f64() * 100` — and `roll_f64` quantizes a forced value as
+    // `v / 1_000_000`, so a forced `v` reads as the percentage `v / 10_000`.
+    // Forcing the *midpoint* of the two chances therefore needs that scale, and
+    // gets to keep the fraction the old `as i32` was throwing away.
+    let roll = (((int_chance + dex_chance) / 2.0) * 10_000.0) as i32;
 
     let mastery_fires = |world: &mut World, stat: BaseStat| {
         let mut mods = world
@@ -2085,6 +2090,128 @@ fn a_continuous_skill_rolls_to_land_even_when_its_effect_point_is_not_negative()
     );
 }
 
+/// `Heal.instant` asks **`isPlayer() && isMageClass()`**, not "is it a player":
+///
+/// ```java
+/// if (((sps || bss) && (effector.isPlayer() && effector.getActingPlayer().isMageClass())) || effector.isSummon())
+/// {
+///     staticShotBonus = skill.getMpConsume();   // ← the mage arm's whole point
+///     mAtkMul = bss ? 4 * shotsBonus : 2 * shotsBonus;
+/// }
+/// ```
+///
+/// A **fighter** with a spiritshot charged falls through to the grade arm and
+/// gets no static bonus at all. The port had stood `isPlayer()` in for the
+/// class test, which handed every fighter the mage's `mpConsume` bonus.
+///
+/// `MAGE_GROUP` is `ClassId.isMage()` exactly for every id this chronicle can
+/// reach — the two sets differ only at ids ≥ 143 (Ertheia and the awakened
+/// classes), which no character here holds.
+#[test]
+fn only_a_mage_class_gets_the_spiritshot_heal_bonus() {
+    const MP_CONSUME: i32 = 200;
+    // 15 = cleric, 1 = warrior — one on each side of `MAGE_GROUP`.
+    const CLERIC: i32 = 15;
+    const WARRIOR: i32 = 1;
+
+    let (mut world, _db, _l) = cc2_world();
+    // The **real** `CategoryData.xml`: the claim under test is that its
+    // `MAGE_GROUP` is Java's per-`ClassId` `isMage` flag, so a stub category
+    // would assert nothing.
+    world.data.categories = crate::data::CategoryData::load_from(crate::data::DIST_GAME);
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    assert!(
+        world.data.categories.contains("MAGE_GROUP", CLERIC)
+            && !world.data.categories.contains("MAGE_GROUP", WARRIOR),
+        "the fixture's two class ids have to straddle the category"
+    );
+
+    let mut heal = cc_skill(9393, SkillEffect::Heal { power: 10.0 }, "NONE");
+    heal.effect_point = 100;
+    heal.is_debuff = false;
+    heal.magic_type = 1;
+    heal.mp_consume = MP_CONSUME;
+    world.data.skill_data.insert_for_test(heal);
+
+    let healed_as = |world: &mut World, class_id: i32| -> f64 {
+        if let Some(p) = world.objects.get_component_mut::<model::Player>(&CASTER) {
+            p.class_id = class_id;
+            p.charge_shot(crate::model::ShotType::Spiritshots);
+        }
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&CASTER) {
+            v.max_hp = 100_000;
+            v.cur_hp = 1.0;
+        }
+        land(world, 9393, CASTER);
+        world
+            .objects
+            .get_component::<Vitals>(&CASTER)
+            .map(|v| v.cur_hp - 1.0)
+            .unwrap_or(0.0)
+    };
+
+    let mage = healed_as(&mut world, CLERIC);
+    let fighter = healed_as(&mut world, WARRIOR);
+    // Both arms reach `mAtkMul = 2` (the grade arm's `1 + 1`, the mage arm's
+    // `2 · shotsBonus` with an unenchanted weapon), so the sqrt terms cancel and
+    // the whole difference is the static bonus.
+    assert!(
+        (mage - fighter - MP_CONSUME as f64).abs() < 1e-6,
+        "the mage's spiritshot is worth exactly the skill's mpConsume more \
+         ({mage} vs {fighter})"
+    );
+}
+
+/// `calcSkillMastery` draws a **continuous** value, not a 0-99 integer:
+///
+/// ```java
+/// final double chance = BaseStat.values()[val].calcBonus(actor) * actor.getStat().getMul(Stat.SKILL_MASTERY_RATE, 1);
+/// return ((Rnd.nextDouble() * 100.) < (chance * Config.SKILL_MASTERY_CHANCE_MULTIPLIERS[…]));
+/// ```
+///
+/// `roll(100) < chance` — the shape the port used — rounds every fractional
+/// chance **up**, because there is no integer strictly between 30 and 31 to
+/// lose on a 30.5. And fractions are the normal case here: the chance is a
+/// base-stat *bonus* off a per-point curve, times a rate multiplier.
+///
+/// The fixture picks 30.5 % and rolls 30.4, the one draw the two shapes
+/// disagree about.
+#[test]
+fn skill_mastery_draws_a_continuous_chance_not_a_whole_percent() {
+    use crate::model::components::StatModifiers;
+    use crate::model::stats::{BaseStat, Stat};
+
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    // `cc2_world`'s stat-bonus table answers 1.0 for everything, so the rate
+    // *is* the chance — 30.5 %.
+    let mut mods = world
+        .objects
+        .get_component::<StatModifiers>(&CASTER)
+        .cloned()
+        .unwrap_or_default();
+    mods.add
+        .insert(Stat::SkillMastery, BaseStat::Int as i32 as f64);
+    mods.mul.insert(Stat::SkillMasteryRate, 30.5);
+    world.objects.add_components(&CASTER, mods);
+
+    // A forced roll reads as `v / 10_000` percent (`roll_f64` quantizes by
+    // 1e-6, and the formula scales by 100).
+    for (forced, expected, why) in [
+        (304_000, true, "30.4 % is below the 30.5 % chance"),
+        (306_000, false, "30.6 % is above it"),
+    ] {
+        world.clear_forced_rolls();
+        world.force_roll(forced);
+        assert_eq!(
+            effects::calc_skill_mastery(&mut world, CASTER),
+            expected,
+            "{why} — an integer roll could not tell these apart"
+        );
+    }
+}
+
 /// `Formulas.calcEffectAbnormalTime` — a **Skill Mastery proc doubles a buff's
 /// duration**, and does so on a roll entirely separate from the one that
 /// collapses the cooldown.
@@ -2161,8 +2288,10 @@ fn skill_mastery_doubles_a_buffs_duration() {
     mods.mul.insert(Stat::SkillMasteryRate, 50.0);
     world.objects.add_components(&CASTER, mods);
 
+    // Forced rolls read as `v / 10_000` percent (see `calcSkillMastery`), so
+    // 90 % loses against the fixture's 50 % chance and 0 % wins.
     world.clear_forced_rolls();
-    world.force_roll(99);
+    world.force_roll(900_000);
     assert_eq!(
         duration(&mut world),
         12_000,

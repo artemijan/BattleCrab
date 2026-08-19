@@ -6,6 +6,7 @@ use super::crit_rate_position_mul;
 use super::defence_crit_rate;
 use super::is_npc_oid;
 use super::refresh_attack_stance;
+use super::shots_bonus_of;
 use super::vitals_of;
 use super::wields_two_handed;
 use crate::game_loop::guard::maybe_position;
@@ -146,6 +147,9 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             };
         }
         let ss = shot_consumed;
+        // `Stat.SHOTS_BONUS`: an enchanted weapon lifts the soulshot multiplier
+        // above the flat 2 (`ShotsBonusFinalizer`).
+        let shots_bonus = shots_bonus_of(world, attacker_oid);
         let (crit, damage, shield) = if miss {
             (false, 0, formulas::SHIELD_NONE)
         } else {
@@ -204,6 +208,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                     crit,
                     crit_damage_auto(world, attacker_oid, target_oid, position),
                     ss,
+                    shots_bonus,
                     // A bow/crossbow swings on Java's **154** weapon mod, and
                     // its crits split across both halves of the expression.
                     crate::game_loop::ranged::is_ranged(weapon_type),

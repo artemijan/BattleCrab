@@ -38,12 +38,15 @@
 //! did on the day they were written. The transcription is checked in instead,
 //! and it can be re-read against Java's source by anyone.
 
-use gameserver::model::formulas::{self, CritDamage};
+use gameserver::model::formulas::{self, CritDamage, HealCaster};
 use gameserver::model::movement::Position;
 
 /// Transcriptions of Java's expressions. Each function quotes the source it
 /// came from; nothing here calls the port.
 mod java {
+    use gameserver::data::item_data::CrystalType as Grade;
+    use gameserver::model::formulas::HealCaster as Caster;
+
     /// `Formulas.calcAutoAttackDamage`:
     ///
     /// ```java
@@ -74,6 +77,11 @@ mod java {
     /// the only skill declaring `AutoAttackDamageBonus` on this dist is in the
     /// 30500 range, so no character here can carry it and the term is a fixed
     /// 1.0 on both sides.
+    ///
+    /// `SHOTS_BONUS` is **not** in that category, though it was recorded there
+    /// on the first pass. `ShotsBonusFinalizer` reads it off the equipped
+    /// weapon's **enchant level** (`1 + enchant·0.003`), which every geared
+    /// character carries — so it is swept as a real input.
     #[allow(clippy::too_many_arguments)]
     pub fn auto_attack_damage(
         p_atk: f64,
@@ -84,12 +92,12 @@ mod java {
         c_atk: f64,
         c_atk_add: f64,
         ss: bool,
+        shots_bonus: f64,
         is_ranged: bool,
         trait_bonus: f64,
         attribute_bonus: f64,
         pvp_pve_bonus: f64,
     ) -> f64 {
-        let shots_bonus = 1.0; // `SHOTS_BONUS` — no carrier on this dist.
         let c_atk = if crit { c_atk } else { 1.0 };
         let c_atk_add = if crit { c_atk_add } else { 0.0 };
         let crit_mod = if crit {
@@ -147,6 +155,7 @@ mod java {
         crit: bool,
         crit_mul: f64,
         ss: bool,
+        shots_bonus: f64,
         is_ranged: bool,
         mods: f64,
     ) -> f64 {
@@ -155,7 +164,7 @@ mod java {
         let weapon_mod = if is_ranged { 70.0 } else { 77.0 };
         let ranged_bonus = if is_ranged { attack + power } else { 0.0 };
         let crit_mod = if crit { crit_mul } else { 1.0 };
-        let ss_mod = if ss { 2.0 } else { 1.0 };
+        let ss_mod = if ss { 2.0 * shots_bonus } else { 1.0 };
         let base_mod = (weapon_mod * ((attack * level_mod) + power + ranged_bonus)) / defence;
         base_mod * ss_mod * crit_mod * random_mod * mods
     }
@@ -221,11 +230,12 @@ mod java {
         is_position: f64,
         random_mod: f64,
         ss: bool,
+        shots_bonus: f64,
         cd_mult: f64,
         cd_patk: f64,
         mods: f64,
     ) -> f64 {
-        let ssmod = if ss { 2.0 } else { 1.0 };
+        let ssmod = if ss { 2.0 * shots_bonus } else { 1.0 };
         let sum = power + p_atk;
         let base_mod =
             (77.0 * ((sum * 0.666) + (is_position * sum * random_mod) + (6.0 * cd_patk))) / p_def;
@@ -353,9 +363,11 @@ mod java {
     ///
     /// The `else` branch's `mAtkMul + 1` is why an unshot heal multiplies mAtk
     /// by **2**, not 1 — the same number the shot branch reaches by a different
-    /// road, which is what makes the port's single expression correct rather
-    /// than lucky. `HEAL_EFFECT`/`_ADD` are the caller's, and no Interlude
-    /// weapon reaches the S80/S84 grades.
+    /// road. That coincidence held only while `SHOTS_BONUS` was a hard 1: the
+    /// shot branch scales by it and the grade branch does not, so the three arms
+    /// are transcribed separately here. `HEAL_EFFECT`/`_ADD` are the caller's,
+    /// and no Interlude weapon reaches the S80/S84 grades.
+    #[allow(clippy::too_many_arguments)]
     pub fn heal_amount(
         power: f64,
         m_atk: f64,
@@ -363,18 +375,22 @@ mod java {
         sps: bool,
         bss: bool,
         mp_consume: i32,
-        is_mage_caster: bool,
+        caster: Caster,
+        shots_bonus: f64,
     ) -> f64 {
-        let (static_shot_bonus, m_atk_mul) = if (sps || bss) && is_mage_caster {
-            (
-                mp_consume as f64 * if bss { 2.4 } else { 1.0 },
-                if bss { 4.0 } else { 2.0 },
-            )
-        } else {
-            // Weapon grade is 1 on this chronicle, so `mAtkMul + 1` = 2 and
-            // `mAtkMul * 4` = 4.
-            (0.0, if bss { 4.0 } else { 2.0 })
-        };
+        let (static_shot_bonus, m_atk_mul) =
+            if ((sps || bss) && caster == Caster::PlayerMage) || caster == Caster::Summon {
+                (
+                    mp_consume as f64 * if bss { 2.4 } else { 1.0 },
+                    if bss { 4.0 } else { 2.0 } * shots_bonus,
+                )
+            } else if (sps || bss) && caster == Caster::Npc {
+                (2.4 * mp_consume as f64, 4.0 * shots_bonus)
+            } else {
+                // Weapon grade is 1 on this chronicle, so `mAtkMul + 1` = 2 and
+                // `mAtkMul * 4` = 4 — and this branch takes **no** `shotsBonus`.
+                (0.0, if bss { 4.0 } else { 2.0 })
+            };
         let amount = power + static_shot_bonus + (m_atk_mul * m_atk).sqrt();
         amount * if mcrit { 3.0 } else { 1.0 }
     }
@@ -614,6 +630,126 @@ mod java {
         restore.min(90.0)
     }
 
+    /// `IStatFunction.calcEnchantDefBonus`:
+    ///
+    /// ```java
+    /// switch (item.getTemplate().getCrystalTypePlus())
+    /// {
+    ///     case R: return ((2 * blessedBonus * enchant) + (6 * blessedBonus * Math.max(0, enchant - 3)));
+    ///     default: return enchant + (3 * Math.max(0, enchant - 3));
+    /// }
+    /// ```
+    pub fn enchant_def_bonus(crystal_plus: Grade, enchant: i32) -> f64 {
+        match crystal_plus {
+            Grade::R => 2.0 * enchant as f64 + 6.0 * i32::max(0, enchant - 3) as f64,
+            _ => enchant as f64 + 3.0 * i32::max(0, enchant - 3) as f64,
+        }
+    }
+
+    /// `IStatFunction.calcEnchantMatkBonus`:
+    ///
+    /// ```java
+    /// case R: return ((5 * blessedBonus * enchant) + (10 * blessedBonus * Math.max(0, enchant - 3)));
+    /// case S: return (4 * enchant) + (8 * Math.max(0, enchant - 3));
+    /// case A: case B: case C: return (3 * enchant) + (6 * Math.max(0, enchant - 3));
+    /// default: return (2 * enchant) + (4 * Math.max(0, enchant - 3));
+    /// ```
+    pub fn enchant_m_atk_bonus(crystal_plus: Grade, enchant: i32) -> f64 {
+        let e = enchant as f64;
+        let o = i32::max(0, enchant - 3) as f64;
+        match crystal_plus {
+            Grade::R => 5.0 * e + 10.0 * o,
+            Grade::S => 4.0 * e + 8.0 * o,
+            Grade::A | Grade::B | Grade::C => 3.0 * e + 6.0 * o,
+            _ => 2.0 * e + 4.0 * o,
+        }
+    }
+
+    /// `IStatFunction.calcEnchantedPAtkBonus`, all four reachable grade arms and
+    /// the gradeless default. `twoHand` is Java's `(bodyPart == SLOT_LR_HAND)
+    /// && (itemType != WeaponType.POLE)` — a polearm occupies the two-handed
+    /// slot but is paid as a one-hander.
+    pub fn enchant_p_atk_bonus(
+        crystal_plus: Grade,
+        two_hand: bool,
+        ranged: bool,
+        enchant: i32,
+    ) -> f64 {
+        let e = enchant as f64;
+        let o = i32::max(0, enchant - 3) as f64;
+        match crystal_plus {
+            Grade::R => {
+                if two_hand {
+                    if ranged {
+                        12.0 * e + 24.0 * o
+                    } else {
+                        7.0 * e + 14.0 * o
+                    }
+                } else {
+                    6.0 * e + 12.0 * o
+                }
+            }
+            Grade::S => {
+                if two_hand {
+                    if ranged {
+                        10.0 * e + 20.0 * o
+                    } else {
+                        6.0 * e + 12.0 * o
+                    }
+                } else {
+                    5.0 * e + 10.0 * o
+                }
+            }
+            Grade::A => {
+                if two_hand {
+                    if ranged {
+                        8.0 * e + 16.0 * o
+                    } else {
+                        5.0 * e + 10.0 * o
+                    }
+                } else {
+                    4.0 * e + 8.0 * o
+                }
+            }
+            Grade::B | Grade::C => {
+                if two_hand {
+                    if ranged {
+                        6.0 * e + 12.0 * o
+                    } else {
+                        4.0 * e + 8.0 * o
+                    }
+                } else {
+                    3.0 * e + 6.0 * o
+                }
+            }
+            _ => {
+                if ranged {
+                    4.0 * e + 8.0 * o
+                } else {
+                    2.0 * e + 4.0 * o
+                }
+            }
+        }
+    }
+
+    /// `ShotsBonusFinalizer`:
+    ///
+    /// ```java
+    /// double baseValue = 1;
+    /// if ((weapon != null) && weapon.isEnchanted()) baseValue += (weapon.getEnchantLevel() * 0.3) / 100;
+    /// ```
+    ///
+    /// `isEnchanted()` is `getEnchantLevel() > 0`, so the guard and the term
+    /// agree at 0 — but only because `0 * 0.3 / 100` is 0. It is transcribed
+    /// with the guard in place anyway, since that is what Java runs.
+    pub fn shots_bonus(enchant: i32) -> f64 {
+        let mut base = 1.0;
+        if enchant > 0 {
+            base += (enchant as f64 * 0.3) / 100.0;
+        }
+        base
+    }
+
     /// `Formulas.calcEffectAbnormalTime`:
     ///
     /// ```java
@@ -637,6 +773,25 @@ const RANDOM_MULS: &[f64] = &[0.9, 1.0, 1.1];
 const CRIT_MULS: &[f64] = &[2.0, 3.5];
 const CRIT_ADDS: &[f64] = &[0.0, 137.0];
 const MODS: &[f64] = &[1.0, 0.75, 1.4];
+/// `(ss/sps charged, SHOTS_BONUS)` pairs. The bonus is `1 + enchant·0.003`, so
+/// the three values are a bare weapon, a +4 and a +16 — and the shotless row
+/// carries a non-1 bonus on purpose, to catch a formula that multiplies it in
+/// where Java's `: 1` arm does not.
+/// `Heal.instant`'s three caster tests, which its arms disagree about in both
+/// the mAtk multiplier and the static bonus.
+const CASTERS: &[HealCaster] = &[
+    HealCaster::PlayerMage,
+    HealCaster::PlayerFighter,
+    HealCaster::Summon,
+    HealCaster::Npc,
+];
+const SHOTS: &[(bool, f64)] = &[
+    (false, 1.0),
+    (false, 1.03),
+    (true, 1.0),
+    (true, 1.012),
+    (true, 1.048),
+];
 
 fn positions() -> [(Position, f64); 3] {
     // The `proxBonus` fraction Java picks per position.
@@ -657,7 +812,7 @@ fn auto_attack_damage_matches_java_across_the_grid() {
             for &random_mul in RANDOM_MULS {
                 for &(position, prox) in &positions() {
                     for &crit in &[false, true] {
-                        for &ss in &[false, true] {
+                        for &(ss, shots_bonus) in SHOTS {
                             for &is_ranged in &[false, true] {
                                 for &c_mul in CRIT_MULS {
                                     for &c_add in CRIT_ADDS {
@@ -667,20 +822,41 @@ fn auto_attack_damage_matches_java_across_the_grid() {
                                                 add: c_add,
                                             };
                                             let ours = formulas::calc_auto_attack_damage(
-                                                p_atk, random_mul, position, p_def, crit, cd, ss,
-                                                is_ranged, m, m, m,
+                                                p_atk,
+                                                random_mul,
+                                                position,
+                                                p_def,
+                                                crit,
+                                                cd,
+                                                ss,
+                                                shots_bonus,
+                                                is_ranged,
+                                                m,
+                                                m,
+                                                m,
                                             );
                                             let theirs = java::auto_attack_damage(
-                                                p_atk, random_mul, prox, p_def, crit, c_mul, c_add,
-                                                ss, is_ranged, m, m, m,
+                                                p_atk,
+                                                random_mul,
+                                                prox,
+                                                p_def,
+                                                crit,
+                                                c_mul,
+                                                c_add,
+                                                ss,
+                                                shots_bonus,
+                                                is_ranged,
+                                                m,
+                                                m,
+                                                m,
                                             );
                                             assert!(
                                                 (ours - theirs).abs() <= theirs.abs() * 1e-12,
                                                 "auto-attack damage diverged: ours {ours}, Java \
                                                  {theirs} — pAtk {p_atk}, pDef {p_def}, random \
                                                  {random_mul}, {position:?}, crit {crit}, ss \
-                                                 {ss}, ranged {is_ranged}, cAtk {c_mul}, cAtkAdd \
-                                                 {c_add}, mods {m}"
+                                                 {ss}/{shots_bonus}, ranged {is_ranged}, cAtk \
+                                                 {c_mul}, cAtkAdd {c_add}, mods {m}"
                                             );
                                             cases += 1;
                                         }
@@ -710,6 +886,7 @@ fn the_ranged_weapon_mod_doubles_and_its_crit_splits() {
             false,
             CritDamage::default(),
             false,
+            1.0,
             is_ranged,
             1.0,
             1.0,
@@ -733,6 +910,7 @@ fn the_ranged_weapon_mod_doubles_and_its_crit_splits() {
             true,
             CritDamage::default(),
             false,
+            1.0,
             is_ranged,
             1.0,
             1.0,
@@ -776,23 +954,45 @@ fn physical_skill_damage_matches_java_across_the_grid() {
                 for &level_mod in &[0.5, 1.0, 1.89] {
                     for &random_mod in RANDOM_MULS {
                         for &crit in &[false, true] {
-                            for &ss in &[false, true] {
+                            for &(ss, shots_bonus) in SHOTS {
                                 for &is_ranged in &[false, true] {
                                     for &m in MODS {
                                         let ours = formulas::calc_physical_skill_damage(
-                                            p_atk, 1.0, p_def, 1.0, power, level_mod, random_mod,
-                                            crit, 2.0, ss, is_ranged,
+                                            p_atk,
+                                            1.0,
+                                            p_def,
+                                            1.0,
+                                            power,
+                                            level_mod,
+                                            random_mod,
+                                            crit,
+                                            2.0,
+                                            ss,
+                                            shots_bonus,
+                                            is_ranged,
                                         ) * m;
                                         let theirs = java::physical_skill_damage(
-                                            p_atk, 1.0, p_def, 1.0, power, level_mod, random_mod,
-                                            crit, 2.0, ss, is_ranged, m,
+                                            p_atk,
+                                            1.0,
+                                            p_def,
+                                            1.0,
+                                            power,
+                                            level_mod,
+                                            random_mod,
+                                            crit,
+                                            2.0,
+                                            ss,
+                                            shots_bonus,
+                                            is_ranged,
+                                            m,
                                         );
                                         assert!(
                                             (ours - theirs).abs() <= theirs.abs() * 1e-12,
                                             "physical skill damage diverged: ours {ours}, Java \
                                              {theirs} — pAtk {p_atk}, pDef {p_def}, power \
                                              {power}, levelMod {level_mod}, random {random_mod}, \
-                                             crit {crit}, ss {ss}, ranged {is_ranged}, mods {m}"
+                                             crit {crit}, ss {ss}/{shots_bonus}, ranged \
+                                             {is_ranged}, mods {m}"
                                         );
                                         cases += 1;
                                     }
@@ -863,7 +1063,7 @@ fn blow_damage_matches_java_across_the_grid() {
             for &power in &[0.0, 90.0, 2_000.0] {
                 for &(position, is_position) in &positions_blow() {
                     for &random_mod in RANDOM_MULS {
-                        for &ss in &[false, true] {
+                        for &(ss, shots_bonus) in SHOTS {
                             for &cd_mult in &[1.0, 1.35, 2.2] {
                                 for &cd_patk in &[0.0, 18.0] {
                                     for &m in MODS {
@@ -874,6 +1074,7 @@ fn blow_damage_matches_java_across_the_grid() {
                                             position,
                                             random_mod,
                                             ss,
+                                            shots_bonus,
                                             BlowCritDamage {
                                                 mult: cd_mult,
                                                 p_atk_add: cd_patk,
@@ -886,6 +1087,7 @@ fn blow_damage_matches_java_across_the_grid() {
                                             is_position,
                                             random_mod,
                                             ss,
+                                            shots_bonus,
                                             cd_mult,
                                             cd_patk,
                                             m,
@@ -1036,9 +1238,11 @@ fn timing_formulas_match_java_across_the_grid() {
     let _ = OperateType::Channeling;
 }
 
-/// **The heal sweep** — the one family this pass *confirmed* rather than
-/// corrected. It is checked in anyway: an agreement that nobody can re-derive
-/// is indistinguishable from an untested formula.
+/// **The heal sweep.** The arithmetic came back clean on the second pass and is
+/// kept because an agreement nobody can re-derive is indistinguishable from an
+/// untested formula — but the grid now also drives `SHOTS_BONUS`, which the
+/// shot branch scales by and the grade branch does **not**. That asymmetry is
+/// the only thing separating two branches that otherwise both land on 2.
 #[test]
 fn heal_amount_matches_java_across_the_grid() {
     let mut cases = 0usize;
@@ -1046,21 +1250,37 @@ fn heal_amount_matches_java_across_the_grid() {
         for &m_atk in &[1.0, 60.0, 900.0, 6_000.0] {
             for &mp_consume in &[0, 12, 90] {
                 for &(sps, bss) in &[(false, false), (true, false), (false, true)] {
-                    for &is_mage in &[false, true] {
-                        for &mcrit in &[false, true] {
-                            let ours = formulas::calc_heal(
-                                power, m_atk, mcrit, sps, bss, mp_consume, is_mage,
-                            );
-                            let theirs = java::heal_amount(
-                                power, m_atk, mcrit, sps, bss, mp_consume, is_mage,
-                            );
-                            assert!(
-                                (ours - theirs).abs() <= theirs.abs() * 1e-12,
-                                "heal diverged: ours {ours}, Java {theirs} — power {power}, mAtk \
-                                 {m_atk}, mpConsume {mp_consume}, sps {sps}, bss {bss}, mage \
-                                 {is_mage}, crit {mcrit}"
-                            );
-                            cases += 1;
+                    for &caster in CASTERS {
+                        for &shots_bonus in &[1.0, 1.012, 1.048] {
+                            for &mcrit in &[false, true] {
+                                let ours = formulas::calc_heal(
+                                    power,
+                                    m_atk,
+                                    mcrit,
+                                    sps,
+                                    bss,
+                                    mp_consume,
+                                    caster,
+                                    shots_bonus,
+                                );
+                                let theirs = java::heal_amount(
+                                    power,
+                                    m_atk,
+                                    mcrit,
+                                    sps,
+                                    bss,
+                                    mp_consume,
+                                    caster,
+                                    shots_bonus,
+                                );
+                                assert!(
+                                    (ours - theirs).abs() <= theirs.abs() * 1e-12,
+                                    "heal diverged: ours {ours}, Java {theirs} — power {power}, \
+                                     mAtk {m_atk}, mpConsume {mp_consume}, sps {sps}, bss {bss}, \
+                                     caster {caster:?}, shots {shots_bonus}, crit {mcrit}"
+                                );
+                                cases += 1;
+                            }
                         }
                     }
                 }
@@ -1289,4 +1509,103 @@ fn effect_abnormal_time_matches_java_across_the_grid() {
             }
         }
     }
+}
+
+/// **The enchant-table sweep** (`IStatFunction.calcEnchantedItemBonus`'s three
+/// tables). The port had none of them: an enchanted weapon added no P.Atk and
+/// enchanted armour no P.Def, which is most of what enchanting is *for*.
+///
+/// Swept over every grade including the unreachable R arm, both weapon-slot
+/// classes and both weapon reaches — the arms Interlude cannot reach are cheap
+/// to carry and the transcription reads like Java with them in.
+#[test]
+fn enchant_bonus_tables_match_java_across_the_grid() {
+    use gameserver::data::item_data::{CrystalType, SLOT_LR_HAND, SLOT_R_HAND, WeaponType};
+    use gameserver::model::enchant_bonus::{
+        enchant_def_bonus, enchant_m_atk_bonus, enchant_p_atk_bonus,
+    };
+
+    const GRADES: &[CrystalType] = &[
+        CrystalType::None,
+        CrystalType::D,
+        CrystalType::C,
+        CrystalType::B,
+        CrystalType::A,
+        CrystalType::S,
+        // `getCrystalTypePlus()` folds these onto S and R — swept so a missing
+        // `.plus()` shows up as a divergence rather than as a silent default.
+        CrystalType::S80,
+        CrystalType::S84,
+        CrystalType::R,
+        CrystalType::R99,
+    ];
+    // `(bodyPart, itemType)` triples covering Java's `SLOT_LR_HAND && !POLE`
+    // test from both sides, plus the ranged split.
+    const SHAPES: &[(i32, WeaponType)] = &[
+        (SLOT_R_HAND, WeaponType::Sword),
+        (SLOT_LR_HAND, WeaponType::Sword),
+        (SLOT_LR_HAND, WeaponType::Pole),
+        (SLOT_LR_HAND, WeaponType::Bow),
+        (SLOT_R_HAND, WeaponType::Bow),
+        (SLOT_LR_HAND, WeaponType::TwoHandCrossbow),
+    ];
+
+    let mut cases = 0usize;
+    for &grade in GRADES {
+        for enchant in 0..=20 {
+            assert_eq!(
+                enchant_def_bonus(grade, enchant).to_bits(),
+                java::enchant_def_bonus(grade.plus(), enchant).to_bits(),
+                "enchant def bonus diverged — {grade:?} +{enchant}"
+            );
+            assert_eq!(
+                enchant_m_atk_bonus(grade, enchant).to_bits(),
+                java::enchant_m_atk_bonus(grade.plus(), enchant).to_bits(),
+                "enchant mAtk bonus diverged — {grade:?} +{enchant}"
+            );
+            for &(body_part, weapon_type) in SHAPES {
+                let two_hand = body_part == SLOT_LR_HAND && weapon_type != WeaponType::Pole;
+                let ranged = matches!(
+                    weapon_type,
+                    WeaponType::Bow | WeaponType::Crossbow | WeaponType::TwoHandCrossbow
+                );
+                assert_eq!(
+                    enchant_p_atk_bonus(grade, body_part, weapon_type, enchant).to_bits(),
+                    java::enchant_p_atk_bonus(grade.plus(), two_hand, ranged, enchant).to_bits(),
+                    "enchant pAtk bonus diverged — {grade:?} +{enchant}, slot {body_part:#x}, \
+                     {weapon_type:?}"
+                );
+                cases += 1;
+            }
+        }
+    }
+    assert!(cases > 1_000, "the grid collapsed to {cases} cases");
+
+    // The shape the whole family shares, asserted once so a table that lost its
+    // `max(0, enchant - 3)` term fails on the mechanism rather than on a
+    // coordinate: past +3 each level is worth three times a level below it.
+    let s_two_hand = |e| enchant_p_atk_bonus(CrystalType::S, SLOT_LR_HAND, WeaponType::Sword, e);
+    assert_eq!(s_two_hand(3), 18.0, "6 per level up to +3");
+    assert_eq!(s_two_hand(4) - s_two_hand(3), 18.0, "and 18 for the fourth");
+}
+
+/// **The shots-bonus sweep** (`ShotsBonusFinalizer`). Tiny, but it was recorded
+/// on the first parity pass as a term with *no carrier on this dist* — which was
+/// wrong, and wrong in a way a sweep of `calcAutoAttackDamage` alone could never
+/// show, because both sides had hard-coded the same 1.0.
+#[test]
+fn shots_bonus_matches_java_across_the_band() {
+    use gameserver::model::enchant_bonus::shots_bonus;
+    for enchant in 0..=25 {
+        assert_eq!(
+            shots_bonus(enchant).to_bits(),
+            java::shots_bonus(enchant).to_bits(),
+            "shots bonus diverged at +{enchant}"
+        );
+    }
+    assert_eq!(shots_bonus(0), 1.0, "an unenchanted weapon buys nothing");
+    assert!(
+        (shots_bonus(10) - 1.03).abs() < 1e-12,
+        "a +10 weapon lifts every shot by 3 %"
+    );
 }
