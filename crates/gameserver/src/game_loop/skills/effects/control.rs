@@ -31,8 +31,18 @@ pub(crate) fn confuse_chance_passes(
     let attribute = attribute_mod(world, caster_oid, target_oid, skill);
     let trait_mod =
         calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, false);
+    let abnormal_resist =
+        crate::game_loop::basic_property::abnormal_resist(world, target_oid, skill.basic_property);
     let roll = world.roll(100);
-    formulas::calc_probability(skill.magic_level, chance, level, attribute, trait_mod, roll)
+    formulas::calc_probability(
+        skill.magic_level,
+        chance,
+        level,
+        abnormal_resist,
+        attribute,
+        trait_mod,
+        roll,
+    )
 }
 
 /// Java's `forEachVisibleObject(effected, Creature.class, …)` plus each

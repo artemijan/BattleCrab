@@ -177,13 +177,17 @@ each one, and sweeps them against the port's own functions over a grid of
 inputs (attack, defence, level mod, power, crit/shot/ranged/position). A
 divergence fails with the inputs that produced it.
 
-**The first pass found three, all live:**
+**Two passes so far have found seven divergences, all live:**
 
 | What | Effect in game |
 |---|---|
 | `calcAutoAttackDamage`'s **weapon mod** was a flat 77 | A bow or crossbow swung on the melee coefficient. Java uses **154** for a ranged weapon, so every archer auto-attack was landing for **half** what it should — and a ranged *crit* splits across both halves of the expression (`critMod` 0.5), which no `if crit` shape can express |
 | The auto-attack path never multiplied by **`calcAttributeBonus`** | An elemental attack buff coloured skills but not plain swings. Java passes a null skill there, which elects the attacker's strongest POWER stat |
 | `calcMagicDam` dropped **`randomMod`** | Every nuke landed on exactly the same number. Java multiplies magic damage by the caster's own `1 + Rnd.get(-r, r)/100`, and every class template declares `baseRndDam = 10` |
+| `calcBlowDamage` dropped its whole **crit-damage block** | A dagger ignored Death Whisper and its family, while the same buffs worked on ordinary swings. Java's `cdMult` counts the position and vulnerability halves at **half** strength, and its `cdPatk` enters *inside* the ×77 bracket at ×6 |
+| `calcManaDam` applied its multipliers **after** the crit clamp | `min(damage · 3, criticalLimit)` is not commutative with a later multiply, so a mana-drain crit could exceed the skill's own `criticalLimit` (the dist ships 1450, 1600 and 7000). The trait term was missing outright — and it is the one damage formula that reads traits with `ignoreResistance = false` |
+| `calcProbability` dropped **`getAbnormalResist`** | Confuse and Randomize Hate ignored the target's abnormal resistance, which the debuff land-rate already honoured. It is subtracted *inside* the parenthesis, before both multipliers |
+| `calcSkillTimeFactor` had no **spiritshot** term and no **channeling** branch | A charged mage should cast at `matkSpdMul × 1.4`; spiritshots bought damage and nothing else. And a channeled skill's factor is a flat 1 in Java, so its cancel time must not be divided by cast speed either — the port was dividing |
 
 Each is fixed, sabotage-verified, and pinned twice: once in the sweep and once
 in a game-level test (a bow hitting for double a sword, an elemental buff
@@ -201,10 +205,18 @@ sweep failed against a port that was **right** — the real curve is
 copied makes this file a second opinion of equal confidence, which is worth
 nothing. Copy the expression, quote it, then sweep.
 
-**Covered so far:** `calcAutoAttackDamage`, `PhysicalAttack.instant`,
-`calcMagicDam`, `calcAttributeBonus`. **Not yet:** blow/mana damage, the
-land-rate family (`calcEffectSuccess`, `calcMagicSuccess`, `calcProbability`),
-heal and resurrect restore, the speed/timing family, and the stat finalizers
+**One family came back clean**, and is checked in anyway: `Heal.instant`. Its
+`else` branch reaches `mAtkMul + 1 = 2` by a different road than the shot
+branch's `2 · shotsBonus`, so the port's single expression is correct rather
+than lucky — an agreement nobody can re-derive is indistinguishable from an
+untested formula.
+
+**Covered:** `calcAutoAttackDamage`, `PhysicalAttack.instant`, `calcMagicDam`,
+`calcBlowDamage`, `calcManaDam`, `Heal.instant`, `calcAttributeBonus`,
+`calcAtkSpd`, `calculateTimeBetweenAttacks`, `calcSkillTimeFactor` — nine
+sweeps, ~90 000 cases. **Not yet:** `calcEffectSuccess`/`calcMagicSuccess` (the
+land-rate pair beyond `calcProbability`), resurrect restore, `calcShldUse`,
+`calcEffectAbnormalTime`, the cancel/steal family, and the stat finalizers
 themselves — each is a sweep of the same shape, and the file is laid out for
 adding them.
 

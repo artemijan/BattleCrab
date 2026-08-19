@@ -54,8 +54,21 @@ pub(crate) fn start_casting(
     else {
         return;
     };
-    let (hit_ms, cancel_ms, cool_ms) =
-        formulas::calc_cast_times(player, base, mods, combat, &world.data, skill);
+    // `calcSkillTimeFactor`'s `spiritshotHitTime`: a charged mage casts at
+    // ×1.4. Java reads the flag *before* `rechargeShots` below, so a cast that
+    // charges its own shot only speeds up from the **next** one — which is
+    // where this read sits too.
+    let spiritshot_charged = player.is_charged_shot(crate::model::ShotType::Spiritshots)
+        || player.is_charged_shot(crate::model::ShotType::BlessedSpiritshots);
+    let (hit_ms, cancel_ms, cool_ms) = formulas::calc_cast_times(
+        player,
+        base,
+        mods,
+        combat,
+        &world.data,
+        skill,
+        spiritshot_charged,
+    );
     let displayed_cast_time = hit_ms + cancel_ms;
 
     // `SkillCaster`: recharge shots before the cast so the spiritshot bonus is

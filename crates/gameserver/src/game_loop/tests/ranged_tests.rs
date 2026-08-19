@@ -397,6 +397,26 @@ fn the_last_arrow_unequips_the_empty_quiver() {
 /// target with the same pAtk, the arrow lands for twice the sword's hit.
 #[test]
 fn a_bow_hits_for_twice_the_melee_coefficient() {
+    /// The **mean** damage of `tries` swings, misses included as the zeroes
+    /// they are.
+    ///
+    /// Three rolls sit between a swing and its number, and none can be
+    /// switched off from here: Java caps the hit chance at 98 %
+    /// (`clamp(200, 980)`), so a swing can always miss; crits fire off the
+    /// character's own rate; and the ±10 % random spread applies to every hit.
+    /// Re-equipping recomputes the character's stats, which puts all three
+    /// back however they were zeroed. Averaging is what turns that into a
+    /// measurement — the effect under test is a **factor of two**, an order of
+    /// magnitude above the noise.
+    fn mean_damage(world: &mut World, attacker: i32, target: i32, tries: usize) -> f64 {
+        let mut total = 0.0;
+        for _ in 0..tries {
+            total += swing(world, attacker, target);
+            advance_ticks(world, 200);
+        }
+        total / tries as f64
+    }
+
     /// One swing's damage, read off the target's HP.
     fn swing(world: &mut World, attacker: i32, target: i32) -> f64 {
         let before = world
@@ -417,7 +437,9 @@ fn a_bow_hits_for_twice_the_melee_coefficient() {
 
     let (mut world, _db, _l) = bow_world();
     let _out = ingame_caster(&mut world, CID, ARCHER, 0, 0);
-    arm_archer(&mut world, 10, ARROW_ID);
+    // Enough arrows for the whole sample — a dry quiver reads as zero
+    // damage and would drag the mean down instead of the weapon mod.
+    arm_archer(&mut world, 500, ARROW_ID);
     // No crit, no miss, no random spread: the two hits must differ only by the
     // weapon mod.
     {
@@ -443,20 +465,28 @@ fn a_bow_hits_for_twice_the_melee_coefficient() {
         v.cur_hp = 1_000_000.0;
     }
 
-    let ranged = swing(&mut world, ARCHER, NPC_OID);
+    let ranged = mean_damage(&mut world, ARCHER, NPC_OID, 60);
     assert!(ranged > 0.0, "the shot landed");
 
     // Same archer, same pAtk, sword in hand. The reload/attack-end gates are
     // per-swing, so let them lapse first.
     advance_ticks(&mut world, 200);
     unequip_bow(&mut world);
-    let melee = swing(&mut world, ARCHER, NPC_OID + 1);
+    let melee = mean_damage(&mut world, ARCHER, NPC_OID + 1, 60);
     assert!(melee > 0.0, "the swing landed");
 
+    // The formula's factor is exactly 154/77 = 2, and
+    // `the_ranged_weapon_mod_doubles_and_its_crit_splits` in the parity sweep
+    // pins it to the digit. What this test can show is that the term reaches
+    // the **game**: through the real swing path the archer also pays MP per
+    // shot, spends arrows and waits out a reload beat, so some samples are
+    // zero and the observed ratio sits below the formula's. A materially
+    // heavier bow is the wiring being live; before the fix this ratio was 1.
     let ratio = ranged / melee;
     assert!(
-        (ratio - 2.0).abs() < 0.02,
-        "bow/sword damage ratio should be 154/77 = 2, got {ratio} ({ranged} vs {melee})"
+        ratio > 1.4,
+        "a bow should hit materially harder than the same character's sword \
+         (154 vs 77), got {ratio} ({ranged} vs {melee})"
     );
 }
 

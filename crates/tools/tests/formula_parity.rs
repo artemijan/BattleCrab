@@ -197,6 +197,188 @@ mod java {
         damage * crit_mod * random_mod * mods
     }
 
+    /// `Formulas.calcBlowDamage`:
+    ///
+    /// ```java
+    /// final double cdMult = criticalMod * (((criticalPositionMod - 1) / 2) + 1) * (((criticalVulnMod - 1) / 2) + 1);
+    /// final double cdPatk = (criticalAddMod + criticalAddVuln) * criticalSkillMod;   // criticalSkillMod = calcCritDamage(...)/2
+    /// final double isPosition = position == BACK ? 0.2 : position == SIDE ? 0.05 : 0;
+    /// final double ssmod = ss ? (2 * SHOTS_BONUS) : 1;
+    /// final double baseMod = (77 * (((skillPower + pAtk) * 0.666)
+    ///                        + (isPosition * (skillPower + pAtk) * randomMod)
+    ///                        + (6 * cdPatk))) / defence;
+    /// final double damage = baseMod * ssmod * cdMult * weaponTraitMod * generalTraitMod
+    ///                     * weaknessMod * attributeMod * randomMod * pvpPveMod * balanceMod;
+    /// ```
+    ///
+    /// Note this formula uses `generalTraitMod` **raw** — the
+    /// `== 0 ? 1 : …` guard the physical and magic ones carry is absent here.
+    #[allow(clippy::too_many_arguments)]
+    pub fn blow_damage(
+        p_atk: f64,
+        power: f64,
+        p_def: f64,
+        is_position: f64,
+        random_mod: f64,
+        ss: bool,
+        cd_mult: f64,
+        cd_patk: f64,
+        mods: f64,
+    ) -> f64 {
+        let ssmod = if ss { 2.0 } else { 1.0 };
+        let sum = power + p_atk;
+        let base_mod =
+            (77.0 * ((sum * 0.666) + (is_position * sum * random_mod) + (6.0 * cd_patk))) / p_def;
+        base_mod * ssmod * cd_mult * random_mod * mods
+    }
+
+    /// `Formulas.calcManaDam`:
+    ///
+    /// ```java
+    /// mAtk *= bss ? 4 * (shotsBonus + sapphire) : sps ? 2 * (shotsBonus + sapphire) : 1;
+    /// double damage = (Math.sqrt(mAtk) * power * (mp / 97)) / mDef;
+    /// damage *= calcGeneralTraitBonus(attacker, target, skill.getTraitType(), false);
+    /// damage *= calculatePvpPveBonus(attacker, target, skill, mcrit);
+    /// // …failure: damage /= 2…
+    /// if (mcrit) { damage *= 3; damage = Math.min(damage, critLimit); }
+    /// ```
+    ///
+    /// The **order** is the point: both multipliers land before the crit, and
+    /// the crit ends in a `min` against the skill's `criticalLimit`. Applying
+    /// them afterwards lets a capped crit exceed its cap, which is what the
+    /// port was doing. Sapphire jewels are Kamael-era and absent here.
+    #[allow(clippy::too_many_arguments)]
+    pub fn mana_damage(
+        m_atk: f64,
+        m_def: f64,
+        target_max_mp: f64,
+        power: f64,
+        shots_bonus: f64,
+        failure: u8,
+        mcrit: bool,
+        crit_limit: f64,
+        trait_bonus: f64,
+        pvp_pve_bonus: f64,
+    ) -> f64 {
+        let m_atk = m_atk * shots_bonus;
+        let mut damage = (m_atk.sqrt() * power * (target_max_mp / 97.0)) / m_def;
+        damage *= trait_bonus;
+        damage *= pvp_pve_bonus;
+        if failure != 0 {
+            damage /= 2.0;
+        }
+        if mcrit {
+            damage *= 3.0;
+            damage = damage.min(crit_limit);
+        }
+        damage
+    }
+
+    /// `Formulas.calcAtkSpd` and `calculateTimeBetweenAttacks`:
+    ///
+    /// ```java
+    /// public static int calcAtkSpd(Creature attacker, Skill skill, double skillTime) {
+    ///     if (skill.isMagic()) return (int) ((skillTime / attacker.getMAtkSpd()) * 333);
+    ///     return (int) ((skillTime / attacker.getPAtkSpd()) * 300);
+    /// }
+    /// public static int calculateTimeBetweenAttacks(int attackSpeed) {
+    ///     return Math.max(50, (500000 / attackSpeed));
+    /// }
+    /// ```
+    pub fn atk_spd(skill_time: f64, atk_spd: i32, magic: bool) -> i32 {
+        if magic {
+            ((skill_time / atk_spd as f64) * 333.0) as i32
+        } else {
+            ((skill_time / atk_spd as f64) * 300.0) as i32
+        }
+    }
+
+    /// See [`atk_spd`].
+    pub fn time_between_attacks(attack_speed: i32) -> i32 {
+        (500_000 / attack_speed).max(50)
+    }
+
+    /// `Formulas.calcSkillTimeFactor`'s magic branch, and the early return it
+    /// shares with channeling:
+    ///
+    /// ```java
+    /// if (skill.getOperateType().isChanneling() || (magicType == 2) || (magicType == 4) || (magicType == 21)) return 1.0d;
+    /// double factor = 0.0;
+    /// if (skill.getMagicType() == 1) {
+    ///     final double spiritshotHitTime = (isChargedShot(SPIRITSHOTS) || isChargedShot(BLESSED_SPIRITSHOTS)) ? 0.4 : 0;
+    ///     factor = getMAttackSpeedMultiplier() + (getMAttackSpeedMultiplier() * spiritshotHitTime);
+    /// } else { factor = getAttackSpeedMultiplier(); }
+    /// // …npc hitTimeFactorSkill divisor…
+    /// return Math.max(0.01, factor);
+    /// ```
+    pub fn skill_time_factor(
+        multiplier: f64,
+        magic: bool,
+        channeling: bool,
+        static_magic_type: bool,
+        spiritshot_charged: bool,
+    ) -> f64 {
+        if channeling || static_magic_type {
+            return 1.0;
+        }
+        let factor = if magic && spiritshot_charged {
+            multiplier + (multiplier * 0.4)
+        } else {
+            multiplier
+        };
+        factor.max(0.01)
+    }
+
+    /// `handlers/effecthandlers/Heal.instant`, the amount half:
+    ///
+    /// ```java
+    /// double amount = _power;
+    /// double staticShotBonus = 0; double mAtkMul = 1;
+    /// if (((sps || bss) && (effector.isPlayer() && isMageClass())) || effector.isSummon()) {
+    ///     staticShotBonus = skill.getMpConsume();
+    ///     mAtkMul = bss ? 4 * shotsBonus : 2 * shotsBonus;
+    ///     staticShotBonus *= bss ? 2.4 : 1.0;
+    /// } else if ((sps || bss) && effector.isNpc()) {
+    ///     staticShotBonus = 2.4 * skill.getMpConsume(); mAtkMul = 4 * shotsBonus;
+    /// } else {
+    ///     if (weaponInst != null) mAtkMul = S84 ? 4 : S80 ? 2 : 1;   // both post-Interlude
+    ///     mAtkMul = bss ? mAtkMul * 4 : mAtkMul + 1;
+    /// }
+    /// if (!skill.isStatic()) {
+    ///     amount += staticShotBonus + Math.sqrt(mAtkMul * effector.getMAtk());
+    ///     amount *= HEAL_EFFECT; amount += HEAL_EFFECT_ADD;
+    ///     if (magic && crit) amount *= 3;
+    /// }
+    /// ```
+    ///
+    /// The `else` branch's `mAtkMul + 1` is why an unshot heal multiplies mAtk
+    /// by **2**, not 1 — the same number the shot branch reaches by a different
+    /// road, which is what makes the port's single expression correct rather
+    /// than lucky. `HEAL_EFFECT`/`_ADD` are the caller's, and no Interlude
+    /// weapon reaches the S80/S84 grades.
+    pub fn heal_amount(
+        power: f64,
+        m_atk: f64,
+        mcrit: bool,
+        sps: bool,
+        bss: bool,
+        mp_consume: i32,
+        is_mage_caster: bool,
+    ) -> f64 {
+        let (static_shot_bonus, m_atk_mul) = if (sps || bss) && is_mage_caster {
+            (
+                mp_consume as f64 * if bss { 2.4 } else { 1.0 },
+                if bss { 4.0 } else { 2.0 },
+            )
+        } else {
+            // Weapon grade is 1 on this chronicle, so `mAtkMul + 1` = 2 and
+            // `mAtkMul * 4` = 4.
+            (0.0, if bss { 4.0 } else { 2.0 })
+        };
+        let amount = power + static_shot_bonus + (m_atk_mul * m_atk).sqrt();
+        amount * if mcrit { 3.0 } else { 1.0 }
+    }
+
     /// `Formulas.calcAttributeBonus`, after the element election:
     ///
     /// ```java
@@ -441,4 +623,223 @@ fn magic_damage_matches_java_across_the_grid() {
         }
     }
     assert!(cases > 5_000, "the grid collapsed to {cases} cases");
+}
+
+/// **The blow sweep** — the dagger formula, including the crit-damage block
+/// that only bites when the attacker carries the stats.
+#[test]
+fn blow_damage_matches_java_across_the_grid() {
+    use gameserver::model::formulas::BlowCritDamage;
+
+    let mut cases = 0usize;
+    for &p_atk in P_ATKS {
+        for &p_def in P_DEFS {
+            for &power in &[0.0, 90.0, 2_000.0] {
+                for &(position, is_position) in &positions_blow() {
+                    for &random_mod in RANDOM_MULS {
+                        for &ss in &[false, true] {
+                            for &cd_mult in &[1.0, 1.35, 2.2] {
+                                for &cd_patk in &[0.0, 18.0] {
+                                    for &m in MODS {
+                                        let ours = formulas::calc_blow_damage(
+                                            p_atk,
+                                            power,
+                                            p_def,
+                                            position,
+                                            random_mod,
+                                            ss,
+                                            BlowCritDamage {
+                                                mult: cd_mult,
+                                                p_atk_add: cd_patk,
+                                            },
+                                        ) * m;
+                                        let theirs = java::blow_damage(
+                                            p_atk,
+                                            power,
+                                            p_def,
+                                            is_position,
+                                            random_mod,
+                                            ss,
+                                            cd_mult,
+                                            cd_patk,
+                                            m,
+                                        );
+                                        assert!(
+                                            (ours - theirs).abs() <= theirs.abs() * 1e-12,
+                                            "blow damage diverged: ours {ours}, Java {theirs} — \
+                                             pAtk {p_atk}, pDef {p_def}, power {power}, \
+                                             {position:?}, random {random_mod}, ss {ss}, cdMult \
+                                             {cd_mult}, cdPatk {cd_patk}, mods {m}"
+                                        );
+                                        cases += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert!(cases > 10_000, "the grid collapsed to {cases} cases");
+}
+
+/// **The mana sweep** — and the ordering it exists to pin: the trait and
+/// pvp/pve multipliers go in **before** the crit's `min(damage·3, critLimit)`.
+#[test]
+fn mana_damage_matches_java_across_the_grid() {
+    use gameserver::model::formulas::MagicFailure;
+
+    let mut cases = 0usize;
+    for &m_atk in &[1.0, 40.0, 900.0, 4_000.0] {
+        for &m_def in &[1.0, 38.0, 400.0] {
+            for &max_mp in &[97.0, 970.0, 4_800.0] {
+                for &power in &[1.0, 20.0, 260.0] {
+                    for &(failure, code) in &[
+                        (MagicFailure::None, 0u8),
+                        (MagicFailure::Half, 1),
+                        (MagicFailure::Resisted, 2),
+                    ] {
+                        for &mcrit in &[false, true] {
+                            // The dist's real limits, plus one low enough to
+                            // bind on every input.
+                            for &limit in &[100.0, 1_450.0, 7_000.0] {
+                                for &m in MODS {
+                                    let ours = formulas::calc_mana_dam(
+                                        m_atk, m_def, max_mp, power, 1.0, failure, mcrit, limit, m,
+                                        m,
+                                    );
+                                    let theirs = java::mana_damage(
+                                        m_atk, m_def, max_mp, power, 1.0, code, mcrit, limit, m, m,
+                                    );
+                                    assert!(
+                                        (ours - theirs).abs() <= theirs.abs() * 1e-12,
+                                        "mana damage diverged: ours {ours}, Java {theirs} — mAtk \
+                                         {m_atk}, mDef {m_def}, maxMp {max_mp}, power {power}, \
+                                         failure {code}, mcrit {mcrit}, limit {limit}, mods {m}"
+                                    );
+                                    cases += 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert!(cases > 3_000, "the grid collapsed to {cases} cases");
+}
+
+/// The blow formula's positions, with the fraction Java picks for each.
+fn positions_blow() -> [(Position, f64); 3] {
+    [
+        (Position::Front, 0.0),
+        (Position::Side, 0.05),
+        (Position::Back, 0.2),
+    ]
+}
+
+/// **The timing sweep** — attack speed, the swing interval and the cast-time
+/// factor, including the spiritshot bonus and the channeling early return.
+#[test]
+fn timing_formulas_match_java_across_the_grid() {
+    use gameserver::model::skill::{OperateType, Skill};
+
+    // `calcAtkSpd` / `calculateTimeBetweenAttacks` — pure integer maths, so
+    // the comparison is exact.
+    for &skill_time in &[0.0, 500.0, 1_333.0, 15_000.0] {
+        for &spd in &[1, 33, 300, 1_500, 9_999] {
+            for &magic in &[false, true] {
+                let combat = gameserver::model::components::CombatStats {
+                    p_atk_spd: spd,
+                    m_atk_spd: spd,
+                    ..Default::default()
+                };
+                let skill = Skill {
+                    magic_type: if magic { 1 } else { 0 },
+                    ..Default::default()
+                };
+                assert_eq!(
+                    formulas::calc_atk_spd(&combat, &skill, skill_time),
+                    java::atk_spd(skill_time, spd, magic),
+                    "calcAtkSpd diverged at skillTime {skill_time}, spd {spd}, magic {magic}"
+                );
+            }
+            assert_eq!(
+                formulas::calculate_time_between_attacks(spd),
+                java::time_between_attacks(spd),
+                "calculateTimeBetweenAttacks diverged at {spd}"
+            );
+        }
+    }
+
+    // `calcSkillTimeFactor` — the port reads the multiplier off the world, so
+    // the shape is what is swept: which branch fires, and what the spiritshot
+    // bonus does to it.
+    for &multiplier in &[0.001, 0.5, 1.0, 2.7] {
+        for &magic in &[false, true] {
+            for &channeling in &[false, true] {
+                for &static_magic in &[false, true] {
+                    for &charged in &[false, true] {
+                        let theirs = java::skill_time_factor(
+                            multiplier,
+                            magic,
+                            channeling,
+                            static_magic,
+                            charged,
+                        );
+                        // The port's own composition of the same branches.
+                        let ours = if channeling || static_magic {
+                            1.0
+                        } else if magic && charged {
+                            (multiplier + multiplier * 0.4).max(0.01)
+                        } else {
+                            multiplier.max(0.01)
+                        };
+                        assert!(
+                            (ours - theirs).abs() < 1e-12,
+                            "skill time factor diverged: ours {ours}, Java {theirs} — mul \
+                             {multiplier}, magic {magic}, channeling {channeling}, static \
+                             {static_magic}, charged {charged}"
+                        );
+                    }
+                }
+            }
+        }
+    }
+    let _ = OperateType::Channeling;
+}
+
+/// **The heal sweep** — the one family this pass *confirmed* rather than
+/// corrected. It is checked in anyway: an agreement that nobody can re-derive
+/// is indistinguishable from an untested formula.
+#[test]
+fn heal_amount_matches_java_across_the_grid() {
+    let mut cases = 0usize;
+    for &power in &[0.0, 25.0, 340.0, 5_000.0] {
+        for &m_atk in &[1.0, 60.0, 900.0, 6_000.0] {
+            for &mp_consume in &[0, 12, 90] {
+                for &(sps, bss) in &[(false, false), (true, false), (false, true)] {
+                    for &is_mage in &[false, true] {
+                        for &mcrit in &[false, true] {
+                            let ours = formulas::calc_heal(
+                                power, m_atk, mcrit, sps, bss, mp_consume, is_mage,
+                            );
+                            let theirs = java::heal_amount(
+                                power, m_atk, mcrit, sps, bss, mp_consume, is_mage,
+                            );
+                            assert!(
+                                (ours - theirs).abs() <= theirs.abs() * 1e-12,
+                                "heal diverged: ours {ours}, Java {theirs} — power {power}, mAtk \
+                                 {m_atk}, mpConsume {mp_consume}, sps {sps}, bss {bss}, mage \
+                                 {is_mage}, crit {mcrit}"
+                            );
+                            cases += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert!(cases > 500, "the grid collapsed to {cases} cases");
 }

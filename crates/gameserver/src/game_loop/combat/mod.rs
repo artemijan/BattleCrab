@@ -275,6 +275,41 @@ pub(crate) fn crit_damage_auto(
     }
 }
 
+/// `calcBlowDamage`'s crit-damage block — the dagger-only shape: the position
+/// and vulnerability multipliers count **half** (`((v−1)/2)+1`), and the
+/// additive pair is scaled by `calcCritDamage(skill)/2` before entering the
+/// bracket at ×6.
+pub(crate) fn blow_crit_damage(
+    world: &World,
+    attacker_oid: i32,
+    target_oid: i32,
+    position: movement::Position,
+) -> formulas::BlowCritDamage {
+    use crate::model::components::StatModifiers;
+    use crate::model::stats::Stat;
+    let attacker = world.objects.get_component::<StatModifiers>(&attacker_oid);
+    let target = world.objects.get_component::<StatModifiers>(&target_oid);
+    let mul_of =
+        |m: Option<&StatModifiers>, s: Stat| m.and_then(|m| m.mul.get(&s).copied()).unwrap_or(1.0);
+    let add_of =
+        |m: Option<&StatModifiers>, s: Stat| m.and_then(|m| m.add.get(&s).copied()).unwrap_or(0.0);
+    let position_mul = attacker
+        .map(|m| m.position_value(Stat::CriticalDamage, position))
+        .unwrap_or(1.0);
+    let vuln = mul_of(target, Stat::DefenceCriticalDamage);
+    formulas::BlowCritDamage {
+        mult: mul_of(attacker, Stat::CriticalDamage)
+            * (((position_mul - 1.0) / 2.0) + 1.0)
+            * (((vuln - 1.0) / 2.0) + 1.0),
+        // `criticalSkillMod` is `calcCritDamage(attacker, target, skill) / 2`,
+        // and a blow is a physical skill — so the physical-skill crit pair,
+        // halved out of the `2 ·` the helper bakes in.
+        p_atk_add: (add_of(attacker, Stat::CriticalDamageAdd)
+            + add_of(target, Stat::DefenceCriticalDamageAdd))
+            * (crit_damage_skill(world, attacker_oid, target_oid, false) / 2.0),
+    }
+}
+
 /// `calcCritDamage`'s **skill** branches, which take neither the position term
 /// nor any additive one (`PhysicalAttack` and `calcMagicDam` apply only
 /// `critMod`).

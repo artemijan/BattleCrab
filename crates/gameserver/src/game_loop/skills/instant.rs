@@ -270,7 +270,18 @@ pub(super) fn magical_attack_mp(
             failure,
             drain_crit,
             critical_limit,
-        ) * effects::pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
+            // `calcGeneralTraitBonus(attacker, target, traitType, **false**)`
+            // — mana drain is the one damage formula that does *not* ignore
+            // the target's trait resistance.
+            effects::calc_general_trait_bonus(
+                world,
+                caster_oid,
+                target_oid,
+                skill.trait_type,
+                false,
+            ),
+            effects::pvp_pve_bonus(world, caster_oid, target_oid, Some(skill)),
+        )
     };
 
     // `mp = Math.min(effected.getCurrentMp(), damage)` — you cannot
@@ -430,6 +441,10 @@ pub(super) fn blow(
                 position,
                 formulas::random_damage_multiplier(rand_roll),
                 ss,
+                // `cdMult` and `cdPatk` — the crit-damage block a dagger
+                // scales with. Without them Death Whisper and its family did
+                // nothing to a blow while working on ordinary swings.
+                crate::game_loop::combat::blow_crit_damage(world, caster_oid, target_oid, position),
             );
             // `calcBlowDamage`'s `attributeMod` + trait terms.
             d *= effects::attribute_mod(world, caster_oid, target_oid, skill);

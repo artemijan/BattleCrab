@@ -1697,8 +1697,10 @@ fn incoming_magic_damage_can_break_precast() {
 
     // Force the rolls: crit d1000 (rate 0 → miss regardless), the magic-success
     // d100 (PvP accuracy branch, rate 98 → 0 lands, so damage is unreduced),
-    // then the atk-break d100 → 0 always breaks (rate ≥ 1).
-    world.force_rolls([999, 0, 0]);
+    // the random-damage d21 (10 is the middle, i.e. a ×1.0 spread — the term
+    // `calcMagicDam` multiplies by, added when the formula-parity sweep found
+    // it missing), then the atk-break d100 → 0 always breaks (rate ≥ 1).
+    world.force_rolls([999, 0, 10, 0]);
 
     advance_ticks(&mut world, 45);
 
@@ -6472,5 +6474,69 @@ fn magic_damage_varies_with_the_casters_random_spread() {
     assert!(
         seen.len() > 1,
         "the caster's spread produced one value in 40 rolls"
+    );
+}
+
+/// **Spiritshots speed the cast up**: `calcSkillTimeFactor`'s
+/// `spiritshotHitTime` is 0.4, so a charged mage casts at `matkSpdMul × 1.4`.
+/// The port had no shot term in the factor at all, so a spiritshot bought
+/// damage and nothing else.
+#[test]
+fn a_charged_spiritshot_shortens_the_cast() {
+    use crate::model::components::{BaseStats, StatModifiers};
+    use crate::model::formulas;
+
+    let (mut world, _db, _l) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let skill = world
+        .data
+        .skill_data
+        .get(1177, 1)
+        .expect("Wind Strike loads");
+    assert_eq!(skill.magic_type, 1, "the fixture skill must be magic");
+
+    let factor = |charged: bool, world: &World| {
+        let p = world
+            .objects
+            .get_component::<Player>(&3001)
+            .expect("player");
+        let base = world
+            .objects
+            .get_component::<BaseStats>(&3001)
+            .expect("base");
+        let mods = world
+            .objects
+            .get_component::<StatModifiers>(&3001)
+            .expect("mods");
+        formulas::calc_skill_time_factor(p, base, mods, &world.data, skill, charged)
+    };
+
+    let plain = factor(false, &world);
+    let charged = factor(true, &world);
+    assert!(
+        (charged - plain * 1.4).abs() < 1e-9,
+        "a charged spiritshot is worth ×1.4 on the cast-time factor ({charged} vs {plain})"
+    );
+
+    // …and a **channeled** skill ignores both: Java's factor is a flat 1, so
+    // its cancel time is not divided by cast speed either.
+    let mut channeled = skill.clone();
+    channeled.operate_type = crate::model::skill::OperateType::Channeling;
+    let p = world
+        .objects
+        .get_component::<Player>(&3001)
+        .expect("player");
+    let base = world
+        .objects
+        .get_component::<BaseStats>(&3001)
+        .expect("base");
+    let mods = world
+        .objects
+        .get_component::<StatModifiers>(&3001)
+        .expect("mods");
+    assert_eq!(
+        formulas::calc_skill_time_factor(p, base, mods, &world.data, &channeled, true),
+        1.0,
+        "a channeling skill's timing is static"
     );
 }

@@ -495,3 +495,78 @@ fn focus_chance_scales_crit_rate_per_position_including_downwards() {
     assert!((side - 1.43).abs() < 1e-9, "1.1 × 1.3: {side}");
     assert!((back - 2.08).abs() < 1e-9, "1.3 × 1.6: {back}");
 }
+
+// ---------------------------------------------------------------------------
+// The blow formula's own crit block (formula-parity pass)
+// ---------------------------------------------------------------------------
+
+/// **A dagger's blow scales with the same crit-damage stats a swing does** —
+/// `calcBlowDamage`'s `cdMult`, which the port had been leaving at 1. Death
+/// Whisper on a Backstab did nothing before this.
+///
+/// The shape is Java's and worth spelling out: the position and vulnerability
+/// multipliers count **half** (`((v−1)/2)+1`), so a ×1.4 position bonus moves
+/// the damage by 20 %, not 40 %.
+#[test]
+fn a_blow_reads_the_crit_damage_stats() {
+    use crate::model::formulas::BlowCritDamage;
+
+    let blow = |cd: BlowCritDamage| {
+        formulas::calc_blow_damage(200.0, 80.0, 60.0, Position::Back, 1.0, false, cd)
+    };
+    let base = blow(BlowCritDamage::default());
+    assert!(base > 0.0);
+
+    // `cdMult` scales the whole hit.
+    let buffed = blow(BlowCritDamage {
+        mult: 1.5,
+        p_atk_add: 0.0,
+    });
+    assert!(
+        (buffed - base * 1.5).abs() < 1e-9,
+        "cdMult multiplies the finished damage"
+    );
+
+    // `cdPatk` enters **inside** the bracket at ×6, so it is divided by
+    // defence with the rest rather than added afterwards.
+    let with_add = blow(BlowCritDamage {
+        mult: 1.0,
+        p_atk_add: 10.0,
+    });
+    assert!(
+        (with_add - (base + (77.0 * 6.0 * 10.0 / 60.0))).abs() < 1e-9,
+        "cdPatk lands inside the ×77/pDef bracket"
+    );
+}
+
+/// …and the stats reach it from the world: `blow_crit_damage` reads the same
+/// `CriticalDamage` family `crit_damage_auto` does, with the halving Java's
+/// blow formula applies to the position and vulnerability halves.
+#[test]
+fn blow_crit_damage_reads_the_stat_maps() {
+    let (mut world, ..) = combat_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 0, 0, 0);
+
+    let bare = crate::game_loop::combat::blow_crit_damage(&world, 3001, NPC_OID, Position::Back);
+    assert!((bare.mult - 1.0).abs() < 1e-9, "no stats, no bonus");
+    assert!((bare.p_atk_add - 0.0).abs() < 1e-9);
+
+    {
+        let mods = world
+            .objects
+            .get_component_mut::<StatModifiers>(&3001)
+            .expect("mods");
+        mods.mul.insert(Stat::CriticalDamage, 1.4);
+        mods.add.insert(Stat::CriticalDamageAdd, 25.0);
+    }
+    let buffed = crate::game_loop::combat::blow_crit_damage(&world, 3001, NPC_OID, Position::Back);
+    assert!(
+        (buffed.mult - 1.4).abs() < 1e-9,
+        "the plain multiplier is not halved"
+    );
+    assert!(
+        buffed.p_atk_add > 0.0,
+        "the additive pair reaches the formula"
+    );
+}

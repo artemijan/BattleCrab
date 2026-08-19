@@ -27,6 +27,8 @@ fn mana_dam_follows_the_java_formula() {
         MagicFailure::None,
         false,
         7000.0,
+        1.0,
+        1.0,
     );
     assert!((d - 40.0).abs() < 1e-9, "expected 40, got {d}");
 }
@@ -45,6 +47,8 @@ fn a_bigger_mp_pool_is_drained_harder() {
         MagicFailure::None,
         false,
         7000.0,
+        1.0,
+        1.0,
     );
     let big = formulas::calc_mana_dam(
         100.0,
@@ -55,6 +59,8 @@ fn a_bigger_mp_pool_is_drained_harder() {
         MagicFailure::None,
         false,
         7000.0,
+        1.0,
+        1.0,
     );
     assert!(
         (big - small * 2.0).abs() < 1e-9,
@@ -75,6 +81,8 @@ fn a_crit_triples_the_drain_and_then_clamps_to_the_limit() {
         MagicFailure::None,
         false,
         7000.0,
+        1.0,
+        1.0,
     );
     let crit = formulas::calc_mana_dam(
         100.0,
@@ -85,6 +93,8 @@ fn a_crit_triples_the_drain_and_then_clamps_to_the_limit() {
         MagicFailure::None,
         true,
         7000.0,
+        1.0,
+        1.0,
     );
     assert!((crit - base * 3.0).abs() < 1e-9, "×3 when under the cap");
 
@@ -98,6 +108,8 @@ fn a_crit_triples_the_drain_and_then_clamps_to_the_limit() {
         MagicFailure::None,
         true,
         100.0,
+        1.0,
+        1.0,
     );
     assert!(
         (capped - 100.0).abs() < 1e-9,
@@ -119,6 +131,8 @@ fn spiritshots_scale_matk_before_the_square_root() {
         MagicFailure::None,
         false,
         7000.0,
+        1.0,
+        1.0,
     );
     let sps = formulas::calc_mana_dam(
         100.0,
@@ -129,6 +143,8 @@ fn spiritshots_scale_matk_before_the_square_root() {
         MagicFailure::None,
         false,
         7000.0,
+        1.0,
+        1.0,
     );
     assert!(
         (sps - plain * 2.0_f64.sqrt()).abs() < 1e-9,
@@ -150,9 +166,13 @@ fn a_resisted_drain_is_halved_not_floored() {
         MagicFailure::None,
         false,
         7000.0,
+        1.0,
+        1.0,
     );
     for failure in [MagicFailure::Half, MagicFailure::Resisted] {
-        let d = formulas::calc_mana_dam(100.0, 50.0, 970.0, 20.0, 1.0, failure, false, 7000.0);
+        let d = formulas::calc_mana_dam(
+            100.0, 50.0, 970.0, 20.0, 1.0, failure, false, 7000.0, 1.0, 1.0,
+        );
         assert!((d - full / 2.0).abs() < 1e-9, "{failure:?} halves, got {d}");
     }
 }

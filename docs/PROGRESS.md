@@ -8302,3 +8302,75 @@ finalizers. Each is the same shape, and the file is laid out to take them.
 
 5 sweeps plus 3 game-level tests; every finding sabotage-verified in both
 directions.
+
+---
+
+## Formula parity, second pass: four more, and one clean bill
+
+Extending the sweeps past the first three families found four more divergences
+and confirmed one formula outright.
+
+### A dagger ignored every crit-damage buff
+
+`calcBlowDamage` carries a crit block the port had left out entirely: `cdMult`
+scales the finished damage, and `cdPatk` enters **inside** the ×77 bracket at
+×6 (so it is divided by defence like everything else). Both are their identity
+for a bare character, which is why it went unnoticed — Death Whisper worked on
+swings and did nothing to a Backstab.
+
+The shape is worth keeping in mind because it is unlike the other formulas:
+the position and vulnerability multipliers count **half**
+(`((v−1)/2)+1`), so a ×1.4 position bonus moves a blow by 20 %, not 40 %.
+
+### A mana-drain crit could beat its own cap
+
+`calcManaDam` multiplies by the trait and pvp/pve mods **before**
+`min(damage · 3, criticalLimit)`. The port applied pvp/pve after the whole
+formula and skipped the trait term, and since a clamp does not commute with a
+later multiply, a crit against a target with a favourable modifier sailed past
+the limit the skill declares (the dist ships 1450, 1600 and 7000). Mana drain
+is also the one damage formula that reads traits with `ignoreResistance =
+false`, which is now spelled out at the call site.
+
+### Confuse ignored abnormal resistance
+
+`calcProbability` subtracts `getAbnormalResist(basicProperty, target)` *inside*
+the parenthesis, ahead of both multipliers. The port's debuff land-rate already
+honoured that stat; the `calcProbability` path — Confuse and Randomize Hate —
+did not.
+
+### Spiritshots did not speed the cast up
+
+`calcSkillTimeFactor`'s magic branch is `matkSpdMul + (matkSpdMul · 0.4)` when a
+spiritshot is charged: a factor of 1.4 on cast time. The port had no shot term
+in the factor at all, so a spiritshot bought damage and nothing else. The same
+function heads its early return with `getOperateType().isChanneling()`, which
+the port also lacked — a channeled skill's factor is a flat 1, and the port was
+dividing its cancel time by the caster's cast speed. The comment there claimed
+Java composed it that way; it does not.
+
+### Heal came back clean
+
+`Heal.instant` agrees term for term. Its `else` branch reaches `mAtkMul + 1 = 2`
+where the shot branch reaches `2 · shotsBonus` — the same number by a different
+road, which makes the port's single expression correct rather than lucky. The
+sweep is checked in anyway: an agreement nobody can re-derive is
+indistinguishable from an untested formula.
+
+### What the game-level tests cost, and what they are worth
+
+Three of the fixes are pinned by a test that drives the real swing or cast
+path, and those fought the engine hardest. The bow test in particular measured
+a ratio of 3.0 (a crit slipped into the sample), then 1.58 (the quiver ran dry
+at 60 swings), then 2.1 (the ±10 % spread), before settling on a mean over 60
+swings asserted at `> 1.4` — because the arrow cost, the MP cost and the reload
+beat all press the observed factor below the formula's clean 2. The precision
+lives in the sweep, where it belongs; the game test's job is only to prove the
+term reaches the game, and it still fails outright when the 154 is reverted.
+
+One existing test broke for a subtler reason: it forces an exact roll sequence,
+and the new random-damage roll shifted it, so its atk-break roll was reading
+the wrong forced value. That is the right kind of collateral — a forced-roll
+test is a statement about *how many* rolls a path makes.
+
+Nine sweeps, ~90 000 cases; every finding sabotage-verified in both directions.

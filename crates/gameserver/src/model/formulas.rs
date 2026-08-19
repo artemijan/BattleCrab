@@ -96,11 +96,20 @@ pub fn calc_probability(
     magic_level: i32,
     base_chance: i32,
     target_level: i32,
+    // `getAbnormalResist(skill.getBasicProperty(), target)` — the target's
+    // `ABNORMAL_RESIST_PHYSICAL`/`_MAGICAL`, **subtracted inside the
+    // parenthesis** before either multiplier. The same stat
+    // `calc_effect_land_rate` already reads; this formula had been ignoring
+    // it, so a target whose abnormal resistance holds off a stun took a
+    // Confuse at full rate.
+    abnormal_resist: f64,
     attribute_mod: f64,
     trait_mod: f64,
     roll: i32,
 ) -> bool {
-    let threshold = (magic_level + base_chance - target_level) as f64 * attribute_mod * trait_mod;
+    let threshold = ((magic_level + base_chance - target_level) as f64 - abnormal_resist)
+        * attribute_mod
+        * trait_mod;
     (roll as f64) < threshold
 }
 
@@ -119,6 +128,7 @@ pub fn calc_probability(
 /// Dropped terms, all identity here: `calcGeneralTraitBonus`,
 /// `calculatePvpPveBonus`, and the sapphire-jewel bonus (a later chronicle's
 /// item, absent from this dist).
+#[allow(clippy::too_many_arguments)]
 pub fn calc_mana_dam(
     m_atk: f64,
     m_def: f64,
@@ -128,9 +138,20 @@ pub fn calc_mana_dam(
     failure: MagicFailure,
     mcrit: bool,
     crit_limit: f64,
+    trait_bonus: f64,
+    pvp_pve_bonus: f64,
 ) -> f64 {
     let m_atk = m_atk * shots_bonus;
     let mut damage = (m_atk.sqrt() * power * (target_max_mp / 97.0)) / m_def.max(1.0);
+    // Java applies both of these **here**, ahead of the failure halving and
+    // the crit clamp — and the clamp is the reason the order is not free:
+    // `min(damage · 3, criticalLimit)` after the multipliers is not the same
+    // as multiplying a clamped value afterwards. The dist ships real limits
+    // (1450, 1600, 7000), so a crit that binds one would have been let past
+    // it. The trait bonus is read with `ignoreResistance = false` here, unlike
+    // every other damage formula.
+    damage *= trait_bonus;
+    damage *= pvp_pve_bonus;
     // The `ALT_GAME_MAGICFAILURES` block, applied at Java's point in the
     // formula — before the crit, like `calc_magic_dam`. Java has no
     // `damage = 1` floor on the full-resist branch here, only the halving,
@@ -465,12 +486,25 @@ pub fn calc_skill_time_factor(
     mods: &crate::model::components::StatModifiers,
     data: &GameData,
     skill: &Skill,
+    // `creature.isChargedShot(SPIRITSHOTS) || isChargedShot(BLESSED_SPIRITSHOTS)`
+    // — Java's `spiritshotHitTime` of **0.4**, i.e. a charged mage casts at
+    // `matkSpdMul · 1.4`. Ignored for anything but a magic skill, as in Java.
+    spiritshot_charged: bool,
 ) -> f64 {
-    if skill.magic_type == 2 || skill.magic_type == 4 || skill.magic_type == 21 {
+    // `skill.getOperateType().isChanneling()` heads the same early return as
+    // the three static magic types: a channeled skill's timing is fixed, so
+    // its factor is 1 and its cancel time is **not** divided by cast speed.
+    if skill.operate_type == crate::model::skill::OperateType::Channeling
+        || skill.magic_type == 2
+        || skill.magic_type == 4
+        || skill.magic_type == 21
+    {
         return 1.0;
     }
     let factor = if skill.magic_type == 1 {
-        calc_m_atk_spd_multiplier(base, mods, data)
+        let m = calc_m_atk_spd_multiplier(base, mods, data);
+        // `factor = matkspdmul + (matkspdmul * spiritshotHitTime)`.
+        m + (m * if spiritshot_charged { 0.4 } else { 0.0 })
     } else {
         calc_atk_spd_multiplier(p, base, mods, data)
     };
@@ -484,9 +518,11 @@ pub fn calc_skill_cancel_time(
     mods: &crate::model::components::StatModifiers,
     data: &GameData,
     skill: &Skill,
+    spiritshot_charged: bool,
 ) -> f64 {
-    ((skill.hit_cancel_time * 1000.0) / calc_skill_time_factor(p, base, mods, data, skill))
-        .max(SKILL_LAUNCH_TIME_MS)
+    ((skill.hit_cancel_time * 1000.0)
+        / calc_skill_time_factor(p, base, mods, data, skill, spiritshot_charged))
+    .max(SKILL_LAUNCH_TIME_MS)
 }
 
 /// `Formulas.calcAtkSpd` — the post-finish cool phase in ms (magic scales by
@@ -516,14 +552,15 @@ pub fn calc_cast_times(
     combat: &crate::model::components::CombatStats,
     data: &GameData,
     skill: &Skill,
+    spiritshot_charged: bool,
 ) -> (i32, i32, i32) {
-    let factor = calc_skill_time_factor(p, base, mods, data, skill);
-    let cancel = calc_skill_cancel_time(p, base, mods, data, skill);
+    let factor = calc_skill_time_factor(p, base, mods, data, skill, spiritshot_charged);
+    let cancel = calc_skill_cancel_time(p, base, mods, data, skill, spiritshot_charged);
     // Channeling (`CA1`) cast time is **static**: `_hitTime = max(hitTime −
     // cancelTime, 0)`, `_cancelTime = 2866` — no time-factor scaling, so
-    // Volcano channels its full duration regardless of casting speed. (The
-    // cancel term itself still divides by the factor inside
-    // `calcSkillCancelTime`, exactly as Java composes it.)
+    // Volcano channels its full duration regardless of casting speed. The
+    // cancel term does not scale either: `calcSkillTimeFactor` returns 1 for a
+    // channeling skill, which this comment used to claim the opposite of.
     if skill.operate_type == crate::model::skill::OperateType::Channeling {
         let hit = (skill.hit_time as f64 - cancel).max(0.0) as i32;
         let cool = calc_atk_spd(combat, skill, skill.cool_time as f64);
@@ -844,6 +881,34 @@ pub fn level_mod(level: i32) -> f64 {
 /// the caller shortcuts to 1). `SKILL_POWER_ADD` is 0.
 ///
 /// `77·((power+pAtk)·0.666 + isPos·(power+pAtk)·randomMul) / pDef · ssMod · randomMul`
+/// The two crit-damage terms Java's blow formula carries, which are **not**
+/// the shape the other formulas use:
+///
+/// * `mult` = `CRITICAL_DAMAGE · ((positionValue−1)/2 + 1) · ((DEFENCE_CRITICAL_DAMAGE−1)/2 + 1)`
+///   — the position and vulnerability halves count *half*, which is Java's own
+///   arithmetic and not a simplification;
+/// * `p_atk_add` = `(CRITICAL_DAMAGE_ADD + DEFENCE_CRITICAL_DAMAGE_ADD) ·
+///   (calcCritDamage(skill)/2)`, entering **inside** the bracket at ×6 — so it
+///   is divided by defence like everything else rather than added on top.
+///
+/// Both are their identity (1.0 / 0.0) for an actor carrying no such stats,
+/// which is why the port ran without them unnoticed: a bare dagger is
+/// unaffected, a Death Whisper'd one is not.
+#[derive(Debug, Clone, Copy)]
+pub struct BlowCritDamage {
+    pub mult: f64,
+    pub p_atk_add: f64,
+}
+
+impl Default for BlowCritDamage {
+    fn default() -> Self {
+        Self {
+            mult: 1.0,
+            p_atk_add: 0.0,
+        }
+    }
+}
+
 pub fn calc_blow_damage(
     p_atk: f64,
     power: f64,
@@ -851,6 +916,7 @@ pub fn calc_blow_damage(
     position: Position,
     random_mul: f64,
     ss: bool,
+    cd: BlowCritDamage,
 ) -> f64 {
     let is_pos = match position {
         Position::Back => 0.2,
@@ -859,8 +925,9 @@ pub fn calc_blow_damage(
     };
     let sum = power + p_atk;
     let ss_mod = if ss { 2.0 } else { 1.0 };
-    let base_mod = (77.0 * ((sum * 0.666) + (is_pos * sum * random_mul))) / p_def.max(1.0);
-    (base_mod * ss_mod * random_mul).max(0.0)
+    let base_mod = (77.0 * ((sum * 0.666) + (is_pos * sum * random_mul) + (6.0 * cd.p_atk_add)))
+        / p_def.max(1.0);
+    (base_mod * ss_mod * cd.mult * random_mul).max(0.0)
 }
 
 /// `Formulas.calcBlowSuccess` — the "does the blow land" roll (part of the blow
@@ -1589,18 +1656,54 @@ mod tests {
     /// doubles; randomMul scales (and also feeds the positional term).
     #[test]
     fn blow_damage_matches_java() {
-        let front = calc_blow_damage(100.0, 50.0, 60.0, Position::Front, 1.0, false);
+        let front = calc_blow_damage(
+            100.0,
+            50.0,
+            60.0,
+            Position::Front,
+            1.0,
+            false,
+            BlowCritDamage::default(),
+        );
         assert!((front - (77.0 * (150.0 * 0.666) / 60.0)).abs() < 1e-9);
         // Back: +0.2·150 inside the bracket.
-        let back = calc_blow_damage(100.0, 50.0, 60.0, Position::Back, 1.0, false);
+        let back = calc_blow_damage(
+            100.0,
+            50.0,
+            60.0,
+            Position::Back,
+            1.0,
+            false,
+            BlowCritDamage::default(),
+        );
         assert!((back - (77.0 * ((150.0 * 0.666) + (0.2 * 150.0)) / 60.0)).abs() < 1e-9);
         // Soulshot doubles the front hit.
         assert!(
-            (calc_blow_damage(100.0, 50.0, 60.0, Position::Front, 1.0, true) - front * 2.0).abs()
+            (calc_blow_damage(
+                100.0,
+                50.0,
+                60.0,
+                Position::Front,
+                1.0,
+                true,
+                BlowCritDamage::default()
+            ) - front * 2.0)
+                .abs()
                 < 1e-9
         );
         // pDef floors at 1.
-        assert!(calc_blow_damage(100.0, 50.0, 0.0, Position::Front, 1.0, false).is_finite());
+        assert!(
+            calc_blow_damage(
+                100.0,
+                50.0,
+                0.0,
+                Position::Front,
+                1.0,
+                false,
+                BlowCritDamage::default()
+            )
+            .is_finite()
+        );
     }
 
     /// Blow success: rate = posBonus · heightBonus · critRate · (100+boost)/100
