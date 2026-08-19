@@ -528,11 +528,20 @@ pub(super) fn lethal(
     if crate::game_loop::abnormal::is_hp_blocked(world, target_oid) {
         return;
     }
-    // `INSTANT_KILL_RESIST` is never set by anything in this
-    // datapack (like `MAX_MOMENTUM`), so Java's resist roll would
-    // always lose against a 0 stat — not rolled here at all.
-    // None of the four outcome SystemMessages below take
-    // parameters (`"Lethal Strike!"`, `"Half-Kill!"`, …).
+    // Java rolls a resist first — `Rnd.get(100) < getValue(INSTANT_KILL_RESIST, 0)`
+    // — and on a hit sends "has evaded"/"went astray" instead of executing.
+    // **19 skills declare `InstantKillResist`, and every one is off-chronicle**:
+    // the lowest id is 11395, the set is R-grade talismans, the eleven "Instant
+    // Kill Attack Resistance" entries (14814-14823) and four Ertheia
+    // accessories, and none is learnable or otherwise reachable here. So the
+    // stat is a fixed 0, the roll can only lose, and it is not rolled at all —
+    // which also keeps two `SystemMessage`s off a path that can never send them.
+    // None of the four outcome messages below take parameters
+    // (`"Lethal Strike!"`, `"Half-Kill!"`, …).
+    //
+    // Java's other two gates are narrowed the same way: `canGiveDamage()` is a
+    // GM access-level permission, and the `DUELIST_FURY` exemption has exactly
+    // one carrier (Duelist's Fury 10319), also post-Interlude.
     let caster_client = helpers::client_for_player(world, caster_oid);
     let is_player_target = world
         .objects

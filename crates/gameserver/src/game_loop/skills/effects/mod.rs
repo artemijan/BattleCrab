@@ -927,9 +927,11 @@ pub(crate) fn apply_skill_effects(
             // `minions::add_hate` does, waking a currently-idle target.
             SkillEffect::GetAgro => force_attack_target(world, target_oid, caster_oid),
             SkillEffect::AddHate { power } => add_hate(world, caster_oid, target_oid, *power),
-            SkillEffect::DeleteHate { chance } => delete_hate(world, target_oid, *chance),
+            SkillEffect::DeleteHate { chance } => {
+                delete_hate(world, caster_oid, target_oid, skill, *chance)
+            }
             SkillEffect::DeleteHateOfMe { chance } => {
-                delete_hate_of_me(world, caster_oid, target_oid, *chance);
+                delete_hate_of_me(world, caster_oid, target_oid, skill, *chance);
             }
             // Periodic effects do nothing on application; their work happens on
             // the tick chain armed by `schedule_dam_over_time`.

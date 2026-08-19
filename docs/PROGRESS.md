@@ -8874,3 +8874,189 @@ comments.
 
 One finding, sabotage-verified, pinned by a test that summons two servitors
 differing only in `<race>` and reads back 60 s against 240 s.
+
+---
+
+## Effect-handler parity, batch 4: a chance that was supposed to be a formula
+
+The trait/attribute pair and the hate family — `DefenceTrait`, `AttackTrait`,
+`DefenceAttribute`, `AttackAttribute`, `AddHate`, `DeleteHate`,
+`DeleteHateOfMe`, `GetAgro`, `RandomizeHate`, `TargetMe`,
+`TargetMeProbability`. One finding out of ten.
+
+### `<chance>80</chance>` is not an 80 % chance
+
+`DeleteHate` and `DeleteHateOfMe` both carry:
+
+```java
+@Override
+public boolean calcSuccess(Creature effector, Creature effected, Skill skill)
+{
+    return Formulas.calcProbability(_chance, effector, effected, skill);
+}
+```
+
+`calcSuccess` is an override on `AbstractEffect` — a gate the *effect list*
+consults before the handler runs at all — and the port had read the `<chance>`
+as a plain percentage and rolled it directly. So Repose, Peace, Eva's Serenade,
+Trick, Bluff and Forget all landed on a level-80 boss exactly as often as on a
+level-1 rat, when the whole point of `calcProbability` is that they should not.
+
+The fix was one call: `confuse_chance_passes` already existed, already ran
+`((magicLevel + baseChance − targetLevel) − abnormalResist) × elementMod ×
+traitMod`, and was already wired into `Confuse` and `RandomizeHate`. Two of the
+four hate effects used it and two did not, in the same file, ten lines apart.
+
+That is the shape worth naming. A missing mechanism is easy to see; a mechanism
+that exists and is *inconsistently applied* looks like a deliberate difference
+between neighbours. The tell was that `RandomizeHate` — Confusion (2) and
+Switch (12) — went through the formula while `DeleteHate` — Repose (1034) — did
+not, and nothing in Java distinguishes them: both are `EffectType.HATE`, both
+declare a bare `<chance>`, both override `calcSuccess` identically.
+
+### Nine clean
+
+`DefenceTrait` was the one with a trap in it, and the port had already stepped
+around it: `value / 100`, then `< 1.0f` merges a resistance while anything `>=`
+calls `mergeInvulnerableTrait`. A `<SHOCK>100</SHOCK>` is immunity, not a 100 %
+multiplier, and the port's comment says so in as many words. Java's invulnerable
+store turned out to be a plain `Set` with no reference count, so the port's
+`HashSet` even reproduces the quirk where two overlapping immunity buffs are
+cancelled by removing either one.
+
+`AttackTrait`, `DefenceAttribute` and `AttackAttribute` match term for term,
+comma-list `_RES`/`_POWER` split included. `AddHate`, `GetAgro`, `TargetMe` and
+`TargetMeProbability` likewise. `AddHate`'s `affectSummoner` is unmodelled and
+neither learnable carrier declares it — Charm (15) and Lure (51) pass only
+`power`.
+
+One finding, sabotage-verified, pinned by a test that casts one Repose at two
+targets differing only in template level and watches the same forced roll clear
+one and fail the other.
+
+A fixture trap caught this batch, and it is the second time this session:
+`Npc::for_test(oid, npc_id, x, y, z, hp, mp)` — the third argument is **x**, not
+level, and an NPC's level comes from its template. The bow test hit the same
+positional-argument shape earlier. Worth a helper that names its arguments.
+
+---
+
+## Effect-handler parity, batch 5: an empty batch, and why that is a result
+
+The physical-damage handlers — `Backstab`, `FatalBlow`, `PhysicalAttackHpLink`,
+`DeathLink`, `HpDrain`, `Lethal`, `EnergyAttack`. **No findings.**
+
+This was the batch I expected to be quick because the formula passes had already
+swept `calcBlowDamage`, `calcPhysicalSkillDamage` and `calcMagicDam`, and it
+was — but not for the reason I expected. The formula axis only ever saw the
+arithmetic. What it could not see was everything *around* the arithmetic, and
+that is where four batches of this axis have found their bugs. Here it found
+none:
+
+- **Backstab's flank gate.** `calcSuccess` is `!effector.isInFrontOf(effected)
+  && !calcSkillEvasion(...) && calcBlowSuccess(..., _chanceBoost)`. All three
+  are present, and the port's comment already explains that a front Backstab
+  fails silently.
+- **The second crit.** Backstab and FatalBlow roll `calcCrit(_criticalChance)`
+  *after* `calcBlowDamage` and double on it; SoulBlow, which declares no
+  `criticalChance`, does not. The port keys that on `Option<f64>` and documents
+  why the roll is still consumed on the perfect-block path.
+- **`HpDrain`'s CP rule.** `cp > 0 ? (damage < cp ? 0 : damage − cp) : …` —
+  draining a target whose CP absorbs the whole hit heals the caster for
+  **nothing**, and the reads are Java's truncated, pre-damage ints. Ported
+  exactly, `.floor()` included.
+- **Both HP-link tails.** `DeathLink` and `PhysicalAttackHpLink` scale by
+  `−(curHp·2/maxHp) + 2` off the **caster's** own health, so a healthy caster's
+  Fatal Counter does nothing at all.
+- **`Lethal`'s branch structure**, its four distinct system messages, and the
+  counter-attack that sits *outside* the if/else so it fires whether or not the
+  execute landed.
+
+An empty batch is worth reporting plainly rather than padding. It also says
+something about where the remaining risk is: the handlers that had already been
+read once, for a different reason, are the ones that come back clean.
+
+### The one change: a narrowing that had drifted
+
+The `Lethal` handler carried *"`INSTANT_KILL_RESIST` is never set by anything in
+this datapack"*. Nineteen skills set it. They are all off-chronicle — lowest id
+11395, the set being R-grade talismans, the eleven `14814-14823` "Instant Kill
+Attack Resistance" entries and four Ertheia accessories, none learnable or
+otherwise reachable — so the conclusion held and the behaviour is right. The
+sentence was not.
+
+That is the third time this axis has turned up a narrowing whose *reasoning* was
+weaker than its verdict (batch 3's siege-weapon comment named a constant it
+didn't use; batch 2's Bane comment called a ported formula unported). The
+pattern is consistent enough to state as a rule: **a narrowing that says
+"nothing" without naming what it searched is the one to re-check.** The verdict
+is usually right; the sentence is what rots, and a wrong sentence is what makes
+the next reader skip the check.
+
+---
+
+## Effect-handler parity, batch 6: the same two neighbours, one guard apart
+
+The one-off tail — `MagicMpCost`, `Reuse`, `VampiricAttack`, `Cp`,
+`FocusMomentum`, `EnlargeSlot`, `ConsumeBody`, `SilentMove` and the small
+mechanics around them. One finding, and it is the batch-4 shape again.
+
+### `Cp` and `CpHealPercent`, ten lines apart
+
+```java
+// Cp.instant
+if (effected.isDead() || effected.isDoor() || effected.isHpBlocked()) return;
+case DIFF: amount = Math.min(basicAmount, Math.max(0, effected.getMaxRecoverableCp() - effected.getCurrentCp()));
+```
+
+The port's `cp()` clamped to `getMaxCp()` and had no bail at all. Its
+neighbour `cp_heal_percent()` — the same effect family, the percent variant —
+had both. So under Noblesse Harmony, which caps recoverable CP at 60 %, a
+*percentage* CP restore stopped at the cap while a *flat* one filled the bar,
+and an HP-blocked target refused one and accepted the other.
+
+The tell was in the port's own doc comment: *"Java caps the gain at the
+recoverable headroom"* — sitting directly above code that read `pv.max_cp`.
+That is the batch-3 rule firing again (a comment naming a value the code does
+not use), on top of the batch-4 rule (a mechanism applied to one of two
+neighbours). Both patterns in one function.
+
+`LimitCp`'s learnable carriers are Noblesse Harmony (1326) and Noblesse Symphony
+(1327), the same pair that drove batch 1's `HealOverTime`/`Relax` finding. Three
+of the four places this port clamps a restore now go through the recoverable
+ceiling; the fourth, `HpDrain`'s absorb, correctly does **not** — Java reads
+plain `getMaxHp()` there, and that asymmetry is Java's, not a slip.
+
+### The tail's bigger handlers were fine
+
+`MagicMpCost` (18 learnable carriers) and `Reuse` (8) merge `(amount/100) + 1`
+with `mul` on start and `div` on exit. The port keeps two halves — an
+incremental merge/un-merge for timed buffs, a wholesale idempotent rebuild for
+passives — with a doc comment explaining why they cannot share one discipline.
+That split matters more than it looks: only 4 of the 18 `MagicMpCost` carriers
+are passive. Clarity, Song of Renewal, Song of Meditation, Prophecy of Water,
+Zealot and Blessing of Sagittarius are all `A2` timed buffs, and a passive-only
+implementation would have left every one of them inert. It doesn't.
+
+`VampiricAttack` is fully modelled — `mergeAdd(ABSORB_DAMAGE_PERCENT,
+amount/100)` and `addToVampiricSum(amount × chance)`, read back through
+`VampiricChanceFinalizer`'s `min(1, sum / (absorb·100) / 100)`, guard on
+`absorb > 0` included. `EnlargeSlot`, `SilentMove`, `ConsumeBody` and
+`FocusMomentum` match.
+
+### Four for four
+
+`apply_continuous_effects` carried *"`DefenceTrait` … and `VampiricAttack` …
+carry no stat modifier … their real mechanics aren't modeled yet"*. Batch 4
+verified `DefenceTrait`'s merge; this batch verified `VampiricAttack`'s. Both
+are modelled and have been for slices; they simply live outside the buff's
+`StatModifier` map, which is what the first half of that sentence actually
+describes.
+
+That is the fourth narrowing in six batches whose verdict outlived its
+reasoning — after the Bane comment calling a ported formula unported, the
+siege-weapon comment naming a constant it didn't use, and the lethal comment
+saying "never set" of a stat 19 skills set. The rule earned in batch 5 holds:
+**the sentence rots before the code does, and a rotted sentence is what stops
+the next reader from checking.** Worth a sweep of its own at some point — grep
+the port for "not modeled", "no carrier", "never", and re-derive each one.

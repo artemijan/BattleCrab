@@ -1301,22 +1301,52 @@ pub(crate) fn add_hate(world: &mut World, caster_oid: i32, target_oid: i32, powe
     }
 }
 
-/// `DeleteHate.instant` — chance-rolled: wipe the *whole* aggro list and
-/// disengage (Java `setWalking()` + `setIntention(ACTIVE)`).
-pub(crate) fn delete_hate(world: &mut World, target_oid: i32, chance: i32) {
-    if world.roll(100) >= chance {
+/// `DeleteHate.instant` — wipe the *whole* aggro list and disengage (Java
+/// `setWalking()` + `setIntention(ACTIVE)`).
+///
+/// The gate is **`calcSuccess`, not a bare roll**:
+///
+/// ```java
+/// public boolean calcSuccess(Creature effector, Creature effected, Skill skill)
+/// {
+///     return Formulas.calcProbability(_chance, effector, effected, skill);
+/// }
+/// ```
+///
+/// So the declared `<chance>` is a *base* chance that the level difference, the
+/// target's abnormal resistance, the skill's element and its trait all move —
+/// the same formula `Confuse` and `RandomizeHate` already run here. Repose
+/// (1034), Peace (1075) and Eva's Serenade (1273) are the learnable carriers,
+/// and a flat roll made all three land on a boss exactly as often as on a rat.
+pub(crate) fn delete_hate(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    chance: i32,
+) {
+    if !confuse_chance_passes(world, caster_oid, target_oid, skill, chance) {
         return;
     }
     crate::game_loop::ai::clear_aggro(world, target_oid);
     crate::game_loop::ai::set_active(world, target_oid);
 }
 
-/// `DeleteHateOfMe.instant` — chance-rolled: `stopHating` just the caster's
-/// own entry, but Java disengages the AI wholesale regardless of whatever
-/// other hate remains — the next think tick re-picks the next-most-hated
-/// target on its own if any is left.
-pub(crate) fn delete_hate_of_me(world: &mut World, caster_oid: i32, target_oid: i32, chance: i32) {
-    if world.roll(100) >= chance {
+/// `DeleteHateOfMe.instant` — `stopHating` just the caster's own entry, but
+/// Java disengages the AI wholesale regardless of whatever other hate remains —
+/// the next think tick re-picks the next-most-hated target on its own if any is
+/// left.
+///
+/// Same `calcSuccess` gate as [`delete_hate`]; the learnable carriers here are
+/// Trick (11), Bluff (358) and Forget (1156).
+pub(crate) fn delete_hate_of_me(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    chance: i32,
+) {
+    if !confuse_chance_passes(world, caster_oid, target_oid, skill, chance) {
         return;
     }
     if let Some(aggro) = world
@@ -1420,10 +1450,35 @@ pub(crate) fn hp_by_level(world: &mut World, caster_oid: i32, power: f64) {
     broadcast_vitals(world, caster_oid);
 }
 
-/// `Cp.instant` — an immediate CP change, clamped so it never takes the
-/// target past full CP (Java caps the *gain* at the recoverable headroom; a
-/// negative amount is applied as-is and floored at 0).
+/// `Cp.instant` — an immediate CP change:
+///
+/// ```java
+/// if (effected.isDead() || effected.isDoor() || effected.isHpBlocked()) return;
+/// …
+/// case DIFF: amount = Math.min(basicAmount, Math.max(0, effected.getMaxRecoverableCp() - effected.getCurrentCp())); break;
+/// case PER:  amount = Math.min((effected.getMaxCp() * basicAmount) / 100, Math.max(0, effected.getMaxRecoverableCp() - effected.getCurrentCp())); break;
+/// ```
+///
+/// Two details this shares with its neighbour [`super::instant::cp_heal_percent`],
+/// and used not to. The headroom is **`getMaxRecoverableCp()`**, not `getMaxCp()`
+/// — `LimitCp`'s learnable carriers, Noblesse Harmony (1326) and Noblesse
+/// Symphony (1327), cap it at 60 %, so under either aura a CP potion has to stop
+/// where the aura says. And the three-way bail is Java's, `isHpBlocked` included
+/// (not a typo on Java's part: the *CP* effect reads the *HP* block).
+///
+/// Note the `PER` arm reads plain `getMaxCp()` for the *size* of the gain and
+/// the recoverable ceiling only for the *headroom* — the two are deliberately
+/// different reads, so a capped target still computes its percentage off the
+/// full pool.
 pub(crate) fn cp(world: &mut World, target_oid: i32, amount: f64, percent: bool) {
+    if crate::game_loop::helpers::is_dead(world, target_oid)
+        || world
+            .objects
+            .has_component::<crate::model::door::Door>(&target_oid)
+        || crate::game_loop::abnormal::is_hp_blocked(world, target_oid)
+    {
+        return;
+    }
     let Some(pv) = world
         .objects
         .get_component::<crate::model::components::PlayerVitals>(&target_oid)
@@ -1436,7 +1491,13 @@ pub(crate) fn cp(world: &mut World, target_oid: i32, amount: f64, percent: bool)
     } else {
         amount
     };
-    let headroom = (pv.max_cp as f64 - pv.cur_cp).max(0.0);
+    let ceiling = super::max_recoverable(
+        world,
+        target_oid,
+        crate::model::stats::Stat::MaxRecoverableCp,
+        pv.max_cp as f64,
+    );
+    let headroom = (ceiling - pv.cur_cp).max(0.0);
     let delta = if basic >= 0.0 {
         basic.min(headroom)
     } else {

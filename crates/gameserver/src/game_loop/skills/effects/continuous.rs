@@ -102,9 +102,13 @@ pub(crate) fn apply_continuous_effects(
         )
     });
     // Blessing of Protection, DefenceTrait (Mental Shield / Resist Shock) and
-    // VampiricAttack (Vampiric Rage) likewise carry no stat modifier but must
-    // still land as an icon-only timed buff (their abnormal + duration): their
-    // real mechanics aren't modeled yet, but the buff must show and expire.
+    // VampiricAttack (Vampiric Rage) likewise carry no `StatModifier` and must
+    // still land as a timed buff (their abnormal + duration). That is a
+    // statement about the *shape* of their effects, not about coverage: two of
+    // the three are fully modelled — `DefenceTrait` merges into
+    // `DefenceTraits` further down this function, and `VampiricAttack` pumps
+    // `AbsorbDamagePercent`/`VampiricSum`, which `combat::damage`'s
+    // `absorb_damage_to_hp` reads. They just do it outside the buff's stat map.
     // Stun/sleep/paralyze/root carry no stat modifier either — their whole
     // mechanic is the abnormal flag — so they must survive this guard too.
     // State-only effects carry no stat modifier: the CC flags, and

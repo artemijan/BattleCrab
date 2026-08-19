@@ -3115,6 +3115,95 @@ mod hate_effects {
         );
     }
 
+    /// The gate on both hate wipes is **`calcSuccess`**, not a bare roll:
+    ///
+    /// ```java
+    /// public boolean calcSuccess(Creature effector, Creature effected, Skill skill)
+    /// {
+    ///     return Formulas.calcProbability(_chance, effector, effected, skill);
+    /// }
+    /// ```
+    ///
+    /// So the declared `<chance>` is a *base* that the level difference moves —
+    /// `(magicLevel + baseChance − targetLevel) − abnormalResist`, times the
+    /// element and trait mods. The port rolled the base flat, which made Repose
+    /// land on a level-80 boss exactly as often as on a level-1 rat.
+    ///
+    /// Six learnable skills ride it: Repose (1034), Peace (1075), Eva's
+    /// Serenade (1273), Trick (11), Bluff (358) and Forget (1156).
+    #[test]
+    fn a_hate_wipe_is_gated_on_the_level_difference_not_a_flat_roll() {
+        use crate::model::npc::Npc;
+
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+        let skill = {
+            let mut s = hate_skill(
+                &world,
+                1034,
+                "Repose",
+                SkillEffect::DeleteHate { chance: 80 },
+            );
+            s.magic_level = 40;
+            s
+        };
+
+        // `calcProbability` = `((magicLevel + chance) − targetLevel) − …`, so a
+        // roll of 50 clears the level-5 fixture (40 + 80 − 5 = 115) and fails a
+        // level-110 one (40 + 80 − 110 = 10). Nothing but the target's level
+        // moves between the two casts.
+        // The level lives on the **template**, not on the spawn — `for_test`'s
+        // third argument is `x`.
+        let mut high = world
+            .data
+            .npc_data
+            .get(40001)
+            .cloned()
+            .expect("the fixture template");
+        high.id = 40002;
+        high.level = 110;
+        world.data.npc_data.insert_for_test(high);
+
+        let wiped_at_level = |world: &mut World, oid_offset: i32, npc_id: i32| -> bool {
+            let npc_oid = NPC_OID + 30 + oid_offset;
+            let (npc, extra) = Npc::for_test(npc_oid, npc_id, 0, 0, 0, 1_000_000, 30);
+            world
+                .npc_regions
+                .entry(extra.1.0)
+                .or_default()
+                .push(npc_oid);
+            world.objects.spawn(npc_oid, (npc, extra));
+            add_hate(world, npc_oid, 3001, 50.0, 50.0);
+            // Roll 1: the per-cast magic-crit roll. Roll 2: this effect's own.
+            world.clear_forced_rolls();
+            world.force_rolls([999_999, 50]);
+            effects::apply_skill_effects(world, 3001, npc_oid, &skill);
+            world
+                .objects
+                .get_component::<AggroList>(&npc_oid)
+                .is_some_and(|a| a.0.is_empty())
+        };
+
+        assert_eq!(
+            (
+                world.data.npc_data.get(40001).map(|t| t.level),
+                world.data.npc_data.get(40002).map(|t| t.level)
+            ),
+            (Some(5), Some(110)),
+            "the fixture's two templates have to straddle the roll"
+        );
+        assert!(
+            wiped_at_level(&mut world, 0, 40001),
+            "well below the caster's magic level, the base chance carries it"
+        );
+        assert!(
+            !wiped_at_level(&mut world, 1, 40002),
+            "far above it the same roll fails — a flat roll could not tell them apart"
+        );
+        let _ = &mut a_rx;
+    }
+
     /// `DeleteHateOfMe` (Bluff 358/Forget 1156/Trick 11): chance-rolled,
     /// zeroes only the caster's own aggro entry — but, matching Java
     /// exactly, still disengages the AI wholesale even though the decoy's

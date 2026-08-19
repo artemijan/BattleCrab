@@ -2584,6 +2584,82 @@ fn a_regeneration_stops_at_the_recoverable_ceiling_too() {
     );
 }
 
+/// `Cp.instant` reads **`getMaxRecoverableCp()`** for its headroom and bails on
+/// the same three states its neighbour `CpHealPercent` does:
+///
+/// ```java
+/// if (effected.isDead() || effected.isDoor() || effected.isHpBlocked()) return;
+/// case DIFF: amount = Math.min(basicAmount, Math.max(0, effected.getMaxRecoverableCp() - effected.getCurrentCp()));
+/// ```
+///
+/// `LimitCp`'s learnable carriers are Noblesse Harmony (1326) and Noblesse
+/// Symphony (1327) at `PER −40`, so under either aura a CP restore has to stop
+/// at 60 % — which the *percent* variant already did and the flat one did not.
+#[test]
+fn a_flat_cp_restore_stops_at_the_recoverable_ceiling() {
+    use crate::model::components::{PlayerVitals, StatModifiers};
+    use crate::model::stats::Stat;
+
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    let set_pools = |world: &mut World| {
+        if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&CASTER) {
+            pv.max_cp = 1000;
+            pv.cur_cp = 100.0;
+        }
+    };
+    let cur_cp = |world: &World| {
+        world
+            .objects
+            .get_component::<PlayerVitals>(&CASTER)
+            .map(|pv| pv.cur_cp)
+            .unwrap_or(0.0)
+    };
+
+    // Uncapped: a huge flat restore fills the pool.
+    set_pools(&mut world);
+    effects::cp(&mut world, CASTER, 100_000.0, false);
+    assert_eq!(cur_cp(&world), 1000.0, "no cap → restore to full");
+
+    // Noblesse Harmony's `PER −40` on `MAX_RECOVERABLE_CP`.
+    let mut mods = world
+        .objects
+        .get_component::<StatModifiers>(&CASTER)
+        .cloned()
+        .unwrap_or_default();
+    mods.mul.insert(Stat::MaxRecoverableCp, 0.6);
+    world.objects.add_components(&CASTER, mods);
+
+    set_pools(&mut world);
+    effects::cp(&mut world, CASTER, 100_000.0, false);
+    assert_eq!(
+        cur_cp(&world),
+        600.0,
+        "the same restore now stops at 60 % — the cap is the point of the aura"
+    );
+
+    // And the three-way bail: an HP-blocked target takes no CP either (Java
+    // reads `isHpBlocked` on the *CP* effect, which is not a typo on its part).
+    set_pools(&mut world);
+    let mut blocker = cc_skill(
+        9396,
+        SkillEffect::DamageBlock {
+            block_hp: true,
+            block_mp: false,
+        },
+        "DAMAGE_BLOCK",
+    );
+    blocker.effect_point = 100;
+    blocker.is_debuff = false;
+    blocker.abnormal_time = 600;
+    world.data.skill_data.insert_for_test(blocker.clone());
+    effects::apply_continuous_effects(&mut world, CASTER, CASTER, &blocker, None);
+    set_pools(&mut world);
+    effects::cp(&mut world, CASTER, 100_000.0, false);
+    assert_eq!(cur_cp(&world), 100.0, "HP-blocked, so no CP is restored");
+}
+
 /// G34 S4 sub-slice 8 — `LimitHp`/`LimitCp` (`MAX_RECOVERABLE_HP`/`_CP`), the
 /// ceiling a **heal** may restore to.
 ///

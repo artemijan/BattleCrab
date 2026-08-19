@@ -208,6 +208,80 @@ two classes.
 |---|---|
 | The servitor upkeep interval was a **flat 240 s** | Java's is `_consumeItemInterval > 0 ? … : (race != SIEGE_WEAPON ? 240 : 60)`. **Summon Siege Golem (13) is learnable** and costs 40 C-grade gemstones a go, so running the golem on the ordinary interval quartered the price of the most expensive summon in the game. No skill on this dist declares an interval of its own, so the race arm is the whole of it |
 
+### Batch 4 — the trait/attribute pair and the hate family
+
+| What | Effect in game |
+|---|---|
+| `DeleteHate` / `DeleteHateOfMe` rolled their `<chance>` **flat** | Java gates both on `calcSuccess` → `Formulas.calcProbability(_chance, effector, effected, skill)`, so the declared chance is a *base* the level difference, the target's abnormal resistance, the skill's element and its trait all move. A flat roll made Repose land on a level-80 boss exactly as often as on a level-1 rat. Six learnable carriers: Repose (1034), Peace (1075), Eva's Serenade (1273), Trick (11), Bluff (358), Forget (1156) |
+
+### Batch 6 — the one-off tail
+
+| What | Effect in game |
+|---|---|
+| `Cp.instant` clamped to **`getMaxCp()`** and skipped its three-way bail | Java clamps the gain to `getMaxRecoverableCp()` and returns early on `isDead() \|\| isDoor() \|\| isHpBlocked()`. `LimitCp`'s learnable carriers — Noblesse Harmony (1326) and Noblesse Symphony (1327) at `PER −40` — cap CP at 60 %, which the *percent* variant `CpHealPercent` already honoured while the flat one did not. Same two neighbours, same file, one guard apart |
+
+**The tail's larger handlers came back clean.** `MagicMpCost` (18 learnable
+carriers) and `Reuse` (8) merge `(amount/100) + 1` with `mul` and un-merge with
+`div`; the port keeps two separate table halves — an incremental merge/un-merge
+for timed buffs and a wholesale rebuild for passives — which is what makes
+Clarity (1397), Song of Renewal (349) and the rest work whether they are `A2`,
+`T` or `P`. `VampiricAttack` (7) is fully modelled:
+`mergeAdd(ABSORB_DAMAGE_PERCENT, amount/100)` plus `addToVampiricSum(amount ×
+chance)`, read back by `VampiricChanceFinalizer`'s
+`min(1, sum / (absorb·100) / 100)` in `absorb_damage_to_hp`. `EnlargeSlot` (5),
+`SilentMove` (4), `ConsumeBody` (5) and `FocusMomentum` (4) match too.
+
+**One more stale comment corrected.** `apply_continuous_effects` said
+`DefenceTrait` and `VampiricAttack` "carry no stat modifier … their real
+mechanics aren't modeled yet". Both are modelled — `DefenceTrait` since the
+trait slice, `VampiricAttack` through the absorb path — they simply live outside
+the buff's `StatModifier` map. That is the **fourth** narrowing this axis has
+found whose verdict outlived its reasoning.
+
+### Batch 5 — the physical-damage handlers
+
+**No findings.** `Backstab`, `FatalBlow`, `PhysicalAttackHpLink`, `DeathLink`,
+`HpDrain`, `Lethal` and `EnergyAttack` all match their Java bodies, including
+the parts the formula passes never reached: Backstab's `!isInFrontOf` flank
+gate, the `calcCrit(_criticalChance) → damage *= 2` doubling that SoulBlow does
+*not* get, `HpDrain`'s CP-soak rule (`cp > 0 ? (damage < cp ? 0 : damage − cp)`,
+so draining a full-CP target heals for nothing), both HP-link tails
+(`−(curHp·2/maxHp) + 2`), and `Lethal`'s full/half branches with their four
+distinct system messages and the counter-attack that fires whether or not the
+execute landed.
+
+That the batch is empty is itself the result: these seven are the handlers the
+formula axis had already been through, and the parts it could not see — the
+gates, the message routing, the CP arithmetic — turn out to have been ported
+with the same care as the arithmetic was.
+
+**Five narrowings, re-checked and now naming their carriers.**
+`INSTANT_KILL_RESIST` is declared by **19** skills, not none as the port's
+comment claimed — but the lowest id is 11395 and the set is R-grade talismans,
+the eleven `14814-14823` resistance entries and four Ertheia accessories, so it
+is off-chronicle rather than absent, and the comment now says so. Likewise
+`Lethal`'s `canGiveDamage()` (a GM access level) and its `DUELIST_FURY`
+exemption (one carrier, 10319, post-Interlude); `FatalBlow`'s
+`abnormalType`/`abnormalPower` power boost (no learnable carrier declares
+either); and `AddHate`-style `SKILL_POWER_ADD` (10 carriers, none learnable).
+`PHYSICAL_SKILL_POWER` *is* live — Focus Skill Mastery (334), `PER 10` — and is
+read; the port's `(1 + add) × mul` differs from Java's `mul + add` only when a
+carrier declares both, and the single live one declares only a mul.
+
+**Nine came back clean.** `DefenceTrait`'s `< 1.0f → mergeDefenceTrait, else
+mergeInvulnerableTrait` split is ported *and* documented — a `<SHOCK>100</SHOCK>`
+is outright immunity, not "100 % resist" — and Java's invulnerable set really is
+a plain `Set` with no refcount, so the port's `HashSet` reproduces the
+two-buffs-one-removal quirk exactly. `AttackTrait`, `DefenceAttribute` and
+`AttackAttribute` match including the comma-list `_RES`/`_POWER` split.
+`AddHate`, `GetAgro`, `RandomizeHate`, `TargetMe` and `TargetMeProbability`
+likewise; `RandomizeHate` already ran `calcProbability`, which is what made its
+absence next door visible.
+
+**One narrowing with its carrier named.** `AddHate`'s `affectSummoner` (redirect
+the hate to the summoner) is declared by neither learnable carrier — Charm (15)
+and Lure (51) pass only `power`.
+
 **Eight came back clean.** `Transformation` picks a random id from a `;`-list —
 no skill here declares more than one, so the draw is shape. `Summon` drops
 `expMultiplier`, and that is **correct**: Java applies it through
