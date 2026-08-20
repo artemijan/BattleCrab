@@ -351,6 +351,25 @@ pub enum Stat {
     /// `min(1, mpVampiricSum / (percent × 100) / 100)`, exactly as the HP one.
     AbsorbManaDamagePercent,
     MpVampiricSum,
+    /// Java `Stat.ABSORB_DAMAGE_DEFENCE` (`absorbDamDefence`) — read off the
+    /// **victim** in `Creature.reduceCurrentHp`'s vampiric block and multiplied
+    /// into the amount the attacker drains:
+    ///
+    /// ```java
+    /// absorbDamage *= target.getStat().getValue(Stat.ABSORB_DAMAGE_DEFENCE, 1);
+    /// ```
+    ///
+    /// Granted by `VampiricDefence`, an `AbstractStatPercentEffect`, so a
+    /// declared `20` merges as `mergeMul(stat, 1.2)`. Note the **direction is
+    /// Java's and it is backwards**: the only carrier is *Blood Siphon
+    /// Resistance* (14765, "Strong against Blood Siphon"), yet multiplying the
+    /// drained amount by 1.2…2.0 makes the "resistant" target *better* to drain.
+    /// Ported as written — the datapack's intent is not the shipped behaviour.
+    ///
+    /// It is live: 891 NPC templates carry 14765 and four of them are spawned —
+    /// Queen Shyeed (25514), Plague Golem (25523), Flamestone Giant (25524) and
+    /// Uruka (25527).
+    AbsorbDamageDefence,
     /// Java `Stat.MANA_CHARGE` ("manaCharge") — a flat bonus on the amount a
     /// *recharge* skill restores, granted by Higher Mana Gain 285 (`ManaCharge`,
     /// `mode=DIFF`, +22..81 by level). Read off the **recipient** by

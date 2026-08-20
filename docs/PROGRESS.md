@@ -9188,3 +9188,82 @@ What is left unmeasured is the reachable-but-not-learnable tail — roughly 126
 effect names carried only by NPC, item and pet skills. Row 18 classified them as
 off-chronicle and nothing has re-derived that since. Given this session's record
 with narrowings, that classification is the natural next thing to distrust.
+
+---
+
+## The reachable tail, re-derived
+
+Row 18 classified the effect names carried only by NPC, item and pet skills as
+off-chronicle, and nothing had re-checked it since. After a session in which
+five narrowings turned out to have rotted and three more failed the comment
+sweep, that classification was the obvious candidate. It was re-derived from the
+datapack rather than re-read.
+
+### The method, and why the rule had to be tightened
+
+Of the 335 effect names the dist declares, **175** have no learnable carrier.
+The question is which of those a player can still meet.
+
+The first pass used a loose rule — an item counts as obtainable if its id appears
+in any shop file — and reported 19 live names. Four of them dissolved on
+inspection:
+
+- `ExpModify` and `SpModify` ride items 29669/29670, sold by **multisell 4039**,
+  which has no `<npc>` binding at all and is referenced by no HTML. Nothing
+  opens it.
+- `DamageByAttack` rides 34925/34926, in buylists bound to NPCs 35274 and
+  36657 — neither spawned.
+- `ChangeFishingMastery`'s items 8193-8195 have no player source whatsoever;
+  the loose glob had matched an unrelated `id=` attribute.
+
+Tightened to *a spawned NPC, a drop off one, or a shop bound to one*, the answer
+is **15 live, 160 dead**. Row 18's verdict on those four was right, but by luck
+of wording rather than by the axis it named — which is the same failure mode as
+a rotted comment, one level up.
+
+### Fourteen were already handled. The fifteenth was `VampiricDefence`
+
+```java
+absorbDamage *= target.getStat().getValue(Stat.ABSORB_DAMAGE_DEFENCE, 1);
+```
+
+The port did not parse the effect, did not have the stat, and carried a comment
+saying *"no skill on this dist grants that stat, so it is its 1.0 identity and is
+not folded."* Skill 14765 *Blood Siphon Resistance* grants it, on **891 NPC
+templates**, four of which this dist spawns: Queen Shyeed, Plague Golem,
+Flamestone Giant and Uruka.
+
+The mechanic is worth stating because it is upside down. The multiplier is read
+off the **victim** and *multiplies* the amount the attacker drains, so a skill
+called "Blood Siphon Resistance" — whose datapack comment reads *"Strong against
+Blood Siphon"* — makes its bearer **better** to drain, by up to double at level
+5. That is what the shipped code does; the port now does it too, with the
+contradiction written down at the stat rather than silently "fixed".
+
+### And a third recoverable-HP clamp
+
+The same fifteen lines held another one. Java's first `min` in the vampiric
+block is against `getMaxRecoverableHp()`, not `getMaxHp()` — so a Noblesse
+Harmony aura caps what a vampire drains back exactly as it caps a heal. That is
+the third member of this family: `HealOverTime`/`Relax` in batch 1, `Cp` in
+batch 6, and now the absorb. `HpDrain.instant` remains the one that legitimately
+reads plain `getMaxHp()`, and batch 5 recorded that asymmetry as Java's — which
+turned out to be exactly the right call, since it is now the only exception in
+four sites.
+
+### What the census says now
+
+`datapack_skill_coverage_census` enforces the numbers, so they moved with the
+fix: unhandled effect names **126 → 125**, reachable skills affected **900 →
+899**. The test's own history comment carries the derivation, including the four
+names that looked live under the looser rule and why they are not — so the next
+person to distrust this row can re-run it rather than re-argue it.
+
+### The pattern, one last time
+
+Every finding in this session's last three passes came from the same place: not
+from reading Java more carefully, but from **re-deriving a claim the port had
+already written down**. Row 18's classification, five batch comments, three
+sweep comments, and now this. The code was usually right. The sentences were the
+liability, and a sentence that names no axis and no carrier is one nobody can
+check — including the person who wrote it.

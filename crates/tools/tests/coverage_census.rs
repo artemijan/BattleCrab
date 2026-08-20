@@ -61,7 +61,7 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 }
 
 /// `<effect>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 126 name(s), 9 learnable
+/// the work list, worst first. Category totals: 125 name(s), 9 learnable
 /// skill(s) affected, 900 reachable — the live figures the tuple below
 /// asserts. (This header had drifted to 143/10/1167, the totals from before
 /// the S6 and S9 passes; it is a comment, so nothing failed when it went
@@ -165,6 +165,18 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 /// `VITALITY_CONSUME_RATE`, and skill 2580 does — its carrier herbs drop from
 /// the Schuttgart golems this dist spawns. Reachable 974 → 900.
 ///
+/// → 125 at the **reachable-tail re-derivation**, which re-ran row 18's
+/// classification instead of trusting it. Of the 175 effect names with no
+/// learnable carrier, **15** are live once "reachable" is tightened to *a
+/// spawned NPC, a drop off one, or a shop bound to one* — and 14 of the 15 were
+/// already handled. The fifteenth was `VampiricDefence`: skill 14765 "Blood
+/// Siphon Resistance" sits on 891 templates, four of them spawned (Queen
+/// Shyeed, Plague Golem, Flamestone Giant, Uruka); reachable 900 → 899. The other four names that
+/// looked live under a looser rule — `ExpModify`, `SpModify`, `DamageByAttack`,
+/// `ChangeFishingMastery` — are not: their carrier items sit in a multisell
+/// with no NPC binding and two buylists whose NPCs (35274, 36657) are never
+/// spawned.
+///
 /// `Escape` is **not** off this list, and should not be: its TOWN, CLANHALL
 /// and CASTLE arms are all ported now — which is what un-inerted the Scrolls
 /// of Escape: Clan Hall/Castle and their blessed twins — but `FORTRESS` still
@@ -259,7 +271,7 @@ fn datapack_skill_coverage_census() {
         // (Porta 20213 / skill 4161) and the player prompt (Summon Friend
         // 1403 and its siblings) — so counting it as handled no longer
         // overstates anything. It did until 2026-08-06.
-        ("effect", &gaps.effects, EFFECTS, 126, 9, 900),
+        ("effect", &gaps.effects, EFFECTS, 125, 9, 899),
         ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 2, 0, 1),
         ("condition", &gaps.conditions, CONDITIONS, 55, 1, 716),
         ("targetType", &gaps.target_types, TARGET_TYPES, 8, 0, 457),

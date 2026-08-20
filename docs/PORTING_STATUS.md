@@ -253,6 +253,38 @@ What remains unmeasured on this axis is the **reachable-but-not-learnable** tail
 (~126 effect names on NPC, item and pet skills), which row 18 classified as
 off-chronicle and which nothing has re-derived since.
 
+### The reachable tail, re-derived
+
+Row 18 classified the effect names carried only by NPC, item and pet skills as
+off-chronicle. Nothing had re-derived that since, and this session's record with
+narrowings made it the obvious thing to distrust. It was re-derived from the
+datapack rather than re-read.
+
+**Method.** Of the 335 effect names the dist declares, **175** have no learnable
+carrier. "Reachable" was then tightened from *appears anywhere in the XML* to
+what a player can actually meet: a **spawned** NPC (`spawns/**`), a drop or
+spoil off one, a buylist or multisell **bound to a spawned NPC**, a quest reward,
+or a pet skill list. On that rule **15 of the 175 are live** and 160 are dead.
+
+The tightening matters. A looser obtainability rule — any id appearing in any
+shop file — reported 19, and the four extra all evaporated on inspection:
+`ExpModify` and `SpModify` ride items 29669/29670, sold only by multisell 4039,
+which has **no `<npc>` binding at all and is referenced by no HTML**;
+`DamageByAttack` rides 34925/34926 in buylists whose NPCs (35274, 36657) are
+never spawned; `ChangeFishingMastery`'s items 8193-8195 have no player source
+whatsoever. Row 18's verdict was right about those four — but only by luck of
+wording, since the axis it named was never this strict.
+
+**Fourteen of the fifteen were already handled.** The fifteenth was not:
+
+| What | Effect in game |
+|---|---|
+| `VampiricDefence` unparsed, and `ABSORB_DAMAGE_DEFENCE` unread — under a comment reading *"no skill on this dist grants that stat"* | Skill 14765 *Blood Siphon Resistance* grants it, on **891 NPC templates**, four of them spawned: Queen Shyeed (25514), Plague Golem (25523), Flamestone Giant (25524), Uruka (25527). Java multiplies a vampiric drain by the **victim's** value, so draining one of those bosses should return more, not less — the skill's name says "resistance" and the shipped arithmetic does the opposite. Ported as written |
+| The vampiric absorb capped at `getMaxHp()` | Java's first `min` is against **`getMaxRecoverableHp()`**, so a Noblesse Harmony aura caps what a vampire drains back exactly as it caps a heal. Third member of the same family, after `HealOverTime`/`Relax` (batch 1) and `Cp` (batch 6). `HpDrain.instant` remains the one that legitimately reads plain `getMaxHp()` |
+
+The census's enforced totals move with it: unhandled effect names **126 → 125**,
+reachable skills affected **900 → 899**.
+
 ### Comment rot — the sweep the batches earned
 
 Six batches of effect-handler parity turned up **five** narrowings whose verdict

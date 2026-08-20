@@ -116,6 +116,78 @@ fn a_melee_hit_absorbs_hp_for_the_attacker() {
     assert_eq!(hp(&world, ATTACKER), 30.0, "50% of 40 damage came back");
 }
 
+/// The two terms of Java's vampiric block that the port used to drop:
+///
+/// ```java
+/// int absorbDamage = (int) Math.min(absorbHpPercent * damage, _stat.getMaxRecoverableHp() - _status.getCurrentHp());
+/// absorbDamage = Math.min(absorbDamage, (int) target.getCurrentHp());
+/// absorbDamage *= target.getStat().getValue(Stat.ABSORB_DAMAGE_DEFENCE, 1);
+/// ```
+///
+/// The first `min` reads **`getMaxRecoverableHp()`** — so a Noblesse Harmony
+/// aura caps what a vampire can drain back, exactly as it caps a heal. And the
+/// victim's `ABSORB_DAMAGE_DEFENCE` multiplies the result; its only carrier is
+/// *Blood Siphon Resistance* (14765), which sits on four spawned raid bosses.
+///
+/// Note the direction of that multiplier: a skill named "resistance" makes the
+/// target **better** to drain, because Java multiplies rather than divides.
+/// That is the shipped behaviour and it is what is ported.
+#[test]
+fn the_vampiric_cap_is_recoverable_hp_and_the_victim_scales_it() {
+    let (mut world, mob) = onhit_world();
+    add_stat(&mut world, ATTACKER, Stat::AbsorbDamagePercent, 0.5);
+    add_stat(&mut world, ATTACKER, Stat::VampiricSum, 5_000.0); // chance 1.0
+
+    // Baseline: 50 % of 40 damage, uncapped.
+    set_hp(&mut world, ATTACKER, 10.0);
+    world.force_rolls([0]);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    assert_eq!(hp(&world, ATTACKER), 30.0, "20 absorbed");
+
+    // `LimitHp`-style cap at 70 %: with max 100 the ceiling is 70, so from 60
+    // only 10 of the 20 can come back.
+    if let Some(m) = world
+        .objects
+        .get_component_mut::<crate::model::components::StatModifiers>(&ATTACKER)
+    {
+        m.mul.insert(Stat::MaxRecoverableHp, 0.7);
+    }
+    // Derived from the fixture's own pool rather than hard-coded, so the
+    // assertion stays about the *ceiling* and not about a magic number.
+    let max_hp = world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&ATTACKER)
+        .map(|v| v.max_hp as f64)
+        .expect("attacker");
+    let ceiling = (max_hp * 0.7).floor();
+    set_hp(&mut world, ATTACKER, ceiling - 9.0);
+    world.force_rolls([0]);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    assert_eq!(
+        hp(&world, ATTACKER),
+        ceiling,
+        "the drain stops at the recoverable ceiling ({ceiling} of {max_hp}), not at max HP"
+    );
+
+    // The victim's `ABSORB_DAMAGE_DEFENCE` scales the result — ×1.5 here.
+    if let Some(m) = world
+        .objects
+        .get_component_mut::<crate::model::components::StatModifiers>(&ATTACKER)
+    {
+        m.mul.remove(&Stat::MaxRecoverableHp);
+    }
+    if let Some(m) = world
+        .objects
+        .get_component_mut::<crate::model::components::StatModifiers>(&mob)
+    {
+        m.mul.insert(Stat::AbsorbDamageDefence, 1.5);
+    }
+    set_hp(&mut world, ATTACKER, 10.0);
+    world.force_rolls([0]);
+    combat::apply_attack_damage(&mut world, ATTACKER, mob, 40.0, false, None);
+    assert_eq!(hp(&world, ATTACKER), 40.0, "20 x 1.5 = 30 absorbed");
+}
+
 /// **A bow drains nothing** — Java's "Do not absorb if weapon is ranged" is the
 /// first gate, ahead of the chance roll.
 #[test]

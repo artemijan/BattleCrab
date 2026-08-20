@@ -524,6 +524,26 @@ pub(crate) fn build_skill(
                         // (`amount × chance`, default chance 30 — "Classic:
                         // 30% chance" in Java's own comment) that the chance
                         // finalizer divides back out.
+                        // `VampiricDefence` is an `AbstractStatPercentEffect`,
+                        // so it merges as `mergeMul(stat, (amount/100)+1)`
+                        // **regardless of any declared `<mode>`** — hence an
+                        // explicit `Per` here rather than the registry path,
+                        // which would honour the (absent) mode and read `Diff`.
+                        "VampiricDefence" => param("amount")
+                            .map(|amount| {
+                                skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                                    stat: Stat::AbsorbDamageDefence,
+                                    mode: StatModifierType::Per,
+                                    amount,
+                                    armor_condition: *armor_condition,
+                                    weapon_condition: *weapon_condition,
+                                    qualifier: None,
+                                    two_handed: false,
+                                    hp_percent: 0,
+                                })
+                            })
+                            .into_iter()
+                            .collect(),
                         "MpVampiricAttack" => param("amount")
                             .map(|amount| {
                                 let chance = param("chance").unwrap_or(30.0);

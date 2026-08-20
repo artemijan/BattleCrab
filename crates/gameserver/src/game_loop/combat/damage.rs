@@ -123,7 +123,19 @@ fn absorb_damage_to_hp(
     let Some(healer) = world.objects.get_component::<Vitals>(&attacker) else {
         return;
     };
-    let missing = healer.max_hp as f64 - healer.cur_hp;
+    // Java's first `min` uses **`getMaxRecoverableHp()`**, not `getMaxHp()`:
+    // `Math.min(absorbHpPercent * damage, _stat.getMaxRecoverableHp() - _status.getCurrentHp())`.
+    // `LimitHp`'s learnable carriers (Noblesse Harmony 1326, Noblesse Symphony
+    // 1327) therefore cap what a vampiric swing can drain back, the same way
+    // they cap a heal. (`HpDrain.instant` is the exception that proves it — that
+    // handler reads plain `getMaxHp()`, and the asymmetry is Java's.)
+    let recoverable = crate::game_loop::skills::effects::max_recoverable(
+        world,
+        attacker,
+        Stat::MaxRecoverableHp,
+        healer.max_hp as f64,
+    );
+    let missing = recoverable - healer.cur_hp;
     let victim_hp = world
         .objects
         .get_component::<Vitals>(&target)
@@ -132,8 +144,20 @@ fn absorb_damage_to_hp(
     // Java truncates to `int` at each step, so the two `min`s are integer ones.
     let mut absorbed = (absorb_percent * damage).min(missing).trunc();
     absorbed = absorbed.min(victim_hp.trunc());
-    // Java also multiplies by the victim's `ABSORB_DAMAGE_DEFENCE`; no skill on
-    // this dist grants that stat, so it is its 1.0 identity and is not folded.
+    // `absorbDamage *= target.getStat().getValue(ABSORB_DAMAGE_DEFENCE, 1)` —
+    // read off the **victim**, after both `min`s. It is live: *Blood Siphon
+    // Resistance* (14765) grants it and sits on 891 templates, four of them
+    // spawned (Queen Shyeed, Plague Golem, Flamestone Giant, Uruka). See
+    // [`Stat::AbsorbDamageDefence`] for why a "resistance" makes the target
+    // *better* to drain — that direction is Java's, not a porting slip.
+    absorbed *= crate::model::finalize(
+        world
+            .objects
+            .get_component::<StatModifiers>(&target)
+            .unwrap_or(&StatModifiers::default()),
+        Stat::AbsorbDamageDefence,
+        1.0,
+    );
     if absorbed <= 0.0 {
         return;
     }
