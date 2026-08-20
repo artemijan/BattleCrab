@@ -253,6 +253,45 @@ What remains unmeasured on this axis is the **reachable-but-not-learnable** tail
 (~126 effect names on NPC, item and pet skills), which row 18 classified as
 off-chronicle and which nothing has re-derived since.
 
+## Skill-condition parity
+
+**Opened 2026-08-20.** The census reports skill conditions clean —
+`CONDITIONS = [("conditions/OpSweeper", 1)]`, one unhandled name — which is
+exactly the state effect handlers were in before seven batches found eight
+divergences behind an identically clean census. *Coverage closed* has repeatedly
+not meant *behaviour correct*.
+
+**The denominator first**, per the lesson batch 7 paid for. Java ships **121
+`skillconditionhandlers`**; the dist declares **94 distinct `<condition>` names,
+31 with a learnable carrier**. All 31 have a port arm except `OpSweeper`, which
+is the census's recorded residue. Conditions were then read against Java worst-
+first, by carrier count, rather than by family.
+
+| What | Effect in game |
+|---|---|
+| `CanSummon` / `CanSummonCubic` skipped the **spawn-protection** bail | Java's `canUse` opens `if ((player == null) \|\| player.isSpawnProtected() \|\| player.isTeleportProtected()) return false;` — *before* every other test. This dist ships `PlayerSpawnProtection = 600`, so there is a ten-minute window after entering the world in which no summon may be cast, until the character takes a deliberate action. **36 learnable skills** sit behind the two conditions — every summon and every cubic in the game |
+
+**The rest matched, and several matched in detail worth recording.**
+`OpEncumbered` reproduces `calcPercent(max, current) = 100 − current·100/max`
+including the integer division and the non-quest inventory size.
+`RemainHpPer`/`MpPer`/`CpPer` truncate to an `int` percentage the way
+`getCurrentHpPercent()` does, and refuse `BOTH` outright because Java's switch
+covers only CASTER and TARGET. `OpSocialClass` has the `-1 means leader-only`
+arm. `CanTransform` walks Java's legs in Java's order with each leg's own
+message — and carries a **deliberate, documented** extra leg (the TvT check that
+`ConditionPlayerCanTransform` has and `CanTransformSkillCondition` does not),
+which is the right way to record a divergence: in one place, stated, rather than
+implied. `EquipWeapon`, `EquipShield`, `TargetMyParty`, `TargetRace`,
+`EnergySaved`, `OpEnergyMax`, `OpExistNpc`, `CanUseInBattlefield`,
+`OpCanEscape`, `OpResurrection`, `OpCallPc`, `ConsumeBody`,
+`CanSummonSiegeGolem`, `BuildCamp` and the single-carrier remainder likewise.
+
+**One narrowing named its carrier and held.** `isTeleportProtected()` is not
+modelled because `PlayerTeleportProtection` is **0** on this dist, so that window
+never arms; `isInAirShip()` has no Interlude analogue.
+
+---
+
 ### The reachable tail, re-derived
 
 Row 18 classified the effect names carried only by NPC, item and pet skills as

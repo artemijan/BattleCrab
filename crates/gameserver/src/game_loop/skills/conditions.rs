@@ -740,7 +740,37 @@ fn can_transform(world: &World, caster: i32) -> Result<(), Refusal> {
 /// `CanSummonSkillCondition` minus the airship leg (no airships on this dist).
 /// Java's `isSpawnProtected`/`isTeleportProtected` are the post-login and
 /// post-teleport grace windows; the port models the teleport half only.
+/// `CanSummonSkillCondition.canUse`:
+///
+/// ```java
+/// final Player player = caster.getActingPlayer();
+/// if ((player == null) || player.isSpawnProtected() || player.isTeleportProtected())
+/// {
+///     return false;
+/// }
+/// boolean canSummon = true;
+/// if (player.isFlyingMounted() || player.isMounted() || player.inObserverMode() || player.isTeleporting())
+/// {
+///     canSummon = false;
+/// }
+/// else if (player.isInAirShip()) { … }
+/// return canSummon;
+/// ```
+///
+/// The **spawn-protection** bail is the one that bites here: this dist ships
+/// `PlayerSpawnProtection = 600`, so a character has a ten-minute window after
+/// entering the world in which Java refuses to summon at all — until they take
+/// a deliberate action, which is what `spawn_protection::on_action_request`
+/// clears. Twenty-four learnable skills sit behind this condition, i.e. every
+/// summon in the game.
+///
+/// `isTeleportProtected()` is narrowed away rather than dropped:
+/// `PlayerTeleportProtection` is **0** on this dist, so that window never arms.
+/// `isInAirShip()` has no Interlude analogue.
 fn can_summon(world: &World, caster: i32) -> bool {
+    if crate::game_loop::spawn_protection::is_protected(world, caster) {
+        return false;
+    }
     helpers::player(world, caster).is_some_and(|p| {
         !p.is_mounted()
             && !p.teleporting

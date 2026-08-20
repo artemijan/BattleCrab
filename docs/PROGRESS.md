@@ -9267,3 +9267,80 @@ already written down**. Row 18's classification, five batch comments, three
 sweep comments, and now this. The code was usually right. The sentences were the
 liability, and a sentence that names no axis and no carrier is one nobody can
 check — including the person who wrote it.
+
+---
+
+## Skill-condition parity: one gate, thirty-six skills
+
+The census reported skill conditions clean — one unhandled name,
+`conditions/OpSweeper`, with one learnable skill behind it. That is the state
+effect handlers were in before seven batches found eight divergences behind an
+identically clean census. Coverage-closed has now failed to mean
+behaviour-correct often enough to be the reason to look, not the reason not to.
+
+### The denominator first
+
+Batch 7's lesson applied from the start rather than discovered at the end: Java
+ships 121 `skillconditionhandlers`; the dist declares 94 distinct `<condition>`
+names, **31 with a learnable carrier**. All 31 have a port arm except
+`OpSweeper`. The 31 were then read worst-first by carrier count, not by family —
+which is what stops a `Speed`-shaped hole from opening in the middle of the
+list.
+
+### Summons were castable under spawn protection
+
+`CanSummonSkillCondition.canUse` opens:
+
+```java
+final Player player = caster.getActingPlayer();
+if ((player == null) || player.isSpawnProtected() || player.isTeleportProtected())
+{
+    return false;
+}
+```
+
+before it tests mounted, observer or teleporting — all of which the port had.
+The two bails it did not have are the first two. `PlayerSpawnProtection` is
+**600** on this dist, so a character has a ten-minute window after entering the
+world in which Java refuses every summon, until they take a deliberate action
+and `onActionRequest` clears it.
+
+`CanSummonCubic` shares the same helper here and carries the same two bails in
+Java, so the one fix covers both conditions: **36 learnable skills**, which is
+every summon and every cubic in the game.
+
+The port already modelled spawn protection — armed on enter-world, cleared on
+first action, read by the aggro path. It simply was not consulted by the gate
+that Java consults it from first. That is the batch-4 shape one layer down: a
+mechanism present, correct, and not wired to one of its callers.
+
+### What matched, and what that is worth recording
+
+`OpEncumbered` reproduces `calcPercent(max, current) = 100 − current·100/max`
+down to the integer division and the non-quest inventory size.
+`RemainHpPer`/`MpPer`/`CpPer` truncate to an integer percentage exactly as
+`getCurrentHpPercent()` does — the same truncation batch 1 needed for
+`<hpPercent>` — and refuse `BOTH` outright, because Java's switch covers only
+CASTER and TARGET and falls through to `return false`. `OpSocialClass` has the
+`-1 means leader-only` arm.
+
+`CanTransform` deserves its own note. It walks Java's legs in Java's order, each
+with its own system message, and then carries one extra: the TvT check that
+`ConditionPlayerCanTransform` (the item-condition system) has and
+`CanTransformSkillCondition` (the one a `<skill><conditions>` block resolves to)
+does not. Java would let a TvT entrant transform via a skill; the port keeps the
+stricter leg and **says so, in one place**. That is what a deliberate divergence
+should look like — the opposite of the four rotted narrowings this session
+found, because it names both what it does and what Java does instead.
+
+### Where this leaves the axis
+
+One finding out of 31 live conditions, sabotage-verified and pinned by a test
+that arms the protection window, watches the summon refused, clears it and
+watches the summon allowed. The census's residue is unchanged at one name.
+
+The condition axis reads healthier than the effect axis did, and the reason is
+visible in the code: `conditions.rs` is a single match with one arm per
+condition and a doc comment per deviation, where the effect handlers are spread
+across a dozen modules and grouped by mechanism. **The shape that made effects
+hard to audit was the shape that let them drift.**

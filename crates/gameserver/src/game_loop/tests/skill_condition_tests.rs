@@ -619,6 +619,51 @@ fn op_check_residence_reads_the_clans_hall() {
     assert!(check_for_test(&world, CASTER, CASTER, &without));
 }
 
+/// `CanSummonSkillCondition` bails on **spawn protection** before anything else:
+///
+/// ```java
+/// if ((player == null) || player.isSpawnProtected() || player.isTeleportProtected())
+/// {
+///     return false;
+/// }
+/// ```
+///
+/// This dist ships `PlayerSpawnProtection = 600`, so there is a ten-minute
+/// window after entering the world in which no summon may be cast — until the
+/// character takes a deliberate action, which is what clears it. Twenty-four
+/// learnable skills sit behind `CanSummon`, i.e. every summon in the game.
+///
+/// (`isTeleportProtected()` is not modelled because `PlayerTeleportProtection`
+/// is **0** here, so that window never arms.)
+#[test]
+fn can_summon_is_refused_while_spawn_protected() {
+    let (mut world, ..) = dist_world();
+    let _rx = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let conds = [SkillCondition::CanSummon];
+
+    assert!(
+        check_for_test(&world, CASTER, CASTER, &conds),
+        "unprotected, the summon is allowed"
+    );
+
+    crate::game_loop::spawn_protection::arm(&mut world, CASTER);
+    assert!(
+        crate::game_loop::spawn_protection::is_protected(&world, CASTER),
+        "the fixture's config has to actually arm the window"
+    );
+    assert!(
+        !check_for_test(&world, CASTER, CASTER, &conds),
+        "spawn-protected, Java returns before every other test"
+    );
+
+    // The first deliberate action ends the window and the summon is allowed
+    // again — Java's `onActionRequest`.
+    if let Some(p) = world.objects.get_component_mut::<Player>(&CASTER) {
+        p.spawn_protect_end_tick = 0;
+    }
+    assert!(check_for_test(&world, CASTER, CASTER, &conds));
+}
+
 /// `CanSummonPet` — the collar gate, with the refusal that belongs to each
 /// blocked state.
 #[test]
