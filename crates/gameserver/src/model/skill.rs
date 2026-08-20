@@ -1809,18 +1809,22 @@ pub mod effect_flag {
     /// listed as having "no ported source".
     pub const IMMOBILIZED: u32 = 1 << 13;
     /// `BLOCK_RESURRECTION` — Java `Creature.isResurrectionBlocked()`, read by
-    /// `Player.reviveRequest`. `BlockResurrection` has **no learnable source on
-    /// this dist** (4 non-learnable skills carry it), so the gate is ported but
-    /// nothing reachable trips it — the recurring "declared, unreachable here"
-    /// shape.
+    /// `Player.reviveRequest`.
+    ///
+    /// Four skills carry `BlockResurrection`, and one of them **is** reachable:
+    /// *No Clan Resurrection* (19114) sits in `pledgeSkillTree.xml` at clan
+    /// level 3, and `clans::skills::apply_clan_skills_to_member` hands a clan's
+    /// learned pledge skills to its members — so the flag has a live source and
+    /// the gate in `death::resurrect` really does fire. (The other three —
+    /// Gravity Exile 1997, Obey 5919, Torumba's Constraint 6407 — are NPC-only.)
     pub const BLOCK_RESURRECTION: u32 = 1 << 14;
     /// `CANNOT_ESCAPE` — Java `Creature.cannotEscape()`, read by the
     /// `OpCanEscape` skill condition (161 skills, 2 learnable: the two
-    /// `/unstuck` escapes) and by the escape effects themselves. The flag's
-    /// only source is the `BlockEscape` effect (Clan Escape Lock 19113), which
-    /// is **not ported yet** — the gate is live and correct, nothing currently
-    /// raises it.
-    /// Sourced by the `BlockEscape` effect (Clan Escape Lock 19113).
+    /// `/unstuck` escapes) and by the escape effects themselves.
+    ///
+    /// Sourced by the `BlockEscape` effect — *No Clan Return* (19113), a
+    /// `pledgeSkillTree.xml` skill at clan level 3 — which **is** ported
+    /// ([`SkillEffect::BlockEscape`] raises this flag), so both halves are live.
     pub const CANNOT_ESCAPE: u32 = 1 << 15;
     /// `BUFF_BLOCK` — incoming **buffs** are refused; debuffs still land. Java
     /// `EffectList.add`: `if (isBuffBlocked() && !skill.isBad()) return;`, the

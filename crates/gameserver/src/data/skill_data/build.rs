@@ -1142,6 +1142,20 @@ pub(crate) fn build_skill(
                         // express that, so expand it here. Without this, movement
                         // buffs (Wind Walk, Agility) loaded with an empty effect
                         // list and did nothing — server or client.
+                        // `Speed.pump` merges the amount onto **six** speed
+                        // stats: RUN/WALK, SWIM_RUN/SWIM_WALK and
+                        // FLY_RUN/FLY_WALK. The two fly stats are dropped here
+                        // and the drop is inert: nothing on this port reads
+                        // `FLY_RUN_SPEED`, because `UserInfo` derives a rider's
+                        // flight speed from the *run* speed
+                        // (`isFlying() ? runSpd : 0`, Java's own shape) — so a
+                        // Speed buff already reaches a wyvern rider through the
+                        // stat that is modelled.
+                        //
+                        // The handler's `weaponType` gate (`ConditionUsingItemType`)
+                        // is not dropped: it rides `weapon_condition` on the
+                        // effect, which `stat_mod` copies and
+                        // `conditioned_passive_buffs` filters on.
                         "Speed" => match param("amount") {
                             Some(amount) => [
                                 Stat::RunSpeed,

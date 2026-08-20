@@ -9060,3 +9060,131 @@ saying "never set" of a stat 19 skills set. The rule earned in batch 5 holds:
 **the sentence rots before the code does, and a rotted sentence is what stops
 the next reader from checking.** Worth a sweep of its own at some point — grep
 the port for "not modeled", "no carrier", "never", and re-derive each one.
+
+---
+
+## The comment-rot sweep
+
+Six batches of effect-handler parity produced eight findings and, incidentally,
+five narrowings whose verdict had outlived its reasoning — a comment calling a
+ported formula unported, one naming a constant the code didn't use, one saying
+"never set" of a stat nineteen skills set, and two more. At that rate the
+reasoning was worth auditing on its own, so this pass audits it.
+
+### What was scanned
+
+Every contiguous comment block in `crates/gameserver/src` (tests excluded)
+matching an "unreachable / no carrier / not modelled / unported / dead in Java /
+never set" claim: **287 blocks**. Most are not machine-checkable — the subject is
+a Java branch or an unported subsystem, not a datapack row. The checkable slice
+is the one naming a backticked effect, which can be re-derived against
+`skillTrees/**` in one pass. The scanner is checked into `PORTING_STATUS.md`'s
+re-derivation section so this does not have to be reconstructed.
+
+### Three were wrong
+
+**`BLOCK_RESURRECTION`** — *"`BlockResurrection` has no learnable source on this
+dist (4 non-learnable skills carry it)"*, said in two places. One of the four,
+**No Clan Resurrection (19114)**, sits in `pledgeSkillTree.xml` at clan level 3,
+and `apply_clan_skills_to_member` hands a clan's learned pledge skills to its
+members. The trap was in the word "learnable": the port's own re-derivations
+mostly mean *class* skill trees, and `skillTrees/**` also contains the pledge,
+fishing and residence trees. A skill can be unlearnable by a character and still
+perfectly reachable through a clan.
+
+**`CANNOT_ESCAPE`** — this one is almost funny. The doc block reads *"The flag's
+only source is the `BlockEscape` effect (Clan Escape Lock 19113), which is **not
+ported yet** — the gate is live and correct, nothing currently raises it."* and
+then, on the very next line, *"Sourced by the `BlockEscape` effect (Clan Escape
+Lock 19113)."* Someone ported `BlockEscape`, appended a sentence, and left the
+one it contradicted. Two adjacent lines, opposite claims, and neither reader
+since has looked twice.
+
+**`crit_damage_skill`** — *"`PHYSICAL_SKILL_CRITICAL_DAMAGE`, which no learnable
+skill on this dist grants (40 non-learnable ones do), so it stays the stat-free
+2.0."* Heroic Berserker (396) grants it `PER 30`, alongside its `CriticalDamage`
+and `MagicCriticalDamage` twins. And the function *already reads the stat* — six
+lines below, under a comment that says the branch "used to be a flat 2.0". The
+fix landed in G34 S4; the paragraph justifying its absence stayed.
+
+### All three were documentation-only
+
+No behaviour changed in this pass. That is the finding, not a disappointment:
+in every case the code was already right and the sentence explaining it had
+rotted. A wrong narrowing is not a bug — it is an instruction to the next reader
+**not to check**, and that is precisely how the findings in batches 1 through 6
+survived as long as they did. Batch 3's siege golem was sitting under a comment
+that named the 60-second interval it wasn't using.
+
+One narrowing was tightened rather than corrected: `ABNORMAL_RESIST_PHYSICAL` /
+`_MAGICAL` said "no reachable source", and each does have three reachable
+carriers — all six post-Interlude items. Verdict held; the sentence now names
+them.
+
+### The house style, found in the wild
+
+`DispelAll` carries the note this sweep would write from scratch:
+
+> Nothing on this dist teaches it; the reachable carrier is skill 4177
+> "Cancellation", cast by ~40 raid bosses (Pan Dryad, Verfa, Chertuba of
+> Grandis, …).
+
+Verdict, the axis it was checked on, and the carrier it found — re-deriving it
+took one command and confirmed it exactly. That is the shape a narrowing should
+have, and the three that failed all share the opposite one: a conclusion with no
+evidence attached to it.
+
+**A narrowing that names no carrier cannot be re-checked, and will not be.**
+
+---
+
+## Effect-handler parity, batch 7: the tail, and the biggest handler nobody had read
+
+The single-carrier tail — `Sweeper`, `OpenChest`, `Betray`, `RebalanceHP`,
+`SkillTurning`, `HeadquarterCreate`, `Lucky`, the recipe-book pair, `Spoil`,
+`Bluff`, `ReflectSkill`, `Restoration`/`RestorationRandom` and the rest.
+
+**No findings**, and the gates most likely to have been dropped were all
+present. `Spoil`'s `calcSuccess` is `Formulas.calcMagicSuccess` rather than a
+flat roll — the exact trap batch 4 found in `DeleteHate`, avoided here.
+`Sweeper` carries both refusals, including the inventory slot-and-weight check
+that leaves the loot on the corpse rather than half-taking it. `Bluff` has the
+`35062 || isRaid() || isRaidMinion()` exemption *and* runs its chance through
+`calcProbability`.
+
+### Counting what had actually been read
+
+Before writing this up I generated the full list of live-bodied handlers and
+diffed it against the seven batches. Six batches plus the tail accounted for 88
+of 118 — and the largest single entry in the remainder was **`Speed`, with 73
+learnable carriers**, the biggest handler on the whole axis. It had never been
+read, because every batch had been organised by *family* and `Speed` belongs to
+no family.
+
+It turned out fine. Java merges onto six stats — RUN/WALK, SWIM_RUN/SWIM_WALK,
+FLY_RUN/FLY_WALK — and the port maps four. The two fly stats are inert here:
+nothing reads them, because `UserInfo` derives a rider's flight speed from the
+*run* speed (`isFlying() ? runSpd : 0`, which is Java's own shape), so a Speed
+buff already reaches a wyvern rider through the stat that is modelled. Its
+`weaponType` gate is not dropped either — it rides the effect-level
+`weapon_condition` that `conditioned_passive_buffs` filters on. That narrowing
+now exists in writing; it did not before.
+
+The lesson is about the method rather than the code: **grouping the work by
+family left a hole exactly where a handler belonged to no family**, and the only
+thing that found it was enumerating the denominator and subtracting. Worth doing
+at the *start* of an axis, not the end.
+
+### The axis is closed
+
+All 118 effect handlers with a real body and a learnable carrier have been read
+against their Java bodies, plus the 42 `AbstractStat*Effect` wrappers diffed
+mechanically against `EFFECT_REGISTRY`. Eight findings, all fixed and pinned:
+the unparsed `<hpPercent>`, the two recoverable-ceiling clamps, the raid stun
+interrupt, the two flat rolls that should have been formulas, the siege-weapon
+upkeep interval, and the collapsed `Heal` branches.
+
+What is left unmeasured is the reachable-but-not-learnable tail — roughly 126
+effect names carried only by NPC, item and pet skills. Row 18 classified them as
+off-chronicle and nothing has re-derived that since. Given this session's record
+with narrowings, that classification is the natural next thing to distrust.

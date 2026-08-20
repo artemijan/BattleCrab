@@ -214,6 +214,81 @@ two classes.
 |---|---|
 | `DeleteHate` / `DeleteHateOfMe` rolled their `<chance>` **flat** | Java gates both on `calcSuccess` → `Formulas.calcProbability(_chance, effector, effected, skill)`, so the declared chance is a *base* the level difference, the target's abnormal resistance, the skill's element and its trait all move. A flat roll made Repose land on a level-80 boss exactly as often as on a level-1 rat. Six learnable carriers: Repose (1034), Peace (1075), Eva's Serenade (1273), Trick (11), Bluff (358), Forget (1156) |
 
+### Batch 7 — the single-carrier tail, and the axis closed
+
+**No findings.** Every remaining handler with a learnable carrier was read
+against its Java body and matches, including the gates that are easiest to drop:
+`Spoil`'s `calcSuccess` really is `Formulas.calcMagicSuccess` (not a flat roll —
+the `DeleteHate` trap from batch 4); `Sweeper` has both of Java's refusals
+(`checkSpoilOwner` and the inventory slot/weight check that leaves the loot on
+the corpse); `Bluff` carries the `35062 || isRaid() || isRaidMinion()` exemption
+*and* routes its chance through `calcProbability`. `Betray`, `ReflectSkill`,
+`RebalanceHP`, `OpenChest`, `Restoration`/`RestorationRandom` and the recipe-book
+pair likewise.
+
+**One narrowing added where there was none.** `Speed` — the single largest
+handler on the axis at **73 learnable carriers** — merges onto six stats in
+Java and four here: the `FLY_RUN_SPEED`/`FLY_WALK_SPEED` pair is dropped. That
+is inert, and now says why: nothing reads the fly stats, because `UserInfo`
+derives a rider's flight speed from the *run* speed (`isFlying() ? runSpd : 0`,
+Java's own shape), so a Speed buff already reaches a wyvern rider through the
+stat that is modelled. Its `weaponType` gate is **not** dropped — it rides the
+effect-level `weapon_condition`, which `conditioned_passive_buffs` filters on.
+
+**The axis is closed.** All **118** effect handlers with a real body and a
+learnable carrier have now been read against Java across seven batches, plus the
+42 `AbstractStat*Effect` wrappers diffed mechanically against `EFFECT_REGISTRY`.
+Eight findings, all fixed, sabotage-verified and pinned:
+
+1. `<hpPercent>` unparsed — Final Frenzy / Final Fortress permanently on
+2. `HealOverTime`/`Relax` clamped to max HP instead of *recoverable* HP
+3. `BlockActions` interrupted raid bosses
+4. `DeleteHate`/`DeleteHateOfMe` rolled a flat chance instead of `calcProbability`
+5. The servitor upkeep interval ignored the siege-weapon 60 s arm
+6. `Cp` clamped to max CP and skipped its dead/door/HP-blocked bail
+7. *(from the formula axis, surfaced here)* `Heal`'s three caster arms collapsed
+8. *(likewise)* `calcSkillMastery` rolled whole percents
+
+What remains unmeasured on this axis is the **reachable-but-not-learnable** tail
+(~126 effect names on NPC, item and pet skills), which row 18 classified as
+off-chronicle and which nothing has re-derived since.
+
+### Comment rot — the sweep the batches earned
+
+Six batches of effect-handler parity turned up **five** narrowings whose verdict
+had outlived its reasoning, so the reasoning itself got audited. The scan is
+checked in at [§ Re-deriving these numbers](#re-deriving-these-numbers): it
+collects every contiguous comment block making an "unreachable / no carrier /
+not modelled / dead in Java" claim, then re-derives each backticked effect name
+against `skillTrees/**` to see whether it has learnable carriers after all.
+
+**287 comment blocks make such a claim.** Most are unfalsifiable by machine (the
+subject is a Java branch, not a datapack row), but the ones naming an effect are
+checkable, and three were wrong:
+
+| Claim | Reality |
+|---|---|
+| `BLOCK_RESURRECTION`: *"`BlockResurrection` has no learnable source on this dist (4 non-learnable skills carry it)"* — in two places | **No Clan Resurrection (19114)** is in `pledgeSkillTree.xml` at clan level 3, and `clans::skills::apply_clan_skills_to_member` hands learned pledge skills to members. The flag has a live source and the gate fires |
+| `CANNOT_ESCAPE`: *"The flag's only source is the `BlockEscape` effect (Clan Escape Lock 19113), which is **not ported yet**"* — followed on the **very next line** by *"Sourced by the `BlockEscape` effect (Clan Escape Lock 19113)."* | `BlockEscape` is ported and raises the flag. Two adjacent sentences, opposite claims: someone ported it and appended a line rather than replacing one |
+| `crit_damage_skill`: *"`PHYSICAL_SKILL_CRITICAL_DAMAGE`, which no learnable skill on this dist grants … so it stays the stat-free 2.0"* | **Heroic Berserker (396)** grants it `PER 30`. And the code six lines below already reads the stat, with its own note saying the branch *"used to be a flat 2.0"* — the fix landed in G34 S4 and the doc block above it did not |
+
+**All three were documentation-only.** In each case the code was already right;
+what had rotted was the sentence explaining it. That is the pattern's real cost:
+a wrong narrowing is not a bug, it is an instruction to the next reader *not to
+check* — which is exactly how the batch-1 through batch-6 findings survived as
+long as they did.
+
+**One narrowing was tightened rather than corrected.** `ABNORMAL_RESIST_PHYSICAL`
+/ `_MAGICAL` said "no reachable source on this dist"; each has three reachable
+carriers, but all six are post-Interlude items (Sayha's Ring 27658, Maphr's Ring
+27664, the 13311/13312 armour SAs), so the verdict held and the sentence now
+names them.
+
+**One is worth copying as the house style.** `DispelAll`'s note — *"Nothing on
+this dist teaches it; the reachable carrier is skill 4177 Cancellation, cast by
+~40 raid bosses"* — states the verdict, the axis it was checked on, and the
+carrier it found. Re-deriving it took one command and confirmed it exactly.
+
 ### Batch 6 — the one-off tail
 
 | What | Effect in game |
@@ -1837,6 +1912,50 @@ Four families came back **clean**: chat handlers (all 13 registered ones land),
 community-board handlers, user commands, and target handlers.
 
 ### Re-deriving these numbers
+
+**The narrowing-claim sweep** (see § Comment rot, below) — every comment block
+making an "unreachable / no carrier / not modelled" claim, ranked by whether the
+effect it names actually has learnable carriers:
+
+```sh
+python3 - <<'EOF'
+import re, glob
+learn = set()
+for f in glob.glob('dist/game/data/skillTrees/**/*.xml', recursive=True):
+    learn.update(int(x) for x in re.findall(r'skillId="(\d+)"', open(f, encoding='utf-8', errors='replace').read()))
+eff = {}
+for f in glob.glob('dist/game/data/stats/skills/*.xml'):
+    s = open(f, encoding='utf-8', errors='replace').read()
+    for m in re.finditer(r'<skill id="(\d+)"(.*?)</skill>', s, re.S):
+        sid = int(m.group(1))
+        for n in set(re.findall(r'<effect name="(\w+)"', m.group(2))):
+            t, l = eff.get(n, (0, 0))
+            eff[n] = (t + 1, l + (1 if sid in learn else 0))
+claim = re.compile(r"no carrier|not modell?ed|isn't modell?ed|aren't modell?ed|unported"
+                   r"|not ported|nothing (?:on|in) this (?:dist|datapack)"
+                   r"|never (?:set|granted|declared|fires)"
+                   r"|no (?:learnable|reachable) (?:source|carrier|skill)"
+                   r"|unreachable|dead in Java|no skill (?:on|in) this dist", re.I)
+for f in glob.glob('crates/gameserver/src/**/*.rs', recursive=True):
+    if '/tests/' in f:
+        continue
+    lines = open(f, encoding='utf-8', errors='replace').read().split('\n')
+    i = 0
+    while i < len(lines):
+        if lines[i].strip().startswith('//'):
+            j = i
+            while j < len(lines) and lines[j].strip().startswith('//'):
+                j += 1
+            block = ' '.join(l.strip().lstrip('/').strip() for l in lines[i:j])
+            if claim.search(block):
+                for ident in set(re.findall(r'`([A-Z][A-Za-z0-9_]*)`', block)):
+                    if eff.get(ident, (0, 0))[1] > 0:
+                        print(f"[learnable {eff[ident][1]}/{eff[ident][0]}] {ident} — {f}:{i+1}")
+            i = j
+        else:
+            i += 1
+EOF
+```
 
 ```sh
 # rows 1, 2, 3 — action-bar handlers the dist declares, against the arms in

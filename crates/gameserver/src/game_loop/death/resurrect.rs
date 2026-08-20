@@ -93,8 +93,9 @@ pub(crate) fn revive_request(
         send_to_reviver(world, refusal);
         return;
     }
-    // `isResurrectionBlocked()` — Java also ORs `isInvul()`; the flag is the
-    // ported half (`BlockResurrection` has no learnable source on this dist).
+    // `isResurrectionBlocked()` — Java also ORs `isInvul()`, which is the half
+    // this port does not model; the flag itself has a live source (No Clan
+    // Resurrection 19114, a clan-level-3 pledge skill), so this gate fires.
     if crate::game_loop::abnormal::flags_of(world, target_oid)
         & crate::model::skill::effect_flag::BLOCK_RESURRECTION
         != 0

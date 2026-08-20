@@ -314,12 +314,17 @@ pub(crate) fn blow_crit_damage(
 /// nor any additive one (`PhysicalAttack` and `calcMagicDam` apply only
 /// `critMod`).
 ///
-/// The physical half reads `PHYSICAL_SKILL_CRITICAL_DAMAGE`, which **no
-/// learnable skill on this dist grants** (40 non-learnable ones do), so it
-/// stays the stat-free 2.0 — the established `BLOW_RATE_DEFENCE`/`MP_BLOCK`
-/// precedent of not inventing plumbing for a stat nothing reachable sets.
-/// The magic half is real: Prophecy of Wind 1357 and Victories of Pa'agrio
-/// 1414 grant `MAGIC_CRITICAL_DAMAGE`.
+/// Both halves are real and both are read. `PHYSICAL_SKILL_CRITICAL_DAMAGE` has
+/// 40 carriers and **one of them is learnable** — Heroic Berserker (396), which
+/// grants it `PER 30` alongside its `CriticalDamage` and `MagicCriticalDamage`
+/// twins. The magic half is Prophecy of Wind (1357) and Victories of Pa'agrio
+/// (1414).
+///
+/// (This paragraph used to say the physical stat had no learnable source and
+/// that the branch was therefore a flat 2.0. The branch was fixed in G34 S4 —
+/// see the note inside the function — and the claim above it was not. Left as a
+/// marker: a doc comment and the body comment six lines below it disagreed for
+/// two slices.)
 pub(crate) fn crit_damage_skill(
     world: &World,
     attacker_oid: i32,

@@ -126,8 +126,10 @@ pub enum Stat {
     /// Java `Stat.ABNORMAL_RESIST_PHYSICAL` / `_MAGICAL` — read by
     /// `Formulas.getAbnormalResist` and subtracted from a mesmerizing debuff's
     /// base landing chance. Fed by the `PhysicalAbnormalResist` /
-    /// `MagicalAbnormalResist` effects, which have no reachable source on this
-    /// dist (G34 S2).
+    /// `MagicalAbnormalResist` effects. Neither has a **learnable** source; each
+    /// has three reachable carriers and all six are post-Interlude items —
+    /// Sayha's Ring (27658), Maphr's Ring (27664) and the 13311/13312 armour
+    /// special abilities (G34 S2).
     /// Java `Stat.BREATH` — how long a swimmer can hold their breath, in ms,
     /// against a base of 60 000 (`Player.startWaterTask`'s
     /// `getValue(Stat.BREATH, 60000)`). Boost Breath (195) and Eva's Kiss
