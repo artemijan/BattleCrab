@@ -403,3 +403,13 @@ fn draw_online(world: &mut World) -> Option<i32> {
 pub(super) fn is_online(world: &World, object_id: i32) -> bool {
     world.objects.get_component::<Player>(&object_id).is_some()
 }
+
+/// Java's `isInOlympiadMode() && (getOlympiadGameId() == target.getOlympiadGameId())`
+/// — the two players are opponents in the *same* running match.
+pub(crate) fn same_match(world: &World, a: i32, b: i32) -> bool {
+    world
+        .olympiad
+        .matches
+        .iter()
+        .any(|m| (m.player_a == a && m.player_b == b) || (m.player_a == b && m.player_b == a))
+}

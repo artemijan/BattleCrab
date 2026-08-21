@@ -164,6 +164,66 @@ fn day_of_doom_parses_with_its_totem_and_gate() {
 // The seal's life
 // ---------------------------------------------------------------------------
 
+/// `NotFriend.checkAffectedObject`'s **last line**, which decides every
+/// bystander a hostile AoE could otherwise sweep up:
+///
+/// ```java
+/// return (targetPlayer.getPvpFlag() > 0) || (targetPlayer.getReputation() < 0);
+/// ```
+///
+/// Falling out of every other leg — not party, not clan, not allied, no duel,
+/// no olympiad, not in a PVP zone — a player is a valid target only if they are
+/// **flagged** or a **PK**. The port used to answer `!is_friend(…)`, which made
+/// a neutral stranger fair game, so all 69 learnable `NOT_FRIEND` skills hit
+/// innocent bystanders anywhere outside a peace zone.
+#[test]
+fn a_hostile_aura_spares_a_neutral_bystander_and_catches_a_flagged_one() {
+    use crate::model::Player;
+
+    let cursed_at = |flag: u8, reputation: i32| -> bool {
+        let (mut world, _db, _l) = cast_test_world();
+        let _out = ingame_caster(&mut world, CID, CASTER, 400, 0);
+        let _out2 = ingame_caster(&mut world, BID, BYSTANDER, 520, 0);
+        if flag > 0 {
+            flag_for_pvp(&mut world, BYSTANDER);
+        }
+        if let Some(p) = world.objects.get_component_mut::<Player>(&BYSTANDER) {
+            p.reputation = reputation;
+        }
+        register_totem_template(&mut world);
+        world.data.skill_data.insert_for_test(aura_skill());
+        learn_skill(&mut world, CASTER, &symbol_skill());
+        handle_request_magic_skill_use_ground(
+            &mut world,
+            CID,
+            &ground_body(500, 0, 0, SYMBOL_SKILL),
+        );
+        advance_ticks(&mut world, 17);
+        has_buff(&world, BYSTANDER, AURA_SKILL)
+    };
+
+    assert!(
+        !cursed_at(0, 0),
+        "a neutral, unflagged, non-PK bystander is not a valid NOT_FRIEND target"
+    );
+    assert!(cursed_at(1, 0), "a flagged one is");
+    assert!(cursed_at(0, -1), "and so is a PK, unflagged or not");
+}
+
+/// Java's `NotFriend` fallthrough is `(pvpFlag > 0) || (reputation < 0)`, so a
+/// **neutral** player is not a valid target for a hostile aura at all. These
+/// fixtures flag their bystander to make them one; the neutral case is asserted
+/// on its own below.
+fn flag_for_pvp(world: &mut World, oid: i32) {
+    world.objects.add_components(
+        &oid,
+        crate::model::components::PvpState {
+            flag: 1,
+            ..Default::default()
+        },
+    );
+}
+
 /// The full arc: ground-cast the symbol → the totem stands at the point →
 /// its pulses debuff the bystander in range but never the owner → it
 /// despawns on time and the pulses stop.
@@ -175,6 +235,7 @@ fn a_seal_pulses_its_aura_and_expires() {
     // the exemption assertion below actually bites.
     let _out = ingame_caster(&mut world, CID, CASTER, 400, 0);
     let _out2 = ingame_caster(&mut world, BID, BYSTANDER, 520, 0);
+    flag_for_pvp(&mut world, BYSTANDER);
     register_totem_template(&mut world);
     world.data.skill_data.insert_for_test(aura_skill());
     learn_skill(&mut world, CASTER, &symbol_skill());
@@ -234,6 +295,7 @@ fn walking_into_a_live_seal_gets_cursed() {
     let (mut world, _db, _l) = cast_test_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let _out2 = ingame_caster(&mut world, BID, BYSTANDER, 900, 0); // far away
+    flag_for_pvp(&mut world, BYSTANDER);
     // Long-lived totem for this one, so the walk-in happens mid-life.
     world.data.npc_data.insert_for_test({
         let mut t = crate::data::npc_data::default_template(TOTEM_NPC);

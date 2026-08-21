@@ -440,17 +440,10 @@ fn a_bow_hits_for_twice_the_melee_coefficient() {
     // Enough arrows for the whole sample — a dry quiver reads as zero
     // damage and would drag the mean down instead of the weapon mod.
     arm_archer(&mut world, 500, ARROW_ID);
-    // No crit, no miss, no random spread: the two hits must differ only by the
-    // weapon mod.
-    {
-        let p = world
-            .objects
-            .get_component_mut::<CombatStats>(&ARCHER)
-            .expect("stats");
-        p.crit_hit = 0.0;
-        p.accuracy = 10_000;
-        p.random_dmg = 0;
-    }
+    // The two hits must differ only by the weapon mod. Note this does *not*
+    // buy "no miss" — see the helper; the mean over 60 swings below is what
+    // absorbs the 2 % the formula will not give up.
+    pin_swing_damage(&mut world, ARCHER);
     // A target each, so the second swing is not measured against a mob the
     // first one left mid-AI — and both need enough HP to survive the hit, or
     // the "damage" measured is just their health bar running out.

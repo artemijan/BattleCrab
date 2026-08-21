@@ -492,6 +492,14 @@ pub(crate) fn resurrect_player(world: &mut World, player: i32) {
     reset_activity_timers(world, player);
 }
 
+/// Java's `player.isOnEvent() && !player.isOnSoloEvent() && (player.getTeam() == target.getTeam())`
+/// — two players on the **same** event team. `TEAM_NONE` is the not-in-an-event
+/// answer, so two bystanders never read as team-mates.
+pub(crate) fn same_team(world: &World, a: i32, b: i32) -> bool {
+    let ta = team_of(world, a);
+    ta != TEAM_NONE && ta == team_of(world, b)
+}
+
 fn team_of(world: &World, player: i32) -> u8 {
     world
         .objects

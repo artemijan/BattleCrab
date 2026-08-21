@@ -318,6 +318,34 @@ fn auth_login_body(name: &str, key: SessionKey) -> Vec<u8> {
     w.write_i32(key.login_ok2);
     w.into_bytes()
 }
+/// A minimal clan the conditions can read: id, leader and level are all they
+/// look at, plus the castle id one test moves.
+fn test_clan(id: i32, leader_id: i32) -> Clan {
+    Clan {
+        id,
+        name: format!("Clan{id}"),
+        leader_id,
+        level: 5,
+        reputation_score: 0,
+        castle_id: 0,
+        members: Vec::new(),
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    }
+}
 
 /// Component peek helpers for assertions (stage-2 shape).
 fn pvit(world: &World, oid: i32) -> Vitals {
@@ -330,6 +358,28 @@ fn pcp(world: &World, oid: i32) -> PlayerVitals {
 
 fn nvit(world: &World, oid: i32) -> Vitals {
     *world.objects.get_component::<Vitals>(&oid).unwrap()
+}
+
+/// Pin a swinger's auto-attack damage to a single number: no crit, no random
+/// spread, and as little miss as the formula permits.
+///
+/// **Accuracy cannot buy a certain hit.** `Formulas.calcHitMiss` clamps its
+/// chance to `980/1000`, so ~2 % of swings miss whatever the accuracy reads —
+/// a test that samples one swing and compares it to another will flake about
+/// once in fifty runs. Sample defensively (min or mean over several swings)
+/// rather than trusting a single hit.
+///
+/// `crit_hit` is likewise only pinned until the next stat recompute, which
+/// restores it from the class template — so a test that buffs or equips
+/// between measurements has to re-apply this.
+fn pin_swing_damage(world: &mut World, oid: i32) {
+    let p = world
+        .objects
+        .get_component_mut::<CombatStats>(&oid)
+        .expect("a combatant");
+    p.crit_hit = 0.0;
+    p.accuracy = 10_000;
+    p.random_dmg = 0;
 }
 
 fn pcs(world: &World, oid: i32) -> CombatStats {

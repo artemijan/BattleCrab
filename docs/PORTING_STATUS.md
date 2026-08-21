@@ -253,6 +253,45 @@ What remains unmeasured on this axis is the **reachable-but-not-learnable** tail
 (~126 effect names on NPC, item and pet skills), which row 18 classified as
 off-chronicle and which nothing has re-derived since.
 
+## Targeting parity
+
+**Opened 2026-08-21.** Targeting decides *who gets hit*, and nothing had ever
+compared it to Java: the census counts unhandled `targetType`/`affectScope`/
+`affectObject` **names** and reports 8/7/4 with zero learnable carriers
+affected — the same "coverage closed" reading that preceded eight findings on
+effects and one on conditions.
+
+**Denominator first.** 54 Java handler files across `targethandlers/`,
+`affectscope/` and `affectobject/`; the dist uses **13 `targetType` names, 7
+`affectScope`, 4 `affectObject`** with a learnable carrier — 24 live rules, all
+answered by one 835-line module, `skills::affect`.
+
+| What | Effect in game |
+|---|---|
+| `NotFriend` was implemented as **`!is_friend(…)`** | Java ships `Friend` and `NotFriend` as *separate handlers with different legs in a different order*; they are not complements. The leg that matters is `NotFriend`'s last line — `return (targetPlayer.getPvpFlag() > 0) \|\| (targetPlayer.getReputation() < 0);` — so a player who falls out of every other test is a valid hostile target **only if flagged or a PK**. Deriving it from a party/clan-only `is_friend` made a neutral stranger fair game, so all **69 learnable `NOT_FRIEND` skills** swept innocent bystanders into an AoE anywhere outside a peace zone |
+
+`not_friend` is now a faithful port of Java's own order: self → same acting
+player → peace zone → command channel → party → event team → observer → siege
+(`isSiegeFriend`) → both-in-PVP-zone → duel → olympiad → clan → mutual clan war
+→ ally → the flag/reputation fallthrough, with the non-player pair routed to
+`isAutoAttackable`. Every leg but two had a primitive already in the port and
+was simply not consulted — `alt_command_channel_friends`, `PvpState`,
+`reputation`, `DuelRef`, ally ids and `clans::wars::at_war_between` were all
+sitting there. The two additions are one-liners: `events::tvt::same_team` and
+`olympiad::matches::same_match`.
+
+**Two narrowings, carriers named.** `allowPeaceAttack()` is a GM access-level
+permission, and the `isAutoPlaying()` branch is the post-Interlude autoplay
+target-mode filter that no client here sends.
+
+**Two existing tests asserted the bug.** `a_seal_pulses_its_aura_and_expires`
+and `walking_into_a_live_seal_gets_cursed` used a neutral player as the
+bystander a Day of Doom seal curses. Java spares them. Both now flag the
+bystander — keeping what they were built to prove, that the aura reaches
+non-friends and never the owner — and the neutral case is asserted on its own.
+
+---
+
 ## Skill-condition parity
 
 **Opened 2026-08-20.** The census reports skill conditions clean —

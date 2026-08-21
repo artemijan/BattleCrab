@@ -238,7 +238,7 @@ fn holy_weapon_colors_an_attributeless_skill() {
 #[test]
 fn an_elemental_buff_reaches_plain_auto_attacks() {
     use crate::game_loop::combat;
-    use crate::model::components::{CombatStats, StatModifiers, Vitals};
+    use crate::model::components::{StatModifiers, Vitals};
     use crate::model::stats::Stat;
 
     const ATTACKER: i32 = 8801;
@@ -247,20 +247,9 @@ fn an_elemental_buff_reaches_plain_auto_attacks() {
     fn damage_of(elemental: bool) -> f64 {
         let (mut world, _db, _l) = combat_test_world();
         let _rx = ingame_caster(&mut world, 1, ATTACKER, 0, 0);
-        {
-            let p = world
-                .objects
-                .get_component_mut::<CombatStats>(&ATTACKER)
-                .expect("stats");
-            // No spread, and the crit rate zeroed — but neither can be relied
-            // on to survive: `calcHitMiss` clamps its chance to 980/1000, so
-            // 2 % of swings miss whatever the accuracy reads, and any stat
-            // recompute in between restores the class crit rate. The sampling
-            // below is built to survive both.
-            p.crit_hit = 0.0;
-            p.accuracy = 10_000;
-            p.random_dmg = 0;
-        }
+        // The elemental term must be the only thing that moves between the two
+        // runs; the sampling below covers what this cannot pin (see the helper).
+        pin_swing_damage(&mut world, ATTACKER);
         if elemental {
             world
                 .objects

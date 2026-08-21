@@ -52,35 +52,6 @@ fn world_with_gated_item(
     (world, rx, db)
 }
 
-/// A minimal clan the conditions can read: id, leader and level are all they
-/// look at, plus the castle id one test moves.
-fn test_clan(id: i32, leader_id: i32) -> Clan {
-    Clan {
-        id,
-        name: format!("Clan{id}"),
-        leader_id,
-        level: 5,
-        reputation_score: 0,
-        castle_id: 0,
-        members: Vec::new(),
-        skills: Default::default(),
-        warehouse: Default::default(),
-        char_penalty_expiry_time: 0,
-        dissolving_expiry_time: 0,
-        rank_privs: Default::default(),
-        new_leader_id: 0,
-        sub_pledges: Default::default(),
-        ally_id: 0,
-        ally_name: String::new(),
-        ally_penalty_expiry_time: 0,
-        ally_penalty_type: 0,
-        crest_id: 0,
-        crest_large_id: 0,
-        ally_crest_id: 0,
-        blood_alliance_count: 0,
-    }
-}
-
 fn is_equipped(world: &World, item_object_id: i32) -> bool {
     world
         .objects

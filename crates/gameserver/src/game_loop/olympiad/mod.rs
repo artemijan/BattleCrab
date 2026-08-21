@@ -206,7 +206,7 @@ pub(crate) fn handle_weekly_change(world: &mut World) {
 }
 
 mod heroes;
-mod matches;
+pub(crate) mod matches;
 mod observer;
 mod registration;
 mod season;

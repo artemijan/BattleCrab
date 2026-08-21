@@ -9344,3 +9344,78 @@ visible in the code: `conditions.rs` is a single match with one arm per
 condition and a doc comment per deviation, where the effect handlers are spread
 across a dozen modules and grouped by mechanism. **The shape that made effects
 hard to audit was the shape that let them drift.**
+
+---
+
+## Targeting parity: the AoE that hit everyone
+
+Targeting decides who gets hit, and it had never been compared to Java. The
+census counts unhandled `targetType`/`affectScope`/`affectObject` **names** and
+reported 8/7/4 with zero learnable carriers affected — the same clean reading
+that preceded eight findings on effect handlers and one on conditions.
+
+Denominator first, again: 54 Java handler files; the dist uses **13
+`targetType`, 7 `affectScope`, 4 `affectObject`** names with a learnable
+carrier. Twenty-four live rules, answered by one 835-line module.
+
+### `NotFriend` is not `!Friend`
+
+Java ships `Friend` and `NotFriend` as two handlers with different legs in a
+different order. The port had one predicate and derived the other from it:
+
+```rust
+AffectObject::NotFriend => !is_friend(world, caster, candidate)
+                            && !protected_by_peace(world, caster, candidate),
+```
+
+where `is_friend` was "self, party mate, or clan mate". Java's `NotFriend` ends:
+
+```java
+return (targetPlayer.getPvpFlag() > 0) || (targetPlayer.getReputation() < 0);
+```
+
+A player who falls out of every other leg is a valid hostile target **only if
+flagged or a PK**. Under the derived version a neutral stranger was fair game,
+so every one of the **69 learnable `NOT_FRIEND` skills** — every AoE nuke, every
+area debuff — swept innocent bystanders in, anywhere outside a peace zone. On a
+live server that is the difference between an AoE farming spot and a
+flag-everyone incident.
+
+`not_friend` is now Java's own order, leg for leg: self → same acting player →
+peace zone → command channel → party → event team → observer mode → siege
+(`isSiegeFriend`) → both-in-PVP-zone → duel → olympiad → clan → mutual clan war
+→ ally → the flag/reputation fallthrough, with non-player pairs routed to
+`isAutoAttackable`.
+
+What stands out is how little was actually missing. `alt_command_channel_friends`
+(True on this dist), `PvpState.flag`, `Player.reputation`, `DuelRef`, ally ids,
+`clans::wars::at_war_between`, `pvp::in_pvp_zone`, `pvp::active_siege_castle` —
+all of it already existed and simply wasn't consulted. Two one-line helpers were
+added (`tvt::same_team`, `olympiad::matches::same_match`) and that was the whole
+of the new code. This is the session's most common finding shape, in its purest
+form yet: **the mechanism was there; the caller asked a simpler question.**
+
+### Two tests asserted the bug
+
+`a_seal_pulses_its_aura_and_expires` and `walking_into_a_live_seal_gets_cursed`
+both used a **neutral** player as the bystander a Day of Doom seal curses, and
+both broke the moment the rule was right. They were not wrong about what they
+meant to prove — that the aura reaches non-friends and never its owner — only
+about who counts as a non-friend. Both now flag their bystander, and the neutral
+case gets its own test.
+
+That is worth noticing as a class. A test written against ported behaviour
+inherits the port's assumptions, so it locks them in: for three slices these two
+tests would have caught the bug if the fixture had used a flagged player, and
+instead they certified it. **A test only guards the behaviour its fixture can
+distinguish**, and a fixture built from the same understanding as the code
+distinguishes nothing.
+
+### Where the axis stands
+
+One finding out of 24 live targeting rules, sabotage-verified and pinned by a
+test that runs the same seal at a neutral bystander, a flagged one and a PK. The
+scope and `targetType` halves — SINGLE/PARTY/POINT_BLANK/PLEDGE/RANGE/FAN and
+the thirteen target types — were read and match, including `affect_limit`,
+the fan half-angle's integer division, and the acting-player hop that keeps a
+summon's AoE off its owner.

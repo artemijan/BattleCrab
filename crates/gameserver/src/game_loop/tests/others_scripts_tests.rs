@@ -265,7 +265,7 @@ fn mammon_spawn_announces_the_nearest_castle() {
 // Slice 2 — the castle staff
 // ---------------------------------------------------------------------------
 
-use crate::model::clan::{CS_MERCENARIES, CS_OPEN_DOOR, Clan};
+use crate::model::clan::{CS_MERCENARIES, CS_OPEN_DOOR};
 use crate::model::siege::{Siege, SiegeClanType};
 
 /// Gludio's castle staff, at their real dist spawn points (inside the castle,
@@ -296,40 +296,13 @@ fn castle_world(
 
 /// The lord of the castle: clan 77 owns Gludio and `player` leads it.
 fn make_castle_lord(world: &mut World, player: i32) {
-    let mut clan = mk_test_clan(77, player);
+    let mut clan = test_clan(77, player);
     clan.castle_id = GLUDIO;
     world.clans.insert(77, clan);
     let p = world.objects.get_component_mut::<Player>(&player).unwrap();
     p.clan_id = 77;
     p.clan_leader = true; // Java `isClanLeader()` = clan.leaderId == objectId
     p.clan_privs = 0; // the leader holds every privilege regardless
-}
-
-fn mk_test_clan(id: i32, leader_id: i32) -> Clan {
-    Clan {
-        id,
-        name: format!("Clan{id}"),
-        leader_id,
-        level: 5,
-        reputation_score: 0,
-        castle_id: 0,
-        members: Vec::new(),
-        skills: Default::default(),
-        warehouse: Default::default(),
-        char_penalty_expiry_time: 0,
-        dissolving_expiry_time: 0,
-        rank_privs: Default::default(),
-        new_leader_id: 0,
-        sub_pledges: Default::default(),
-        ally_id: 0,
-        ally_name: String::new(),
-        ally_penalty_expiry_time: 0,
-        ally_penalty_type: 0,
-        crest_id: 0,
-        crest_large_id: 0,
-        ally_crest_id: 0,
-        blood_alliance_count: 0,
-    }
 }
 
 /// Click an NPC (Java's target-then-interact pair) and return the html it sent.
@@ -464,7 +437,7 @@ fn doorman_first_talk_needs_the_open_door_privilege() {
     );
     drain(&mut rx);
     // A member of the owning clan (not its leader) with no privileges.
-    let mut clan = mk_test_clan(78, 9999);
+    let mut clan = test_clan(78, 9999);
     clan.castle_id = GLUDIO;
     world.clans.insert(78, clan);
     {
@@ -534,7 +507,7 @@ fn mercenary_manager_needs_its_privilege() {
         BLACKSMITH_POS.1,
         BLACKSMITH_POS.2,
     );
-    let mut clan = mk_test_clan(79, 9999);
+    let mut clan = test_clan(79, 9999);
     clan.castle_id = GLUDIO;
     world.clans.insert(79, clan);
     {
@@ -1717,7 +1690,7 @@ fn mercenary_ticket_pickup_needs_the_privilege() {
     );
 
     // Owning-clan member with CS_MERCENARIES: the pickup walk starts.
-    let mut clan = mk_test_clan(79, 9999);
+    let mut clan = test_clan(79, 9999);
     clan.castle_id = GLUDIO;
     world.clans.insert(79, clan);
     {

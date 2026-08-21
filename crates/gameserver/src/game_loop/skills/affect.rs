@@ -339,38 +339,13 @@ fn sweep_dead_group(
             return true;
         }
         match group {
-            Group::Clan => {
-                let clan_of = |o: i32| clan_of_or_zero(world, o);
-                let c = clan_of(target_oid);
-                c != 0 && clan_of(oid) == c
-            }
-            Group::Party | Group::Alliance => {
-                let party_of = |o: i32| {
-                    world
-                        .objects
-                        .get_component::<crate::model::components::PartyRef>(&o)
-                        .map(|r| r.0)
-                };
-                let (a, b) = (party_of(target_oid), party_of(oid));
-                match (a, b) {
-                    (Some(a), Some(b)) if a == b => true,
-                    // A command channel widens DEAD_UNION past the single party
-                    // (Java compares the two parties' `getCommandChannel()`).
-                    (Some(a), Some(b)) if group == Group::Alliance => {
-                        let channel_of = |pid: u32| {
-                            world
-                                .command_channels
-                                .iter()
-                                .find(|(_, cc)| cc.parties.contains(&pid))
-                                .map(|(&id, _)| id)
-                        };
-                        matches!(
-                            (channel_of(a), channel_of(b)),
-                            (Some(x), Some(y)) if x == y
-                        )
-                    }
-                    _ => false,
-                }
+            Group::Clan => same_clan(world, oid, target_oid),
+            // A command channel widens `Alliance` past the single party (Java
+            // compares the two parties' `getCommandChannel()`); `Party` stops
+            // at the party itself.
+            Group::Party => same_party(world, oid, target_oid),
+            Group::Alliance => {
+                same_party(world, oid, target_oid) || same_command_channel(world, oid, target_oid)
             }
         }
     };
@@ -755,10 +730,7 @@ pub(crate) fn passes_affect_object(
 ) -> bool {
     match object {
         AffectObject::All | AffectObject::Other => true,
-        AffectObject::NotFriend => {
-            !is_friend(world, caster_oid, candidate)
-                && !protected_by_peace(world, caster_oid, candidate)
-        }
+        AffectObject::NotFriend => not_friend(world, caster_oid, candidate),
         AffectObject::Friend => is_friend(world, caster_oid, candidate),
         AffectObject::Clan => same_clan(world, caster_oid, candidate),
         // `UndeadRealEnemy.checkAffectedObject` — "you are not an enemy of
@@ -775,6 +747,181 @@ pub(crate) fn passes_affect_object(
                 && crate::game_loop::target::is_auto_attackable(world, caster_oid, candidate)
         }
     }
+}
+
+/// `NotFriend.checkAffectedObject` — **not the complement of [`is_friend`]**.
+/// Java ships the two as separate handlers with different legs in a different
+/// order, and deriving one from the other is what this used to do:
+///
+/// ```java
+/// if (creature == target) return false;
+/// if ((player != null) && (targetPlayer != null))
+/// {
+///     if (player == targetPlayer) return false;
+///     if (target.isInsidePeaceZone(player) && !player.getAccessLevel().allowPeaceAttack()) return false;
+///     if (Config.ALT_COMMAND_CHANNEL_FRIENDS && sameCommandChannelLeader) return false;
+///     if (samePartyLeader) return false;
+///     if (player.isOnEvent() && !player.isOnSoloEvent() && (player.getTeam() == target.getTeam())) return false;
+///     if (targetPlayer.inObserverMode()) return false;
+///     if (target.isInsideZone(SIEGE)) return !player.isSiegeFriend(targetPlayer);
+///     if (bothInPvpZoneAndNeitherInSiege) return true;
+///     if (sameDuel) return true;
+///     if (sameOlympiadGame) return true;
+///     if (sameClan) return false;
+///     if (mutualClanWar) return true;
+///     if ((player.getAllyId() != 0) && (player.getAllyId() == targetPlayer.getAllyId())) return false;
+///     …
+///     return (targetPlayer.getPvpFlag() > 0) || (targetPlayer.getReputation() < 0);
+/// }
+/// return target.isAutoAttackable(creature);
+/// ```
+///
+/// **The last line is the one that was missing.** Falling out of every other
+/// leg, a player is a valid hostile target only if they are *flagged* or a
+/// *PK*. The port answered `!is_friend(...)`, which makes a neutral, unflagged,
+/// non-PK stranger a valid target — so every one of the **69 learnable
+/// `NOT_FRIEND` skills** swept innocent bystanders into an AoE anywhere outside
+/// a peace zone.
+///
+/// Two legs are narrowed with their carriers named. `allowPeaceAttack()` is a
+/// GM access-level permission, and `isAutoPlaying()`'s branch is the
+/// post-Interlude autoplay target-mode filter — no client here sends it.
+fn not_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
+    if caster_oid == candidate {
+        return false;
+    }
+    let caster = crate::game_loop::pvp::acting_player(world, caster_oid);
+    let target = crate::game_loop::pvp::acting_player(world, candidate);
+    let both_players = world.objects.has_component::<Player>(&caster)
+        && world.objects.has_component::<Player>(&target);
+    if !both_players {
+        // `target.isAutoAttackable(creature)` — the arm every non-player pair
+        // takes: a monster, a door, a siege object. Routed through the general
+        // predicate rather than the player-scoped one, which answers `false`
+        // for anything that is not a player.
+        return crate::game_loop::target::is_auto_attackable(world, caster_oid, candidate);
+    }
+    if caster == target {
+        return false;
+    }
+    if protected_by_peace(world, caster, candidate) {
+        return false;
+    }
+    if world.cfg.character.alt_command_channel_friends
+        && same_command_channel(world, caster, target)
+    {
+        return false;
+    }
+    if same_party(world, caster, target) {
+        return false;
+    }
+    // `isOnEvent() && !isOnSoloEvent() && (getTeam() == target.getTeam())` —
+    // the TvT team check. `events::tvt::team_of` answers 0 for anyone not in a
+    // running event, so two bystanders never read as team-mates.
+    if crate::game_loop::events::tvt::same_team(world, caster, target) {
+        return false;
+    }
+    if world
+        .objects
+        .has_component::<crate::model::components::OlympiadObserver>(&target)
+    {
+        return false;
+    }
+    // A siege zone decides on its own terms and short-circuits the rest.
+    if crate::game_loop::pvp::is_in_siege(world, candidate) {
+        return !siege_friend(world, caster, target);
+    }
+    let pvp_zone = |oid: i32| {
+        crate::game_loop::pvp::in_pvp_zone(world, oid)
+            && !crate::game_loop::pvp::is_in_siege(world, oid)
+    };
+    if pvp_zone(caster) && pvp_zone(candidate) {
+        return true;
+    }
+    let duel_of = |oid: i32| {
+        world
+            .objects
+            .get_component::<crate::model::components::DuelRef>(&oid)
+            .map(|d| d.0)
+    };
+    if matches!((duel_of(caster), duel_of(target)), (Some(a), Some(b)) if a == b) {
+        return true;
+    }
+    // `isInOlympiadMode() && sameGameId` — one running match holds exactly two
+    // players here, so "both in a match" and "in the same match" coincide.
+    if crate::game_loop::olympiad::matches::same_match(world, caster, target) {
+        return true;
+    }
+    if same_clan(world, caster, target) {
+        return false;
+    }
+    if mutual_clan_war(world, caster, target) {
+        return true;
+    }
+    let ally_of = |oid: i32| {
+        crate::game_loop::guard::clan_of(world, oid)
+            .and_then(|cid| world.clans.get(&cid))
+            .map(|c| c.ally_id)
+            .unwrap_or(0)
+    };
+    let (a, b) = (ally_of(caster), ally_of(target));
+    if a != 0 && a == b {
+        return false;
+    }
+    // The fallthrough: only a flagged player or a PK is fair game.
+    let flagged = world
+        .objects
+        .get_component::<crate::model::components::PvpState>(&target)
+        .is_some_and(|s| s.flag > 0);
+    let pk = world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.reputation < 0);
+    flagged || pk
+}
+
+/// The party this player belongs to, if any.
+fn party_of(world: &World, object_id: i32) -> Option<u32> {
+    world
+        .objects
+        .get_component::<crate::model::components::PartyRef>(&object_id)
+        .map(|r| r.0)
+}
+
+/// The command channel a **party** belongs to, if any.
+fn command_channel_of(world: &World, party_id: u32) -> Option<u32> {
+    world
+        .command_channels
+        .iter()
+        .find(|(_, cc)| cc.parties.contains(&party_id))
+        .map(|(&id, _)| id)
+}
+
+/// Two players whose parties share a command channel (Java compares the two
+/// channels' `getLeaderObjectId()`; one channel has one leader, so comparing
+/// the channels themselves is the same test).
+fn same_command_channel(world: &World, a: i32, b: i32) -> bool {
+    let channel = |oid: i32| party_of(world, oid).and_then(|p| command_channel_of(world, p));
+    matches!((channel(a), channel(b)), (Some(x), Some(y)) if x == y)
+}
+
+/// `Clan.isAtWarWith(other) && other.isAtWarWith(clan)` — Java requires the war
+/// to be **mutual**, so a one-sided declaration does not open an AoE.
+fn mutual_clan_war(world: &World, a: i32, b: i32) -> bool {
+    let (Some(x), Some(y)) = (
+        crate::game_loop::guard::clan_of(world, a),
+        crate::game_loop::guard::clan_of(world, b),
+    ) else {
+        return false;
+    };
+    crate::game_loop::clans::wars::at_war_between(world, x, y)
+}
+
+/// `Player.isSiegeFriend(target)` — same side of the siege the target stands in.
+fn siege_friend(world: &World, a: i32, b: i32) -> bool {
+    crate::game_loop::pvp::active_siege_castle(world, a)
+        .zip(crate::game_loop::pvp::active_siege_castle(world, b))
+        .is_some_and(|(x, y)| x == y)
 }
 
 /// The caster themselves, a party mate, or a clan mate. NPCs are never
@@ -801,15 +948,7 @@ fn is_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
 }
 
 fn same_party(world: &World, a: i32, b: i32) -> bool {
-    let pa = world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&a)
-        .map(|r| r.0);
-    let pb = world
-        .objects
-        .get_component::<crate::model::components::PartyRef>(&b)
-        .map(|r| r.0);
-    matches!((pa, pb), (Some(x), Some(y)) if x == y)
+    matches!((party_of(world, a), party_of(world, b)), (Some(x), Some(y)) if x == y)
 }
 
 fn same_clan(world: &World, a: i32, b: i32) -> bool {
