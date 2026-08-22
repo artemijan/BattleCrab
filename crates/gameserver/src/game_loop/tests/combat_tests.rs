@@ -228,6 +228,88 @@ fn arena_players_attackable_without_flagging() {
     );
 }
 
+/// Java's `getConditionBonus` subtracts `darkBonus` — **−10** on this dist —
+/// for the whole in-game night, and `calcHitMiss` narrows its chance through
+/// that multiplier. The port parsed the value and never applied it, on a doc
+/// comment that predated the G33 game clock.
+///
+/// The proof has to be end-to-end: the formula is swept in `formula_parity`,
+/// but what was broken was the *call site* not asking what time it is. So this
+/// swings the same attack with the same rolls at in-game noon and at in-game
+/// midnight, at a miss roll that sits between the two chances.
+#[test]
+fn a_swing_that_lands_by_day_misses_at_night() {
+    /// One in-game day is 4 real hours; the phase is measured from the epoch,
+    /// so an exact multiple is in-game midnight (night) and half past it noon.
+    const IG_DAY_MS: i64 = 14_400_000;
+    let midnight = 1_800_000_000_000 - (1_800_000_000_000 % IG_DAY_MS);
+
+    let swing_at = |now: i64| -> (f64, f64) {
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        world.forced_now_millis = Some(now);
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let npc_oid = NPC_OID + 21;
+        // 100 000 HP: the swing must not kill, so the HP delta reads as
+        // "landed" or "missed" and nothing else.
+        let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
+        world
+            .npc_regions
+            .entry(extra.1.0)
+            .or_default()
+            .push(npc_oid);
+        world.objects.spawn(npc_oid, (npc, extra));
+        let cs = model::npc::npc_combat_stats(
+            world.data.npc_data.get(40001).unwrap(),
+            &world.data.stat_bonus,
+        );
+        world.objects.add_components(&npc_oid, cs);
+
+        handle_action(&mut world, 1, &action_body(npc_oid, 0));
+        drain(&mut a_rx);
+
+        // The attacker stands at (0,0) and the target faces heading 0 at
+        // (30,0), so the swing lands from BEHIND — the same position both
+        // times, which is what leaves the night term as the only difference.
+        let accuracy = pcs(&world, 3001).accuracy;
+        let evasion = pcs(&world, npc_oid).evasion;
+        let chance = |night: bool| {
+            let condition = world.data.hit_condition_bonus.condition_bonus(
+                0,
+                0,
+                model::movement::Position::Back,
+                night,
+            );
+            (f64::from((80 + (2 * (accuracy - evasion))) * 10) * condition).clamp(200.0, 980.0)
+        };
+        // `calcHitMiss` misses when `chance < roll`, so a roll one past the
+        // night chance misses at night and lands by day.
+        let roll = chance(true) as i32 + 1;
+        assert!(
+            chance(false) >= chance(true) + 2.0,
+            "the two chances have to be far enough apart to sit a roll between"
+        );
+        // Swing rolls: the miss roll, then no crit (99) and a ±0 random-damage
+        // delta (10) that only a landed hit consumes.
+        world.force_rolls([roll, 99, 10]);
+        handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
+        let before = nvit(&world, npc_oid).cur_hp;
+        advance_world(&mut world, 12);
+        (before, nvit(&world, npc_oid).cur_hp)
+    };
+
+    let (before_day, after_day) = swing_at(midnight + (IG_DAY_MS / 2));
+    assert!(
+        after_day < before_day,
+        "by day the swing lands ({before_day} → {after_day})"
+    );
+
+    let (before_night, after_night) = swing_at(midnight);
+    assert_eq!(
+        after_night, before_night,
+        "the same swing at the same roll misses at night"
+    );
+}
+
 /// The full melee kill: AttackRequest → Attack packet + combat stance, the
 /// scheduled hit lands with `Formulas` damage, the monster dies (Die), the
 /// killer gets XP/SP (level-up: SocialAction 2122 + SM 96), auto-loot adena

@@ -41,11 +41,17 @@
 use gameserver::model::formulas::{self, CritDamage, HealCaster};
 use gameserver::model::movement::Position;
 
+// `common` is shared with the census tests, which use more of it than the
+// sweeps do; the sweeps want `DIST` alone.
+#[allow(dead_code)]
+mod common;
+
 /// Transcriptions of Java's expressions. Each function quotes the source it
 /// came from; nothing here calls the port.
 mod java {
     use gameserver::data::item_data::CrystalType as Grade;
     use gameserver::model::formulas::HealCaster as Caster;
+    use gameserver::model::movement::Position;
 
     /// `Formulas.calcAutoAttackDamage`:
     ///
@@ -762,6 +768,338 @@ mod java {
             time *= 2;
         }
         time
+    }
+
+    // ---------------------------------------------------------------------
+    // The roll family: the formulas that decide *whether* something happens.
+    // Everything above answers "how much"; a wrong term there moves a number,
+    // a wrong term here moves a rate — and a rate is what nobody can see.
+    // ---------------------------------------------------------------------
+
+    /// `Formulas.calcHitMiss` — returns **true for a miss**:
+    ///
+    /// ```java
+    /// int chance = (80 + (2 * (attacker.getAccuracy() - target.getEvasionRate()))) * 10;
+    /// chance *= HitConditionBonusData.getInstance().getConditionBonus(attacker, target);
+    /// chance = Math.max(chance, 200);
+    /// chance = Math.min(chance, 980);
+    /// return chance < Rnd.get(1000);
+    /// ```
+    ///
+    /// `chance` is an `int` and `chance *= double` is a **narrowing** compound
+    /// assignment, so Java truncates toward zero before the clamp. That is
+    /// transcribed literally here rather than smoothed into `f64`; the port
+    /// stays in `f64`, and the sweep is what says the two agree (they do — for
+    /// an integer `roll`, `trunc(x) < r` and `x < r` cannot disagree).
+    pub fn hit_miss(accuracy: i32, evasion: i32, condition_bonus: f64, roll: i32) -> bool {
+        let mut chance = (80 + (2 * (accuracy - evasion))) * 10;
+        chance = (f64::from(chance) * condition_bonus) as i32;
+        chance = chance.max(200);
+        chance = chance.min(980);
+        chance < roll
+    }
+
+    /// `HitConditionBonusData.getConditionBonus` — the multiplier the line
+    /// above narrows through:
+    ///
+    /// ```java
+    /// double mod = 100;
+    /// if ((attacker.getZ() - target.getZ()) > 50) mod += highBonus;
+    /// else if ((attacker.getZ() - target.getZ()) < -50) mod += lowBonus;
+    /// if (GameTimeTaskManager.getInstance().isNight()) mod += darkBonus;
+    /// switch (Position.getPosition(attacker, target))
+    /// {
+    ///     case SIDE: mod += sideBonus; break;
+    ///     case BACK: mod += backBonus; break;
+    ///     default: mod += frontBonus; break;
+    /// }
+    /// return Math.max(mod / 100, 0);
+    /// ```
+    ///
+    /// The rain arm is commented out in Java too. `darkBonus` is **not**: it is
+    /// −10 on this dist and applies for the whole in-game night, which the port
+    /// dropped until this axis was opened.
+    pub fn hit_condition_bonus(
+        bonuses: &gameserver::data::HitConditionBonusData,
+        attacker_z: i32,
+        target_z: i32,
+        night: bool,
+        position: Position,
+    ) -> f64 {
+        let mut modifier = 100.0;
+        if attacker_z - target_z > 50 {
+            modifier += bonuses.high_bonus;
+        } else if attacker_z - target_z < -50 {
+            modifier += bonuses.low_bonus;
+        }
+        if night {
+            modifier += bonuses.dark_bonus;
+        }
+        modifier += match position {
+            Position::Side => bonuses.side_bonus,
+            Position::Back => bonuses.back_bonus,
+            Position::Front => bonuses.front_bonus,
+        };
+        (modifier / 100.0).max(0.0)
+    }
+
+    /// `Formulas.calcCriticalHeightBonus`:
+    ///
+    /// ```java
+    /// return ((((CommonUtil.constrain(from.getZ() - target.getZ(), -25, 25) * 4) / 5) + 10) / 100) + 1;
+    /// ```
+    ///
+    /// `getZ()` is an `int`, `constrain(int, int, int)` returns an `int`, and
+    /// the literals are `int` — so the whole expression is integer arithmetic,
+    /// the `/ 100` truncates a numerator that never leaves −10..30, and the
+    /// method is a flat `1` for every z difference in the game. Written out
+    /// term by term instead of as `1.0`, because the point of the
+    /// transcription is that it can be re-read against Java.
+    pub fn critical_height_bonus(from_z: i32, to_z: i32) -> f64 {
+        f64::from((((((from_z - to_z).clamp(-25, 25) * 4) / 5) + 10) / 100) + 1)
+    }
+
+    /// `Formulas.calcCriticalPositionBonus`:
+    ///
+    /// ```java
+    /// case SIDE: return 1.1 * creature.getStat().getPositionTypeValue(Stat.CRITICAL_RATE, Position.SIDE);
+    /// case BACK: return 1.3 * creature.getStat().getPositionTypeValue(Stat.CRITICAL_RATE, Position.BACK);
+    /// default: return creature.getStat().getPositionTypeValue(Stat.CRITICAL_RATE, Position.FRONT);
+    /// ```
+    pub fn critical_position_bonus(position: Position, position_mul: f64) -> f64 {
+        match position {
+            Position::Side => 1.1 * position_mul,
+            Position::Back => 1.3 * position_mul,
+            Position::Front => position_mul,
+        }
+    }
+
+    /// `Formulas.calcCrit`'s auto-attack arm (the `skill == null` tail):
+    ///
+    /// ```java
+    /// final double criticalRateMod = (target.getStat().getValue(Stat.DEFENCE_CRITICAL_RATE, rate) + target.getStat().getValue(Stat.DEFENCE_CRITICAL_RATE_ADD, 0)) / 10;
+    /// final double criticalLocBonus = calcCriticalPositionBonus(creature, target);
+    /// final double criticalHeightBonus = calcCriticalHeightBonus(creature, target);
+    /// rate = criticalLocBonus * criticalRateMod * criticalHeightBonus;
+    /// if ((creature.getLevel() >= 78) || (target.getLevel() >= 78))
+    /// {
+    ///     rate += (Math.sqrt(creature.getLevel()) * (creature.getLevel() - target.getLevel()) * 0.125);
+    /// }
+    /// rate = CommonUtil.constrain(rate, 3, 97);
+    /// return (rate * balanceMod) > Rnd.get(100);
+    /// ```
+    ///
+    /// `balanceMod` is 1.0: it indexes
+    /// `Config.PVP_/PVE_PHYSICAL_ATTACK_CRITICAL_CHANCE_MULTIPLIERS`, and this
+    /// dist populates neither table, so every class gets the `1f` default.
+    #[allow(clippy::too_many_arguments)]
+    pub fn auto_attack_crit(
+        crit_stat: f64,
+        defence_mul: f64,
+        defence_add: f64,
+        position: Position,
+        position_mul: f64,
+        from_z: i32,
+        to_z: i32,
+        attacker_level: i32,
+        target_level: i32,
+        roll: i32,
+    ) -> bool {
+        let rate_mod = ((defence_mul * crit_stat) + defence_add) / 10.0;
+        let mut rate = critical_position_bonus(position, position_mul)
+            * rate_mod
+            * critical_height_bonus(from_z, to_z);
+        if attacker_level >= 78 || target_level >= 78 {
+            rate +=
+                f64::from(attacker_level).sqrt() * f64::from(attacker_level - target_level) * 0.125;
+        }
+        rate = rate.clamp(3.0, 97.0);
+        rate > f64::from(roll)
+    }
+
+    /// `Formulas.calcCrit`'s magic arm:
+    ///
+    /// ```java
+    /// rate = creature.getStat().getValue(Stat.MAGIC_CRITICAL_RATE);
+    /// if ((target == null) || !skill.isBad()) return Math.min(rate, 320) > Rnd.get(1000);
+    /// double finalRate = target.getStat().getValue(Stat.DEFENCE_MAGIC_CRITICAL_RATE, rate) + target.getStat().getValue(Stat.DEFENCE_MAGIC_CRITICAL_RATE_ADD, 0);
+    /// if ((creature.getLevel() >= 78) && (target.getLevel() >= 78))
+    /// {
+    ///     finalRate += Math.sqrt(creature.getLevel()) + ((creature.getLevel() - target.getLevel()) / 25);
+    ///     return Math.min(finalRate, 320 * balanceMod) > Rnd.get(1000);
+    /// }
+    /// return (Math.min(finalRate, 200) * balanceMod) > Rnd.get(1000);
+    /// ```
+    ///
+    /// Two identity terms, carriers named: `balanceMod` reads the unpopulated
+    /// `*_MAGICAL_SKILL_CRITICAL_CHANCE_MULTIPLIERS` tables, and
+    /// `DEFENCE_MAGIC_CRITICAL_RATE`/`_ADD` are declared only by skills in the
+    /// 10500+ ranges — none learnable, none on an NPC skill list here.
+    /// `(level - targetLevel) / 25` is integer division, kept as such.
+    pub fn magic_crit(
+        m_crit_rate: f64,
+        is_bad: bool,
+        caster_level: i32,
+        target_level: i32,
+        roll: i32,
+    ) -> bool {
+        if !is_bad {
+            return m_crit_rate.min(320.0) > f64::from(roll);
+        }
+        let mut final_rate = m_crit_rate;
+        if caster_level >= 78 && target_level >= 78 {
+            final_rate +=
+                f64::from(caster_level).sqrt() + f64::from((caster_level - target_level) / 25);
+            return final_rate.min(320.0) > f64::from(roll);
+        }
+        final_rate.min(200.0) > f64::from(roll)
+    }
+
+    /// `Formulas.calcCrit`'s physical-skill arm:
+    ///
+    /// ```java
+    /// return CommonUtil.constrain(rate * statBonus * rateBonus * balanceMod, 5, 90) > Rnd.get(100);
+    /// ```
+    ///
+    /// `statBonus` is `BaseStat.STR.calcBonus(creature)` unless
+    /// `STAT_BONUS_SKILL_CRITICAL` names another stat (no carrier on this
+    /// dist); `rateBonus` is `getMul(CRITICAL_RATE_SKILL, 1)`, whose stat name
+    /// appears nowhere in the datapack; `balanceMod` is the unpopulated config
+    /// table again. Both identity terms are swept as inputs anyway.
+    pub fn physical_skill_crit(
+        critical_chance: f64,
+        stat_bonus: f64,
+        rate_bonus: f64,
+        roll: i32,
+    ) -> bool {
+        (critical_chance * stat_bonus * rate_bonus).clamp(5.0, 90.0) > f64::from(roll)
+    }
+
+    /// `Formulas.calcBlowSuccess`:
+    ///
+    /// ```java
+    /// final double critHeightBonus = calcCriticalHeightBonus(creature, target);
+    /// final double criticalPosition = calcCriticalPositionBonus(creature, target);
+    /// final double chanceBoostMod = (100 + chanceBoost) / 100;
+    /// final double blowRateMod = creature.getStat().getValue(Stat.BLOW_RATE, 1);
+    /// final double blowRateDefenseMod = target.getStat().getValue(Stat.BLOW_RATE_DEFENCE, 1);
+    /// final double rate = criticalPosition * critHeightBonus * weaponCritical * chanceBoostMod * blowRateMod * blowRateDefenseMod;
+    /// return Rnd.get(100) < Math.min(rate, Config.BLOW_RATE_CHANCE_LIMIT);
+    /// ```
+    ///
+    /// `blowRateDefenseMod` has no carrier — `FatalBlowRateDefence` appears
+    /// nowhere in the datapack — so the port folds only the attacker's
+    /// `BLOW_RATE`. It is swept here as a separate input to keep the two
+    /// multiplications distinguishable.
+    #[allow(clippy::too_many_arguments)]
+    pub fn blow_success(
+        weapon_critical: f64,
+        position: Position,
+        position_mul: f64,
+        from_z: i32,
+        to_z: i32,
+        chance_boost: f64,
+        blow_rate_mod: f64,
+        blow_rate_defence_mod: f64,
+        limit: f64,
+        roll: i32,
+    ) -> bool {
+        let rate = critical_position_bonus(position, position_mul)
+            * critical_height_bonus(from_z, to_z)
+            * weapon_critical
+            * ((100.0 + chance_boost) / 100.0)
+            * blow_rate_mod
+            * blow_rate_defence_mod;
+        f64::from(roll) < rate.min(limit)
+    }
+
+    /// `Formulas.calcAtkBreak`'s arithmetic — everything after the gates
+    /// (channelling, `DC_MOD`, raid, HP-blocked, and the two
+    /// `ALT_GAME_CANCEL_*` config switches that are the only sources of the
+    /// opening 15):
+    ///
+    /// ```java
+    /// init += Math.sqrt(13 * dmg);
+    /// init -= ((BaseStat.MEN.calcBonus(target) * 100) - 100);
+    /// double rate = target.getStat().getValue(Stat.ATTACK_CANCEL, init);
+    /// rate = Math.max(Math.min(rate, 99), 1);
+    /// return Rnd.get(100) < rate;
+    /// ```
+    ///
+    /// `getValue(stat, init)` is `mul · init + add`, which is why the port
+    /// takes the pair rather than a single modifier.
+    // Java writes `Math.max(Math.min(rate, 99), 1)`; the transcription keeps
+    // that nesting rather than collapsing it to `clamp`, so it reads as the
+    // source does.
+    #[allow(clippy::manual_clamp)]
+    pub fn atk_break(
+        dmg: f64,
+        men_bonus: f64,
+        cancel_mul: f64,
+        cancel_add: f64,
+        roll: i32,
+    ) -> bool {
+        let mut init = 15.0;
+        init += (13.0 * dmg).sqrt();
+        init -= (men_bonus * 100.0) - 100.0;
+        let rate = ((init * cancel_mul) + cancel_add).min(99.0).max(1.0);
+        f64::from(roll) < rate
+    }
+
+    /// `Formulas.calculatePvpPveBonus`, PvE arm:
+    ///
+    /// ```java
+    /// return Math.max(0.05, (1 + ((pveAttack * pveRaidAttack) - (pveDefense * pveRaidDefense))) * pvePenalty);
+    /// ```
+    ///
+    /// The PvP arm is the same shape with `dragonDefense * (1 + (pvpAttack -
+    /// pvpDefense))` and no penalty; dragon weapons post-date Interlude, so the
+    /// two collapse onto one expression with the raid pair and the penalty at
+    /// identity. The `Math.max(0.05, …)` floor lives at the port's call sites
+    /// (`skills::effects::traits`), not inside the formula, so the sweep
+    /// applies it on the port side too.
+    pub fn pvp_pve_bonus(
+        attack_mul: f64,
+        defence_mul: f64,
+        raid_attack_mul: f64,
+        raid_defence_mul: f64,
+        pve_penalty: f64,
+    ) -> f64 {
+        (0.05f64).max(
+            (1.0 + ((attack_mul * raid_attack_mul) - (defence_mul * raid_defence_mul)))
+                * pve_penalty,
+        )
+    }
+
+    /// `Formulas.calcMagicAffected` — the mana-drain landing roll:
+    ///
+    /// ```java
+    /// double defence = 0;
+    /// if (skill.isActive() && skill.isBad()) defence = target.getMDef();
+    /// final double attack = 2 * actor.getMAtk() * calcGeneralTraitBonus(actor, target, skill.getTraitType(), false);
+    /// double d = (attack - defence) / (attack + defence);
+    /// d += 0.5 * Rnd.nextGaussian();
+    /// return d > 0;
+    /// ```
+    ///
+    /// `calcGeneralTraitBonus` is 1.0 for every carrier: all 23 skills with a
+    /// `MagicalAttackMp` effect on this dist declare no `<trait>`, so the
+    /// trait type is `NONE` and Java's own first branch returns 1. It is swept
+    /// as an input regardless.
+    pub fn magic_affected(m_atk: f64, defence: f64, trait_bonus: f64, gaussian: f64) -> bool {
+        let attack = 2.0 * m_atk * trait_bonus;
+        let d = ((attack - defence) / (attack + defence)) + (0.5 * gaussian);
+        d > 0.0
+    }
+
+    /// `Creature.getRandomDamageMultiplier`:
+    ///
+    /// ```java
+    /// final int random = (int) _stat.getValue(Stat.RANDOM_DAMAGE);
+    /// return (1 + ((double) Rnd.get(-random, random) / 100));
+    /// ```
+    pub fn random_damage_multiplier(roll_neg_r_to_r: i32) -> f64 {
+        1.0 + (f64::from(roll_neg_r_to_r) / 100.0)
     }
 }
 
@@ -1608,4 +1946,388 @@ fn shots_bonus_matches_java_across_the_band() {
         (shots_bonus(10) - 1.03).abs() < 1e-12,
         "a +10 weapon lifts every shot by 3 %"
     );
+}
+
+// ---------------------------------------------------------------------------
+// The roll family
+//
+// Opened after the sixteen magnitude sweeps above. Those take attack, defence
+// and the modifiers as *inputs* and check the number that comes out; none of
+// them touches the formulas that decide whether a swing lands, crits, breaks a
+// cast or steals mana. A wrong term in a damage formula shows up as a number
+// somebody can compare against a Java server; a wrong term in a rate shows up
+// as nothing at all, which is why two of the three findings below had been sat
+// on since the systems were ported.
+// ---------------------------------------------------------------------------
+
+/// Rolls for the 1000-sided formulas (hit, magic crit), including both sides of
+/// each clamp.
+const ROLLS_1000: &[i32] = &[0, 1, 199, 200, 201, 319, 320, 499, 500, 979, 980, 981, 999];
+/// Rolls for the 100-sided formulas (crit, blow, cast break).
+const ROLLS_100: &[i32] = &[
+    0, 1, 2, 3, 4, 5, 9, 10, 11, 33, 50, 79, 80, 89, 90, 96, 97, 99,
+];
+/// Levels either side of Java's 78 gate, up to this dist's `MaximumPlayerLevel`.
+const LEVELS: &[i32] = &[1, 40, 77, 78, 79, 80];
+/// z differences either side of the ±50 hit-condition band and the ±25 crit
+/// clamp.
+const Z_DIFFS: &[i32] = &[-200, -51, -50, -26, -25, 0, 25, 26, 50, 51, 200];
+
+/// **The hit sweep** (`calcHitMiss` + `getConditionBonus`), on the real
+/// `hitConditionBonus.xml`.
+///
+/// The condition bonus is the half that mattered: the port parsed `dark` and
+/// then dropped it, on a doc comment saying there was no game clock — which
+/// stopped being true at G33, when `game_time::is_night_at` landed and the
+/// night spawns started using it. Java subtracts 10 points of hit chance for
+/// the whole in-game night, so every auto-attack in the dark was landing at
+/// the daytime rate.
+#[test]
+fn hit_rolls_match_java_across_the_grid() {
+    let bonuses = gameserver::data::HitConditionBonusData::load_from(common::DIST);
+    let mut cases = 0usize;
+    let mut nights = 0usize;
+    for &accuracy in &[0, 37, 100, 251, 500] {
+        for &evasion in &[0, 41, 100, 251, 500] {
+            for &(position, _) in &positions() {
+                for &z in Z_DIFFS {
+                    for &night in &[false, true] {
+                        let ours = bonuses.condition_bonus(z, 0, position, night);
+                        let theirs = java::hit_condition_bonus(&bonuses, z, 0, night, position);
+                        assert!(
+                            (ours - theirs).abs() < 1e-9,
+                            "condition bonus diverged — z {z}, night {night}, {position:?}: \
+                             {ours} vs {theirs}"
+                        );
+                        for &roll in ROLLS_1000 {
+                            let ours = formulas::calc_hit_miss(accuracy, evasion, theirs, roll);
+                            let theirs = java::hit_miss(accuracy, evasion, theirs, roll);
+                            assert_eq!(
+                                ours, theirs,
+                                "hit/miss diverged — acc {accuracy}, eva {evasion}, z {z}, \
+                                 night {night}, {position:?}, roll {roll}"
+                            );
+                            cases += 1;
+                            nights += usize::from(night);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert!(cases > 10_000, "the grid collapsed to {cases} cases");
+    assert!(nights > 0, "the night half of the grid never ran");
+}
+
+/// **The auto-attack crit sweep** (`calcCrit`'s `skill == null` tail).
+///
+/// Two findings, both live:
+///
+/// * the **height bonus** was evaluated in floating point. Java's expression is
+///   `int` throughout and its `/ 100` truncates a numerator that never leaves
+///   −10..30, so Java's answer is a flat 1 and the port was handing out 1.1 on
+///   level ground and up to 1.3 uphill — a 10 % crit-rate gift to everyone,
+///   before position;
+/// * the **level term** was missing outright. Java adds
+///   `sqrt(level) · (level − targetLevel) · 0.125` as soon as *either* side is
+///   78 or over, which an 80-level cap puts inside the endgame's reach.
+#[test]
+fn auto_attack_crit_rolls_match_java_across_the_grid() {
+    let mut cases = 0usize;
+    for &crit_stat in &[0.0, 44.0, 120.0, 440.0, 1_500.0] {
+        for &defence_mul in &[1.0, 0.85, 0.7] {
+            for &defence_add in &[0.0, 100.0] {
+                for &(position, _) in &positions() {
+                    for &position_mul in &[1.0, 0.7, 1.6] {
+                        for &z in Z_DIFFS {
+                            for &attacker_level in LEVELS {
+                                for &target_level in LEVELS {
+                                    for &roll in ROLLS_100 {
+                                        let ours = formulas::calc_auto_attack_crit(
+                                            crit_stat,
+                                            defence_mul,
+                                            defence_add,
+                                            position,
+                                            position_mul,
+                                            z,
+                                            0,
+                                            attacker_level,
+                                            target_level,
+                                            roll,
+                                        );
+                                        let theirs = java::auto_attack_crit(
+                                            crit_stat,
+                                            defence_mul,
+                                            defence_add,
+                                            position,
+                                            position_mul,
+                                            z,
+                                            0,
+                                            attacker_level,
+                                            target_level,
+                                            roll,
+                                        );
+                                        assert_eq!(
+                                            ours, theirs,
+                                            "auto-attack crit diverged — stat {crit_stat}, \
+                                             def {defence_mul}/{defence_add}, {position:?} \
+                                             x{position_mul}, z {z}, levels \
+                                             {attacker_level}v{target_level}, roll {roll}"
+                                        );
+                                        cases += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert!(cases > 100_000, "the grid collapsed to {cases} cases");
+}
+
+/// The height bonus, pinned on its own. It is the one term in this family that
+/// is a **constant** in Java, and a port that "fixes" the integer division
+/// silently doubles every dagger's blow rate off a ledge.
+#[test]
+fn the_critical_height_bonus_is_flat_one_at_every_z() {
+    for &z in Z_DIFFS {
+        for &to_z in &[-1_000, 0, 1_000] {
+            assert!(
+                (formulas::calc_critical_height_bonus(z + to_z, to_z) - 1.0).abs() < 1e-12,
+                "height bonus moved at z {z}"
+            );
+            assert!(
+                (java::critical_height_bonus(z + to_z, to_z) - 1.0).abs() < 1e-12,
+                "the transcription moved at z {z}"
+            );
+        }
+    }
+}
+
+/// **The magic and physical skill-crit sweep** (`calcCrit`'s other two arms).
+///
+/// The magic arm's bad-skill cap lifts from 200‰ to 320‰ once both sides are
+/// 78 or over, and a `sqrt(level)` bonus rides in with it; the port capped at a
+/// flat 200‰ for every debuff, so an endgame nuker's landed crits were short.
+#[test]
+fn skill_crit_rolls_match_java_across_the_grid() {
+    let mut cases = 0usize;
+    for &rate in &[0.0, 50.0, 100.0, 199.0, 200.0, 320.0, 1_000.0] {
+        for &is_bad in &[false, true] {
+            for &caster_level in LEVELS {
+                for &target_level in LEVELS {
+                    for &roll in ROLLS_1000 {
+                        let ours = formulas::calc_magic_crit(
+                            rate,
+                            is_bad,
+                            caster_level,
+                            target_level,
+                            roll,
+                        );
+                        let theirs =
+                            java::magic_crit(rate, is_bad, caster_level, target_level, roll);
+                        assert_eq!(
+                            ours, theirs,
+                            "magic crit diverged — rate {rate}, bad {is_bad}, levels \
+                             {caster_level}v{target_level}, roll {roll}"
+                        );
+                        cases += 1;
+                    }
+                }
+            }
+        }
+    }
+    // The physical arm shares the entry point but none of the terms.
+    for &chance in &[0.0, 5.0, 10.0, 15.0, 40.0, 100.0] {
+        for &stat_bonus in &[0.5, 1.0, 1.2, 3.0] {
+            for &roll in ROLLS_100 {
+                let ours = formulas::calc_physical_skill_crit(chance, stat_bonus, roll);
+                // `CRITICAL_RATE_SKILL` has no carrier on this dist, so the
+                // rate bonus is the identity the port folds away.
+                let theirs = java::physical_skill_crit(chance, stat_bonus, 1.0, roll);
+                assert_eq!(
+                    ours, theirs,
+                    "physical skill crit diverged — chance {chance}, stat {stat_bonus}, \
+                     roll {roll}"
+                );
+                cases += 1;
+            }
+        }
+    }
+    assert!(cases > 5_000, "the grid collapsed to {cases} cases");
+}
+
+/// **The blow sweep** (`calcBlowSuccess`) — the dagger's whole reason to stand
+/// behind you. It multiplies the same height bonus the crit roll does, so the
+/// floating-point version was inflating every backstab's landing rate too.
+#[test]
+fn blow_success_matches_java_across_the_grid() {
+    let mut cases = 0usize;
+    for &weapon_critical in &[0.0, 4.0, 10.0, 80.0, 500.0] {
+        for &(position, _) in &positions() {
+            for &position_mul in &[1.0, 0.7, 1.6] {
+                for &z in Z_DIFFS {
+                    for &chance_boost in &[0.0, 50.0, 100.0] {
+                        for &blow_rate_mod in &[1.0, 1.03, 1.3] {
+                            for &limit in &[80.0, 100.0] {
+                                for &roll in ROLLS_100 {
+                                    let ours = formulas::calc_blow_success(
+                                        weapon_critical,
+                                        position,
+                                        position_mul,
+                                        z,
+                                        0,
+                                        chance_boost,
+                                        blow_rate_mod,
+                                        limit,
+                                        roll,
+                                    );
+                                    let theirs = java::blow_success(
+                                        weapon_critical,
+                                        position,
+                                        position_mul,
+                                        z,
+                                        0,
+                                        chance_boost,
+                                        blow_rate_mod,
+                                        // `BLOW_RATE_DEFENCE` has no carrier.
+                                        1.0,
+                                        limit,
+                                        roll,
+                                    );
+                                    assert_eq!(
+                                        ours, theirs,
+                                        "blow success diverged — crit {weapon_critical}, \
+                                         {position:?} x{position_mul}, z {z}, boost \
+                                         {chance_boost}, mod {blow_rate_mod}, limit {limit}, \
+                                         roll {roll}"
+                                    );
+                                    cases += 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert!(cases > 10_000, "the grid collapsed to {cases} cases");
+}
+
+/// **The cast-break sweep** (`calcAtkBreak`). The gates — channelling, the
+/// `DC_MOD` abnormal, raids, HP-blocked targets and the two `ALT_GAME_CANCEL_*`
+/// switches — are the port's `applies` flag; everything after them is swept.
+#[test]
+fn atk_break_matches_java_across_the_grid() {
+    let mut cases = 0usize;
+    for &dmg in &[0.0, 1.0, 50.0, 500.0, 5_000.0, 50_000.0] {
+        for &men_bonus in &[0.7, 1.0, 1.18, 1.5] {
+            for &cancel_mul in &[1.0, 0.5, 1.4] {
+                for &cancel_add in &[0.0, -20.0, 30.0] {
+                    for &roll in ROLLS_100 {
+                        let ours = formulas::calc_atk_break(
+                            dmg, men_bonus, roll, cancel_add, cancel_mul, true,
+                        );
+                        let theirs = java::atk_break(dmg, men_bonus, cancel_mul, cancel_add, roll);
+                        assert_eq!(
+                            ours, theirs,
+                            "cast break diverged — dmg {dmg}, men {men_bonus}, cancel \
+                             x{cancel_mul}+{cancel_add}, roll {roll}"
+                        );
+                        cases += 1;
+                    }
+                }
+            }
+        }
+        // The gates are the caller's, and a closed gate is an unconditional no.
+        assert!(!formulas::calc_atk_break(dmg, 1.0, 0, 0.0, 1.0, false));
+    }
+    assert!(cases > 1_000, "the grid collapsed to {cases} cases");
+}
+
+/// **The pvp/pve bonus sweep**. Java floors the whole product at 0.05 —
+/// "Bonus should not be negative" — and the port applies that floor at its two
+/// call sites rather than inside the formula, so the sweep applies it there
+/// too. A defence stat one point past the attack stat is what reaches it.
+#[test]
+fn pvp_pve_bonus_matches_java_across_the_grid() {
+    let mut cases = 0usize;
+    let mut floored = 0usize;
+    for &attack_mul in &[1.0, 1.15, 0.8] {
+        for &defence_mul in &[1.0, 1.15, 2.5] {
+            for &raid_attack_mul in &[1.0, 1.2] {
+                for &raid_defence_mul in &[1.0, 1.3] {
+                    for &penalty in &[1.0, 0.7, 0.35, 0.05] {
+                        let ours = formulas::calculate_pvp_pve_bonus(
+                            attack_mul,
+                            defence_mul,
+                            raid_attack_mul,
+                            raid_defence_mul,
+                            penalty,
+                        )
+                        .max(0.05);
+                        let theirs = java::pvp_pve_bonus(
+                            attack_mul,
+                            defence_mul,
+                            raid_attack_mul,
+                            raid_defence_mul,
+                            penalty,
+                        );
+                        assert!(
+                            (ours - theirs).abs() < 1e-9,
+                            "pvp/pve bonus diverged — atk {attack_mul}x{raid_attack_mul}, def \
+                             {defence_mul}x{raid_defence_mul}, penalty {penalty}: {ours} vs \
+                             {theirs}"
+                        );
+                        floored += usize::from((theirs - 0.05).abs() < 1e-9);
+                        cases += 1;
+                    }
+                }
+            }
+        }
+    }
+    assert!(cases > 100, "the grid collapsed to {cases} cases");
+    assert!(floored > 0, "no row in the grid reached the 0.05 floor");
+}
+
+/// **The mana-drain sweep** (`calcMagicAffected`). The gaussian is the caller's
+/// roll, so the sweep walks it either side of the tipping point instead.
+#[test]
+fn magic_affected_matches_java_across_the_grid() {
+    let mut cases = 0usize;
+    for &m_atk in &[1.0, 50.0, 300.0, 2_000.0] {
+        for &defence in &[0.0, 50.0, 300.0, 2_000.0] {
+            for &gaussian in &[-4.0, -1.0, -0.25, 0.0, 0.25, 1.0, 4.0] {
+                let ours = formulas::calc_magic_affected(m_atk, defence, gaussian);
+                // No `MagicalAttackMp` carrier declares a `<trait>`, so Java's
+                // `calcGeneralTraitBonus` returns 1 for every drain here.
+                let theirs = java::magic_affected(m_atk, defence, 1.0, gaussian);
+                assert_eq!(
+                    ours, theirs,
+                    "mana drain diverged — mAtk {m_atk}, mDef {defence}, gaussian {gaussian}"
+                );
+                cases += 1;
+            }
+        }
+    }
+    // Java divides by zero when both sides are 0 and gets NaN, which compares
+    // false; the port guards explicitly and returns the same answer.
+    assert!(!formulas::calc_magic_affected(0.0, 0.0, 5.0));
+    assert!(cases > 50, "the grid collapsed to {cases} cases");
+}
+
+/// `getRandomDamageMultiplier` — one line, swept for the sake of the census
+/// column rather than out of suspicion.
+#[test]
+fn random_damage_multiplier_matches_java_across_the_band() {
+    for roll in -30..=30 {
+        let ours = formulas::random_damage_multiplier(roll);
+        let theirs = java::random_damage_multiplier(roll);
+        assert!(
+            (ours - theirs).abs() < 1e-12,
+            "random damage diverged at {roll}: {ours} vs {theirs}"
+        );
+    }
 }

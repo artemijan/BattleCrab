@@ -195,14 +195,52 @@ pub fn calc_magic_affected(m_atk: f64, defence: f64, gaussian: f64) -> bool {
     d > 0.0
 }
 
-/// `Formulas.calcCrit`'s magic branch for both-below-level-78 actors (base
-/// classes cap at 40/76 here). `m_crit_rate` is the per-mille
-/// `Player.m_crit_hit`; `roll` is `Rnd.get(1000)`. Good skills cap at 320‰,
-/// bad skills at 200‰ (`DEFENCE_MAGIC_CRITICAL_RATE` defaults to the
-/// attacker's rate and the balance multipliers to 1.0, so both drop out).
-pub fn calc_magic_crit(m_crit_rate: f64, is_bad: bool, roll: i32) -> bool {
-    let cap = if is_bad { 200.0 } else { 320.0 };
-    m_crit_rate.min(cap) > roll as f64
+/// `Formulas.calcCrit`'s magic branch:
+///
+/// ```java
+/// rate = creature.getStat().getValue(Stat.MAGIC_CRITICAL_RATE);
+/// if ((target == null) || !skill.isBad()) return Math.min(rate, 320) > Rnd.get(1000);
+/// double finalRate = target.getStat().getValue(Stat.DEFENCE_MAGIC_CRITICAL_RATE, rate) + target.getStat().getValue(Stat.DEFENCE_MAGIC_CRITICAL_RATE_ADD, 0);
+/// if ((creature.getLevel() >= 78) && (target.getLevel() >= 78))
+/// {
+///     finalRate += Math.sqrt(creature.getLevel()) + ((creature.getLevel() - target.getLevel()) / 25);
+///     return Math.min(finalRate, 320 * balanceMod) > Rnd.get(1000);
+/// }
+/// return (Math.min(finalRate, 200) * balanceMod) > Rnd.get(1000);
+/// ```
+///
+/// `m_crit_rate` is the per-mille `Player.m_crit_hit`; `roll` is
+/// `Rnd.get(1000)`. A good skill caps at 320‰ and never reaches the level
+/// branch; a bad one caps at 200‰ until **both** sides are 78 or over, where
+/// the cap lifts to 320‰ and a `sqrt(level)` bonus comes with it.
+///
+/// Two narrowings, carriers named: the balance multipliers are 1.0 (the dist
+/// leaves `PVP_/PVE_MAGICAL_SKILL_CRITICAL_CHANCE_MULTIPLIERS` unpopulated),
+/// and `DEFENCE_MAGIC_CRITICAL_RATE`/`_ADD` are declared only by skills in the
+/// 10500+ id ranges, none of them learnable or on an NPC list here — so the
+/// defender's term stays the identity `getValue(stat, rate) = rate`.
+///
+/// Java's own `(creature.getLevel() - target.getLevel()) / 25` is **integer**
+/// division, so it contributes 0 for every level gap this chronicle can
+/// produce; it is written out here rather than dropped, for the same reason
+/// the sweep keeps identity terms.
+pub fn calc_magic_crit(
+    m_crit_rate: f64,
+    is_bad: bool,
+    caster_level: i32,
+    target_level: i32,
+    roll: i32,
+) -> bool {
+    if !is_bad {
+        return m_crit_rate.min(320.0) > roll as f64;
+    }
+    if caster_level >= 78 && target_level >= 78 {
+        let rate = m_crit_rate
+            + f64::from(caster_level).sqrt()
+            + f64::from((caster_level - target_level) / 25);
+        return rate.min(320.0) > roll as f64;
+    }
+    m_crit_rate.min(200.0) > roll as f64
 }
 
 /// Inputs to [`calc_magic_success_rate`] — one field per term of Java's
@@ -736,15 +774,47 @@ pub fn calc_critical_position_bonus(position: Position, position_mul: f64) -> f6
     base * position_mul
 }
 
-/// `Formulas.calcCriticalHeightBonus`: ±10% band from the z difference.
+/// `Formulas.calcCriticalHeightBonus` — **identically 1.0**, and that is the
+/// port of it:
+///
+/// ```java
+/// return ((((CommonUtil.constrain(from.getZ() - target.getZ(), -25, 25) * 4) / 5) + 10) / 100) + 1;
+/// ```
+///
+/// Every operand is an `int` — `getZ()`, the `constrain(int, int, int)`
+/// overload, the literals — so the whole expression is integer arithmetic and
+/// the final `/ 100` truncates. The numerator spans −10..30, so it is 0 for
+/// every z difference and the method returns a flat 1.
+///
+/// This is an upstream bug (the band was clearly meant to be ±10 %/+30 %), but
+/// Java is the specification here: the port used to divide in `f64` and hand
+/// out a 1.1 crit multiplier on level ground and 1.3 uphill, which is a rate no
+/// Java server grants. Kept as a function rather than folded into the callers
+/// so the sweep in `formula_parity.rs` can pin it against the transcription.
 pub fn calc_critical_height_bonus(from_z: i32, to_z: i32) -> f64 {
-    ((((from_z - to_z).clamp(-25, 25) * 4 / 5) + 10) as f64 / 100.0) + 1.0
+    f64::from((((((from_z - to_z).clamp(-25, 25) * 4) / 5) + 10) / 100) + 1)
 }
 
-/// `Formulas.calcCrit`'s auto-attack branch for sub-78 actors
-/// (`DEFENCE_CRITICAL_RATE` defaults to the attacker's rate, balance
-/// multipliers 1.0): `rate = posBonus · (critStat / 10) · heightBonus`,
-/// clamped to [3, 97] percent; crit when `rate > roll` (`Rnd.get(100)`).
+/// `Formulas.calcCrit`'s auto-attack branch (balance multipliers 1.0 — the
+/// dist populates none of the `*_CRITICAL_CHANCE_MULTIPLIERS` tables):
+///
+/// ```java
+/// final double criticalRateMod = (target.getStat().getValue(Stat.DEFENCE_CRITICAL_RATE, rate) + target.getStat().getValue(Stat.DEFENCE_CRITICAL_RATE_ADD, 0)) / 10;
+/// final double criticalLocBonus = calcCriticalPositionBonus(creature, target);
+/// final double criticalHeightBonus = calcCriticalHeightBonus(creature, target);
+/// rate = criticalLocBonus * criticalRateMod * criticalHeightBonus;
+/// // Autoattack critical depends on level difference at high levels as well.
+/// if ((creature.getLevel() >= 78) || (target.getLevel() >= 78))
+/// {
+///     rate += (Math.sqrt(creature.getLevel()) * (creature.getLevel() - target.getLevel()) * 0.125);
+/// }
+/// rate = CommonUtil.constrain(rate, 3, 97);
+/// return (rate * balanceMod) > Rnd.get(100);
+/// ```
+///
+/// The level term fires when **either** side is 78 or over, which the 80-level
+/// cap on this dist puts well inside reach: an 80 hitting a 70 adds ~11 points
+/// of crit rate before the clamp, and the same 80 hit by that 70 loses them.
 pub fn calc_auto_attack_crit(
     crit_stat: f64,
     defence_mul: f64,
@@ -755,6 +825,8 @@ pub fn calc_auto_attack_crit(
     crit_position_mul: f64,
     from_z: i32,
     to_z: i32,
+    attacker_level: i32,
+    target_level: i32,
     roll: i32,
 ) -> bool {
     // `criticalRateMod = (target.getValue(DEFENCE_CRITICAL_RATE, rate)
@@ -763,9 +835,12 @@ pub fn calc_auto_attack_crit(
     // multiplier scales the *attacker's* rate. Both default to identity
     // (1.0 / 0.0), which reproduces the plain `crit_stat / 10` this had before.
     let rate_mod = ((defence_mul * crit_stat) + defence_add) / 10.0;
-    let rate = calc_critical_position_bonus(position, crit_position_mul)
+    let mut rate = calc_critical_position_bonus(position, crit_position_mul)
         * rate_mod
         * calc_critical_height_bonus(from_z, to_z);
+    if attacker_level >= 78 || target_level >= 78 {
+        rate += f64::from(attacker_level).sqrt() * f64::from(attacker_level - target_level) * 0.125;
+    }
     rate.clamp(3.0, 97.0) > roll as f64
 }
 
@@ -1435,11 +1510,26 @@ mod tests {
     /// comparison is strict (`rate > roll`).
     #[test]
     fn magic_crit_caps_and_thresholds() {
-        assert!(calc_magic_crit(1000.0, false, 319));
-        assert!(!calc_magic_crit(1000.0, false, 320));
-        assert!(calc_magic_crit(1000.0, true, 199));
-        assert!(!calc_magic_crit(1000.0, true, 200));
-        assert!(!calc_magic_crit(0.0, false, 0));
+        assert!(calc_magic_crit(1000.0, false, 40, 40, 319));
+        assert!(!calc_magic_crit(1000.0, false, 40, 40, 320));
+        assert!(calc_magic_crit(1000.0, true, 40, 40, 199));
+        assert!(!calc_magic_crit(1000.0, true, 40, 40, 200));
+        assert!(!calc_magic_crit(0.0, false, 40, 40, 0));
+    }
+
+    /// The bad-skill cap lifts to 320 once **both** sides are 78+, and the
+    /// `sqrt(level)` bonus rides in with it — a good skill never reaches that
+    /// branch, since Java returns before it.
+    #[test]
+    fn magic_crit_lifts_its_cap_for_high_level_pairs() {
+        assert!(calc_magic_crit(1000.0, true, 78, 78, 319));
+        assert!(!calc_magic_crit(1000.0, true, 78, 78, 320));
+        // One side below 78 keeps the 200 cap.
+        assert!(!calc_magic_crit(1000.0, true, 78, 77, 200));
+        // 100%o at level 81 → 100 + 9 = 109 (the level-gap term is Java's own
+        // integer division, 0 for any gap under 25).
+        assert!(calc_magic_crit(100.0, true, 81, 78, 108));
+        assert!(!calc_magic_crit(100.0, true, 81, 78, 109));
     }
 
     /// Heal: power 83, mAtk 50 → 83 + √100 = 93; crit triples.
@@ -1520,10 +1610,12 @@ mod tests {
     }
 
     /// Auto-attack crit: rate = position · stat/10 · height, clamped [3, 97].
+    /// The height bonus is Java's flat 1 (its `/100` is integer division), so
+    /// level ground and a 25-unit rise weigh the same.
     #[test]
     fn auto_attack_crit_rate() {
-        // stat 44 (displayed), front, level ground: 4.4 × 1.1 (height base
-        // +10%) = 4.84 → roll 4 crits, roll 5 doesn't.
+        // stat 44 (displayed), front, level ground: 4.4 → roll 4 crits, roll 5
+        // doesn't.
         assert!(calc_auto_attack_crit(
             44.0,
             1.0,
@@ -1532,6 +1624,8 @@ mod tests {
             1.0,
             0,
             0,
+            40,
+            40,
             4
         ));
         assert!(!calc_auto_attack_crit(
@@ -1542,6 +1636,8 @@ mod tests {
             1.0,
             0,
             0,
+            40,
+            40,
             5
         ));
         // Floor: even 0 stat crits below 3%.
@@ -1553,6 +1649,8 @@ mod tests {
             1.0,
             0,
             0,
+            40,
+            40,
             2
         ));
         // Cap: 97% — a 97 roll never crits.
@@ -1564,6 +1662,8 @@ mod tests {
             1.0,
             25,
             0,
+            40,
+            40,
             97
         ));
     }
@@ -1834,10 +1934,11 @@ mod tests {
     }
 
     /// Blow success: rate = posBonus · heightBonus · critRate · (100+boost)/100
-    /// · blowRateMod, capped at `limit`, vs Rnd(100). Equal-z height bonus is 1.1.
+    /// · blowRateMod, capped at `limit`, vs Rnd(100). The height bonus is
+    /// Java's flat 1 at every z (its `/100` is integer division).
     #[test]
     fn blow_success_rate_cap_and_threshold() {
-        // 1.0 · 1.1 · 10 · 1.0 · 1.0 = 11: roll 10 lands, 11 doesn't.
+        // 1.0 · 1.0 · 10 · 1.0 · 1.0 = 10: roll 9 lands, 10 doesn't.
         assert!(calc_blow_success(
             10.0,
             Position::Front,
@@ -1847,7 +1948,7 @@ mod tests {
             0.0,
             1.0,
             100.0,
-            10
+            9
         ));
         assert!(!calc_blow_success(
             10.0,
@@ -1858,9 +1959,9 @@ mod tests {
             0.0,
             1.0,
             100.0,
-            11
+            10
         ));
-        // chanceBoost 100 doubles the rate → 22.
+        // chanceBoost 100 doubles the rate → 20.
         assert!(calc_blow_success(
             10.0,
             Position::Front,
@@ -1870,7 +1971,7 @@ mod tests {
             100.0,
             1.0,
             100.0,
-            21
+            19
         ));
         // A huge crit rate is capped at `limit` (80): roll 79 lands, 80 doesn't.
         assert!(calc_blow_success(
@@ -1896,7 +1997,7 @@ mod tests {
             80
         ));
         // Assassination lvl1 (`blowRateMod = 1.03`, +3% PER) raises the same
-        // capped-at-11 rate to 11.33 — roll 11 now lands, 12 still doesn't.
+        // rate to 10.3 — roll 10 now lands, 11 still doesn't.
         assert!(calc_blow_success(
             10.0,
             Position::Front,
@@ -1906,7 +2007,7 @@ mod tests {
             0.0,
             1.03,
             100.0,
-            11
+            10
         ));
         assert!(!calc_blow_success(
             10.0,
@@ -1917,7 +2018,7 @@ mod tests {
             0.0,
             1.03,
             100.0,
-            12
+            11
         ));
     }
 

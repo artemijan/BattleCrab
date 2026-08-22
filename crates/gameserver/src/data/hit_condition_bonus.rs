@@ -1,7 +1,8 @@
 //! Port of `data/xml/HitConditionBonusData` — the auto-attack hit-chance
-//! modifiers from `data/stats/hitConditionBonus.xml`. The `dark` (night) and
-//! `rain` terms are parsed but never applied: there is no game-time clock or
-//! weather yet (Java's rain check is dead code upstream too).
+//! modifiers from `data/stats/hitConditionBonus.xml`. The `rain` term is
+//! parsed but never applied: there is no weather (Java's rain check is
+//! commented out upstream too). The `dark` term **is** applied — the caller
+//! passes `game_time::is_night_at`, the same clock the night spawns use.
 
 use crate::data::xml;
 use quick_xml::events::Event;
@@ -67,14 +68,18 @@ impl HitConditionBonusData {
         out
     }
 
-    /// `getConditionBonus`, minus the night/rain terms (no game clock or
-    /// weather): 100 base, ± elevation (z-diff > 50), + position bonus,
-    /// as a multiplier (Java divides by 100), floored at 0.
+    /// `getConditionBonus`, minus the rain term (no weather): 100 base,
+    /// ± elevation (z-diff > 50), + `dark` at night, + position bonus, as a
+    /// multiplier (Java divides by 100), floored at 0.
+    ///
+    /// `is_night` is Java's `GameTimeTaskManager.isNight()`, passed in rather
+    /// than read here so the data layer stays clock-free.
     pub fn condition_bonus(
         &self,
         attacker_z: i32,
         target_z: i32,
         position: crate::model::movement::Position,
+        is_night: bool,
     ) -> f64 {
         use crate::model::movement::Position;
         let mut modifier = 100.0;
@@ -82,6 +87,9 @@ impl HitConditionBonusData {
             modifier += self.high_bonus;
         } else if attacker_z - target_z < -50 {
             modifier += self.low_bonus;
+        }
+        if is_night {
+            modifier += self.dark_bonus;
         }
         modifier += match position {
             Position::Side => self.side_bonus,
@@ -106,10 +114,22 @@ mod tests {
         assert_eq!(data.back_bonus, 10.0);
         assert_eq!(data.side_bonus, 5.0);
         assert_eq!(data.high_bonus, 3.0);
+        assert_eq!(data.dark_bonus, -10.0);
         // Level ground, front: ×1.0. Back + high ground: ×1.13. Low ground
         // from the side: ×1.02.
-        assert!((data.condition_bonus(0, 0, Position::Front) - 1.0).abs() < 1e-9);
-        assert!((data.condition_bonus(60, 0, Position::Back) - 1.13).abs() < 1e-9);
-        assert!((data.condition_bonus(-60, 0, Position::Side) - 1.02).abs() < 1e-9);
+        assert!((data.condition_bonus(0, 0, Position::Front, false) - 1.0).abs() < 1e-9);
+        assert!((data.condition_bonus(60, 0, Position::Back, false) - 1.13).abs() < 1e-9);
+        assert!((data.condition_bonus(-60, 0, Position::Side, false) - 1.02).abs() < 1e-9);
+    }
+
+    /// Java adds `darkBonus` for the whole in-game night, before the position
+    /// term — a flat −10 on the 100 base, so every swing in the dark is 10
+    /// points less likely to land.
+    #[test]
+    fn night_costs_ten_points_of_hit_chance() {
+        let data = HitConditionBonusData::default();
+        assert!((data.condition_bonus(0, 0, Position::Front, true) - 0.9).abs() < 1e-9);
+        assert!((data.condition_bonus(60, 0, Position::Back, true) - 1.03).abs() < 1e-9);
+        assert!((data.condition_bonus(-60, 0, Position::Side, true) - 0.92).abs() < 1e-9);
     }
 }

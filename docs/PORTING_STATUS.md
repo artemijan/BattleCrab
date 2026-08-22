@@ -650,6 +650,66 @@ cross-crate sweep.
 
 ---
 
+## Roll parity — the formulas that decide *whether*
+
+**Opened 2026-08-22.** [§ Formula parity](#formula-parity--the-axis-opened-after-the-gap-table-emptied)
+swept sixteen expressions and every one of them answers *how much*: damage,
+heal, land rate, abnormal time, timing, enchant bonus. None of them touches the
+formulas that decide whether a swing lands, whether it crits, whether a blow
+connects, whether a cast breaks or whether a drain sticks. Thirteen such
+functions existed in `model/formulas.rs` and **not one appeared in
+`formula_parity.rs`**.
+
+That is the worse half to leave unmeasured. A wrong term in a damage formula
+prints a number somebody can hold next to a Java server; a wrong term in a rate
+prints nothing at all — it just quietly shifts a distribution, and the only
+symptom is that the game feels off.
+
+**Nine new sweeps, ~130 000 cases, four divergences — all live.**
+
+| What | Effect in game |
+|---|---|
+| The **night hit penalty** was parsed and dropped | `HitConditionBonusData` loads `dark` (−10) and the port's `condition_bonus` never applied it, on a doc comment reading *"there is no game-time clock or weather yet"*. That stopped being true at **G33**, when `game_time::is_night_at` landed — the night spawns, `area_npcs` and an effect handler have been calling it since. Java subtracts ten points of hit chance for the whole in-game night, so for half of every game day every auto-attack in the port was landing at the daytime rate |
+| `calcCriticalHeightBonus` was evaluated in **floating point** | Java's expression is `int` end to end — `getZ()`, the `constrain(int, int, int)` overload, every literal — so its `/ 100` truncates a numerator that never leaves −10..30 and the method returns a flat **1** at every elevation. The port cast to `f64` first and returned **1.1 on level ground**, up to 1.3 uphill: a standing +10 % to every auto-attack crit rate *and* every dagger's blow rate, +30 % from a ledge. Upstream this is plainly a bug; upstream is the specification |
+| The auto-attack crit roll had **no level term** | Java adds `sqrt(level) · (level − targetLevel) · 0.125` as soon as **either** side is 78 or over. `MaximumPlayerLevel` is 80 here and 7 576 NPC rows are level 78+, so this is endgame arithmetic, not off-chronicle: an 80 hitting a 70 was missing ~11 points of crit rate, and the 70 hitting back was keeping ~8 it should have lost |
+| The magic crit roll capped every debuff at **200‰** | Java lifts the cap to 320‰ and adds `sqrt(level)` once **both** sides are 78 or over. A level-80 nuker's debuffs were critting at the sub-78 ceiling |
+
+**Five came back clean**, and are checked in anyway: `calcHitMiss`'s own
+arithmetic (including the `int chance *= double` narrowing, which cannot
+disagree with the port's `f64` for an integer roll — the sweep is what says so),
+`calcCrit`'s physical-skill arm, `calcBlowSuccess` past the height bonus,
+`calcAtkBreak`, `calculatePvpPveBonus` (its `Math.max(0.05, …)` floor lives at
+the port's two call sites rather than inside the formula, and the sweep applies
+it on the port side to say so), and `calcMagicAffected`.
+
+**The narrowings, each with the carrier that was looked for.** The
+`PVP_/PVE_*_CRITICAL_CHANCE_MULTIPLIERS` class-balance tables are unpopulated on
+this dist, so `balanceMod` is `1f` everywhere. `DEFENCE_MAGIC_CRITICAL_RATE` and
+`_ADD` are declared only by skills in the 10500+ id ranges — none learnable,
+none on an NPC skill list. `CRITICAL_RATE_SKILL`, `STAT_BONUS_SKILL_CRITICAL`
+and `BLOW_RATE_DEFENCE` appear nowhere in the datapack at all. And
+`calcMagicAffected`'s `calcGeneralTraitBonus` is 1 for every drain here: all 23
+skills carrying a `MagicalAttackMp` effect declare no `<trait>`. Each is swept
+as an input at identity rather than deleted, so a future carrier fails the
+sweep instead of passing unnoticed.
+
+**The night fix is pinned end-to-end, not just in the sweep.** What was broken
+was the *call site* not asking what time it is, so
+`a_swing_that_lands_by_day_misses_at_night` swings the same attack with the same
+forced rolls at in-game noon and in-game midnight, at a miss roll that sits
+between the two chances. Sabotage-verified twice: dropping the `dark` term from
+the data function and passing a hard `false` for night at the call site each
+fail it.
+
+**Four existing tests asserted the height-bonus bug** — three in
+`defence_crit_tests.rs` and `blow_success_rate_cap_and_threshold` in
+`model::formulas`. Each had the ×1.1 written into both its arithmetic and its
+comments, the same shape as the seal tests the targeting axis found. They now
+carry Java's numbers, and new rows pin the level term from both sides and the
+height bonus flat at every z.
+
+---
+
 ## Measured gaps — the axes nothing above measures
 
 **Audited 2026-08-14.** The marker inventory is empty and

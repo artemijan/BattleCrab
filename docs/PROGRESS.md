@@ -9419,3 +9419,117 @@ scope and `targetType` halves — SINGLE/PARTY/POINT_BLANK/PLEDGE/RANGE/FAN and
 the thirteen target types — were read and match, including `affect_limit`,
 the fan half-angle's integer division, and the acting-player hop that keeps a
 summon's AoE off its owner.
+
+---
+
+## Roll parity: the half of the maths nobody had compared
+
+The sixteen formula sweeps all answer the same kind of question — *how much*.
+Damage, heal, land rate, abnormal time, cast timing, enchant bonus. The
+question they never ask is *whether*: whether the swing lands, whether it crits,
+whether the blow connects, whether the cast breaks, whether the drain sticks.
+Thirteen such functions sat in `model/formulas.rs` and none of them appeared in
+`formula_parity.rs`.
+
+It is the worse half to leave alone. A wrong term in a damage formula produces
+a number, and a number can be held next to a Java server. A wrong term in a rate
+produces nothing — the distribution shifts and the game just feels off. Four of
+them had been shifted since the systems were ported.
+
+### The comment that stopped being true
+
+`data/hit_condition_bonus.rs` opened with this:
+
+> The `dark` (night) and `rain` terms are parsed but never applied: there is no
+> game-time clock or weather yet.
+
+Java's `getConditionBonus` adds `darkBonus` — **−10** on this dist — for the
+whole in-game night, and the multiplier it produces is what `calcHitMiss`
+narrows its chance through. The port parsed the value into a field and then
+never read it.
+
+There *is* a game clock. `game_time::is_night_at` landed at G33 and
+`spawn_scripts`, `area_npcs` and one effect handler have been calling it ever
+since; the comment was written before it and nothing went back to it. So for
+half of every in-game day, every auto-attack in the port was landing at the
+daytime rate. The fix is the clock the rest of the server already uses, passed
+in at the call site so the data layer stays clock-free.
+
+The sweep alone would not have caught it: `calcHitMiss` takes the condition
+bonus as an input, and the bug was the caller not asking what time it is. So the
+fix carries an end-to-end test — the same swing, the same forced rolls, at
+in-game noon and in-game midnight, at a miss roll sitting between the two
+chances — sabotage-verified from both sides: drop the `dark` term from the data
+function, or pass a hard `false` at the call site, and it fails.
+
+This is the third comment-rot finding in as many axes, and the most expensive
+one: the earlier sweep's rot was documentation that had drifted from correct
+code, and this was documentation that *justified* a gap and then outlived its
+justification. A comment saying "not yet" needs to name the thing it is waiting
+for, or nobody will notice when it arrives.
+
+### `int` division is not a rounding detail
+
+```java
+return ((((CommonUtil.constrain(from.getZ() - target.getZ(), -25, 25) * 4) / 5) + 10) / 100) + 1;
+```
+
+Everything in that line is an `int` — `getZ()`, the `constrain(int, int, int)`
+overload, all four literals. The numerator never leaves −10..30, so the `/ 100`
+truncates to 0 and `calcCriticalHeightBonus` returns a flat **1** at every
+elevation in the game. It was evidently meant to be a ±10 %/+30 % band; it isn't
+one, and Java is the specification.
+
+The port cast to `f64` before the divide and got the band the code looks like it
+wants: **1.1 on level ground**, 1.3 from 25 units up. That multiplier is read by
+two rolls — the auto-attack crit rate and `calcBlowSuccess` — so every character
+in the game has been critting 10 % more often than on Java, every dagger landing
+10 % more blows, and both closer to 30 % from a ledge.
+
+It is now transcribed term by term on both sides rather than folded to `1.0`,
+with a sweep that pins it flat at every z. A future reader "fixing" the integer
+division would otherwise re-introduce it in one line.
+
+### The level gate, twice
+
+Two of `calcCrit`'s three arms carry a high-level term the port had dropped, and
+both were written off as sub-78 narrowings in doc comments:
+
+* the auto-attack arm adds `sqrt(level) · (level − targetLevel) · 0.125` when
+  **either** side is 78 or over;
+* the magic arm lifts a bad skill's cap from 200‰ to 320‰ and adds
+  `sqrt(level)` when **both** are.
+
+`MaximumPlayerLevel` is 80 on this dist and 7 576 NPC rows are level 78+. The
+narrowing was never true — an 80 hitting a 70 was short ~11 points of crit rate,
+the 70 hitting back was keeping ~8 it should have lost, and every endgame debuff
+was capped a third below its ceiling. Java's own `(level − targetLevel) / 25` in
+the magic arm is integer division and contributes 0 for any gap this chronicle
+can produce; it is written out rather than dropped, for the same reason the
+sweeps keep identity terms.
+
+### Five clean, and what the narrowings cost
+
+`calcHitMiss`'s arithmetic, the physical-skill crit arm, `calcBlowSuccess` past
+the height bonus, `calcAtkBreak` and `calculatePvpPveBonus` all matched. The hit
+formula is the interesting one: Java's `chance` is an `int` and `chance *=
+double` is a narrowing compound assignment, so it truncates before the clamp
+where the port stays in `f64` — and for an integer roll `trunc(x) < r` and
+`x < r` cannot disagree. That is a fact worth having a sweep say rather than an
+argument worth trusting.
+
+Six identity terms are swept as inputs rather than deleted — the unpopulated
+class-balance config tables, `DEFENCE_MAGIC_CRITICAL_RATE`/`_ADD` (10500+ ids
+only), `CRITICAL_RATE_SKILL`, `STAT_BONUS_SKILL_CRITICAL`, `BLOW_RATE_DEFENCE`
+(no datapack carrier at all) and the trait bonus inside `calcMagicAffected` (no
+`MagicalAttackMp` carrier declares a `<trait>`). A carrier appearing later fails
+the sweep instead of passing unnoticed.
+
+### Where the axis stands
+
+Nine sweeps, ~130 000 cases, four live divergences and four tests — three in
+`defence_crit_tests.rs`, one in `model::formulas` — that had the ×1.1 height
+bonus written into both their arithmetic and their prose. The targeting axis's
+lesson repeating exactly: a
+test built from the same understanding as the code certifies it instead of
+guarding it. Full suite green at 3 645.

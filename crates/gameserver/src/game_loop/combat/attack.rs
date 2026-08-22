@@ -105,10 +105,14 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
 
     // Roll the hit (`generateHit`): miss → everything else skipped.
     let position = get_position(attacker.x, attacker.y, target.x, target.y, target.heading);
-    let condition = world
-        .data
-        .hit_condition_bonus
-        .condition_bonus(attacker.z, target.z, position);
+    let condition = world.data.hit_condition_bonus.condition_bonus(
+        attacker.z,
+        target.z,
+        position,
+        // `World::now_millis` rather than the free function: the night flag is
+        // a decision the client can observe, and tests pin the clock with it.
+        crate::game_loop::game_time::is_night_at(world.now_millis()),
+    );
     // `generateAttackTargetData` — one swing can carry several hits, and a
     // **dual** weapon rolls the whole ladder twice (miss, shield, crit,
     // damage), each hit at half damage; the soulshot is consumed by the first
@@ -182,6 +186,9 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                 crit_rate_position_mul(world, attacker_oid, position),
                 attacker.z,
                 target.z,
+                // `calcCrit`'s level term fires when either side is 78+.
+                crate::game_loop::skills::effects::creature_level(world, attacker_oid),
+                crate::game_loop::skills::effects::creature_level(world, target_oid),
                 crit_roll,
             );
             let r = attacker.random_dmg;

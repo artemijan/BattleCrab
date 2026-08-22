@@ -352,8 +352,17 @@ pub(crate) fn apply_skill_effects(
         .map(|c| c.m_crit_hit)
         .unwrap_or(0.0);
     let crit_roll = world.roll(1000);
-    let mcrit =
-        skill.magic_type == 1 && formulas::calc_magic_crit(m_crit_rate, skill.is_bad(), crit_roll);
+    // The bad-skill cap lifts from 200%o to 320%o once **both** sides are 78 or
+    // over, which the 80-level cap here makes reachable (Java's own level
+    // branch, `calcCrit`'s magic arm).
+    let mcrit = skill.magic_type == 1
+        && formulas::calc_magic_crit(
+            m_crit_rate,
+            skill.is_bad(),
+            creature_level(world, caster_oid),
+            creature_level(world, target_oid),
+            crit_roll,
+        );
 
     // Spiritshots (magic skills only, `useSpiritShot() == _magic == 1`): read
     // the charged flag once per cast for the damage/heal bonus; the shot is

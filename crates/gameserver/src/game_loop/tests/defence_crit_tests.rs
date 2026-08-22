@@ -16,10 +16,14 @@ const DIST: &str = crate::data::DIST_GAME;
 /// The identity defaults reproduce exactly what the formula did before, which
 /// is what keeps every existing combat test honest.
 ///
-/// The arithmetic below folds in two bonuses that are **not** 1.0 even in the
-/// plainest case: `calc_critical_height_bonus(0, 0)` is **1.1** (Java's `+10`
-/// before the `/100`), and only the front position bonus is 1.0. So crit_stat
-/// 440 gives `(440/10) * 1.0 * 1.1 = 48.4`, not 44.
+/// The numbers below were once inflated by a height bonus of **1.1**: the port
+/// evaluated Java's `((z*4/5 + 10) / 100) + 1` in floating point, where Java
+/// evaluates it in `int` and gets a flat 1 for every z (see
+/// `calc_critical_height_bonus`). Front position is 1.0 as well, so crit_stat
+/// 440 is `(440/10) * 1.0 * 1.0 = 44`.
+///
+/// The levels are both sub-78, which keeps `calcCrit`'s level-difference term
+/// out of these rows; `high_level_attackers_get_the_level_term` covers it.
 #[test]
 fn identity_defences_reproduce_the_old_formula() {
     assert!(calc_auto_attack_crit(
@@ -30,7 +34,9 @@ fn identity_defences_reproduce_the_old_formula() {
         1.0,
         0,
         0,
-        48
+        40,
+        40,
+        43
     ));
     assert!(!calc_auto_attack_crit(
         440.0,
@@ -40,7 +46,9 @@ fn identity_defences_reproduce_the_old_formula() {
         1.0,
         0,
         0,
-        49
+        40,
+        40,
+        44
     ));
 }
 
@@ -49,7 +57,7 @@ fn identity_defences_reproduce_the_old_formula() {
 /// backwards would make the stat a flat chance instead of a reduction.
 #[test]
 fn the_defenders_multiplier_scales_the_attackers_rate() {
-    // Light Armor Mastery's -15% → x0.85: (374/10) * 1.1 = 41.14.
+    // Light Armor Mastery's -15% → x0.85: (374/10) = 37.4.
     assert!(calc_auto_attack_crit(
         440.0,
         0.85,
@@ -58,7 +66,9 @@ fn the_defenders_multiplier_scales_the_attackers_rate() {
         1.0,
         0,
         0,
-        41
+        40,
+        40,
+        37
     ));
     assert!(!calc_auto_attack_crit(
         440.0,
@@ -68,9 +78,11 @@ fn the_defenders_multiplier_scales_the_attackers_rate() {
         1.0,
         0,
         0,
-        42
+        40,
+        40,
+        38
     ));
-    // Pa'agrio's Eye's -30% → x0.70: (308/10) * 1.1 = 33.88.
+    // Pa'agrio's Eye's -30% → x0.70: (308/10) = 30.8.
     assert!(calc_auto_attack_crit(
         440.0,
         0.70,
@@ -79,7 +91,9 @@ fn the_defenders_multiplier_scales_the_attackers_rate() {
         1.0,
         0,
         0,
-        33
+        40,
+        40,
+        30
     ));
     assert!(!calc_auto_attack_crit(
         440.0,
@@ -89,7 +103,9 @@ fn the_defenders_multiplier_scales_the_attackers_rate() {
         1.0,
         0,
         0,
-        34
+        40,
+        40,
+        31
     ));
 }
 
@@ -97,7 +113,7 @@ fn the_defenders_multiplier_scales_the_attackers_rate() {
 /// worth ten times its face value in percentage points.
 #[test]
 fn the_add_term_lands_before_the_divide() {
-    // ((1.0 * 440) + 100) / 10 = 54, then x1.1 = 59.4.
+    // ((1.0 * 440) + 100) / 10 = 54.
     assert!(calc_auto_attack_crit(
         440.0,
         1.0,
@@ -106,7 +122,9 @@ fn the_add_term_lands_before_the_divide() {
         1.0,
         0,
         0,
-        59
+        40,
+        40,
+        53
     ));
     assert!(!calc_auto_attack_crit(
         440.0,
@@ -116,7 +134,9 @@ fn the_add_term_lands_before_the_divide() {
         1.0,
         0,
         0,
-        60
+        40,
+        40,
+        54
     ));
 }
 
@@ -125,13 +145,72 @@ fn the_add_term_lands_before_the_divide() {
 #[test]
 fn the_clamp_still_bounds_a_heavily_defended_target() {
     assert!(
-        calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 1.0, 0, 0, 2),
+        calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 1.0, 0, 0, 40, 40, 2),
         "floored at 3, so roll 2 crits"
     );
     assert!(
-        !calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 1.0, 0, 0, 3),
+        !calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 1.0, 0, 0, 40, 40, 3),
         "and roll 3 does not"
     );
+}
+
+/// Java adds `sqrt(attackerLevel) * (attackerLevel - targetLevel) * 0.125`
+/// whenever **either** side is 78 or over — the port had no such term, so an
+/// 80 fighting anything below itself was critting at the low-level rate.
+#[test]
+fn high_level_attackers_get_the_level_term() {
+    // 80 vs 70: 44 + sqrt(80)*10*0.125 = 44 + 11.18 = 55.18.
+    assert!(calc_auto_attack_crit(
+        440.0,
+        1.0,
+        0.0,
+        Position::Front,
+        1.0,
+        0,
+        0,
+        80,
+        70,
+        55
+    ));
+    assert!(!calc_auto_attack_crit(
+        440.0,
+        1.0,
+        0.0,
+        Position::Front,
+        1.0,
+        0,
+        0,
+        80,
+        70,
+        56
+    ));
+    // It cuts the other way, and the gate is an OR: a level-70 attacker
+    // swinging at a level-78 target loses the same 11.18 points.
+    // 44 + sqrt(70)*(-8)*0.125 = 44 - 8.37 = 35.63.
+    assert!(calc_auto_attack_crit(
+        440.0,
+        1.0,
+        0.0,
+        Position::Front,
+        1.0,
+        0,
+        0,
+        70,
+        78,
+        35
+    ));
+    assert!(!calc_auto_attack_crit(
+        440.0,
+        1.0,
+        0.0,
+        Position::Front,
+        1.0,
+        0,
+        0,
+        70,
+        78,
+        36
+    ));
 }
 
 /// Both carriers parse to the `PER` stat with their real negative amounts.
