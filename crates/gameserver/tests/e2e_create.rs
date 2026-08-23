@@ -236,7 +236,11 @@ async fn do_login(addr: std::net::SocketAddr, user: &str, password: &str) -> (i3
 
 // ---------- game server ----------
 
-async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std::net::SocketAddr {
+async fn start_game(
+    gs_login_addr: std::net::SocketAddr,
+    db_url: String,
+    cfg: gameserver::config::CombatConfig,
+) -> std::net::SocketAddr {
     use gameserver::db::{self, DbCommand};
     use gameserver::events::GameEvent;
     use gameserver::game_loop::{self, GameThreadChannels, Shutdown};
@@ -288,21 +292,7 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
             max_characters_per_account: 7,
             delete_days: 3,
             starting_adena: 100,
-            cfg: {
-                // This dist runs `EnableVitality = True`, and `EnterWorld`
-                // gates the `ExVitalityEffectInfo` block on it — the burst this
-                // test walks packet-by-packet only matches with it on.
-                let mut cfg = gameserver::config::CombatConfig::default();
-                cfg.character.enable_vitality = true;
-                // The one protector this scripted client cannot satisfy: it
-                // re-selects its character milliseconds after the first
-                // select, and the 3-second `CharacterSelect` window silently
-                // swallows that (see the re-select below). Only this slot is
-                // turned off; the other fourteen still gate the flow.
-                cfg.flood_protector
-                    .disable(gameserver::config::flood_protector::FloodAction::CharacterSelect);
-                cfg
-            },
+            cfg,
         },
     );
 
@@ -494,7 +484,22 @@ async fn full_login_to_character_create() {
     let db_url = format!("jdbc:sqlite:{}", db_path.display());
 
     let (login_addr, gs_addr) = start_login().await;
-    let game_addr = start_game(gs_addr, db_url.clone()).await;
+    let game_addr = start_game(gs_addr, db_url.clone(), {
+        // This dist runs `EnableVitality = True`, and `EnterWorld` gates the
+        // `ExVitalityEffectInfo` block on it — the burst this test walks
+        // packet-by-packet only matches with it on.
+        let mut cfg = gameserver::config::CombatConfig::default();
+        cfg.character.enable_vitality = true;
+        // The one protector this scripted client cannot satisfy: it re-selects
+        // its character milliseconds after the first select, and the 3-second
+        // `CharacterSelect` window silently swallows that (see the re-select
+        // below). Only this slot is turned off; the other fourteen still gate
+        // the flow.
+        cfg.flood_protector
+            .disable(gameserver::config::flood_protector::FloodAction::CharacterSelect);
+        cfg
+    })
+    .await;
     // Give the game server time to register with the login server.
     tokio::time::sleep(Duration::from_millis(600)).await;
 
@@ -878,5 +883,326 @@ async fn full_login_to_character_create() {
     assert!(last_access > 0, "lastAccess written on logout");
     check.close().await;
 
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+// ---------------------------------------------------------------------------
+// In-game check of the drop algorithm.
+//
+// **A tool, not a regression test** — it prints, it does not assert, and it is
+// `#[ignore]`d so nothing runs it by accident. It exists because the drop
+// algorithm is the one piece of reward maths whose output a player sees
+// directly, and a unit test can only show that the port agrees with a
+// transcription of Java, not that the loot actually reaches the chat window.
+//
+// It boots the real login and game servers on the real datapack **and the dist
+// config**, drives a scripted GM client through login → character create →
+// enter world, then repeatedly spawns a monster, nukes it down and prints what
+// the client is told it picked up. Run it with:
+//
+//   cargo test -p gameserver --test e2e_create drop_check -- --ignored --nocapture
+//
+// (`cargo test` rather than nextest: nextest's 120 s per-test timeout kills it
+// mid-run, and there is nothing to parallelise.)
+// ---------------------------------------------------------------------------
+
+/// Decode a `SystemMessage` (0x62) into `(id, item ids, longs)`.
+fn parse_sm(pkt: &[u8]) -> (i16, Vec<i32>, Vec<i64>, Vec<String>) {
+    let id = i16::from_le_bytes([pkt[1], pkt[2]]);
+    let count = pkt[3];
+    let (mut items, mut longs, mut texts) = (Vec::new(), Vec::new(), Vec::new());
+    let mut p = 4;
+    for _ in 0..count {
+        let ty = pkt[p];
+        p += 1;
+        match ty {
+            0 | 12 => {
+                let start = p;
+                while p + 1 < pkt.len() && !(pkt[p] == 0 && pkt[p + 1] == 0) {
+                    p += 2;
+                }
+                let units: Vec<u16> = pkt[start..p]
+                    .chunks_exact(2)
+                    .map(|c| u16::from_le_bytes([c[0], c[1]]))
+                    .collect();
+                texts.push(String::from_utf16_lossy(&units));
+                p += 2;
+            }
+            1 | 2 | 5 => p += 4,
+            3 => {
+                items.push(i32::from_le_bytes(pkt[p..p + 4].try_into().unwrap()));
+                p += 4;
+            }
+            4 => p += 8,
+            6 => {
+                longs.push(i64::from_le_bytes(pkt[p..p + 8].try_into().unwrap()));
+                p += 8;
+            }
+            7 => p += 12,
+            _ => break,
+        }
+    }
+    (id, items, longs, texts)
+}
+
+#[tokio::test]
+#[ignore = "scratch in-game harness, run explicitly"]
+async fn drop_check() {
+    let Some(src) = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .ancestors()
+        .map(|d| d.join("interlude_classic.db"))
+        .find(|p| p.exists())
+    else {
+        eprintln!("skipping drop_check: no interlude_classic.db found");
+        return;
+    };
+    std::env::set_current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game")).unwrap();
+
+    let dir = std::env::temp_dir().join(format!("l2r_drop_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("c.db");
+    std::fs::copy(&src, &db_path).unwrap();
+    let db_url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let (login_addr, gs_addr) = start_login().await;
+    // The **dist** config: DropMaxOccurrences = 1, adena's per-id ×50/×30, and
+    // AutoLoot = True, which is what puts the drops in the chat window.
+    let mut cfg = gameserver::config::Config::load_from("").combat();
+    cfg.flood_protector
+        .disable(gameserver::config::flood_protector::FloodAction::CharacterSelect);
+    println!(
+        "config: occurrences={} adena chance x{:?} amount x{:?} autoloot={}",
+        cfg.rates.drop_max_occurrences_normal,
+        cfg.rates.drop_chance_by_id.get(&57),
+        cfg.rates.drop_amount_by_id.get(&57),
+        cfg.character.auto_loot,
+    );
+    let game_addr = start_game(gs_addr, db_url.clone(), cfg).await;
+    tokio::time::sleep(Duration::from_millis(600)).await;
+
+    let account = format!("drop{}", std::process::id() % 100000);
+    let (lo1, lo2, po1, po2) = do_login(login_addr, &account, "pw").await;
+    let mut g = GameClient::connect(game_addr).await;
+    let mut w = PacketWriter::new();
+    w.write_u8(0x2B);
+    w.write_bytes(&u16str(&account));
+    w.write_i32(po2);
+    w.write_i32(po1);
+    w.write_i32(lo1);
+    w.write_i32(lo2);
+    g.send(&w.into_bytes()).await;
+    assert_eq!(g.recv().await[0], 0x0A, "LOGIN_SUCCESS");
+    assert_eq!(g.recv().await[0], 0x09, "CharSelectionInfo");
+
+    g.send(&[0x13]).await;
+    assert_eq!(g.recv().await[0], 0x0D, "NewCharacterSuccess");
+    let name = format!("Drop{}", std::process::id() % 10000);
+    let mut w = PacketWriter::new();
+    w.write_u8(0x0C);
+    w.write_bytes(&u16str(&name));
+    w.write_i32(1);
+    w.write_i32(0);
+    w.write_i32(10); // Human Mystic
+    for _ in 0..6 {
+        w.write_i32(0);
+    }
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    g.send(&w.into_bytes()).await;
+    assert_eq!(g.recv().await[0], 0x0F, "CharCreateOk");
+    drop(g);
+    tokio::time::sleep(Duration::from_millis(300)).await;
+
+    // GM rights, so the scripted client can spawn and kill on command.
+    {
+        let pool = commons::db::init(&db_url, 1).await.unwrap();
+        sqlx::query(sqlx::AssertSqlSafe(
+            "UPDATE characters SET accesslevel = 100".to_string(),
+        ))
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool.close().await;
+    }
+
+    let (lo1, lo2, po1, po2) = do_login(login_addr, &account, "pw").await;
+    let mut g = GameClient::connect(game_addr).await;
+    let mut w = PacketWriter::new();
+    w.write_u8(0x2B);
+    w.write_bytes(&u16str(&account));
+    w.write_i32(po2);
+    w.write_i32(po1);
+    w.write_i32(lo1);
+    w.write_i32(lo2);
+    g.send(&w.into_bytes()).await;
+    assert_eq!(g.recv().await[0], 0x0A, "LOGIN_SUCCESS on relogin");
+    assert_eq!(g.recv().await[0], 0x09, "CharSelectionInfo");
+    let mut w = PacketWriter::new();
+    w.write_u8(0x12); // CharacterSelect
+    w.write_i32(0);
+    w.write_i16(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    g.send(&w.into_bytes()).await;
+    assert_eq!(g.recv().await[0], 0x0B, "CharSelected");
+    g.send(&[0x11]).await; // EnterWorld
+    assert_eq!(g.recv().await[0], 0x32, "UserInfo");
+    tokio::time::sleep(Duration::from_millis(400)).await;
+
+    // A GM bypass, the way the admin panel's buttons send commands.
+    async fn admin(g: &mut GameClient, command: &str) {
+        let mut w = PacketWriter::new();
+        w.write_u8(0x23); // RequestBypassToServer
+        w.write_bytes(&u16str(command));
+        g.send(&w.into_bytes()).await;
+    }
+
+    // Goblin (20003), level 5, 84 HP: the dist's usual drop shape — three rare
+    // items, adena mid-list at 70 %, then the commons — and low enough level
+    // that a fresh character is inside the drop level-gap window.
+    const MOB: i32 = 20003;
+    const KILLS: usize = 15;
+    let mut adena_kills = 0usize;
+    let mut item_kills = 0usize;
+    let mut both = 0usize;
+    let mut nothing = 0usize;
+    let mut items_seen: std::collections::BTreeMap<i32, usize> = Default::default();
+
+    // Invulnerable, so the goblin's own swings cannot interrupt the casts
+    // (`calcAtkBreak`) and turn this into a test of cast interruption.
+    admin(&mut g, "admin_invul").await;
+    tokio::time::sleep(Duration::from_millis(200)).await;
+
+    for round in 0..KILLS {
+        // Full MP, so the nuke below is always affordable.
+        admin(&mut g, "admin_heal").await;
+        admin(&mut g, &format!("admin_spawn {MOB}")).await;
+
+        // The spawn announces itself to the client as `NpcInfo` (0x0C); its
+        // object id is the first int, which is how a real client learns what to
+        // click on.
+        let mut mob_oid = None;
+        let deadline = tokio::time::Instant::now() + Duration::from_millis(800);
+        while mob_oid.is_none() {
+            let left = deadline.saturating_duration_since(tokio::time::Instant::now());
+            if left.is_zero() {
+                break;
+            }
+            let Ok(pkt) = tokio::time::timeout(left, g.recv()).await else {
+                break;
+            };
+            if pkt[0] == 0x0C {
+                mob_oid = Some(i32::from_le_bytes(pkt[1..5].try_into().unwrap()));
+            }
+        }
+        let Some(mob_oid) = mob_oid else {
+            println!("kill {round:2}: no NpcInfo for the spawn");
+            continue;
+        };
+
+        // Click it (Action → target), then nuke it with Wind Strike, which a
+        // level-1 Human Mystic starts with. Re-cast until it dies.
+        let mut w = PacketWriter::new();
+        w.write_u8(0x1F); // Action
+        w.write_i32(mob_oid);
+        w.write_i32(0);
+        w.write_i32(0);
+        w.write_i32(0);
+        w.write_u8(0);
+        g.send(&w.into_bytes()).await;
+
+        let (mut adena, mut items) = (0i64, Vec::new());
+        let mut seen_ids: Vec<i16> = Vec::new();
+        let mut messages: Vec<String> = Vec::new();
+        let mut died = false;
+        let deadline = tokio::time::Instant::now() + Duration::from_millis(12_000);
+        let mut next_cast = tokio::time::Instant::now();
+        while !died && tokio::time::Instant::now() < deadline {
+            if tokio::time::Instant::now() >= next_cast {
+                let mut w = PacketWriter::new();
+                w.write_u8(0x39); // RequestMagicSkillUse
+                w.write_i32(1177); // Wind Strike
+                w.write_i32(0); // ctrl
+                w.write_u8(0); // shift
+                g.send(&w.into_bytes()).await;
+                next_cast = tokio::time::Instant::now() + Duration::from_millis(1600);
+            }
+            let left = std::cmp::min(
+                deadline.saturating_duration_since(tokio::time::Instant::now()),
+                next_cast.saturating_duration_since(tokio::time::Instant::now()),
+            );
+            let Ok(pkt) = tokio::time::timeout(left.max(Duration::from_millis(1)), g.recv()).await
+            else {
+                continue;
+            };
+            // `Die` (0x00) for the mob we are hitting ends the round.
+            if pkt[0] == 0x00 && i32::from_le_bytes(pkt[1..5].try_into().unwrap()) == mob_oid {
+                died = true;
+                // Give the reward/drop burst a moment to arrive.
+                let tail = tokio::time::Instant::now() + Duration::from_millis(400);
+                while tokio::time::Instant::now() < tail {
+                    let left = tail.saturating_duration_since(tokio::time::Instant::now());
+                    let Ok(pkt) = tokio::time::timeout(left, g.recv()).await else {
+                        break;
+                    };
+                    if pkt[0] != 0x62 {
+                        continue;
+                    }
+                    let (id, item_ids, longs, texts) = parse_sm(&pkt);
+                    seen_ids.push(id);
+                    messages.extend(texts);
+                    match id {
+                        28 => adena += longs.first().copied().unwrap_or(0),
+                        29 | 30 => {
+                            if let Some(&item) = item_ids.first() {
+                                items.push(item);
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+                break;
+            }
+            if pkt[0] != 0x62 {
+                continue;
+            }
+            let (id, item_ids, longs, texts) = parse_sm(&pkt);
+            seen_ids.push(id);
+            messages.extend(texts);
+            match id {
+                28 => adena += longs.first().copied().unwrap_or(0),
+                29 | 30 => {
+                    if let Some(&item) = item_ids.first() {
+                        items.push(item);
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        for item in &items {
+            *items_seen.entry(*item).or_default() += 1;
+        }
+        match (adena > 0, !items.is_empty()) {
+            (true, true) => {
+                both += 1;
+                adena_kills += 1;
+                item_kills += 1;
+            }
+            (true, false) => adena_kills += 1,
+            (false, true) => item_kills += 1,
+            (false, false) => nothing += 1,
+        }
+        println!("kill {round:2}: died={died} adena {adena:6}  items {items:?}  sm {seen_ids:?}");
+    }
+
+    println!("\n--- {KILLS} kills of npc {MOB} ---");
+    println!("adena dropped in {adena_kills}");
+    println!("an item dropped in {item_kills}");
+    println!("both together in  {both}");
+    println!("nothing at all in {nothing}");
+    println!("items: {items_seen:?}");
     let _ = std::fs::remove_dir_all(&dir);
 }

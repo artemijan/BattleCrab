@@ -710,6 +710,167 @@ height bonus flat at every z.
 
 ---
 
+## Modifier parity — the inputs the sweeps hold constant
+
+**Opened 2026-08-22**, straight after [§ Roll parity](#roll-parity--the-formulas-that-decide-whether).
+Twenty-five sweeps now compare the expressions that decide *how much* and
+*whether* — and every one of them takes the trait, weapon and speed bonuses as
+**inputs**, off a grid of made-up constants. `calcAttributeBonus` is the only
+modifier that was ever compared to Java. A wrong bonus is therefore invisible to
+all twenty-five, which is the same "a missing term agrees with itself" argument
+that opened formula parity.
+
+These are not arithmetic over numbers, either. They are lookups over two
+per-trait tables with their own defaults, membership tests and gates, so the
+harness for them is not a pure sweep: `game_loop/tests/modifier_parity_tests.rs`
+drives the port through a real `World` with the components set, against a
+transcription that takes the tables as plain values.
+
+**Three divergences, all live.**
+
+| What | Effect in game |
+|---|---|
+| `calcGeneralTraitBonus` **bailed out to 1.0** whenever the target carried no `DefenceTraits` component | Java's tables are always there — `CreatureStat` fills `_attackTraitValues` with **1.0** and `_defenceTraitValues` with **0.0** in its constructor — so an untraited target still evaluates `max(attackTrait − 0, 0.05)`, which is *the attacker's own bonus*. Most targets carry no defence traits, so the early return silently threw away every group-3 `AttackTrait` in the game: the four augment options (3952–3955), the boss-jewel line (Baium's Ring, Zaken's Earring, …) and Dual - Physical/Mental Trait Increase. A stun-resistance augment was contributing nothing to the wearer's own stun landing |
+| `calcAtkSpdMultiplier` read the **class template's** attack speed | Java opens on `Stat.weaponBaseValue(creature, PHYSICAL_ATTACK_SPEED)`, and `calcWeaponBaseValue` resolves that to the **equipped weapon's** declared speed for a player holding one. The port honoured that in the finalizer (the `pAtkSpd` the client shows) but not in `calcSkillTimeFactor`, so every physical skill cast at the same speed bare-handed as with a weapon — a 379-speed Short Sword against a 300 class base is a 26 % error on hit and cancel time |
+| `calcCounterAttack` used the shared `skill_trait_mod` helper, **actors swapped** | Java passes `(attacker, target)` to all three of its bonuses — the *attacker* being the one about to take the counter — so the weapon term reads the counter-attacker's resistance table even though the damage flows the other way. It also multiplies **only** the weapon and general trait terms: no `calcWeaknessBonus`, and no `generalTraitMod == 0 ? 1` guard, both of which belong to the `PhysicalAttack` handler family. Four Interlude skills grant the chance (Shield of Revenge 439, Counterattack 447, Strike Back 475, Eye for Eye 948) |
+
+**What came back clean**, read side by side and — where the semantics live in a
+lookup rather than a number — pinned by the new grids: `calcWeaknessBonus`
+(including Java's own quirk of testing invulnerability against the *skill's*
+trait rather than the loop variable, which the port already reproduced),
+`calcWeaponTraitBonus`, `calcAttackTraitBonus`, `calcMAtkSpdMultiplier`,
+`calcSkillEvasion`, `calcBuffDebuffReflection`, `calcStunBreak`,
+`calcRealTargetBreak`, `calcFallDam`, `calculateReuseTime`,
+`getRegeneratePeriod`, `calculateKarmaLost`, `getAbnormalResist` and
+`getBasicPropertyResistBonus`.
+
+**The narrowings, with the carrier that was looked for.** A creature never
+reaches `getTraitType()` with `WeaponType.NONE` in Java: `getAttackType()` falls
+back to `_template.getBaseAttackType()`, which is **FIST** for all 89 player
+templates and — since no NPC row declares `baseAtkType` — for every NPC here as
+well. The port maps bare-handed to `TraitType::None` instead, which only shows
+against a FIST defence trait: the one in-chronicle skill granting one (5525,
+Chain Buff - Melee Resistance) is on no NPC skill list and in no skill tree, and
+10338 is post-Interlude. And `calcSkillMastery`'s `!actor.isPlayer()` gate has
+no way to fire — none of the 21 `SkillMastery` carriers is on an NPC skill list.
+
+---
+
+## Reward and drop parity — the axis where the answer is a list
+
+**Opened 2026-08-22.** Three parity axes now cover the formulas that say *how
+much*, *whether*, and *by what modifier*. None of them reaches the reward path:
+what a kill pays out is decided by a **loop** — a budget, an eviction rule and
+an early `break` — and what it returns is a *list of items*, not a number. It
+had never been compared to Java on any axis.
+
+The harness follows: `game_loop/tests/drop_parity_tests.rs` holds a
+transcription of `NpcTemplate.calculateDrops` and drives both sides down an
+identical **scripted roll stream**, so a divergence in roll *order* fails it as
+loudly as a divergence in the arithmetic.
+
+**Four divergences in the drop algorithm, all live.**
+
+| What | Effect in game |
+|---|---|
+| The occurrence budget was charged on the **raw** line chance | Java tests the *computed* chance — `dropItem.getChance() * RATE_DROP_CHANCE_BY_ID` — against 100. This dist rates adena ×50, so a 70 % adena line computes to 3500 % and Java never charges it to the budget. The port tested the raw 70 % and charged it. With `DropMaxOccurrencesNormal = 1`, that single slot decided everything: an early item line that paid out **suppressed the adena drop entirely**, and an adena line that came first suppressed every item after it. Adena is on essentially every monster in the game |
+| The cap was a **hard stop** instead of Java's eviction | At the cap Java takes the earliest random drop back out of the results (`randomDrops.remove(0)`, the same holder out of `calculatedDrops`), parks it in `cachedItem`, gives the counter one more unit and lets the next line try — so the *last* eligible line wins, and the parked drop is added back if nothing replaced it. The port `continue`d, keeping the first line and skipping the rest. It was recorded in the port as a deliberate simplification; with one occurrence it decides *which* item every kill drops |
+| Grouped drops were rolled as **independent lines** | A `<group>` is a roulette: at x1 rates the chances **accumulate** (`totalChance += dropItem.getChance()`) so each line is tested against the running total, and the group `break`s after its first payout. The port rolled every line at `line.chance × group.chance / 100` with no accumulation and no break, which both pays out too often and weights the lines wrongly. All 17 templates with groups on this dist are the Spiked Stakato Nest mobs (22105–22121), 46 groups between them |
+| One occurrence budget was shared across both lists | Java runs `calculateGroupDrops` and `calculateUngroupedDrops` as two passes with **a counter each**, then concatenates; the port ran one loop over both. It also used `DROP_MAX_OCCURRENCES_NORMAL` for raid bosses, where Java picks `DROP_MAX_OCCURRENCES_RAIDBOSS` (both are 1 here, so that half is inert) |
+
+Two smaller ones came with them: the chance/amount chains were missing their
+**herb** and **raid** arms (`RATE_HERB_DROP_*`, `RATE_RAID_DROP_*` — all 1 on
+this dist, so inert, but the branch structure now matches), and the champion
+reward tail ran once at the end rather than at the foot of each pass, and rolled
+its level-suppression draw even when the levels were equal (Java's two `if`s
+compare `<` and `>`, so an equal-level champion consumes no roll).
+
+**The exp/sp half came back clean.** `calculateExpAndSp`'s level-gap table
+(`>2 → 0.97/0.80/0.61/0.37/0.22/0.13/0.08/0.05`), the damage-share split, the
+champion multiplier, the over-hit bonus, premium rates, the vitality charge and
+the PA-point award are all in Java's order, and `Party.distributeXpAndSp`'s
+valid-member set, size bonus, square-of-level weighting and cutoff match.
+
+**Narrowings, with the carrier that was looked for.** `Stat.EXPSP_RATE`,
+`BONUS_DROP_RATE`, `BONUS_DROP_AMOUNT`, `BONUS_DROP_ADENA` and
+`BONUS_SPOIL_RATE` have **no carrier anywhere in the datapack** — no skill, item
+or option declares them — so every one is a fixed 1.0. `EXP_/SP_AMOUNT_MULTIPLIERS`
+are the unpopulated class-balance tables again. The servitor exp penalty is dead
+upstream (every `expMultiplier` on this dist is below Java's `> 1` guard —
+recorded when the effect batches ran). `Clan.addHuntingPoints` is not ported, and — corrected after an
+in-game verification run found the file — the dist **does** ship `ClanReward`
+data, in `config/` rather than `data/`: its `huntingBonus` tiers hand out items
+70020–70023, which exist here. So clan hunting points are a real unported
+feature rather than an inert one, filed with G18 rather than with this axis. And
+`rolled_count` rounds where Java truncates and floors at 1 where Java does not —
+every rate on this dist is an integer, so the two agree on every line the
+datapack can produce.
+
+---
+
+## Persistence parity — what survives the server going down
+
+**Opened 2026-08-22.** The four axes before this one all compare behaviour while
+the process is up. None of them asks what is still there after a restart, and
+that question has a mechanical answer: every Java `INSERT`/`UPDATE` names its
+table and columns, every write in this port lives under
+`crates/gameserver/src/db/`, and the difference between the two sets is the
+axis. 61 tables on the Java side.
+
+**The set-difference is re-derivable.** Scan the Java tree for write
+statements:
+
+```sh
+grep -rhoE '"(INSERT INTO|REPLACE INTO|UPDATE) [^"]*"' <java-root> --include='*.java'
+```
+
+and the port's own side is what
+`crates/tools/tests/persistence_census.rs` holds as an assertion —
+`unpersisted_state_matches_the_recorded_inventory` fails the moment the db layer
+starts writing something the inventory calls unwritten, which is the same
+contract `deferral_markers_match_the_recorded_inventory` has for markers.
+
+**One live gap, now closed.** `characters.expBeforeDeath` was never written.
+Java stores it in `UPDATE_CHARACTER` and reads it back in `restore`, and
+`Player.restoreExp` is what a resurrection calls to hand back a share of the exp
+a death took — so in Java a player can die, log out, come back and *then* be
+resurrected with their exp. The port kept the value on the live `Player`
+(`lost_exp_on_death`) and threw it away at logout: the resurrection restored
+nothing. The column is now written as `exp + lost` and read back as
+`stored − exp`, which is the arithmetic Java's `restoreExp` does at the far end,
+and `restorable_exp_survives_a_relog` pins the round trip (sabotage-verified by
+dropping the column from the save).
+
+**Twenty-one tables Java writes and the game server does not**, each recorded
+with the reason: `fort`/`fort_doorupgrade`/`fortsiege_clans` (fortresses,
+off-chronicle), `forums`/`posts`/`topic` (the BBS forum tables — this dist runs
+the custom board), `airships`, `character_contacts`, `character_mentees`,
+`character_premium_items`, `commission_items`, `party_matching_history`,
+`mods_wedding` (post-Interlude or custom), `character_tpbookmark` (the null
+bookmark handler from row 15), `announcements` (config-driven here),
+`clan_variables`/`item_variables` (no such store in the port),
+`olympiad_fights` (no per-match log), `character_pet_skills_save` (pets persist,
+their cooldowns do not), `character_item_reuse_save` (item reuse rides the
+skill-reuse map here and persists through `character_skills_save` — Java keeps a
+second, item-keyed table), and `global_tasks` (the port keeps the same daily
+state in `global_variables`). `accounts` and `gameservers` are **not** residue:
+they are written through `crates/models/src/repo`, by the login server.
+
+**Twelve columns on tables the port does write**, likewise recorded:
+`characters.cancraft` and `characters.wantspeace` are dead in Java too (written
+or restored, and read by nothing that can change them); `characters.title_color`
+is recomputed at login from the access level and the PvP title ladder rather
+than stored; `characters.onlinetime` feeds `ClanRewardType.MEMBERS_ONLINE`,
+whose four tiers in `config/ClanReward.xml` grant skills 55168–55171 — none of
+which exists in this dist's skill data, so that bonus cannot resolve a reward;
+`characters.fame`, `.faction`, `.language` and `.bookmarkslot` are
+post-Interlude or not portable; `clan_data.auction_bid_at` is tracked in
+`clanhall_auctions_bidders` here; and `messages.itemId`/`.enchantLvl`/
+`.elementals` are the commission-mail item preview, which arrives with the
+commission house.
+
+---
+
 ## Measured gaps — the axes nothing above measures
 
 **Audited 2026-08-14.** The marker inventory is empty and

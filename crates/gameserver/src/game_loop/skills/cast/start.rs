@@ -60,6 +60,19 @@ pub(crate) fn start_casting(
     // where this read sits too.
     let spiritshot_charged = player.is_charged_shot(crate::model::ShotType::Spiritshots)
         || player.is_charged_shot(crate::model::ShotType::BlessedSpiritshots);
+    // `calcAtkSpdMultiplier` reads `Stat.weaponBaseValue(PHYSICAL_ATTACK_SPEED)`
+    // — the equipped weapon's speed, not the class base — so a physical skill
+    // swung with a dagger casts faster than the same skill bare-handed.
+    let weapon_p_atk_spd = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&object_id)
+        .and_then(|inv| {
+            crate::model::weapon_base_stat(
+                inv,
+                &world.data,
+                crate::model::stats::Stat::PhysicalAttackSpeed,
+            )
+        });
     let (hit_ms, cancel_ms, cool_ms) = formulas::calc_cast_times(
         player,
         base,
@@ -68,6 +81,7 @@ pub(crate) fn start_casting(
         &world.data,
         skill,
         spiritshot_charged,
+        weapon_p_atk_spd,
     );
     let displayed_cast_time = hit_ms + cancel_ms;
 

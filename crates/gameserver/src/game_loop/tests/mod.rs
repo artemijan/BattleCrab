@@ -92,6 +92,7 @@ mod death_drop_tests;
 mod defence_crit_tests;
 mod dev_grid_config_tests;
 mod dr_chaos_tests;
+mod drop_parity_tests;
 mod duel_tests;
 mod effect_level_tests;
 mod effect_scope_tests;
@@ -133,6 +134,7 @@ mod minion_tests;
 mod misc_tests;
 mod mob_leash_tests;
 mod moderation_ip_tests;
+mod modifier_parity_tests;
 mod monster_race_tests;
 mod move_type_tests;
 mod movement_tests;
@@ -588,6 +590,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         x: 1,
         y: 2,
         z: 3,
+        lost_exp_on_death: 0,
         exp: 0,
         sp: 0,
         reputation: 0,

@@ -61,14 +61,21 @@ pub(crate) fn caster_str_bonus(world: &World, oid: i32) -> f64 {
 ///   DERANGEMENT, PARALYZE, BLEED, …) is what the dist's `<trait>` tags almost
 ///   entirely declare, and what the learnable resistances defend.
 /// - **group 2** (`*_WEAKNESS`, declared by 5 skills here) additionally needs
-///   the *attacker* to carry a matching `AttackTrait`. Nothing is ported that
-///   grants one, so `hasAttackTrait` is always false and Java's own guard
-///   returns 1.0 — the branch is a no-op rather than a gap.
+///   the *attacker* to carry a matching `AttackTrait` — the "Detect &lt;Category&gt;
+///   Weakness" line and the Eye of Hunter/Slayer pair grant those, and the
+///   effect is parsed and merged (`merge_attack_traits`), so the branch is
+///   live rather than the no-op an older comment here claimed.
 /// - **group 1** (weapon types, plus `ETC`) and `NONE` are never scaled here.
 ///
-/// The attacker side is otherwise omitted because `getAttackTrait` is **1.0**
-/// for anyone without an `AttackTrait` buff, which makes Java's
-/// `max(attackTrait − defenceTrait, 0.05)` exactly `max(1 − defence, 0.05)`.
+/// **Both sides are read, and a target with no `DefenceTraits` at all is not a
+/// short circuit.** Java's tables default to `1.0` attack / `0.0` defence
+/// (`CreatureStat` fills them in its constructor), so the last line is
+/// `max(attackTrait − 0, 0.05)` for an untraited target — which is the
+/// attacker's own bonus, not 1.0. The port used to bail out to 1.0 whenever the
+/// target carried no defence traits, and since most targets carry none that
+/// silently threw away every group-3 attack trait in the game: the four
+/// augment options (3952–3955), the boss-jewel line and the two Dual - Trait
+/// Increase skills all merge one.
 ///
 /// `ignore_resistance` is Java's fourth argument: the **damage** formulas pass
 /// `true` (group 3 short-circuits to 1.0 — a stun resistance does not soften
@@ -85,12 +92,12 @@ pub(crate) fn calc_general_trait_bonus(
     if trait_type == TraitType::None {
         return 1.0;
     }
-    let Some(traits) = world.objects.get_component::<DefenceTraits>(&target_oid) else {
-        return 1.0;
-    };
+    // An absent component is an empty table, **not** an early return: Java's
+    // arrays are always there, initialised to 1.0 attack / 0.0 defence.
+    let traits = world.objects.get_component::<DefenceTraits>(&target_oid);
     // Java tests invulnerability *before* the group switch, so a weapon- or
     // weakness-trait immunity zeroes the chance too.
-    if traits.invulnerable.contains(&trait_type) {
+    if traits.is_some_and(|t| t.invulnerable.contains(&trait_type)) {
         return 0.0;
     }
     match trait_type.group() {
@@ -98,7 +105,7 @@ pub(crate) fn calc_general_trait_bonus(
         // `AttackTrait` and the target's `DefenceTrait`.
         2 => {
             if !has_attack_trait(world, attacker_oid, trait_type)
-                || !traits.resist.contains_key(&trait_type)
+                || !traits.is_some_and(|t| t.resist.contains_key(&trait_type))
             {
                 return 1.0;
             }
@@ -110,7 +117,9 @@ pub(crate) fn calc_general_trait_bonus(
         }
         _ => return 1.0,
     }
-    let defence = traits.resist.get(&trait_type).copied().unwrap_or(0.0);
+    let defence = traits
+        .and_then(|t| t.resist.get(&trait_type).copied())
+        .unwrap_or(0.0);
     // A *negative* defence trait is a vulnerability (4416's -15), so this can
     // legitimately exceed 1.0 — Java only floors it.
     (attack_trait(world, attacker_oid, trait_type) - defence).max(0.05)

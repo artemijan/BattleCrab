@@ -270,6 +270,17 @@ fn crit_message(is_magic: bool, caster_name: &str) -> Vec<u8> {
 /// target and for DoT ticks. The counter damage itself is
 /// `target.pAtk * 873 / attacker.pDef`, scaled by the weapon/general trait and
 /// attribute bonuses.
+///
+/// **The bonuses are read in Java's orientation, which is not the damage's.**
+/// Java passes `(attacker, target)` to all three — the *attacker* being the one
+/// about to take the counter — so the weapon term reads the attacker's weapon
+/// against the counter-attacker's resistances even though the damage flows the
+/// other way. It is written that way in `Formulas.calcCounterAttack` and the
+/// port follows it rather than the orientation that would make physical sense.
+/// Note too that this path multiplies **only** the weapon and general trait
+/// terms: no `calcWeaknessBonus`, and no `generalTraitMod == 0 ? 1` guard —
+/// both of those belong to the `PhysicalAttack` handler family, so the shared
+/// `skill_trait_mod` helper is deliberately not used here.
 pub(crate) fn calc_counter_attack(
     world: &mut World,
     attacker_oid: i32,
@@ -313,8 +324,9 @@ pub(crate) fn calc_counter_attack(
             .max(1.0),
     );
     let counter = (target_p_atk * 873.0 / attacker_p_def)
-        * skill_trait_mod(world, target_oid, attacker_oid, &skill, true)
-        * attribute_mod(world, target_oid, attacker_oid, &skill);
+        * calc_weapon_trait_bonus(world, attacker_oid, target_oid)
+        * calc_general_trait_bonus(world, attacker_oid, target_oid, skill.trait_type, true)
+        * attribute_mod(world, attacker_oid, target_oid, &skill);
     if counter <= 0.0 {
         return;
     }

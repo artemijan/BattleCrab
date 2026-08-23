@@ -504,6 +504,11 @@ pub fn calc_atk_spd_multiplier(
     base: &crate::model::components::BaseStats,
     mods: &crate::model::components::StatModifiers,
     data: &GameData,
+    // `Stat.weaponBaseValue(creature, PHYSICAL_ATTACK_SPEED)` — the **equipped
+    // weapon's** declared attack speed, which replaces the class base for a
+    // player holding one (`IStatFunction.calcWeaponBaseValue`, the same rule
+    // `PAttackSpeedFinalizer` runs on). `None` bare-handed.
+    weapon_p_atk_spd: Option<f64>,
 ) -> f64 {
     let t = data
         .player_templates
@@ -521,7 +526,8 @@ pub fn calc_atk_spd_multiplier(
         .get(&Stat::PhysicalAttackSpeed)
         .copied()
         .unwrap_or(0.0);
-    dex_bonus * (t.base_p_atk_spd as f64 / 333.0) * mul + add / 333.0
+    let weapon_attack_speed = weapon_p_atk_spd.unwrap_or(t.base_p_atk_spd as f64);
+    dex_bonus * (weapon_attack_speed / 333.0) * mul + add / 333.0
 }
 
 /// `Formulas.calcMAtkSpdMultiplier` (armorBonus = 1).
@@ -557,6 +563,9 @@ pub fn calc_skill_time_factor(
     // — Java's `spiritshotHitTime` of **0.4**, i.e. a charged mage casts at
     // `matkSpdMul · 1.4`. Ignored for anything but a magic skill, as in Java.
     spiritshot_charged: bool,
+    // The equipped weapon's attack speed, for the physical arm — see
+    // [`calc_atk_spd_multiplier`].
+    weapon_p_atk_spd: Option<f64>,
 ) -> f64 {
     // `skill.getOperateType().isChanneling()` heads the same early return as
     // the three static magic types: a channeled skill's timing is fixed, so
@@ -573,7 +582,7 @@ pub fn calc_skill_time_factor(
         // `factor = matkspdmul + (matkspdmul * spiritshotHitTime)`.
         m + (m * if spiritshot_charged { 0.4 } else { 0.0 })
     } else {
-        calc_atk_spd_multiplier(p, base, mods, data)
+        calc_atk_spd_multiplier(p, base, mods, data, weapon_p_atk_spd)
     };
     factor.max(0.01)
 }
@@ -586,9 +595,18 @@ pub fn calc_skill_cancel_time(
     data: &GameData,
     skill: &Skill,
     spiritshot_charged: bool,
+    weapon_p_atk_spd: Option<f64>,
 ) -> f64 {
     ((skill.hit_cancel_time * 1000.0)
-        / calc_skill_time_factor(p, base, mods, data, skill, spiritshot_charged))
+        / calc_skill_time_factor(
+            p,
+            base,
+            mods,
+            data,
+            skill,
+            spiritshot_charged,
+            weapon_p_atk_spd,
+        ))
     .max(SKILL_LAUNCH_TIME_MS)
 }
 
@@ -620,9 +638,26 @@ pub fn calc_cast_times(
     data: &GameData,
     skill: &Skill,
     spiritshot_charged: bool,
+    weapon_p_atk_spd: Option<f64>,
 ) -> (i32, i32, i32) {
-    let factor = calc_skill_time_factor(p, base, mods, data, skill, spiritshot_charged);
-    let cancel = calc_skill_cancel_time(p, base, mods, data, skill, spiritshot_charged);
+    let factor = calc_skill_time_factor(
+        p,
+        base,
+        mods,
+        data,
+        skill,
+        spiritshot_charged,
+        weapon_p_atk_spd,
+    );
+    let cancel = calc_skill_cancel_time(
+        p,
+        base,
+        mods,
+        data,
+        skill,
+        spiritshot_charged,
+        weapon_p_atk_spd,
+    );
     // Channeling (`CA1`) cast time is **static**: `_hitTime = max(hitTime −
     // cancelTime, 0)`, `_cancelTime = 2866` — no time-factor scaling, so
     // Volcano channels its full duration regardless of casting speed. The

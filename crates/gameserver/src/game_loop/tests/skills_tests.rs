@@ -6600,7 +6600,7 @@ fn a_charged_spiritshot_shortens_the_cast() {
             .objects
             .get_component::<StatModifiers>(&3001)
             .expect("mods");
-        formulas::calc_skill_time_factor(p, base, mods, &world.data, skill, charged)
+        formulas::calc_skill_time_factor(p, base, mods, &world.data, skill, charged, None)
     };
 
     let plain = factor(false, &world);
@@ -6627,7 +6627,7 @@ fn a_charged_spiritshot_shortens_the_cast() {
         .get_component::<StatModifiers>(&3001)
         .expect("mods");
     assert_eq!(
-        formulas::calc_skill_time_factor(p, base, mods, &world.data, &channeled, true),
+        formulas::calc_skill_time_factor(p, base, mods, &world.data, &channeled, true, None),
         1.0,
         "a channeling skill's timing is static"
     );

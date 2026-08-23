@@ -114,6 +114,17 @@ pub struct PlayerSnapshot {
     pub base_class_id: i32,
     pub vitality_points: i32,
     pub pccafe_points: i32,
+    /// `characters.expBeforeDeath` — Java `Player._expBeforeDeath`, the exp
+    /// total the character had **before** its last death, so a resurrection
+    /// can hand back a percentage of what the death penalty took. Java stores
+    /// it in `UPDATE_CHARACTER` and restores it, which is what lets a player
+    /// die, log out, come back and *then* be resurrected with their exp.
+    ///
+    /// The live side holds the **delta** (`Player::lost_exp_on_death`), so this
+    /// is `exp + lost` on the way out and `stored − exp` on the way back —
+    /// which is exactly the arithmetic Java's `restoreExp` does at the far end.
+    /// Zero means nothing to restore.
+    pub exp_before_death: i64,
     /// `characters.nobless` — Olympiad nobless, toggled by `//setnoble`.
     pub noble: bool,
 }
@@ -155,6 +166,15 @@ impl PlayerSnapshot {
             base_class_id: p.base_class_id,
             vitality_points: p.vitality_points,
             pccafe_points: p.pccafe_points,
+            // The column is Java's absolute "exp before the death"; the live
+            // side keeps the delta, so re-add the current total. Zero when
+            // there is nothing to restore, which is also what Java writes once
+            // `restoreExp` has cleared it.
+            exp_before_death: if p.lost_exp_on_death > 0 {
+                p.exp + p.lost_exp_on_death
+            } else {
+                0
+            },
             noble: p.is_noble,
         }
     }

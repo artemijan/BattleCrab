@@ -9533,3 +9533,361 @@ bonus written into both their arithmetic and their prose. The targeting axis's
 lesson repeating exactly: a
 test built from the same understanding as the code certifies it instead of
 guarding it. Full suite green at 3 645.
+
+---
+
+## Modifier parity: the terms every sweep was holding still
+
+Twenty-five sweeps now pin the formulas that say *how much* and *whether*. All
+twenty-five take the trait, weapon and speed bonuses as **inputs**, fed from a
+grid of invented constants — `calcAttributeBonus` is the only modifier that had
+ever been compared to Java. So a wrong bonus is invisible to every one of them,
+which is the argument that opened formula parity in the first place, one level
+further in.
+
+The harness has to be different here. These are not expressions over numbers;
+they are lookups over two per-trait tables, each with its own default, its own
+membership set and its own gates. A pure sweep would have missed all three
+findings below, because all three are about *which value gets read*, not about
+the arithmetic that follows. So `modifier_parity_tests.rs` drives the port
+through a real `World` with the components set, against a transcription that
+takes the tables as plain values.
+
+### An absent table is not an empty answer
+
+`CreatureStat` fills `_attackTraitValues` with **1** and `_defenceTraitValues`
+with **0** in its constructor, and keeps a `Set` per side so `hasAttackTrait` is
+a separate question from the value. The port models the pair as two optional
+components — which is fine, until an absent component gets read as a reason to
+stop:
+
+```rust
+let Some(traits) = world.objects.get_component::<DefenceTraits>(&target_oid) else {
+    return 1.0;
+};
+```
+
+Java has no such exit. For a group-3 trait against an untraited target it
+computes `max(attackTrait − 0, 0.05)` — the *attacker's* own bonus, not 1.0.
+And most targets are untraited, so that one line was throwing away every
+group-3 `AttackTrait` in the game: the four augment options (3952–3955), the
+boss-jewel line, and Dual - Physical/Mental Trait Increase. A player wearing a
+stun-resistance augment was getting nothing out of it on their own stuns.
+
+The doc comment above the function had said the branch was inert — *"Nothing is
+ported that grants one"* — while `merge_attack_traits` sat forty lines below it
+and the parser had been mapping `<effect name="AttackTrait">` since G19. Fourth
+comment-rot finding in four axes, and the second where the comment did not just
+drift but **justified** the gap it described.
+
+### `weaponBaseValue` is not the template
+
+`Formulas.calcAtkSpdMultiplier` opens on
+`Stat.weaponBaseValue(creature, PHYSICAL_ATTACK_SPEED)`, and
+`IStatFunction.calcWeaponBaseValue` resolves that, for a player holding a
+weapon, to **the weapon's own declared speed**. The port honoured that where the
+number is visible — `PAttackSpeedFinalizer`, the `pAtkSpd` on the character
+sheet — and not where it is not: `calcSkillTimeFactor` read
+`template.base_p_atk_spd`, so a physical skill cast at the same speed
+bare-handed as with a weapon. A Short Sword declares 379 against a 300 class
+base; that is a 26 % error on every hit and cancel time, on a value no client
+displays.
+
+That is the shape worth remembering: the same Java expression is ported twice,
+once where someone could see it was wrong and once where nobody could.
+
+### Java's orientation, not the sensible one
+
+```java
+double counterdmg = ((target.getPAtk() * 873) / attacker.getPDef());
+counterdmg *= calcWeaponTraitBonus(attacker, target);
+counterdmg *= calcGeneralTraitBonus(attacker, target, skill.getTraitType(), true);
+counterdmg *= calcAttributeBonus(attacker, target, skill);
+```
+
+The damage flows target → attacker, and all three bonuses are read
+`(attacker, target)` — the counter-attacker's resistance table scaling the
+damage it *deals*. The port had passed them the other way round, which is the
+orientation that makes physical sense, and had reached for the shared
+`skill_trait_mod` helper, which also folds in a `calcWeaknessBonus` and the
+`generalTraitMod == 0 ? 1` guard that belong to the `PhysicalAttack` handler
+family and not to this one. Four Interlude skills grant the counter chance, so
+this is live: Shield of Revenge, Counterattack, Strike Back, Eye for Eye.
+
+Reproducing an upstream quirk is a choice each time, and this file has now made
+it three ways: reproduced (`calcWeaknessBonus`'s invulnerability test reads the
+skill's trait, not the loop's), reproduced (`calcCriticalHeightBonus` is
+identically 1), and reproduced again here. The rule that keeps it consistent is
+the one the tracker already states — the Java server is the specification, and
+"it looks like a bug" is not a licence to diverge from it silently.
+
+### Where the axis stands
+
+Three divergences, each sabotage-verified against the test that now guards it.
+Fourteen more methods read side by side and clean, four of them pinned by the
+new grids because their semantics live in a lookup rather than a number. Two
+narrowings recorded with the carrier that was looked for: bare-handed maps to
+`TraitType::None` where Java's `getAttackType()` falls back to FIST (the one
+in-chronicle FIST defence carrier, 5525, is on no NPC list and in no tree), and
+`calcSkillMastery`'s player-only gate cannot fire, since none of the 21
+`SkillMastery` carriers is on an NPC skill list. Full suite green at 3 652.
+
+---
+
+## Reward and drop parity: the single slot that adena was eating
+
+Three axes now cover *how much*, *whether* and *by what modifier*. What none of
+them reaches is what a kill actually pays out — and that is not an expression at
+all. `NpcTemplate.calculateDrops` is a loop with a budget, an eviction rule and
+an early `break`, and it returns a list of items. So the harness had to change
+shape again: a transcription of the loop, and both sides walked down the **same
+scripted roll stream**, so that a divergence in roll order fails as loudly as a
+divergence in the maths.
+
+### `DropMaxOccurrences = 1` means the budget decides everything
+
+This dist allows **one** random drop per list. Which line gets it is decided by
+two clauses the port had wrong.
+
+The first is which chance the budget is charged against:
+
+```java
+final Float itemChance = Config.RATE_DROP_CHANCE_BY_ID.get(dropItem.getItemId());
+if (itemChance != null) { if ((dropItem.getChance() * itemChance) < 100) { dropOccurrenceCounter--; … } }
+else if (dropItem.getChance() < 100) { dropOccurrenceCounter--; … }
+```
+
+The dist rates adena ×50. A 70 % adena line therefore computes to 3500 %, and
+Java never charges it to the budget — adena is *free*. The port tested the raw
+70 %, charged the slot, and then skipped every later line. Both directions were
+broken by that: kill something whose rare item happened to roll first and the
+adena never dropped; kill something where adena came first and nothing else
+could. Adena is on essentially every monster in the game, so this was every
+kill, everywhere.
+
+The second is what happens at the cap. Java does not stop:
+
+```java
+cachedItem = randomDrops.remove(0);
+calculatedDrops.remove(cachedItem);
+dropOccurrenceCounter = 1;
+```
+
+It takes the earliest random drop back out, parks it, and gives the counter one
+more unit — so the **last** eligible line wins, and the parked drop returns at
+the end if nothing replaced it. The port `continue`d at the cap, keeping the
+first. That one was written down in the port as a deliberate simplification
+("simplified to a hard stop at the cap"), which is the honest way to leave a
+gap — but with a budget of one it does not simplify anything, it picks a
+different item on every kill.
+
+### A `<group>` is a roulette, not a set of lines
+
+```java
+if (rateChance == 1) totalChance += dropItem.getChance(); else totalChance = dropItem.getChance();
+final double groupItemChance = totalChance * (group.getChance() / 100) * rateChance;
+…
+if (rateChance == 1) break;
+```
+
+Inside a group the chances **accumulate**, and the group stops after its first
+payout. The port rolled each line independently at `line.chance × group.chance /
+100`: too many drops, and the wrong weights between them. Seventeen templates on
+this dist carry groups — all of them the Spiked Stakato Nest mobs, 46 groups —
+so the blast radius is one zone, but inside that zone the loot table was simply
+a different table.
+
+Two smaller ones fell out of the same rewrite: Java gives the grouped and
+ungrouped passes **a counter each** (the port shared one), and picks
+`DROP_MAX_OCCURRENCES_RAIDBOSS` for raids (the port always used the normal one —
+inert here, both are 1).
+
+### What the transcription cost, and what it bought
+
+The rewrite is Java's two functions, an `OccurrenceBudget` that owns the
+`counter`/`randomDrops`/`cachedItem` triple, and one shared rate chain. Spoil
+now goes through the same ungrouped pass Java uses for it, instead of its own
+copy of the loop.
+
+The sweep drives five synthetic templates — a dist-shaped monster list with
+adena mid-list, a 100 % line, a two-group Stakato shape, both lists at once, and
+a group carrying a per-id-rated line — across seven killer levels and forty
+scripted roll streams each. All three headline clauses were sabotage-verified:
+delete the `break`, or the by-id half of the budget test, or the eviction, and
+the sweep fails.
+
+One detail worth recording because it looks like a bug in the test: a *forced*
+roll ignores its bound (`World::roll` returns the queued value verbatim), so the
+item counts in the grid are arbitrary. They are arbitrary identically on both
+sides, which is all the comparison needs.
+
+### The exp half was already right
+
+`calculateExpAndSp`'s level-gap table, the damage-share split, champion, over-hit,
+premium, vitality and the PA-point award are all in Java's order, and
+`Party.distributeXpAndSp`'s valid-member set, size bonus, square-of-level
+weighting and cutoff match. The narrowings there are all carrier-checked:
+`EXPSP_RATE`, `BONUS_DROP_RATE`/`_AMOUNT`/`_ADENA` and `BONUS_SPOIL_RATE` have no
+carrier anywhere in the datapack, the class-balance tables are unpopulated, the
+servitor exp penalty is dead upstream, and clan hunting points cannot pay out
+because `Clan.addHuntingPoints` is not ported at all. (An earlier draft of this
+entry said the dist ships no `ClanReward` data. It does — in `config/`, not
+`data/` — and its `huntingBonus` items 70020–70023 exist here, so the feature is
+unported rather than inert. The in-game verification run found the file.)
+
+Full suite green at 3 654.
+
+---
+
+## Persistence parity: the axis that could be subtracted
+
+Four axes in, the pattern had settled: read Java, transcribe it, sweep it. This
+one does not need that. Every Java write statement names its table and its
+columns; every write in this port lives under one directory. The axis is a
+set-difference, and a set-difference can be taken to the end rather than
+sampled.
+
+61 tables on the Java side, 21 of them never written here, 12 more columns left
+alone on tables that are — and exactly one of those turned out to be a bug.
+
+### The one that mattered
+
+`characters.expBeforeDeath`. Java writes it in `UPDATE_CHARACTER`, reads it in
+`restore`, and `Player.restoreExp` is what a resurrection calls:
+
+```java
+if (_expBeforeDeath > 0)
+{
+    getStat().addExp(Math.round(((_expBeforeDeath - getExp()) * restorePercent) / 100));
+    setExpBeforeDeath(0);
+}
+```
+
+The port has the same mechanism — `Player::lost_exp_on_death`, set by the death
+penalty, consumed by the resurrect and village-restore paths — and never wrote
+it down. Die, log out, come back, get resurrected: Java gives the exp back, the
+port gave nothing, and nothing anywhere said so.
+
+The port keeps the *delta* where Java keeps the *total*, so the column is
+written as `exp + lost` and read back as `stored − exp`. That is not a
+convenience: it is the same subtraction Java's `restoreExp` performs at restore
+time, so the two servers agree on the stored value and a character could be
+handed between them.
+
+### The residue is the artefact
+
+The other 32 entries are not bugs, and writing them into prose would have been
+the fifth time this repo learned that prose about what remains rots. So they are
+an assertion instead: `crates/tools/tests/persistence_census.rs` lists every
+unwritten table and column with its reason, and fails if the db layer starts
+writing one. Adding a gap without recording it fails the build; closing one
+without taking it off the list fails too.
+
+Working the list is where the classifications came from, and three of them are
+worth keeping:
+
+- **`cancraft` and `wantspeace` are dead in Java.** `wantspeace` is restored
+  from the row and read in an auto-attack check — and *nothing sets it*, in the
+  whole tree, other than that restore. `cancraft` is written by the UPDATE and
+  read by nobody. Two columns that look like gaps and are not.
+- **`onlinetime` needs data this dist does not ship.** It feeds
+  `ClanRewardType.MEMBERS_ONLINE`, whose four tiers in `config/ClanReward.xml`
+  grant skills **55168–55171** — and none of those exists in this dist's skill
+  data, so the bonus has no reward to resolve. Worth spelling out because the
+  first draft of this said the `ClanReward` file was missing entirely; it is
+  there, in `config/` rather than `data/`, and only half of it is dead. A
+  "missing datapack" claim needs the file path in it, or it is a guess.
+- **`accounts` and `gameservers` were false residue.** They are written, just
+  not by the game server — `crates/models/src/repo` does it for the login
+  server. The first scan missed them because they import `ActiveModel` by name
+  instead of spelling out `entity::accounts::ActiveModel`. A census that only
+  matches one spelling of a write will report gaps that are not there, which is
+  worth knowing before trusting the next one.
+
+### Where the axis stands
+
+One live gap, closed and sabotage-verified. Thirty-three recorded, each with the
+reason it is not work. The Java half of the difference is not re-derived by the
+test — the Java tree lives outside this repo — so `PORTING_STATUS.md` carries
+the command that regenerates it, and the test holds the port half. Full suite
+green at 3 657.
+
+---
+
+## Verifying the drop change in the actual game
+
+The drop rewrite is the first change in these axes a player would notice on
+every kill, so it got run rather than argued about:
+`crates/gameserver/tests/e2e_create.rs::drop_check` boots the real login and
+game servers on the real datapack **and the dist config**, drives a scripted
+client through login → character create → enter world, and then spawns a Goblin
+(20003), nukes it, and prints what the client is told it picked up. It asserts
+nothing; it is a tool.
+
+Fifteen rounds, and the first round never lands (the mob is still arriving), so
+fourteen kills:
+
+```
+kill  1: died=true adena    660  items [116]   sm [1983, 46, 48, 2261, 46, 2261, 28, 30, 3259, 96, 109]
+kill  2: died=true adena    870  items [17]    sm [… 28, 29, 3259, 1983, 96, 109]
+kill  3: died=true adena    660  items []      sm [… 28, 3259, 96, 109]
+…
+adena dropped in 14 · an item dropped in 9 · both together in 9 · nothing in 1
+items: {17: 3, 112: 1, 116: 1, 118: 1, 1868: 3}
+```
+
+Adena on every kill, one item on nine of them, never two — and the adena counts
+(420–870) are the line's `13–30` times the dist's ×30 per-id amount rate. SM 28
+is `YOU_HAVE_OBTAINED_S1_ADENA` and 29/30 are the item pair, which is exactly
+what a player reads in their chat window.
+
+### What the run cost, and what it found
+
+Four false starts, each of which is worth writing down:
+
+- **The first mob had no drops at all.** Npc 20001 is a Fairy-type with no
+  `<drop>` list in this dist, so thirty kills produced nothing and the harness
+  looked broken. Checking the template before blaming the code is the cheaper
+  order.
+- **`//kill_monster` pays out nothing**, because the port's admin kill routes
+  straight to `npc_do_die` with no damage recorded, and the reward loop splits
+  by damage share. Java's `//kill` calls `reduceCurrentHp(maxHp + 1, player)`,
+  so the GM *is* the damage dealer and the drops flow. Not fixed here — it is an
+  admin-command parity gap, filed rather than folded into this change.
+- **A level-5 Goblin interrupts a level-1 mystic's casts** often enough that the
+  kill never finishes. `//invul` on the GM is what made the loop terminate,
+  which is `calcAtkBreak` doing its job.
+- **The system-message ids were the modern ones.** 1532/1533/1534 are what a
+  later chronicle uses; this build's obtained-item messages are **28/29/30**,
+  and a harness matching the wrong ids reports silence rather than an error.
+
+And one thing the run corrected in the axis that preceded it: hunting through
+`dist/` for the harness turned up **`config/ClanReward.xml`**, which two
+paragraphs of this journal had confidently called absent. It ships. Its
+`huntingBonus` tiers hand out items 70020–70023, which exist here, so clan
+hunting points are an unported *feature*, not an inert one; only the
+`membersOnline` half is dead, because its reward skills 55168–55171 are missing
+from this dist's skill data. Both entries are corrected above. The lesson is
+cheap to state: a "the datapack doesn't ship it" claim needs the path it was
+looked for at, or it is a guess — and `data/` is not the only place a datapack
+puts data.
+
+### The controlled before/after
+
+The in-game run shows the new behaviour; a probe over the same templates with
+the pre-change algorithm shows what changed. 200 rolls each, killer at the
+mob's level:
+
+| Table | | old | new |
+|---|---|---|---|
+| Goblin 20003 (ungrouped, adena mid-list) | adena | 170/200 | **200/200** |
+| | an item | 30/200 | **84/200** |
+| Spiked Stakato 22105 (3 groups) | an item | 61/200 | **196/200** |
+| | at most per kill | 1 | 1 |
+
+The Goblin's adena line is 70 % with a ×50 per-id chance rate, so it should drop
+on *every* kill; it now does. Its eight item lines multiply out to ≈40 % for
+"something other than adena", and 84/200 is 42 %. The Stakato's three groups
+each total ≈100 % internally, so under Java's cumulative rule a group pays out
+about `group.chance` of the time and the mob almost always drops one thing —
+which is the 196/200, against 61/200 before.

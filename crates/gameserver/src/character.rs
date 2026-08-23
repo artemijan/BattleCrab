@@ -61,6 +61,10 @@ pub struct CharData {
     pub z: i32,
     pub exp: i64,
     pub sp: i64,
+    /// `characters.expBeforeDeath`, already converted to the delta the live
+    /// side keeps (`Player::lost_exp_on_death`) — how much exp a resurrection
+    /// can still hand back. See [`crate::db::types::PlayerSnapshot`].
+    pub lost_exp_on_death: i64,
     pub reputation: i32,
     pub pk_kills: i32,
     /// `characters.raidbossPoints`.

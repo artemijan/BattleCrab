@@ -596,6 +596,10 @@ async fn char_data_of(
             last_access: row.last_access,
             vitality_points: row.vitality_points,
             pccafe_points: row.pccafe_points,
+            // `characters.expBeforeDeath` → the live delta. Java's `restoreExp`
+            // computes `(_expBeforeDeath - getExp())` at restore time, so the
+            // subtraction belongs here rather than at the write.
+            lost_exp_on_death: (row.exp_before_death.unwrap_or(0) - row.exp.unwrap_or(0)).max(0),
             prime_points,
             access_level: row.accesslevel.unwrap_or(0),
             noble: row.nobless == 1,
@@ -1988,6 +1992,7 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
         base_class: Set(b.base_class_id),
         vitality_points: Set(b.vitality_points),
         pccafe_points: Set(b.pccafe_points),
+        exp_before_death: Set(Some(b.exp_before_death)),
         nobless: Set(if b.noble { 1 } else { 0 }),
         online: Set(Some(0)),
         last_access: Set(now_millis()),

@@ -1427,7 +1427,7 @@ impl Player {
             hair_color: c.hair_color,
             cast_seq: 0,
             pending_revive: false,
-            lost_exp_on_death: 0,
+            lost_exp_on_death: c.lost_exp_on_death,
             revive_request: None,
             summon_request: None,
             pending_pet_collar: None,
@@ -2669,6 +2669,26 @@ pub(crate) fn apply_modifier(mods: &mut StatModifiers, effect: &StatModifierEffe
             *entry *= (effect.amount / 100.0) + 1.0;
         }
     }
+}
+
+/// Java `Stat.weaponBaseValue` → `IStatFunction.calcWeaponBaseValue`: for a
+/// player, the **right-hand weapon's** own declaration of a stat *replaces* the
+/// class-template base (a two-handed weapon lives in RHand too). `None`
+/// bare-handed, or when the weapon declares nothing for that stat, which is
+/// the caller's cue to keep the template value.
+///
+/// The stat recompute inlines this rule for the five weapon-replace stats it
+/// finalizes; this is the same read for callers outside that pass —
+/// `calcAtkSpdMultiplier` needs the attack-speed one to scale a physical
+/// skill's cast time, and used to take the class base instead.
+pub(crate) fn weapon_base_stat(inventory: &Inventory, data: &GameData, stat: Stat) -> Option<f64> {
+    let weapon = inventory.paperdoll_item(crate::model::inventory::PaperdollSlot::RHand)?;
+    let stats = data.item_data.item_stats(weapon.item_id)?;
+    stats
+        .bonuses
+        .iter()
+        .find(|&&(s, _)| s == stat)
+        .map(|&(_, v)| v)
 }
 
 /// Sum of one `<stat>` across every equipped piece — the flat additive item

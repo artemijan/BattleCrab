@@ -76,6 +76,7 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
             x: c.x,
             y: c.y,
             z: c.z,
+            exp_before_death: 0,
             exp: c.exp,
             sp: c.sp,
             reputation: c.reputation,
@@ -1731,6 +1732,125 @@ async fn current_cp_persists() {
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             assert_eq!(chars[0].cur_cp, 137.5, "flushed CP survives the reload");
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// **`characters.expBeforeDeath` survives the relog.** Java writes it in
+/// `UPDATE_CHARACTER` and reads it in `restore`, which is what lets a player
+/// die, log out, come back and *then* be resurrected with a share of the exp
+/// the death took. The port kept the value on the live `Player` only, so the
+/// logout threw it away and the resurrection restored nothing.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn restorable_exp_survives_a_relog() {
+    let dir = std::env::temp_dir().join(format!("l2r_rexp_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("test.db");
+    let url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let sql_root = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/game"
+    );
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        for table in [
+            "characters",
+            "items",
+            "item_variations",
+            "character_skills",
+            "character_skills_save",
+            "character_shortcuts",
+            "character_macroses",
+            "character_reco_bonus",
+            "character_quests",
+            "character_hennas",
+            "character_recipebook",
+            "character_variables",
+        ] {
+            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
+            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
+            }
+        }
+        pool.close().await;
+    }
+
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
+    let handle = db::spawn(
+        url.clone(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
+
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 1,
+            data: new_char("Cepe"),
+        })
+        .unwrap();
+    assert!(matches!(
+        recv(&event_rx),
+        DbEvent::CharacterCreated {
+            result: CreateResult::Ok,
+            ..
+        }
+    ));
+    let loaded = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert_eq!(
+                chars[0].lost_exp_on_death, 0,
+                "a fresh character has nothing to restore"
+            );
+            chars[0].clone()
+        }
+        _ => panic!("expected CharactersLoaded"),
+    };
+
+    // Die (the penalty already applied), then log out: the column holds the
+    // **pre-death** total, which is what Java's `restoreExp` subtracts from.
+    let mut save = save_from(&loaded);
+    save.base.exp = 1_000_000;
+    save.base.exp_before_death = 1_240_000;
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: Box::new(save),
+        })
+        .unwrap();
+
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert_eq!(
+                chars[0].lost_exp_on_death, 240_000,
+                "the resurrection still has 240k of lost exp to hand back"
+            );
         }
         _ => panic!("expected CharactersLoaded"),
     }

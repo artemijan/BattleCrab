@@ -311,9 +311,16 @@ impl TraitType {
             W::AncientSword => Self::Weapon(P::AncientSword),
             W::DualDagger => Self::Weapon(P::DualDagger),
             W::TwoHandCrossbow => Self::Weapon(P::TwoHandCrossbow),
-            // Java's `NONE`/`FISHINGROD`/`FLAG` map to `TraitType.NONE`, and
-            // the port folds bare-handed into `WeaponType::None` too — an
-            // unarmed swing carries no weapon trait, so nothing defends it.
+            // Java maps `WeaponType.NONE`/`FISHINGROD` to `TraitType.NONE`,
+            // but a *creature* never reaches this with NONE: `getAttackType()`
+            // falls back to `_template.getBaseAttackType()`, which is **FIST**
+            // for every player template and — since no NPC row declares
+            // `baseAtkType` — for every NPC here as well. The distinction only
+            // shows up against a FIST defence trait, and the one in-chronicle
+            // skill that grants one (5525, Chain Buff - Melee Resistance) is on
+            // no NPC skill list and in no skill tree; 10338 is post-Interlude.
+            // Left as `None` with the carrier named rather than mapped to FIST
+            // on a guess about `of_weapon`'s other callers.
             W::None | W::FishingRod => Self::None,
         }
     }

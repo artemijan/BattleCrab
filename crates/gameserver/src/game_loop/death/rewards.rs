@@ -440,17 +440,384 @@ fn chest_drop_template(world: &World, npc_oid: i32, t: &NpcTemplate) -> Option<N
     world.data.npc_data.get(id).cloned()
 }
 
+/// Everything `calculateGroupDrops`/`calculateUngroupedDrops` read off the
+/// world once, so the two loops below can take `&mut World` for their rolls
+/// without re-borrowing config out of it per item.
+struct DropCtx {
+    killer_level: i32,
+    victim_level: i32,
+    adena_gap_chance: f64,
+    item_gap_chance: f64,
+    /// `victim.isRaid() ? DROP_MAX_OCCURRENCES_RAIDBOSS : DROP_MAX_OCCURRENCES_NORMAL`
+    /// — **per list**: Java gives the grouped and ungrouped passes a counter
+    /// each, so a template carrying both can pay out two random drops.
+    occurrences: i32,
+    is_raid: bool,
+    champion: bool,
+    premium: bool,
+    chance_mult: f64,
+    amount_mult: f64,
+    herb_chance_mult: f64,
+    herb_amount_mult: f64,
+    raid_chance_mult: f64,
+    raid_amount_mult: f64,
+    by_id_chance: std::collections::HashMap<i32, f64>,
+    by_id_amount: std::collections::HashMap<i32, f64>,
+    champion_cfg: crate::config::ChampionConfig,
+}
+
+impl DropCtx {
+    fn gap_chance(&self, item_id: i32) -> f64 {
+        if item_id == ADENA_ID {
+            self.adena_gap_chance
+        } else {
+            self.item_gap_chance
+        }
+    }
+}
+
+/// `calculateGroupDrop`/`calculateUngroupedDrop`'s chance chain, in Java's
+/// order: the per-item override first (with its champion-adena rider), then
+/// herb, then raid, then the flat death rate times the champion rider.
+///
+/// **The champion multiplier lives in two different arms.**
+/// `CHAMPION_ADENAS_REWARDS_CHANCE` only fires inside the per-item
+/// `RATE_DROP_CHANCE_BY_ID` branch (so a server with no per-id adena rate never
+/// sees it), while `CHAMPION_REWARDS_CHANCE` rides the flat death-drop rate in
+/// the `else`. Collapsing them to one multiplier would silently change the
+/// payout on this dist, where adena *does* carry a per-id rate.
+fn death_rate_chance(world: &World, ctx: &DropCtx, item_id: i32) -> f64 {
+    let mut rate = match ctx.by_id_chance.get(&item_id) {
+        Some(&by_id) => {
+            if ctx.champion && item_id == ADENA_ID {
+                by_id * ctx.champion_cfg.adenas_rewards_chance
+            } else {
+                by_id
+            }
+        }
+        None if is_herb(world, item_id) => ctx.herb_chance_mult,
+        None if ctx.is_raid => ctx.raid_chance_mult,
+        None => {
+            ctx.chance_mult
+                * if ctx.champion {
+                    ctx.champion_cfg.rewards_chance
+                } else {
+                    1.0
+                }
+        }
+    };
+    if ctx.premium {
+        rate *= premium_drop_mult(world, item_id, ctx.is_raid, PremiumDropRate::Chance);
+    }
+    // Java also folds `Stat.BONUS_DROP_RATE` in here for a player killer. No
+    // skill, item or option on this dist declares `bonusDropRate` (nor
+    // `bonusDropAmount`/`bonusDropAdena`/`bonusSpoilRate`), so the term is a
+    // fixed 1.0 and is left out rather than plumbed to nothing.
+    rate
+}
+
+/// The amount half of the same chain.
+fn death_rate_amount(world: &World, ctx: &DropCtx, item_id: i32) -> f64 {
+    let mut rate = match ctx.by_id_amount.get(&item_id) {
+        Some(&by_id) => {
+            if ctx.champion && item_id == ADENA_ID {
+                by_id * ctx.champion_cfg.adenas_rewards_amount
+            } else {
+                by_id
+            }
+        }
+        None if is_herb(world, item_id) => ctx.herb_amount_mult,
+        None if ctx.is_raid => ctx.raid_amount_mult,
+        None => {
+            ctx.amount_mult
+                * if ctx.champion {
+                    ctx.champion_cfg.rewards_amount
+                } else {
+                    1.0
+                }
+        }
+    };
+    if ctx.premium {
+        rate *= premium_drop_mult(world, item_id, ctx.is_raid, PremiumDropRate::Amount);
+    }
+    rate
+}
+
+fn is_herb(world: &World, item_id: i32) -> bool {
+    world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|i| i.ex_immediate_effect)
+}
+
+/// The occurrence budget's bookkeeping, which is the part of Java's drop
+/// algorithm that reads like a bug and is load-bearing anyway.
+///
+/// `DropMaxOccurrences*` is 1 on this dist, so at most one *random* line pays
+/// out per list. Java does not simply stop at the cap: when the budget is spent
+/// and another random line comes up, it **takes the earliest random drop back
+/// out** of the results (`randomDrops.remove(0)`, and the same holder out of
+/// `calculatedDrops`), parks it in `cachedItem` and gives the counter one more
+/// unit — so the *last* eligible line wins, not the first. If nothing replaces
+/// the parked drop, it is added back at the end.
+///
+/// The port used to `continue` at the cap instead, which kept the first line
+/// and dropped the rest.
+#[derive(Default)]
+struct OccurrenceBudget {
+    counter: i32,
+    calculated: Vec<(i32, i64)>,
+    random: Vec<(i32, i64)>,
+    cached: Option<(i32, i64)>,
+}
+
+impl OccurrenceBudget {
+    fn new(counter: i32) -> Self {
+        Self {
+            counter,
+            ..Default::default()
+        }
+    }
+
+    /// Java's `if ((dropOccurrenceCounter == 0) && (chance < 100) && …)` block.
+    /// `evict` is Java's `rateChance == 1` guard on the grouped path; the
+    /// ungrouped path evicts unconditionally.
+    fn make_room(&mut self, chance: f64, evict: bool) {
+        if self.counter != 0
+            || chance >= 100.0
+            || self.random.is_empty()
+            || self.calculated.is_empty()
+        {
+            return;
+        }
+        if evict {
+            let cached = self.random.remove(0);
+            if let Some(pos) = self.calculated.iter().position(|&item| item == cached) {
+                self.calculated.remove(pos);
+            }
+            self.cached = Some(cached);
+        }
+        self.counter = 1;
+    }
+
+    /// The post-drop bookkeeping: a line whose **computed** chance is under
+    /// 100 % spends a unit of the budget and becomes evictable. Java tests the
+    /// computed chance times the per-item override *again* on the by-id arm —
+    /// double-counting a multiplier it already applied — and this reproduces
+    /// that rather than the intent.
+    fn record(
+        &mut self,
+        ctx: &DropCtx,
+        item_id: i32,
+        chance: f64,
+        item: (i32, i64),
+        evictable: bool,
+    ) {
+        let under_100 = match ctx.by_id_chance.get(&item_id) {
+            Some(&by_id) => chance * by_id < 100.0,
+            None => chance < 100.0,
+        };
+        if under_100 {
+            self.counter -= 1;
+            if evictable {
+                self.random.push(item);
+            }
+        }
+        self.calculated.push(item);
+    }
+
+    /// `if ((dropOccurrenceCounter > 0) && (cachedItem != null)) calculatedDrops.add(cachedItem);`
+    fn finish(mut self) -> Vec<(i32, i64)> {
+        if self.counter > 0
+            && let Some(cached) = self.cached
+        {
+            self.calculated.push(cached);
+        }
+        self.calculated
+    }
+}
+
+/// `calculateGroupDrops`. Each `<group>` is a roulette, not a set of
+/// independent lines: at x1 rates the group's own chances **accumulate**
+/// (`totalChance += dropItem.getChance()`) so each successive line is tested
+/// against the running total, and the group `break`s after its first payout.
+/// The port used to roll every line of every group independently at
+/// `line.chance × group.chance / 100`, which both pays out too often and
+/// weights the lines wrongly. All 17 templates with groups on this dist are
+/// the Spiked Stakato Nest mobs (22105–22121), 46 groups between them.
+fn calculate_group_drops(world: &mut World, t: &NpcTemplate, ctx: &DropCtx) -> Vec<(i32, i64)> {
+    let mut budget = OccurrenceBudget::new(ctx.occurrences);
+    if ctx.occurrences > 0 {
+        for group in &t.drop_groups {
+            let mut total_chance = 0.0;
+            for drop in &group.items {
+                let rate_chance = death_rate_chance(world, ctx, drop.item_id);
+                // "only use total chance on x1, custom rates break this logic
+                // because total chance is more than 100%"
+                if rate_chance == 1.0 {
+                    total_chance += drop.chance;
+                } else {
+                    total_chance = drop.chance;
+                }
+                let group_item_chance = total_chance * (group.chance / 100.0) * rate_chance;
+                budget.make_room(group_item_chance, rate_chance == 1.0);
+                if world.roll_f64() * 100.0 > ctx.gap_chance(drop.item_id) {
+                    continue;
+                }
+                if world.roll_f64() * 100.0 >= group_item_chance {
+                    continue;
+                }
+                let rate_amount = death_rate_amount(world, ctx, drop.item_id);
+                let item = (drop.item_id, rolled_count(world, drop, rate_amount));
+                budget.record(
+                    ctx,
+                    drop.item_id,
+                    group_item_chance,
+                    item,
+                    rate_chance == 1.0,
+                );
+                if rate_chance == 1.0 {
+                    break;
+                }
+            }
+        }
+    }
+    let mut out = budget.finish();
+    champion_reward_items(world, ctx, &mut out);
+    out
+}
+
+/// `calculateUngroupedDrops`, for both `<drop>` (death) and `<spoil>`: one
+/// independent roll per line, with the same occurrence bookkeeping.
+///
+/// The `SPOIL` arm of `calculateUngroupedDrop` seeds its rates from the spoil
+/// multipliers and reads **no** per-item `RATE_DROP_*_BY_ID` override — but
+/// note the occurrence test in the enclosing loop consults that map either way,
+/// because Java's lookup there is not drop-type aware.
+fn calculate_ungrouped_drops(
+    world: &mut World,
+    list: &[DropHolder],
+    spoil: bool,
+    ctx: &DropCtx,
+) -> Vec<(i32, i64)> {
+    let mut budget = OccurrenceBudget::new(ctx.occurrences);
+    let (spoil_chance_mult, spoil_amount_mult) = if spoil {
+        let r = &world.cfg.rates;
+        let (mut chance, mut amount) = (
+            r.spoil_drop_chance_multiplier,
+            r.spoil_drop_amount_multiplier,
+        );
+        if ctx.premium {
+            chance *= world.cfg.premium.rate_spoil_chance;
+            amount *= world.cfg.premium.rate_spoil_amount;
+        }
+        (chance, amount)
+    } else {
+        (1.0, 1.0)
+    };
+    if ctx.occurrences > 0 {
+        for drop in list {
+            budget.make_room(drop.chance, true);
+            if world.roll_f64() * 100.0 > ctx.gap_chance(drop.item_id) {
+                continue;
+            }
+            let rate_chance = if spoil {
+                spoil_chance_mult
+            } else {
+                death_rate_chance(world, ctx, drop.item_id)
+            };
+            if world.roll_f64() * 100.0 >= drop.chance * rate_chance {
+                continue;
+            }
+            let rate_amount = if spoil {
+                spoil_amount_mult
+            } else {
+                death_rate_amount(world, ctx, drop.item_id)
+            };
+            let item = (drop.item_id, rolled_count(world, drop, rate_amount));
+            budget.record(ctx, drop.item_id, drop.chance, item, true);
+        }
+    }
+    let mut out = budget.finish();
+    if !spoil {
+        champion_reward_items(world, ctx, &mut out);
+    }
+    out
+}
+
+/// `calculateDrops`' champion tail, which lives at the end of **each** of the
+/// two functions above — so a template carrying both a group list and an
+/// ungrouped one runs it twice, and the level-suppression roll with it.
+///
+/// The guard is Java's verbatim `if (!calculatedDrops.containsAll(ITEMS))
+/// calculatedDrops.addAll(ITEMS)` — an **all-or-nothing** test on the whole
+/// configured list, not a per-item one, and `ItemHolder` compares id *and*
+/// count. So a champion that happened to roll `(6393, 1)` from its own drop
+/// list adds nothing, while one that rolled only *some* of a multi-item reward
+/// list gets the entire list appended, duplicating the one it already had.
+/// Faithful to the quirk rather than to the intent.
+///
+/// The suppression roll only happens when the levels actually differ: Java's
+/// two `if`s are `victim < killer` and `victim > killer`, so an equal-level
+/// champion consumes no roll at all.
+fn champion_reward_items(world: &mut World, ctx: &DropCtx, out: &mut Vec<(i32, i64)>) {
+    if !ctx.champion {
+        return;
+    }
+    if ctx.victim_level != ctx.killer_level {
+        let roll = world.roll(100);
+        if ctx
+            .champion_cfg
+            .suppresses_reward_items(ctx.victim_level, ctx.killer_level, roll)
+        {
+            return;
+        }
+    }
+    let contains_all = ctx
+        .champion_cfg
+        .reward_items
+        .iter()
+        .all(|reward| out.contains(reward));
+    if !contains_all {
+        out.extend_from_slice(&ctx.champion_cfg.reward_items);
+    }
+}
+
+/// `NpcTemplate.calculateDrops(DropType.DROP)` — the grouped pass, then the
+/// ungrouped one, each with its own occurrence budget, exactly as Java
+/// concatenates `groupDrops` and `ungroupedDrops`.
 fn roll_drops(
     world: &mut World,
     t: &NpcTemplate,
     killer_oid: i32,
     champion: bool,
 ) -> Vec<(i32, i64)> {
-    let Some(killer) = world.objects.get_component::<Player>(&killer_oid) else {
+    let Some(ctx) = drop_ctx(world, t, killer_oid, champion) else {
         return Vec::new();
     };
-    let killer_level = killer.level;
-    let level_diff = (t.level - killer.level) as f64;
+    let mut out = Vec::new();
+    if !t.drop_groups.is_empty() {
+        out.extend(calculate_group_drops(world, t, &ctx));
+    }
+    if !t.drop_list_death.is_empty() {
+        let list = t.drop_list_death.clone();
+        out.extend(calculate_ungrouped_drops(world, &list, false, &ctx));
+    }
+    out
+}
+
+fn drop_ctx(
+    world: &mut World,
+    t: &NpcTemplate,
+    killer_oid: i32,
+    champion: bool,
+) -> Option<DropCtx> {
+    let killer_level = world
+        .objects
+        .get_component::<Player>(&killer_oid)
+        .map(|p| p.level)?;
+    let level_diff = (t.level - killer_level) as f64;
     let r = &world.cfg.rates;
     let adena_gap_chance = formulas::map_range(
         level_diff,
@@ -466,126 +833,32 @@ fn roll_drops(
         r.drop_item_min_level_gap_chance,
         100.0,
     );
-    let champion_cfg = world.cfg.champion.clone();
-    let mut occurrences = r.drop_max_occurrences_normal;
-    let chance_mult = r.death_drop_chance_multiplier;
-    let amount_mult = r.death_drop_amount_multiplier;
-    let by_id_chance = r.drop_chance_by_id.clone();
-    let by_id_amount = r.drop_amount_by_id.clone();
-    // `NpcTemplate.calculateDrops`' premium block, which multiplies the rate
-    // that the branch above already picked.
-    let premium = crate::game_loop::admin::premium::has_premium_status(world, killer_oid)
-        && world.cfg.premium.enabled;
     let is_raid = t.is_raid();
-
-    let mut out = Vec::new();
-    let mut lists: Vec<(f64, &[DropHolder])> = Vec::new();
-    for group in &t.drop_groups {
-        lists.push((group.chance, &group.items));
-    }
-    if !t.drop_list_death.is_empty() {
-        lists.push((100.0, &t.drop_list_death));
-    }
-    for (group_chance, items) in lists {
-        for drop in items {
-            if occurrences == 0 && drop.chance < 100.0 {
-                continue;
-            }
-            // Level-gap gate.
-            let gap = if drop.item_id == ADENA_ID {
-                adena_gap_chance
-            } else {
-                item_gap_chance
-            };
-            if world.roll_f64() * 100.0 > gap {
-                continue;
-            }
-            // Chance roll (grouped items fold the group chance in).
-            //
-            // Java keeps the champion multiplier in **two different arms**:
-            // `CHAMPION_ADENAS_REWARDS_CHANCE` only fires inside the per-item
-            // `RATE_DROP_CHANCE_BY_ID` branch (so a server with no per-id adena
-            // rate never sees it), while `CHAMPION_REWARDS_CHANCE` rides the
-            // flat death-drop rate in the `else`. Collapsing them to one
-            // multiplier would silently change the payout on this dist, where
-            // adena *does* carry a per-id rate.
-            let mut rate_chance = match by_id_chance.get(&drop.item_id) {
-                Some(&by_id) => {
-                    if champion && drop.item_id == ADENA_ID {
-                        by_id * champion_cfg.adenas_rewards_chance
-                    } else {
-                        by_id
-                    }
-                }
-                None => {
-                    chance_mult
-                        * if champion {
-                            champion_cfg.rewards_chance
-                        } else {
-                            1.0
-                        }
-                }
-            };
-            if premium {
-                rate_chance *=
-                    premium_drop_mult(world, drop.item_id, is_raid, PremiumDropRate::Chance);
-            }
-            let chance = drop.chance * (group_chance / 100.0) * rate_chance;
-            if world.roll_f64() * 100.0 >= chance {
-                continue;
-            }
-            // Amount — the same two-arm split as the chance above.
-            let mut rate_amount = match by_id_amount.get(&drop.item_id) {
-                Some(&by_id) => {
-                    if champion && drop.item_id == ADENA_ID {
-                        by_id * champion_cfg.adenas_rewards_amount
-                    } else {
-                        by_id
-                    }
-                }
-                None => {
-                    amount_mult
-                        * if champion {
-                            champion_cfg.rewards_amount
-                        } else {
-                            1.0
-                        }
-                }
-            };
-            if premium {
-                rate_amount *=
-                    premium_drop_mult(world, drop.item_id, is_raid, PremiumDropRate::Amount);
-            }
-            let count = rolled_count(world, drop, rate_amount);
-            if drop.chance < 100.0 {
-                occurrences -= 1;
-            }
-            out.push((drop.item_id, count));
-        }
-    }
-    // `calculateDrops`' champion tail: a flat `ChampionRewardItems` payout on
-    // top of the rolled list, unless the level-based suppression fires.
-    //
-    // The guard is Java's verbatim `if (!calculatedDrops.containsAll(ITEMS))
-    // calculatedDrops.addAll(ITEMS)` — an **all-or-nothing** test on the whole
-    // configured list, not a per-item one, and `ItemHolder` compares id *and*
-    // count. So a champion that happened to roll `(6393, 1)` from its own drop
-    // list adds nothing, while one that rolled only *some* of a multi-item
-    // reward list gets the entire list appended, duplicating the one it
-    // already had. Faithful to the quirk rather than to the intent.
-    if champion {
-        let roll = world.roll(100);
-        if !champion_cfg.suppresses_reward_items(t.level, killer_level, roll) {
-            let contains_all = champion_cfg
-                .reward_items
-                .iter()
-                .all(|reward| out.contains(reward));
-            if !contains_all {
-                out.extend_from_slice(&champion_cfg.reward_items);
-            }
-        }
-    }
-    out
+    let ctx = DropCtx {
+        killer_level,
+        victim_level: t.level,
+        adena_gap_chance,
+        item_gap_chance,
+        occurrences: if is_raid {
+            r.drop_max_occurrences_raidboss
+        } else {
+            r.drop_max_occurrences_normal
+        },
+        is_raid,
+        champion,
+        premium: world.cfg.premium.enabled
+            && crate::game_loop::admin::premium::has_premium_status(world, killer_oid),
+        chance_mult: r.death_drop_chance_multiplier,
+        amount_mult: r.death_drop_amount_multiplier,
+        herb_chance_mult: r.herb_drop_chance_multiplier,
+        herb_amount_mult: r.herb_drop_amount_multiplier,
+        raid_chance_mult: r.raid_drop_chance_multiplier,
+        raid_amount_mult: r.raid_drop_amount_multiplier,
+        by_id_chance: r.drop_chance_by_id.clone(),
+        by_id_amount: r.drop_amount_by_id.clone(),
+        champion_cfg: world.cfg.champion.clone(),
+    };
+    Some(ctx)
 }
 
 /// The amount half of `calculateGroupDrop`/`calculateUngroupedDrop`: a uniform
@@ -692,62 +965,19 @@ fn auto_loots(world: &World, item_id: i32, is_raid: bool) -> bool {
     }
 }
 
-/// `NpcTemplate.calculateDrops(DropType.SPOIL)` — the `<spoil>` list only
-/// (never grouped, never adena), rolled with the spoil rate multipliers. Mirrors
-/// `roll_drops`' ungrouped path but: the `SPOIL` branch of
-/// `calculateUngroupedDrop` seeds `rateChance`/`rateAmount` from the spoil
-/// multipliers and does **not** read the per-item `RATE_DROP_*_BY_ID` overrides.
-/// The item-level-gap gate still applies (spoil items are never adena).
+/// `NpcTemplate.calculateDrops(DropType.SPOIL)` — the `<spoil>` list through
+/// the shared ungrouped pass, which is exactly what Java does: same loop, same
+/// occurrence budget and level-gap gate, with the `SPOIL` arm of
+/// `calculateUngroupedDrop` supplying the rates.
 fn roll_spoil_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, i64)> {
     if t.drop_list_spoil.is_empty() {
         return Vec::new();
     }
-    let Some(killer) = world.objects.get_component::<Player>(&killer_oid) else {
+    let Some(ctx) = drop_ctx(world, t, killer_oid, false) else {
         return Vec::new();
     };
-    let level_diff = (t.level - killer.level) as f64;
-    let r = &world.cfg.rates;
-    let item_gap_chance = formulas::map_range(
-        level_diff,
-        -(r.drop_item_max_level_difference as f64),
-        -(r.drop_item_min_level_difference as f64),
-        r.drop_item_min_level_gap_chance,
-        100.0,
-    );
-    let mut occurrences = r.drop_max_occurrences_normal;
-    let mut chance_mult = r.spoil_drop_chance_multiplier;
-    let mut amount_mult = r.spoil_drop_amount_multiplier;
-    // The SPOIL branch's premium block is the flat pair only — no per-item
-    // overrides, no herb/raid special-casing.
-    if world.cfg.premium.enabled
-        && crate::game_loop::admin::premium::has_premium_status(world, killer_oid)
-    {
-        chance_mult *= world.cfg.premium.rate_spoil_chance;
-        amount_mult *= world.cfg.premium.rate_spoil_amount;
-    }
-
-    let mut out = Vec::new();
-    for drop in &t.drop_list_spoil {
-        if occurrences == 0 && drop.chance < 100.0 {
-            continue;
-        }
-        // Level-gap gate (item gap — spoil never contains adena).
-        if world.roll_f64() * 100.0 > item_gap_chance {
-            continue;
-        }
-        // Chance roll.
-        let chance = drop.chance * chance_mult;
-        if world.roll_f64() * 100.0 >= chance {
-            continue;
-        }
-        // Amount.
-        let count = rolled_count(world, drop, amount_mult);
-        if drop.chance < 100.0 {
-            occurrences -= 1;
-        }
-        out.push((drop.item_id, count));
-    }
-    out
+    let list = t.drop_list_spoil.clone();
+    calculate_ungrouped_drops(world, &list, true, &ctx)
 }
 
 /// `Player.addItem` (auto-loot path): stack or create, persist, notify.
