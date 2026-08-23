@@ -499,7 +499,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         | "admin_premium_add2"
         | "admin_premium_add3"
         | "admin_premium_info"
-        | "admin_premium_remove" => admin_premium(world, client_id, command, &args),
+        | "admin_premium_remove" => admin_premium(world, client_id, object_id, command, &args),
         // Spawn-line inspection + teleport-to-index (`goSpawn`/`goPosition`).
         "admin_list_spawns" => admin_list_spawns(world, client_id, object_id, &args, false),
         "admin_list_positions" => admin_list_spawns(world, client_id, object_id, &args, true),

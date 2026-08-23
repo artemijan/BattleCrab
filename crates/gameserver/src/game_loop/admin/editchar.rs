@@ -661,6 +661,10 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
+    // Java clamps inside the setter — `setRecomHave` is
+    // `Math.min(Math.max(value, 0), 255)` — so `//rec 99999` lands on 255 and
+    // `//rec -5` on 0 rather than storing the number typed (GitHub #7).
+    let val = crate::game_loop::reco::clamp_reco(val);
     let name = world
         .objects
         .get_component_mut::<Player>(&target)

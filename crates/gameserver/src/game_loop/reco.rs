@@ -24,7 +24,7 @@ pub(crate) const RECO_GIVE_INITIAL_DELAY: u64 = 72_000;
 const RECO_GIVE_PERIOD: u64 = 36_000;
 
 /// Java `Player.setRecomHave`/`setRecomLeft`: clamp to `0..=255`.
-fn clamp_reco(value: i32) -> i32 {
+pub(crate) fn clamp_reco(value: i32) -> i32 {
     value.clamp(0, 255)
 }
 
