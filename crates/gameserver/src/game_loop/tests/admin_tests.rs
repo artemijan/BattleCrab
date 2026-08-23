@@ -7735,3 +7735,85 @@ fn para_sends_the_abnormal_visual_to_the_target() {
     let effects = ave_effect_count(&drain(&mut victim_rx));
     assert_eq!(effects, Some(0), "and about it going away");
 }
+
+/// **`//list_spawns` takes a name as well as an id** (GitHub #4). Java
+/// concatenates the middle words of the command and, when they aren't a
+/// number, resolves them through `NpcData.getTemplateByName` — so typing a
+/// name into the menu's box is meant to work. It answered with the usage line
+/// instead.
+#[test]
+fn list_spawns_accepts_an_npc_name() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7701, 100);
+    drain(&mut gm_rx);
+
+    let npc_oid = NPC_OID + 71;
+    let npc_id = 90401;
+    let mut template = crate::data::npc_data::default_template(npc_id);
+    template.type_name = "Monster".into();
+    template.name = "Rotting Tree".into();
+    world.data.npc_data.insert_for_test(template);
+    add_test_npc(
+        &mut world, npc_oid, npc_id, "Monster", 1, 31_337, 42_042, 100,
+    );
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("list_spawns Rotting Tree"),
+        ]
+        .concat(),
+    );
+
+    let texts: Vec<String> = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| system_message_text(p))
+        .collect();
+    assert!(
+        texts.iter().all(|t| !t.contains("Command format")),
+        "the name resolved rather than falling back to usage: {texts:?}"
+    );
+    assert!(
+        texts.iter().any(|t| t.contains("31337")),
+        "and the spawn is listed: {texts:?}"
+    );
+}
+
+/// **`//find_dualbox` renders the panel** (GitHub #6). Java fills
+/// `dualbox.htm`'s `%multibox%` / `%results%` and sends it; the port printed the
+/// hits to system chat, losing both the `admin_find_ip` links and the
+/// re-run buttons.
+#[test]
+fn find_dualbox_sends_the_panel_not_chat_lines() {
+    let (mut world, ..) = admin_world();
+    world.data.root = crate::data::DIST_GAME.to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7702, 100);
+    drain(&mut gm_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("find_dualbox"),
+        ]
+        .concat(),
+    );
+
+    let packets = drain(&mut gm_rx);
+    assert!(
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        "the dualbox panel is sent as html"
+    );
+    assert!(
+        packets
+            .iter()
+            .filter_map(|p| system_message_text(p))
+            .all(|t| !t.contains("=== Dualbox")),
+        "and not as chat lines"
+    );
+}

@@ -262,15 +262,31 @@ pub(super) fn admin_list_spawns(
     args: &[&str],
     show_position: bool,
 ) {
-    let Some(npc_id) = helpers::nth_arg::<i32>(args, 0) else {
+    // Java takes an id **or a name**: it concatenates the middle words of the
+    // command and, if that isn't a number, resolves it through
+    // `NpcData.getTemplateByName`. A GM typing "Goblin" into the menu's box got
+    // the usage line here instead of a list (GitHub #4).
+    let tele_index = helpers::nth_arg::<i32>(args, 1);
+    let name_words = if tele_index.is_some() {
+        &args[..args.len() - 1]
+    } else {
+        args
+    };
+    let npc_id = match helpers::nth_arg::<i32>(args, 0) {
+        Some(id) if name_words.len() <= 1 => Some(id),
+        _ => {
+            let name = name_words.join(" ");
+            world.data.npc_data.get_by_name(name.trim()).map(|t| t.id)
+        }
+    };
+    let Some(npc_id) = npc_id else {
         send_message(
             world,
             client_id,
-            "Command format is //list_spawns <npcId> [tele_index]",
+            "Command format is //list_spawns <npcId|npc_name> [tele_index]",
         );
         return;
     };
-    let tele_index = helpers::nth_arg::<i32>(args, 1);
 
     // One entry per live spawn of this id, which is Java's `SpawnTable` row:
     // the point the spawn was placed at, and where its NPC is standing now.

@@ -467,7 +467,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_login_ban" => admin_login_ban(world, client_id, &args),
         "admin_login_unban" => admin_login_unban(world, client_id, &args),
         "admin_find_ip" => admin_find_ip(world, client_id, &args),
-        "admin_find_dualbox" => admin_find_dualbox(world, client_id, &args),
+        "admin_find_dualbox" => admin_find_dualbox(world, client_id, &args, false),
         "admin_tracert" => admin_tracert(world, client_id, object_id, &args),
         "admin_snoop" => admin_snoop(world, client_id, object_id, &args),
         "admin_hwid" | "admin_hwinfo" => admin_hwid(world, client_id, object_id, &args),
@@ -907,7 +907,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_show_pet_inv" => admin_show_pet_inv(world, client_id, object_id, &args),
         // Strict = plain dualbox grouping: Java narrows by IP+tracert pack,
         // and no per-client tracert is recorded in this port.
-        "admin_strict_find_dualbox" => admin_find_dualbox(world, client_id, &args),
+        "admin_strict_find_dualbox" => admin_find_dualbox(world, client_id, &args, true),
         // `AdminPunishment` console + `AdminMenu` ban wrappers + `//force_peti`.
         "admin_punishment" => admin_punishment(world, client_id, object_id, &args),
         "admin_punishment_add" => admin_punishment_add(world, client_id, object_id, &args),
