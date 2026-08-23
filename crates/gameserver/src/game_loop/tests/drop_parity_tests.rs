@@ -10,6 +10,18 @@
 //! divergence in **roll order** fails it just as loudly as a divergence in the
 //! arithmetic, which is what makes it a parity test rather than a re-statement
 //! of the port.
+//!
+//! **The transcription duplicates the port on purpose, and the shape of the
+//! duplicate matters.** A parity test that reached into `death::rewards` for
+//! the occurrence bookkeeping would be comparing the port with itself; the copy
+//! *is* the instrument. But it has to be a copy of **Java**, not of the port —
+//! an earlier draft of this file mirrored the port's `OccurrenceBudget` helper
+//! method for method, which reads as a second opinion and is not one: a shared
+//! misreading of `NpcTemplate.java` would have agreed with itself. So the two
+//! loops below keep `dropOccurrenceCounter`, `randomDrops` and `cachedItem` as
+//! loop locals exactly where Java declares them — which also makes visible the
+//! three places Java's grouped and ungrouped passes differ, differences the
+//! shared helper had flattened into an `evict: bool`.
 
 use super::*;
 
@@ -142,79 +154,6 @@ mod java {
         ((base as f64) * rate).round().max(1.0) as i64
     }
 
-    /// ```java
-    /// if ((dropOccurrenceCounter == 0) && (chance < 100) && (randomDrops != null) && (calculatedDrops != null))
-    /// {
-    ///     if ((rateChance == 1) && !randomDrops.isEmpty()) { cachedItem = randomDrops.remove(0); calculatedDrops.remove(cachedItem); }
-    ///     dropOccurrenceCounter = 1;
-    /// }
-    /// ```
-    struct Budget {
-        counter: i32,
-        calculated: Vec<(i32, i64)>,
-        random: Vec<(i32, i64)>,
-        cached: Option<(i32, i64)>,
-    }
-
-    impl Budget {
-        fn new(counter: i32) -> Self {
-            Self {
-                counter,
-                calculated: Vec::new(),
-                random: Vec::new(),
-                cached: None,
-            }
-        }
-
-        fn make_room(&mut self, chance: f64, evict: bool) {
-            if self.counter != 0
-                || chance >= 100.0
-                || self.random.is_empty()
-                || self.calculated.is_empty()
-            {
-                return;
-            }
-            if evict {
-                let cached = self.random.remove(0);
-                if let Some(pos) = self.calculated.iter().position(|&i| i == cached) {
-                    self.calculated.remove(pos);
-                }
-                self.cached = Some(cached);
-            }
-            self.counter = 1;
-        }
-
-        fn record(
-            &mut self,
-            cfg: &Cfg,
-            item_id: i32,
-            chance: f64,
-            item: (i32, i64),
-            evictable: bool,
-        ) {
-            let under_100 = match cfg.by_id_chance.get(&item_id) {
-                Some(&by_id) => chance * by_id < 100.0,
-                None => chance < 100.0,
-            };
-            if under_100 {
-                self.counter -= 1;
-                if evictable {
-                    self.random.push(item);
-                }
-            }
-            self.calculated.push(item);
-        }
-
-        fn finish(mut self) -> Vec<(i32, i64)> {
-            if self.counter > 0
-                && let Some(cached) = self.cached
-            {
-                self.calculated.push(cached);
-            }
-            self.calculated
-        }
-    }
-
     /// `calculateDrops(DropType.DROP, …)` — group pass then ungrouped pass,
     /// each with its own budget.
     pub fn calculate_drops(
@@ -259,6 +198,12 @@ mod java {
         )
     }
 
+    /// `calculateGroupDrops`, written the way Java writes it — the counter,
+    /// `randomDrops` and `cachedItem` as locals of the loop rather than as a
+    /// helper, so the two functions' bookkeeping stays visibly *different*
+    /// (the ungrouped one below evicts unconditionally; this one only at x1
+    /// rates, and only this one `break`s):
+    ///
     /// ```java
     /// for (DropGroupHolder group : _dropGroups) {
     ///     totalChance = 0;
@@ -266,15 +211,21 @@ mod java {
     ///         …
     ///         if (rateChance == 1) totalChance += dropItem.getChance(); else totalChance = dropItem.getChance();
     ///         final double groupItemChance = totalChance * (group.getChance() / 100) * rateChance;
-    ///         …
+    ///         if ((dropOccurrenceCounter == 0) && (groupItemChance < 100) && (randomDrops != null) && (calculatedDrops != null)) {
+    ///             if ((rateChance == 1) && !randomDrops.isEmpty()) { cachedItem = randomDrops.remove(0); calculatedDrops.remove(cachedItem); }
+    ///             dropOccurrenceCounter = 1;
+    ///         }
     ///         if ((Rnd.nextDouble() * 100) > levelGapChance) continue GROUP_DROP;
     ///         final ItemHolder drop = calculateGroupDrop(group, dropItem, victim, killer, groupItemChance);
     ///         if (drop == null) continue GROUP_DROP;
-    ///         …
+    ///         final Float itemChance = Config.RATE_DROP_CHANCE_BY_ID.get(dropItem.getItemId());
+    ///         if (itemChance != null) { if ((groupItemChance * itemChance) < 100) { dropOccurrenceCounter--; if (rateChance == 1) randomDrops.add(drop); } }
+    ///         else if (groupItemChance < 100) { dropOccurrenceCounter--; if (rateChance == 1) randomDrops.add(drop); }
     ///         calculatedDrops.add(drop);
     ///         if (rateChance == 1) break;
     ///     }
     /// }
+    /// if ((dropOccurrenceCounter > 0) && (cachedItem != null)) calculatedDrops.add(cachedItem);
     /// ```
     fn group_drops(
         t: &NpcTemplate,
@@ -283,25 +234,42 @@ mod java {
         rolls: &Rolls,
     ) -> Vec<(i32, i64)> {
         let (adena_gap, item_gap) = gaps(t, killer_level, cfg);
-        let counter = if t.is_raid() {
+        let mut drop_occurrence_counter = if t.is_raid() {
             cfg.occurrences_raid
         } else {
             cfg.occurrences_normal
         };
-        let mut budget = Budget::new(counter);
-        if counter > 0 {
+        let mut calculated_drops: Vec<(i32, i64)> = Vec::new();
+        let mut random_drops: Vec<(i32, i64)> = Vec::new();
+        let mut cached_item: Option<(i32, i64)> = None;
+        if drop_occurrence_counter > 0 {
             for group in &t.drop_groups {
                 let mut total_chance = 0.0;
-                for drop in &group.items {
-                    let rate = rate_chance(cfg, drop.item_id);
-                    if rate == 1.0 {
-                        total_chance += drop.chance;
+                for drop_item in &group.items {
+                    let rate_chance = rate_chance(cfg, drop_item.item_id);
+                    if rate_chance == 1.0 {
+                        total_chance += drop_item.chance;
                     } else {
-                        total_chance = drop.chance;
+                        total_chance = drop_item.chance;
                     }
-                    let group_item_chance = total_chance * (group.chance / 100.0) * rate;
-                    budget.make_room(group_item_chance, rate == 1.0);
-                    let gap = if drop.item_id == ADENA {
+                    let group_item_chance = total_chance * (group.chance / 100.0) * rate_chance;
+
+                    if drop_occurrence_counter == 0
+                        && group_item_chance < 100.0
+                        && !random_drops.is_empty()
+                        && !calculated_drops.is_empty()
+                    {
+                        if rate_chance == 1.0 && !random_drops.is_empty() {
+                            let item = random_drops.remove(0);
+                            if let Some(pos) = calculated_drops.iter().position(|&d| d == item) {
+                                calculated_drops.remove(pos);
+                            }
+                            cached_item = Some(item);
+                        }
+                        drop_occurrence_counter = 1;
+                    }
+
+                    let gap = if drop_item.item_id == ADENA {
                         adena_gap
                     } else {
                         item_gap
@@ -312,21 +280,58 @@ mod java {
                     if rolls.next_f64() * 100.0 >= group_item_chance {
                         continue;
                     }
-                    let item = (
-                        drop.item_id,
-                        amount(rolls, drop, rate_amount(cfg, drop.item_id)),
+                    let drop = (
+                        drop_item.item_id,
+                        amount(rolls, drop_item, rate_amount(cfg, drop_item.item_id)),
                     );
-                    budget.record(cfg, drop.item_id, group_item_chance, item, rate == 1.0);
-                    if rate == 1.0 {
+
+                    let under_100 = match cfg.by_id_chance.get(&drop_item.item_id) {
+                        Some(&item_chance) => group_item_chance * item_chance < 100.0,
+                        None => group_item_chance < 100.0,
+                    };
+                    if under_100 {
+                        drop_occurrence_counter -= 1;
+                        if rate_chance == 1.0 {
+                            random_drops.push(drop);
+                        }
+                    }
+                    calculated_drops.push(drop);
+                    if rate_chance == 1.0 {
                         break;
                     }
                 }
             }
         }
-        budget.finish()
+        if drop_occurrence_counter > 0
+            && let Some(item) = cached_item
+        {
+            calculated_drops.push(item);
+        }
+        calculated_drops
     }
 
-    /// `calculateUngroupedDrops(DropType.DROP, …)`.
+    /// `calculateUngroupedDrops`, likewise inline:
+    ///
+    /// ```java
+    /// for (DropHolder dropItem : dropList) {
+    ///     if ((dropOccurrenceCounter == 0) && (dropItem.getChance() < 100) && (randomDrops != null) && (calculatedDrops != null)) {
+    ///         cachedItem = randomDrops.remove(0);
+    ///         calculatedDrops.remove(cachedItem);
+    ///         dropOccurrenceCounter = 1;
+    ///     }
+    ///     if ((Rnd.nextDouble() * 100) > levelGapChance) continue;
+    ///     final ItemHolder drop = calculateUngroupedDrop(dropItem, victim, killer);
+    ///     if (drop == null) continue;
+    ///     final Float itemChance = Config.RATE_DROP_CHANCE_BY_ID.get(dropItem.getItemId());
+    ///     if (itemChance != null) { if ((dropItem.getChance() * itemChance) < 100) { dropOccurrenceCounter--; randomDrops.add(drop); } }
+    ///     else if (dropItem.getChance() < 100) { dropOccurrenceCounter--; randomDrops.add(drop); }
+    ///     calculatedDrops.add(drop);
+    /// }
+    /// ```
+    ///
+    /// Note what is *missing* against the grouped pass: no `rateChance == 1`
+    /// guard on the eviction, nothing added to `randomDrops` conditionally, and
+    /// no `break`. Three differences that a shared helper would have hidden.
     fn ungrouped_drops(
         list: &[DropHolder],
         t: &NpcTemplate,
@@ -335,16 +340,30 @@ mod java {
         rolls: &Rolls,
     ) -> Vec<(i32, i64)> {
         let (adena_gap, item_gap) = gaps(t, killer_level, cfg);
-        let counter = if t.is_raid() {
+        let mut drop_occurrence_counter = if t.is_raid() {
             cfg.occurrences_raid
         } else {
             cfg.occurrences_normal
         };
-        let mut budget = Budget::new(counter);
-        if counter > 0 {
-            for drop in list {
-                budget.make_room(drop.chance, true);
-                let gap = if drop.item_id == ADENA {
+        let mut calculated_drops: Vec<(i32, i64)> = Vec::new();
+        let mut random_drops: Vec<(i32, i64)> = Vec::new();
+        let mut cached_item: Option<(i32, i64)> = None;
+        if drop_occurrence_counter > 0 {
+            for drop_item in list {
+                if drop_occurrence_counter == 0
+                    && drop_item.chance < 100.0
+                    && !random_drops.is_empty()
+                    && !calculated_drops.is_empty()
+                {
+                    let item = random_drops.remove(0);
+                    if let Some(pos) = calculated_drops.iter().position(|&d| d == item) {
+                        calculated_drops.remove(pos);
+                    }
+                    cached_item = Some(item);
+                    drop_occurrence_counter = 1;
+                }
+
+                let gap = if drop_item.item_id == ADENA {
                     adena_gap
                 } else {
                     item_gap
@@ -352,18 +371,32 @@ mod java {
                 if rolls.next_f64() * 100.0 > gap {
                     continue;
                 }
-                let rate = rate_chance(cfg, drop.item_id);
-                if rolls.next_f64() * 100.0 >= drop.chance * rate {
+                let rate_chance = rate_chance(cfg, drop_item.item_id);
+                if rolls.next_f64() * 100.0 >= drop_item.chance * rate_chance {
                     continue;
                 }
-                let item = (
-                    drop.item_id,
-                    amount(rolls, drop, rate_amount(cfg, drop.item_id)),
+                let drop = (
+                    drop_item.item_id,
+                    amount(rolls, drop_item, rate_amount(cfg, drop_item.item_id)),
                 );
-                budget.record(cfg, drop.item_id, drop.chance, item, true);
+
+                let under_100 = match cfg.by_id_chance.get(&drop_item.item_id) {
+                    Some(&item_chance) => drop_item.chance * item_chance < 100.0,
+                    None => drop_item.chance < 100.0,
+                };
+                if under_100 {
+                    drop_occurrence_counter -= 1;
+                    random_drops.push(drop);
+                }
+                calculated_drops.push(drop);
             }
         }
-        budget.finish()
+        if drop_occurrence_counter > 0
+            && let Some(item) = cached_item
+        {
+            calculated_drops.push(item);
+        }
+        calculated_drops
     }
 }
 

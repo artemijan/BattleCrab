@@ -298,14 +298,82 @@ pub(super) fn admin_kill(
     kill_creature(world, target, object_id);
 }
 
-/// Java `AdminKill.kill` — deal lethal damage. Players lose their effects first
-/// (unless a GM); we route straight through the death path (`reduceCurrentHp`
-/// with a huge value in Java), which the admin invul flag on the direct-kill
-/// path does not block.
+/// Java `AdminKill.kill` — **deal lethal damage**, rather than call the death
+/// path directly:
+///
+/// ```java
+/// if (target.isPlayer())
+/// {
+///     if (!target.isGM()) target.stopAllEffects(); // e.g. invincibility effect
+///     target.reduceCurrentHp(target.getMaxHp() + target.getMaxCp() + 1, activeChar, null);
+/// }
+/// else if (Config.CHAMPION_ENABLE && target.isChampion())
+///     target.reduceCurrentHp((target.getMaxHp() * Config.CHAMPION_HP) + 1, activeChar, null);
+/// else
+/// {
+///     // (invul is cleared around the blow and restored after)
+///     target.reduceCurrentHp(target.getMaxHp() + 1, activeChar, null);
+/// }
+/// ```
+///
+/// **Going through the damage path is the whole point.** The reward split reads
+/// the victim's `AggroList`, which only the damage path writes, so a kill that
+/// registers no damage has no damage dealer: this used to call `npc_do_die`
+/// straight and a GM got neither exp nor drops off it — the corpse of a mob
+/// with a full drop table came up empty, which is exactly the case a GM runs
+/// `//kill` to check. Found by driving the real server (`e2e_create::drop_check`).
+///
+/// Two of Java's clauses have no counterpart here and are left out rather than
+/// faked: NPCs carry no invulnerability flag in this port (`AdminFlags` is a
+/// player component), so there is nothing to clear and restore around the blow;
+/// and a player's own `//invul` **is** honoured by the damage path, which is
+/// what Java does too — its `reduceCurrentHp` refuses on `isInvul` and only the
+/// non-player branch clears the flag first.
 fn kill_creature(world: &mut World, target: i32, killer_oid: i32) {
+    use crate::game_loop::combat::apply_physical_damage;
+
     if world.objects.has_component::<Player>(&target) {
-        super::death::player_do_die(world, target, killer_oid);
+        // `if (!target.isGM()) target.stopAllEffects();` — the invincibility
+        // *buff* (not the GM flag) is the one Java names, and stripping it is
+        // why the sweep comes before the blow.
+        let target_is_gm = world
+            .objects
+            .get_component::<Player>(&target)
+            .is_some_and(|p| p.is_gm(&world.data));
+        if !target_is_gm {
+            crate::game_loop::skills::effects::expire_buffs_where(world, target, |_, _| true);
+        }
+        let Some(max_hp) = world
+            .objects
+            .get_component::<Vitals>(&target)
+            .map(|v| v.max_hp)
+        else {
+            return;
+        };
+        let max_cp = world
+            .objects
+            .get_component::<PlayerVitals>(&target)
+            .map_or(0, |v| v.max_cp);
+        let lethal = f64::from(max_hp) + f64::from(max_cp) + 1.0;
+        apply_physical_damage(world, killer_oid, target, lethal, false, false);
     } else if world.objects.has_component::<Npc>(&target) {
-        super::death::npc_do_die(world, target, killer_oid);
+        let Some(max_hp) = world
+            .objects
+            .get_component::<Vitals>(&target)
+            .map(|v| v.max_hp)
+        else {
+            return;
+        };
+        let champion = world.cfg.champion.enable
+            && world
+                .objects
+                .get_component::<Npc>(&target)
+                .is_some_and(|n| n.champion);
+        let lethal = if champion {
+            f64::from(max_hp) * f64::from(world.cfg.champion.hp) + 1.0
+        } else {
+            f64::from(max_hp) + 1.0
+        };
+        apply_physical_damage(world, killer_oid, target, lethal, false, false);
     }
 }

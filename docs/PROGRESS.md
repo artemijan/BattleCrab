@@ -9891,3 +9891,88 @@ on *every* kill; it now does. Its eight item lines multiply out to ≈40 % for
 each total ≈100 % internally, so under Java's cumulative rule a group pays out
 about `group.chance` of the time and the mob almost always drops one thing —
 which is the 196/200, against 61/200 before.
+
+---
+
+## `//kill` paid out nothing, and the harness is what noticed
+
+The in-game drop check began by killing its target with `//kill_monster`, and
+printed nothing at all for thirty rounds — no loot, no exp, just the admin's own
+"Killed all characters within a 600 unit radius." The harness had to nuke each
+mob down by hand instead, which is how the run got its numbers.
+
+That detour was the finding. `AdminKill.kill` in Java does not call the death
+path:
+
+```java
+target.reduceCurrentHp(target.getMaxHp() + 1, activeChar, null);
+```
+
+It deals **damage**, and the GM therefore lands in the victim's aggro list. The
+reward split reads exactly that list and nothing else — `calculateRewards`
+iterates the damage entries — so damage is what makes a kill pay. The port's
+`kill_creature` called `npc_do_die` straight, and a GM killing a mob with a full
+drop table got an empty corpse, which is the one thing `//kill` is used to
+check.
+
+Now routed through `apply_physical_damage`, with the three arms Java has: a
+player takes `maxHp + maxCp + 1` after `stopAllEffects` (skipped for a GM
+target), a champion `maxHp × ChampionHp + 1`, everything else `maxHp + 1`. Two
+of Java's clauses have no counterpart and are left out with the reason written
+down: NPCs carry no invulnerability flag here, so there is nothing to clear and
+restore around the blow, and a player's own `//invul` is honoured by the damage
+path — which is Java's behaviour too, since only its non-player branch clears
+the flag first.
+
+The same fifteen rounds through `//kill_monster` after the fix:
+
+```
+kill  1: adena 540  items []      sm [1983, 28, 3259, 1983, 96, 1983]
+kill  2: adena 660  items [1788]  sm [1983, 28, 30, 3259, 96, 1983]
+…
+adena dropped in 15 · an item dropped in 9 · nothing at all in 0
+```
+
+Exp (3259), level-ups (96) and loot (28/30) where there had been silence.
+
+### The duplicate that was a copy of the wrong thing
+
+A reviewer spotted `make_room` living twice — once in the port's
+`OccurrenceBudget`, once in the drop-parity transcription — and asked why. The
+duplication is the instrument: a parity test that called into `death::rewards`
+for the occurrence bookkeeping would be comparing the port with itself. But the
+first draft had copied it from the **port**, method for method, and that is the
+weak form: a shared misreading of `NpcTemplate.java` would have agreed with
+itself and passed.
+
+The transcription now keeps `dropOccurrenceCounter`, `randomDrops` and
+`cachedItem` as loop locals where Java declares them, with the Java quoted above
+each loop. Rewriting it that way surfaced something the shared helper had
+flattened: the grouped and ungrouped passes differ in **three** places — the
+eviction is guarded by `rateChance == 1` in one and unconditional in the other,
+`randomDrops.add` likewise, and only the grouped pass `break`s — and the shared
+`evict: bool` parameter had turned all three into one. The sweep still passes,
+and all three sabotages (drop the `break`, drop the by-id half of the budget
+test, drop the eviction) still fail it.
+
+One of those sabotage runs was itself a lesson: it came back green, and the
+reason was that `cargo fmt` had wrapped the call the sabotage script matched on,
+so the patch silently applied nothing. A sabotage that reports "no failure" is
+only evidence once you have checked it actually changed the code.
+
+### The fixture cost more than the fix
+
+`admin_kill_on_a_monster_awards_its_drops` took four rounds of archaeology to
+write, and every one of them was the fixture rather than the code: `dummy_char`
+spawns with an empty HP bar, so the GM was dead and the reward loop skipped it;
+the mob spawned at the origin while the character stood at the mage start, out
+of `RewardRange`; the test config leaves `AutoLoot` off, so the drop went to the
+ground; and `world.id_pool` starts empty, so auto-loot could not mint the item
+instance at all. Each one produced the same symptom — an empty inventory — and
+none of them was the thing under test.
+
+Worth saying because the in-game harness found the bug in one run and the unit
+test took an hour to reproduce it. The harness is slower per run and much
+faster per finding, and the two are complements: the test guards the mechanism
+(the GM lands in the aggro list with damage against them), the harness is what
+shows a player would see the loot.

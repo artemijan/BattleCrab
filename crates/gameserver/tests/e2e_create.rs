@@ -1102,68 +1102,26 @@ async fn drop_check() {
             continue;
         };
 
-        // Click it (Action → target), then nuke it with Wind Strike, which a
-        // level-1 Human Mystic starts with. Re-cast until it dies.
-        let mut w = PacketWriter::new();
-        w.write_u8(0x1F); // Action
-        w.write_i32(mob_oid);
-        w.write_i32(0);
-        w.write_i32(0);
-        w.write_i32(0);
-        w.write_u8(0);
-        g.send(&w.into_bytes()).await;
+        // Kill it the way a GM checking a drop table would: `//kill_monster`,
+        // which deals `maxHp + 1` **as damage** and so registers the GM as the
+        // damage dealer the reward split reads. (Before that fix this printed
+        // nothing at all, and the harness had to nuke each mob down by hand.)
+        admin(&mut g, "admin_kill_monster 600").await;
 
         let (mut adena, mut items) = (0i64, Vec::new());
         let mut seen_ids: Vec<i16> = Vec::new();
         let mut messages: Vec<String> = Vec::new();
         let mut died = false;
-        let deadline = tokio::time::Instant::now() + Duration::from_millis(12_000);
-        let mut next_cast = tokio::time::Instant::now();
-        while !died && tokio::time::Instant::now() < deadline {
-            if tokio::time::Instant::now() >= next_cast {
-                let mut w = PacketWriter::new();
-                w.write_u8(0x39); // RequestMagicSkillUse
-                w.write_i32(1177); // Wind Strike
-                w.write_i32(0); // ctrl
-                w.write_u8(0); // shift
-                g.send(&w.into_bytes()).await;
-                next_cast = tokio::time::Instant::now() + Duration::from_millis(1600);
-            }
-            let left = std::cmp::min(
-                deadline.saturating_duration_since(tokio::time::Instant::now()),
-                next_cast.saturating_duration_since(tokio::time::Instant::now()),
-            );
-            let Ok(pkt) = tokio::time::timeout(left.max(Duration::from_millis(1)), g.recv()).await
-            else {
-                continue;
+        let deadline = tokio::time::Instant::now() + Duration::from_millis(1200);
+        while tokio::time::Instant::now() < deadline {
+            let left = deadline.saturating_duration_since(tokio::time::Instant::now());
+            let Ok(pkt) = tokio::time::timeout(left, g.recv()).await else {
+                break;
             };
-            // `Die` (0x00) for the mob we are hitting ends the round.
+            // `Die` (0x00) for the mob we just killed.
             if pkt[0] == 0x00 && i32::from_le_bytes(pkt[1..5].try_into().unwrap()) == mob_oid {
                 died = true;
-                // Give the reward/drop burst a moment to arrive.
-                let tail = tokio::time::Instant::now() + Duration::from_millis(400);
-                while tokio::time::Instant::now() < tail {
-                    let left = tail.saturating_duration_since(tokio::time::Instant::now());
-                    let Ok(pkt) = tokio::time::timeout(left, g.recv()).await else {
-                        break;
-                    };
-                    if pkt[0] != 0x62 {
-                        continue;
-                    }
-                    let (id, item_ids, longs, texts) = parse_sm(&pkt);
-                    seen_ids.push(id);
-                    messages.extend(texts);
-                    match id {
-                        28 => adena += longs.first().copied().unwrap_or(0),
-                        29 | 30 => {
-                            if let Some(&item) = item_ids.first() {
-                                items.push(item);
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-                break;
+                continue;
             }
             if pkt[0] != 0x62 {
                 continue;

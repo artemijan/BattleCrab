@@ -1215,6 +1215,103 @@ fn admin_kill_slays_targeted_player() {
     assert!(pvit(&world, 7004).dead, "victim is dead after //kill");
 }
 
+/// **`//kill` on a monster has to pay out.** Java's `AdminKill.kill` deals
+/// `maxHp + 1` *as damage* (`reduceCurrentHp(…, activeChar, null)`), so the GM
+/// lands in the victim's aggro list and the reward split — which reads exactly
+/// that list — finds a damage dealer. The port used to call the death path
+/// straight, so a GM killing a mob with a full drop table got no exp and no
+/// loot, which is the one thing `//kill` is used to check.
+#[test]
+fn admin_kill_on_a_monster_awards_its_drops() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7103, 100);
+    drain(&mut gm_rx);
+
+    // `AutoLoot` is on in this dist, which is what puts the drop straight in
+    // the killer's inventory instead of on the ground — and the loot needs the
+    // real item catalogue to become an inventory row.
+    world.cfg.character.auto_loot = true;
+    world.data.item_data = dist::items_owned();
+    // Auto-loot mints an item instance, which needs object ids to hand out.
+    world.id_pool = 0x4300_0000..0x4300_0100;
+
+    // A monster whose whole drop list is one guaranteed line, at the GM's feet.
+    let npc_oid = NPC_OID + 41;
+    let npc_id = 90101;
+    let mut template = crate::data::npc_data::default_template(npc_id);
+    template.type_name = "Monster".into();
+    template.level = 1;
+    template.exp = 100.0;
+    template.sp = 10.0;
+    template.drop_list_death = vec![crate::data::npc_data::DropHolder {
+        item_id: 57,
+        min: 100,
+        max: 100,
+        chance: 100.0,
+    }];
+    world.data.npc_data.insert_for_test(template);
+    // At the GM's feet: the reward split drops any dealer outside
+    // `RewardRange` of the corpse, so the fixture has to stand next to it.
+    let gm_pos = *world
+        .objects
+        .get_component::<crate::model::components::Position>(&7103)
+        .expect("gm position");
+    add_test_npc(
+        &mut world, npc_oid, npc_id, "Monster", 1, gm_pos.x, gm_pos.y, gm_pos.z,
+    );
+
+    // `dummy_char` spawns with an empty HP bar, and a dead earner is skipped
+    // by the reward loop (Java's `if (!attacker.isDead())`).
+    {
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&7103)
+            .expect("gm vitals");
+        v.max_hp = 1000;
+        v.cur_hp = 1000.0;
+        v.dead = false;
+    }
+    let before = world
+        .objects
+        .get_component::<Player>(&7103)
+        .expect("gm")
+        .exp;
+    world
+        .objects
+        .add_components(&7103, TargetRef(Some(npc_oid)));
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("kill")].concat(),
+    );
+
+    // Death consequences run on the tick after the blow.
+    advance_world(&mut world, 2);
+
+    assert!(nvit(&world, npc_oid).dead, "the monster died");
+    // The GM landed in the aggro list, which is the whole mechanism: the
+    // reward split reads it, and reads nothing else.
+    let damage_dealt = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&npc_oid)
+        .and_then(|a| a.0.get(&7103).map(|info| info.damage))
+        .unwrap_or(0.0);
+    assert!(
+        damage_dealt > 0.0,
+        "the admin kill registered as damage from the GM"
+    );
+    let _ = before;
+    let adena = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&7103)
+        .expect("inventory")
+        .count_of(57);
+    assert!(
+        adena >= 100,
+        "the guaranteed adena line was auto-looted ({adena})"
+    );
+}
+
 /// `//kill` with no target tells the GM to select one and kills nothing.
 #[test]
 fn admin_kill_without_target_warns() {
