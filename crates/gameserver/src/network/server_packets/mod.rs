@@ -135,7 +135,7 @@ pub use olympiad::{
 };
 pub use party::{
     PartyMemberView, PartySummonView, ask_join_party, ex_ask_modify_party_looting,
-    ex_inzone_waiting, ex_set_party_looting, join_party, party_member_position,
+    ex_inzone_waiting, ex_set_party_looting, ex_tactical_sign, join_party, party_member_position,
     party_small_window_add, party_small_window_all, party_small_window_delete,
     party_small_window_delete_all, party_small_window_update, party_window_flags,
 };

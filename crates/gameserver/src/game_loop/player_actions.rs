@@ -139,6 +139,12 @@ fn dispatch(
         "BotReport" => {
             crate::game_loop::bot_report::handle_bot_report_action(world, client_id, object_id)
         }
+        "TacticalSignUse" => crate::game_loop::party::handle_tactical_sign_use(
+            world, client_id, object_id, row.option,
+        ),
+        "TacticalSignTarget" => crate::game_loop::party::handle_tactical_sign_target(
+            world, client_id, object_id, row.option,
+        ),
         "PrivateStore" => private_store(world, client_id, row.option),
         "Ride" => ride(world, client_id, object_id),
         "ServitorHold" | "ServitorAttack" | "ServitorStop" | "ServitorSkillUse"

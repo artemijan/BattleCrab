@@ -253,6 +253,8 @@ pub const EX_SHOW_MANOR_DEFAULT_INFO: i16 = 0x25;
 pub const EX_SHOW_SEED_SETTING: i16 = 0x26;
 pub const EX_SHOW_CROP_SETTING: i16 = 0x2B;
 pub const EX_UI_SETTING: i16 = 0x71;
+/// `ExTacticalSign` — the numbered token a party sticks over a creature's head.
+pub const EX_TACTICAL_SIGN: i16 = 0x100;
 pub const EX_ASK_MODIFY_PARTY_LOOTING: i16 = 0xC0;
 pub const EX_SET_PARTY_LOOTING: i16 = 0xC1;
 pub const EX_SHOW_QUEST_MARK: i16 = 0x21;

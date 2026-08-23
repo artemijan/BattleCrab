@@ -2205,9 +2205,18 @@ in `combat::damage::npc_receive_damage`, which makes the toggle mean something
 and matches retail: your pet does not pick fights until you tell it to. The
 damage tally is still kept either way, because kill credit reads it.
 
-Only 13 rows in `ActionData.xml` are left without an arm, and all four handlers
-behind them are post-Interlude: `AirshipAction` (4), `TacticalSignTarget` (4),
-`TacticalSignUse` (4), `TeleportBookmark` (1).
+Only 5 rows in `ActionData.xml` are left without an arm, behind two
+post-Interlude handlers: `AirshipAction` (4) and `TeleportBookmark` (1).
+
+The eight `TacticalSign*` rows were on that list, filed as post-Interlude —
+wrongly. The dist ships them, this client sends them, and a player pressing a
+star on the party window got the "couldn't find handler" warn and nothing else
+(issue #11). They are ported now: `party/tactical.rs` holds `Party`'s four
+sign methods, and the signs live on the party, so a joining member is handed
+the ones already set. Note what the fix does *not* change: a player with no
+party still gets a bare `ActionFailed` from the star, because Java's handler
+bails before touching anything — the signs are party state and there is nowhere
+to put them.
 
 **Row 4 is where row 19 came from.** Java's karma table stops at
 `MaximumPlayerLevel` and `getMultiplier` unboxes straight out of the map, so it
