@@ -1215,6 +1215,243 @@ fn admin_kill_slays_targeted_player() {
     assert!(pvit(&world, 7004).dead, "victim is dead after //kill");
 }
 
+/// **`//list_spawns` / `goSpawn` has to find territory spawns** (GitHub #3).
+/// Java lists `SpawnTable.getSpawns(npcId)` — the live spawn objects — while
+/// this walked the *loaded definitions* and kept only those with a fixed
+/// `<npc>` location. Most of this dist spawns inside `<territory>` polygons,
+/// where the definition carries no point, so the answer was always "No current
+/// spawns found".
+#[test]
+fn list_spawns_finds_a_territory_spawned_npc() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7205, 100);
+    drain(&mut gm_rx);
+
+    // A live NPC with no fixed spawn definition behind it — exactly the shape a
+    // territory spawn produces.
+    let npc_oid = NPC_OID + 61;
+    let npc_id = 90301;
+    add_test_npc(
+        &mut world, npc_oid, npc_id, "Monster", 1, 12_345, 23_456, 780,
+    );
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body(&format!("list_spawns {npc_id}")),
+        ]
+        .concat(),
+    );
+
+    let lines = drain(&mut gm_rx);
+    let texts: Vec<String> = lines
+        .iter()
+        .filter_map(|p| system_message_text(p))
+        .collect();
+    assert!(
+        texts.iter().all(|t| !t.contains("No current spawns found")),
+        "the territory spawn is found, not reported missing: {texts:?}"
+    );
+    assert!(
+        texts.iter().any(|t| t.contains("12345")),
+        "and its location is listed: {texts:?}"
+    );
+}
+
+/// `goSpawn` is `//list_spawns <id> 1` — the teleport form. It has to land the
+/// GM on the spawn it just listed.
+#[test]
+fn gospawn_teleports_to_the_listed_spawn() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7206, 100);
+    drain(&mut gm_rx);
+
+    let npc_oid = NPC_OID + 62;
+    let npc_id = 90302;
+    add_test_npc(
+        &mut world, npc_oid, npc_id, "Monster", 1, 54_321, 65_432, 900,
+    );
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body(&format!("list_spawns {npc_id} 1")),
+        ]
+        .concat(),
+    );
+
+    let pos = *world
+        .objects
+        .get_component::<crate::model::components::Position>(&7206)
+        .expect("gm position");
+    assert_eq!(
+        (pos.x, pos.y),
+        (54_321, 65_432),
+        "goSpawn put the GM on the spawn"
+    );
+}
+
+/// **`//spawnnight` / `//spawnday`** (GitHub #1) — the two buttons
+/// `data/html/admin/spawn.htm` ships. Java registers no handler for either, so
+/// they are dead there; here they force the `DayNightSpawns` phase.
+#[test]
+fn spawnnight_and_spawnday_force_the_phase() {
+    const DAY_MOB: i32 = 24052;
+    const NIGHT_MOB: i32 = 24055;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7204, 100);
+    drain(&mut gm_rx);
+    for npc_id in [DAY_MOB, NIGHT_MOB] {
+        let mut t = crate::data::npc_data::default_template(npc_id);
+        t.type_name = "Monster".into();
+        world.data.npc_data.insert_for_test(t);
+    }
+    let line = |npc_id: i32| crate::data::spawn_data::NpcSpawnDef {
+        npc_id,
+        count: 1,
+        loc: Some(crate::data::spawn_data::FixedLoc {
+            x: 100,
+            y: 100,
+            z: 0,
+            heading: 0,
+        }),
+        respawn_secs: 60,
+        respawn_random_secs: 0,
+        chase_range: 0,
+        db_save: false,
+    };
+    world
+        .data
+        .spawn_data
+        .spawns
+        .push(crate::data::spawn_data::SpawnTemplate {
+            file: "test/admin-day-night.xml".to_string(),
+            name: Some("test-admin-day-night".to_string()),
+            ai: Some("DayNightSpawns".to_string()),
+            parameters: Default::default(),
+            territories: Vec::new(),
+            groups: vec![
+                crate::data::spawn_data::SpawnGroup {
+                    name: Some("dayTime".to_string()),
+                    spawn_by_default: false,
+                    territories: Vec::new(),
+                    npcs: vec![line(DAY_MOB)],
+                },
+                crate::data::spawn_data::SpawnGroup {
+                    name: Some("nightTime".to_string()),
+                    spawn_by_default: false,
+                    territories: Vec::new(),
+                    npcs: vec![line(NIGHT_MOB)],
+                },
+            ],
+        });
+
+    let count_of = |world: &mut World, npc_id: i32| {
+        let mut n = 0;
+        world
+            .objects
+            .for_each_mut::<&crate::model::npc::Npc>(|npc| {
+                if npc.npc_id == npc_id {
+                    n += 1;
+                }
+            });
+        n
+    };
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("spawnnight"),
+        ]
+        .concat(),
+    );
+    assert_eq!(count_of(&mut world, NIGHT_MOB), 1, "night half is up");
+    assert_eq!(count_of(&mut world, DAY_MOB), 0, "day half is not");
+
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("spawnday")].concat(),
+    );
+    assert_eq!(count_of(&mut world, DAY_MOB), 1, "they traded places");
+    assert_eq!(count_of(&mut world, NIGHT_MOB), 0);
+}
+
+/// **`//respawnall` has to make the NPCs visible** (GitHub #2). The boot spawn
+/// pass places NPCs without announcing them — at boot there is nobody to
+/// announce to — so a GM running it on a live world got a field that looked
+/// empty until they walked out of the region and back.
+#[test]
+fn respawnall_shows_the_new_npcs_to_a_player_standing_there() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7203, 100);
+    drain(&mut gm_rx);
+
+    let gm_pos = *world
+        .objects
+        .get_component::<crate::model::components::Position>(&7203)
+        .expect("gm position");
+    let npc_id = 90201;
+    let mut template = crate::data::npc_data::default_template(npc_id);
+    template.type_name = "Monster".into();
+    world.data.npc_data.insert_for_test(template);
+    world
+        .data
+        .spawn_data
+        .spawns
+        .push(crate::data::spawn_data::SpawnTemplate {
+            file: "test/respawnall.xml".to_string(),
+            name: Some("test-respawnall".to_string()),
+            ai: None,
+            parameters: Default::default(),
+            territories: Vec::new(),
+            groups: vec![crate::data::spawn_data::SpawnGroup {
+                name: None,
+                spawn_by_default: true,
+                territories: Vec::new(),
+                npcs: vec![crate::data::spawn_data::NpcSpawnDef {
+                    npc_id,
+                    count: 1,
+                    loc: Some(crate::data::spawn_data::FixedLoc {
+                        x: gm_pos.x,
+                        y: gm_pos.y,
+                        z: gm_pos.z,
+                        heading: 0,
+                    }),
+                    respawn_secs: 60,
+                    respawn_random_secs: 0,
+                    chase_range: 0,
+                    db_save: false,
+                }],
+            }],
+        });
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("respawnall"),
+        ]
+        .concat(),
+    );
+
+    let npc_infos = drain(&mut gm_rx)
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::NPC_INFO)
+        .count();
+    assert!(
+        npc_infos >= 1,
+        "the respawned NPC announced itself to the GM standing on top of it"
+    );
+}
+
 /// **`//kill` on a monster has to pay out.** Java's `AdminKill.kill` deals
 /// `maxHp + 1` *as damage* (`reduceCurrentHp(…, activeChar, null)`), so the GM
 /// lands in the victim's aggro list and the reward split — which reads exactly

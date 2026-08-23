@@ -73,7 +73,18 @@ fn apply_phase(world: &mut World, night: bool, despawn_stale: bool) -> usize {
                 _ => continue,
             };
             if wanted {
-                placed += spawn_group(world, spawn_idx, group_idx);
+                let fresh = spawn_group(world, spawn_idx, group_idx);
+                placed += fresh.len();
+                // Java's `Spawn.doSpawn` puts the NPC in the world *and* shows
+                // it to everyone already standing there. At boot there is no
+                // audience, so the placement is silent — but a phase change
+                // happens under live players, and without this the night mobs
+                // only appeared once a player left the region and came back.
+                if despawn_stale {
+                    for oid in fresh {
+                        super::death::introduce_npc(world, oid);
+                    }
+                }
             } else if despawn_stale {
                 despawn_group(world, spawn_idx, group_idx);
             }
@@ -82,17 +93,18 @@ fn apply_phase(world: &mut World, night: bool, despawn_stale: bool) -> usize {
     placed
 }
 
-/// `SpawnGroup.spawnAll` — place every `<npc>` line's `count`.
-fn spawn_group(world: &mut World, spawn_idx: usize, group_idx: usize) -> usize {
-    let mut placed = 0;
+/// `SpawnGroup.spawnAll` — place every `<npc>` line's `count`, and report the
+/// object ids so the caller can show them to nearby players.
+fn spawn_group(world: &mut World, spawn_idx: usize, group_idx: usize) -> Vec<i32> {
+    let mut placed = Vec::new();
     let lines = world.data.spawn_data.spawns[spawn_idx].groups[group_idx]
         .npcs
         .len();
     for npc_idx in 0..lines {
         let count = world.data.spawn_data.spawns[spawn_idx].groups[group_idx].npcs[npc_idx].count;
         for _ in 0..count {
-            if crate::model::npc::spawn_one(world, spawn_idx, group_idx, npc_idx).is_some() {
-                placed += 1;
+            if let Some(oid) = crate::model::npc::spawn_one(world, spawn_idx, group_idx, npc_idx) {
+                placed.push(oid);
             }
         }
     }

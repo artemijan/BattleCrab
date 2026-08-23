@@ -171,6 +171,119 @@ fn boot_spawns_a_living_boss_with_its_stored_hp() {
     assert_eq!(hp, Some(4_242.0), "came back as wounded as it was left");
 }
 
+/// **The real records, the real templates** (GitHub #19). The synthetic
+/// fixtures above prove the state machine; this proves the two bosses the
+/// report named actually land on the map, at the coordinates the shipped
+/// `grandboss_data` carries, with a region cell the visibility pass can find
+/// them by.
+#[test]
+fn the_shipped_queen_ant_and_orfen_records_spawn_where_they_should() {
+    // The rows this dist's `grandboss_data` ships, status 0 (alive).
+    const ORFEN: i32 = 29014;
+    let records = [(QUEEN, -21610, 181594, -5734), (ORFEN, 55024, 17368, -5412)];
+
+    let (mut world, _db, _l) = combat_test_world();
+    world.data.npc_data = dist::npcs_owned();
+    for (boss_id, x, y, z) in records {
+        world.grand_bosses.insert(
+            boss_id,
+            model::grand_boss::GrandBoss {
+                boss_id,
+                loc_x: x,
+                loc_y: y,
+                loc_z: z,
+                heading: 0,
+                respawn_time: 0,
+                current_hp: 0.0,
+                current_mp: 0.0,
+                status: ALIVE,
+            },
+        );
+    }
+
+    crate::game_loop::grand_boss::resolve_at_boot(&mut world);
+
+    for (boss_id, x, y, _z) in records {
+        let mut found = None;
+        world
+            .objects
+            .for_each_mut::<(&model::npc::Npc, &crate::model::components::Position)>(
+                |(npc, pos)| {
+                    if npc.npc_id == boss_id {
+                        found = Some((pos.x, pos.y));
+                    }
+                },
+            );
+        assert_eq!(
+            found,
+            Some((x, y)),
+            "boss {boss_id} stands at its stored location"
+        );
+        let oid = world
+            .npcs_with_id(boss_id)
+            .first()
+            .copied()
+            .expect("registered in the id index");
+        let region = world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&oid)
+            .map(|r| r.0)
+            .expect("has a region cell");
+        assert_ne!(
+            region,
+            (0, 0),
+            "boss {boss_id} is filed under its own region, not the (0,0) bucket \
+             the visibility pass would never look in"
+        );
+    }
+}
+
+/// **`//respawnall` must not leave the world without its bosses** (GitHub #19).
+/// The static spawn pass defers the db-driven spawns — grand bosses to their
+/// own table, raid bosses to `pending_boss_spawns` — so a command that clears
+/// the world and re-runs only that pass took Orfen and Queen Ant off the map
+/// until the next restart. Java's own `//respawnall` ends with
+/// `DBSpawnManager.load()` for exactly this reason.
+#[test]
+fn respawnall_puts_the_grand_bosses_back() {
+    let (mut world, ..) = boss_world();
+    // The admin command table, which `combat_test_world` does not load — without
+    // it the dispatch answers "command does not exist" and the test would pass
+    // by never running anything.
+    world.data.admin = crate::data::AdminData::load_from(crate::data::DIST_GAME);
+    crate::game_loop::grand_boss::resolve_at_boot(&mut world);
+    assert!(
+        boss_alive_in_world(&mut world),
+        "the boss starts on the map"
+    );
+
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7207, 100);
+    drain(&mut gm_rx);
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("respawnall"),
+        ]
+        .concat(),
+    );
+
+    // The command really ran: it reports its tally.
+    let texts: Vec<String> = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| system_message_text(p))
+        .collect();
+    assert!(
+        texts.iter().any(|t| t.contains("respawned")),
+        "//respawnall ran: {texts:?}"
+    );
+    assert!(
+        boss_alive_in_world(&mut world),
+        "and the boss is still there afterwards"
+    );
+}
+
 /// Boot with a window that **elapsed while the server was down** spawns the
 /// boss immediately. Miss this and the boss stays dead forever: nothing else
 /// can bring it back, because killing it again is impossible.

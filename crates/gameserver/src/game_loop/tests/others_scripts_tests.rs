@@ -1095,6 +1095,42 @@ fn only_the_in_phase_half_of_a_day_night_template_stands() {
     assert_eq!(npc_count(&mut world, DAY_MOB), 0);
 }
 
+/// **A phase change under a live player has to be visible.** Placing an NPC
+/// and telling the people standing there about it are two steps (Java's
+/// `Spawn.doSpawn` does both); the boot pass skips the second because there is
+/// no audience yet, and the phase swap used to inherit that — so nightfall put
+/// the night mobs in the world and the player saw an empty field until they
+/// walked out of the region and back. (GitHub #1's sibling: the same hole the
+/// `//respawnall` report found.)
+#[test]
+fn a_phase_change_shows_the_new_half_to_players_already_there() {
+    const DAY_MOB: i32 = 24052;
+    const NIGHT_MOB: i32 = 24055;
+    let (mut world, _db, _l) = combat_test_world();
+    register_monster(&mut world, DAY_MOB);
+    register_monster(&mut world, NIGHT_MOB);
+    world
+        .data
+        .spawn_data
+        .spawns
+        .push(day_night_test_template(DAY_MOB, NIGHT_MOB));
+
+    // A player standing where the template spawns (100, 100).
+    let mut rx = ingame_caster(&mut world, 1, 3001, 100, 100);
+    drain(&mut rx);
+
+    spawn_scripts::on_day_night_change(&mut world, true);
+
+    let npc_infos = drain(&mut rx)
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::NPC_INFO)
+        .count();
+    assert!(
+        npc_infos >= 1,
+        "the night mob announced itself to the player already standing there"
+    );
+}
+
 /// The boot pass leaves both halves alone — before this slice it placed *both*,
 /// so every day/night map stood with a double population.
 #[test]
