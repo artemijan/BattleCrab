@@ -141,6 +141,19 @@ pub(crate) fn is_db_saved(world: &World, spawn_ref: (usize, usize, usize)) -> bo
 /// `ScheduledTask::BossRespawn` — a boss whose stored respawn time came due
 /// while the server was running (scheduled at boot by [`resolve_boot`]).
 pub(crate) fn handle_boss_respawn(world: &mut World, spawn_ref: (usize, usize, usize)) {
+    // Already standing (a GM `//respawnall` or `//spawn` put it back before the
+    // timer fired): do nothing rather than stack a second one — the same guard
+    // `handle_grand_boss_respawn` keeps for the grand-boss table.
+    if let Some(npc_id) = npc_spawn_def(world, spawn_ref).map(|d| d.npc_id)
+        && world.npcs_with_id(npc_id).iter().any(|oid| {
+            world
+                .objects
+                .get_component::<Vitals>(oid)
+                .is_some_and(|v| !v.dead)
+        })
+    {
+        return;
+    }
     if let Some(oid) = crate::model::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2)
         && let Some(npc_id) = npc_id_of(world, oid)
     {

@@ -955,6 +955,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_reload" => admin_reload(world, client_id, &args),
         "admin_switch_gm_buffs" => admin_switch_gm_buffs(world, client_id),
 
+        "admin_spawnnight" => admin_spawn_phase(world, client_id, true),
+        "admin_spawnday" => admin_spawn_phase(world, client_id, false),
         "admin_unspawnall" => admin_unspawnall(world, client_id),
         "admin_respawnall" => admin_respawnall(world, client_id),
         "admin_spawn_reload" => admin_spawn_reload(world, client_id),

@@ -2622,6 +2622,25 @@ fn dlg_answer_body(message_id: i32, answer: i32, requester_id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// The text of an `S1_TEXT` SystemMessage (id 1983) — how `sendMessage` reaches
+/// the client, and the only way to read a GM command's own feedback in a test.
+fn system_message_text(pkt: &[u8]) -> Option<String> {
+    if pkt[0] != server_packets::opcodes::SYSTEM_MESSAGE
+        || pkt.len() < 5
+        || i16::from_le_bytes([pkt[1], pkt[2]]) != server_packets::sm_ids::S1_TEXT
+    {
+        return None;
+    }
+    // count(1) + type(1) then a UTF-16LE, NUL-terminated string.
+    let body = &pkt[5..];
+    let units: Vec<u16> = body
+        .chunks_exact(2)
+        .map(|c| u16::from_le_bytes([c[0], c[1]]))
+        .take_while(|&u| u != 0)
+        .collect();
+    Some(String::from_utf16_lossy(&units))
+}
+
 /// `true` if any packet is a SystemMessage with the given id.
 fn has_system_message(pkts: &[Vec<u8>], id: i16) -> bool {
     pkts.iter().any(|p| {

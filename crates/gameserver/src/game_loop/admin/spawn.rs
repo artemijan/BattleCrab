@@ -237,13 +237,24 @@ fn all_npc_ids(world: &World) -> Vec<i32> {
 /// location of the nearest live NPC of that id when one exists, else the
 /// configured point; `//list_spawns` always reports the configured point.
 ///
-/// Java keys this off `SpawnTable.getSpawns(npcId)` (one entry per registered
-/// spawn line, each with `getLastSpawn()`). This port enumerates the loaded
-/// fixed-location spawn definitions in file order; territory-only lines (no
-/// single configured point) and the per-line `count` multiplier are collapsed
-/// to one entry — documented deviations, immaterial to the teleport use this
-/// command exists for. NPC-name search (Java `getTemplateByName`) is not ported;
-/// like the other admin spawn commands this takes a numeric id only.
+/// Java keys this off `SpawnTable.getSpawns(npcId)` — the **live spawn
+/// objects**, one per NPC actually placed, each knowing both where it was
+/// configured (`spawn.getX/Y/Z()`) and what currently stands there
+/// (`getLastSpawn()`). This port walks the live NPCs of that id (`npcs_by_id`)
+/// and reads the same pair off them: `Npc::spawn_loc` is the point the spawn
+/// picked, the `Position` component is where the NPC is now.
+///
+/// It used to enumerate the *loaded spawn definitions* instead, and only those
+/// with a fixed `<npc>` location — which is why it answered "No current spawns
+/// found" for most of the world: the bulk of this dist spawns inside
+/// `<territory>` polygons, where the definition carries no single point and the
+/// location is chosen per NPC at spawn time.
+///
+/// One narrowing remains: a spawn whose NPC is dead and already decayed has no
+/// entity here, so it is not listed, where Java's `Spawn` object outlives the
+/// NPC and appears with a null `getLastSpawn()`. NPC-name search (Java
+/// `getTemplateByName`) is not ported; like the other admin spawn commands this
+/// takes a numeric id only.
 pub(super) fn admin_list_spawns(
     world: &mut World,
     client_id: u32,
@@ -261,40 +272,27 @@ pub(super) fn admin_list_spawns(
     };
     let tele_index = helpers::nth_arg::<i32>(args, 1);
 
-    // Configured spawn points for this id, in file order — the 1-based index
-    // space shared by both listing and the teleport form.
+    // One entry per live spawn of this id, which is Java's `SpawnTable` row:
+    // the point the spawn was placed at, and where its NPC is standing now.
     let entries: Vec<(i32, i32, i32)> = world
-        .data
-        .spawn_data
-        .spawns
-        .iter()
-        .flat_map(|t| t.groups.iter())
-        .flat_map(|g| g.npcs.iter())
-        .filter(|def| def.npc_id == npc_id)
-        .filter_map(|def| def.loc.map(|l| (l.x, l.y, l.z)))
-        .collect();
-
-    // Live NPCs of this id (for `//list_positions` current-location reporting).
-    let live: Vec<(i32, i32, i32)> = all_npc_ids(world)
+        .npcs_by_id
+        .get(&npc_id)
+        .cloned()
+        .unwrap_or_default()
         .into_iter()
-        .filter(|oid| helpers::npc_id_of(world, *oid) == Some(npc_id))
-        .filter_map(|oid| helpers::pos_of(world, oid))
+        .filter_map(|oid| {
+            let spawn_loc = world
+                .objects
+                .get_component::<Npc>(&oid)
+                .map(|npc| npc.spawn_loc)?;
+            // `showposition && (npc != null)` — the live position; otherwise the
+            // spawn's own point.
+            if show_position && let Some(now) = helpers::pos_of(world, oid) {
+                return Some(now);
+            }
+            Some(spawn_loc)
+        })
         .collect();
-
-    // For `//list_positions`, resolve an entry to the nearest live NPC's current
-    // position (Java's `spawn.getLastSpawn()`); fall back to the configured
-    // point when none is alive or for `//list_spawns`.
-    let resolve = |(ex, ey, ez): (i32, i32, i32)| -> (i32, i32, i32) {
-        if show_position
-            && let Some(&(x, y, z)) = live.iter().min_by_key(|(x, y, z)| {
-                let (dx, dy, dz) = ((x - ex) as i64, (y - ey) as i64, (z - ez) as i64);
-                dx * dx + dy * dy + dz * dz
-            })
-        {
-            return (x, y, z);
-        }
-        (ex, ey, ez)
-    };
 
     if let Some(idx) = tele_index {
         let entry = if idx >= 1 {
@@ -303,8 +301,7 @@ pub(super) fn admin_list_spawns(
             None
         };
         match entry {
-            Some(e) => {
-                let (x, y, z) = resolve(e);
+            Some((x, y, z)) => {
                 super::death::teleport_player(world, object_id, x, y, z);
             }
             None => send_message(world, client_id, "No spawn found at that index."),
@@ -318,8 +315,7 @@ pub(super) fn admin_list_spawns(
         return;
     }
     let name = helpers::npc_template_name(world, npc_id);
-    for (i, &entry) in entries.iter().enumerate() {
-        let (x, y, z) = resolve(entry);
+    for (i, &(x, y, z)) in entries.iter().enumerate() {
         // Java line: `index + " - " + name + " (" + spawn + "): " + x + " " + y + " " + z`.
         // The `spawn` token is the Java `Spawn.toString()` (an internal handle),
         // omitted here as it has no faithful port.
@@ -756,10 +752,66 @@ pub(super) fn admin_unspawnall(world: &mut World, client_id: u32) {
 }
 
 /// `//respawnall` — clear the world and re-run the boot spawn pass.
+///
+/// The boot pass places NPCs without announcing them, because at boot there is
+/// nobody to announce them to (Java's `Spawn.doSpawn` does both, and its own
+/// startup runs before any player logs in). A GM running this on a live world
+/// is the case where that matters: the NPCs were in the world but no
+/// `NpcInfo` was ever sent, so they stayed invisible until the player walked
+/// out of the region and back, which is what re-runs the visibility pass.
 pub(super) fn admin_respawnall(world: &mut World, client_id: u32) {
     admin_unspawnall(world, client_id);
     let spawned = crate::model::npc::spawn_all(world);
+    // Java's `//respawnall` ends with `SpawnData.init()` **and**
+    // `DBSpawnManager.load()`: the db-driven spawns come back too. The static
+    // pass above deliberately defers those — raid bosses to
+    // `pending_boss_spawns`, grand bosses to their own table — so without this
+    // the command emptied the world of every boss until the next restart, which
+    // is what made Orfen and Queen Ant vanish (GitHub #19).
+    crate::game_loop::boss_respawn::resolve_boot(world, Vec::new());
+    crate::game_loop::grand_boss::resolve_at_boot(world);
+    for oid in npc_object_ids(world) {
+        super::death::introduce_npc(world, oid);
+    }
     send_message(world, client_id, &format!("{spawned} NPCs respawned."));
+}
+
+/// Every live NPC's object id. Collected first because `introduce_npc` needs
+/// `&mut World` while the store would otherwise still be borrowed.
+fn npc_object_ids(world: &mut World) -> Vec<i32> {
+    let mut out = Vec::new();
+    world
+        .objects
+        .for_each_mut::<&Npc>(|npc| out.push(npc.object_id));
+    out
+}
+
+/// `//spawnnight` / `//spawnday` — the two buttons the shipped
+/// `data/html/admin/spawn.htm` carries, which force the `DayNightSpawns` phase
+/// instead of waiting for the in-game clock to reach it.
+///
+/// **Java ships the buttons and no handler.** `AdminSpawn`'s command list has
+/// neither `admin_spawnnight` nor `admin_spawnday`, so clicking either one
+/// there logs "couldn't find handler" and nothing happens. The buttons are in
+/// this dist's own HTML, and the port has the phase swap the minute beat
+/// already drives (`spawn_scripts::on_day_night_change`), so they are wired to
+/// it rather than left dead — a deliberate step past Java, not a port of it.
+///
+/// The clock keeps running underneath: the next real phase flip
+/// (`area_npcs::handle_day_night_check`) overrides whatever a GM forced here,
+/// which is what makes this a "show me the other set" button rather than a
+/// mode.
+pub(super) fn admin_spawn_phase(world: &mut World, client_id: u32, night: bool) {
+    crate::game_loop::spawn_scripts::on_day_night_change(world, night);
+    send_message(
+        world,
+        client_id,
+        if night {
+            "Night spawns are up."
+        } else {
+            "Day spawns are up."
+        },
+    );
 }
 
 /// `//spawn_reload` — re-read `data/spawns/**` from disk, then respawn.
