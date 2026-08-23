@@ -7690,3 +7690,48 @@ fn vitality_commands_report_a_disabled_system() {
         "the GM is told why nothing happened: {texts:?}"
     );
 }
+
+/// **`//para` has to be visible** (GitHub #10). Java's
+/// `startAbnormalVisualEffect` ends in `updateAbnormalVisualEffects()`, which
+/// sends the owner their own `ExUserInfoAbnormalVisualEffect` alongside the
+/// `CharInfo` broadcast. The port set the flag and broadcast `UserInfo` only —
+/// so the target was paralysed with nothing to show for it.
+#[test]
+fn para_sends_the_abnormal_visual_to_the_target() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7601, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7602, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+    world.objects.add_components(&7601, TargetRef(Some(7602)));
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("para_menu"),
+        ]
+        .concat(),
+    );
+
+    let effects = ave_effect_count(&drain(&mut victim_rx));
+    assert_eq!(
+        effects,
+        Some(1),
+        "the paralysed player is told about the one visual effect on them"
+    );
+
+    // …and lifting it tells them again, with the set back to empty.
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("unpara_menu"),
+        ]
+        .concat(),
+    );
+    let effects = ave_effect_count(&drain(&mut victim_rx));
+    assert_eq!(effects, Some(0), "and about it going away");
+}

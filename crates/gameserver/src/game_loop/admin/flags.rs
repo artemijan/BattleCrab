@@ -391,6 +391,36 @@ fn show_ave_menu(world: &World, client_id: u32, page: i32) {
     );
 }
 
+/// Java `Creature.updateAbnormalVisualEffects()` for a GM-pinned effect: the
+/// owner's own client needs `ExUserInfoAbnormalVisualEffect`, everyone else
+/// picks the set up from the `CharInfo` half of the `UserInfo` broadcast.
+///
+/// A `UserInfo` on its own is **not** enough — the abnormal set rides its own
+/// packet — which is why `//para` used to change nothing a player could see
+/// (GitHub #10).
+pub(super) fn push_admin_visuals(world: &mut World, target: i32) {
+    crate::game_loop::player_info::broadcast_user_info(world, target);
+    let Some(cid) = crate::game_loop::helpers::client_for_player(world, target) else {
+        return;
+    };
+    let visuals = crate::game_loop::abnormal::visual_effects(world, target);
+    let transform = world
+        .objects
+        .get_component::<Player>(&target)
+        .map_or(0, |p| p.transform_display_id);
+    let hidden = world
+        .objects
+        .get_component::<AdminFlags>(&target)
+        .is_some_and(|f| f.hidden);
+    send_to_client(
+        world,
+        cid,
+        crate::network::user_info::ex_user_info_abnormal_visual_effect(
+            target, hidden, transform, &visuals,
+        ),
+    );
+}
+
 /// `AdminEffects`' `//ave_abnormal <NAME> [radius]` — **toggle** an abnormal
 /// visual effect on the current target (or self when untargeted), or on
 /// everyone within `radius`. Java's `performAbnormalVisualEffect` starts the
@@ -469,27 +499,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
             }
         };
         toggled_on += i32::from(now_on);
-        // Re-broadcast so the change is visible immediately, to the owner and
-        // to everyone who can see them.
-        crate::game_loop::player_info::broadcast_user_info(world, *target);
-        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, *target) {
-            let visuals = crate::game_loop::abnormal::visual_effects(world, *target);
-            let transform = world
-                .objects
-                .get_component::<Player>(target)
-                .map_or(0, |p| p.transform_display_id);
-            let hidden = world
-                .objects
-                .get_component::<AdminFlags>(target)
-                .is_some_and(|f| f.hidden);
-            send_to_client(
-                world,
-                cid,
-                crate::network::user_info::ex_user_info_abnormal_visual_effect(
-                    *target, hidden, transform, &visuals,
-                ),
-            );
-        }
+        push_admin_visuals(world, *target);
     }
     send_message(
         world,
