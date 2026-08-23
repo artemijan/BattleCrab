@@ -5560,6 +5560,8 @@ fn setcharquest_and_menu_roundtrip() {
         assert_eq!(st.state, model::quest::state::STARTED);
     }
     drain(&mut gm_rx);
+    // Java's menu is three pages deep, and the bare command lands on the first:
+    // buttons for CREATED/STARTED/COMPLETED/All, no quest list yet.
     on_packet(&mut world, 1, build_admin(&format!("charquestmenu {name}")));
     let html = drain(&mut gm_rx)
         .iter()
@@ -5567,8 +5569,43 @@ fn setcharquest_and_menu_roundtrip() {
         .next()
         .expect("quest panel served");
     assert!(
-        html.contains("Q00101_SwordOfSolidarity") && html.contains("cond=3"),
-        "quest + var listed, got: {html}"
+        html.contains("Quest Menu for") && html.contains("admin_charquestmenu"),
+        "the landing menu, got: {html}"
+    );
+
+    // "All" (`3`) lists the quests, each linking to its own editor.
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!("charquestmenu {name} 3")),
+    );
+    let html = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("quest list served");
+    assert!(
+        html.contains("Full Quest List") && html.contains("Q00101_SwordOfSolidarity"),
+        "the quest is listed, got: {html}"
+    );
+
+    // The quest's own page carries its state and every var with Set/Del.
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!("charquestmenu {name} Q00101_SwordOfSolidarity")),
+    );
+    let html = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("quest editor served");
+    assert!(
+        html.contains("State: <font color=\"LEVEL\">STARTED")
+            && html.contains("<td>cond</td><td>3</td>")
+            && html.contains("admin_setcharquest")
+            && html.contains("Quest Complete"),
+        "the editor shows state, vars and the action buttons, got: {html}"
     );
 
     on_packet(
