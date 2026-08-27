@@ -96,6 +96,11 @@ pub(crate) fn add_party_member(world: &mut World, party_id: u32, new_member: i32
         broadcast_user_info(world, m);
     }
 
+    // The party's tactical signs are pushed to the arriving member's client
+    // (Java `addPartyMember`'s `applyTacticalSigns(player, false)` tail) —
+    // the markers are party state, so a latecomer sees the ones already set.
+    super::apply_tactical_signs(world, party_id, new_member, false);
+
     // A member joining a channelled party gets the CC window opened (Java
     // `addPartyMember`'s `ExOpenMPCC` tail).
     crate::game_loop::command_channel::on_party_member_added(world, party_id, new_member);
@@ -327,6 +332,10 @@ pub(crate) fn remove_party_member(
     // CC leader disconnects but their party survives — kept.
     crate::game_loop::command_channel::on_party_member_removed(world, party_id, leaver);
 
+    // `applyTacticalSigns(player, true)` — the leaver's client drops the
+    // markers; the party keeps the signs themselves for whoever stays.
+    super::apply_tactical_signs(world, party_id, leaver, true);
+
     if was_leader {
         announce_new_leader(world, party_id);
     }
@@ -348,6 +357,10 @@ pub(crate) fn disband_party(world: &mut World, party_id: u32) {
     let members = party.members.clone();
     let sm = server_packets::system_message_with(sm_ids::THE_PARTY_HAS_DISPERSED, &[]);
     for &m in &members {
+        // Java reaches this through `removePartyMember` per member, so every
+        // one of them gets the sign wipe; done here for the same reason the
+        // dissolve SM is.
+        super::apply_tactical_signs(world, party_id, m, true);
         world.objects.remove_component::<PartyRef>(&m);
         send_to_player(world, m, sm.clone());
         send_to_player(world, m, server_packets::party_small_window_delete_all());

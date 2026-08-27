@@ -1,9 +1,8 @@
 //! Port of `model/Party` (the state; the packet flows live in
 //! `game_loop/party.rs`) and the pure party XP-split math from
-//! `Party.distributeXpAndSp`. Command channels, matching rooms, tactical
-//! signs, duels and pets are out of scope — see PLAN_G10_SOCIAL.md.
+//! `Party.distributeXpAndSp`. Duels are out of scope — see PLAN_G10_SOCIAL.md.
 
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 
 use enum_ordinalize::Ordinalize;
 
@@ -84,6 +83,12 @@ pub struct Party {
     /// broadcast, loot-change timeout): a task with a stale seq no-ops, and
     /// bumping it on disband kills every outstanding task.
     pub seq: u64,
+    /// `_tacticalSigns` — sign id (1..=4) → the creature wearing it. Java
+    /// allocates the map lazily and treats "absent" and "empty" alike, so a
+    /// plain map matches it; `BTreeMap` only fixes the iteration order its
+    /// `ConcurrentHashMap` leaves open, which is what makes
+    /// [`crate::game_loop::party::apply_tactical_signs`] reproducible.
+    pub tactical_signs: BTreeMap<i32, i32>,
 }
 
 impl Party {
@@ -96,6 +101,7 @@ impl Party {
             item_last_loot: 0,
             loot_change: None,
             seq,
+            tactical_signs: BTreeMap::new(),
         }
     }
 

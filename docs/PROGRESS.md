@@ -9976,3 +9976,48 @@ test took an hour to reproduce it. The harness is slower per run and much
 faster per finding, and the two are complements: the test guards the mechanism
 (the GM lands in the aggro list with damage against them), the harness is what
 shows a player would see the loot.
+
+## The star that did nothing (#11)
+
+The report: *"Social token action — I select myself and click on the star, and
+nothing appears above my char."* The star is a **tactical sign** — one of four
+numbered tokens a party marks creatures with (`/tacticalsign1..4`), plus a
+`/targettacticalsign1..4` recall that selects whoever wears one. Eight
+`ActionData.xml` rows, ids 78–85.
+
+The port had a router for those rows and no handler behind them, so every press
+fell into the table's unknown-handler arm and wrote a warn line. That arm exists
+precisely so an unported handler names itself instead of vanishing — and it
+worked, but nobody was reading gameserver logs while pressing party buttons.
+PORTING_STATUS had the eight rows filed as "post-Interlude" alongside
+`AirshipAction`, which is how they stayed unported: the classification was wrong
+for this dist, which ships the rows and has a client that sends them.
+
+`Party.addTacticalSign` is the part worth transcribing carefully, because the
+same button does three different things:
+
+| the sign currently | pressing it |
+|---|---|
+| points nowhere | marks the target — and silently strips whatever *other* sign that target wore |
+| points at this target | **lifts** it (token 0), with no announcement |
+| points at someone else | clears the old wearer, then marks the new one, in that order |
+
+The middle row is a toggle, not a repeat, and the last row's ordering is not
+cosmetic: mark-then-clear leaves the client showing two stars for one token.
+Both are pinned by tests, and both sabotages fail them.
+
+### The bug the fix does not fix
+
+A solo player pressing a star still gets nothing. Java's handler is
+`!isInParty() || getTarget() == null || !isCreature()` → `ActionFailed`, no
+message, and the signs are party state with nowhere to live outside one. So if
+the report was made solo, the observable behaviour is unchanged — which is worth
+stating plainly rather than quietly shipping a fix that may not move what was
+seen. What *has* changed is that the same silence now has two different causes,
+and only one of them is a bug; there is a test named for the solo case so the
+distinction survives.
+
+The signs belong to the party, not the presser: a member who joins is handed the
+markers already out (`applyTacticalSigns(player, false)`), and one who leaves has
+them wiped from their client while the party keeps the sign itself. That
+asymmetry is the reason the map lives on `Party` rather than in a component.

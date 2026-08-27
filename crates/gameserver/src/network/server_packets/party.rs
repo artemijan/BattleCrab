@@ -234,6 +234,18 @@ pub fn ex_set_party_looting(result: i32, loot_rule_id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// `serverpackets/ExTacticalSign` — put token `token_id` over `target`'s head,
+/// or clear whatever token it wears with `token_id = 0`. There is no "clear
+/// everything" form: each sign is removed by naming its target again.
+pub fn ex_tactical_sign(target: i32, token_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_TACTICAL_SIGN);
+    w.write_i32(target);
+    w.write_i32(token_id);
+    w.into_bytes()
+}
+
 /// `ExInzoneWaiting` — the `/instancezone` re-enter window: the template id of
 /// the instance the player is standing in (`-1` for the overworld) and one
 /// `(templateId, secondsLeft)` pair per instance still on cooldown. Java's

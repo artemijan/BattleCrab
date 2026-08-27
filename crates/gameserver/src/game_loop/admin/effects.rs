@@ -11,7 +11,7 @@
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::{nth_arg, object_name};
+use crate::game_loop::helpers::{is_creature, nth_arg, object_name};
 use crate::geo::distance::within_2d_xy;
 use crate::model::Player;
 use crate::model::components::Position;
@@ -20,13 +20,6 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 use super::{find_online_player, send_message, send_sm};
-
-/// Whether `oid` is a `Creature` in Java terms — a player or an NPC (the only
-/// creature kinds this server models; doors/static objects are not creatures).
-fn is_creature(world: &World, oid: i32) -> bool {
-    world.objects.has_component::<Player>(&oid)
-        || world.objects.has_component::<crate::model::npc::Npc>(&oid)
-}
 
 /// Port of `AdminEffects.performSocial` — broadcast a `SocialAction` on
 /// `target`, gated by the same action-id ranges (NPCs 1..=20, players 2..=18 or
@@ -388,7 +381,11 @@ pub(super) fn admin_para(
         flags.paralyzed = on;
         world.objects.add_components(target, flags);
         set_admin_visual(world, *target, ave, on);
-        crate::game_loop::player_info::broadcast_user_info(world, *target);
+        // Java's `startAbnormalVisualEffect`/`stopAbnormalVisualEffect` end in
+        // `updateAbnormalVisualEffects()`, which sends the owner their own
+        // `ExUserInfoAbnormalVisualEffect` on top of the `CharInfo` broadcast.
+        // A `UserInfo` alone left the paralysis with no visual (GitHub #10).
+        super::flags::push_admin_visuals(world, *target);
     }
     send_message(
         world,
@@ -406,7 +403,7 @@ pub(super) fn admin_bighead(world: &mut World, client_id: u32, object_id: i32, o
     let ave = crate::model::skill::abnormal_visual_client_id("BIG_HEAD").expect("known AVE");
     let target = guard::target(world, object_id).unwrap_or(object_id);
     set_admin_visual(world, target, ave, on);
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    super::flags::push_admin_visuals(world, target);
     send_message(
         world,
         client_id,

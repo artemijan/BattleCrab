@@ -261,6 +261,15 @@ pub(crate) fn is_raid_npc(world: &World, object_id: i32) -> bool {
     npc_template(world, object_id).is_some_and(|t| t.is_raid())
 }
 
+/// Java `WorldObject.isCreature()` — a player or an NPC, the only two creature
+/// kinds this server models. Doors, static objects and ground items are not
+/// creatures, and several handlers (`AdminEffects.performSocial`,
+/// `TacticalSignUse`) refuse outright on anything that is not one.
+pub(crate) fn is_creature(world: &World, object_id: i32) -> bool {
+    world.objects.has_component::<Player>(&object_id)
+        || world.objects.has_component::<Npc>(&object_id)
+}
+
 /// Java `Creature.isPlayable()` — the `Playable` subtree: a player, their pet,
 /// or a summoned servitor. A monster, a guard, or a door is false.
 ///

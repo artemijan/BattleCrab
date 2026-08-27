@@ -38,6 +38,9 @@ pub mod sm_ids {
     /// `$s1 ($s2 alliance)` / `$s1 (no alliance exists)` — one clan-war row.
     pub const S1_S2_ALLIANCE: i16 = 1200;
     pub const S1_NO_ALLIANCE_EXISTS: i16 = 1202;
+    /// `$c1 used $s3 on $c2.` — the party's tactical-sign announcement, where
+    /// `$s3` is a `SysString` naming the token.
+    pub const C1_USED_S3_ON_C2: i16 = 3463;
     pub const ONLY_A_PARTY_LEADER_CAN_LEAVE_A_COMMAND_CHANNEL: i16 = 1683;
     pub const ONLY_A_NOBLE_CLAN_LEADER_CAN_VIEW_THE_SIEGE_STATUS: i16 = 1694;
     pub const COMMAND_AVAILABLE_AFTER_THE_2ND_CLASS_TRANSFER: i16 = 1674;

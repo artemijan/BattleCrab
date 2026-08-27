@@ -3245,6 +3245,9 @@ fn admin_kick_non_gm_disconnects_players() {
 #[test]
 fn admin_set_vitality_sets_points() {
     let (mut world, ..) = admin_world();
+    // The dist runs `EnableVitality = True`; the derived config default is
+    // false, and the command now refuses (as Java's does) when it is off.
+    world.cfg.character.enable_vitality = true;
     let mut gm_rx = ingame_player_access(&mut world, 1, 8907, 100);
     let mut victim_rx = ingame_player_access(&mut world, 2, 8908, 0);
     drain(&mut gm_rx);
@@ -5557,6 +5560,8 @@ fn setcharquest_and_menu_roundtrip() {
         assert_eq!(st.state, model::quest::state::STARTED);
     }
     drain(&mut gm_rx);
+    // Java's menu is three pages deep, and the bare command lands on the first:
+    // buttons for CREATED/STARTED/COMPLETED/All, no quest list yet.
     on_packet(&mut world, 1, build_admin(&format!("charquestmenu {name}")));
     let html = drain(&mut gm_rx)
         .iter()
@@ -5564,8 +5569,43 @@ fn setcharquest_and_menu_roundtrip() {
         .next()
         .expect("quest panel served");
     assert!(
-        html.contains("Q00101_SwordOfSolidarity") && html.contains("cond=3"),
-        "quest + var listed, got: {html}"
+        html.contains("Quest Menu for") && html.contains("admin_charquestmenu"),
+        "the landing menu, got: {html}"
+    );
+
+    // "All" (`3`) lists the quests, each linking to its own editor.
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!("charquestmenu {name} 3")),
+    );
+    let html = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("quest list served");
+    assert!(
+        html.contains("Full Quest List") && html.contains("Q00101_SwordOfSolidarity"),
+        "the quest is listed, got: {html}"
+    );
+
+    // The quest's own page carries its state and every var with Set/Del.
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!("charquestmenu {name} Q00101_SwordOfSolidarity")),
+    );
+    let html = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("quest editor served");
+    assert!(
+        html.contains("State: <font color=\"LEVEL\">STARTED")
+            && html.contains("<td>cond</td><td>3</td>")
+            && html.contains("admin_setcharquest")
+            && html.contains("Quest Complete"),
+        "the editor shows state, vars and the action buttons, got: {html}"
     );
 
     on_packet(
@@ -7573,5 +7613,244 @@ fn admin_server_login_draws_the_management_page() {
         last_admin_html(&drain(&mut rx))
             .expect("page redrawn")
             .contains("42")
+    );
+}
+
+/// **`//rec` clamps like Java's setter** (GitHub #7). `Player.setRecomHave` is
+/// `Math.min(Math.max(value, 0), 255)`, so a GM typing a huge number lands on
+/// the cap rather than storing it verbatim.
+#[test]
+fn rec_clamps_to_the_java_range() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7401, 100);
+    let _victim = ingame_player_access(&mut world, 2, 7402, 0);
+    drain(&mut gm_rx);
+    world.objects.add_components(&7401, TargetRef(Some(7402)));
+
+    for (typed, expected) in [("99999", 255), ("-5", 0), ("42", 42)] {
+        on_packet(
+            &mut world,
+            1,
+            [
+                vec![cop::SEND_BYPASS_BUILD_CMD],
+                build_cmd_body(&format!("rec {typed}")),
+            ]
+            .concat(),
+        );
+        assert_eq!(
+            world
+                .objects
+                .get_component::<Player>(&7402)
+                .expect("victim")
+                .rec_have,
+            expected,
+            "//rec {typed}"
+        );
+    }
+}
+
+/// **The premium commands fall back to the target** (GitHub #5). Java takes an
+/// account name and nothing else; with a character selected and no argument —
+/// which is what the menu's own buttons send — the target's account is used.
+#[test]
+fn premium_commands_use_the_target_when_no_account_is_given() {
+    let (mut world, ..) = admin_world();
+    world.cfg.premium.enabled = true;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7403, 100);
+    let _victim = ingame_player_access(&mut world, 2, 7404, 0);
+    drain(&mut gm_rx);
+    let account = world
+        .objects
+        .get_component::<Player>(&7404)
+        .expect("victim")
+        .account
+        .clone();
+    world.objects.add_components(&7403, TargetRef(Some(7404)));
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("premium_add1"),
+        ]
+        .concat(),
+    );
+    // `admin_premium_add1` is `confirmDlg="true"` in AdminCommands.xml, so the
+    // command is held until the GM answers the dialog.
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    assert!(
+        crate::game_loop::admin::premium::has_premium_status(&world, 7404),
+        "the targeted character's account ({account}) got the premium month"
+    );
+}
+
+/// **`//set_vitality` on a server with vitality off says so** (GitHub #8's
+/// sibling): Java's `AdminVitality` gates on `Config.ENABLE_VITALITY` before it
+/// looks at the target at all. The commands themselves work — this is the one
+/// clause the port was missing.
+#[test]
+fn vitality_commands_report_a_disabled_system() {
+    let (mut world, ..) = admin_world();
+    world.cfg.character.enable_vitality = false;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7405, 100);
+    let _victim = ingame_player_access(&mut world, 2, 7406, 0);
+    drain(&mut gm_rx);
+    world.objects.add_components(&7405, TargetRef(Some(7406)));
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("full_vitality"),
+        ]
+        .concat(),
+    );
+
+    let texts: Vec<String> = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| system_message_text(p))
+        .collect();
+    assert!(
+        texts
+            .iter()
+            .any(|t| t.contains("Vitality is not enabled on the server!")),
+        "the GM is told why nothing happened: {texts:?}"
+    );
+}
+
+/// **`//para` has to be visible** (GitHub #10). Java's
+/// `startAbnormalVisualEffect` ends in `updateAbnormalVisualEffects()`, which
+/// sends the owner their own `ExUserInfoAbnormalVisualEffect` alongside the
+/// `CharInfo` broadcast. The port set the flag and broadcast `UserInfo` only —
+/// so the target was paralysed with nothing to show for it.
+#[test]
+fn para_sends_the_abnormal_visual_to_the_target() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7601, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7602, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+    world.objects.add_components(&7601, TargetRef(Some(7602)));
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("para_menu"),
+        ]
+        .concat(),
+    );
+
+    let effects = ave_effect_count(&drain(&mut victim_rx));
+    assert_eq!(
+        effects,
+        Some(1),
+        "the paralysed player is told about the one visual effect on them"
+    );
+
+    // …and lifting it tells them again, with the set back to empty.
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("unpara_menu"),
+        ]
+        .concat(),
+    );
+    let effects = ave_effect_count(&drain(&mut victim_rx));
+    assert_eq!(effects, Some(0), "and about it going away");
+}
+
+/// **`//list_spawns` takes a name as well as an id** (GitHub #4). Java
+/// concatenates the middle words of the command and, when they aren't a
+/// number, resolves them through `NpcData.getTemplateByName` — so typing a
+/// name into the menu's box is meant to work. It answered with the usage line
+/// instead.
+#[test]
+fn list_spawns_accepts_an_npc_name() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7701, 100);
+    drain(&mut gm_rx);
+
+    let npc_oid = NPC_OID + 71;
+    let npc_id = 90401;
+    let mut template = crate::data::npc_data::default_template(npc_id);
+    template.type_name = "Monster".into();
+    template.name = "Rotting Tree".into();
+    world.data.npc_data.insert_for_test(template);
+    add_test_npc(
+        &mut world, npc_oid, npc_id, "Monster", 1, 31_337, 42_042, 100,
+    );
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("list_spawns Rotting Tree"),
+        ]
+        .concat(),
+    );
+
+    let texts: Vec<String> = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| system_message_text(p))
+        .collect();
+    assert!(
+        texts.iter().all(|t| !t.contains("Command format")),
+        "the name resolved rather than falling back to usage: {texts:?}"
+    );
+    assert!(
+        texts.iter().any(|t| t.contains("31337")),
+        "and the spawn is listed: {texts:?}"
+    );
+}
+
+/// **`//find_dualbox` renders the panel** (GitHub #6). Java fills
+/// `dualbox.htm`'s `%multibox%` / `%results%` and sends it; the port printed the
+/// hits to system chat, losing both the `admin_find_ip` links and the
+/// re-run buttons.
+#[test]
+fn find_dualbox_sends_the_panel_not_chat_lines() {
+    let (mut world, ..) = admin_world();
+    world.data.root = crate::data::DIST_GAME.to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7702, 100);
+    drain(&mut gm_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("find_dualbox"),
+        ]
+        .concat(),
+    );
+
+    let packets = drain(&mut gm_rx);
+    assert!(
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        "the dualbox panel is sent as html"
+    );
+    assert!(
+        packets
+            .iter()
+            .filter_map(|p| system_message_text(p))
+            .all(|t| !t.contains("=== Dualbox")),
+        "and not as chat lines"
     );
 }

@@ -2,8 +2,7 @@
 //! `RequestWithDrawalParty`/`RequestOustPartyMember`/`RequestChangePartyLeader`
 //! + `Party`'s member management, loot-rule voting, the 12 s position
 //!   broadcast, and the `PartySmallWindowUpdate` vitals piggyback.
-//!   Out of scope (PLAN_G10_SOCIAL.md): command channels, matching rooms,
-//!   tactical signs, pets/servitors, duels, block list.
+//!   Out of scope (PLAN_G10_SOCIAL.md): duels, block list.
 
 use crate::game_loop::helpers::send_to_player;
 
@@ -120,6 +119,7 @@ mod invite;
 mod loot;
 mod membership;
 mod rewards;
+mod tactical;
 
 pub(crate) use invite::{
     clear_linked_request, handle_request_answer_join_party, handle_request_join_party,
@@ -136,6 +136,9 @@ pub(crate) use membership::{
     remove_party_member,
 };
 pub(crate) use rewards::distribute_xp_and_sp;
+pub(crate) use tactical::{
+    apply_tactical_signs, handle_tactical_sign_target, handle_tactical_sign_use,
+};
 
 // ---------------------------------------------------------------------------
 // Position broadcast + vitals piggyback

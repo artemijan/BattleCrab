@@ -258,3 +258,323 @@ fn the_real_action_data_binds_the_emote_and_gait_rows() {
         Some("SitStand")
     );
 }
+
+// ---------------------------------------------------------------------------
+// TacticalSignUse / TacticalSignTarget
+// ---------------------------------------------------------------------------
+
+/// `ActionData.xml` ids 78..=81 → `TacticalSignUse` options 1..=4, and 82..=85
+/// → `TacticalSignTarget`. Only the first of each family is exercised here;
+/// the shipped-file test below checks all eight rows bind.
+const ACTION_SIGN_1: i32 = 78;
+const ACTION_SIGN_2: i32 = 79;
+const ACTION_TARGET_SIGN_1: i32 = 82;
+
+/// Register the rows the tactical tests press, mirroring the dist.
+fn insert_tactical_rows(world: &mut World) {
+    world
+        .data
+        .action_data
+        .insert_row_for_test(ACTION_SIGN_1, "TacticalSignUse", 1);
+    world
+        .data
+        .action_data
+        .insert_row_for_test(ACTION_SIGN_2, "TacticalSignUse", 2);
+    world
+        .data
+        .action_data
+        .insert_row_for_test(ACTION_TARGET_SIGN_1, "TacticalSignTarget", 1);
+}
+
+/// The `(target, token)` pair of an `ExTacticalSign` (0xFE:0x100), if that is
+/// what this packet is.
+fn tactical_sign_of(pkt: &[u8]) -> Option<(i32, i32)> {
+    (pkt[0] == opcodes::EX
+        && pkt.len() >= 11
+        && i16::from_le_bytes([pkt[1], pkt[2]]) == opcodes::EX_TACTICAL_SIGN)
+        .then(|| {
+            let mut r = commons::network::PacketReader::new(&pkt[3..]);
+            (r.read_i32().unwrap(), r.read_i32().unwrap())
+        })
+}
+
+fn tactical_signs_in(pkts: &[Vec<u8>]) -> Vec<(i32, i32)> {
+    pkts.iter().filter_map(|p| tactical_sign_of(p)).collect()
+}
+
+fn signs_of(world: &World, party_id: u32) -> Vec<(i32, i32)> {
+    world.parties[&party_id]
+        .tactical_signs
+        .iter()
+        .map(|(&k, &v)| (k, v))
+        .collect()
+}
+
+/// Pressing a star marks the target for **every** member, not just the
+/// presser: the sign is party state, and Java broadcasts it to `_members`.
+/// The announcement rides along — `$c1 used $s3 on $c2`.
+#[test]
+fn a_tactical_sign_marks_the_target_for_the_whole_party() {
+    let (mut world, ..) = test_world();
+    insert_tactical_rows(&mut world);
+    let mut a_rx = ingame_player(&mut world, 1, 7301, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 7302, 100, 0, 0);
+    let party = make_party(&mut world, &[7301, 7302], LootRule::FindersKeepers);
+    world.objects.add_components(&7301, TargetRef(Some(7302)));
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    press(&mut world, 1, ACTION_SIGN_1);
+
+    let a = drain(&mut a_rx);
+    let b = drain(&mut b_rx);
+    assert_eq!(
+        tactical_signs_in(&a),
+        vec![(7302, 1)],
+        "the presser sees the marker"
+    );
+    assert_eq!(
+        tactical_signs_in(&b),
+        vec![(7302, 1)],
+        "so does the other member — this is the half that made it look broken"
+    );
+    assert!(
+        has_system_message(&a, server_packets::sm_ids::C1_USED_S3_ON_C2),
+        "the placement is announced"
+    );
+    assert_eq!(signs_of(&world, party), vec![(1, 7302)]);
+}
+
+/// The same star pressed twice is a **toggle**, not a repeat: Java's middle
+/// arm removes the sign and clears it on every client with token 0. No system
+/// message — Java announces placing a sign, never lifting one.
+#[test]
+fn pressing_the_same_sign_again_lifts_it() {
+    let (mut world, ..) = test_world();
+    insert_tactical_rows(&mut world);
+    let mut a_rx = ingame_player(&mut world, 1, 7311, 0, 0, 0);
+    let _b_rx = ingame_player(&mut world, 2, 7312, 100, 0, 0);
+    let party = make_party(&mut world, &[7311, 7312], LootRule::FindersKeepers);
+    world.objects.add_components(&7311, TargetRef(Some(7312)));
+
+    press(&mut world, 1, ACTION_SIGN_1);
+    drain(&mut a_rx);
+    press(&mut world, 1, ACTION_SIGN_1);
+
+    let a = drain(&mut a_rx);
+    assert_eq!(
+        tactical_signs_in(&a),
+        vec![(7312, 0)],
+        "token 0 is how a marker is taken off"
+    );
+    assert!(
+        !has_system_message(&a, server_packets::sm_ids::C1_USED_S3_ON_C2),
+        "lifting a sign is silent"
+    );
+    assert!(signs_of(&world, party).is_empty());
+}
+
+/// Moving a sign to someone else clears the old wearer *first*: two packets,
+/// in Java's order, or the client is left with two stars for one token.
+#[test]
+fn moving_a_sign_clears_the_previous_wearer_first() {
+    let (mut world, ..) = test_world();
+    insert_tactical_rows(&mut world);
+    let mut a_rx = ingame_player(&mut world, 1, 7321, 0, 0, 0);
+    let _b_rx = ingame_player(&mut world, 2, 7322, 100, 0, 0);
+    let _c_rx = ingame_player(&mut world, 3, 7323, 200, 0, 0);
+    let party = make_party(&mut world, &[7321, 7322, 7323], LootRule::FindersKeepers);
+    world.objects.add_components(&7321, TargetRef(Some(7322)));
+
+    press(&mut world, 1, ACTION_SIGN_1);
+    world.objects.add_components(&7321, TargetRef(Some(7323)));
+    drain(&mut a_rx);
+    press(&mut world, 1, ACTION_SIGN_1);
+
+    assert_eq!(
+        tactical_signs_in(&drain(&mut a_rx)),
+        vec![(7322, 0), (7323, 1)],
+        "clear the old, then mark the new"
+    );
+    assert_eq!(signs_of(&world, party), vec![(1, 7323)]);
+}
+
+/// A creature wears one sign at a time: giving it a second takes the first
+/// away (`_tacticalSigns.values().remove(target)`). Java drops the mapping
+/// without a clear packet, because the new token overwrites the marker.
+#[test]
+fn a_second_sign_on_the_same_target_replaces_the_first() {
+    let (mut world, ..) = test_world();
+    insert_tactical_rows(&mut world);
+    let mut a_rx = ingame_player(&mut world, 1, 7331, 0, 0, 0);
+    let _b_rx = ingame_player(&mut world, 2, 7332, 100, 0, 0);
+    let party = make_party(&mut world, &[7331, 7332], LootRule::FindersKeepers);
+    world.objects.add_components(&7331, TargetRef(Some(7332)));
+
+    press(&mut world, 1, ACTION_SIGN_1);
+    drain(&mut a_rx);
+    press(&mut world, 1, ACTION_SIGN_2);
+
+    assert_eq!(
+        signs_of(&world, party),
+        vec![(2, 7332)],
+        "sign 1 is gone, not kept alongside sign 2"
+    );
+    assert_eq!(
+        tactical_signs_in(&drain(&mut a_rx)),
+        vec![(7332, 2)],
+        "no clear packet — the new token overwrites the marker"
+    );
+}
+
+/// **The reported case.** A player with no party presses a star and nothing
+/// appears — because tactical signs are party state and Java's handler bails
+/// with a bare `ActionFailed` before touching anything. Worth pinning: the
+/// port used to fail here for a different reason (no handler at all), and the
+/// two are indistinguishable from the client.
+#[test]
+fn a_solo_player_pressing_a_star_gets_nothing() {
+    let (mut world, ..) = test_world();
+    insert_tactical_rows(&mut world);
+    let mut a_rx = ingame_player(&mut world, 1, 7341, 0, 0, 0);
+    world.objects.add_components(&7341, TargetRef(Some(7341)));
+    drain(&mut a_rx);
+
+    press(&mut world, 1, ACTION_SIGN_1);
+
+    let a = drain(&mut a_rx);
+    assert!(
+        tactical_signs_in(&a).is_empty(),
+        "no marker without a party"
+    );
+    assert!(
+        a.iter()
+            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL),
+        "Java answers ActionFailed rather than saying why"
+    );
+}
+
+/// A partied player targeting *themselves* is legal — a player is a Creature,
+/// which is the only thing `TacticalSignUse` checks.
+#[test]
+fn a_sign_may_be_put_on_the_presser_themselves() {
+    let (mut world, ..) = test_world();
+    insert_tactical_rows(&mut world);
+    let mut a_rx = ingame_player(&mut world, 1, 7351, 0, 0, 0);
+    let _b_rx = ingame_player(&mut world, 2, 7352, 100, 0, 0);
+    let party = make_party(&mut world, &[7351, 7352], LootRule::FindersKeepers);
+    world.objects.add_components(&7351, TargetRef(Some(7351)));
+    drain(&mut a_rx);
+
+    press(&mut world, 1, ACTION_SIGN_1);
+
+    assert_eq!(tactical_signs_in(&drain(&mut a_rx)), vec![(7351, 1)]);
+    assert_eq!(signs_of(&world, party), vec![(1, 7351)]);
+}
+
+/// The recall half: `/targettacticalsign1` selects whoever wears sign 1.
+#[test]
+fn the_recall_action_selects_the_signed_creature() {
+    let (mut world, ..) = test_world();
+    insert_tactical_rows(&mut world);
+    let _a_rx = ingame_player(&mut world, 1, 7361, 0, 0, 0);
+    let _b_rx = ingame_player(&mut world, 2, 7362, 100, 0, 0);
+    let _c_rx = ingame_player(&mut world, 3, 7363, 200, 0, 0);
+    make_party(&mut world, &[7361, 7362, 7363], LootRule::FindersKeepers);
+    world.objects.add_components(&7361, TargetRef(Some(7363)));
+    press(&mut world, 1, ACTION_SIGN_1);
+
+    // B, targeting nothing, presses the recall.
+    world.objects.add_components(&7362, TargetRef(None));
+    press(&mut world, 2, ACTION_TARGET_SIGN_1);
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<TargetRef>(&7362)
+            .and_then(|t| t.0),
+        Some(7363),
+        "the marked creature is now B's target"
+    );
+}
+
+/// An unused sign recalls nothing, and says nothing — Java returns on a null
+/// map entry without a packet.
+#[test]
+fn recalling_an_unused_sign_does_nothing() {
+    let (mut world, ..) = test_world();
+    insert_tactical_rows(&mut world);
+    let mut a_rx = ingame_player(&mut world, 1, 7371, 0, 0, 0);
+    let _b_rx = ingame_player(&mut world, 2, 7372, 100, 0, 0);
+    make_party(&mut world, &[7371, 7372], LootRule::FindersKeepers);
+    world.objects.add_components(&7371, TargetRef(None));
+    drain(&mut a_rx);
+
+    press(&mut world, 1, ACTION_TARGET_SIGN_1);
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<TargetRef>(&7371)
+            .and_then(|t| t.0),
+        None
+    );
+}
+
+/// The signs belong to the party, so a latecomer is handed the ones already
+/// set, and someone who leaves has their markers wiped — while the party keeps
+/// them for whoever stays (`applyTacticalSigns(player, remove)`).
+#[test]
+fn signs_follow_party_membership_in_and_out() {
+    let (mut world, ..) = test_world();
+    insert_tactical_rows(&mut world);
+    let _a_rx = ingame_player(&mut world, 1, 7381, 0, 0, 0);
+    let _b_rx = ingame_player(&mut world, 2, 7382, 100, 0, 0);
+    let mut c_rx = ingame_player(&mut world, 3, 7383, 200, 0, 0);
+    let party = make_party(&mut world, &[7381, 7382], LootRule::FindersKeepers);
+    world.objects.add_components(&7381, TargetRef(Some(7382)));
+    press(&mut world, 1, ACTION_SIGN_1);
+    drain(&mut c_rx);
+
+    crate::game_loop::party::add_party_member(&mut world, party, 7383);
+    assert_eq!(
+        tactical_signs_in(&drain(&mut c_rx)),
+        vec![(7382, 1)],
+        "the joiner is caught up on the markers already out"
+    );
+
+    crate::game_loop::party::remove_party_member(
+        &mut world,
+        party,
+        7383,
+        crate::game_loop::party::LeaveType::Left,
+    );
+    assert_eq!(
+        tactical_signs_in(&drain(&mut c_rx)),
+        vec![(7382, 0)],
+        "and loses them on the way out"
+    );
+    assert_eq!(
+        signs_of(&world, party),
+        vec![(1, 7382)],
+        "the party keeps the sign itself"
+    );
+}
+
+/// The eight rows the two handlers stand on, read from the shipped file: four
+/// `TacticalSignUse` options and four `TacticalSignTarget`, numbered 1..=4.
+#[test]
+fn the_real_action_data_binds_all_eight_tactical_rows() {
+    let data = ActionData::load_from(DIST);
+
+    for (id, option) in (78..=81).zip(1..=4) {
+        let row = data.row(id).unwrap_or_else(|| panic!("id {id} ships"));
+        assert_eq!(row.handler, "TacticalSignUse", "id {id}");
+        assert_eq!(row.option, option, "id {id} is /tacticalsign{option}");
+    }
+    for (id, option) in (82..=85).zip(1..=4) {
+        let row = data.row(id).unwrap_or_else(|| panic!("id {id} ships"));
+        assert_eq!(row.handler, "TacticalSignTarget", "id {id}");
+        assert_eq!(row.option, option, "id {id} is /targettacticalsign{option}");
+    }
+}

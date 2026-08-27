@@ -273,6 +273,14 @@ pub(super) fn admin_vitality(
     mode: &str,
     args: &[&str],
 ) {
+    // Java's first gate, ahead of the target check: `if (!Config.ENABLE_VITALITY)
+    // { sendSysMessage("Vitality is not enabled on the server!"); return false; }`.
+    // Inert on this dist (`EnableVitality = True`), but a server that turns it
+    // off should say so rather than silently set a pool nothing reads.
+    if !world.cfg.character.enable_vitality {
+        send_message(world, client_id, "Vitality is not enabled on the server!");
+        return;
+    }
     let Some(target) = guard::player_target(world, object_id) else {
         send_message(world, client_id, "Target not found or not a player");
         return;

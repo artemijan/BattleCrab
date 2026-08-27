@@ -661,6 +661,10 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
+    // Java clamps inside the setter — `setRecomHave` is
+    // `Math.min(Math.max(value, 0), 255)` — so `//rec 99999` lands on 255 and
+    // `//rec -5` on 0 rather than storing the number typed (GitHub #7).
+    let val = crate::game_loop::reco::clamp_reco(val);
     let name = world
         .objects
         .get_component_mut::<Player>(&target)
@@ -864,8 +868,26 @@ fn quest_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
         .or(Some(object_id).filter(|oid| world.objects.has_component::<Player>(oid)))
 }
 
-/// `//charquestmenu [player]` / `//show_quests` — the target's quest states
-/// as a generated panel (Java builds the same table in `AdminShowQuests`).
+/// `AdminShowQuests`' `//charquestmenu` — **three pages**, not one table.
+///
+/// Java's flow, and now this one:
+///
+/// * `//charquestmenu <player>` — the menu: Main/Back, then CREATED / STARTED /
+///   COMPLETED / All buttons and a "by quest number" edit box.
+/// * `//charquestmenu <player> 0|1|2` — the quests in that state, each a link;
+///   `3` is the full list.
+/// * `//charquestmenu <player> <quest_name>` — the editor for one quest: its
+///   state, every var with its own Set/Del buttons, the two "Quest Complete"
+///   buttons (repeatable and not) and a delete.
+///
+/// Java tells the modes apart by the argument: `0`/`1`/`2`/`3` are numbers, and
+/// anything containing `_` is a quest name (every quest here is
+/// `Q00258_BringWolfPelts`-shaped). This used to render a single flat table of
+/// every quest with no buttons and no navigation — none of the pages above,
+/// which is what "looks broken" meant (GitHub #9).
+///
+/// The data comes from the live `Quests` component rather than Java's
+/// `character_quests` query, so an unsaved change shows immediately.
 pub(super) fn admin_charquestmenu(
     world: &mut World,
     client_id: u32,
@@ -877,36 +899,147 @@ pub(super) fn admin_charquestmenu(
         return;
     };
     let name = helpers::player_name_or_empty(world, target);
+    // `args[0]` is the player name when one was typed; the mode selector is the
+    // argument after it, exactly as Java reads `cmdParams[2]`.
+    let mode = if args
+        .first()
+        .is_some_and(|a| find_online_player(world, a).is_some())
+    {
+        args.get(1)
+    } else {
+        args.first()
+    };
+    let html = match mode.copied() {
+        None => quest_first_menu(&name, target),
+        Some("0") => quest_state_list(
+            world,
+            target,
+            &name,
+            Some(crate::model::quest::state::CREATED),
+        ),
+        Some("1") => quest_state_list(
+            world,
+            target,
+            &name,
+            Some(crate::model::quest::state::STARTED),
+        ),
+        Some("2") => quest_state_list(
+            world,
+            target,
+            &name,
+            Some(crate::model::quest::state::COMPLETED),
+        ),
+        Some("3") => quest_state_list(world, target, &name, None),
+        Some(quest) => quest_editor(world, target, &name, quest),
+    };
+    super::menu::send_admin_html_content(world, client_id, &html);
+}
+
+/// `showFirstQuestMenu` — the landing page.
+fn quest_first_menu(name: &str, target: i32) -> String {
+    let button = |label: &str, arg: &str| {
+        format!(
+            "<tr><td><button value=\"{label}\" action=\"bypass -h admin_charquestmenu {name} {arg}\" \
+             width=85 height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr>"
+        )
+    };
+    format!(
+        "<html><body>\
+         <table width=270>\
+         <tr><td width=45><button value=\"Main\" action=\"bypass admin_admin\" width=45 height=21 \
+         back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td>\
+         <td width=180><center>Player: {name}</center></td>\
+         <td width=45><button value=\"Back\" action=\"bypass admin_admin6\" width=45 height=21 \
+         back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr></table>\
+         Quest Menu for <font color=\"LEVEL\">{name}</font> (ID:{target})<br><center>\
+         <table width=250>{created}{started}{completed}{all}\
+         <tr><td><br><br>Manual Edit by Quest number:<br></td></tr>\
+         <tr><td><edit var=\"qn\" width=50 height=15><br>\
+         <button value=\"Edit\" action=\"bypass -h admin_charquestmenu {name} $qn custom\" width=50 \
+         height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr>\
+         </table></center></body></html>",
+        created = button("CREATED", "0"),
+        started = button("STARTED", "1"),
+        completed = button("COMPLETED", "2"),
+        all = button("All", "3"),
+    )
+}
+
+/// `showQuestMenu`'s `var` and `full` arms — the quests in one state, or all of
+/// them, each linking to its editor.
+fn quest_state_list(world: &World, target: i32, name: &str, state: Option<u8>) -> String {
     let mut rows = String::new();
     if let Some(q) = world
         .objects
         .get_component::<crate::model::components::Quests>(&target)
     {
-        let mut entries: Vec<_> = q.0.iter().collect();
+        let mut entries: Vec<_> =
+            q.0.iter()
+                .filter(|(_, st)| state.is_none_or(|want| st.state == want))
+                .collect();
         entries.sort_by(|a, b| a.0.cmp(b.0));
-        for (quest, st) in entries {
-            let vars = st
-                .vars
-                .iter()
-                .map(|(k, v)| format!("{k}={v}"))
-                .collect::<Vec<_>>()
-                .join(", ");
+        for (quest, _) in entries {
             rows.push_str(&format!(
-                "<tr><td>{quest}</td><td>{}</td><td>{vars}</td></tr>",
-                crate::model::quest::state::name(st.state)
+                "<tr><td><a action=\"bypass -h admin_charquestmenu {name} {quest}\">{quest}</a></td></tr>"
             ));
         }
     }
-    if rows.is_empty() {
-        rows = "<tr><td>No quest states.</td></tr>".to_string();
+    let header = match state {
+        None => format!(
+            "<table width=250><tr><td>Full Quest List for <font color=\"LEVEL\">{name}</font> \
+             (ID:{target})</td></tr>"
+        ),
+        Some(s) => format!(
+            "Character: <font color=\"LEVEL\">{name}</font><br>Quests with state: \
+             <font color=\"LEVEL\">{}</font><br><table width=250>",
+            crate::model::quest::state::name(s)
+        ),
+    };
+    format!("<html><body>{header}{rows}</table></body></html>")
+}
+
+/// `showQuestMenu`'s `name` arm — the per-quest editor.
+fn quest_editor(world: &World, target: i32, name: &str, quest: &str) -> String {
+    let st = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&target)
+        .and_then(|q| q.0.get(quest).cloned());
+    let state = st.as_ref().map_or("CREATED".to_string(), |s| {
+        crate::model::quest::state::name(s.state).to_uppercase()
+    });
+    let mut rows = String::new();
+    if let Some(st) = &st {
+        let mut vars: Vec<_> = st.vars.iter().collect();
+        vars.sort_by(|a, b| a.0.cmp(b.0));
+        for (var, value) in vars {
+            rows.push_str(&format!(
+                "<tr><td>{var}</td><td>{value}</td>\
+                 <td><edit var=\"var{var}\" width=80 height=15></td>\
+                 <td><button value=\"Set\" action=\"bypass -h admin_setcharquest {name} {quest} {var} $var{var}\" \
+                 width=30 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td>\
+                 <td><button value=\"Del\" action=\"bypass -h admin_setcharquest {name} {quest} {var} delete\" \
+                 width=30 height=15 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr>"
+            ));
+        }
     }
-    let html = format!(
-        "<html><title>Quests of {name}</title><body><center>\
-         <table width=270><tr><td>Quest</td><td>State</td><td>Vars</td></tr>{rows}</table>\
-         <br>Set: //setcharquest {name} &lt;quest&gt; &lt;var&gt; &lt;value&gt;\
+    format!(
+        "<html><body>\
+         Character: <font color=\"LEVEL\">{name}</font><br>\
+         Quest: <font color=\"LEVEL\">{quest}</font><br>\
+         State: <font color=\"LEVEL\">{state}</font><br><br>\
+         <center><table width=250>\
+         <tr><td>Var</td><td>Value</td><td>New Value</td><td>&nbsp;</td></tr>{rows}</table>\
+         <br><br><table width=250>\
+         <tr><td>Repeatable quest:</td><td>Unrepeatable quest:</td></tr>\
+         <tr><td><button value=\"Quest Complete\" action=\"bypass -h admin_setcharquest {name} {quest} state COMPLETED 1\" \
+         width=120 height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td>\
+         <td><button value=\"Quest Complete\" action=\"bypass -h admin_setcharquest {name} {quest} state COMPLETED 0\" \
+         width=120 height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr></table>\
+         <br><br><font color=\"ff0000\">Delete Quest from DB:</font><br>\
+         <button value=\"Quest Delete\" action=\"bypass -h admin_setcharquest {name} {quest} state DELETE\" \
+         width=120 height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\">\
          </center></body></html>"
-    );
-    super::menu::send_admin_html_content(world, client_id, &html);
+    )
 }
 
 /// `//setcharquest <player> <quest> <var> <value>` — set a quest variable on

@@ -46,16 +46,46 @@ pub(crate) const DAY_MILLIS: i64 = 86_400_000;
 /// DAYS)`), in milliseconds.
 const MONTH_MILLIS: i64 = 30 * DAY_MILLIS;
 
+/// The account a `//premium_*` subcommand acts on: the typed argument, or —
+/// when none is given — the account of the GM's current target.
+///
+/// **This is a step past Java.** `AdminPremium` there takes an account name and
+/// nothing else; with no argument it answers "Please enter a valid account
+/// name" and stops. Selecting the character and clicking the menu button is the
+/// obvious gesture, though, and the menu's own buttons pass no argument, so the
+/// target is used as the fallback (GitHub #5). The error message is kept for
+/// the case where there is no argument *and* no player targeted.
+fn account_arg(world: &World, client_id: u32, object_id: i32, args: &[&str]) -> Option<String> {
+    if let Some(&typed) = args.first() {
+        return Some(typed.to_string());
+    }
+    let target = crate::game_loop::guard::target(world, object_id)?;
+    world
+        .objects
+        .get_component::<crate::model::Player>(&target)
+        .map(|p| p.account.clone())
+        .or_else(|| {
+            send_message(world, client_id, "Please enter a valid account name.");
+            None
+        })
+}
+
 /// `AdminPremium.useAdminCommand` — route a `//premium_*` command and always
 /// re-render the menu afterwards (Java sends the `premium_menu.htm`
 /// `NpcHtmlMessage` at the end regardless of subcommand).
-pub(super) fn admin_premium(world: &mut World, client_id: u32, command: &str, args: &[&str]) {
+pub(super) fn admin_premium(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    command: &str,
+    args: &[&str],
+) {
     match command {
-        "admin_premium_add1" => add_premium(world, client_id, 1, args),
-        "admin_premium_add2" => add_premium(world, client_id, 2, args),
-        "admin_premium_add3" => add_premium(world, client_id, 3, args),
-        "admin_premium_info" => view_premium(world, client_id, args),
-        "admin_premium_remove" => remove_premium(world, client_id, args),
+        "admin_premium_add1" => add_premium(world, client_id, object_id, 1, args),
+        "admin_premium_add2" => add_premium(world, client_id, object_id, 2, args),
+        "admin_premium_add3" => add_premium(world, client_id, object_id, 3, args),
+        "admin_premium_info" => view_premium(world, client_id, object_id, args),
+        "admin_premium_remove" => remove_premium(world, client_id, object_id, args),
         // "admin_premium_menu" and anything else: just (re)show the menu.
         _ => {}
     }
@@ -63,11 +93,11 @@ pub(super) fn admin_premium(world: &mut World, client_id: u32, command: &str, ar
 }
 
 /// `AdminPremium.addPremiumStatus` — grant `months` × 30 days of premium.
-fn add_premium(world: &mut World, client_id: u32, months: i64, args: &[&str]) {
-    let Some(&account) = args.first() else {
-        send_message(world, client_id, "Please enter a valid account name.");
+fn add_premium(world: &mut World, client_id: u32, object_id: i32, months: i64, args: &[&str]) {
+    let Some(account) = account_arg(world, client_id, object_id, args) else {
         return;
     };
+    let account = account.as_str();
     if !premium_system_enabled(world) {
         send_message(world, client_id, "Premium system is disabled.");
         return;
@@ -102,11 +132,11 @@ fn add_premium(world: &mut World, client_id: u32, months: i64, args: &[&str]) {
 }
 
 /// `AdminPremium.viewPremiumInfo`.
-fn view_premium(world: &World, client_id: u32, args: &[&str]) {
-    let Some(&account) = args.first() else {
-        send_message(world, client_id, "Please enter a valid account name.");
+fn view_premium(world: &World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(account) = account_arg(world, client_id, object_id, args) else {
         return;
     };
+    let account = account.as_str();
     if !premium_system_enabled(world) {
         send_message(world, client_id, "Premium system is disabled.");
         return;
@@ -131,11 +161,11 @@ fn view_premium(world: &World, client_id: u32, args: &[&str]) {
 }
 
 /// `AdminPremium.removePremium`.
-fn remove_premium(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(&account) = args.first() else {
-        send_message(world, client_id, "Please enter a valid account name.");
+fn remove_premium(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(account) = account_arg(world, client_id, object_id, args) else {
         return;
     };
+    let account = account.as_str();
     if !premium_system_enabled(world) {
         send_message(world, client_id, "Premium system is disabled.");
         return;

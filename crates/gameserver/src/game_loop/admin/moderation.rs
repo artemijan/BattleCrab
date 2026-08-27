@@ -596,21 +596,46 @@ pub(super) fn admin_find_ip(world: &mut World, client_id: u32, args: &[&str]) {
 
 /// `AdminEditChar`'s `//find_dualbox [n]` — IPs with `n` or more online
 /// characters (default 2). Java's default `multibox` is 2.
-pub(super) fn admin_find_dualbox(world: &mut World, client_id: u32, args: &[&str]) {
+///
+/// The result is the **`dualbox.htm` panel**, not chat lines: Java fills
+/// `%multibox%` and `%results%` and sends the page, where each IP is an
+/// `admin_find_ip` link and the footer buttons re-run the search at 2/3/4/5.
+/// Printing the hits to system chat (what this did) threw away both the links
+/// and the buttons (GitHub #6).
+///
+/// `strict` is the `//strict_find_dualbox` variant. Java groups by a wider key
+/// there (`IpPack`, i.e. IP plus the client's hardware hashes); the port has no
+/// hardware id, so the two searches find the same thing — but the panel still
+/// has to say which one it is, or its footer buttons send the GM back to the
+/// other command.
+pub(super) fn admin_find_dualbox(world: &mut World, client_id: u32, args: &[&str], strict: bool) {
     let threshold = nth_arg::<usize>(args, 0).filter(|&n| n >= 1).unwrap_or(2);
     let hits = dualbox_ips(world, threshold);
-    send_message(
+    // Java's row: `<a action="bypass -h admin_find_ip <ip>"><ip> (<count>)</a><br1>`.
+    let results: String = hits
+        .iter()
+        .map(|(ip, count)| {
+            format!("<a action=\"bypass -h admin_find_ip {ip}\">{ip} ({count})</a><br1>")
+        })
+        .collect();
+    super::menu::show_admin_html_replace(
         world,
         client_id,
-        &format!("=== Dualbox (>= {threshold}) ==="),
+        "dualbox.htm",
+        &[
+            ("multibox", threshold.to_string()),
+            ("results", results),
+            // `%strict%` picks which command the footer buttons re-run.
+            (
+                "strict",
+                if strict {
+                    "strict_".to_string()
+                } else {
+                    String::new()
+                },
+            ),
+        ],
     );
-    if hits.is_empty() {
-        send_message(world, client_id, "None found.");
-        return;
-    }
-    for (ip, count) in hits {
-        send_message(world, client_id, &format!("{ip} ({count})"));
-    }
 }
 
 /// `AdminEditChar`'s `//tracert <name>` — show a player's connecting IP (Java
