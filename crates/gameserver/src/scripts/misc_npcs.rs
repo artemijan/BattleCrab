@@ -340,6 +340,6 @@ impl QuestScript for RandomWalkingGuards {
     /// task (`game_loop::area_npcs`) — Java's timer carries an NPC and a null
     /// player, which the player-anchored quest timers here cannot express.
     fn on_spawn(&self, ctx: &mut QuestCtx) {
-        crate::game_loop::area_npcs::arm_guard_walk(ctx.world, ctx.npc);
+        crate::game_loop::npc::area::arm_guard_walk(ctx.world, ctx.npc);
     }
 }

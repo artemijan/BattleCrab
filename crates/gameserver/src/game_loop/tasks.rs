@@ -2,7 +2,6 @@
 //! owning module — the timer face of `dispatch.rs`'s packet routing.
 
 use super::admin;
-use super::area_npcs;
 use super::boats;
 use super::bot_report;
 use super::castle;
@@ -44,6 +43,7 @@ use super::sit_stand;
 use super::skills;
 use super::tamed_beast;
 use super::water;
+use crate::game_loop::npc::area;
 use crate::game_loop::npc::bosses::antharas;
 use crate::game_loop::npc::bosses::baium;
 use crate::game_loop::npc::bosses::boss_respawn;
@@ -158,26 +158,26 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             ScheduledTask::QueenAntHeal { queen_oid } => {
                 queen_ant::handle_heal_tick(world, queen_oid);
             }
-            ScheduledTask::TomaRelocate => area_npcs::relocate_toma(world),
+            ScheduledTask::TomaRelocate => area::relocate_toma(world),
             ScheduledTask::MammonRelocate { npc_id } => {
-                area_npcs::relocate_mammon(world, npc_id);
+                area::relocate_mammon(world, npc_id);
             }
             ScheduledTask::SinEaterTalk { pet_oid } => {
                 crate::scripts::sin_eater::handle_talk_beat(world, pet_oid);
             }
             ScheduledTask::GuardRandomWalk { npc_oid } => {
-                area_npcs::handle_guard_random_walk(world, npc_oid);
+                area::handle_guard_random_walk(world, npc_oid);
             }
             ScheduledTask::CastleMassTeleport { npc_oid } => {
-                area_npcs::handle_castle_mass_teleport(world, npc_oid);
+                area::handle_castle_mass_teleport(world, npc_oid);
             }
             ScheduledTask::DayNightCheck { was_night } => {
-                area_npcs::handle_day_night_check(world, was_night);
+                area::handle_day_night_check(world, was_night);
             }
             ScheduledTask::EilhalderDespawnRetry => {
-                area_npcs::handle_eilhalder_despawn_retry(world);
+                area::handle_eilhalder_despawn_retry(world);
             }
-            ScheduledTask::FogRefresh => area_npcs::handle_fog_refresh(world),
+            ScheduledTask::FogRefresh => area::handle_fog_refresh(world),
             ScheduledTask::TamedBeastDuration { beast_oid } => {
                 tamed_beast::handle_duration(world, beast_oid);
             }

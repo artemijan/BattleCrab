@@ -12,7 +12,7 @@
 //! `SpawnData` — `spawnAll`/`despawnAll` on the group that just came in or out.
 //!
 //! The clock itself is G33's (`game_time::is_night_at`), polled by the minute
-//! beat in [`super::area_npcs::handle_day_night_check`].
+//! beat in [`area::handle_day_night_check`].
 //!
 //! ## NoRandomActivity — the templates that pin their NPCs down
 //!

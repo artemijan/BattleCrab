@@ -4,7 +4,7 @@
 use super::*;
 
 use crate::data::zone_data::ZoneData;
-use crate::game_loop::area_npcs::{
+use crate::game_loop::npc::area::{
     self, BLACKSMITH_OF_MAMMON, MERCHANT_OF_MAMMON, PRIEST_OF_MAMMON,
 };
 use crate::model::components::ActiveMultisell;
@@ -140,7 +140,7 @@ fn mammons_spawn_at_boot_and_relocate_without_duplicating() {
     let (mut world, _db, _l) = combat_test_world();
     register_mammon_templates(&mut world);
 
-    area_npcs::spawn_at_boot(&mut world);
+    area::spawn_at_boot(&mut world);
     for npc_id in [MERCHANT_OF_MAMMON, BLACKSMITH_OF_MAMMON, PRIEST_OF_MAMMON] {
         assert_eq!(
             insert_positions_for(&mut world, npc_id).len(),
@@ -150,7 +150,7 @@ fn mammons_spawn_at_boot_and_relocate_without_duplicating() {
     }
 
     for _ in 0..5 {
-        area_npcs::relocate_mammon(&mut world, MERCHANT_OF_MAMMON);
+        area::relocate_mammon(&mut world, MERCHANT_OF_MAMMON);
         assert_eq!(
             insert_positions_for(&mut world, MERCHANT_OF_MAMMON).len(),
             1,
@@ -178,7 +178,7 @@ fn relocating_the_priest_leaves_static_spawns_alone() {
         -3536,
     );
 
-    area_npcs::spawn_at_boot(&mut world);
+    area::spawn_at_boot(&mut world);
     assert_eq!(
         insert_positions_for(&mut world, PRIEST_OF_MAMMON).len(),
         2,
@@ -186,7 +186,7 @@ fn relocating_the_priest_leaves_static_spawns_alone() {
     );
 
     for _ in 0..3 {
-        area_npcs::relocate_mammon(&mut world, PRIEST_OF_MAMMON);
+        area::relocate_mammon(&mut world, PRIEST_OF_MAMMON);
         assert_eq!(
             insert_positions_for(&mut world, PRIEST_OF_MAMMON).len(),
             2,
@@ -234,7 +234,7 @@ fn mammon_spawn_announces_the_nearest_castle() {
 
     // Haunt index 1 = Giran.
     world.force_roll(1);
-    area_npcs::relocate_mammon(&mut world, PRIEST_OF_MAMMON);
+    area::relocate_mammon(&mut world, PRIEST_OF_MAMMON);
 
     let said: Vec<Vec<u8>> = drain(&mut rx)
         .into_iter()
@@ -252,7 +252,7 @@ fn mammon_spawn_announces_the_nearest_castle() {
     // And with the config off, nothing is said.
     world.cfg.npc.announce_mammon_spawn = false;
     world.force_roll(1);
-    area_npcs::relocate_mammon(&mut world, PRIEST_OF_MAMMON);
+    area::relocate_mammon(&mut world, PRIEST_OF_MAMMON);
     assert!(
         !drain(&mut rx)
             .iter()
@@ -629,7 +629,7 @@ fn mass_teleport_ousts_only_the_restart_territory() {
     drain(&mut rx_in);
     drain(&mut rx_out);
 
-    area_npcs::handle_castle_mass_teleport(&mut world, NPC_OID);
+    area::handle_castle_mass_teleport(&mut world, NPC_OID);
 
     let pos_in = *world
         .objects
@@ -1429,7 +1429,7 @@ fn village_guards_stroll_around_their_post() {
     let oid = model::npc::spawn_npc_at(&mut world, GUARD, 0, 0, 0, 0).expect("spawned");
 
     // The spawn hook armed the first stroll; fire it.
-    area_npcs::handle_guard_random_walk(&mut world, oid);
+    area::handle_guard_random_walk(&mut world, oid);
     assert!(
         world.objects.has_component::<Movement>(&oid),
         "the guard set off"

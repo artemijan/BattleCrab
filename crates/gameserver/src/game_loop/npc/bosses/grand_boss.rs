@@ -12,7 +12,7 @@ use crate::game_loop::time::{MILLIS_PER_HOUR, TICKS_PER_SECOND};
 use commons::util::now_millis;
 
 use crate::db::DbCommand;
-use crate::game_loop::area_npcs::find_by_npc_id;
+use crate::game_loop::npc::area::find_by_npc_id;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 

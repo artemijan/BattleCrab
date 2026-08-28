@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::game_loop::area_npcs::{self, TOMA};
+use crate::game_loop::npc::area::{self, TOMA};
 use crate::game_loop::quests;
 
 const TOMA_LOCS: [(i32, i32, i32); 3] = [
@@ -22,14 +22,14 @@ fn toma_spawns_at_boot_and_relocates_without_duplicating() {
     t.type_name = "Folk".into();
     world.data.npc_data.insert_for_test(t);
 
-    area_npcs::spawn_at_boot(&mut world);
+    area::spawn_at_boot(&mut world);
     let at_boot = insert_positions_for(&mut world, TOMA);
     assert_eq!(at_boot.len(), 1, "exactly one Toma after boot");
     assert!(TOMA_LOCS.contains(&at_boot[0]), "on a known haunt");
 
     // The beat fires (directly — the scheduled path is the same fn).
     for _ in 0..5 {
-        area_npcs::relocate_toma(&mut world);
+        area::relocate_toma(&mut world);
         let now = insert_positions_for(&mut world, TOMA);
         assert_eq!(now.len(), 1, "relocation never duplicates him");
         assert!(TOMA_LOCS.contains(&now[0]));
@@ -351,20 +351,20 @@ fn plains_of_dion_calls_the_clan() {
 #[test]
 fn eilhalder_walks_at_night_and_vanishes_by_day() {
     let (mut world, _db, _l) = combat_test_world();
-    use crate::game_loop::area_npcs::{self, EILHALDER};
+    use crate::game_loop::npc::area::{self, EILHALDER};
     world
         .data
         .npc_data
         .insert_for_test(crate::data::npc_data::default_template(EILHALDER));
 
-    area_npcs::eilhalder_on_day_night_change(&mut world, true);
+    area::eilhalder_on_day_night_change(&mut world, true);
     assert_eq!(count_npcs(&mut world, EILHALDER), 1, "night: he walks");
 
-    area_npcs::eilhalder_on_day_night_change(&mut world, false);
+    area::eilhalder_on_day_night_change(&mut world, false);
     assert_eq!(count_npcs(&mut world, EILHALDER), 0, "day: gone");
 
     // Night again, but this time he is fighting at daybreak.
-    area_npcs::eilhalder_on_day_night_change(&mut world, true);
+    area::eilhalder_on_day_night_change(&mut world, true);
     let oid = find_npc_object_id(&mut world, EILHALDER).unwrap();
     let mut aggro = AggroList::default();
     aggro.0.insert(
@@ -375,7 +375,7 @@ fn eilhalder_walks_at_night_and_vanishes_by_day() {
         },
     );
     world.objects.add_components(&oid, aggro);
-    area_npcs::eilhalder_on_day_night_change(&mut world, false);
+    area::eilhalder_on_day_night_change(&mut world, false);
     assert_eq!(count_npcs(&mut world, EILHALDER), 1, "fighting: he stays");
 
     // Fight over → the retry removes him.
@@ -385,7 +385,7 @@ fn eilhalder_walks_at_night_and_vanishes_by_day() {
         .unwrap()
         .0
         .clear();
-    area_npcs::handle_eilhalder_despawn_retry(&mut world);
+    area::handle_eilhalder_despawn_retry(&mut world);
     assert_eq!(
         count_npcs(&mut world, EILHALDER),
         0,
@@ -673,7 +673,7 @@ fn forge_kill_streak_erupts_a_lavasaurus_and_refresh_cools_it() {
     assert_eq!(count_npcs(&mut world, NEWBORN), 1, "the forge answers");
 
     // The refresh beat resets the streak: the next lucky kill is kill #1.
-    area_npcs::handle_fog_refresh(&mut world);
+    area::handle_fog_refresh(&mut world);
     world.force_roll(5);
     quests::notify_kill(&mut world, 5001, w(3), WORKER, false);
     assert_eq!(

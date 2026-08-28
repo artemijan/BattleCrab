@@ -7,7 +7,7 @@
 //! - `CastleDoorManager` — open/close the castle gates, jump between posts.
 //! - `CastleSiegeManager` — the siege registration window.
 //! - `CastleTeleporter` — the defenders' battlefield gatekeepers, plus the
-//!   mass gatekeeper's `MASS_TELEPORT` (in [`crate::game_loop::area_npcs`],
+//!   mass gatekeeper's `MASS_TELEPORT` (in [`crate::game_loop::npc::area`],
 //!   since it fires with nobody in particular attached).
 //!
 //! All six resolve their castle the way Java does — `npc.getCastle()` =
@@ -685,7 +685,7 @@ impl QuestScript for CastleTeleporter {
             "CastleTeleporter-06.html" => {
                 if ctx.npc_script_value() == 0 {
                     let delay_ms = if towers_down(ctx) { 480_000 } else { 30_000 };
-                    crate::game_loop::area_npcs::arm_castle_mass_teleport(
+                    crate::game_loop::npc::area::arm_castle_mass_teleport(
                         ctx.world, ctx.npc, delay_ms,
                     );
                     ctx.set_npc_script_value(1);

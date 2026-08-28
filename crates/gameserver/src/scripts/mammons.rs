@@ -2,7 +2,7 @@
 //! the three wandering Mammon merchants' chat windows.
 //!
 //! The lifecycle (spawn at boot, relocate every 30 minutes, announce the
-//! nearest castle) lives in [`crate::game_loop::area_npcs`]; these are only the
+//! nearest castle) lives in [`crate::game_loop::npc::area`]; these are only the
 //! dialogs. Each html page is a list of `multisell` / `exc_multisell` buttons —
 //! the Mammon exchange shops — plus `Quest <ScriptName> <page>.html` links
 //! between pages, so the three scripts differ only in npc id and html folder.
@@ -15,7 +15,7 @@
 //! `33511.html`, whose buttons are all multisells — so that branch is
 //! unreachable and the behaviour, not the intent, is what is ported here.
 
-use crate::game_loop::area_npcs::{BLACKSMITH_OF_MAMMON, MERCHANT_OF_MAMMON, PRIEST_OF_MAMMON};
+use crate::game_loop::npc::area::{BLACKSMITH_OF_MAMMON, MERCHANT_OF_MAMMON, PRIEST_OF_MAMMON};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
 /// The three scripts are identical apart from name/npc/html dir; Java keeps

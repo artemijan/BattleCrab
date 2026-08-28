@@ -1,7 +1,6 @@
 //! Boot-time world population and the shutdown flush — the ordered subsystem
 //! registry `run` used to inline.
 
-use super::area_npcs;
 use super::boats;
 use super::bot_report;
 use super::cursed_weapon;
@@ -14,6 +13,7 @@ use super::net;
 use super::offline_trade;
 use super::olympiad;
 use super::restart;
+use crate::game_loop::npc::area;
 use crate::game_loop::npc::bosses::boss_respawn;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -40,7 +40,7 @@ pub(super) fn boot(world: &mut World) {
     boats::spawn_boats(world);
     // Script-owned area NPCs (Toma is not in the spawn data — his script
     // places and relocates him).
-    area_npcs::spawn_at_boot(world);
+    area::spawn_at_boot(world);
     // Each event's `config.xml` cron schedule (Java's per-event `loadConfig`).
     events::schedule_at_boot(world);
     // Java `CreatureSeeTaskManager`: the 1 s creature-see scan behind

@@ -1,8 +1,8 @@
 //! `ai/areas/DwarvenVillage/Toma` — Toma's chat window. The wandering
 //! lifecycle (spawn at boot, relocate every 30 minutes) lives in
-//! [`crate::game_loop::area_npcs`]; this is only the first-talk hook.
+//! [`crate::game_loop::npc::area`]; this is only the first-talk hook.
 
-use crate::game_loop::area_npcs::TOMA;
+use crate::game_loop::npc::area::TOMA;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
 pub struct Toma;
