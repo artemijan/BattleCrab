@@ -224,7 +224,7 @@ impl QuestScript for PolymorphingOnAttack {
         // Java's `addSpawn(id, x, y, z + 10, heading, …)`.
         let attacker = attacking_creature(ctx);
         ctx.delete_npc();
-        let Some(spawned) = crate::model::npc::spawn_npc_at(
+        let Some(spawned) = crate::game_loop::npc::spawn_npc_at(
             ctx.world,
             morph.into,
             pos.x,

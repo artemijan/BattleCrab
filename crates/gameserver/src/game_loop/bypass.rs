@@ -19,7 +19,7 @@
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::npc::view;
+use crate::game_loop::npc::{teleporter, view};
 use crate::model::components::LastFolkNpc;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -520,9 +520,9 @@ fn npc_bypass(
         // list windows + the actual teleport, gated on the instance class
         // like Java's subclass override.
         "showTeleports" | "showTeleportsHunting" | "teleport" | "showNoblesSelect"
-            if super::teleporter::is_teleporter(world, npc_object_id) =>
+            if teleporter::is_teleporter(world, npc_object_id) =>
         {
-            super::teleporter::handle_bypass(world, client_id, object_id, npc_object_id, command);
+            teleporter::handle_bypass(world, client_id, object_id, npc_object_id, command);
         }
         // `bypasshandlers/Buy.java`: merchants only.
         "Buy" if super::shop::is_merchant(world, npc_object_id) => {

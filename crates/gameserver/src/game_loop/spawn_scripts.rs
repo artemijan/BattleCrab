@@ -103,7 +103,9 @@ fn spawn_group(world: &mut World, spawn_idx: usize, group_idx: usize) -> Vec<i32
     for npc_idx in 0..lines {
         let count = world.data.spawn_data.spawns[spawn_idx].groups[group_idx].npcs[npc_idx].count;
         for _ in 0..count {
-            if let Some(oid) = crate::model::npc::spawn_one(world, spawn_idx, group_idx, npc_idx) {
+            if let Some(oid) =
+                crate::game_loop::npc::spawn_one(world, spawn_idx, group_idx, npc_idx)
+            {
                 placed.push(oid);
             }
         }

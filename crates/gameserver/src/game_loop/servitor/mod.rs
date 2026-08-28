@@ -136,7 +136,7 @@ pub(crate) fn summon_servitor(
 
     let pos = maybe_position(world, owner_oid)?;
     let servitor_oid =
-        crate::model::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, pos.heading)?;
+        crate::game_loop::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, pos.heading)?;
 
     // `lifeTime <= 0` → Java's `Integer.MAX_VALUE` ("Classic hack. Resummon
     // upon entering game."), i.e. no expiry while the session lasts.

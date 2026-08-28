@@ -135,7 +135,7 @@ pub(super) fn admin_mobgroup_spawn(
     let mut members = Vec::new();
     for _ in 0..max_count {
         if let Some(oid) =
-            crate::model::npc::spawn_npc_at(world, npc_id, pos.0, pos.1, pos.2, pos.3)
+            crate::game_loop::npc::spawn_npc_at(world, npc_id, pos.0, pos.1, pos.2, pos.3)
         {
             world
                 .objects

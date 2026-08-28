@@ -59,7 +59,7 @@ pub(crate) fn spawn_tamed_beast(
     for old in beasts_of(world, owner) {
         despawn_npc_by_oid(world, old);
     }
-    let oid = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, 0)?;
+    let oid = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, 0)?;
     world.objects.add_components(
         &oid,
         TamedBeastOf {
@@ -279,7 +279,8 @@ pub(crate) fn handle_mad_cow_polymorph(world: &mut World, cow_oid: i32, feeder_o
         return;
     };
     despawn_npc_by_oid(world, cow_oid);
-    if let Some(next) = crate::model::npc::spawn_npc_at(world, next_id, pos.x, pos.y, pos.z, 0) {
+    if let Some(next) = crate::game_loop::npc::spawn_npc_at(world, next_id, pos.x, pos.y, pos.z, 0)
+    {
         crate::game_loop::death::introduce_npc(world, next);
         if let Some(n) = world
             .objects

@@ -22,7 +22,7 @@ use crate::world::World;
 pub(super) fn boot(world: &mut World) {
     // Java `GameServer`: SpawnData.getInstance().init() — place the static
     // world content before accepting anyone in.
-    crate::model::npc::spawn_all(world);
+    crate::game_loop::npc::spawn_all(world);
     // DoorData's boot spawn (entities + BY_TIME cycles; the collision grid
     // was registered into the GeoEngine in main.rs, before it was shared).
     crate::model::door::spawn_doors(world);

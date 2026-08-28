@@ -8,6 +8,7 @@
 //! content, and these are its tests.
 
 use super::*;
+use crate::game_loop;
 
 use crate::model::components::{Buffs, Position, SkillBook, Vitals};
 use crate::model::skill::{
@@ -456,6 +457,7 @@ fn op_companion_pet_requires_a_pet_target() {
 /// does swing from further out.
 #[test]
 fn grow_swaps_the_npc_collision_cylinder_and_restores_it() {
+    use crate::game_loop;
     use crate::model::components::Collision;
 
     let (mut world, ..) = cast_test_world();
@@ -464,7 +466,7 @@ fn grow_swaps_the_npc_collision_cylinder_and_restores_it() {
     const NPC: i32 = 20588;
     // NPC object ids live above `FIRST_NPC_OBJECT_ID`; a player-range id
     // makes `is_npc_oid` take the player branch and the buff never lands.
-    const MOB: i32 = model::npc::FIRST_NPC_OBJECT_ID + 501;
+    const MOB: i32 = game_loop::npc::FIRST_NPC_OBJECT_ID + 501;
     {
         let mut tpl = crate::data::npc_data::default_template(NPC);
         tpl.type_name = "Monster".into();
@@ -515,7 +517,7 @@ fn grow_swaps_the_npc_collision_cylinder_and_restores_it() {
 #[test]
 fn teleport_to_target_puts_the_caster_behind_its_target() {
     let (mut world, ..) = cast_test_world();
-    const MOB: i32 = model::npc::FIRST_NPC_OBJECT_ID + 601;
+    const MOB: i32 = game_loop::npc::FIRST_NPC_OBJECT_ID + 601;
     add_test_npc(&mut world, MOB, 21524, "Monster", 60, 3000, 0, 0);
     let _rx = ingame_player(&mut world, CID, CASTER, 0, 0, 0);
     // Heading 0 = facing +x, so "behind" is -x.

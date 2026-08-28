@@ -29,7 +29,7 @@ pub(crate) fn spawn_effect_point(
     z: i32,
     effect_despawn_ms: i32,
 ) {
-    let Some(npc_oid) = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, 0) else {
+    let Some(npc_oid) = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, 0) else {
         return;
     };
     world
@@ -97,7 +97,7 @@ pub(crate) fn spawn_plain_summon(
         .objects
         .get_component::<crate::model::components::Position>(&owner_oid)
         .map_or(0, |p| p.heading);
-    let Some(npc_oid) = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, heading) else {
+    let Some(npc_oid) = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, heading) else {
         return;
     };
     world

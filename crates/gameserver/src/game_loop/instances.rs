@@ -24,7 +24,7 @@ pub(crate) fn create_from_template(world: &mut World, template_id: i32) -> Optio
             continue;
         }
         for spawn in &group.npcs {
-            if let Some(oid) = crate::model::npc::spawn_npc_at(
+            if let Some(oid) = crate::game_loop::npc::spawn_npc_at(
                 world,
                 spawn.npc_id,
                 spawn.x,
@@ -153,7 +153,7 @@ pub(crate) fn spawn_group(world: &mut World, instance_id: i32, group_name: &str)
             continue;
         }
         for spawn in &group.npcs {
-            if let Some(oid) = crate::model::npc::spawn_npc_at(
+            if let Some(oid) = crate::game_loop::npc::spawn_npc_at(
                 world,
                 spawn.npc_id,
                 spawn.x,
@@ -181,7 +181,7 @@ pub(crate) fn spawn_npc(
     z: i32,
     heading: i32,
 ) -> Option<i32> {
-    let oid = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, heading)?;
+    let oid = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, heading)?;
     world.objects.add_components(&oid, InstanceId(instance_id));
     world.instances.record_npc(instance_id, oid);
     Some(oid)

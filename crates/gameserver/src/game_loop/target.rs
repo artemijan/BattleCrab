@@ -6,7 +6,7 @@ use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
 use crate::model::components;
 
-use crate::game_loop::npc::view;
+use crate::game_loop::npc::{teleporter, view};
 
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -808,9 +808,9 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
     // castle's siege runs, and the "no" page for everyone else.
     if t.type_name == "Teleporter"
         && value == 0
-        && let Some(file) = super::teleporter::castle_landing_page(world, npc_object_id, viewer_oid)
+        && let Some(file) = teleporter::castle_landing_page(world, npc_object_id, viewer_oid)
     {
-        super::teleporter::send_teleporter_html(world, client_id, npc_object_id, &file);
+        teleporter::send_teleporter_html(world, client_id, npc_object_id, &file);
         return;
     }
     let html = load_chat_window_html(world, client_id, &t.type_name, t.id, value)

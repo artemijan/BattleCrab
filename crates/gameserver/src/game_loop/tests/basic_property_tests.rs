@@ -7,12 +7,13 @@
 //! silently rewrites PvP, so it is asserted directly.
 
 use super::*;
+use crate::game_loop;
 use crate::game_loop::basic_property::{
     RESIST_DURATION_TICKS, has_resist, increase_resist_level, resist_bonus, resist_level,
 };
 use crate::model::skill::BasicProperty;
 
-const MOB: i32 = model::npc::FIRST_NPC_OBJECT_ID + 7701;
+const MOB: i32 = game_loop::npc::FIRST_NPC_OBJECT_ID + 7701;
 const PLAYER: i32 = 5801;
 
 fn world_with_mob() -> World {

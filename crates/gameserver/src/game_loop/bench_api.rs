@@ -46,7 +46,7 @@ pub fn dist_world() -> BenchWorld {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/data/geodata"
     ))));
-    crate::model::npc::spawn_all(&mut world);
+    crate::game_loop::npc::spawn_all(&mut world);
     crate::model::door::spawn_doors(&mut world);
     crate::model::static_object::spawn_static_objects(&mut world);
     BenchWorld {

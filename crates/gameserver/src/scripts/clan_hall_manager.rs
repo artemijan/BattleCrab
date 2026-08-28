@@ -148,7 +148,7 @@ impl ClanHallManager {
                     (Some(list), Some(loc)) => {
                         let func_lvl = list.strip_prefix("tel").and_then(|n| n.parse().ok());
                         if func_lvl == Some(level) {
-                            crate::game_loop::teleporter::do_teleport(
+                            crate::game_loop::npc::teleporter::do_teleport(
                                 ctx.world,
                                 ctx.client_id,
                                 ctx.player,
@@ -166,7 +166,7 @@ impl ClanHallManager {
                             "npc_{}_Quest ClanHallManager useFunctions teleport",
                             ctx.npc
                         );
-                        crate::game_loop::teleporter::show_teleport_list(
+                        crate::game_loop::npc::teleporter::show_teleport_list(
                             ctx.world,
                             ctx.client_id,
                             ctx.player,

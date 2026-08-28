@@ -22,11 +22,11 @@ use tracing::warn;
 
 use crate::game_loop::death::{despawn_npc_by_oid, introduce_npc, teleport_player};
 use crate::game_loop::instances;
+use crate::game_loop::npc::spawn_npc_at;
 use crate::game_loop::user_commands::in_combat;
 use crate::model::Player;
 use crate::model::components::FishingSession;
 use crate::model::event::TvtPhase;
-use crate::model::npc::spawn_npc_at;
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;

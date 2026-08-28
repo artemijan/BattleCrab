@@ -21,6 +21,7 @@
 //! reach is 619 and its band is (619, 719].
 
 use super::*;
+use crate::game_loop;
 use crate::model::components::{Following, Immobilized, Intent, Movement};
 
 /// The gremlin from `combat_test_world`, spawned at (x, 0) with combat stats.
@@ -38,7 +39,7 @@ fn spawn_gremlin_at(world: &mut World, npc_oid: i32, x: i32, z: i32) {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );

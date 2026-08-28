@@ -402,7 +402,8 @@ pub(crate) fn handle_npc_respawn(
     if !super::spawn_scripts::respawn_is_in_phase(world, spawn_idx, group_idx) {
         return;
     }
-    let Some(object_id) = crate::model::npc::spawn_one(world, spawn_idx, group_idx, npc_idx) else {
+    let Some(object_id) = crate::game_loop::npc::spawn_one(world, spawn_idx, group_idx, npc_idx)
+    else {
         return;
     };
     introduce_npc(world, object_id);

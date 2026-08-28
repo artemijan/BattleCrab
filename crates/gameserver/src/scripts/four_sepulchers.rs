@@ -242,7 +242,7 @@ impl QuestScript for FourSepulchers {
                     .get_component::<Position>(&ctx.npc)
                     .copied();
                 if let Some(p) = pos {
-                    crate::model::npc::spawn_npc_at(ctx.world, fs::KEY_CHEST, p.x, p.y, p.z, 0);
+                    crate::game_loop::npc::spawn_npc_at(ctx.world, fs::KEY_CHEST, p.x, p.y, p.z, 0);
                 }
             }
         }

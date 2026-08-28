@@ -13,6 +13,7 @@ use crate::data::item_data::{
     ActionType, CrystalType, EtcItemType, ItemHandler, ItemKind, ItemStats, ItemTemplate,
     SLOT_L_HAND,
 };
+use crate::game_loop;
 use crate::model::components::Vitals;
 use crate::model::skill::SkillEffect;
 
@@ -222,7 +223,7 @@ fn spawn_mob(world: &mut World, a_rx: &mut UnboundedReceiver<bytes::Bytes>) -> i
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );

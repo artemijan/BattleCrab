@@ -883,7 +883,7 @@ fn a_hall_teleport_moves_the_player() {
     let player = 8600;
     let _rx = ingame_player(&mut world, 15, player, 100, 100, 0);
 
-    crate::game_loop::teleporter::do_teleport(&mut world, 15, player, npc, "tel1", Some(0));
+    crate::game_loop::npc::teleporter::do_teleport(&mut world, 15, player, npc, "tel1", Some(0));
 
     let pos = world.objects.get_component::<Position>(&player).unwrap();
     // x/y land exactly; z snaps to ground geometry.

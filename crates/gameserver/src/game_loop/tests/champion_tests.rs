@@ -9,7 +9,9 @@ use super::*;
 
 use crate::config::ChampionConfig;
 use crate::data::npc_data::default_template;
-use crate::model::npc::{Npc, roll_champion};
+use crate::game_loop;
+use crate::game_loop::npc::roll_champion;
+use crate::model::npc::Npc;
 
 const MOB: i32 = NPC_OID;
 const KILLER: i32 = 2001;
@@ -702,7 +704,8 @@ fn the_spawn_path_rolls_the_lottery_and_applies_the_multipliers() {
     t.base_p_atk = 100.0;
     world.data.npc_data.insert_for_test(t.clone());
 
-    let oid = model::npc::spawn_npc_at(&mut world, 90_500, 0, 0, 0, 0).expect("the mob spawned");
+    let oid =
+        game_loop::npc::spawn_npc_at(&mut world, 90_500, 0, 0, 0, 0).expect("the mob spawned");
     assert!(
         world
             .objects
@@ -733,8 +736,8 @@ fn the_spawn_path_rolls_the_lottery_and_applies_the_multipliers() {
     // …and a zero frequency leaves the same spawn plain, so the assertion above
     // is reading the roll rather than an unconditional flag.
     world.cfg.champion.frequency = 0;
-    let plain_oid =
-        model::npc::spawn_npc_at(&mut world, 90_500, 0, 0, 0, 0).expect("the second mob spawned");
+    let plain_oid = game_loop::npc::spawn_npc_at(&mut world, 90_500, 0, 0, 0, 0)
+        .expect("the second mob spawned");
     assert!(
         !world
             .objects

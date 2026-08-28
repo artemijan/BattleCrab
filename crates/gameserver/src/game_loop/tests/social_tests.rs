@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop;
 use crate::game_loop::{party, player_info};
 
 /// General chat reaches the speaker and players within 1250 units, but not a
@@ -672,7 +673,7 @@ fn party_kill_splits_xp_and_sp() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1304,14 +1305,14 @@ fn a_boss_spawn_is_announced_server_wide() {
     drain(&mut rx);
 
     // An ordinary mob is silent.
-    model::npc::spawn_npc_at(&mut world, 20001, 0, 0, 0, 0);
+    game_loop::npc::spawn_npc_at(&mut world, 20001, 0, 0, 0, 0);
     assert!(
         drain(&mut rx).iter().all(|p| sysmsg_text(p).is_none()),
         "no line for a plain monster"
     );
 
     // The raid boss announces itself twice: chat + on screen.
-    let boss = model::npc::spawn_npc_at(&mut world, 25001, 0, 0, 0, 0).expect("spawned");
+    let boss = game_loop::npc::spawn_npc_at(&mut world, 25001, 0, 0, 0, 0).expect("spawned");
     let out = drain(&mut rx);
     assert!(
         out.iter().any(|p| p[0] == server_packets::opcodes::SAY2),
@@ -1327,7 +1328,7 @@ fn a_boss_spawn_is_announced_server_wide() {
     // exists (see `spawn_minion_npc_at`).
     let _ = boss;
     drain(&mut rx);
-    model::npc::spawn_minion_npc_at(&mut world, 25001, 0, 0, 0, 0).expect("spawned");
+    game_loop::npc::spawn_minion_npc_at(&mut world, 25001, 0, 0, 0, 0).expect("spawned");
     assert!(
         drain(&mut rx).iter().all(|p| sysmsg_text(p).is_none()),
         "a minion is a reinforcement, not an event"
@@ -1335,7 +1336,7 @@ fn a_boss_spawn_is_announced_server_wide() {
 
     world.cfg.boss_announcements.raidboss_spawn = false;
     drain(&mut rx);
-    model::npc::spawn_npc_at(&mut world, 25001, 0, 0, 0, 0);
+    game_loop::npc::spawn_npc_at(&mut world, 25001, 0, 0, 0, 0);
     assert!(
         drain(&mut rx).iter().all(|p| sysmsg_text(p).is_none()),
         "the flag gates it"
@@ -1568,7 +1569,7 @@ fn random_spawns_jitter_only_ordinary_monsters() {
     // admin spawn keeps its coordinates, because Java's `AbstractScript.addSpawn`
     // explicitly restores them for a scripted monster.
     let spawn_at = |world: &mut World, id: i32| -> (i32, i32) {
-        model::npc::randomize_spawn_point(world, id, 1000, 1000, 0, 0)
+        game_loop::npc::randomize_spawn_point(world, id, 1000, 1000, 0, 0)
     };
 
     // An ordinary monster moves (over many spawns, at least one lands off the

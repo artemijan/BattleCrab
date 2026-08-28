@@ -2325,6 +2325,7 @@ fn soulshot_wrong_grade_is_refused() {
 /// damage, and sets the `SHOT_USED` flag (`generateHit`).
 #[test]
 fn soulshot_consumed_on_hit_doubles_melee_damage() {
+    use crate::game_loop;
     use crate::model::{Player, ShotType};
 
     fn attack_damage_and_flags(packets: &[Vec<u8>]) -> (i32, i32) {
@@ -2348,7 +2349,7 @@ fn soulshot_consumed_on_hit_doubles_melee_damage() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2393,6 +2394,7 @@ fn soulshot_consumed_on_hit_doubles_melee_damage() {
 /// (`calcMagicDam` `sps` bonus + `Skill` uncharge).
 #[test]
 fn spiritshot_doubles_magic_damage_and_is_consumed() {
+    use crate::game_loop;
     use crate::model::components::Vitals;
     use crate::model::{Player, ShotType};
 
@@ -2409,7 +2411,7 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2466,6 +2468,7 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
 /// but no-op — and a charged soulshot doubles it and is spent.
 #[test]
 fn physical_skill_damages_monster_and_soulshot_doubles() {
+    use crate::game_loop;
     use crate::model::components::{CombatStats, Vitals};
     use crate::model::{Player, ShotType};
 
@@ -2479,7 +2482,7 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2554,6 +2557,7 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
 #[test]
 fn auto_soulshot_toggle_activates_and_recharges() {
     use crate::data::item_data::{CrystalType, ItemHandler};
+    use crate::game_loop;
     use crate::model::{Player, ShotType};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -2610,7 +2614,7 @@ fn auto_soulshot_toggle_activates_and_recharges() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );

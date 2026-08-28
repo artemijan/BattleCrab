@@ -15,7 +15,7 @@
 //! arrive from the DB thread. That keeps boot asynchronous (no blocking wait on
 //! the DB) while preserving the "DB wins" rule.
 //!
-//! [`spawn_all`]: crate::model::npc::spawn_all
+//! [`spawn_all`]: crate::game_loop::npc::spawn_all
 use crate::data::spawn_data;
 use crate::db::{DbCommand, NpcRespawnRow};
 use crate::game_loop::guard::maybe_position;
@@ -60,7 +60,7 @@ pub(crate) fn resolve_boot(world: &mut World, rows: Vec<NpcRespawnRow>) {
             // Alive (or due): place it, restoring stored vitals when we have them.
             _ => {
                 if let Some(oid) =
-                    crate::model::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2)
+                    crate::game_loop::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2)
                 {
                     if let Some(r) = row {
                         restore_vitals(world, oid, r.cur_hp, r.cur_mp);
@@ -154,7 +154,8 @@ pub(crate) fn handle_boss_respawn(world: &mut World, spawn_ref: (usize, usize, u
     {
         return;
     }
-    if let Some(oid) = crate::model::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2)
+    if let Some(oid) =
+        crate::game_loop::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2)
         && let Some(npc_id) = npc_id_of(world, oid)
     {
         persist_alive(world, npc_id, oid);

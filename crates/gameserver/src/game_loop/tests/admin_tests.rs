@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop;
 use crate::game_loop::admin;
 use crate::game_loop::helpers::set_position;
 
@@ -2290,7 +2291,7 @@ fn admin_delete_despawns_targeted_npc() {
     let mut gm_rx = ingame_player_access(&mut world, 1, 7601, 100);
     drain(&mut gm_rx);
 
-    let npc_oid = model::npc::FIRST_NPC_OBJECT_ID + 1;
+    let npc_oid = game_loop::npc::FIRST_NPC_OBJECT_ID + 1;
     let (npc, extra) = model::npc::Npc::for_test(npc_oid, 40001, 1, 2, 3, 100, 50);
     world
         .npc_regions

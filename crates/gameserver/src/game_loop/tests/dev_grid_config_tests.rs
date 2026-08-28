@@ -158,14 +158,14 @@ fn alt_dev_no_spawns_places_nothing() {
 
     let mut off = spawn_world();
     assert!(
-        crate::model::npc::spawn_all(&mut off) > 0,
+        crate::game_loop::npc::spawn_all(&mut off) > 0,
         "sanity: the spawn list places an NPC with the key off"
     );
 
     let mut on = spawn_world();
     on.cfg.general.alt_dev_no_spawns = true;
     assert_eq!(
-        crate::model::npc::spawn_all(&mut on),
+        crate::game_loop::npc::spawn_all(&mut on),
         0,
         "AltDevNoSpawns places nothing"
     );

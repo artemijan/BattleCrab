@@ -257,7 +257,7 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
         return;
     }
     let Some(oid) =
-        crate::model::npc::spawn_npc_at(world, boss_id, b.loc_x, b.loc_y, b.loc_z, b.heading)
+        crate::game_loop::npc::spawn_npc_at(world, boss_id, b.loc_x, b.loc_y, b.loc_z, b.heading)
     else {
         return;
     };

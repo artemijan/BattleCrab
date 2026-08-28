@@ -579,7 +579,7 @@ pub(crate) fn handle_death_cinematic_step(world: &mut World, valakas_oid: i32, s
             // 15-minute lifetime. Without it they stand in an empty lair until
             // the next server restart, and the next Valakas fight adds fifteen
             // more on top.
-            if let Some(cube) = crate::model::npc::spawn_npc_at(world, CUBE, x, y, z, 0) {
+            if let Some(cube) = crate::game_loop::npc::spawn_npc_at(world, CUBE, x, y, z, 0) {
                 world.scheduler.schedule(
                     world.tick + CUBE_LIFETIME_TICKS,
                     ScheduledTask::DespawnNpc { npc_oid: cube },

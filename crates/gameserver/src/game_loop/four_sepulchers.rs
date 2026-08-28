@@ -315,7 +315,7 @@ pub(crate) fn handle_mysterious_chest(world: &mut World, sepulcher: i32) {
     let wave = world.four_sepulchers.progress[FsState::idx(sepulcher)];
     for (s, room, x, y, z, h) in CHEST_SPAWNS {
         if s == sepulcher && room == wave {
-            crate::model::npc::spawn_npc_at(world, MYSTERIOUS_CHEST, x, y, z, h);
+            crate::game_loop::npc::spawn_npc_at(world, MYSTERIOUS_CHEST, x, y, z, h);
             break;
         }
     }
@@ -336,7 +336,7 @@ pub(crate) fn spawn_next_wave(world: &mut World, sepulcher: i32) {
     let mut spawned = Vec::new();
     for r in rows {
         if let Some(oid) =
-            crate::model::npc::spawn_npc_at(world, r.npc_id, r.x, r.y, r.z, r.heading)
+            crate::game_loop::npc::spawn_npc_at(world, r.npc_id, r.x, r.y, r.z, r.heading)
         {
             spawned.push(oid);
         }
@@ -392,7 +392,7 @@ pub(crate) fn handle_wave_check(world: &mut World, sepulcher: i32) {
             let (hx, hy, hz) = start_hall(sepulcher_manager(sepulcher));
             (hx, hy, hz)
         });
-        crate::model::npc::spawn_npc_at(world, KEY_CHEST, x, y, z, 0);
+        crate::game_loop::npc::spawn_npc_at(world, KEY_CHEST, x, y, z, 0);
     } else if wave == 5 {
         world.four_sepulchers.progress[idx] = wave + 1;
         spawn_next_wave(world, sepulcher);
@@ -453,7 +453,7 @@ pub(crate) fn on_boss_killed(world: &mut World, boss_oid: i32, killer: i32) {
     }
     spawn_next_wave(world, sepulcher);
     if let Some(p) = maybe_position(world, boss_oid) {
-        crate::model::npc::spawn_npc_at(world, TELEPORTER, p.x, p.y, p.z, 0);
+        crate::game_loop::npc::spawn_npc_at(world, TELEPORTER, p.x, p.y, p.z, 0);
     }
 }
 

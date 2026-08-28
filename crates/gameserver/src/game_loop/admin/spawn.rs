@@ -75,7 +75,7 @@ pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, arg
         .map_or(0, |p| p.heading);
     for _ in 0..count.max(0) {
         if let Some(spawned) =
-            crate::model::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, heading)
+            crate::game_loop::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, heading)
         {
             super::death::introduce_npc(world, spawned);
         }
@@ -117,7 +117,7 @@ pub(super) fn admin_spawnat(world: &mut World, client_id: u32, object_id: i32, a
             .get_component::<Position>(&object_id)
             .map_or(0, |p| p.heading)
     });
-    if let Some(spawned) = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, heading) {
+    if let Some(spawned) = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, heading) {
         super::death::introduce_npc(world, spawned);
         send_message(
             world,
@@ -775,7 +775,7 @@ pub(super) fn admin_unspawnall(world: &mut World, client_id: u32) {
 /// out of the region and back, which is what re-runs the visibility pass.
 pub(super) fn admin_respawnall(world: &mut World, client_id: u32) {
     admin_unspawnall(world, client_id);
-    let spawned = crate::model::npc::spawn_all(world);
+    let spawned = crate::game_loop::npc::spawn_all(world);
     // Java's `//respawnall` ends with `SpawnData.init()` **and**
     // `DBSpawnManager.load()`: the db-driven spawns come back too. The static
     // pass above deliberately defers those — raid bosses to

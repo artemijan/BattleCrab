@@ -25,6 +25,7 @@ use tracing::warn;
 
 use crate::data::item_data::ADENA_ID;
 use crate::data::teleporter_data::{TeleportHolder, TeleportLocation};
+use crate::game_loop::{death, items, siege};
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 
@@ -369,7 +370,7 @@ pub(crate) fn do_teleport(
             .get_component::<crate::model::inventory::Inventory>(&object_id)
             .map(|inv| inv.count_of(loc.fee_id))
             .unwrap_or(0);
-        if have < fee || !super::quests::take_items(world, client_id, object_id, loc.fee_id, fee) {
+        if have < fee || !items::take_items(world, client_id, object_id, loc.fee_id, fee) {
             if loc.fee_id == ADENA_ID {
                 send_to_client(
                     world,
@@ -392,7 +393,7 @@ pub(crate) fn do_teleport(
     // `!player.isAlikeDead()` → teleport.
     let dead = is_dead(world, object_id);
     if !dead {
-        super::death::teleport_player(world, object_id, loc.x, loc.y, loc.z);
+        death::teleport_player(world, object_id, loc.x, loc.y, loc.z);
     }
 }
 
@@ -457,7 +458,7 @@ pub(crate) fn castle_landing_page(
 ) -> Option<String> {
     let castle_id = npc_castle_id(world, npc_object_id)?;
     let clan_id = clan_of_or_zero(world, player_object_id);
-    if clan_id != 0 && super::siege::owner_clan_id_opt(world, castle_id) == Some(clan_id) {
+    if clan_id != 0 && siege::owner_clan_id_opt(world, castle_id) == Some(clan_id) {
         return None; // the owner sees the gatekeeper's own page
     }
     Some(if any_siege_in_progress(world, &[castle_id]) {

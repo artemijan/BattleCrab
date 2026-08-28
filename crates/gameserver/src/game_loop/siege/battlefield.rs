@@ -17,7 +17,7 @@ use crate::world::World;
 pub(super) fn spawn_siege_npcs(world: &mut World, castle_id: i32, spawns: &[SiegeSpawn]) {
     for s in spawns {
         if let Some(oid) =
-            crate::model::npc::spawn_npc_at(world, s.npc_id, s.x, s.y, s.z, s.heading)
+            crate::game_loop::npc::spawn_npc_at(world, s.npc_id, s.x, s.y, s.z, s.heading)
         {
             crate::game_loop::death::introduce_npc(world, oid);
             // Java `spawnControlTower` counts the live control towers.
@@ -133,7 +133,8 @@ pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32, advanced: boo
         return false;
     }
     // Plant it at z+50 (Java `spawnMe(x, y, z + 50)`) and register it.
-    let Some(oid) = crate::model::npc::spawn_npc_at(world, HQ_NPC_ID, x, y, z + 50, heading) else {
+    let Some(oid) = crate::game_loop::npc::spawn_npc_at(world, HQ_NPC_ID, x, y, z + 50, heading)
+    else {
         return false;
     };
     crate::game_loop::death::introduce_npc(world, oid);

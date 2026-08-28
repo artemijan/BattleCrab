@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::{death, expertise, passive_skills};
@@ -1943,6 +1944,7 @@ fn force_attack_mid_cast_engages_new_target_after_cast() {
 /// `EVT_READY_TO_ACT`), leaving the attack intent alive to resume after.
 #[test]
 fn skill_mid_swing_is_queued_until_swing_end() {
+    use crate::game_loop;
     use model::components::QueuedAction;
 
     let (mut world, ..) = combat_test_world();
@@ -1955,7 +1957,7 @@ fn skill_mid_swing_is_queued_until_swing_end() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2323,7 +2325,7 @@ fn nuke_kills_monster_and_rewards() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2474,6 +2476,7 @@ fn nuke_on_a_same_level_monster_deals_full_damage() {
 /// lands from a flank: behind the mob it hits, from the front it silently fails.
 #[test]
 fn dagger_blows_deal_damage_and_backstab_requires_flank() {
+    use crate::game_loop;
     use model::components::{CombatStats, Position, Vitals};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -2487,7 +2490,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2558,6 +2561,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
 /// `HpDrain` family, which used to cast but deal (and drain) nothing.
 #[test]
 fn vampiric_touch_deals_damage_and_heals_caster() {
+    use crate::game_loop;
     use model::components::Vitals;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -2570,7 +2574,7 @@ fn vampiric_touch_deals_damage_and_heals_caster() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -2619,7 +2623,7 @@ fn spawn_debuff_target(world: &mut World, a_rx: &mut UnboundedReceiver<bytes::By
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -4457,6 +4461,7 @@ fn buff_slot_cap_drops_oldest() {
 /// `thinkCast`/`maybeMoveToPawn`).
 #[test]
 fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
+    use crate::game_loop;
     use model::components::QueuedAction;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -4468,7 +4473,7 @@ fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
     let (npc, extra) = model::npc::Npc::for_test(far, 40001, 900, 0, 0, 5000, 30);
     world.npc_regions.entry(extra.1.0).or_default().push(far);
     world.objects.spawn(far, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -4572,7 +4577,7 @@ fn far_retarget_after_target_cancel_walks_into_range() {
     let (npc, extra) = model::npc::Npc::for_test(far, 40001, 900, 0, 0, 5000, 30);
     world.npc_regions.entry(extra.1.0).or_default().push(far);
     world.objects.spawn(far, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -4630,6 +4635,7 @@ fn far_retarget_after_target_cancel_walks_into_range() {
 /// still running, so the mid-cast second click must reach the queue slot).
 #[test]
 fn queued_far_retarget_with_real_datapack_timings() {
+    use crate::game_loop;
     use model::components::QueuedAction;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -4656,7 +4662,7 @@ fn queued_far_retarget_with_real_datapack_timings() {
         let (npc, extra) = model::npc::Npc::for_test(oid, 20001, x, 0, 0, 5000, 30);
         world.npc_regions.entry(extra.1.0).or_default().push(oid);
         world.objects.spawn(oid, (npc, extra));
-        let cs = model::npc::npc_combat_stats(
+        let cs = game_loop::npc::npc_combat_stats(
             world.data.npc_data.get(20001).unwrap(),
             &world.data.stat_bonus,
         );
@@ -5490,7 +5496,7 @@ fn enemy_not_refuses_a_hostile_target() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(20001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -5660,7 +5666,7 @@ fn energy_attack_spends_charges_for_bonus_damage() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(20001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -5889,7 +5895,7 @@ fn lethal_spares_a_raid_boss() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(3404).unwrap(),
         &world.data.stat_bonus,
     );
@@ -6113,13 +6119,14 @@ fn a_trait_resistance_lowers_the_lethal_chance() {
 /// assertion measures.
 #[test]
 fn the_skill_power_stats_scale_finished_skill_damage() {
+    use crate::game_loop;
     use model::components::StatModifiers;
     use model::stats::Stat;
 
     const POWER_STRIKE: i32 = 3;
     const WIND_STRIKE: i32 = 1177;
     const CASTER: i32 = 6401;
-    let npc = model::npc::FIRST_NPC_OBJECT_ID + 7801;
+    let npc = game_loop::npc::FIRST_NPC_OBJECT_ID + 7801;
 
     let (mut world, ..) = test_world();
     world.data = dist::game_data_owned();

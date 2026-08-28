@@ -2,6 +2,7 @@
 //! the Elroki ferry pair, the Pagan Temple door gatekeepers, and Tunatun.
 
 use super::*;
+use crate::game_loop;
 
 use crate::game_loop::npc::area::{self, TOMA};
 use crate::game_loop::quests;
@@ -480,7 +481,7 @@ fn ragna_commander_picks_named_escort_groups() {
             .insert_for_test(crate::data::npc_data::default_template(id));
     }
 
-    model::npc::spawn_npc_at(&mut world, COMMANDER, 0, 0, 0, 0);
+    game_loop::npc::spawn_npc_at(&mut world, COMMANDER, 0, 0, 0, 0);
     let p1 = count_npcs(&mut world, 22695);
     let extra = count_npcs(&mut world, 22693) + count_npcs(&mut world, 22697);
     assert_eq!(p1, 1, "Privates1 always comes out");

@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop;
 
 /// The queue slot is last-click-wins, both ways: a skill click supersedes a
 /// queued move (Java: the `stopCasting` skill launch makes the new cast
@@ -1020,7 +1021,7 @@ fn shift_click_via_action_packet_is_not_an_attack_at_all() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1086,7 +1087,7 @@ fn npc_weapon_glow_rolls_per_instance_when_enabled() {
 
     // Config off → the template value, verbatim.
     world.cfg.npc.enable_random_enchant_effect = false;
-    let plain = model::npc::spawn_npc_at(&mut world, GLOWY, 0, 0, 0, 0).expect("spawned");
+    let plain = game_loop::npc::spawn_npc_at(&mut world, GLOWY, 0, 0, 0, 0).expect("spawned");
     assert_eq!(
         world
             .objects
@@ -1101,7 +1102,7 @@ fn npc_weapon_glow_rolls_per_instance_when_enabled() {
     world.cfg.npc.enable_random_enchant_effect = true;
     let mut seen = std::collections::HashSet::new();
     for _ in 0..60 {
-        let oid = model::npc::spawn_npc_at(&mut world, GLOWY, 0, 0, 0, 0).expect("spawned");
+        let oid = game_loop::npc::spawn_npc_at(&mut world, GLOWY, 0, 0, 0, 0).expect("spawned");
         let e = world
             .objects
             .get_component::<model::npc::Npc>(&oid)

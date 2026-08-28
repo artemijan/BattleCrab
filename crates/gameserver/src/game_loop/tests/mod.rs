@@ -42,7 +42,7 @@ use crate::network::client_packets::{self as cp, opcodes as cop};
 use crate::network::server_packets;
 use crate::session::{ClientSession, Session, SessionKey};
 use crate::world::World;
-use crate::{db, model, session};
+use crate::{db, game_loop, model, session};
 use commons::network::PacketWriter;
 use std::sync::Arc;
 use std::time::Duration;
@@ -1427,7 +1427,7 @@ fn add_test_npc(
     world.npcs_by_id.entry(npc_id).or_default().push(object_id);
     // Memoized combat stats, from the template registered above (the
     // test-side mirror of `spawn_one`'s `npc_combat_stats` bundle entry).
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(npc_id).expect("registered above"),
         &world.data.stat_bonus,
     );
@@ -1441,7 +1441,7 @@ fn add_test_npc(
     world.next_npc_object_id = world.next_npc_object_id.max(object_id + 1);
 }
 
-const NPC_OID: i32 = model::npc::FIRST_NPC_OBJECT_ID;
+const NPC_OID: i32 = game_loop::npc::FIRST_NPC_OBJECT_ID;
 
 fn bypass_body(command: &str) -> Vec<u8> {
     let mut w = PacketWriter::new();
@@ -1675,7 +1675,7 @@ fn spawn_targeted_monster(
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );

@@ -166,7 +166,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
 
     // Java spawns the pet beside its owner, not on top of them.
     let pos = maybe_position(world, owner_oid)?;
-    let pet_oid = crate::model::npc::spawn_npc_at(
+    let pet_oid = crate::game_loop::npc::spawn_npc_at(
         world,
         npc_id,
         pos.x + 50,

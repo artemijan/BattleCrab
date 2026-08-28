@@ -465,7 +465,7 @@ fn a_subclass_pays_the_teleport_fee() {
 /// evaluated in UTC here). Epoch day 0 was a Thursday, so day 4 is a Monday.
 #[test]
 fn the_monday_tuesday_evening_window_halves_the_fee() {
-    use crate::game_loop::teleporter::is_half_price_window;
+    use crate::game_loop::npc::teleporter::is_half_price_window;
 
     const DAY: i64 = 86_400_000;
     const HOUR: i64 = 3_600_000;
@@ -500,7 +500,7 @@ fn the_monday_tuesday_evening_window_halves_the_fee() {
         .clone();
     let loc = holder.locations[0].clone();
     let fee_at = |world: &World, now: i64| {
-        crate::game_loop::teleporter::calculate_fee_at(world, 80, 3001, &holder, &loc, now)
+        crate::game_loop::npc::teleporter::calculate_fee_at(world, 80, 3001, &holder, &loc, now)
     };
     assert_eq!(
         fee_at(&world, 6 * DAY + 20 * HOUR),
@@ -679,7 +679,7 @@ fn town_gatekeeper_is_not_on_castle_ground() {
         "findNearestCastle has no distance bound, so it answers for Talking Island too"
     );
     assert_eq!(
-        crate::game_loop::teleporter::castle_landing_page(&world, roxxy, 3001),
+        crate::game_loop::npc::teleporter::castle_landing_page(&world, roxxy, 3001),
         None,
         "Roxxy stands in no castle's siege zone: Java falls through to super.showChatWindow"
     );
@@ -712,7 +712,7 @@ fn town_gatekeeper_is_not_on_castle_ground() {
         IN_GLUDIO_CASTLE.2,
     );
     assert_eq!(
-        crate::game_loop::teleporter::castle_landing_page(&world, castle_gk, 3001),
+        crate::game_loop::npc::teleporter::castle_landing_page(&world, castle_gk, 3001),
         Some("castleteleporter-no.htm".to_string()),
         "inside the siege zone the castle branch still runs"
     );

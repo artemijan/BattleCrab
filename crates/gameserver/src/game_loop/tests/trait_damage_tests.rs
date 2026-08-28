@@ -8,6 +8,7 @@
 //! Weakness" line finally doing something.
 
 use super::*;
+use crate::game_loop;
 
 use crate::game_loop::skills::effects::{
     calc_attack_trait_bonus, calc_general_trait_bonus, calc_weakness_bonus,
@@ -292,7 +293,7 @@ fn an_auto_attack_is_softened_by_the_targets_weapon_defence() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -344,6 +345,7 @@ fn the_race_skills_carry_the_weakness_defence_traits() {
 /// unarmed one carries no weapon trait to defend against.
 #[test]
 fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
+    use crate::game_loop;
     use crate::model::components::Vitals;
 
     let swing = |trait_pct: Option<f64>| {
@@ -358,7 +360,7 @@ fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
             .or_default()
             .push(npc_oid);
         world.objects.spawn(npc_oid, (npc, extra));
-        let cs = model::npc::npc_combat_stats(
+        let cs = game_loop::npc::npc_combat_stats(
             world.data.npc_data.get(40001).unwrap(),
             &world.data.stat_bonus,
         );
@@ -421,6 +423,7 @@ fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
 /// auto-attack's `calcAttackTraitBonus`.
 #[test]
 fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
+    use crate::game_loop;
     use crate::model::components::Vitals;
 
     let hit = |with_trait: bool| {
@@ -435,7 +438,7 @@ fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
             .or_default()
             .push(npc_oid);
         world.objects.spawn(npc_oid, (npc, extra));
-        let cs = model::npc::npc_combat_stats(
+        let cs = game_loop::npc::npc_combat_stats(
             world.data.npc_data.get(40001).unwrap(),
             &world.data.stat_bonus,
         );

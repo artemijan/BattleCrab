@@ -4,7 +4,7 @@ use super::*;
 use crate::game_loop::helpers::set_position;
 
 use crate::data::route_data::{RepeatStyle, RouteData, WalkNode, WalkRoute};
-use crate::game_loop::walkers::WalkState;
+use crate::game_loop::npc::walkers::WalkState;
 use crate::model::components::{Movement, Vitals};
 
 const WALKER_ID: i32 = 46000;

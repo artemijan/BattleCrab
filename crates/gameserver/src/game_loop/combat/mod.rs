@@ -61,7 +61,7 @@ pub(crate) const COMBAT_STANCE_TICKS: u64 = 150;
 /// NPC object ids live above this base (`model::npc::FIRST_NPC_OBJECT_ID`);
 /// everything below is a persistent id (players, items).
 pub(crate) fn is_npc_oid(object_id: i32) -> bool {
-    object_id >= crate::model::npc::FIRST_NPC_OBJECT_ID
+    object_id >= crate::game_loop::npc::FIRST_NPC_OBJECT_ID
 }
 
 /// `Vitals` of any combat actor (one store since the world merge).

@@ -408,9 +408,14 @@ fn recall_npc(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
     let region = region_cell_of(world, target).or_silent()?;
     let gm_pos = guard::maybe_position(world, object_id).or_silent()?;
     super::death::despawn_npc(world, target, region);
-    if let Some(spawned) =
-        crate::model::npc::spawn_npc_at(world, npc_id, gm_pos.x, gm_pos.y, gm_pos.z, gm_pos.heading)
-    {
+    if let Some(spawned) = crate::game_loop::npc::spawn_npc_at(
+        world,
+        npc_id,
+        gm_pos.x,
+        gm_pos.y,
+        gm_pos.z,
+        gm_pos.heading,
+    ) {
         super::death::introduce_npc(world, spawned);
         let name = helpers::npc_template_name(world, npc_id);
         send_message(world, client_id, &format!("Recalled {name}."));

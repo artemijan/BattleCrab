@@ -648,7 +648,7 @@ impl World {
             boss_spawn_refs: HashMap::new(),
             door_regions: HashMap::new(),
             static_regions: HashMap::new(),
-            next_npc_object_id: crate::model::npc::FIRST_NPC_OBJECT_ID,
+            next_npc_object_id: crate::game_loop::npc::FIRST_NPC_OBJECT_ID,
             id_pool: 0..0,
             login: LoginState::new(link),
             max_characters_per_account,

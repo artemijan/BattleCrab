@@ -734,7 +734,7 @@ pub(crate) fn check_summon_target_status(
         .is_some_and(crate::model::Player::is_flying);
     if crate::game_loop::events::tvt::is_on_event(world, member)
         || flying
-        || crate::game_loop::teleporter::has_combat_flag(world, member)
+        || crate::game_loop::npc::teleporter::has_combat_flag(world, member)
     {
         return Some((
             sm_ids::YOU_CANNOT_USE_SUMMONING_OR_TELEPORTING_IN_THIS_AREA,

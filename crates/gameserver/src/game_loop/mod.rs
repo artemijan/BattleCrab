@@ -117,7 +117,6 @@ pub(crate) mod support_magic;
 pub(crate) mod tamed_beast;
 mod target;
 mod tasks;
-pub(crate) mod teleporter;
 #[cfg(test)]
 mod tests;
 pub(crate) mod time;
@@ -125,7 +124,6 @@ mod trade;
 mod user_commands;
 mod visibility;
 mod vitality;
-pub(crate) mod walkers;
 mod warehouse;
 pub(crate) mod water;
 pub(crate) mod weight;
@@ -145,7 +143,7 @@ use crate::loginlink::CommandTx;
 use crate::world::World;
 
 use net::handle_game_event;
-use npc::ai;
+use npc::{ai, walkers};
 use regen::{REGEN_TICK_PERIOD, run_npc_regen_tick, run_regen_tick};
 
 /// Base tick period. Slower Java rates (1 s, 5 s…) become `world.tick % N == 0`

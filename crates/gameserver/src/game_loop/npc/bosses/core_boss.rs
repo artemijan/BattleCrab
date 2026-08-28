@@ -65,7 +65,7 @@ pub(crate) fn on_core_spawned(world: &mut World, core_oid: i32) {
         .objects
         .add_components(&core_oid, CoreState { first_attacked });
     for (npc_id, x, y, z) in MINION_SPAWNS {
-        crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, 0);
+        crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, 0);
     }
 }
 
@@ -146,7 +146,7 @@ pub(crate) fn handle_minion_respawn(world: &mut World, npc_id: i32) {
         return;
     }
     if let Some((_, x, y, z)) = MINION_SPAWNS.iter().copied().find(|(id, ..)| *id == npc_id) {
-        crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, 0);
+        crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, 0);
     }
 }
 

@@ -72,7 +72,7 @@ pub(crate) fn relocate_toma(world: &mut World) {
         despawn_npc_by_oid(world, oid);
     }
     let (x, y, z, heading) = TOMA_LOCS[world.roll(3) as usize];
-    crate::model::npc::spawn_npc_at(world, TOMA, x, y, z, heading);
+    crate::game_loop::npc::spawn_npc_at(world, TOMA, x, y, z, heading);
     world.scheduler.schedule(
         world.tick + TOMA_RELOCATE_TICKS,
         ScheduledTask::TomaRelocate,
@@ -173,7 +173,7 @@ pub(crate) fn relocate_mammon(world: &mut World, npc_id: i32) {
         despawn_npc_by_oid(world, oid);
     }
     let (x, y, z, heading) = mammon.locations[world.roll(mammon.locations.len() as i32) as usize];
-    if let Some(oid) = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, heading) {
+    if let Some(oid) = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, heading) {
         world.mammon_spawns.insert(npc_id, oid);
         if world.cfg.npc.announce_mammon_spawn {
             let castle = nearest_castle_name(world, x, y, z);
@@ -342,7 +342,7 @@ pub(crate) fn eilhalder_on_day_night_change(world: &mut World, night: bool) {
         }
         Some((_, true)) => {}
         _ => {
-            crate::model::npc::spawn_npc_at(
+            crate::game_loop::npc::spawn_npc_at(
                 world,
                 EILHALDER,
                 EILHALDER_SPAWN.0,

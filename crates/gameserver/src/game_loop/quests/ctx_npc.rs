@@ -418,7 +418,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return None;
         }
-        let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
+        let spawned = crate::game_loop::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
         crate::game_loop::death::introduce_npc(self.world, spawned);
         self.link_summoned(spawned);
         crate::game_loop::ai::seed_attack(self.world, spawned, self.player);
@@ -442,7 +442,7 @@ impl<'w> QuestCtx<'w> {
                 *axis += offset * sign;
             }
         }
-        let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
+        let spawned = crate::game_loop::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
         crate::game_loop::death::introduce_npc(self.world, spawned);
         self.link_summoned(spawned);
         Some(spawned)
@@ -523,7 +523,7 @@ impl<'w> QuestCtx<'w> {
         if self.simulated {
             return None;
         }
-        let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, 0)?;
+        let spawned = crate::game_loop::npc::spawn_npc_at(self.world, npc_id, x, y, z, 0)?;
         crate::game_loop::death::introduce_npc(self.world, spawned);
         self.link_summoned(spawned);
         Some(spawned)

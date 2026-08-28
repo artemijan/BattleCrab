@@ -944,7 +944,7 @@ fn a_fairy_tree_is_immobile() {
         t.type_name = "Monster".into();
         world.data.npc_data.insert_for_test(t);
     }
-    let oid = model::npc::spawn_npc_at(&mut world, FAIRY_TREE, 0, 0, 0, 0).expect("spawned");
+    let oid = game_loop::npc::spawn_npc_at(&mut world, FAIRY_TREE, 0, 0, 0, 0).expect("spawned");
     assert!(
         abnormal::is_movement_disabled(&world, oid),
         "the tree cannot move"
@@ -962,7 +962,7 @@ fn the_siege_headquarters_ignores_a_lethal_blow() {
         t.type_name = "Npc".into();
         world.data.npc_data.insert_for_test(t);
     }
-    let oid = model::npc::spawn_npc_at(&mut world, HEADQUARTERS, 0, 0, 0, 0).expect("spawned");
+    let oid = game_loop::npc::spawn_npc_at(&mut world, HEADQUARTERS, 0, 0, 0, 0).expect("spawned");
     assert!(
         world
             .objects
@@ -976,6 +976,7 @@ fn the_siege_headquarters_ignores_a_lethal_blow() {
 // ---------------------------------------------------------------------------
 
 use crate::data::spawn_data::{NpcSpawnDef, SpawnGroup, SpawnTemplate};
+use crate::game_loop;
 use crate::game_loop::spawn_scripts;
 
 /// The dist really does ship the two spawn-script families this slice serves.
@@ -1146,7 +1147,7 @@ fn the_boot_pass_skips_groups_a_script_owns() {
         .spawns
         .push(day_night_test_template(DAY_MOB, NIGHT_MOB));
 
-    model::npc::spawn_all(&mut world);
+    game_loop::npc::spawn_all(&mut world);
 
     assert_eq!(npc_count(&mut world, DAY_MOB), 0, "day half waits");
     assert_eq!(npc_count(&mut world, NIGHT_MOB), 0, "night half waits");
@@ -1214,7 +1215,7 @@ fn no_random_activity_pins_its_npcs_down() {
     world.data.spawn_data.spawns.push(template);
     let template_idx = world.data.spawn_data.spawns.len() - 1;
 
-    let oid = model::npc::spawn_one(&mut world, template_idx, 0, 0).expect("spawned");
+    let oid = game_loop::npc::spawn_one(&mut world, template_idx, 0, 0).expect("spawned");
     assert!(
         !spawn_scripts::random_walk_enabled(&world, oid, true),
         "the guard does not wander"
@@ -1426,7 +1427,7 @@ fn village_guards_stroll_around_their_post() {
         t.base_run_spd = 120.0;
         world.data.npc_data.insert_for_test(t);
     }
-    let oid = model::npc::spawn_npc_at(&mut world, GUARD, 0, 0, 0, 0).expect("spawned");
+    let oid = game_loop::npc::spawn_npc_at(&mut world, GUARD, 0, 0, 0, 0).expect("spawned");
 
     // The spawn hook armed the first stroll; fire it.
     area::handle_guard_random_walk(&mut world, oid);

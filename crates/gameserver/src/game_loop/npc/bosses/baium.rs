@@ -110,7 +110,7 @@ const ARCHANGEL_LOC: [(i32, i32, i32, i32); 5] = [
 /// places them, so nothing else would.
 pub(crate) fn spawn_archangels(world: &mut World) {
     for (x, y, z, heading) in ARCHANGEL_LOC {
-        crate::model::npc::spawn_npc_at(world, ARCHANGEL, x, y, z, heading);
+        crate::game_loop::npc::spawn_npc_at(world, ARCHANGEL, x, y, z, heading);
     }
     world.scheduler.schedule(
         world.tick + SELECT_TARGET_TICKS,
@@ -133,7 +133,7 @@ pub(crate) fn spawn_archangels(world: &mut World) {
 ///   already circling.
 pub(crate) fn spawn_from_record(world: &mut World, boss: &GrandBoss) {
     if boss.status == IN_FIGHT {
-        let Some(oid) = crate::model::npc::spawn_npc_at(
+        let Some(oid) = crate::game_loop::npc::spawn_npc_at(
             world,
             BAIUM,
             boss.loc_x,
@@ -159,7 +159,7 @@ pub(crate) fn spawn_from_record(world: &mut World, boss: &GrandBoss) {
     if boss.status == WAITING {
         crate::game_loop::grand_boss::set_status(world, BAIUM, ALIVE);
     }
-    crate::model::npc::spawn_npc_at(
+    crate::game_loop::npc::spawn_npc_at(
         world,
         BAIUM_STONE,
         BAIUM_LOC.0,
@@ -190,7 +190,7 @@ pub(crate) fn wake_up(world: &mut World, stone_oid: i32, waker_oid: i32) -> Opti
 
     despawn(world, stone_oid);
 
-    let oid = crate::model::npc::spawn_npc_at(
+    let oid = crate::game_loop::npc::spawn_npc_at(
         world,
         BAIUM,
         BAIUM_LOC.0,
@@ -669,7 +669,7 @@ pub(crate) fn random_exit(world: &mut World) -> (i32, i32, i32) {
 /// find it and roar. The generic `on_grand_boss_killed` has already flipped the
 /// status to DEAD and armed the respawn; this is only the Baium-specific part.
 pub(crate) fn on_baium_killed(world: &mut World) {
-    crate::model::npc::spawn_npc_at(
+    crate::game_loop::npc::spawn_npc_at(
         world,
         TELE_CUBE,
         TELEPORT_CUBIC_LOC.0,
@@ -709,7 +709,7 @@ pub(crate) fn handle_check_attack(world: &mut World) {
 
     if idle >= RESET_IDLE_TICKS {
         clear_zone(world);
-        crate::model::npc::spawn_npc_at(
+        crate::game_loop::npc::spawn_npc_at(
             world,
             BAIUM_STONE,
             BAIUM_LOC.0,

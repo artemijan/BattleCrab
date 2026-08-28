@@ -82,7 +82,7 @@ pub(crate) fn resolve_at_boot(world: &mut World) {
 
 /// `addSpawn(DOCTOR_CHAOS, …)` + `onSpawn` (arm the paranoia timer at 30).
 fn spawn_dr_chaos(world: &mut World) {
-    let Some(oid) = crate::model::npc::spawn_npc_at(
+    let Some(oid) = crate::game_loop::npc::spawn_npc_at(
         world,
         DOCTOR_CHAOS,
         DR_CHAOS_SPAWN.0,
@@ -238,7 +238,7 @@ pub(crate) fn handle_transform(world: &mut World, dr_chaos_oid: i32, step: u8) {
 /// branch).
 fn spawn_golem(world: &mut World, x: i32, y: i32, z: i32, restore: bool) -> Option<i32> {
     use crate::network::server_packets::{play_sound, social_action, special_camera};
-    let oid = crate::model::npc::spawn_npc_at(world, CHAOS_GOLEM, x, y, z, 0)?;
+    let oid = crate::game_loop::npc::spawn_npc_at(world, CHAOS_GOLEM, x, y, z, 0)?;
     crate::game_loop::death::introduce_npc(world, oid);
     world.objects.add_components(
         &oid,

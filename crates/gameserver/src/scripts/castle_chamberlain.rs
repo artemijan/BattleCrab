@@ -783,7 +783,7 @@ fn teleport(ctx: &mut QuestCtx) -> Option<String> {
         return Some("castlefuncdisabled.html".to_string());
     };
     let (client_id, player, npc) = (ctx.client_id, ctx.player, ctx.npc);
-    crate::game_loop::teleporter::show_teleport_list(
+    crate::game_loop::npc::teleporter::show_teleport_list(
         ctx.world,
         client_id,
         player,
@@ -812,7 +812,9 @@ fn goto_teleport<'a>(
     let func_lvl = list_id.get(3..).and_then(|s| s.parse::<i32>().ok());
     if func_lvl == Some(func.level) {
         let (client_id, player, npc) = (ctx.client_id, ctx.player, ctx.npc);
-        crate::game_loop::teleporter::do_teleport(ctx.world, client_id, player, npc, list_id, loc);
+        crate::game_loop::npc::teleporter::do_teleport(
+            ctx.world, client_id, player, npc, list_id, loc,
+        );
     }
     None
 }

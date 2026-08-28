@@ -147,7 +147,14 @@ pub(crate) fn on_wave_kill(world: &mut World, killer_oid: i32, npc_id: i32) {
         }
         // Sailren himself: drop the exit cube (the respawn lock is a later slice).
         SAILREN => {
-            crate::model::npc::spawn_npc_at(world, CUBIC, CUBIC_POS.0, CUBIC_POS.1, CUBIC_POS.2, 0);
+            crate::game_loop::npc::spawn_npc_at(
+                world,
+                CUBIC,
+                CUBIC_POS.0,
+                CUBIC_POS.1,
+                CUBIC_POS.2,
+                0,
+            );
         }
         _ => {}
     }
@@ -157,7 +164,7 @@ pub(crate) fn on_wave_kill(world: &mut World, killer_oid: i32, npc_id: i32) {
 /// `ATTACK` timer then lets him fight. (The `SpecialCamera` movie is abbreviated,
 /// as with the other cinematic bosses.)
 pub(crate) fn handle_spawn_sailren(world: &mut World) {
-    let Some(sailren) = crate::model::npc::spawn_npc_at(
+    let Some(sailren) = crate::game_loop::npc::spawn_npc_at(
         world,
         SAILREN,
         SAILREN_POS.0,
@@ -196,7 +203,7 @@ pub(crate) fn handle_attack_enable(world: &mut World, sailren_oid: i32) {
 
 /// Spawn a wave mob and tag it into this fight.
 fn spawn_wave_mob(world: &mut World, npc_id: i32, x: i32, y: i32, z: i32) -> i32 {
-    let oid = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, 0).unwrap_or(0);
+    let oid = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, 0).unwrap_or(0);
     if oid != 0 {
         world.objects.add_components(&oid, SailrenWaveMob);
     }

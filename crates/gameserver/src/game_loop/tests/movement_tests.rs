@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop;
 use crate::game_loop::{death, player_actions};
 
 /// A move click during a cast is rejected (ActionFailed, cast keeps going)
@@ -81,6 +82,7 @@ fn move_click_during_cast_is_queued_and_replayed_when_cast_stops() {
 /// which must fire even though the click dropped the attack intent.
 #[test]
 fn move_click_mid_swing_defers_to_swing_end() {
+    use crate::game_loop;
     use crate::model::components::QueuedAction;
 
     let (mut world, ..) = combat_test_world();
@@ -93,7 +95,7 @@ fn move_click_mid_swing_defers_to_swing_end() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -692,7 +694,7 @@ fn retarget_mid_walk_keeps_cast_intent() {
     let (npc, extra) = model::npc::Npc::for_test(npc_b, 40001, 300, 300, 0, 5000, 30);
     world.npc_regions.entry(extra.1.0).or_default().push(npc_b);
     world.objects.spawn(npc_b, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -748,7 +750,7 @@ fn retarget_mid_walk_to_far_target_keeps_cast_intent() {
     let (npc, extra) = model::npc::Npc::for_test(npc_b, 40001, 700, 1500, 0, 5000, 30);
     world.npc_regions.entry(extra.1.0).or_default().push(npc_b);
     world.objects.spawn(npc_b, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -799,7 +801,7 @@ fn walk_to_cast_boundary_rounding_still_casts() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -872,7 +874,7 @@ fn idle_monster_without_random_walk_stays_put() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1128,6 +1130,7 @@ fn a_shopkeeper_cannot_stand_while_the_store_is_open() {
 /// casting, swinging and running from the chair.
 #[test]
 fn a_seated_player_cannot_cast_attack_or_move_once_the_animation_lapses() {
+    use crate::game_loop;
     use crate::model::components::{Intent, Movement};
 
     let (mut world, ..) = combat_test_world();
@@ -1141,7 +1144,7 @@ fn a_seated_player_cannot_cast_attack_or_move_once_the_animation_lapses() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1234,7 +1237,7 @@ fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );

@@ -139,7 +139,7 @@ pub(crate) fn handle_wave(world: &mut World, antharas_oid: i32) {
     let pos = maybe_position(world, antharas_oid);
     if let Some(p) = pos {
         for npc_id in &spawned {
-            crate::model::npc::spawn_npc_at(world, *npc_id, p.x, p.y, p.z, 0);
+            crate::game_loop::npc::spawn_npc_at(world, *npc_id, p.x, p.y, p.z, 0);
         }
     }
 
@@ -894,7 +894,7 @@ pub(crate) fn on_antharas_killed(world: &mut World) {
     broadcast_to_lair(world, &crate::network::server_packets::play_sound("BS01_D"));
 
     // The exit cube — `AntharasHeart` already routes its `teleportOut` talk.
-    crate::model::npc::spawn_npc_at(world, CUBE, DEATH_CUBE.0, DEATH_CUBE.1, DEATH_CUBE.2, 0);
+    crate::game_loop::npc::spawn_npc_at(world, CUBE, DEATH_CUBE.0, DEATH_CUBE.1, DEATH_CUBE.2, 0);
 
     world.scheduler.schedule(
         world.tick + CLEAR_ZONE_SECS * TICKS_PER_SECOND,

@@ -48,7 +48,7 @@ pub(crate) fn on_queen_spawned(world: &mut World, queen_oid: i32) {
 
     let heading = world.roll(360);
     if let Some(larva) =
-        crate::model::npc::spawn_npc_at(world, LARVA, LARVA_X, LARVA_Y, LARVA_Z, heading)
+        crate::game_loop::npc::spawn_npc_at(world, LARVA, LARVA_X, LARVA_Y, LARVA_Z, heading)
     {
         // Java `onSpawn(LARVA)`: immobilized + undying — the larva can't move and
         // can't be killed, so the nurses always have it to heal. Burning the

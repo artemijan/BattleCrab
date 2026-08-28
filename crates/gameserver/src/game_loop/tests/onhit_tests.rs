@@ -7,6 +7,7 @@
 //! damage lands.
 
 use super::*;
+use crate::game_loop;
 
 use crate::model::components::{StatModifiers, Vitals};
 use crate::model::skill::SkillEffect;
@@ -48,7 +49,7 @@ fn onhit_world() -> (World, i32) {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );

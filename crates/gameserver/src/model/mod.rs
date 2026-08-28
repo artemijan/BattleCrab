@@ -54,6 +54,7 @@ pub const DEFAULT_TITLE_COLOR: i32 = 0x00FF_FF77;
 /// them.
 pub const MAX_VITALITY_POINTS: i32 = 140_000;
 pub const MIN_VITALITY_POINTS: i32 = 0;
+use crate::game_loop;
 use components::{
     AttackState, BaseStats, Buffs, ClientPos, Collision, CombatStats, Macros, PlayerVitals,
     Position, RegionCell, Reuses, Shortcuts, SkillBook, Speeds, StatModifiers, TargetRef, Vitals,
@@ -2330,7 +2331,7 @@ pub(crate) fn npc_finalized_stats(
 ) -> (CombatStats, Speeds, f64, f64) {
     let sb = &data.stat_bonus;
     let caps = &data.combat_caps;
-    let mut base = npc::npc_combat_stats(t, sb);
+    let mut base = game_loop::npc::npc_combat_stats(t, sb);
     // `PAttackFinalizer`/`MAttackFinalizer`/`P|MAttackSpeedFinalizer`:
     // `baseValue *= CHAMPION_ATK | CHAMPION_SPD_ATK` **before** the STR/DEX
     // bonus and before the buff mul/add. Multiplication commutes with the

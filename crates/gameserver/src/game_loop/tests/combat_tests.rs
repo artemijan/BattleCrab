@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop;
 use crate::game_loop::death;
 
 /// `Action` on a monster tints `MyTargetSelected` with the level gap; a second
@@ -258,7 +259,7 @@ fn a_swing_that_lands_by_day_misses_at_night() {
             .or_default()
             .push(npc_oid);
         world.objects.spawn(npc_oid, (npc, extra));
-        let cs = model::npc::npc_combat_stats(
+        let cs = game_loop::npc::npc_combat_stats(
             world.data.npc_data.get(40001).unwrap(),
             &world.data.stat_bonus,
         );
@@ -333,7 +334,7 @@ fn melee_kill_rewards_and_decay() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -580,7 +581,7 @@ fn ctrl_click_opcode_0x01_switches_target_and_attacks() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -636,7 +637,7 @@ fn shift_attack_request_chases_because_java_discards_the_flag() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -708,7 +709,7 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -817,7 +818,7 @@ fn idle_monster_random_walks_near_spawn() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -866,7 +867,7 @@ fn idle_npc_plays_random_social_animation() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -915,7 +916,7 @@ fn moving_npc_skips_random_animation() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -980,7 +981,7 @@ fn aggressive_monster_aggros_idle_player() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1058,7 +1059,7 @@ fn player_death_penalty_and_revive_to_village() {
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = model::npc::npc_combat_stats(
+    let cs = game_loop::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
         &world.data.stat_bonus,
     );
@@ -1178,7 +1179,7 @@ fn dead_monster_decays_and_respawns() {
         }],
     };
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    let npc_oid = model::npc::spawn_one(&mut world, 0, 0, 0).expect("spawned");
+    let npc_oid = game_loop::npc::spawn_one(&mut world, 0, 0, 0).expect("spawned");
     world
         .objects
         .get_component_mut::<TargetRef>(&3001)
@@ -3193,6 +3194,7 @@ fn an_advanced_headquarters_takes_half_damage() {
 #[test]
 fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
     use crate::data::zone_data::{Zone, ZoneKind};
+    use crate::game_loop;
     use model::castle::{Castle, CastleSide};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -3261,7 +3263,7 @@ fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
     t.type_name = "Folk".into();
     world.data.npc_data.insert_for_test(t);
 
-    let npc = model::npc::spawn_npc_at(&mut world, 30099, 0, 0, 0, 0).unwrap();
+    let npc = game_loop::npc::spawn_npc_at(&mut world, 30099, 0, 0, 0, 0).unwrap();
     assert_eq!(
         world
             .objects
@@ -3279,7 +3281,7 @@ fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
 
     // The dist default: display off → nothing recorded at spawn.
     world.castles[0].show_npc_crest = false;
-    let plain = model::npc::spawn_npc_at(&mut world, 30099, 10, 10, 0, 0).unwrap();
+    let plain = game_loop::npc::spawn_npc_at(&mut world, 30099, 10, 10, 0, 0).unwrap();
     assert_eq!(
         world
             .objects
