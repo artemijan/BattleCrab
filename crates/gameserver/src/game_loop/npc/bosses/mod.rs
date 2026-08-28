@@ -4,7 +4,7 @@
 //! [`boss_threat`], the level-gap curse in [`raid_curse`], and small lair
 //! helpers in [`common`]).
 //!
-//! Submodules are re-exported from [`super`] (`game_loop`), so callers keep
+//! Submodules are re-exported from [`crate::game_loop`] (`game_loop`), so callers keep
 //! addressing them as `game_loop::antharas`, `game_loop::baium`, etc.
 
 pub(crate) mod antharas;

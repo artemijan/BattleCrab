@@ -1139,7 +1139,7 @@ fn clear_zone_ousts_players_and_despawns_the_cube_through_the_loop() {
 // SET_REGEN + CHECK_ATTACK + the strider leg (the lifecycle/onAttack gaps)
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::bosses::combat::BossCombat;
+use crate::game_loop::npc::bosses::combat::BossCombat;
 use crate::scheduler::ScheduledTask;
 
 const AP_PLAYER: i32 = 9700;

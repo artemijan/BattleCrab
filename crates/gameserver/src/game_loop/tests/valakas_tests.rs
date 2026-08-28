@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::game_loop::bosses::combat::BossCombat;
+use crate::game_loop::npc::bosses::combat::BossCombat;
 use crate::game_loop::valakas::{AttackVerdict, DEAD, FIGHTING, VALAKAS, WAITING};
 
 const VALAKAS_OID: i32 = NPC_OID + 100;

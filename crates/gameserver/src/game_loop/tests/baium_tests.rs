@@ -2,8 +2,8 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::baium;
 use crate::game_loop::helpers::set_position;
-use crate::game_loop::{baium, bosses::boss_threat};
 
 use crate::game_loop::baium::{ARCHANGEL, BAIUM};
 
@@ -79,7 +79,7 @@ fn a_strider_rider_is_hindered() {
         .unwrap()
         .mount_type = MOUNT_STRIDER;
 
-    crate::game_loop::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
+    crate::game_loop::npc::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -94,7 +94,7 @@ fn an_unmounted_attacker_is_not_hindered() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
 
-    crate::game_loop::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
+    crate::game_loop::npc::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -122,7 +122,7 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
         .unwrap()
         .mount_type = MOUNT_STRIDER;
 
-    crate::game_loop::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
+    crate::game_loop::npc::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
@@ -130,7 +130,7 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
     while rx.try_recv().is_ok() {}
 
     // A second hit while it still holds must start no new cast.
-    crate::game_loop::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
+    crate::game_loop::npc::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
     let mut casts = 0;
     while let Ok(p) = rx.try_recv() {
         if p.first() == Some(&0x48) {
@@ -145,7 +145,7 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
 // The threat table (slice 12)
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::bosses::boss_threat::BossThreat;
+use crate::game_loop::npc::bosses::boss_threat::BossThreat;
 
 fn threat(world: &World, oid: i32) -> [(i32, i32); 3] {
     world
@@ -825,7 +825,8 @@ fn the_exit_scatters_to_a_surface_point() {
 // CHECK_ATTACK — the idle reset and the self-heal
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::bosses::combat::BossCombat;
+use crate::game_loop::npc::bosses::boss_threat;
+use crate::game_loop::npc::bosses::combat::BossCombat;
 
 /// **Thirty minutes with nobody landing a hit resets the fight:** the zone is
 /// emptied, the sleeping stone goes back and Baium reverts to ALIVE (Java's

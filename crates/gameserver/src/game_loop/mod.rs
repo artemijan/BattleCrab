@@ -23,10 +23,9 @@ mod basic_property;
 pub mod bench_api;
 mod block_list;
 pub(crate) mod boats;
-pub(crate) mod bosses;
 // Boss submodules keep their historical `game_loop::<boss>` paths; callers
 // (scripts, death, net, scheduler dispatch) address them through this re-export.
-pub(crate) use bosses::{
+pub(crate) use npc::bosses::{
     antharas, baium, boss_respawn, common, core_boss, dr_chaos, frintezza, grand_boss, orfen,
     queen_ant, raid_curse, sailren, valakas,
 };

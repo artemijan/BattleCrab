@@ -501,7 +501,7 @@ pub(crate) fn npc_receive_damage(
             crate::game_loop::core_boss::on_core_attacked(world, npc_oid);
         }
         if npc_id == crate::game_loop::baium::BAIUM {
-            crate::game_loop::bosses::combat::anti_strider(world, npc_oid, attacker_oid);
+            crate::game_loop::npc::bosses::combat::anti_strider(world, npc_oid, attacker_oid);
             // A physical swing is Java's `skill == null` branch — the ×1000
             // melee weighting.
             crate::game_loop::baium::on_baium_damage(
