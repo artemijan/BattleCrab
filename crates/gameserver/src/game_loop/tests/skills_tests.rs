@@ -5271,7 +5271,9 @@ fn ex_storage_max_count_reports_the_configured_capacities() {
     // `ex(0x2F)` = one opcode byte + the two-byte ex id, then 12 ints.
     let fields = |bytes: &[u8]| -> Vec<i32> {
         bytes[3..]
-            .chunks_exact(4)
+            .as_chunks::<4>()
+            .0
+            .iter()
             .map(|c| i32::from_le_bytes([c[0], c[1], c[2], c[3]]))
             .collect()
     };

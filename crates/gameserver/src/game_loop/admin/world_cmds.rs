@@ -13,9 +13,9 @@ use crate::data::zone_data::ZoneKind;
 use crate::game_loop::doors;
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
 use crate::model::components::ZoneFlags;
 
 use crate::model::door::Door;
@@ -25,8 +25,6 @@ use crate::world::World;
 
 /// `Inventory.ADENA_ID` — Java's zone visualiser drops adena as its marker.
 use crate::data::item_data::ADENA_ID;
-
-use super::{send_message, send_sm};
 
 /// `AdminDoorControl`'s `//open`/`//close [doorId]` and `//openall`/`//closeall`
 /// — toggle one door (by template id, or the targeted door) or every door.
@@ -291,14 +289,14 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
 /// level, member count).
 pub(super) fn admin_clan_info(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = guard::player_target(world, object_id) else {
-        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };
     let name = player_name_or_empty(world, target);
     let Some(clan_id) = guard::clan_of(world, target) else {
         // Java sends THE_TARGET_MUST_BE_A_CLAN_MEMBER; that sysstring id isn't
         // in the ported table yet, so fall back to INVALID_TARGET.
-        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };
     // The clan hall this clan owns, if any (Java `ClanHall.getOwner()` reverse).
@@ -359,7 +357,7 @@ pub(super) fn admin_geo_pos(world: &mut World, client_id: u32, object_id: i32, s
 
 pub(super) fn admin_geo_can_see(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = guard::target(world, object_id) else {
-        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };
     let (Some(a), Some(b)) = (

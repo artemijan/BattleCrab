@@ -6,15 +6,12 @@
 //! anchor. Clearing re-sends each drawing's name with a single zero-length
 //! black line at z −16000, Java's erase idiom.
 
-use crate::game_loop::helpers::{pos_of, send_to_client as send};
+use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::{pos_of, send_message, send_to_client as send};
 use crate::model::components::DebugDraw;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
-
-use super::send_message;
-use crate::game_loop::helpers::region_cell_of;
-
 const GREEN: u32 = 0x00FF00;
 const RED: u32 = 0xFF0000;
 const BLUE: u32 = 0x0000FF;

@@ -287,12 +287,14 @@ fn read_unicode(cur: &mut Cursor) -> Result<String, String> {
     }
     let raw = cur.take(size as usize)?;
     let mut swapped = raw.to_vec();
-    for pair in swapped.chunks_exact_mut(2) {
+    for pair in swapped.as_chunks_mut::<2>().0 {
         pair.swap(0, 1);
     }
     // The pairs were stored big-endian-first, so swapping yields UTF-16BE.
     let units: Vec<u16> = swapped
-        .chunks_exact(2)
+        .as_chunks::<2>()
+        .0
+        .iter()
         .map(|p| u16::from_be_bytes([p[0], p[1]]))
         .collect();
     let s = String::from_utf16_lossy(&units);
@@ -310,7 +312,9 @@ fn decode_latin1(b: &[u8]) -> String {
 
 fn decode_utf16le(b: &[u8]) -> String {
     let units: Vec<u16> = b
-        .chunks_exact(2)
+        .as_chunks::<2>()
+        .0
+        .iter()
         .map(|p| u16::from_le_bytes([p[0], p[1]]))
         .collect();
     String::from_utf16_lossy(&units)

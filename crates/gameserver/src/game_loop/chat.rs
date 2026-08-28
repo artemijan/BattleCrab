@@ -14,15 +14,9 @@
 //! 2026-08-07 sweep. See PLAN_G10_SOCIAL.md §2/§4 for the original scope, and
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
+use crate::enums::ChatType;
 use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers;
-
-use commons::audit;
-use serde_json::json;
-use tracing::warn;
-
-use super::helpers::send_sm_bare_to_client as send_sm;
-use crate::enums::ChatType;
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell};
 use crate::model::inventory::{Inventory, ItemInstance};
@@ -31,6 +25,9 @@ use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
+use commons::audit;
+use serde_json::json;
+use tracing::warn;
 
 /// Java `Say2`'s no-item-link cap (105 chars, "verified on official").
 const MAX_CHAT_LENGTH: usize = 105;
@@ -86,7 +83,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         .get_component::<Player>(&sender_oid)
         .is_some_and(|p| p.is_gm(&world.data));
     if !is_gm && pkt.text.chars().count() > limit {
-        send_sm(world, client_id, sm_ids::KEYBOARD_INPUT_SPAM_WARNING);
+        helpers::send_sm_bare_to_client(world, client_id, sm_ids::KEYBOARD_INPUT_SPAM_WARNING);
         return;
     }
 
@@ -118,7 +115,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             .get_component::<Player>(&sender_oid)
             .is_some_and(|p| p.cursed_weapon_equipped_id != 0)
     {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::SHOUT_AND_TRADE_CHATTING_CANNOT_BE_USED_WHILE_POSSESSING_A_CURSED_WEAPON,
@@ -135,13 +132,17 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     //     channel. On any other channel the line vanishes silently.
     if !pkt.text.starts_with('.') && super::punishment::is_chat_banned(world, sender_oid) {
         if super::abnormal::flags_of(world, sender_oid) & effect_flag::CHAT_BLOCK != 0 {
-            send_sm(
+            helpers::send_sm_bare_to_client(
                 world,
                 client_id,
                 sm_ids::YOU_HAVE_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_SO_CHATTING_IS_NOT_ALLOWED,
             );
         } else if world.cfg.chat_filter.ban_chat_channels.contains(&chat_type) {
-            send_sm(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
+            helpers::send_sm_bare_to_client(
+                world,
+                client_id,
+                sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED,
+            );
         }
         return;
     }
@@ -150,7 +151,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     // Covers **every** channel, party and clan included, and has no GM escape
     // hatch — a GM who registers is silenced like anyone else.
     if super::olympiad::in_match(world, sender_oid) || world.olympiad.is_registered(sender_oid) {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::YOU_CANNOT_CHAT_WHILE_PARTICIPATING_IN_THE_OLYMPIAD,
@@ -209,7 +210,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             .get_component::<Player>(&sender_oid)
             .is_some_and(|p| p.jailed)
     {
-        super::admin::send_message(
+        helpers::send_message(
             world,
             client_id,
             "You can not chat with players outside of the jail.",
@@ -468,7 +469,11 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                         .map(|p| (cid, oid, p.name.clone()))
                 });
             let Some((receiver_cid, receiver_oid, receiver_name)) = receiver else {
-                send_sm(world, client_id, sm_ids::THAT_PLAYER_IS_NOT_ONLINE);
+                helpers::send_sm_bare_to_client(
+                    world,
+                    client_id,
+                    sm_ids::THAT_PLAYER_IS_NOT_ONLINE,
+                );
                 return;
             };
             // Java `ChatWhisper`: `BlockList.isBlocked(receiver, activeChar)`
@@ -478,7 +483,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             // their ignore list. Java answers with the same message either way,
             // so a blocked sender cannot tell which it was.
             if super::block_list::is_blocked(world, receiver_oid, sender_oid) {
-                send_sm(
+                helpers::send_sm_bare_to_client(
                     world,
                     client_id,
                     sm_ids::THAT_PERSON_IS_IN_MESSAGE_REFUSAL_MODE,
@@ -516,7 +521,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             let say =
                 server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
             if !super::party::party_say(world, sender_oid, &say) {
-                send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_PARTY);
+                helpers::send_sm_bare_to_client(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_PARTY);
             }
         }
         ChatType::PartyroomCommander | ChatType::PartyroomAll => {
@@ -578,10 +583,12 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 );
                 super::clans::broadcast_to_clan(world, clan_id, &say);
             } else {
-                send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_CLAN);
+                helpers::send_sm_bare_to_client(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_CLAN);
             }
         }
-        ChatType::Alliance => send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_AN_ALLIANCE),
+        ChatType::Alliance => {
+            helpers::send_sm_bare_to_client(world, client_id, sm_ids::YOU_ARE_NOT_IN_AN_ALLIANCE)
+        }
         ChatType::World => world_chat(world, client_id, sender_oid, &sender_name, &pkt.text),
         ChatType::HeroVoice => hero_voice(world, client_id, sender_oid, &sender_name, &pkt.text),
         // Server-sent only (ferry announcements / event announcements) or handled
@@ -680,13 +687,13 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
     // `handle_say2`, over a different channel set and *without* the
     // `CHAT_CONDITIONS` escape this one has. See the note there.
     if world.cfg.general.jail_disable_chat && jailed && !may_override {
-        send_sm(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
+        helpers::send_sm_bare_to_client(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
         return;
     }
 
     let used = get_used_world_chat(world, sender_oid);
     if used >= world.cfg.general.world_chat_points_per_day {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::YOU_HAVE_SPENT_YOUR_WORLD_CHAT_QUOTA_FOR_THE_DAY,
@@ -772,7 +779,7 @@ fn hero_voice(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         .get_component::<Player>(&sender_oid)
         .is_some_and(|p| p.is_hero || p.can_override_cond(CHAT_CONDITIONS_ORDINAL));
     if !may_speak {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::ONLY_HEROES_CAN_ENTER_THE_HERO_CHANNEL,
@@ -789,7 +796,7 @@ fn hero_voice(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
         client_id,
         crate::config::flood_protector::FloodAction::HeroVoice,
     ) {
-        super::admin::send_message(
+        helpers::send_message(
             world,
             client_id,
             "Action failed. Heroes are only able to speak in the global channel once every 10 seconds.",
@@ -1045,7 +1052,7 @@ fn handle_voiced_online(world: &World, client_id: u32) {
     } else {
         "There is 1 player online!".to_string()
     };
-    crate::game_loop::admin::send_message(world, client_id, &text);
+    helpers::send_message(world, client_id, &text);
 }
 
 /// `handlers/voicedcommandhandlers/Banking` — `.bank` explains the rate,
@@ -1061,7 +1068,7 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
                 ".deposit ({adena} Adena = {goldbars} Goldbar) / \
                  .withdraw ({goldbars} Goldbar = {adena} Adena)"
             );
-            crate::game_loop::admin::send_message(world, client_id, &text);
+            helpers::send_message(world, client_id, &text);
         }
         "deposit" => {
             if helpers::count_of(world, player_oid, ADENA_ITEM_ID) < adena {
@@ -1069,26 +1076,26 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
                     "You do not have enough Adena to convert to Goldbar(s), \
                      you need {adena} Adena."
                 );
-                crate::game_loop::admin::send_message(world, client_id, &text);
+                helpers::send_message(world, client_id, &text);
                 return;
             }
             super::quests::take_items(world, client_id, player_oid, ADENA_ITEM_ID, adena);
             super::items::add_inventory_item(world, player_oid, GOLDBAR_ITEM_ID, goldbars);
             let text =
                 format!("Thank you, you now have {goldbars} Goldbar(s), and {adena} less adena.");
-            crate::game_loop::admin::send_message(world, client_id, &text);
+            helpers::send_message(world, client_id, &text);
         }
         "withdraw" => {
             if helpers::count_of(world, player_oid, GOLDBAR_ITEM_ID) < goldbars {
                 let text = format!("You do not have any Goldbars to turn into {adena} Adena.");
-                crate::game_loop::admin::send_message(world, client_id, &text);
+                helpers::send_message(world, client_id, &text);
                 return;
             }
             super::quests::take_items(world, client_id, player_oid, GOLDBAR_ITEM_ID, goldbars);
             super::items::add_inventory_item(world, player_oid, ADENA_ITEM_ID, adena);
             let text =
                 format!("Thank you, you now have {adena} Adena, and {goldbars} less Goldbar(s).");
-            crate::game_loop::admin::send_message(world, client_id, &text);
+            helpers::send_message(world, client_id, &text);
         }
         _ => {}
     }

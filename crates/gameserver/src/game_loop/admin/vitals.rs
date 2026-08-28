@@ -2,16 +2,15 @@
 //! `//set_cp` EditChar vitals, and `AdminKill`. All operate on the current
 //! target (or the GM) and push the resulting `StatusUpdate`.
 
+use crate::game_loop::admin::{find_online_player, target_player};
 use crate::game_loop::guard;
-use crate::game_loop::helpers::nth_arg;
+use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
 use crate::model::npc::Npc;
 use crate::network::server_packets::{self, status_update_type as sut};
 use crate::world::World;
-
-use super::{find_online_player, send_message, send_sm, target_player};
-use crate::game_loop::helpers::region_cell_of;
 
 /// `AdminHeal`'s `//heal [name|radius]` — port of `AdminHeal.handleHeal`. With no
 /// argument, heal the current target (or the GM if nothing is selected). A
@@ -41,7 +40,7 @@ pub(super) fn admin_heal(world: &mut World, client_id: u32, object_id: i32, args
     if world.objects.has_component::<Vitals>(&target) {
         heal_creature(world, target);
     } else {
-        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, server_packets::sm_ids::INVALID_TARGET);
     }
 }
 
@@ -116,7 +115,7 @@ pub(super) fn admin_res_monster(world: &mut World, client_id: u32, object_id: i3
     let Some(target) =
         guard::target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
     else {
-        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };
     res_creature(world, target);
@@ -288,11 +287,11 @@ pub(super) fn admin_kill(
         return;
     }
     let Some(target) = guard::target(world, object_id) else {
-        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };
     if monster && world.objects.has_component::<Player>(&target) {
-        send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     }
     kill_creature(world, target, object_id);

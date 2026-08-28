@@ -8,16 +8,13 @@
 //! wired through `siege::set_show_npc_crest`.
 
 use crate::db::DbCommand;
-use crate::game_loop::guard;
 use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::helpers::format_amount;
+use crate::game_loop::{guard, helpers};
 use crate::model::Player;
 use crate::model::castle::CastleSide;
 use crate::model::siege::SiegeClanType;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
-
-use super::{send_message, send_sm};
 
 /// Resolve the `<castleId[1-9] | castleName>` argument to an index into
 /// `world.castles` (Java: digit → `getCastleById`, else `getCastle(name)`).
@@ -66,7 +63,7 @@ pub(super) fn admin_castlemanage(
         return;
     };
     let Some(idx) = resolve(world, param) else {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "Invalid parameters! Usage: //castlemanage <castleId[1-9] / castleName>",
@@ -143,7 +140,7 @@ fn switch_side(world: &mut World, client_id: u32, idx: usize) {
                 side: side.as_db().to_string(),
             });
         }
-        None => send_message(
+        None => helpers::send_message(
             world,
             client_id,
             "You can't switch sides when is castle neutral!",
@@ -158,7 +155,7 @@ fn switch_side(world: &mut World, client_id: u32, idx: usize) {
 fn set_owner(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize, rest: &[&str]) {
     let castle_id = world.castles[idx].id;
     let Some(target) = clanned_target(world, gm_object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        helpers::send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         show_castle_menu(world, client_id, idx);
         return;
     };
@@ -168,12 +165,12 @@ fn set_owner(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize, r
         .get(&target_clan_id)
         .is_some_and(|c| c.castle_id > 0)
     {
-        send_message(world, client_id, "This clan already have castle!");
+        helpers::send_message(world, client_id, "This clan already have castle!");
         show_castle_menu(world, client_id, idx);
         return;
     }
     if owner_clan(world, castle_id).is_some() {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "This castle is already taken by another clan!",
@@ -182,7 +179,7 @@ fn set_owner(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize, r
         return;
     }
     let Some(side) = rest.first().and_then(|s| CastleSide::from_string(s)) else {
-        send_message(world, client_id, "Invalid parameters!!");
+        helpers::send_message(world, client_id, "Invalid parameters!!");
         show_castle_menu(world, client_id, idx);
         return;
     };
@@ -231,7 +228,7 @@ fn take_castle(world: &mut World, client_id: u32, idx: usize) {
             // `removeOwner` also calls `removeCirclet(clan, residenceId)`.
             super::super::castle::remove_circlets_from_clan(world, clan_id, castle_id);
         }
-        None => send_message(world, client_id, "Error during removing castle!"),
+        None => helpers::send_message(world, client_id, "Error during removing castle!"),
     }
     show_castle_menu(world, client_id, idx);
 }
@@ -268,7 +265,7 @@ fn show_reg_window(world: &mut World, client_id: u32, idx: usize) {
         .get(&castle_id)
         .map(|s| s.summary())
         .unwrap_or_default();
-    send_message(
+    helpers::send_message(
         world,
         client_id,
         &format!("Siege registration for {name}: {summary}"),
@@ -285,7 +282,7 @@ fn siege_register(
     attacker: bool,
 ) {
     let Some(target) = clanned_target(world, gm_object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        helpers::send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let castle_id = world.castles[idx].id;
@@ -294,7 +291,7 @@ fn siege_register(
     // registerDefender: only when the castle has an owner.
     if !attacker && owner_clan(world, castle_id).is_none() {
         let name = world.castles[idx].name.clone();
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             &format!("You cannot register as a defender because {name} is owned by NPC."),
@@ -307,7 +304,7 @@ fn siege_register(
         .get(&castle_id)
         .is_some_and(|s| s.is_registered(clan_id))
     {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::YOU_HAVE_ALREADY_REQUESTED_A_CASTLE_SIEGE,
@@ -337,7 +334,7 @@ fn siege_register(
 /// target; `attacker` removes the GM's *own* clan, else the target's (Java quirk).
 fn siege_remove(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize, attacker: bool) {
     let Some(target) = clanned_target(world, gm_object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        helpers::send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let castle_id = world.castles[idx].id;
@@ -368,7 +365,7 @@ fn start_siege(world: &mut World, client_id: u32, idx: usize) {
     {
         crate::game_loop::siege::start_siege(world, castle_id);
     } else {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "There is currently not registered any clan for castle siege!",
@@ -382,7 +379,7 @@ fn stop_siege(world: &mut World, client_id: u32, idx: usize) {
     if world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
         crate::game_loop::siege::end_siege(world, castle_id);
     } else {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             "Castle siege is not currently in progress!",
@@ -436,11 +433,11 @@ pub(super) fn admin_manor(world: &mut World, client_id: u32) {
         ));
         info.push_str(&format!(
             "<tr><td>Current period cost:</td><td><font color=FF9900>{} Adena</font></td></tr>",
-            format_amount(current)
+            helpers::format_amount(current)
         ));
         info.push_str(&format!(
             "<tr><td>Next period cost:</td><td><font color=FF9900>{} Adena</font></td></tr>",
-            format_amount(next)
+            helpers::format_amount(next)
         ));
         info.push_str(
             "<tr><td><font color=808080>--------------------------</font></td>\

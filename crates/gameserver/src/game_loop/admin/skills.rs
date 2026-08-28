@@ -4,10 +4,10 @@
 use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::guard::{self, Guard, OrReject};
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers::{nth_arg, send_sm_bare_to_client};
 use crate::model::Player;
 use crate::model::components::{Buffs, SkillBook};
 use crate::network::server_packets::sm_ids;
@@ -265,7 +265,7 @@ pub(super) fn show_char_skills(world: &mut World, client_id: u32, target: i32) {
     // their own work, so it has no early-return of its own to fold into — a
     // wrapper for one guard would be more scaffolding than it removes.
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
-        super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let r: Vec<(&str, String)> = vec![
@@ -359,11 +359,11 @@ pub(super) fn admin_skill_menu(world: &mut World, client_id: u32, command: &str,
 fn remove_skills_page(world: &mut World, client_id: u32, page: usize) {
     let gm = world.player_oid(client_id).unwrap_or(0);
     let Some(target) = guard::player_target(world, gm) else {
-        super::send_sm(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET);
         return;
     };
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
-        super::send_sm(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET);
         return;
     };
     // Java iterates `getAllSkills()`, whose order is the skill map's. Sort so a

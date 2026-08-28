@@ -17,11 +17,9 @@
 //! A seller too low on MP is refused with a message rather than the cast
 //! silently failing.
 
-use crate::game_loop::admin::send_message;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::nth_arg;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers::{
+    is_dead, nth_arg, player_name_or_empty, send_message, skill_by_id,
+};
 use crate::model::Player;
 use crate::network::server_packets as sp;
 use crate::world::World;

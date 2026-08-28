@@ -145,7 +145,9 @@ impl<'a> Reader<'a> {
         } else {
             let units: Vec<u16> = self
                 .take(-n as usize * 2)?
-                .chunks_exact(2)
+                .as_chunks::<2>()
+                .0
+                .iter()
                 .map(|p| u16::from_le_bytes([p[0], p[1]]))
                 .collect();
             let text = String::from_utf16(&units).map_err(|e| e.to_string())?;
@@ -536,7 +538,9 @@ fn dxt5_alpha(block: &[u8], texel: usize) -> u8 {
 
 /// Unreal stores RGBA8 textures byte-order blue first.
 fn bgra_to_rgba(data: &[u8]) -> Vec<u8> {
-    data.chunks_exact(4)
+    data.as_chunks::<4>()
+        .0
+        .iter()
         .flat_map(|p| [p[2], p[1], p[0], p[3]])
         .collect()
 }

@@ -172,7 +172,9 @@ pub fn read_version(data: &[u8]) -> Option<String> {
         return None;
     }
     let units: Vec<u16> = data[..HEADER_LEN]
-        .chunks_exact(2)
+        .as_chunks::<2>()
+        .0
+        .iter()
         .map(|p| u16::from_le_bytes([p[0], p[1]]))
         .collect();
     let text = String::from_utf16(&units).ok()?;
@@ -224,7 +226,7 @@ fn rsa_decrypt_with(data: &[u8], key: &RsaKey) -> Result<Vec<u8>, String> {
     let body = &body[..body.len() - body.len() % RSA_BLOCK];
 
     let mut out = Vec::with_capacity(body.len());
-    for cipher in body.chunks_exact(RSA_BLOCK) {
+    for cipher in body.as_chunks::<RSA_BLOCK>().0 {
         let chunk = to_block(&BigUint::from_bytes_be(cipher).modpow(&exponent, &modulus))?;
         let size = i32::from_be_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]);
         // A wrong key yields uniformly random blocks, so this is what rejects

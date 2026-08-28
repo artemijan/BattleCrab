@@ -24,9 +24,9 @@
 //! `character_friends` stores friends at `relation = 0` and blocks at
 //! `relation = 1`.
 
-use super::helpers::{is_friend, send_sm_bare_to_client as send_sm};
-use crate::game_loop::helpers::is_gm;
-use crate::game_loop::helpers::send_to_client;
+use super::helpers::{
+    is_friend, is_gm, send_message, send_sm_bare_to_client as send_sm, send_to_client,
+};
 use crate::model::components::AdminFlags;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
@@ -130,7 +130,7 @@ fn add_to_block_list(world: &mut World, client_id: u32, owner_oid: i32, name: &s
     let already = is_in_block_list(world, owner_oid, target_oid);
     if already {
         // Java sends this as a literal `sendMessage`, not a SystemMessage.
-        super::admin::send_message(world, client_id, "Already in ignore list.");
+        send_message(world, client_id, "Already in ignore list.");
         return;
     }
 

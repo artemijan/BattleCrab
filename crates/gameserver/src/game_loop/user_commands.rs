@@ -13,7 +13,7 @@
 //! (90) and `registerHandler` overwrites by id, so the war-list's third id is
 //! shadowed — the mutual-war list is unreachable in this build. Kept.
 
-use super::helpers::send_sm_to_client as send_sm;
+use super::helpers::{send_message, send_sm_to_client as send_sm};
 use crate::game_loop::guard::clan_of;
 use crate::game_loop::helpers;
 
@@ -90,7 +90,7 @@ pub(crate) fn handle_bypass_user_cmd(world: &mut World, client_id: u32, body: &[
                 .get_component::<crate::model::Player>(&object_id)
                 .is_some_and(|p| p.is_gm(&world.data));
             if is_gm {
-                super::admin::send_message(
+                send_message(
                     world,
                     client_id,
                     &format!("User commandID {command_id} not implemented yet."),
@@ -158,7 +158,7 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
         if let Some(skill) = helpers::skill_by_id(world, GM_ESCAPE_SKILL_ID, 1) {
             super::skills::cast::start_casting(world, client_id, object_id, &skill, object_id);
         } else {
-            super::admin::send_message(world, client_id, "You use Escape: 1 second.");
+            send_message(world, client_id, "You use Escape: 1 second.");
         }
         return;
     }
@@ -197,13 +197,13 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
         return;
     }
     if interval > 100 {
-        super::admin::send_message(
+        send_message(
             world,
             client_id,
             &format!("You use Escape: {} minutes.", unstuck_ms / 60000),
         );
     } else {
-        super::admin::send_message(
+        send_message(
             world,
             client_id,
             &format!("You use Escape: {} seconds.", unstuck_ms / 1000),

@@ -10,7 +10,7 @@
 //! they are still gated correctly by the access table and reach the "not
 //! implemented" path rather than crashing.
 
-use crate::game_loop::helpers::{maybe_object_name, send_to_client};
+use crate::game_loop::helpers::{maybe_object_name, send_message, send_to_client};
 use commons::audit;
 use serde_json::json;
 use tracing::warn;
@@ -44,7 +44,7 @@ pub(crate) mod moderation;
 pub(crate) mod mounts;
 pub(crate) mod npc_info;
 mod pforge;
-pub(crate) use world_cmds::{begin_shutdown, server_shutdown_tick};
+
 /// `PlayerCondOverride.SEE_ALL_PLAYERS.ordinal()` — the visibility consumer.
 pub(crate) const SEE_ALL_PLAYERS_ORDINAL: u8 = 13;
 mod pledge;
@@ -77,6 +77,11 @@ pub(crate) use gm_util::{
     DESTROY_ALL_ITEMS_ORDINAL, DROP_ALL_ITEMS_ORDINAL, ITEM_CONDITIONS_ORDINAL,
     SKILL_CONDITIONS_ORDINAL, ZONE_CONDITIONS_ORDINAL, all_exceptions_mask,
 };
+pub(crate) use world_cmds::{begin_shutdown, server_shutdown_tick};
+// `SkillList` resends aren't admin-only either: the cursed-weapon login restore
+// (`game_loop::cursed_weapon`) grants a skill outside any GM command.
+pub(crate) use skills::refresh_skill_list;
+
 use instance::*;
 use items::*;
 use mobgroup::*;
@@ -85,9 +90,6 @@ use mounts::*;
 use pledge::*;
 use points::*;
 use premium::*;
-// `SkillList` resends aren't admin-only either: the cursed-weapon login restore
-// (`game_loop::cursed_weapon`) grants a skill outside any GM command.
-pub(crate) use skills::refresh_skill_list;
 use skills::*;
 use spawn::*;
 use teleport::*;
@@ -100,8 +102,6 @@ use world_cmds::*;
 // here keeps every `super::helpers::…` / `super::death::…` call in the bodies
 // resolving (a child's `super` now points at this module).
 use crate::game_loop::helpers::region_cell_of;
-pub(crate) use crate::game_loop::helpers::send_message;
-pub(super) use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
 use crate::game_loop::{death, helpers, party, quests, target, visibility};
 
 /// Java `AdminCommandHandler.useAdminCommand`. `full` is the whole command
@@ -980,7 +980,11 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
                         send_message(world, client_id, "That player already has a petition.");
                     }
                 }
-                None => send_sm(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET),
+                None => helpers::send_sm_bare_to_client(
+                    world,
+                    client_id,
+                    sm_ids::THAT_IS_AN_INCORRECT_TARGET,
+                ),
             }
         }
 

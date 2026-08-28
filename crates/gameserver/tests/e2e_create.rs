@@ -922,7 +922,9 @@ fn parse_sm(pkt: &[u8]) -> (i16, Vec<i32>, Vec<i64>, Vec<String>) {
                     p += 2;
                 }
                 let units: Vec<u16> = pkt[start..p]
-                    .chunks_exact(2)
+                    .as_chunks::<2>()
+                    .0
+                    .iter()
                     .map(|c| u16::from_le_bytes([c[0], c[1]]))
                     .collect();
                 texts.push(String::from_utf16_lossy(&units));

@@ -21,10 +21,8 @@
 //! G25's olympiad matches reuse this shape, which is why the audit put duels
 //! here rather than with the end-game milestones.
 
-use super::helpers::send_sm_to_player as send_sm;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::send_to_player;
+use crate::game_loop::helpers;
 use crate::model::Player;
 use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -186,7 +184,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
     }
 
     let Some((_, target)) = super::party::find_player_by_name(world, &name) else {
-        send_sm(
+        helpers::send_sm_to_player(
             world,
             challenger,
             sm_ids::THERE_IS_NO_OPPONENT_TO_RECEIVE_YOUR_CHALLENGE_FOR_A_DUEL,
@@ -195,7 +193,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
         return;
     };
     if target == challenger {
-        send_sm(
+        helpers::send_sm_to_player(
             world,
             challenger,
             sm_ids::THERE_IS_NO_OPPONENT_TO_RECEIVE_YOUR_CHALLENGE_FOR_A_DUEL,
@@ -204,7 +202,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
         return;
     }
     if can_duel(world, challenger).is_err() {
-        send_sm(
+        helpers::send_sm_to_player(
             world,
             challenger,
             sm_ids::YOU_ARE_UNABLE_TO_REQUEST_A_DUEL_AT_THIS_TIME,
@@ -214,8 +212,8 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
     }
     if let Err(reason) = can_duel(world, target) {
         // Java forwards the *target's* refusal reason to the challenger.
-        let target_name = player_name_or_empty(world, target);
-        send_sm(
+        let target_name = helpers::player_name_or_empty(world, target);
+        helpers::send_sm_to_player(
             world,
             challenger,
             reason,
@@ -224,8 +222,8 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
         return;
     }
     if distance(world, challenger, target) > DUEL_REQUEST_RANGE {
-        let target_name = player_name_or_empty(world, target);
-        send_sm(
+        let target_name = helpers::player_name_or_empty(world, target);
+        helpers::send_sm_to_player(
             world,
             challenger,
             sm_ids::C1_IS_TOO_FAR_AWAY_TO_RECEIVE_A_DUEL_CHALLENGE,
@@ -242,17 +240,19 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
             party: false,
         },
     );
-    let challenger_name = player_name_or_empty(world, challenger);
-    send_to_player(
+    let challenger_name = helpers::player_name_or_empty(world, challenger);
+    helpers::send_to_player(
         world,
         target,
         server_packets::ex_duel_ask_start(&challenger_name, 0),
     );
-    send_sm(
+    helpers::send_sm_to_player(
         world,
         challenger,
         sm_ids::C1_HAS_BEEN_CHALLENGED_TO_A_DUEL,
-        &[SmParam::PlayerName(player_name_or_empty(world, target))],
+        &[SmParam::PlayerName(helpers::player_name_or_empty(
+            world, target,
+        ))],
     );
 }
 
@@ -278,11 +278,13 @@ pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body
     let party = pending.party;
 
     if response != 1 {
-        send_sm(
+        helpers::send_sm_to_player(
             world,
             challenger,
             sm_ids::C1_HAS_DECLINED_YOUR_CHALLENGE_TO_A_DUEL,
-            &[SmParam::PlayerName(player_name_or_empty(world, responder))],
+            &[SmParam::PlayerName(helpers::player_name_or_empty(
+                world, responder,
+            ))],
         );
         return;
     }
@@ -303,7 +305,7 @@ pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body
         )
     };
     if !ok {
-        send_sm(
+        helpers::send_sm_to_player(
             world,
             challenger,
             sm_ids::YOU_ARE_UNABLE_TO_REQUEST_A_DUEL_AT_THIS_TIME,
@@ -320,7 +322,7 @@ pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body
 fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, name: &str) {
     let team_a = party_members_of(world, challenger);
     if team_a.first() != Some(&challenger) {
-        super::admin::send_message(
+        helpers::send_message(
             world,
             client_id,
             "You have to be the leader of a party in order to request a party duel.",
@@ -328,7 +330,7 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
         return;
     }
     let Some((_, target)) = super::party::find_player_by_name(world, name) else {
-        send_sm(
+        helpers::send_sm_to_player(
             world,
             challenger,
             sm_ids::THERE_IS_NO_OPPONENT_TO_RECEIVE_YOUR_CHALLENGE_FOR_A_DUEL,
@@ -338,11 +340,11 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
     };
     let team_b = party_members_of(world, target);
     if team_b.is_empty() {
-        super::admin::send_message(world, client_id, "This player is not in a party.");
+        helpers::send_message(world, client_id, "This player is not in a party.");
         return;
     }
     if team_a.contains(&target) {
-        super::admin::send_message(
+        helpers::send_message(
             world,
             client_id,
             "This player is a member of your own party.",
@@ -350,7 +352,7 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
         return;
     }
     if team_a.iter().any(|&m| can_duel(world, m).is_err()) {
-        super::admin::send_message(
+        helpers::send_message(
             world,
             client_id,
             "Not all the members of your party are ready for a duel.",
@@ -359,7 +361,7 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
     }
     if team_b.iter().any(|&m| can_duel(world, m).is_err()) {
         // Java forwards the target-side refusal per member; one line covers it.
-        super::admin::send_message(
+        helpers::send_message(
             world,
             client_id,
             "The opposing party is currently unable to duel.",
@@ -375,17 +377,19 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
             party: true,
         },
     );
-    let challenger_name = player_name_or_empty(world, challenger);
-    send_to_player(
+    let challenger_name = helpers::player_name_or_empty(world, challenger);
+    helpers::send_to_player(
         world,
         leader_b,
         server_packets::ex_duel_ask_start(&challenger_name, 1),
     );
-    send_sm(
+    helpers::send_sm_to_player(
         world,
         challenger,
         sm_ids::C1_HAS_BEEN_CHALLENGED_TO_A_DUEL,
-        &[SmParam::PlayerName(player_name_or_empty(world, leader_b))],
+        &[SmParam::PlayerName(helpers::player_name_or_empty(
+            world, leader_b,
+        ))],
     );
 }
 
@@ -475,7 +479,7 @@ fn start_countdown(
         // Java announces the upcoming teleport when the duel is created.
         for &oid in &everyone {
             world.objects.add_components(&oid, DuelRef(id));
-            send_sm(
+            helpers::send_sm_to_player(
                 world,
                 oid,
                 sm_ids::IN_A_MOMENT_YOU_WILL_BE_TRANSPORTED_TO_THE_SITE_WHERE_THE_DUEL_WILL_TAKE_PLACE,
@@ -520,7 +524,7 @@ pub(crate) fn handle_countdown(world: &mut World, duel_id: u32) {
         .unwrap_or_default();
     if count > 0 {
         for oid in members {
-            send_sm(
+            helpers::send_sm_to_player(
                 world,
                 oid,
                 sm_ids::THE_DUEL_WILL_BEGIN_IN_S1_SECOND_S,
@@ -534,7 +538,7 @@ pub(crate) fn handle_countdown(world: &mut World, duel_id: u32) {
         return;
     }
     for oid in members {
-        send_sm(world, oid, sm_ids::LET_THE_DUEL_BEGIN, &[]);
+        helpers::send_sm_to_player(world, oid, sm_ids::LET_THE_DUEL_BEGIN, &[]);
     }
     let _ = (a, b);
     start_duel(world, duel_id);
@@ -605,23 +609,23 @@ fn start_duel(world: &mut World, duel_id: u32) {
         // Each member gets the ready/start pair and every opponent's duel bar.
         for (mine, theirs) in [(&team_a, &team_b), (&team_b, &team_a)] {
             for &oid in mine {
-                send_to_player(world, oid, server_packets::ex_duel_ready(flag));
-                send_to_player(world, oid, server_packets::ex_duel_start(flag));
+                helpers::send_to_player(world, oid, server_packets::ex_duel_ready(flag));
+                helpers::send_to_player(world, oid, server_packets::ex_duel_start(flag));
                 for &opponent in theirs {
                     if let Some(pkt) = duel_user_info(world, opponent) {
-                        send_to_player(world, oid, pkt);
+                        helpers::send_to_player(world, oid, pkt);
                     }
                 }
             }
         }
     } else {
         for oid in [a, b] {
-            send_to_player(world, oid, server_packets::ex_duel_ready(flag));
-            send_to_player(world, oid, server_packets::ex_duel_start(flag));
+            helpers::send_to_player(world, oid, server_packets::ex_duel_ready(flag));
+            helpers::send_to_player(world, oid, server_packets::ex_duel_start(flag));
             // Java broadcasts the opponent's duel HP/MP/CP bar to each side.
             let opponent = if oid == a { b } else { a };
             if let Some(pkt) = duel_user_info(world, opponent) {
-                send_to_player(world, oid, pkt);
+                helpers::send_to_player(world, oid, pkt);
             }
         }
     }
@@ -717,7 +721,7 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
 
     for &oid in &everyone {
         world.objects.remove_component::<DuelRef>(&oid);
-        send_to_player(world, oid, server_packets::ex_duel_end(flag));
+        helpers::send_to_player(world, oid, server_packets::ex_duel_end(flag));
     }
 
     match result {
@@ -728,15 +732,15 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
             } else {
                 sm_ids::C1_HAS_WON_THE_DUEL
             };
-            let wname = player_name_or_empty(world, winner);
+            let wname = helpers::player_name_or_empty(world, winner);
             for &oid in &everyone {
-                send_sm(world, oid, sm, &[SmParam::PlayerName(wname.clone())]);
+                helpers::send_sm_to_player(world, oid, sm, &[SmParam::PlayerName(wname.clone())]);
             }
             let _ = loser;
         }
         DuelResult::Canceled => {
             for &oid in &everyone {
-                send_sm(world, oid, sm_ids::THE_DUEL_HAS_ENDED_IN_A_TIE, &[]);
+                helpers::send_sm_to_player(world, oid, sm_ids::THE_DUEL_HAS_ENDED_IN_A_TIE, &[]);
             }
         }
     }

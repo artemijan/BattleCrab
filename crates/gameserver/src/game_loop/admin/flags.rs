@@ -2,17 +2,14 @@
 //! in [`AdminFlags`](AdminFlags) on the GM or the
 //! targeted player.
 
-use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{nth_arg, send_sm_bare_to_client};
+use crate::game_loop::{guard, helpers};
 use crate::model::Player;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets;
 use crate::world::World;
-
-use super::{send_message, send_sm};
-
 /// The GM flags togglable via `AdminFlags`.
 #[derive(Clone, Copy)]
 pub(super) enum GmFlag {
@@ -92,14 +89,14 @@ pub(super) fn admin_invis_menu(world: &mut World, client_id: u32, object_id: i32
 /// so non-player targets are refused like Java's null-target branch).
 pub(super) fn admin_setinvis(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = guard::player_target(world, object_id) else {
-        send_message(world, client_id, "Invalid target.");
+        helpers::send_message(world, client_id, "Invalid target.");
         return;
     };
     let hidden = !world
         .objects
         .get_component::<AdminFlags>(&target)
         .is_some_and(|f| f.hidden);
-    let target_client = super::helpers::client_for_player(world, target).unwrap_or(0);
+    let target_client = helpers::client_for_player(world, target).unwrap_or(0);
     set_hidden(world, target_client, target, hidden);
 }
 
@@ -134,10 +131,10 @@ pub(super) fn set_hidden(world: &mut World, client_id: u32, object_id: i32, hidd
             object_id,
             &server_packets::delete_object(object_id),
         );
-        send_message(world, client_id, "Now, you cannot be seen.");
+        helpers::send_message(world, client_id, "Now, you cannot be seen.");
     } else {
         super::visibility::on_enter_world(world, client_id, object_id);
-        send_message(world, client_id, "Now, you can be seen.");
+        helpers::send_message(world, client_id, "Now, you can be seen.");
     }
     send_invisible_visual(world, client_id, object_id, hidden);
 }
@@ -154,7 +151,7 @@ pub(super) fn admin_silence(world: &mut World, client_id: u32, object_id: i32) {
     flags.silence = !flags.silence;
     let on = flags.silence;
     world.objects.add_components(&object_id, flags);
-    send_sm(
+    send_sm_bare_to_client(
         world,
         client_id,
         if on {
@@ -172,7 +169,7 @@ pub(super) fn admin_silence(world: &mut World, client_id: u32, object_id: i32) {
 /// `//invul` / `//undying` — toggle the flag on the GM.
 pub(super) fn toggle_flag(world: &mut World, client_id: u32, object_id: i32, flag: GmFlag) {
     let on = set_flag(world, object_id, flag);
-    send_message(
+    helpers::send_message(
         world,
         client_id,
         &format!(
@@ -213,9 +210,9 @@ pub(crate) fn apply_gm_startup(world: &mut World, client_id: u32, object_id: i32
     if gm.startup_builder_hide && world.data.admin.has_access("admin_hide", access_level) {
         flags.hidden = true;
         world.objects.add_components(&object_id, flags);
-        send_message(world, client_id, "hide is default for builder.");
-        send_message(world, client_id, "FriendAddOff is default for builder.");
-        send_message(world, client_id, "whisperoff is default for builder.");
+        helpers::send_message(world, client_id, "hide is default for builder.");
+        helpers::send_message(world, client_id, "FriendAddOff is default for builder.");
+        helpers::send_message(world, client_id, "whisperoff is default for builder.");
         send_invisible_visual(world, client_id, object_id, true);
         register_gm(world, object_id, access_level);
         return;
@@ -316,11 +313,11 @@ pub(super) fn toggle_flag_on_target(
     flag: GmFlag,
 ) {
     let Some(target) = guard::player_target(world, object_id) else {
-        send_message(world, client_id, "Select a player first.");
+        helpers::send_message(world, client_id, "Select a player first.");
         return;
     };
     let on = set_flag(world, target, flag);
-    send_message(
+    helpers::send_message(
         world,
         client_id,
         &format!(
@@ -384,7 +381,7 @@ fn show_ave_menu(world: &World, client_id: u32, page: i32) {
         "ave_abnormal.htm",
         &[("abnormals", body), ("pages", pages_html)],
     );
-    send_message(
+    helpers::send_message(
         world,
         client_id,
         "Usage: //ave_abnormal <AbnormalVisualEffect> [radius]",
@@ -447,7 +444,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
     }
     let name = first.unwrap_or_default();
     let Some(ave) = crate::model::skill::abnormal_visual_client_id(&name.to_uppercase()) else {
-        send_message(
+        helpers::send_message(
             world,
             client_id,
             &format!("Unknown abnormal visual effect: {name}"),
@@ -501,7 +498,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
         toggled_on += i32::from(now_on);
         push_admin_visuals(world, *target);
     }
-    send_message(
+    helpers::send_message(
         world,
         client_id,
         &format!(

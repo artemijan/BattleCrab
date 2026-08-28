@@ -18,10 +18,9 @@
 //!   wall-clock work (`daily_tasks`), where Java uses server-local time.
 
 use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::npc_name_or_empty;
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{
+    is_dead, npc_name_or_empty, npc_template, send_message, send_to_client,
+};
 use tracing::warn;
 
 use crate::data::item_data::ADENA_ID;
@@ -346,7 +345,7 @@ pub(crate) fn do_teleport(
             return;
         }
         if !world.cfg.character.alt_karma_player_can_use_gk && reputation < 0 {
-            super::admin::send_message(world, client_id, "Go away, you're not welcome here.");
+            send_message(world, client_id, "Go away, you're not welcome here.");
             return;
         }
         if has_combat_flag(world, object_id) {
@@ -384,11 +383,7 @@ pub(crate) fn do_teleport(
                     .get(loc.fee_id)
                     .map(|t| t.name.clone())
                     .unwrap_or_else(|| format!("Unknown item: {}", loc.fee_id));
-                super::admin::send_message(
-                    world,
-                    client_id,
-                    &format!("You do not have enough {item}"),
-                );
+                send_message(world, client_id, &format!("You do not have enough {item}"));
             }
             return;
         }

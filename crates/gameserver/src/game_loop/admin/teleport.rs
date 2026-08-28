@@ -4,19 +4,18 @@
 //! teleport HTML menus).
 
 use crate::enums::AdminTeleportType;
+use crate::game_loop::admin::find_online_player;
 use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
 use crate::model::Player;
 use crate::model::components::Speeds;
 use crate::model::npc::Npc;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
-
-use super::{find_online_player, send_message, send_sm};
-use crate::game_loop::helpers::region_cell_of;
 
 /// `AdminGmSpeed` — scale the target player's (or self's) movement speed. Java
 /// **The argument is an outright multiplier, not a boost**, despite Java naming
@@ -199,11 +198,11 @@ pub(super) fn admin_teleportto(world: &mut World, client_id: u32, object_id: i32
         return;
     }
     let Some(target) = find_online_player(world, name.trim()) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     if target == object_id {
-        send_sm(world, client_id, sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF);
+        send_sm_bare_to_client(world, client_id, sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF);
         return;
     }
     let target_name = player_name_or_empty(world, target);
@@ -278,7 +277,7 @@ fn goto_char(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -
     // Java: `!target.isPlayer()` → INVALID_TARGET, and no main page.
     .or_sm(sm_ids::INVALID_TARGET)?;
     if target == object_id {
-        send_sm(world, client_id, sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF);
+        send_sm_bare_to_client(world, client_id, sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF);
     } else if super::death::teleport_to_object(world, object_id, target) {
         // The confirmation stays gated on the teleport actually happening: a
         // target with no position is silently skipped, exactly as before.

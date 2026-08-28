@@ -14,8 +14,7 @@
 //! while a player carrying none is told once a second, forever. Ported
 //! verbatim, because the alternative silently changes what an operator sees.
 
-use crate::game_loop::admin::send_message;
-use crate::game_loop::helpers::hp_pair;
+use crate::game_loop::helpers::{hp_pair, send_message};
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
 use crate::world::World;

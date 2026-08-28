@@ -4,15 +4,15 @@
 //! (PLAN_G10_SOCIAL.md §4).
 
 use crate::character::FriendInfo;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::send_to_player;
+use crate::game_loop::helpers::{
+    client_for_player, player_name_or_empty, send_message, send_sm_to_player, send_to_player,
+};
 use crate::model::Player;
 use crate::model::components::{Friends, PendingRequest, RequestKind};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, FriendEntry, SmParam, friend_status_mode, sm_ids};
 use crate::world::World;
 
-use super::helpers::{client_for_player, send_sm_to_player as send_sm};
 use super::party::{
     REQUEST_TIMEOUT_TICKS, clear_linked_request, find_player_by_name, install_request,
 };
@@ -110,11 +110,11 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
     };
 
     let Some((_, friend)) = find_player_by_name(world, &name) else {
-        send_sm(world, player, sm_ids::FRIEND_INVITE_TARGET_NOT_FOUND, &[]);
+        send_sm_to_player(world, player, sm_ids::FRIEND_INVITE_TARGET_NOT_FOUND, &[]);
         return;
     };
     if friend == player {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::YOU_CANNOT_ADD_YOURSELF_TO_YOUR_OWN_FRIEND_LIST,
@@ -127,11 +127,11 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
     // being blocked *by* the target is a literal line that does not name them,
     // while having blocked the target names them.
     if super::block_list::is_blocked(world, friend, player) {
-        super::admin::send_message(world, client_id, "You are in target's block list.");
+        send_message(world, client_id, "You are in target's block list.");
         return;
     }
     if super::block_list::is_blocked(world, player, friend) {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::YOU_HAVE_BLOCKED_C1,
@@ -144,7 +144,7 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
         .get_component::<Friends>(&player)
         .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == friend))
     {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::THIS_PLAYER_IS_ALREADY_REGISTERED_ON_YOUR_FRIENDS_LIST,
@@ -155,7 +155,7 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
     if world.objects.has_component::<PendingRequest>(&friend)
         || world.objects.has_component::<PendingRequest>(&player)
     {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
@@ -177,7 +177,7 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
         friend,
         server_packets::friend_add_request(&requestor_name),
     );
-    send_sm(
+    send_sm_to_player(
         world,
         player,
         sm_ids::YOU_VE_REQUESTED_C1_TO_BE_ON_YOUR_FRIENDS_LIST,
@@ -217,7 +217,7 @@ pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: 
             .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == player));
     if already {
         let name = player_name_or_empty(world, player);
-        send_sm(
+        send_sm_to_player(
             world,
             requestor,
             sm_ids::C1_IS_ALREADY_ON_YOUR_FRIEND_LIST,
@@ -227,7 +227,7 @@ pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: 
     }
 
     if response != 1 {
-        send_sm(
+        send_sm_to_player(
             world,
             requestor,
             sm_ids::YOU_HAVE_FAILED_TO_ADD_A_FRIEND,
@@ -252,14 +252,14 @@ pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: 
         fl.0.push(requestor_info.clone());
     }
 
-    send_sm(world, requestor, sm_ids::FRIEND_ADDED_SUCCESSFULLY, &[]);
-    send_sm(
+    send_sm_to_player(world, requestor, sm_ids::FRIEND_ADDED_SUCCESSFULLY, &[]);
+    send_sm_to_player(
         world,
         requestor,
         sm_ids::S1_HAS_BEEN_ADDED_TO_YOUR_FRIENDS_LIST,
         &[SmParam::Text(player_info.name.clone())],
     );
-    send_sm(
+    send_sm_to_player(
         world,
         player,
         sm_ids::S1_HAS_BEEN_ADDED_TO_YOUR_FRIENDS_LIST_2,
@@ -302,7 +302,7 @@ pub(crate) fn handle_request_friend_del(world: &mut World, client_id: u32, body:
                 .cloned()
         });
     let Some(friend) = friend else {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::C1_IS_NOT_ON_YOUR_FRIEND_LIST,
@@ -318,7 +318,7 @@ pub(crate) fn handle_request_friend_del(world: &mut World, client_id: u32, body:
     if let Some(fl) = world.objects.get_component_mut::<Friends>(&player) {
         fl.0.retain(|f| f.char_id != friend.char_id);
     }
-    send_sm(
+    send_sm_to_player(
         world,
         player,
         sm_ids::S1_HAS_BEEN_REMOVED_FROM_YOUR_FRIENDS_LIST_2,
@@ -351,16 +351,16 @@ pub(crate) fn handle_request_friend_list(world: &mut World, client_id: u32) {
     let Some(friends) = world.objects.get_component::<Friends>(&player).cloned() else {
         return;
     };
-    send_sm(world, player, sm_ids::FRIENDS_LIST_HEADER, &[]);
+    send_sm_to_player(world, player, sm_ids::FRIENDS_LIST_HEADER, &[]);
     for f in &friends.0 {
         let id = if is_online(world, f.char_id) {
             sm_ids::S1_CURRENTLY_ONLINE
         } else {
             sm_ids::S1_CURRENTLY_OFFLINE
         };
-        send_sm(world, player, id, &[SmParam::Text(f.name.clone())]);
+        send_sm_to_player(world, player, id, &[SmParam::Text(f.name.clone())]);
     }
-    send_sm(world, player, sm_ids::FRIENDS_LIST_FOOTER, &[]);
+    send_sm_to_player(world, player, sm_ids::FRIENDS_LIST_FOOTER, &[]);
 }
 
 pub(crate) fn handle_request_send_friend_msg(world: &mut World, client_id: u32, body: &[u8]) {
@@ -383,7 +383,7 @@ pub(crate) fn handle_request_send_friend_msg(world: &mut World, client_id: u32, 
                 .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == player))
         });
     let Some(receiver) = receiver else {
-        send_sm(world, player, sm_ids::THAT_PLAYER_IS_NOT_ONLINE, &[]);
+        send_sm_to_player(world, player, sm_ids::THAT_PLAYER_IS_NOT_ONLINE, &[]);
         return;
     };
     let sender_name = player_name_or_empty(world, player);

@@ -17,13 +17,11 @@
 
 use crate::db::DbCommand;
 use crate::game_loop::guard;
-use crate::game_loop::helpers::{send_inventory_item_list, send_to_client};
+use crate::game_loop::helpers::{send_inventory_item_list, send_message, send_to_client};
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
-
-use super::send_message;
 
 use crate::game_loop::pvp::get_killer_rep_and_pk;
 // Re-exported rather than redefined: `cursed_weapon.rs` imports `now_millis`

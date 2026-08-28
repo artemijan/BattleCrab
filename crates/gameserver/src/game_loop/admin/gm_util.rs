@@ -9,18 +9,17 @@
 //! path — they need chat-snoop, live-config, olympiad or punishment systems the
 //! server has not ported.
 
+use crate::game_loop::admin::find_online_player;
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
-
+use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
 use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef};
 use crate::model::npc::Npc;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
-
-use super::{find_online_player, send_message, send_sm};
 
 /// `AdminAdmin`'s `//gmliston` / `//gmlistoff` — register/unregister from the
 /// GM list. Both are **message-only in Java too**: neither calls `showGm` or
@@ -116,7 +115,7 @@ pub(super) fn admin_online(world: &mut World, client_id: u32) {
 /// `AdminTargetSay`'s `//targetsay <text>` — make the current target say `text`.
 pub(super) fn admin_targetsay(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let Some(target) = guard::target(world, object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     if args.is_empty() {
@@ -136,7 +135,7 @@ pub(super) fn admin_targetsay(world: &mut World, client_id: u32, object_id: i32,
             .map(|t| t.name.clone())
             .unwrap_or_default()
     } else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let say =
@@ -150,7 +149,7 @@ pub(super) fn admin_msg(world: &mut World, client_id: u32, args: &[&str]) {
         send_message(world, client_id, "Command format: //msg <SYSTEM_MSG_ID>");
         return;
     };
-    send_sm(world, client_id, id);
+    send_sm_bare_to_client(world, client_id, id);
 }
 
 /// `AdminAnnouncements`'s `//announce_crit` / `//announce_screen <message>` —
@@ -386,7 +385,7 @@ fn resolve_named_or_target(world: &World, object_id: i32, args: &[&str]) -> Opti
 /// alone (Java sends "Player is not in party." and still teleports them).
 pub(super) fn admin_recall_party(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let Some(target) = resolve_named_or_target(world, object_id, args) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&target).copied() else {
@@ -413,7 +412,7 @@ pub(super) fn admin_recall_party(world: &mut World, client_id: u32, object_id: i
 /// character is recalled alone.
 pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let Some(target) = resolve_named_or_target(world, object_id, args) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let Some(clan_id) = guard::clan_of(world, target) else {

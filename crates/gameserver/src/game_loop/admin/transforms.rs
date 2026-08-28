@@ -16,12 +16,10 @@
 //! the evidence lives in `data::transform_data`'s module header.
 
 use super::mounts::ride_target;
-use crate::game_loop::helpers::nth_arg;
+use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
 use crate::model::Player;
 use crate::model::components::{Collision, SkillBook};
 use crate::world::World;
-
-use super::{send_message, send_sm};
 
 /// `//transform <id>` — transform the ride target (target player or GM) into the
 /// given transform id.
@@ -46,7 +44,7 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
     // transforms someone else — and the message order matters too, since a
     // player who is both seated and mounted gets whichever check runs first.
     if crate::game_loop::sit_stand::is_sitting(world, object_id) {
-        send_sm(
+        send_sm_bare_to_client(
             world,
             client_id,
             crate::network::server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_SITTING,
@@ -72,7 +70,7 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
     // using it here would refuse the transform for anyone in a castle moat
     // or wading where no breath timer ever started.
     if crate::game_loop::water::is_drowning_task_active(world, target) {
-        send_sm(
+        send_sm_bare_to_client(
             world,
             client_id,
             crate::network::server_packets::sm_ids::YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER,
@@ -84,7 +82,7 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
         .get_component::<Player>(&target)
         .is_some_and(Player::is_mounted)
     {
-        send_sm(
+        send_sm_bare_to_client(
             world,
             client_id,
             crate::network::server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_RIDING_A_PET,

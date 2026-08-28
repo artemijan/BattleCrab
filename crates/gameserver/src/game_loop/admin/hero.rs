@@ -5,12 +5,11 @@
 //! target can never claim — Java's own outcome on a server with no crowned hero.
 
 use crate::game_loop::guard;
+use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
 use crate::model::Player;
 use crate::model::components::SkillBook;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
-
-use super::{send_message, send_sm};
 
 /// Target = the current target if it's a player, else the GM (Java falls back to
 /// `activeChar`). `None` only when nothing is targeted at all (Java's
@@ -27,7 +26,7 @@ fn hero_target(world: &World, gm_object_id: i32) -> Option<i32> {
 /// `//sethero` — toggle the target's hero status.
 pub(super) fn admin_sethero(world: &mut World, client_id: u32, gm_object_id: i32) {
     let Some(target) = hero_target(world, gm_object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let now = world
@@ -44,7 +43,7 @@ pub(super) fn admin_sethero(world: &mut World, client_id: u32, gm_object_id: i32
 /// of `CharInfo`/`UserInfo`. Transient, exactly as in Java.
 pub(super) fn admin_settruehero(world: &mut World, client_id: u32, gm_object_id: i32) {
     let Some(target) = hero_target(world, gm_object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let Some(p) = world.objects.get_component_mut::<Player>(&target) else {
@@ -67,7 +66,7 @@ pub(super) fn admin_settruehero(world: &mut World, client_id: u32, gm_object_id:
 /// `//givehero` (confirmDlg) — the Olympiad hero-claim path.
 pub(super) fn admin_givehero(world: &mut World, client_id: u32, gm_object_id: i32) {
     let Some(target) = hero_target(world, gm_object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     // Java: `Hero.isHero(objectId)` → already claimed.
@@ -135,7 +134,7 @@ pub(crate) fn set_hero(world: &mut World, target: i32, hero: bool) {
 pub(super) fn admin_setnoble(world: &mut World, client_id: u32, gm_object_id: i32) {
     // Java reuses the same target resolution as the hero commands.
     let Some(target) = hero_target(world, gm_object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let now = world

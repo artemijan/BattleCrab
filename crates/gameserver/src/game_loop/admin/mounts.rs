@@ -15,6 +15,7 @@
 
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::Player;
 use crate::model::components::Collision;
@@ -22,8 +23,6 @@ use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::skill::OperateType;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
-
-use super::{send_message, send_sm};
 
 /// The fixed npc ids `AdminRide` mounts (Java `petRideId`), with their
 /// `MountType` ordinal (1 strider, 2 wyvern, 3 wolf).
@@ -259,7 +258,7 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
         let client = super::helpers::client_for_player(world, target);
         if !swimming && pos.z > 10000 {
             if let Some(cid) = client {
-                send_sm(
+                send_sm_bare_to_client(
                     world,
                     cid,
                     sm_ids::YOU_ARE_NOT_ALLOWED_TO_DISMOUNT_IN_THIS_LOCATION,
@@ -269,7 +268,7 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
         }
         if world.geo.get_height(pos.x, pos.y, pos.z) + 300 < pos.z {
             if let Some(cid) = client {
-                send_sm(world, cid, sm_ids::YOU_CANNOT_DISMOUNT_FROM_THIS_ELEVATION);
+                send_sm_bare_to_client(world, cid, sm_ids::YOU_CANNOT_DISMOUNT_FROM_THIS_ELEVATION);
             }
             return;
         }
@@ -448,7 +447,7 @@ pub(crate) fn handle_mount_feed_tick(world: &mut World, target: i32) {
         // "You are out of feed. Mount status canceled."
         set_current_feed(world, target, 0);
         dismount(world, target);
-        send_sm(
+        send_sm_bare_to_client(
             world,
             super::helpers::client_for_player(world, target).unwrap_or(0),
             sm_ids::YOU_ARE_OUT_OF_FEED_MOUNT_STATUS_CANCELED,

@@ -8,18 +8,17 @@
 //! `AdminCommands.xml`, reaching the "not implemented" path). `//playmovie`
 //! carries the full `MovieHolder` bookkeeping (see [`admin_playmovie`]).
 
+use crate::game_loop::admin::find_online_player;
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
-use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{is_creature, nth_arg, object_name};
+use crate::game_loop::helpers::{send_message, send_sm_bare_to_client, send_to_client};
 use crate::geo::distance::within_2d_xy;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
-
-use super::{find_online_player, send_message, send_sm};
 
 /// Port of `AdminEffects.performSocial` — broadcast a `SocialAction` on
 /// `target`, gated by the same action-id ranges (NPCs 1..=20, players 2..=18 or
@@ -35,12 +34,12 @@ fn perform_social(world: &World, action: i32, target: i32, gm_client_id: u32) ->
         .has_component::<crate::model::npc::Npc>(&target);
     // (Java also rejects `Chest` NPCs outright; no Chest type exists here.)
     if is_npc && !(1..=20).contains(&action) {
-        send_sm(world, gm_client_id, sm_ids::NOTHING_HAPPENED);
+        send_sm_bare_to_client(world, gm_client_id, sm_ids::NOTHING_HAPPENED);
         return false;
     }
     if !is_npc && (action < 2 || (action > 18 && action != server_packets::SOCIAL_ACTION_LEVEL_UP))
     {
-        send_sm(world, gm_client_id, sm_ids::NOTHING_HAPPENED);
+        send_sm_bare_to_client(world, gm_client_id, sm_ids::NOTHING_HAPPENED);
         return false;
     }
     let packet = server_packets::social_action(target, action);
@@ -95,7 +94,7 @@ pub(super) fn admin_social(world: &mut World, client_id: u32, object_id: i32, ar
                     &format!("{name} was affected by your request."),
                 );
             } else {
-                send_sm(world, client_id, sm_ids::NOTHING_HAPPENED);
+                send_sm_bare_to_client(world, client_id, sm_ids::NOTHING_HAPPENED);
             }
         }
         _ => send_message(
@@ -157,7 +156,7 @@ pub(super) fn admin_effect(world: &mut World, client_id: u32, object_id: i32, ar
     // Java: obj = target, or self if none; must be a creature.
     let source = guard::target(world, object_id).unwrap_or(object_id);
     if !is_creature(world, source) {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     }
     let (Some(src_pos), Some(gm_pos)) = (
@@ -669,14 +668,14 @@ pub(super) fn admin_set_displayeffect(
         return;
     };
     let Some(target) = guard::target(world, object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     if !world
         .objects
         .has_component::<crate::model::npc::Npc>(&target)
     {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     }
     if let Some(n) = world

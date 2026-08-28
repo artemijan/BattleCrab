@@ -13,12 +13,10 @@ use crate::data::npc_data::NpcTemplate;
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
-
+use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
 use crate::model::components::Position;
 use crate::model::npc::Npc;
 use crate::world::World;
-
-use super::send_message;
 
 /// Resolve a spawn-menu "Id/Name" token to an npc id. All-digit tokens are npc
 /// ids (Java `monsterId.matches("[0-9]*")`); anything else is a name — `_` maps
@@ -368,7 +366,7 @@ pub(super) fn admin_spawn_debug_print(world: &mut World, client_id: u32, object_
     let Some(target) =
         guard::target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
     else {
-        super::send_sm(
+        send_sm_bare_to_client(
             world,
             client_id,
             crate::network::server_packets::sm_ids::INVALID_TARGET,

@@ -11,18 +11,17 @@
 //! (`//find_ip`, `//find_dualbox`, `//tracert`) live in [`super::moderation`]
 //! since G31.
 
+use crate::game_loop::admin::find_online_player;
 use crate::game_loop::guard;
 use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
 use crate::model::components;
 
 use crate::model::Player;
 
-use crate::world::World;
-
-use super::{find_online_player, send_message, send_sm};
-
 use crate::network::server_packets::sm_ids;
+use crate::world::World;
 
 /// Object ids of every in-game player (Java `World.getPlayers()`), name-sorted
 /// for stable listing.
@@ -72,13 +71,10 @@ fn panel_vitals(world: &World, target: i32) -> (components::Vitals, components::
 /// carries its remaining lifetime instead), so targeting one is `INVALID_TARGET`
 /// exactly like targeting a player.
 pub(super) fn admin_fullfood(world: &mut World, client_id: u32, gm_object_id: i32) {
-    let pet = guard::target(world, gm_object_id).filter(|oid| {
-        world
-            .objects
-            .has_component::<crate::model::components::PetOf>(oid)
-    });
+    let pet = guard::target(world, gm_object_id)
+        .filter(|oid| world.objects.has_component::<components::PetOf>(oid));
     let Some(pet_oid) = pet else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
 
@@ -86,15 +82,15 @@ pub(super) fn admin_fullfood(world: &mut World, client_id: u32, gm_object_id: i3
     let owner = {
         let Some(p) = world
             .objects
-            .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+            .get_component_mut::<components::PetOf>(&pet_oid)
         else {
-            send_sm(world, client_id, sm_ids::INVALID_TARGET);
+            send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
             return;
         };
         p.fed = p.max_fed;
         world
             .objects
-            .get_component::<crate::model::components::ServitorOf>(&pet_oid)
+            .get_component::<components::ServitorOf>(&pet_oid)
             .map(|s| s.owner_object_id)
     };
 
@@ -131,7 +127,7 @@ pub(super) fn admin_character_info(
         match find_online_player(world, name) {
             Some(t) => (t, true),
             None => {
-                send_sm(world, client_id, sm_ids::INVALID_TARGET);
+                send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
                 return;
             }
         }
@@ -139,7 +135,7 @@ pub(super) fn admin_character_info(
         match guard::player_target(world, object_id) {
             Some(t) => (t, false),
             None => {
-                send_sm(world, client_id, sm_ids::INVALID_TARGET);
+                send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
                 return;
             }
         }
@@ -181,7 +177,7 @@ pub(super) fn admin_character_info(
     // and falls back to "N/A"/"Unknown" when there is none (client null or
     // detached), telling the GM which case it was. An offline trader is the
     // port's detached client — its session is gone but the `Player` stays.
-    let (ip, hwid, protocol) = match super::helpers::client_for_player(world, target) {
+    let (ip, hwid, protocol) = match helpers::client_for_player(world, target) {
         Some(cid) => (
             world
                 .clients
@@ -362,7 +358,7 @@ pub(super) fn admin_find_account(world: &mut World, client_id: u32, args: &[&str
         return;
     };
     let Some(target) = find_online_player(world, name) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let Some(account) = world
@@ -392,7 +388,7 @@ pub(super) fn admin_find_account(world: &mut World, client_id: u32, args: &[&str
 /// (Java `editCharacter`). Falls back to `INVALID_TARGET` with no player target.
 pub(super) fn admin_edit_character(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = guard::player_target(world, object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
@@ -435,7 +431,7 @@ pub(super) fn admin_changename(world: &mut World, client_id: u32, object_id: i32
         return;
     };
     let Some(target) = guard::player_target(world, object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     if find_online_player(world, &new_name).is_some() {
@@ -459,7 +455,7 @@ pub(super) fn admin_changename(world: &mut World, client_id: u32, object_id: i32
 /// `updatePvPFlag(abs(flag - 1))`).
 pub(super) fn admin_set_pvp_flag(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) = guard::player_target(world, object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let cur = world
@@ -478,7 +474,7 @@ pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32,
         None => match guard::player_target(world, object_id) {
             Some(t) => t,
             None => {
-                send_sm(world, client_id, sm_ids::INVALID_TARGET);
+                send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
                 return;
             }
         },
@@ -552,7 +548,7 @@ pub(super) fn admin_setparam(
         .filter(|oid| {
             world
                 .objects
-                .has_component::<crate::model::components::StatModifiers>(oid)
+                .has_component::<components::StatModifiers>(oid)
         })
         .unwrap_or(object_id);
     if set {
@@ -562,7 +558,7 @@ pub(super) fn admin_setparam(
         };
         if let Some(m) = world
             .objects
-            .get_component_mut::<crate::model::components::StatModifiers>(&target)
+            .get_component_mut::<components::StatModifiers>(&target)
         {
             m.fixed.insert(stat, value);
         }
@@ -574,7 +570,7 @@ pub(super) fn admin_setparam(
     } else {
         if let Some(m) = world
             .objects
-            .get_component_mut::<crate::model::components::StatModifiers>(&target)
+            .get_component_mut::<components::StatModifiers>(&target)
         {
             m.fixed.remove(&stat);
         }
@@ -584,7 +580,7 @@ pub(super) fn admin_setparam(
             &format!("Fixed stat {} has been removed.", args[0]),
         );
     }
-    crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
+    helpers::recalculate_player_stats_and_vitals(world, target);
     crate::game_loop::player_info::broadcast_user_info(world, target);
 }
 
@@ -658,7 +654,7 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
         return;
     };
     let Some(target) = guard::player_target(world, object_id) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     // Java clamps inside the setter — `setRecomHave` is
@@ -674,7 +670,7 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
         })
         .unwrap_or_default();
     crate::game_loop::player_info::broadcast_user_info(world, target);
-    if let Some(cid) = super::helpers::client_for_player(world, target) {
+    if let Some(cid) = helpers::client_for_player(world, target) {
         send_message(
             world,
             cid,
@@ -693,7 +689,7 @@ fn targeted_summon(world: &World, object_id: i32) -> Option<(i32, i32)> {
     let target = guard::target(world, object_id)?;
     let owner = world
         .objects
-        .get_component::<crate::model::components::ServitorOf>(&target)?
+        .get_component::<components::ServitorOf>(&target)?
         .owner_object_id;
     Some((target, owner))
 }
@@ -727,7 +723,7 @@ pub(super) fn admin_summon_info(world: &mut World, client_id: u32, object_id: i3
         .unwrap_or_default();
     let pet = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&summon_oid)
+        .get_component::<components::PetOf>(&summon_oid)
         .copied();
     let (cur_hp, max_hp, cur_mp, max_mp) = world
         .objects
@@ -787,11 +783,9 @@ pub(super) fn admin_summon_setlvl(
         send_message(world, client_id, "Usage: //summon_setlvl level");
         return;
     };
-    let Some((pet_oid, owner)) = targeted_summon(world, object_id).filter(|(oid, _)| {
-        world
-            .objects
-            .has_component::<crate::model::components::PetOf>(oid)
-    }) else {
+    let Some((pet_oid, owner)) = targeted_summon(world, object_id)
+        .filter(|(oid, _)| world.objects.has_component::<components::PetOf>(oid))
+    else {
         send_message(world, client_id, "Usable only with Pets");
         return;
     };
@@ -805,7 +799,7 @@ pub(super) fn admin_summon_setlvl(
     };
     if let Some(p) = world
         .objects
-        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+        .get_component_mut::<components::PetOf>(&pet_oid)
     {
         p.level = level;
         p.exp = exp;
@@ -823,19 +817,11 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
     // Java's argument is the *owner's* object id (`World.getPet(ownerId)`).
     let pet_oid = helpers::nth_arg::<i32>(args, 0)
         .and_then(|owner| crate::game_loop::servitor::servitor_of(world, owner))
-        .filter(|oid| {
-            world
-                .objects
-                .has_component::<crate::model::components::PetOf>(oid)
-        })
+        .filter(|oid| world.objects.has_component::<components::PetOf>(oid))
         .or_else(|| {
             targeted_summon(world, object_id)
                 .map(|(oid, _)| oid)
-                .filter(|oid| {
-                    world
-                        .objects
-                        .has_component::<crate::model::components::PetOf>(oid)
-                })
+                .filter(|oid| world.objects.has_component::<components::PetOf>(oid))
         });
     let Some(pet_oid) = pet_oid else {
         send_message(world, client_id, "Usable only with Pets");
@@ -895,7 +881,7 @@ pub(super) fn admin_charquestmenu(
     args: &[&str],
 ) {
     let Some(target) = quest_target(world, object_id, args) else {
-        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let name = helpers::player_name_or_empty(world, target);
@@ -969,10 +955,7 @@ fn quest_first_menu(name: &str, target: i32) -> String {
 /// them, each linking to its editor.
 fn quest_state_list(world: &World, target: i32, name: &str, state: Option<u8>) -> String {
     let mut rows = String::new();
-    if let Some(q) = world
-        .objects
-        .get_component::<crate::model::components::Quests>(&target)
-    {
+    if let Some(q) = world.objects.get_component::<components::Quests>(&target) {
         let mut entries: Vec<_> =
             q.0.iter()
                 .filter(|(_, st)| state.is_none_or(|want| st.state == want))
@@ -1002,7 +985,7 @@ fn quest_state_list(world: &World, target: i32, name: &str, state: Option<u8>) -
 fn quest_editor(world: &World, target: i32, name: &str, quest: &str) -> String {
     let st = world
         .objects
-        .get_component::<crate::model::components::Quests>(&target)
+        .get_component::<components::Quests>(&target)
         .and_then(|q| q.0.get(quest).cloned());
     let state = st.as_ref().map_or("CREATED".to_string(), |s| {
         crate::model::quest::state::name(s.state).to_uppercase()
@@ -1063,7 +1046,7 @@ pub(super) fn admin_setcharquest(world: &mut World, client_id: u32, args: &[&str
     };
     let Some(quests) = world
         .objects
-        .get_component_mut::<crate::model::components::Quests>(&target)
+        .get_component_mut::<components::Quests>(&target)
     else {
         return;
     };
@@ -1105,13 +1088,10 @@ pub(super) fn admin_setcharquest(world: &mut World, client_id: u32, args: &[&str
 /// the client showing the step it had before — a `//setcharquest … cond 28`
 /// looked like it had done nothing until the next relog rebuilt the journal.
 fn refresh_quest_journal(world: &mut World, target: i32, quest: &str) {
-    let Some(target_cid) = super::helpers::client_for_player(world, target) else {
+    let Some(target_cid) = helpers::client_for_player(world, target) else {
         return;
     };
-    let Some(quests) = world
-        .objects
-        .get_component::<crate::model::components::Quests>(&target)
-    else {
+    let Some(quests) = world.objects.get_component::<components::Quests>(&target) else {
         return;
     };
     let list = crate::network::enter_world::quest_list(quests, &world.quests);
