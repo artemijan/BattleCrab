@@ -24,9 +24,10 @@
 //! `character_friends` stores friends at `relation = 0` and blocks at
 //! `relation = 1`.
 
-use super::helpers::{
+use crate::game_loop::helpers::{
     is_friend, is_gm, send_message, send_sm_bare_to_client as send_sm, send_to_client,
 };
+use crate::game_loop::mail;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
@@ -144,7 +145,7 @@ fn add_to_block_list(world: &mut World, client_id: u32, owner_oid: i32, name: &s
         target: target_oid,
     });
 
-    let display = super::mail::char_name_by_id(world, target_oid);
+    let display = mail::char_name_by_id(world, target_oid);
     send_sm_str(
         world,
         client_id,
@@ -153,7 +154,7 @@ fn add_to_block_list(world: &mut World, client_id: u32, owner_oid: i32, name: &s
     );
 
     // The blocked player is *told*, if online — so blocking is not silent.
-    let owner_name = super::mail::char_name_by_id(world, owner_oid);
+    let owner_name = mail::char_name_by_id(world, owner_oid);
     if let Some(cid) = client_of(world, target_oid) {
         send_sm_str(
             world,
@@ -184,7 +185,7 @@ fn remove_from_block_list(world: &mut World, client_id: u32, owner_oid: i32, nam
         target: target_oid,
     });
 
-    let display = super::mail::char_name_by_id(world, target_oid);
+    let display = mail::char_name_by_id(world, target_oid);
     send_sm_str(
         world,
         client_id,
@@ -208,7 +209,7 @@ fn send_list_to_owner(world: &World, client_id: u32, owner_oid: i32) {
         .unwrap_or_default();
     let names: Vec<String> = ids
         .into_iter()
-        .map(|id| super::mail::char_name_by_id(world, id))
+        .map(|id| mail::char_name_by_id(world, id))
         .collect();
     send_to_client(world, client_id, server_packets::block_list(&names));
 }
@@ -239,7 +240,7 @@ fn set_block_all(world: &mut World, client_id: u32, owner_oid: i32, on: bool) {
 
 /// Java `CharInfoTable.getIdByName` — works for offline characters.
 fn resolve(world: &World, name: &str) -> Option<i32> {
-    super::mail::char_id_by_name(world, name)
+    mail::char_id_by_name(world, name)
 }
 
 fn client_of(world: &World, object_id: i32) -> Option<u32> {

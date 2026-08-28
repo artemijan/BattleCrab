@@ -186,7 +186,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
     // Java `RequestJoinParty`: `BlockList.isBlocked(target, requestor)` — the
     // *invitee's* list decides. The refusal names the target, so the requestor
     // is told who is ignoring them.
-    if crate::game_loop::block_list::is_blocked(world, target, requestor) {
+    if crate::game_loop::chat::block_list::is_blocked(world, target, requestor) {
         send_sm_to_player(
             world,
             requestor,

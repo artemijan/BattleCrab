@@ -20,7 +20,6 @@ mod basic_property;
 /// Bench-only wrappers over the private tick systems (`benches/tick.rs`).
 #[cfg(feature = "bench-api")]
 pub mod bench_api;
-mod block_list;
 pub(crate) mod boats;
 // Boss submodules keep their historical `game_loop::<boss>` paths; callers
 // (scripts, death, net, scheduler dispatch) address them through this re-export.

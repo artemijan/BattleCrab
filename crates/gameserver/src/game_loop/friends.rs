@@ -4,6 +4,7 @@
 //! (PLAN_G10_SOCIAL.md §4).
 
 use crate::character::FriendInfo;
+use crate::game_loop::chat::block_list;
 use crate::game_loop::helpers::{
     client_for_player, player_name_or_empty, send_message, send_sm_to_player, send_to_player,
 };
@@ -126,11 +127,11 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
     // *before* the already-a-friend test, with deliberately different answers:
     // being blocked *by* the target is a literal line that does not name them,
     // while having blocked the target names them.
-    if super::block_list::is_blocked(world, friend, player) {
+    if block_list::is_blocked(world, friend, player) {
         send_message(world, client_id, "You are in target's block list.");
         return;
     }
-    if super::block_list::is_blocked(world, player, friend) {
+    if block_list::is_blocked(world, player, friend) {
         send_sm_to_player(
             world,
             player,

@@ -14,7 +14,7 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 use super::bypass::handle_request_bypass_to_server;
-use super::chat::handle_say2;
+use super::chat::{block_list, handle_say2};
 use super::combat::handle_attack_request;
 use super::death::{handle_appearing, handle_request_restart_point};
 use super::flood;
@@ -149,7 +149,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             super::warehouse::handle_package_sendable_list(world, client_id, body)
         }
         cop::REQUEST_PACKAGE_SEND => super::warehouse::handle_package_send(world, client_id, body),
-        cop::REQUEST_BLOCK => super::block_list::handle_request_block(world, client_id, body),
+        cop::REQUEST_BLOCK => block_list::handle_request_block(world, client_id, body),
         cop::SEND_WARE_HOUSE_DEPOSIT_LIST => {
             super::warehouse::handle_deposit(world, client_id, body)
         }

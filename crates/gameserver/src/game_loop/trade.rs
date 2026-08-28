@@ -76,7 +76,7 @@ pub(crate) fn handle_request(world: &mut World, client_id: u32, body: &[u8]) {
     }
     // Java `TradeRequest`: `BlockList.isBlocked(partner, player)`, right after
     // the trade-refusal check and before the 150-unit range test.
-    if crate::game_loop::block_list::is_blocked(world, target, from) {
+    if crate::game_loop::chat::block_list::is_blocked(world, target, from) {
         let partner_name = player_name_or_empty(world, target);
         send(
             world,

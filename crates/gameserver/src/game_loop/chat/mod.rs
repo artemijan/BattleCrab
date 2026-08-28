@@ -29,6 +29,8 @@ use commons::audit;
 use serde_json::json;
 use tracing::warn;
 
+pub mod block_list;
+
 /// Java `Say2`'s no-item-link cap (105 chars, "verified on official").
 const MAX_CHAT_LENGTH: usize = 105;
 
@@ -353,7 +355,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 }
                 // `ChatGeneral`: `!BlockList.isBlocked(player, activeChar)` —
                 // the *listener's* list decides, one way only.
-                if super::block_list::is_blocked(world, other_oid, sender_oid) {
+                if block_list::is_blocked(world, other_oid, sender_oid) {
                     continue;
                 }
                 let Some(&RegionCell(other_region)) =
@@ -438,9 +440,9 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 // player)` — so either party's list suppresses the line.
                 // `ChatTrade`'s otherwise-identical branch tests only the
                 // listener's. Collapsing them would silently change one.
-                if super::block_list::is_blocked(world, other_oid, sender_oid)
+                if block_list::is_blocked(world, other_oid, sender_oid)
                     || (chat_type == ChatType::Shout
-                        && super::block_list::is_blocked(world, sender_oid, other_oid))
+                        && block_list::is_blocked(world, sender_oid, other_oid))
                 {
                     continue;
                 }
@@ -482,7 +484,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             // all this used to check) *and* the receiver having the sender on
             // their ignore list. Java answers with the same message either way,
             // so a blocked sender cannot tell which it was.
-            if super::block_list::is_blocked(world, receiver_oid, sender_oid) {
+            if block_list::is_blocked(world, receiver_oid, sender_oid) {
                 helpers::send_sm_bare_to_client(
                     world,
                     client_id,
@@ -737,7 +739,7 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
             let ClientSession::InGame(s) = cs else {
                 return false;
             };
-            super::block_list::is_not_blocked(world, s.player_object_id(), sender_oid)
+            block_list::is_not_blocked(world, s.player_object_id(), sender_oid)
         })
         .map(|(&cid, _)| cid)
         .collect();
@@ -814,7 +816,7 @@ fn hero_voice(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
             let ClientSession::InGame(s) = cs else {
                 return false;
             };
-            !super::block_list::is_blocked(world, s.player_object_id(), sender_oid)
+            !block_list::is_blocked(world, s.player_object_id(), sender_oid)
         })
         .map(|(&cid, _)| cid)
         .collect();
