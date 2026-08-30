@@ -15,6 +15,7 @@ use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::items;
 use crate::model::components::{Position, TamedBeastOf, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -125,7 +126,7 @@ pub(crate) fn handle_duration(world: &mut World, beast_oid: i32) {
             spice,
             crate::game_loop::helpers::client_for_player(world, owner),
         ) {
-            crate::game_loop::quests::take_items(world, client_id, owner, item, 1);
+            items::take_items(world, client_id, owner, item, 1);
         }
         on_receive_food(world, beast_oid);
     } else if remaining < MAX_DURATION_TICKS - NO_FOOD_GRACE_TICKS {

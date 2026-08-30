@@ -96,7 +96,11 @@ pub(super) fn apply_cast_consequences(
         // Bad skill on a player → flag the caster against that target
         // (`updatePvPStatus(target)`). Monsters take hate + an AI wake, no flag.
         if target_is_player {
-            crate::game_loop::pvp::update_pvp_status_target(world, player_object_id, target_oid);
+            crate::game_loop::combat::pvp::update_pvp_status_target(
+                world,
+                player_object_id,
+                target_oid,
+            );
         } else if target_is_monster {
             // `callSkill`: a bad skill on an attackable *always* adds hate
             // (`addDamageHate(caster, 0, -effectPoint)`) and wakes its AI
@@ -142,7 +146,7 @@ pub(super) fn apply_cast_consequences(
         let flag_self = (skill.effect_point > 0 && target_is_monster)
             || (target_is_player && target_is_flagged);
         if flag_self {
-            crate::game_loop::pvp::update_pvp_status(world, player_object_id);
+            crate::game_loop::combat::pvp::update_pvp_status(world, player_object_id);
         }
     }
 }

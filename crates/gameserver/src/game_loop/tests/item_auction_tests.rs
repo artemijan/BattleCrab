@@ -4,7 +4,7 @@
 use super::*;
 
 use crate::data::item_auction_data::{AuctionInstanceCfg, AuctionItem, AuctionSchedule};
-use crate::game_loop::item_auction;
+use crate::game_loop::items::item_auction;
 use crate::model::item_auction::{AuctionState, ExtendState, ItemAuction, next_date};
 use crate::scheduler::ScheduledTask;
 

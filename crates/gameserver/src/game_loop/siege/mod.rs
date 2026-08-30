@@ -30,10 +30,12 @@ mod packets;
 mod registration;
 mod schedule;
 
+use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
+use crate::scheduler::ms_to_ticks;
 use crate::world::World;
 use battlefield::spawn_siege_npcs;
 pub(crate) use battlefield::{
@@ -66,8 +68,6 @@ pub(crate) use registration::{
 pub(crate) use schedule::run_auto_task;
 use schedule::{can_pick_siege_time, effective_siege_millis};
 pub(crate) use schedule::{handle_scheduled_siege_start, next_siege_millis, schedule_all_at_boot};
-
-use crate::scheduler::ms_to_ticks;
 
 /// `SiegeManager.getSiegeLength()` — `SiegeLength = 120` (minutes) in Siege.ini.
 const SIEGE_LENGTH_MIN: i32 = 120;
@@ -198,7 +198,7 @@ pub(crate) fn arm_fame_task(world: &mut World, player_oid: i32) {
 /// in the zone and pays again once it stands up — while leaving the zone is
 /// what actually ends it.
 pub(crate) fn handle_siege_fame(world: &mut World, player_oid: i32) {
-    if !crate::game_loop::pvp::is_in_siege(world, player_oid) {
+    if !crate::game_loop::combat::pvp::is_in_siege(world, player_oid) {
         // `stopFameTask()`: out of the zone, or no longer a participant.
         world.siege_fame_armed.remove(&player_oid);
         return;
@@ -252,7 +252,7 @@ pub(crate) fn update_player_siege_state_flags(world: &mut World, castle_id: i32,
     // neighbours), and the relation refresh rides the same path.
     for member in touched {
         super::player_info::broadcast_user_info(world, member);
-        super::pvp::broadcast_siege_relation(world, member);
+        pvp::broadcast_siege_relation(world, member);
     }
 }
 

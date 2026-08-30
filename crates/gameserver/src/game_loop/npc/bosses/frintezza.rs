@@ -117,7 +117,7 @@ pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_oid: i32
     if world.roll(100) < 5
         && let Some(pos) = maybe_position(world, npc_oid)
     {
-        crate::game_loop::ground_items::spawn_ground_item(
+        crate::game_loop::items::ground_items::spawn_ground_item(
             world,
             DEWDROP_ITEM,
             1,
@@ -126,7 +126,7 @@ pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_oid: i32
             pos.y,
             pos.z,
             npc_oid,
-            crate::game_loop::ground_items::DropSource::Npc,
+            crate::game_loop::items::ground_items::DropSource::Npc,
         );
     }
 }

@@ -14,6 +14,7 @@
 //! slice. There is no HP decay to port: Java's only HP touch is the full heal
 //! `activate` gives the new wielder.
 
+use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{npc_template, send_inventory_item_list};
@@ -26,8 +27,8 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use super::admin::cursed_weapons::{activate, end_of_life, idx_by_item, now_millis};
-use super::ground_items::{DropSource, despawn_ground_item, spawn_ground_item};
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::items::ground_items::{DropSource, despawn_ground_item, spawn_ground_item};
 
 /// Java `CursedWeapon.dropRate` is out of 100000 (config comment "100000 for
 /// 100%"), so a value of 50 is 0.05%.
@@ -49,7 +50,7 @@ pub(crate) fn on_monster_killed(world: &mut World, monster_oid: i32, killer_oid:
         return;
     }
 
-    let killer = super::pvp::acting_player(world, killer_oid);
+    let killer = pvp::acting_player(world, killer_oid);
     let eligible_killer = world
         .objects
         .get_component::<Player>(&killer)

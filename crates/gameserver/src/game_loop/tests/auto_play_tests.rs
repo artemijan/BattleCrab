@@ -224,13 +224,13 @@ fn the_target_mode_filters_what_counts() {
 /// With `doPickup`, loot in reach is taken instead of a mob being chased.
 #[test]
 fn loot_in_reach_is_picked_up() {
-    use crate::game_loop::ground_items::DropSource;
+    use crate::game_loop::items::ground_items::DropSource;
     use crate::model::inventory::Inventory;
 
     let (mut world, _rx) = play_world();
     insert_adena_template(&mut world);
     // Unowned loot 30 units away — inside the 70-unit reach.
-    crate::game_loop::ground_items::spawn_ground_item(
+    crate::game_loop::items::ground_items::spawn_ground_item(
         &mut world,
         57,
         100,

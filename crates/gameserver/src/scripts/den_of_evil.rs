@@ -3,8 +3,8 @@
 //! and its eyes (18812–18814) have no spawns, so only the orcs are live
 //! content.
 
-use crate::game_loop::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::helpers::pos_of;
+use crate::game_loop::items::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
 const RAGNA_ORC_COMMANDER: i32 = 22694;
@@ -219,7 +219,7 @@ fn drop_adena(ctx: &mut QuestCtx, per_stack: i64) {
     let npc = ctx.npc;
     let player = ctx.player;
     for _ in 0..10 {
-        let ground_oid = crate::game_loop::ground_items::spawn_ground_item(
+        let ground_oid = crate::game_loop::items::ground_items::spawn_ground_item(
             ctx.world,
             ADENA_ID,
             per_stack,
@@ -228,7 +228,7 @@ fn drop_adena(ctx: &mut QuestCtx, per_stack: i64) {
             y,
             z,
             npc,
-            crate::game_loop::ground_items::DropSource::Npc,
+            crate::game_loop::items::ground_items::DropSource::Npc,
         );
         reserve_for(ctx.world, ground_oid, player, LOOT_PROTECTION_TICKS);
     }

@@ -589,6 +589,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     let player = &bundle.player;
     let name = player.name.clone();
     let data = &world.data;
+    use crate::game_loop::combat::pvp;
+    use crate::game_loop::items::{enchant, item_mana};
+    use crate::game_loop::skills::expertise;
     use crate::network::enter_world as ew;
     use crate::network::user_info::user_info;
 
@@ -776,7 +779,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     super::instances::restore_on_login(world, object_id);
     // `EnterWorld`'s over-enchant sweep, before the protection window so a
     // punished login is still punished.
-    super::enchant::over_enchant_sweep(world, object_id);
+    enchant::over_enchant_sweep(world, object_id);
     // `EnterWorld`: `if (PLAYER_SPAWN_PROTECTION > 0) setSpawnProtection(true)`
     // — the grace period against aggressive monsters, ended by the first
     // deliberate action (`game_loop::spawn_protection`).
@@ -785,7 +788,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // → equip listeners): a character wearing over-grade gear logs in already
     // penalized. Runs now that the player is registered; resends
     // EtcStatusUpdate + UserInfo only when there's an actual penalty.
-    super::expertise::refresh_expertise_penalty(world, object_id);
+    expertise::refresh_expertise_penalty(world, object_id);
     super::weight::refresh_weight_penalty(world, object_id);
     // Java gets its augment bonuses back the same way it gets the expertise
     // penalty: `restoreCharData` re-runs the equip listeners, and
@@ -854,7 +857,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // `EnterWorld`: `player.updatePvpTitleAndColor(false)` — a returning player
     // wears the rung their PvP count already earned, without a broadcast (the
     // enter-world burst carries it).
-    super::pvp::update_pvp_title_and_color(world, object_id, false);
+    pvp::update_pvp_title_and_color(world, object_id, false);
     // Re-apply / lift jail (Java `JailHandler.onPlayerLogin`, G31).
     super::punishment::on_enter_world(world, client_id, object_id);
     // Unread-mail badge + the "you have mail" notice (G30).
@@ -870,7 +873,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Java `EnterWorld`'s inventory sweep: every *worn* shadow item spends a
     // point of mana on login and re-arms its 60 s beat, so a shadow weapon
     // can't be parked at the character screen to make it last forever.
-    super::item_mana::on_enter_world(world, object_id);
+    item_mana::on_enter_world(world, object_id);
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.

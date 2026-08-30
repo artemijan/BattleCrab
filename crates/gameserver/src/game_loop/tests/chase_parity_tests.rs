@@ -275,7 +275,7 @@ fn a_rooted_caster_keeps_waiting_where_an_attacker_gives_up() {
 fn a_pickup_walk_never_follows_and_so_never_gets_the_slack() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    let item_oid = crate::game_loop::ground_items::spawn_ground_item(
+    let item_oid = crate::game_loop::items::ground_items::spawn_ground_item(
         &mut world,
         57,
         5,
@@ -284,7 +284,7 @@ fn a_pickup_walk_never_follows_and_so_never_gets_the_slack() {
         0,
         0,
         0,
-        crate::game_loop::ground_items::DropSource::Player,
+        crate::game_loop::items::ground_items::DropSource::Player,
     );
 
     combat::start_pickup_intent(&mut world, 3001, item_oid);

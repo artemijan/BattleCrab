@@ -5,6 +5,7 @@ use super::render_scheme_names;
 use super::send_cb_html;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_message;
+use crate::game_loop::items;
 use crate::game_loop::user_commands::in_combat;
 use crate::model::Player;
 use crate::model::components::Casting;
@@ -12,6 +13,7 @@ use crate::model::inventory::Inventory;
 use crate::session::ClientSession;
 use crate::world::World;
 use tracing::warn;
+
 /// Re-render a Custom sub-page after an action (the `page` tail the action
 /// bypasses carry, e.g. `buffer/main` or `buffer/schemes.html`), with an
 /// optional error banner. No-op if the tail is missing.
@@ -97,12 +99,12 @@ pub(super) fn is_busy(world: &World, object_id: i32) -> bool {
     let dead = is_dead(world, object_id);
     // `isInCombat()` — the 15 s attack stance, not merely mid-swing.
     let is_in_combat = in_combat(world, object_id);
-    let in_duel = crate::game_loop::duel::is_in_duel(world, object_id);
+    let in_duel = crate::game_loop::combat::duel::is_in_duel(world, object_id);
     // `isInOlympiadMode()` — the set the match runner maintains.
     let in_olympiad = world.olympiad.in_competition.contains(&object_id);
     // `isInsideZone(SIEGE) || isInsideZone(PVP)` — the zones, which is wider
     // than `is_in_siege` (that one asks whether a *siege* is running).
-    let in_pvp_zone = crate::game_loop::pvp::is_in_siege(world, object_id)
+    let in_pvp_zone = crate::game_loop::combat::pvp::is_in_siege(world, object_id)
         || in_zone(world, object_id, crate::data::zone_data::ZoneKind::Siege)
         || in_zone(world, object_id, crate::data::zone_data::ZoneKind::Pvp);
     let on_event = crate::game_loop::events::tvt::is_on_event(world, object_id);
@@ -164,9 +166,7 @@ pub(super) fn charge_item(
         .get_component::<Inventory>(&object_id)
         .map(|inv| inv.count_of(item_id))
         .unwrap_or(0);
-    if have < price
-        || !crate::game_loop::quests::take_items(world, client_id, object_id, item_id, price)
-    {
+    if have < price || !items::take_items(world, client_id, object_id, item_id, price) {
         send_message(world, client_id, "Not enough currency!");
         return false;
     }

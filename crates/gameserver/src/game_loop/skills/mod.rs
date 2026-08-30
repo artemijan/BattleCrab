@@ -7,11 +7,13 @@ pub(crate) mod cast;
 pub(crate) mod conditions;
 pub(crate) mod effects;
 pub(crate) mod enchant;
+pub mod expertise;
 pub(crate) mod instant;
 
 use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::items;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::world::World;
@@ -254,7 +256,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
         // check above means it always succeeds, but a failure must stay silent
         // rather than announce an item that never left the bag.
         for &(item_id, count) in &required_items {
-            if !super::quests::take_items(world, client_id, object_id, item_id, count) {
+            if !items::take_items(world, client_id, object_id, item_id, count) {
                 continue;
             }
             if count > 1 {

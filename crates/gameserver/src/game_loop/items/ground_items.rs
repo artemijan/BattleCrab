@@ -10,6 +10,9 @@ use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::{
+    command_channel, cursed_weapon, helpers, items, punishment, quests, sit_stand,
+};
 use crate::model::components::{GroundItem, Position, RegionCell};
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
@@ -189,7 +192,7 @@ pub(crate) fn spawn_ground_item(
         ),
     );
     if let Some(view) = ground_item_view(world, object_id) {
-        super::helpers::broadcast_near_region(
+        helpers::broadcast_near_region(
             world,
             region,
             &server_packets::drop_item(dropper_oid, &view),
@@ -228,7 +231,7 @@ pub(crate) fn despawn_ground_item(world: &mut World, item_oid: i32, region: (i32
     if let Some(ids) = world.ground_item_regions.get_mut(&region) {
         ids.retain(|&id| id != item_oid);
     }
-    super::helpers::broadcast_near_region(world, region, &server_packets::delete_object(item_oid));
+    helpers::broadcast_near_region(world, region, &server_packets::delete_object(item_oid));
 }
 
 /// `Player.doPickupItem`: pick a ground item up into `player_oid`'s inventory —
@@ -250,7 +253,7 @@ pub(crate) fn pickup_ground_item(
     // it here covers the callers that reach `doPickupItem` without an
     // intention — auto-play looting — and the case where the player sits down
     // mid-walk. Loot stays on the floor until they stand.
-    if super::sit_stand::is_resting(world, player_oid) {
+    if sit_stand::is_resting(world, player_oid) {
         send_action_failed(world, client_id);
         return;
     }
@@ -268,8 +271,8 @@ pub(crate) fn pickup_ground_item(
     // A cursed weapon lying on the ground curses whoever grabs it — route into
     // the cursed-weapon pickup path (its own get-item broadcast + despawn +
     // activation) instead of the plain give.
-    if super::cursed_weapon::is_dropped_cursed(world, g.item_id) {
-        super::cursed_weapon::try_pickup(
+    if cursed_weapon::is_dropped_cursed(world, g.item_id) {
+        cursed_weapon::try_pickup(
             world, client_id, player_oid, item_oid, region, g.item_id, pos,
         );
         return;
@@ -279,7 +282,7 @@ pub(crate) fn pickup_ground_item(
     if g.owner_id != 0
         && world.tick < g.owner_until_tick
         && g.owner_id != player_oid
-        && !super::command_channel::is_in_looter_party(world, player_oid, g.owner_id)
+        && !command_channel::is_in_looter_party(world, player_oid, g.owner_id)
     {
         use crate::network::server_packets::{SmParam, sm_ids};
         let sm = if g.item_id == crate::data::item_data::ADENA_ID {
@@ -302,17 +305,17 @@ pub(crate) fn pickup_ground_item(
         send_to_client(world, client_id, sm);
         return;
     }
-    super::helpers::broadcast_near_region(
+    helpers::broadcast_near_region(
         world,
         region,
         &server_packets::get_item(player_oid, item_oid, pos.x, pos.y, pos.z),
     );
     despawn_ground_item(world, item_oid, region);
-    super::quests::give_item_with_earned_message_enchanted(
+    items::give_item_with_earned_message_enchanted(
         world, client_id, player_oid, g.item_id, g.count, g.enchant,
     );
     // Java `ON_PLAYER_ITEM_PICKUP` (the tutorial's Blue Gemstone listener).
-    super::quests::notify_item_pickup(world, client_id, player_oid, g.item_id);
+    quests::notify_item_pickup(world, client_id, player_oid, g.item_id);
 }
 
 /// Port of `clientpackets/RequestDropItem.runImpl`: drop `count` of an
@@ -343,7 +346,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     // `_count == 0` falls into the big refusal below. Neither may reach the
     // inventory.
     if pkt.count < 0 {
-        super::punishment::illegal_action(
+        punishment::illegal_action(
             world,
             player_oid,
             &format!(
@@ -452,7 +455,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
             .get_component::<crate::model::Player>(&player_oid)
             .is_some_and(|p| p.jailed)
     {
-        super::items::send_item_message(world, client_id, "You cannot drop items in Jail.");
+        items::send_item_message(world, client_id, "You cannot drop items in Jail.");
         return;
     }
     // `player.getPrivateStoreType() != PrivateStoreType.NONE` — a shop owner
@@ -565,20 +568,20 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
             Some(name) => format!("You cannot drop an item while casting {name}."),
             None => "You cannot drop an item while casting.".to_string(),
         };
-        super::items::send_item_message(world, client_id, &text);
+        items::send_item_message(world, client_id, &text);
         return;
     }
     let count = pkt.count;
 
     // Unequip first if worn (Java unequips before the drop, with its own update).
-    super::items::unequip_if_worn(world, client_id, player_oid, pkt.object_id);
+    items::unequip_if_worn(world, client_id, player_oid, pkt.object_id);
 
     let Some(change) =
-        super::helpers::remove_inventory_item_change(world, player_oid, pkt.object_id, count)
+        helpers::remove_inventory_item_change(world, player_oid, pkt.object_id, count)
     else {
         return;
     };
-    super::helpers::send_inventory_update(world, player_oid, vec![change]);
+    helpers::send_inventory_update(world, player_oid, vec![change]);
     // `Item.dropMe` → `GeoEngine.getValidLocation(dropper, x, y, z)`: walk the
     // cell line from the dropper to the requested point and stop at the last
     // walkable cell, so the item lands short of a wall/closed door rather than

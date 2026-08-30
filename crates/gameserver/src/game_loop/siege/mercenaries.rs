@@ -219,7 +219,7 @@ fn place(
     });
     // The ticket lies where the mercenary will stand. `DropSource::Player` with
     // no dropper means no toss animation is owed to anyone in particular.
-    let ticket_oid = crate::game_loop::ground_items::spawn_ground_item(
+    let ticket_oid = crate::game_loop::items::ground_items::spawn_ground_item(
         world,
         holder.item_id,
         1,
@@ -228,7 +228,7 @@ fn place(
         y,
         z,
         0,
-        crate::game_loop::ground_items::DropSource::Npc,
+        crate::game_loop::items::ground_items::DropSource::Npc,
     );
     world
         .mercenaries
@@ -309,7 +309,7 @@ pub(crate) fn clear_castle(world: &mut World, castle_id: i32) {
         if m.ticket_oid != 0
             && let Some(region) = crate::game_loop::helpers::region_cell_of(world, m.ticket_oid)
         {
-            crate::game_loop::ground_items::despawn_ground_item(world, m.ticket_oid, region);
+            crate::game_loop::items::ground_items::despawn_ground_item(world, m.ticket_oid, region);
         }
     }
     let _ = world

@@ -73,7 +73,7 @@ pub(super) fn spawn_castle_doors(world: &mut World, castle_id: i32, weak: bool) 
 /// during a siege).
 pub(crate) fn attackable_door(world: &World, door_oid: i32) -> bool {
     world.objects.has_component::<Door>(&door_oid)
-        && crate::game_loop::pvp::active_siege_castle(world, door_oid).is_some()
+        && crate::game_loop::combat::pvp::active_siege_castle(world, door_oid).is_some()
 }
 
 /// Apply siege damage to a castle door; at 0 HP it's breached (opens). Returns

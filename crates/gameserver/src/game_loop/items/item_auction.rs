@@ -10,8 +10,9 @@ use crate::game_loop::time::MILLIS_PER_MINUTE;
 use commons::util::rnd;
 use tracing::info;
 
-use super::helpers::{player_of, send_sm_bare_to_client as send_sm};
 use crate::db::DbCommand;
+use crate::game_loop::helpers::{player_of, send_sm_bare_to_client as send_sm};
+use crate::game_loop::items;
 use crate::model::inventory::Inventory;
 use crate::model::item_auction::{AuctionState, ExtendState, ItemAuction};
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
@@ -835,7 +836,7 @@ fn reduce_adena(world: &mut World, player: i32, count: i64) -> bool {
 
 fn add_adena(world: &mut World, player: i32, count: i64) {
     if count > 0 {
-        super::items::add_inventory_item(world, player, ADENA_ID, count);
+        items::add_inventory_item(world, player, ADENA_ID, count);
     }
 }
 

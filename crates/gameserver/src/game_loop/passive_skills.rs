@@ -11,7 +11,7 @@
 //! Enter-world folds these in up front (`Player::from_char` →
 //! [`crate::model::conditioned_passive_buffs`], so the first `UserInfo` already
 //! carries them). This runs afterward, on every equip/unequip, to re-evaluate
-//! the conditions as a robe is worn or removed — mirroring [`super::expertise`].
+//! the conditions as a robe is worn or removed — mirroring [`expertise`].
 //! No-op when the applicable set is unchanged; resends `UserInfo` when it flips.
 
 use crate::model::components::SkillBook;

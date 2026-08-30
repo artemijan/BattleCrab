@@ -188,9 +188,3 @@ pub(crate) use dispatch::{
 };
 pub(crate) use registry::{QuestRegistry, echoed_page};
 use render::{load_quest_html, no_quest_html, send_no_quest_html, show_result};
-
-// The quest-style item primitives moved to `items`; re-exported here so the
-// ~20 existing `quests::give_item_*`/`quests::take_items` callers are stable.
-pub(crate) use super::items::{
-    give_item_with_earned_message, give_item_with_earned_message_enchanted, take_items,
-};

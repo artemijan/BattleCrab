@@ -19,9 +19,11 @@
 use crate::data::item_data::ADENA_ID;
 use commons::network::PacketReader;
 
-use super::helpers::{player_of, send_to_client as send};
-use super::helpers::{send_inventory_item_list, send_sm_bare_to_client as send_sm};
 use crate::game_loop::helpers::item_id_of;
+use crate::game_loop::helpers::{player_of, send_to_client as send};
+use crate::game_loop::helpers::{send_inventory_item_list, send_sm_bare_to_client as send_sm};
+use crate::game_loop::items::item_mana;
+use crate::game_loop::{cursed_weapon, items, options};
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;
@@ -54,7 +56,7 @@ fn resolve_fee(
     // `AbstractRefinePacket.isValid`: a shadow item is refused outright — its
     // own description says so ("cannot … be granted functions besides
     // enchantment"), and the augment would evaporate with the item anyway.
-    if super::item_mana::is_shadow_item(target.mana_left) {
+    if item_mana::is_shadow_item(target.mana_left) {
         return None;
     }
     let template = world.data.item_data.get(target.item_id)?;
@@ -110,7 +112,7 @@ fn refresh_slot_if_equipped(world: &mut World, player: i32, target_obj: i32, cli
         .get_component::<Inventory>(&player)
         .is_some_and(|inv| inv.paperdoll_slot_of(target_obj).is_some())
     {
-        super::items::finish_equip_change(world, client_id, player, &[target_obj]);
+        items::finish_equip_change(world, client_id, player, &[target_obj]);
     }
 }
 
@@ -133,7 +135,7 @@ pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
     let fail = |world: &mut World| send(world, client_id, sp::ex_variation_result(0, 0, false));
 
     // Java `AbstractRefinePacket.isValid`: no augmenting while cursed.
-    if super::cursed_weapon::is_cursed(world, player) {
+    if cursed_weapon::is_cursed(world, player) {
         fail(world);
         return;
     }
@@ -248,7 +250,7 @@ pub(crate) fn handle_refine_cancel(world: &mut World, client_id: u32, body: &[u8
     // Java `Item.setAugmentation(null)` removes the bonuses first — read the
     // option ids off the item *before* they are wiped, or nothing is removed
     // and the modifiers linger on an item that is no longer augmented.
-    super::options::remove_item_options(world, player, target_obj);
+    options::remove_item_options(world, player, target_obj);
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
         inv.remove_item(ADENA_ID, price);
         inv.remove_augmentation(target_obj);

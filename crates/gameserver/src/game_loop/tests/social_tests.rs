@@ -1435,7 +1435,7 @@ fn a_pvp_kill_pays_the_killer() {
     };
 
     // Unflagged victim → this is a PK, and the PK arm ships off.
-    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    crate::game_loop::combat::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
     assert_eq!(paid(&world), 0, "no PK reward configured");
 
     // Flag the victim: now it is a PvP kill and the reward lands.
@@ -1446,7 +1446,7 @@ fn a_pvp_kill_pays_the_killer() {
             ..Default::default()
         },
     );
-    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    crate::game_loop::combat::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
     assert_eq!(paid(&world), 300_000, "the PvP reward");
 
     // …but not inside a PvP zone. This guard is only reachable because the
@@ -1459,13 +1459,13 @@ fn a_pvp_kill_pays_the_killer() {
         .get_component_mut::<ZoneFlags>(&VICTIM)
         .unwrap()
         .mask |= crate::data::zone_data::ZoneKind::Pvp.bit();
-    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    crate::game_loop::combat::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
     assert_eq!(paid(&world), 300_000, "no reward inside a PvP zone");
 
     // With the guard off, the same kill pays again — proving the zone check is
     // what stopped it, not the zone itself.
     world.cfg.pvp_reward.disable_in_pvp_zones = false;
-    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    crate::game_loop::combat::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
     assert_eq!(
         paid(&world),
         600_000,
@@ -1512,7 +1512,7 @@ fn the_pvp_ladder_retitles_the_killer() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .pvp_kills = 1;
-    crate::game_loop::pvp::update_pvp_title_and_color(&mut world, 3001, false);
+    crate::game_loop::combat::pvp::update_pvp_title_and_color(&mut world, 3001, false);
     assert_eq!(title_of(&world), "Mine", "below the first rung, untouched");
 
     world
@@ -1520,7 +1520,7 @@ fn the_pvp_ladder_retitles_the_killer() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .pvp_kills = 2;
-    crate::game_loop::pvp::update_pvp_title_and_color(&mut world, 3001, false);
+    crate::game_loop::combat::pvp::update_pvp_title_and_color(&mut world, 3001, false);
     assert_eq!(title_of(&world), "® Sergeant ®");
     assert_eq!(
         world
@@ -1536,7 +1536,7 @@ fn the_pvp_ladder_retitles_the_killer() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .pvp_kills = 99;
-    crate::game_loop::pvp::update_pvp_title_and_color(&mut world, 3001, false);
+    crate::game_loop::combat::pvp::update_pvp_title_and_color(&mut world, 3001, false);
     assert_eq!(
         title_of(&world),
         "® Lieutenant ®",

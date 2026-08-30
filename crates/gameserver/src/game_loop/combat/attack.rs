@@ -387,10 +387,10 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     //
     // A plain monster resolves to itself, is not a player, and so still flags
     // nobody.
-    let actor = crate::game_loop::pvp::acting_player(world, attacker_oid);
+    let actor = crate::game_loop::combat::pvp::acting_player(world, attacker_oid);
     if world.objects.has_component::<crate::model::Player>(&actor) {
         refresh_attack_stance(world, actor);
-        crate::game_loop::pvp::update_pvp_status_target(world, actor, target_oid);
+        crate::game_loop::combat::pvp::update_pvp_status_target(world, actor, target_oid);
     }
 }
 

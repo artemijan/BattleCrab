@@ -14,6 +14,7 @@ use std::sync::Arc;
 use crate::character::CharData;
 use crate::data::GameData;
 use crate::db;
+use crate::game_loop::combat::pvp;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Position};
@@ -160,7 +161,7 @@ pub fn stance_tick(world: &mut World) {
 }
 
 pub fn pvp_flag_tick(world: &mut World) {
-    super::pvp::pvp_flag_tick(world);
+    pvp::pvp_flag_tick(world);
 }
 
 pub fn regen_tick(world: &mut World) {

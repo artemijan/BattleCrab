@@ -2,6 +2,7 @@
 //! `Player.setTarget` port, and (G8) the `NpcAction` interact path — talking
 //! to a targeted NPC opens its chat window.
 
+use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::maybe_position;
 use crate::model::components;
@@ -35,7 +36,7 @@ pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i
         .objects
         .has_component::<crate::model::Player>(&target_oid)
     {
-        return super::pvp::is_player_auto_attackable(world, attacker_oid, target_oid);
+        return pvp::is_player_auto_attackable(world, attacker_oid, target_oid);
     }
     if world
         .objects

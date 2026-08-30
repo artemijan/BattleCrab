@@ -95,7 +95,7 @@ pub enum ScheduledTask {
     /// point of mana, warn at 10/5/1, and unequip+destroy at 0. Java keys the
     /// manager by `Item` object and re-adds from `decreaseMana`; here the
     /// entry is (owner, item object id) and re-arms the same way.
-    /// See [`crate::game_loop::item_mana`].
+    /// See [`crate::game_loop::items::item_mana`].
     ItemManaTick {
         player_object_id: i32,
         item_object_id: i32,

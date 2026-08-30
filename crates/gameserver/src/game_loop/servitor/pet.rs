@@ -478,7 +478,7 @@ fn pet_pickup_item(world: &mut World, pet_oid: i32, item_oid: i32) {
     let Some(region) = helpers::region_cell_of(world, item_oid) else {
         return;
     };
-    crate::game_loop::ground_items::despawn_ground_item(world, item_oid, region);
+    crate::game_loop::items::ground_items::despawn_ground_item(world, item_oid, region);
     let World { data, objects, .. } = world;
     let Some(oid) = objects
         .get_component::<crate::model::inventory::PetInventory>(&owner_oid)

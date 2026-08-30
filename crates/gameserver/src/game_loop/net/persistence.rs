@@ -57,7 +57,7 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     // login reads straight back out of the `items` table, so it has to be
     // dropped by hand or the weapon's 60 s beat never re-arms again. Runs
     // before the despawn below — it reads the inventory.
-    crate::game_loop::item_mana::on_player_leave_world(world, player_object_id);
+    crate::game_loop::items::item_mana::on_player_leave_world(world, player_object_id);
     // Gather everything persistence needs before despawn — components drop
     // with the entity (PLAN_ECS_STAGE2 §7 risk 3).
     if let Some(save) = build_save_data(world, player_object_id) {

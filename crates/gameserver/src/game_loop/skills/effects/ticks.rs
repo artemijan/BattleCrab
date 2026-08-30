@@ -516,7 +516,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
                 }
                 // `Flag.onExit` → `updatePvPFlag(0)`.
                 SkillEffect::PvpFlag => {
-                    crate::game_loop::pvp::update_pvp_flag(world, player_object_id, 0);
+                    crate::game_loop::combat::pvp::update_pvp_flag(world, player_object_id, 0);
                 }
                 _ => {}
             }

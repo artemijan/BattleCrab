@@ -63,7 +63,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             crate::game_loop::castle::apply_door_upgrades_at_boot(world);
         }
         DbEvent::GroundItemsLoaded { items } => {
-            let n = crate::game_loop::ground_items::restore_from_db(world, &items);
+            let n = crate::game_loop::items::ground_items::restore_from_db(world, &items);
             info!("GameLoop: restored {n} ground items.");
         }
         DbEvent::PremiumLoaded { entries } => {
@@ -97,7 +97,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             next_auction_id,
             auctions,
         } => {
-            crate::game_loop::item_auction::on_loaded(world, next_auction_id, auctions);
+            crate::game_loop::items::item_auction::on_loaded(world, next_auction_id, auctions);
         }
         DbEvent::PunishmentsLoaded {
             next_id,

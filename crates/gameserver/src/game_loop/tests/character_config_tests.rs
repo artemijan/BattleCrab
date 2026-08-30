@@ -547,7 +547,7 @@ fn the_over_enchant_sweep_destroys_only_the_offending_instance() {
         .expect("inventory")
         .set_enchant_level(9_000_001, ceiling + 1);
 
-    crate::game_loop::enchant::over_enchant_sweep(&mut world, 3001);
+    crate::game_loop::items::enchant::over_enchant_sweep(&mut world, 3001);
 
     let inv = world
         .objects
@@ -710,7 +710,7 @@ fn armour_set_actives_are_granted_on_cooldown() {
         });
     }
 
-    crate::game_loop::armor_sets::stamp_equip_reuse_for_test(
+    crate::game_loop::items::armor_sets::stamp_equip_reuse_for_test(
         &mut world,
         3001,
         &[(OWN_REUSE, 1), (NO_REUSE, 1)],
@@ -745,7 +745,11 @@ fn a_zero_armour_set_reuse_stamps_nothing() {
         ..Default::default()
     });
     world.cfg.character.armor_set_equip_active_skill_reuse_ms = 0;
-    crate::game_loop::armor_sets::stamp_equip_reuse_for_test(&mut world, 3001, &[(9_403, 1)]);
+    crate::game_loop::items::armor_sets::stamp_equip_reuse_for_test(
+        &mut world,
+        3001,
+        &[(9_403, 1)],
+    );
     assert!(
         world
             .objects

@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::game_loop::pvp;
+use crate::game_loop::combat::pvp;
 use crate::model::Player;
 use crate::model::components::{PvpState, ZoneFlags};
 

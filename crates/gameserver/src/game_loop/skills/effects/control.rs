@@ -6,8 +6,8 @@ use super::caster_display_name;
 use super::expire_buffs_where;
 use super::max_recoverable;
 use super::player_or_npc_level;
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::{helpers, items};
 
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 
@@ -829,7 +829,7 @@ pub(crate) fn call_pc_player(
         // primitive that also sends the `InventoryUpdate`; the toll needs that,
         // or the client keeps drawing the ore it no longer has.
         let target_client = helpers::client_for_player(world, target_oid).unwrap_or(0);
-        crate::game_loop::quests::take_items(world, target_client, target_oid, item_id, item_count);
+        items::take_items(world, target_client, target_oid, item_id, item_count);
         send_sm_with(
             world,
             target_oid,

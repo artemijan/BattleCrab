@@ -209,7 +209,7 @@ fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
         return;
     }
     if !crate::game_loop::helpers::is_gm(world, player_oid)
-        && crate::game_loop::pvp::in_pvp_zone(world, player_oid)
+        && crate::game_loop::combat::pvp::in_pvp_zone(world, player_oid)
     {
         return;
     }
@@ -225,7 +225,7 @@ fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
     }
     // The karma flag and name colour other clients draw come off the
     // reputation sign, so a PK crossing back to 0 has to be redrawn.
-    crate::game_loop::pvp::update_pvp_title_and_color(world, player_oid, false);
+    crate::game_loop::combat::pvp::update_pvp_title_and_color(world, player_oid, false);
     crate::game_loop::player_info::broadcast_user_info(world, player_oid);
 }
 

@@ -3,6 +3,7 @@
 //! everyone who can see them, and the CharInfo state block. Extracted from
 //! `party.rs`, whose 30+ external callers only ever wanted these.
 
+use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers::{broadcast_to_others, is_dead, send_to_player};
 use crate::model::Player;
 use crate::model::components::PartyRef;
@@ -33,7 +34,7 @@ pub(crate) fn calculate_relation(world: &World, player: &Player) -> i32 {
             relation |= 0x40; // clan leader
         }
     }
-    if super::pvp::is_in_siege(world, player.object_id) {
+    if pvp::is_in_siege(world, player.object_id) {
         relation |= 0x80; // in siege — draws the siege crown (Java `isInSiege()`)
     }
     relation
@@ -235,7 +236,7 @@ pub(crate) fn char_info_state(world: &World, object_id: i32) -> server_packets::
             .get_component::<crate::model::components::FishingSession>(&object_id)
             .filter(|f| f.is_fishing)
             .map(|f| (f.bait_x, f.bait_y, f.bait_z)),
-        armor_min_enchant: crate::game_loop::armor_sets::max_set_enchant(world, object_id)
+        armor_min_enchant: crate::game_loop::items::armor_sets::max_set_enchant(world, object_id)
             .clamp(0, u8::MAX as i32) as u8,
     }
 }

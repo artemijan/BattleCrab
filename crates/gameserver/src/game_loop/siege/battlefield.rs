@@ -53,7 +53,7 @@ pub(crate) fn active_siege_castle_at(world: &World, x: i32, y: i32, z: i32) -> O
 pub(crate) fn attackable_siege_tower(world: &World, npc_oid: i32) -> bool {
     npc_template(world, npc_oid)
         .is_some_and(|t| matches!(t.type_name.as_str(), "ControlTower" | "FlameTower"))
-        && crate::game_loop::pvp::active_siege_castle(world, npc_oid).is_some()
+        && crate::game_loop::combat::pvp::active_siege_castle(world, npc_oid).is_some()
 }
 
 /// Java `Siege.killedCT` — a control tower fell; decrement its castle's live

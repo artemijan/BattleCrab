@@ -6,6 +6,7 @@
 //! leaving it exchanges `DeleteObject`, and every broadcast helper is scoped
 //! by the same rule (`helpers::broadcast_to_others`).
 
+use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{Movement, Position, RegionCell, TargetRef};
@@ -15,6 +16,7 @@ use crate::world::{World, region_of, regions_adjacent};
 
 use super::helpers::client_for_player;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::items::ground_items;
 use crate::game_loop::npc::doors;
 
 /// `CreatureAI.describeStateToPlayer`, players-only: right after a `CharInfo`
@@ -130,7 +132,7 @@ fn send_char_info_with(
     // clan-leader crown (`RELATION_LEADER`). Without it a leader shows no crown
     // to others outside a siege.
     if let ClientSession::InGame(s) = observer {
-        observer.send(super::pvp::sendinfo_relation_changed(
+        observer.send(pvp::sendinfo_relation_changed(
             world,
             player_id,
             s.player_object_id(),
@@ -347,7 +349,7 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
         if super::helpers::instance_of(world, item_id) != my_instance {
             continue;
         }
-        if let Some(view) = super::ground_items::ground_item_view(world, item_id) {
+        if let Some(view) = ground_items::ground_item_view(world, item_id) {
             my_session.send(server_packets::spawn_item(&view));
         }
     }
@@ -524,7 +526,7 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             };
             if !regions_adjacent(old, r.0)
                 && super::helpers::instance_of(world, item_id) == my_instance
-                && let Some(view) = super::ground_items::ground_item_view(world, item_id)
+                && let Some(view) = ground_items::ground_item_view(world, item_id)
             {
                 cs.send(server_packets::spawn_item(&view));
             }

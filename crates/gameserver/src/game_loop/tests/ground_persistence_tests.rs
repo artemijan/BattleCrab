@@ -9,7 +9,7 @@
 
 use super::*;
 use crate::db::GroundItemRow;
-use crate::game_loop::ground_items;
+use crate::game_loop::items::ground_items;
 use crate::model::components::{GroundItem, Position};
 
 /// `Adena` — stackable, and in the real item table.

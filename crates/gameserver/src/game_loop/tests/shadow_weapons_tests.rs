@@ -1,7 +1,7 @@
 //! Shadow Weapon Exchange Coupons end-to-end: the village-master desk that
 //! turns a class-transfer coupon into a shadow weapon
 //! ([`crate::scripts::shadow_weapons`]), and the mana clock that takes the
-//! weapon away again ([`crate::game_loop::item_mana`]).
+//! weapon away again ([`crate::game_loop::items::item_mana`]).
 
 use super::*;
 use crate::data::multisell_data::MultisellData;
@@ -218,7 +218,7 @@ fn a_worn_shadow_weapon_burns_one_mana_per_minute() {
     // One minute of wear.
     advance_world(
         &mut world,
-        crate::game_loop::item_mana::MANA_CONSUMPTION_TICKS,
+        crate::game_loop::items::item_mana::MANA_CONSUMPTION_TICKS,
     );
     assert_eq!(
         mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
@@ -228,7 +228,7 @@ fn a_worn_shadow_weapon_burns_one_mana_per_minute() {
     // …and re-armed itself.
     advance_world(
         &mut world,
-        crate::game_loop::item_mana::MANA_CONSUMPTION_TICKS,
+        crate::game_loop::items::item_mana::MANA_CONSUMPTION_TICKS,
     );
     assert_eq!(
         mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
@@ -249,7 +249,7 @@ fn an_unworn_shadow_weapon_does_not_burn_mana() {
 
     advance_world(
         &mut world,
-        crate::game_loop::item_mana::MANA_CONSUMPTION_TICKS * 5,
+        crate::game_loop::items::item_mana::MANA_CONSUMPTION_TICKS * 5,
     );
     assert_eq!(
         mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
@@ -277,7 +277,7 @@ fn at_zero_mana_the_shadow_weapon_unequips_and_disappears() {
 
     advance_world(
         &mut world,
-        crate::game_loop::item_mana::MANA_CONSUMPTION_TICKS,
+        crate::game_loop::items::item_mana::MANA_CONSUMPTION_TICKS,
     );
     let pkts = drain(&mut rx);
 
@@ -326,7 +326,7 @@ fn the_mana_countdown_warns_at_ten_five_and_one() {
     for _ in 0..10 {
         advance_world(
             &mut world,
-            crate::game_loop::item_mana::MANA_CONSUMPTION_TICKS,
+            crate::game_loop::items::item_mana::MANA_CONSUMPTION_TICKS,
         );
         seen.extend(ids_after_opcode(
             &drain(&mut rx),
@@ -466,7 +466,7 @@ fn a_relog_inside_the_beat_window_leaves_exactly_one_beat_running() {
     let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
     drain(&mut rx);
     let item_oid = equip_shadow_weapon(&mut world, &mut rx);
-    let armed_at = crate::game_loop::item_mana::MANA_CONSUMPTION_TICKS;
+    let armed_at = crate::game_loop::items::item_mana::MANA_CONSUMPTION_TICKS;
     assert_eq!(
         world.item_mana_consuming.get(&item_oid),
         Some(&armed_at),
@@ -475,12 +475,12 @@ fn a_relog_inside_the_beat_window_leaves_exactly_one_beat_running() {
 
     // Half a minute in, the player logs out and straight back in.
     advance_world(&mut world, armed_at / 2);
-    crate::game_loop::item_mana::on_player_leave_world(&mut world, PLAYER_OID);
+    crate::game_loop::items::item_mana::on_player_leave_world(&mut world, PLAYER_OID);
     assert!(
         !world.item_mana_consuming.contains_key(&item_oid),
         "the flag does not outlive the session (Java's `Item` is discarded)"
     );
-    crate::game_loop::item_mana::on_enter_world(&mut world, PLAYER_OID);
+    crate::game_loop::items::item_mana::on_enter_world(&mut world, PLAYER_OID);
     drain(&mut rx);
     assert_eq!(
         mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),

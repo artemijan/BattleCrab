@@ -13,10 +13,11 @@ use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
 
-use super::helpers::{broadcast_including_self, client_for_player};
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::helpers::{broadcast_including_self, client_for_player};
+use crate::game_loop::{clans, combat, command_channel, cursed_weapon, items, player_info, siege};
 
 /// `RelationChanged.RELATION_INSIEGE` (0x200) — the "in a siege" bit.
 const RELATION_INSIEGE: i32 = 0x200;
@@ -70,7 +71,7 @@ pub(crate) fn active_siege_castle(world: &World, oid: i32) -> Option<i32> {
     let pos = world
         .objects
         .get_component::<crate::model::components::Position>(&oid)?;
-    super::siege::active_siege_castle_at(world, pos.x, pos.y, pos.z)
+    siege::active_siege_castle_at(world, pos.x, pos.y, pos.z)
 }
 
 /// Java `Player.isInSiege()` as the UserInfo relation reads it: the player is a
@@ -151,7 +152,7 @@ pub(crate) fn check_if_pvp(world: &World, self_oid: i32, target_oid: i32) -> boo
             .map(|p| p.clan_id)
             .unwrap_or(0)
     };
-    super::clans::mutual_war_between(world, clan_of(self_oid), clan_of(target_oid))
+    clans::mutual_war_between(world, clan_of(self_oid), clan_of(target_oid))
 }
 
 /// Java `Player.isAutoAttackable(attacker)` narrowed to the ported systems: a
@@ -165,8 +166,8 @@ pub(crate) fn check_if_pvp(world: &World, self_oid: i32, target_oid: i32) -> boo
 /// channel are not friends.
 fn same_command_channel(world: &World, a_oid: i32, b_oid: i32) -> bool {
     let cc = |oid: i32| {
-        super::command_channel::party_id_of(world, oid)
-            .and_then(|pid| super::command_channel::cc_id_of_party(world, pid))
+        command_channel::party_id_of(world, oid)
+            .and_then(|pid| command_channel::cc_id_of_party(world, pid))
     };
     match (cc(a_oid), cc(b_oid)) {
         (Some(x), Some(y)) => x == y,
@@ -179,7 +180,7 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
         return false;
     }
     // Monster attacker → always auto-attackable.
-    if super::combat::is_npc_oid(attacker_oid) {
+    if combat::is_npc_oid(attacker_oid) {
         return true;
     }
     // A target standing in a peace zone is never auto-attackable.
@@ -237,7 +238,7 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
     // symmetric).
     let attacker_clan = clan_of_or_zero(world, attacker_oid);
     let target_clan = clan_of_or_zero(world, target_oid);
-    if super::clans::mutual_war_between(world, attacker_clan, target_clan) {
+    if clans::mutual_war_between(world, attacker_clan, target_clan) {
         return true;
     }
     is_pk(world, target_oid) || flag_of(world, target_oid) > 0
@@ -406,9 +407,9 @@ pub(crate) fn sendinfo_relation_changed(
     subject_oid: i32,
     viewer_oid: i32,
 ) -> Vec<u8> {
-    let base = super::player_info::relation_to(world, subject_oid, viewer_oid);
+    let base = player_info::relation_to(world, subject_oid, viewer_oid);
     let siege = siege_relation_bits(world, subject_oid, viewer_oid);
-    let war = super::clans::war_relation_bits(world, subject_oid, viewer_oid);
+    let war = clans::war_relation_bits(world, subject_oid, viewer_oid);
     let reputation = world
         .objects
         .get_component::<Player>(&subject_oid)
@@ -461,9 +462,9 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
         // How `object_id` relates to (and is attackable by) this viewer.
         cs.send(server_packets::relation_changed(
             object_id,
-            super::player_info::relation_to(world, object_id, viewer)
+            player_info::relation_to(world, object_id, viewer)
                 | siege_relation_bits(world, object_id, viewer)
-                | super::clans::war_relation_bits(world, object_id, viewer),
+                | clans::war_relation_bits(world, object_id, viewer),
             is_player_auto_attackable(world, viewer, object_id),
             my_rep,
             my_flag,
@@ -476,9 +477,9 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
                 mc,
                 server_packets::relation_changed(
                     viewer,
-                    super::player_info::relation_to(world, viewer, object_id)
+                    player_info::relation_to(world, viewer, object_id)
                         | siege_relation_bits(world, viewer, object_id)
-                        | super::clans::war_relation_bits(world, viewer, object_id),
+                        | clans::war_relation_bits(world, viewer, object_id),
                     is_player_auto_attackable(world, object_id, viewer),
                     v_rep,
                     v_flag,
@@ -565,7 +566,7 @@ pub(crate) fn update_pvp_flag(world: &mut World, object_id: i32, value: u8) {
             client_id,
             server_packets::relation_changed(
                 object_id,
-                super::player_info::relation_to(world, object_id, viewer),
+                player_info::relation_to(world, object_id, viewer),
                 auto_attackable,
                 reputation,
                 value,
@@ -655,7 +656,7 @@ pub(crate) fn on_kill_update_pvp_reputation(world: &mut World, killer_oid: i32, 
     // `return`s, so the kill never awards pvp kills, never adds karma and
     // never counts as a PK. Placed here for that ordering — moving it below the
     // zone check would silently stop cursed kills scoring inside an arena.
-    if super::cursed_weapon::on_player_kill(world, killer_oid, victim_oid) {
+    if cursed_weapon::on_player_kill(world, killer_oid, victim_oid) {
         return;
     }
     if in_pvp_zone(world, killer_oid) || in_pvp_zone(world, victim_oid) {
@@ -713,7 +714,7 @@ pub(crate) fn on_kill_update_pvp_reputation(world: &mut World, killer_oid: i32, 
 
     // `broadcastUserInfo(UserInfoType.SOCIAL)` — the name/title colour and the
     // karma flag other clients draw come from here.
-    super::player_info::broadcast_user_info(world, killer_oid);
+    player_info::broadcast_user_info(world, killer_oid);
 
     // `onPlayerKill`'s last line: a fresh PK can push the killer past a
     // `pkCount` or `chaotic` gate on something they are wearing.
@@ -745,7 +746,7 @@ pub(crate) fn update_pvp_title_and_color(world: &mut World, player_oid: i32, bro
         p.title_color = color;
     }
     if broadcast {
-        super::player_info::broadcast_user_info(world, player_oid);
+        player_info::broadcast_user_info(world, player_oid);
     }
 }
 
@@ -795,7 +796,7 @@ pub(crate) fn pay_kill_reward(world: &mut World, killer_oid: i32, victim_oid: i3
     if !enabled || amount <= 0 {
         return;
     }
-    super::items::add_inventory_item(world, killer_oid, item_id, amount);
+    items::add_inventory_item(world, killer_oid, item_id, amount);
     if message {
         send_sm_to_player(
             world,

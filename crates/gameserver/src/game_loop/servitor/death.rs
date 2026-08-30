@@ -26,7 +26,7 @@ pub(crate) fn pet_do_die(world: &mut World, pet_oid: i32) -> Option<i32> {
 
     // `if (owner != null && !owner.isInDuel() && (!isInsideZone(PVP) || isInsideZone(SIEGE)))`
     // — no exp is lost to a duel or an arena death.
-    if !crate::game_loop::duel::is_in_duel(world, owner) {
+    if !crate::game_loop::combat::duel::is_in_duel(world, owner) {
         // `SinEater`'s `ON_CREATURE_DEATH` bark, before the penalty maths.
         crate::scripts::sin_eater::on_death(world, pet_oid);
         pet_death_penalty(world, pet_oid);

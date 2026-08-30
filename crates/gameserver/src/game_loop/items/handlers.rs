@@ -293,7 +293,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
                 // isTimeLimitedItem()` → plain `ActionFailed`, no message.
                 // Without it a coupon-bought shadow weapon could be melted
                 // into free D-grade crystals the minute it was handed over.
-                .filter(|it| !crate::game_loop::item_mana::is_shadow_item(it.mana_left))
+                .filter(|it| !crate::game_loop::items::item_mana::is_shadow_item(it.mana_left))
                 .map(|it| (it.item_id, it.count))
         })
         .map(|(id, cnt)| {

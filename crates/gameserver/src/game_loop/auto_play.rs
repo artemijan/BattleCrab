@@ -16,6 +16,7 @@ use crate::world::World;
 
 use super::helpers::client_for_player;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::items::ground_items;
 use crate::game_loop::target;
 
 /// Java's pool runs every 300 ms; the loop ticks at 100 ms, so every 3 ticks.
@@ -317,7 +318,7 @@ fn try_pickup(world: &mut World, player_oid: i32) -> bool {
             return true;
         }
         if let Some(cid) = client_for_player(world, player_oid) {
-            super::ground_items::pickup_ground_item(world, cid, player_oid, item_oid);
+            ground_items::pickup_ground_item(world, cid, player_oid, item_oid);
         }
         return true;
     }

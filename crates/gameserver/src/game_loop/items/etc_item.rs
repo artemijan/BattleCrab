@@ -50,7 +50,7 @@ pub(super) fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, it
         // `BeastSoulShot` handler likewise only ever runs *from* that path.
         ItemHandler::BeastSoulShot | ItemHandler::BeastSpiritShot => {}
         ItemHandler::EnchantScrolls => {
-            crate::game_loop::enchant::open(world, client_id, object_id, item_object_id)
+            crate::game_loop::items::enchant::open(world, client_id, object_id, item_object_id)
         }
         ItemHandler::Recipes => {
             crate::game_loop::crafting::learn_recipe(world, client_id, object_id, item_object_id)

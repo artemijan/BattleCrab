@@ -413,7 +413,7 @@ impl Inventory {
 
     /// Write back a shadow item's remaining mana (Java `Item._mana` after
     /// `decreaseMana`). No-op if the object id is gone. See
-    /// [`crate::game_loop::item_mana`].
+    /// [`crate::game_loop::items::item_mana`].
     pub fn set_mana_left(&mut self, object_id: i32, mana_left: i32) {
         if let Some(it) = self.items.iter_mut().find(|i| i.object_id == object_id) {
             it.mana_left = mana_left;

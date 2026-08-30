@@ -1,5 +1,6 @@
 use super::*;
-use crate::game_loop::{death, ground_items, quests, shop};
+use crate::game_loop::items::ground_items;
+use crate::game_loop::{death, quests, shop};
 
 /// RequestShowMiniMap (0x6C): empty body, answered with `ShowMiniMap` —
 /// map id 0 (base world map) plus the Seven Signs state byte.

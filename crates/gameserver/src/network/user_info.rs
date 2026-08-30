@@ -151,7 +151,7 @@ pub fn user_info(
     w.write_i16(UserInfoType::EnchantLevel.block_length() as i16);
     w.write_u8(inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8);
     w.write_u8(
-        crate::game_loop::armor_sets::max_set_enchant_for(&data.armor_sets, inventory)
+        crate::game_loop::items::armor_sets::max_set_enchant_for(&data.armor_sets, inventory)
             .clamp(0, u8::MAX as i32) as u8,
     );
 

@@ -499,6 +499,7 @@ pub(crate) fn restore_offline_traders(world: &mut World, traders: Vec<db::Offlin
 /// Spawn one stored shop back into the world. `false` when the character can't
 /// be rebuilt (Java logs and disconnects the half-loaded player).
 fn restore_one(world: &mut World, row: db::OfflineTraderRow, store_type: u8) -> bool {
+    use crate::game_loop::skills::expertise;
     use crate::model::components::StoreItem;
     use crate::model::inventory::Inventory;
 
@@ -522,7 +523,7 @@ fn restore_one(world: &mut World, row: db::OfflineTraderRow, store_type: u8) -> 
     // The same post-spawn wiring enter-world does, minus everything that talks
     // to a client: the stat pumps must run or the shop stands with raw base
     // stats, and `restoreEffects` is in Java's restore path too.
-    super::expertise::refresh_expertise_penalty(world, object_id);
+    expertise::refresh_expertise_penalty(world, object_id);
     super::weight::refresh_weight_penalty(world, object_id);
     super::passive_skills::refresh_conditioned_passives(world, object_id);
     super::skills::effects::restore_persisted_buffs(world, object_id, &pending_buffs);

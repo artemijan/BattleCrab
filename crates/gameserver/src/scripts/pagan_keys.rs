@@ -2,8 +2,8 @@
 //! drop the Anteroom Key, Triol's Laypersons the Chapel Key, Triol's
 //! Priests the Key of Darkness — 10% each, honoring `AutoLoot`.
 
-use crate::game_loop::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::helpers::pos_of;
+use crate::game_loop::items::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 
 const ANTEROOM_KEY: i32 = 8273;
@@ -63,7 +63,7 @@ impl QuestScript for PaganKeys {
         };
         let npc_oid = ctx.npc;
         let player = ctx.player;
-        let ground_oid = crate::game_loop::ground_items::spawn_ground_item(
+        let ground_oid = crate::game_loop::items::ground_items::spawn_ground_item(
             ctx.world,
             key,
             1,
@@ -72,7 +72,7 @@ impl QuestScript for PaganKeys {
             y,
             z,
             npc_oid,
-            crate::game_loop::ground_items::DropSource::Npc,
+            crate::game_loop::items::ground_items::DropSource::Npc,
         );
         reserve_for(ctx.world, ground_oid, player, LOOT_PROTECTION_TICKS);
     }

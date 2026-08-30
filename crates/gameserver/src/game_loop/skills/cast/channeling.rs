@@ -239,7 +239,7 @@ fn apply_channeled_skill(world: &mut World, channelizer: i32, target: i32, skill
     };
     // Java `updatePvPStatus(creature)` before the apply, when both are playable.
     if world.objects.has_component::<Player>(&target) {
-        crate::game_loop::pvp::update_pvp_status_target(world, channelizer, target);
+        crate::game_loop::combat::pvp::update_pvp_status_target(world, channelizer, target);
     }
     apply_skill_effects(world, channelizer, target, &channeled);
 }

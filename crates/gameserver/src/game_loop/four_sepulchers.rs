@@ -12,6 +12,7 @@
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::player_name_or_empty;
+use crate::game_loop::items;
 use crate::model::components::{Position, RegionCell, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -578,15 +579,13 @@ fn take_item(world: &mut World, player: i32, item_id: i32, count: i64) {
         return;
     }
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, player) {
-        crate::game_loop::quests::take_items(world, client_id, player, item_id, count);
+        items::take_items(world, client_id, player, item_id, count);
     }
 }
 
 fn give_item(world: &mut World, player: i32, item_id: i32, count: i64) {
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, player) {
-        crate::game_loop::quests::give_item_with_earned_message(
-            world, client_id, player, item_id, count,
-        );
+        items::give_item_with_earned_message(world, client_id, player, item_id, count);
     }
 }
 

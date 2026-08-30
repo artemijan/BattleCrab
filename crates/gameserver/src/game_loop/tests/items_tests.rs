@@ -382,7 +382,7 @@ fn destroying_an_equipped_quest_item_repaints_the_paperdoll() {
     assert_eq!(rhand_oid(&packets), SWORD_OID, "sword equipped in RHand");
 
     // `exitQuest`'s registered-quest-item sweep: destroy every one of them.
-    let taken = crate::game_loop::quests::take_items(&mut world, 1, 3001, SWORD, -1);
+    let taken = items::take_items(&mut world, 1, 3001, SWORD, -1);
     assert!(taken, "the sword was destroyed");
 
     let packets = drain(&mut a_rx);
@@ -2705,7 +2705,7 @@ fn giving_adena_refreshes_the_adena_counter() {
     let mut rx = ingame_player_access(&mut world, 1, 9100, 0);
     drain(&mut rx);
 
-    crate::game_loop::quests::give_item_with_earned_message(&mut world, 1, 9100, 57, 100_000);
+    items::give_item_with_earned_message(&mut world, 1, 9100, 57, 100_000);
 
     let pkts = drain(&mut rx);
     assert!(
@@ -3239,7 +3239,7 @@ fn bound_item_cannot_be_discarded() {
 /// the bag.
 #[test]
 fn distant_ground_item_is_walked_to_before_pickup() {
-    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
     let (mut world, ..) = admin_world();
     world.data.item_data = dist::items_owned();
     world.id_pool = 0x4000_0000..0x4000_0100;
@@ -3320,7 +3320,7 @@ fn distant_ground_item_is_walked_to_before_pickup() {
 /// and the item stays put.
 #[test]
 fn seated_player_cannot_pick_up() {
-    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
     let (mut world, ..) = admin_world();
     world.data.item_data = dist::items_owned();
     world.id_pool = 0x4000_0000..0x4000_0100;
@@ -3432,7 +3432,7 @@ fn player_ground_item_persists_when_destroy_player_dropped_off() {
 /// independent of the player-drop flag (Java `Npc.dropItem`).
 #[test]
 fn npc_ground_item_decays_regardless_of_player_flag() {
-    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
     let (mut world, ..) = admin_world();
     world.cfg.general.autodestroy_item_after = 600;
     world.cfg.general.destroy_dropped_player_item = false;
@@ -5238,7 +5238,7 @@ fn the_saved_key_mapping_round_trips() {
 /// scheduled even when the ordinary destroyer is switched off entirely.
 #[test]
 fn herbs_decay_on_their_own_shorter_clock() {
-    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
     use crate::model::components::GroundItem;
 
     let (mut world, ..) = admin_world();
@@ -5275,7 +5275,7 @@ fn herbs_decay_on_their_own_shorter_clock() {
 /// conditions are alternatives rather than nested.
 #[test]
 fn herbs_decay_even_with_the_ordinary_destroyer_off() {
-    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
     use crate::model::components::GroundItem;
 
     let (mut world, ..) = admin_world();

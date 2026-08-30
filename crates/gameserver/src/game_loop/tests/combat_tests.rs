@@ -59,7 +59,7 @@ fn action_on_monster_colors_target_and_never_talks() {
 /// the final 20 s, then clears it (0) past expiry.
 #[test]
 fn pvp_flag_starts_blinks_and_expires() {
-    use crate::game_loop::pvp;
+    use crate::game_loop::combat::pvp;
     use model::components::PvpState;
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
@@ -106,7 +106,7 @@ fn pvp_flag_starts_blinks_and_expires() {
 /// shorter `PVP_PVP_TIME` (`checkIfPvP`). Attacking a PK doesn't flag at all.
 #[test]
 fn pvp_flag_duration_depends_on_target_state() {
-    use crate::game_loop::pvp;
+    use crate::game_loop::combat::pvp;
     use model::components::PvpState;
     let (mut world, ..) = test_world();
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
@@ -165,7 +165,7 @@ fn pvp_flag_duration_depends_on_target_state() {
 /// auto-attackable), a flagged or PK one does not.
 #[test]
 fn flagged_or_pk_player_is_auto_attackable() {
-    use crate::game_loop::pvp;
+    use crate::game_loop::combat::pvp;
     let (mut world, ..) = test_world();
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 50, 0, 0);
@@ -201,7 +201,7 @@ fn flagged_or_pk_player_is_auto_attackable() {
 /// auto-attackable, and hostile actions there don't raise a flag.
 #[test]
 fn arena_players_attackable_without_flagging() {
-    use crate::game_loop::pvp;
+    use crate::game_loop::combat::pvp;
     use model::components::{PvpState, ZoneFlags};
     let (mut world, ..) = test_world();
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
@@ -1292,7 +1292,8 @@ fn siege_zone_makes_participants_attackable_only_during_siege() {
     world.sieges.insert(3, model::siege::Siege::new(3));
     let _a = ingame_player(&mut world, 1, 4001, 500, 500, 0);
     let _b = ingame_player(&mut world, 2, 4002, 510, 510, 0);
-    let attackable = |w: &World| crate::game_loop::pvp::is_player_auto_attackable(w, 4001, 4002);
+    let attackable =
+        |w: &World| crate::game_loop::combat::pvp::is_player_auto_attackable(w, 4001, 4002);
 
     // Zone loaded but siege idle → two unflagged players aren't attackable.
     assert!(!attackable(&world), "no siege PvP while the siege is idle");
@@ -2940,7 +2941,8 @@ fn siege_sides_world(
 #[test]
 fn siege_sides_decide_who_may_attack_whom() {
     use model::siege::SiegeClanType::{Attacker, Defender, Owner};
-    let attackable = |w: &World| crate::game_loop::pvp::is_player_auto_attackable(w, 4001, 4002);
+    let attackable =
+        |w: &World| crate::game_loop::combat::pvp::is_player_auto_attackable(w, 4001, 4002);
 
     // Attacker vs defender — the ordinary case, hostile.
     assert!(attackable(&siege_sides_world(Attacker, Defender)));

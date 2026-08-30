@@ -16,17 +16,17 @@
 //!   `item_`, menu/manor selects and the rest of the prefix zoo wait for
 //!   their systems).
 
+use super::target::can_interact;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::items::{augment, item_auction};
 use crate::game_loop::npc::{teleporter, view};
 use crate::model::components::LastFolkNpc;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::world::World;
 use tracing::warn;
-
-use super::target::can_interact;
 
 pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(command) = cp::read_bypass_command(body) else {
@@ -349,7 +349,7 @@ fn npc_bypass(
         "Loto" => super::lottery::loto_bypass(world, client_id, object_id, npc_object_id, command),
         // `bypasshandlers/ItemAuctionLink.java` — the auctioneer NPC (G30.5).
         "ItemAuction" => {
-            super::item_auction::link_bypass(world, client_id, object_id, npc_object_id, command)
+            item_auction::link_bypass(world, client_id, object_id, npc_object_id, command)
         }
         // `RaceManager` NPC — the Monster Race Track betting dialog (G26.5).
         "BuyTicket" | "ShowOdds" | "ShowInfo" | "ShowTickets" | "ShowTicket" | "CalculateWin"
@@ -514,7 +514,7 @@ fn npc_bypass(
                 .nth(1)
                 .map(|a| a.trim() != "2")
                 .unwrap_or(true);
-            super::augment::open_window(world, client_id, make);
+            augment::open_window(world, client_id, make);
         }
         // `Teleporter.onBypassFeedback` (G15.5): the gatekeeper verbs —
         // list windows + the actual teleport, gated on the instance class

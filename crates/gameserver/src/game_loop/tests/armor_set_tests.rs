@@ -169,14 +169,14 @@ fn the_plus_six_skill_needs_every_piece_at_six() {
     }
     set_enchant(&mut world, GAITERS, 5);
     // Re-run the listener the way an equip would.
-    crate::game_loop::armor_sets::refresh_armor_sets(&mut world, PLAYER);
+    crate::game_loop::items::armor_sets::refresh_armor_sets(&mut world, PLAYER);
     assert!(
         !has_skill(&world, SKILL_PLUS_SIX),
         "the LOWEST piece decides — +6/+6/+5 is a +5 set"
     );
 
     set_enchant(&mut world, GAITERS, 6);
-    crate::game_loop::armor_sets::refresh_armor_sets(&mut world, PLAYER);
+    crate::game_loop::items::armor_sets::refresh_armor_sets(&mut world, PLAYER);
     assert!(
         has_skill(&world, SKILL_PLUS_SIX),
         "every piece at +6 grants the set's enchant skill"
@@ -198,7 +198,7 @@ fn the_armor_min_enchant_byte_follows_the_completed_set() {
         set_enchant(&mut world, id, 6);
     }
     assert_eq!(
-        crate::game_loop::armor_sets::max_set_enchant(&world, PLAYER),
+        crate::game_loop::items::armor_sets::max_set_enchant(&world, PLAYER),
         0,
         "an incomplete set reports 0 however enchanted its pieces are"
     );
@@ -206,7 +206,7 @@ fn the_armor_min_enchant_byte_follows_the_completed_set() {
     equip(&mut world, &mut rx, GAITERS);
     set_enchant(&mut world, GAITERS, 4);
     assert_eq!(
-        crate::game_loop::armor_sets::max_set_enchant(&world, PLAYER),
+        crate::game_loop::items::armor_sets::max_set_enchant(&world, PLAYER),
         4,
         "a complete set reports its lowest piece"
     );

@@ -156,7 +156,7 @@ pub(super) fn admin_zone_visual(world: &mut World, client_id: u32, object_id: i3
     }
 
     for (x, y) in points {
-        let oid = crate::game_loop::ground_items::spawn_ground_item(
+        let oid = crate::game_loop::items::ground_items::spawn_ground_item(
             world,
             ADENA_ID,
             1,
@@ -165,7 +165,7 @@ pub(super) fn admin_zone_visual(world: &mut World, client_id: u32, object_id: i3
             y,
             pos.z,
             0,
-            crate::game_loop::ground_items::DropSource::Npc,
+            crate::game_loop::items::ground_items::DropSource::Npc,
         );
         world.zone_debug_items.push(oid);
     }
@@ -183,7 +183,7 @@ pub(super) fn admin_zone_visual_clear(world: &mut World, client_id: u32) {
     let count = markers.len();
     for oid in markers {
         if let Some(region) = crate::game_loop::helpers::region_cell_of(world, oid) {
-            crate::game_loop::ground_items::despawn_ground_item(world, oid, region);
+            crate::game_loop::items::ground_items::despawn_ground_item(world, oid, region);
         }
     }
     send_message(world, client_id, &format!("{count} zone markers cleared."));

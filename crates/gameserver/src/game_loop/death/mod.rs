@@ -74,6 +74,7 @@ pub(crate) use rewards::{calculate_rewards, give_item, on_die_drop_item};
 
 /// `Inventory.ADENA_ID`.
 pub(crate) use crate::data::item_data::ADENA_ID;
+use crate::game_loop::combat::pvp;
 use crate::game_loop::npc::minions;
 // ---------------------------------------------------------------------------
 // NPC death → decay → respawn
@@ -145,7 +146,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
             .objects
             .has_component::<crate::model::components::SailrenWaveMob>(&npc_oid)
         {
-            let killer = super::pvp::acting_player(world, killer_oid);
+            let killer = pvp::acting_player(world, killer_oid);
             super::sailren::on_wave_kill(world, killer, npc_id);
         }
         // Antharas's `onKill` tail: despawn the adds, drop the exit cube, and
@@ -199,7 +200,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         if let Some(npc_id) = npc_id {
             // Quest kill credit also follows the acting player: a pet's kill
             // has to advance its owner's quest.
-            let quest_killer = crate::game_loop::pvp::acting_player(world, killer_oid);
+            let quest_killer = crate::game_loop::combat::pvp::acting_player(world, killer_oid);
             // Java's `isSummon`: the blow came from a pet/servitor, not the
             // player themselves.
             let is_summon = quest_killer != killer_oid;

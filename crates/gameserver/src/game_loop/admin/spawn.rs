@@ -10,10 +10,10 @@
 //! and ignored (documented deviation).
 
 use crate::data::npc_data::NpcTemplate;
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
 use crate::game_loop::target;
+use crate::game_loop::{helpers, items};
 use crate::model::components::Position;
 use crate::model::npc::Npc;
 use crate::world::World;
@@ -715,7 +715,7 @@ pub(super) fn admin_summon(world: &mut World, client_id: u32, object_id: i32, ar
         return;
     }
     if id < 1_000_000 {
-        super::quests::give_item_with_earned_message(world, client_id, object_id, id, count);
+        items::give_item_with_earned_message(world, client_id, object_id, id, count);
     } else {
         send_message(
             world,

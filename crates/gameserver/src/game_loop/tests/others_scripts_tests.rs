@@ -1701,7 +1701,7 @@ fn maintain_enchantment_carries_the_enchant_over() {
 /// has no siege-active requirement, as in Java.
 #[test]
 fn mercenary_ticket_pickup_needs_the_privilege() {
-    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
     use crate::model::components::Intent;
 
     let (mut world, _db, _l, _link) = test_world();

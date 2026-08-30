@@ -9,7 +9,7 @@
 //! The penalty itself is not bespoke arithmetic: Java applies **skill 4270
 //! "Weight Penalty"** at level 1-4, a passive carrying the actual speed and
 //! HP/MP-regen maluses. That makes this a sibling of
-//! [`super::expertise::refresh_expertise_penalty`], and it is built the same
+//! [`expertise::refresh_expertise_penalty`], and it is built the same
 //! way — swap a passive buff, then resend `EtcStatusUpdate` + `UserInfo`.
 
 use crate::game_loop::helpers::send_to_client;

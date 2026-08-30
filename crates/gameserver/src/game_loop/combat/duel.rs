@@ -21,8 +21,8 @@
 //! G25's olympiad matches reuse this shape, which is why the audit put duels
 //! here rather than with the end-game milestones.
 
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::{combat, helpers, instances, party, player_info};
 use crate::model::Player;
 use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -134,7 +134,7 @@ pub enum DuelResult {
 /// olympiad, sieges and the "no duel" zones — the ones with ported state are
 /// here, the rest arrive with their systems.
 pub(crate) fn can_duel(world: &World, oid: i32) -> Result<(), i16> {
-    if super::combat::has_attack_stance(world, oid) {
+    if combat::has_attack_stance(world, oid) {
         return Err(sm_ids::C1_CANNOT_DUEL_BECAUSE_C1_IS_CURRENTLY_ENGAGED_IN_BATTLE);
     }
     let Some(v) = world.objects.get_component::<Vitals>(&oid) else {
@@ -183,7 +183,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
         return;
     }
 
-    let Some((_, target)) = super::party::find_player_by_name(world, &name) else {
+    let Some((_, target)) = party::find_player_by_name(world, &name) else {
         helpers::send_sm_to_player(
             world,
             challenger,
@@ -329,7 +329,7 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
         );
         return;
     }
-    let Some((_, target)) = super::party::find_player_by_name(world, name) else {
+    let Some((_, target)) = party::find_player_by_name(world, name) else {
         helpers::send_sm_to_player(
             world,
             challenger,
@@ -553,7 +553,7 @@ fn teleport_party_duel(world: &mut World, duel_id: u32) {
     };
     let (team_a, team_b) = (duel.team_a.clone(), duel.team_b.clone());
     let template = DUEL_ARENAS[world.roll(DUEL_ARENAS.len() as i32) as usize];
-    let instance_id = super::instances::create_from_template(world, template)
+    let instance_id = instances::create_from_template(world, template)
         .unwrap_or_else(|| world.instances.create(0));
 
     let mut snapshot = Vec::new();
@@ -760,17 +760,17 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
                 .objects
                 .remove_component::<crate::model::components::InstanceId>(&oid);
             crate::game_loop::death::teleport_player(world, oid, x, y, z);
-            super::player_info::broadcast_user_info(world, oid);
+            player_info::broadcast_user_info(world, oid);
         }
         if duel.instance_id != 0 {
-            super::instances::destroy(world, duel.instance_id);
+            instances::destroy(world, duel.instance_id);
         }
         return;
     }
     for (i, oid) in [a, b].into_iter().enumerate() {
         let (hp, mp, cp) = snapshot[i];
         restore_condition(world, oid, (hp, mp, cp));
-        super::player_info::broadcast_user_info(world, oid);
+        player_info::broadcast_user_info(world, oid);
     }
 }
 
@@ -789,7 +789,7 @@ pub(crate) fn duel_lethal_guard(
     // without resolving, its blow is not recognised as duel damage and slips
     // past the cap — really killing the opponent and breaking the invariant
     // this function exists to hold.
-    let attacker = crate::game_loop::pvp::acting_player(world, attacker);
+    let attacker = crate::game_loop::combat::pvp::acting_player(world, attacker);
     if !are_dueling(world, attacker, target) {
         return false;
     }

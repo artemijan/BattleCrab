@@ -15,8 +15,8 @@
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
 use crate::enums::ChatType;
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::clan_of_or_zero;
+use crate::game_loop::{helpers, items};
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell};
 use crate::model::inventory::{Inventory, ItemInstance};
@@ -178,7 +178,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         && p.level < world.cfg.general.minimum_chat_level
         && !p.can_override_cond(CHAT_CONDITIONS_ORDINAL)
     {
-        crate::game_loop::helpers::send_sm_to_client(
+        helpers::send_sm_to_client(
             world,
             client_id,
             sm,
@@ -385,7 +385,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                     .get_component::<Player>(&sender_oid)
                     .is_some_and(|p| p.level < TRADE_CHAT_MIN_LEVEL)
             {
-                crate::game_loop::helpers::send_sm_to_client(
+                helpers::send_sm_to_client(
                     world,
                     client_id,
                     sm_ids::TRADE_CHAT_CANNOT_BE_USED_BELOW_LEVEL_S1,
@@ -1081,8 +1081,8 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
                 helpers::send_message(world, client_id, &text);
                 return;
             }
-            super::quests::take_items(world, client_id, player_oid, ADENA_ITEM_ID, adena);
-            super::items::add_inventory_item(world, player_oid, GOLDBAR_ITEM_ID, goldbars);
+            items::take_items(world, client_id, player_oid, ADENA_ITEM_ID, adena);
+            items::add_inventory_item(world, player_oid, GOLDBAR_ITEM_ID, goldbars);
             let text =
                 format!("Thank you, you now have {goldbars} Goldbar(s), and {adena} less adena.");
             helpers::send_message(world, client_id, &text);
@@ -1093,8 +1093,8 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
                 helpers::send_message(world, client_id, &text);
                 return;
             }
-            super::quests::take_items(world, client_id, player_oid, GOLDBAR_ITEM_ID, goldbars);
-            super::items::add_inventory_item(world, player_oid, ADENA_ITEM_ID, adena);
+            items::take_items(world, client_id, player_oid, GOLDBAR_ITEM_ID, goldbars);
+            items::add_inventory_item(world, player_oid, ADENA_ITEM_ID, adena);
             let text =
                 format!("Thank you, you now have {adena} Adena, and {goldbars} less Goldbar(s).");
             helpers::send_message(world, client_id, &text);

@@ -17,9 +17,11 @@
 //! A seller too low on MP is refused with a message rather than the cast
 //! silently failing.
 
+use crate::game_loop::combat::duel;
 use crate::game_loop::helpers::{
     is_dead, nth_arg, player_name_or_empty, send_message, skill_by_id,
 };
+use crate::game_loop::items;
 use crate::model::Player;
 use crate::network::server_packets as sp;
 use crate::world::World;
@@ -166,7 +168,7 @@ fn can_start(world: &World, client_id: u32, player_oid: i32) -> bool {
     if p.cursed_weapon_equipped_id != 0 || p.reputation < 0 {
         return refuse("You can't sell buffs in Chaotic state!");
     }
-    if super::duel::is_in_duel(world, player_oid) {
+    if duel::is_in_duel(world, player_oid) {
         return refuse("You can't sell buffs in Duel state!");
     }
     if world
@@ -469,8 +471,8 @@ fn buy_skill(world: &mut World, client_id: u32, buyer_oid: i32, args: &[&str]) {
         send_buff_menu(world, client_id, buyer_oid, seller_oid, index);
         return;
     }
-    super::quests::take_items(world, client_id, buyer_oid, payment_id, price);
-    super::items::add_inventory_item(world, seller_oid, payment_id, price);
+    items::take_items(world, client_id, buyer_oid, payment_id, price);
+    items::add_inventory_item(world, seller_oid, payment_id, price);
     super::helpers::spend_mp(world, seller_oid, mp_cost);
     // `skill.activateSkill(seller, player)` — the *seller* casts it on the
     // buyer, so the buff is attributed to the seller like any other cast.

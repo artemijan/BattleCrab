@@ -27,6 +27,7 @@
 use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::helpers::send_sm_and_action_failed;
 use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_client, send_to_client};
+use crate::game_loop::items::take_items;
 use crate::model::Player;
 use crate::model::components::{SkillBook, SkillEnchants};
 use crate::network::server_packets;
@@ -274,7 +275,7 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
     // holder's count instead of the holder's own item — ported as written.
     for &(item_id, count) in &required {
         let charged = if cur_sub + 1 >= 1002 { 57 } else { item_id };
-        if !crate::game_loop::quests::take_items(world, client_id, object_id, charged, count) {
+        if !take_items(world, client_id, object_id, charged, count) {
             return;
         }
     }

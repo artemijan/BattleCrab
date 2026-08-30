@@ -4,8 +4,9 @@
 //! (`admin_cursed_weapons_info_add_remove`).
 
 use super::*;
-use crate::game_loop::{admin, cursed_weapon, death, ground_items, passive_skills, pvp};
-
+use crate::game_loop::combat::pvp;
+use crate::game_loop::items::ground_items;
+use crate::game_loop::{admin, cursed_weapon, death, passive_skills};
 use crate::model::Player;
 
 const ZARICHE: i32 = 8190; // Demonic Sword Zariche

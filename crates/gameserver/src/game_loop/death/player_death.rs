@@ -28,7 +28,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // shadowed part-way down, which happened to cover everything below it —
     // but any code added *above* that point would silently have used the raw
     // id, and there is no signal when that goes wrong.
-    let killer_oid = crate::game_loop::pvp::acting_player(world, killer_oid);
+    let killer_oid = crate::game_loop::combat::pvp::acting_player(world, killer_oid);
     {
         // The `Player` half is the "is this actually a player?" test —
         // `get_many_mut` yields `None` unless every component is present — so
@@ -72,12 +72,12 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // `Player.doDie`'s reputation block: a player killer takes the PvP/PK
     // consequences (counters, karma) for this death.
     if world.objects.has_component::<Player>(&killer_oid) {
-        crate::game_loop::pvp::on_kill_update_pvp_reputation(world, killer_oid, player_oid);
+        crate::game_loop::combat::pvp::on_kill_update_pvp_reputation(world, killer_oid, player_oid);
         // `Player.doDie`'s pvp/pk item reward (`Custom/PvpRewardItem.ini`),
         // paid to the killer and chosen by whether the victim was flagged. Its
         // own zone/instance guards live in the config, so it runs even where
         // the reputation block above bails out.
-        crate::game_loop::pvp::pay_kill_reward(world, killer_oid, player_oid);
+        crate::game_loop::combat::pvp::pay_kill_reward(world, killer_oid, player_oid);
     }
 
     // Java `Player.doDie`: losing a cursed weapon on death is an if/else-if

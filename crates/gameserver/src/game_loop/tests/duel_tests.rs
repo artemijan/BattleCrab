@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::game_loop::duel::{self, DuelResult};
+use crate::game_loop::combat::duel::{self, DuelResult};
 use crate::model::Player;
 use crate::model::components::{DuelRef, PendingDuel};
 

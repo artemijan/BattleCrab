@@ -100,7 +100,7 @@ fn broadcast_war_status(world: &mut World, clan_a: i32, clan_b: i32) {
     for clan_id in [clan_a, clan_b] {
         for oid in online_members(world, clan_id) {
             crate::game_loop::player_info::broadcast_user_info(world, oid);
-            crate::game_loop::pvp::broadcast_siege_relation(world, oid);
+            crate::game_loop::combat::pvp::broadcast_siege_relation(world, oid);
         }
     }
 }

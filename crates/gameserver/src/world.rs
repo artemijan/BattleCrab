@@ -197,7 +197,7 @@ pub struct World {
     /// item never queues twice. The due tick is the staleness check a bare set
     /// cannot give us: Java's flag dies with the `Item` instance at logout, so
     /// a beat left in flight by a previous session must not be mistaken for
-    /// this one's. See [`crate::game_loop::item_mana`].
+    /// this one's. See [`crate::game_loop::items::item_mana`].
     pub item_mana_consuming: HashMap<i32, u64>,
     /// Items shift-clicked into a chat line, as item object id → the object id
     /// of the player who linked it — Java's per-`Item` `_published` flag, set
@@ -541,7 +541,7 @@ pub struct World {
     /// [`crate::game_loop::global_vars`], which owns the typed accessors and
     /// the write-through to the DB.
     pub global_vars: HashMap<String, String>,
-    pub duels: HashMap<u32, crate::game_loop::duel::Duel>,
+    pub duels: HashMap<u32, crate::game_loop::combat::duel::Duel>,
     pub next_duel_id: u32,
     /// GM mob groups (`MobGroupTable`), keyed by group id — `//mobgroup_*`.
     pub mob_groups: HashMap<i32, crate::model::mob_group::MobGroup>,

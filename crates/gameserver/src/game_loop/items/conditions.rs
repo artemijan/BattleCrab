@@ -297,12 +297,13 @@ fn siege_zone(world: &World, who: &Effector, value: i32) -> bool {
     let Some(player_oid) = who.player.filter(|_| who.is_player()) else {
         // `checkIfOk` refuses a non-player before it looks at anything else;
         // with no castle *and* no fort, the answer is the NOT_ZONE bit.
-        return crate::game_loop::pvp::active_siege_castle(world, who.object_id).is_none()
+        return crate::game_loop::combat::pvp::active_siege_castle(world, who.object_id).is_none()
             && (value & COND_NOT_ZONE) != 0;
     };
     // `CastleManager.getCastle(target)` + `castle.getZone().isActive()`: the
     // castle whose siege zone the creature stands in, with its siege running.
-    let Some(castle_id) = crate::game_loop::pvp::active_siege_castle(world, player_oid) else {
+    let Some(castle_id) = crate::game_loop::combat::pvp::active_siege_castle(world, player_oid)
+    else {
         return (value & COND_NOT_ZONE) != 0;
     };
     let state = world

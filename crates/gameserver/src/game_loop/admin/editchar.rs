@@ -463,7 +463,7 @@ pub(super) fn admin_set_pvp_flag(world: &mut World, client_id: u32, object_id: i
         .get_component::<components::PvpState>(&target)
         .map_or(0, |s| s.flag);
     let next = (cur as i32 - 1).unsigned_abs() as u8;
-    crate::game_loop::pvp::update_pvp_flag(world, target, next);
+    crate::game_loop::combat::pvp::update_pvp_flag(world, target, next);
 }
 
 /// `//partyinfo [name]` — list the target player's party roster (Java opens an

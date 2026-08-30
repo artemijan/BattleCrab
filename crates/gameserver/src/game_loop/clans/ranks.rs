@@ -15,6 +15,7 @@ use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::items;
 use crate::model::Player;
 use crate::model::clan::ClanMember;
 use crate::network::server_packets;
@@ -84,7 +85,7 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
         );
         return;
     }
-    if !crate::game_loop::quests::take_items(world, client_id, player_oid, item_id, item_count) {
+    if !items::take_items(world, client_id, player_oid, item_id, item_count) {
         send_sm(
             world,
             client_id,

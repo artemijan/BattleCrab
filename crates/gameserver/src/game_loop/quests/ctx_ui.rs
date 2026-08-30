@@ -120,7 +120,7 @@ impl<'w> QuestCtx<'w> {
             return;
         };
         let npc = self.npc;
-        crate::game_loop::ground_items::spawn_ground_item(
+        crate::game_loop::items::ground_items::spawn_ground_item(
             self.world,
             item_id,
             count,
@@ -129,7 +129,7 @@ impl<'w> QuestCtx<'w> {
             pos.y,
             pos.z,
             npc,
-            crate::game_loop::ground_items::DropSource::Npc,
+            crate::game_loop::items::ground_items::DropSource::Npc,
         );
     }
 

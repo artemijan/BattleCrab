@@ -2,11 +2,11 @@
 //! run machinery lives in [`crate::game_loop::four_sepulchers`].
 
 use crate::game_loop::four_sepulchers as fs;
-use crate::game_loop::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::items::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::npc::ai;
 use crate::game_loop::npc::say::npc_say;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
@@ -327,7 +327,7 @@ fn drop_adena_reward(ctx: &mut QuestCtx) {
     };
     let count = 300 + ctx.roll(1001) as i64;
     let (npc, player) = (ctx.npc, ctx.player);
-    let ground_oid = crate::game_loop::ground_items::spawn_ground_item(
+    let ground_oid = crate::game_loop::items::ground_items::spawn_ground_item(
         ctx.world,
         57,
         count,
@@ -336,7 +336,7 @@ fn drop_adena_reward(ctx: &mut QuestCtx) {
         p.y,
         p.z,
         npc,
-        crate::game_loop::ground_items::DropSource::Npc,
+        crate::game_loop::items::ground_items::DropSource::Npc,
     );
     reserve_for(ctx.world, ground_oid, player, LOOT_PROTECTION_TICKS);
 }

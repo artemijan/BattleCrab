@@ -13,8 +13,8 @@
 //! (`on_player_logout`), and the freeze applies `Immobilized` +
 //! `SkillsDisabled` like Java's `disableAllSkills`.
 
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::{helpers, items};
 
 use crate::game_loop::time::TICKS_PER_SECOND;
 use commons::util::rnd;
@@ -407,13 +407,13 @@ fn reward_team(world: &mut World, team: u8) {
         world.events.tvt.red_team.clone()
     };
     for player in members {
-        if crate::game_loop::helpers::instance_of(world, player) != instance_id {
+        if helpers::instance_of(world, player) != instance_id {
             continue;
         }
         firework(world, player);
         broadcast_social(world, player, SOCIAL_WIN);
-        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
-            crate::game_loop::quests::give_item_with_earned_message(
+        if let Some(cid) = helpers::client_for_player(world, player) {
+            items::give_item_with_earned_message(
                 world,
                 cid,
                 player,
@@ -985,7 +985,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         );
         return false;
     }
-    if crate::game_loop::duel::is_in_duel(world, player) {
+    if crate::game_loop::combat::duel::is_in_duel(world, player) {
         helpers::send_message(world, client_id, "You cannot register while on a duel.");
         return false;
     }
@@ -1005,7 +1005,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         .objects
         .get_component::<crate::model::components::ZoneFlags>(&player)
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Siege));
-    if crate::game_loop::pvp::is_in_siege(world, player) || in_siege_zone {
+    if crate::game_loop::combat::pvp::is_in_siege(world, player) || in_siege_zone {
         helpers::send_message(world, client_id, "You cannot register while on a siege.");
         return false;
     }

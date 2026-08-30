@@ -2,8 +2,8 @@
 //! CC chat, and the MPCC matching rooms.
 
 use super::*;
-use crate::game_loop::{chat, command_channel, ground_items, party, party_room};
-
+use crate::game_loop::items::ground_items;
+use crate::game_loop::{chat, command_channel, party, party_room};
 use crate::network::server_packets::opcodes;
 use crate::network::server_packets::sm_ids;
 
@@ -618,7 +618,7 @@ fn ordinary_drop_is_killer_protected_for_15s() {
 /// omission was live.
 #[test]
 fn same_command_channel_members_cannot_attack_each_other() {
-    use crate::game_loop::pvp::is_player_auto_attackable;
+    use crate::game_loop::combat::pvp::is_player_auto_attackable;
 
     let (mut world, ..) = test_world();
     let _rxs = two_parties(&mut world);

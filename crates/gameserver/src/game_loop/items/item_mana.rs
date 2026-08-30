@@ -39,7 +39,7 @@
 //!   ([`on_enter_world`]).
 //!
 //! Nothing else. In particular this must **not** hang off the shared
-//! [`super::items::finish_equip_change`] helper: that one is also how an
+//! [`items::finish_equip_change`] helper: that one is also how an
 //! enchant refreshes a worn item's glow, how augmenting re-applies its options
 //! and how `//mount` takes a weapon off — none of which touch mana in Java,
 //! but every one of which would have burned a point had the call lived there,
@@ -65,12 +65,12 @@
 //! window would leave two beats racing on one item, draining it twice as fast.
 
 use crate::game_loop::helpers::{get_inventory_items_oids, send_sm_to_client, send_to_client};
-use tracing::warn;
-
+use crate::game_loop::{helpers, items};
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
+use tracing::warn;
 
 /// `ItemManaTaskManager.MANA_CONSUMPTION_RATE` (60 000 ms), in 100 ms ticks.
 pub const MANA_CONSUMPTION_TICKS: u64 = 600;
@@ -127,7 +127,7 @@ pub(crate) fn on_mana_tick(world: &mut World, player_oid: i32, item_oid: i32) {
     // "if ((player == null) || player.isInOfflineMode()) continue" — an
     // offline shop's wares don't burn down while their owner is away.
     let offline = world.offline_traders.contains_key(&player_oid);
-    if offline || super::helpers::client_for_player(world, player_oid).is_none() {
+    if offline || helpers::client_for_player(world, player_oid).is_none() {
         return;
     }
     let equipped = is_equipped(world, player_oid, item_oid);
@@ -175,7 +175,7 @@ pub(crate) fn decrease_mana(
     }
     // Everything below is Java's `if (player != null)` block. Memory-first:
     // the new mana rides the player's next flush, no DB write per minute.
-    let Some(client_id) = super::helpers::client_for_player(world, player_oid) else {
+    let Some(client_id) = helpers::client_for_player(world, player_oid) else {
         return;
     };
     let warning = match left {
@@ -197,8 +197,8 @@ pub(crate) fn decrease_mana(
         }
         // Java's `_loc != WAREHOUSE` guard: only an inventory item refreshes
         // the client. Ours only ever ticks inventory items.
-        let changes = super::helpers::modified_changes(world, player_oid, &[item_oid]);
-        super::helpers::send_inventory_update(world, player_oid, changes);
+        let changes = helpers::modified_changes(world, player_oid, &[item_oid]);
+        helpers::send_inventory_update(world, player_oid, changes);
         return;
     }
 
@@ -215,13 +215,12 @@ pub(crate) fn decrease_mana(
     // Java sends the unequip `InventoryUpdate` and `broadcastUserInfo` here;
     // `finish_equip_change` inside the helper is that pair plus the stat
     // recompute the paperdoll change owes (see its own doc comment).
-    super::items::unequip_if_worn(world, client_id, player_oid, item_oid);
-    let Some(change) = super::helpers::remove_inventory_item_change(world, player_oid, item_oid, 1)
-    else {
+    items::unequip_if_worn(world, client_id, player_oid, item_oid);
+    let Some(change) = helpers::remove_inventory_item_change(world, player_oid, item_oid, 1) else {
         warn!("item_mana: {item_oid} vanished before its mana-0 destroy.");
         return;
     };
-    super::helpers::send_inventory_update(world, player_oid, vec![change]);
+    helpers::send_inventory_update(world, player_oid, vec![change]);
 }
 
 /// Java `Player.useEquipableItem`'s equip branch: "Consume mana - will start a

@@ -38,8 +38,9 @@ use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self as sp, enchant_result};
 use crate::world::World;
 
-use super::helpers::{player_of, send_inventory_item_list, send_to_client as send};
-use super::items::{finish_equip_change, unequip_if_worn};
+use crate::game_loop::helpers::{player_of, send_inventory_item_list, send_to_client as send};
+use crate::game_loop::items::{finish_equip_change, unequip_if_worn};
+use crate::game_loop::{helpers, punishment};
 
 /// Facts about an inventory item the enchant flow needs (item id + current
 /// enchant), or `None` if the object id isn't in the player's inventory.
@@ -455,7 +456,7 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
         .and_then(|q| q.stamped_tick);
     if stamped.is_none_or(|t| world.tick.saturating_sub(t) < AUTOENCHANT_MIN_TICKS) {
         let punish = world.cfg.general.default_punish;
-        super::punishment::handle_illegal_player_action(
+        punishment::handle_illegal_player_action(
             world,
             player,
             &format!("Player {player} use autoenchant program "),
@@ -474,10 +475,9 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
 
     // Consume one scroll (Java destroyItem). If it's gone, error out — and
     // punish: the client can't press Enchant without the scroll in the bag.
-    let removed =
-        super::helpers::remove_inventory_item_change(world, player, scroll_oid, 1).is_some();
+    let removed = helpers::remove_inventory_item_change(world, player, scroll_oid, 1).is_some();
     if !removed {
-        super::punishment::illegal_action(
+        punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to enchant with a scroll he doesn't have"),
@@ -488,9 +488,9 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     // Consume the support item too, if present; same reasoning as the scroll.
     if support.is_some() {
         let removed =
-            super::helpers::remove_inventory_item_change(world, player, support_oid, 1).is_some();
+            helpers::remove_inventory_item_change(world, player, support_oid, 1).is_some();
         if !removed {
-            super::punishment::illegal_action(
+            punishment::illegal_action(
                 world,
                 player,
                 &format!("Player {player} tried to enchant with a support item he doesn't have"),

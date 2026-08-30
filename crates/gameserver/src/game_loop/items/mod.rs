@@ -1,11 +1,17 @@
 //! Gear equip/unequip handlers (`UseItem`, `RequestUnEquipItem`) and the
 //! `EtcItem` "use" dispatch (`ExtractableItems` for pack/box items).
 
+pub(crate) mod armor_sets;
+pub(crate) mod augment;
 mod conditions;
+pub mod enchant;
 mod equip;
 mod etc_item;
+pub(crate) mod ground_items;
 mod handlers;
 mod inventory;
+pub(crate) mod item_auction;
+pub(crate) mod item_mana;
 mod shots;
 
 pub(crate) use conditions::{check_condition, check_item_restriction, is_condition_attached};

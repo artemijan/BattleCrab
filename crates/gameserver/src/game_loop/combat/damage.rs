@@ -711,7 +711,7 @@ pub(crate) fn player_receive_damage_ex(
     // A duel is consequence-free: the losing blow stops at 1 HP and ends the
     // duel instead of killing (Java caps it in the duel damage path, which is
     // why a duel loser stands back up rather than dying).
-    if crate::game_loop::duel::duel_lethal_guard(world, attacker_oid, player_oid, damage) {
+    if crate::game_loop::combat::duel::duel_lethal_guard(world, attacker_oid, player_oid, damage) {
         return;
     }
     // `PlayerStatus.reduceHp`'s `OFFLINE_MODE_NO_DAMAGE` gate: an unattended

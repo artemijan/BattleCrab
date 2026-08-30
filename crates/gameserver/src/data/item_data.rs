@@ -832,7 +832,7 @@ pub struct ItemTemplate {
     /// 1353 items declare it on this dist, but inside the Interlude id range
     /// they are the 238 `Shadow Item: …` weapons (8821+, 90 or 300 minutes)
     /// plus the talismans; the rest are later-chronicle ids nothing here can
-    /// hand out. See [`crate::game_loop::item_mana`].
+    /// hand out. See [`crate::game_loop::items::item_mana`].
     pub duration: i32,
     /// `<set name="price">` — the reference price (sell value = half of it;
     /// the `CorrectPrices` buylist floor uses it too). 0 when undeclared.

@@ -2,7 +2,8 @@ use super::*;
 use crate::game_loop;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::{death, expertise, passive_skills};
+use crate::game_loop::skills::expertise;
+use crate::game_loop::{death, passive_skills};
 use commons::system_messages::generated::{
     C1_HAS_RESISTED_S2_CHANCE_WAS_S3, S1_LANDED_ON_C2_CHANCE_WAS_S3,
 };

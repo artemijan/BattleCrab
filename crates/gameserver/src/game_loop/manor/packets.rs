@@ -13,6 +13,7 @@ use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::items;
 use crate::model::Player;
 use crate::model::clan::CS_MANOR_ADMIN;
 use crate::model::components::LastFolkNpc;
@@ -23,6 +24,7 @@ use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 use commons::network::PacketReader;
+
 fn manor_setup_gate(world: &mut World, client_id: u32, manor_id: i32) -> Option<i32> {
     let player_oid = match world.clients.get(&client_id) {
         Some(crate::session::ClientSession::InGame(s)) => s.player_object_id(),
@@ -304,15 +306,7 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
         );
         return;
     }
-    if total_price > 0
-        && !crate::game_loop::quests::take_items(
-            world,
-            client_id,
-            player_oid,
-            ADENA_ID,
-            total_price,
-        )
-    {
+    if total_price > 0 && !items::take_items(world, client_id, player_oid, ADENA_ID, total_price) {
         return;
     }
 
@@ -468,7 +462,7 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
             continue;
         }
         if fee > 0 {
-            crate::game_loop::quests::take_items(world, client_id, player_oid, ADENA_ID, fee);
+            items::take_items(world, client_id, player_oid, ADENA_ID, fee);
         }
         if let Some(change) =
             crate::game_loop::helpers::remove_inventory_item_change(world, player_oid, obj_id, cnt)

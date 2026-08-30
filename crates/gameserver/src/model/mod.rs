@@ -1291,7 +1291,7 @@ impl Player {
         // (Java `BaseStatFinalizer`). Folded in here so the enter-world
         // `UserInfo` already carries them; `compose_base_stats` is the same
         // sum for every later recompute.
-        let sets = crate::game_loop::armor_sets::set_stat_sums_for(&data.armor_sets, &inventory);
+        let sets = game_loop::items::armor_sets::set_stat_sums_for(&data.armor_sets, &inventory);
         let base_stats = BaseStats {
             str_: t.base_str + hs.str_ + sets.str_ as i32,
             dex: t.base_dex + hs.dex + sets.dex as i32,
@@ -1523,7 +1523,7 @@ impl Player {
         // augment options regressed before they were re-derived here too.
         let mut skills = skills;
         for (id, level) in
-            crate::game_loop::armor_sets::granted_skills_for(&data.armor_sets, &inventory)
+            game_loop::items::armor_sets::granted_skills_for(&data.armor_sets, &inventory)
         {
             skills.0.insert(id, level);
         }
@@ -2544,7 +2544,7 @@ pub(crate) fn compose_base_stats(world: &crate::world::World, oid: i32) -> Optio
         .map(|h| h.0)
         .unwrap_or_default();
     let hs = world.data.hennas.stat_sums(&slots);
-    let sets = crate::game_loop::armor_sets::set_stat_sums(world, oid);
+    let sets = game_loop::items::armor_sets::set_stat_sums(world, oid);
     // Java sums the set bonus as a double into the finalizer's base value and
     // the consumer truncates; every `<stat val>` on this dist is a whole
     // number, so the cast is exact rather than lossy.

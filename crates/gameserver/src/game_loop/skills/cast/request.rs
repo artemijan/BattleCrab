@@ -353,7 +353,7 @@ pub(crate) fn use_magic_on(
             || world
                 .objects
                 .has_component::<crate::model::components::ServitorOf>(&t))
-        && crate::game_loop::pvp::protection_blessing_blocks(world, object_id, t)
+        && crate::game_loop::combat::pvp::protection_blessing_blocks(world, object_id, t)
     {
         helpers::send_sm_and_action_failed(
             world,

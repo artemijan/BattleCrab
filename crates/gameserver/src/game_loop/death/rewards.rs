@@ -5,12 +5,12 @@ use super::overhit_bonus;
 use crate::data::item_data::ADENA_ID;
 use crate::data::npc_data::DropHolder;
 use crate::data::npc_data::NpcTemplate;
-use crate::game_loop::ground_items::reserve_for;
 use crate::game_loop::helpers::clan_of_or_zero;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::{send_sm_to_client, send_to_client};
+use crate::game_loop::items::ground_items::reserve_for;
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::model::components::Vitals;
@@ -81,7 +81,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
             .collect()
     };
     for (dealer_oid, damage) in entries {
-        let player_oid = crate::game_loop::pvp::acting_player(world, dealer_oid);
+        let player_oid = crate::game_loop::combat::pvp::acting_player(world, dealer_oid);
         // Only players earn. A summon resolves to its owner; a mob to itself,
         // which is not a player and so is skipped as before.
         if !world.objects.has_component::<Player>(&player_oid) {
@@ -122,7 +122,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
     // (`Player.doAutoLoot`).
     // The killer fallback resolves too: a pet's killing blow loots for its
     // owner.
-    let killer_oid = crate::game_loop::pvp::acting_player(world, killer_oid);
+    let killer_oid = crate::game_loop::combat::pvp::acting_player(world, killer_oid);
 
     // Raid points go to the same player the drops do — Java's
     // `maxDealer != null && isOnline() ? maxDealer : lastAttacker`.
@@ -195,7 +195,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
         };
         for (item_id, count) in drops {
             if !auto_loots(world, item_id, is_raid) {
-                let ground_oid = crate::game_loop::ground_items::spawn_ground_item(
+                let ground_oid = crate::game_loop::items::ground_items::spawn_ground_item(
                     world,
                     item_id,
                     count,
@@ -204,7 +204,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
                     ny,
                     nz,
                     npc_oid,
-                    crate::game_loop::ground_items::DropSource::Npc,
+                    crate::game_loop::items::ground_items::DropSource::Npc,
                 );
                 reserve_for(world, ground_oid, owner_id, protect_ticks);
                 continue;
@@ -1057,7 +1057,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
     // `onDieDropItem`'s first gate: a clean (reputation >= 0) victim whose
     // clan is at war with the killer's drops nothing — war deaths are free.
     {
-        let pk = crate::game_loop::pvp::acting_player(world, killer_oid);
+        let pk = crate::game_loop::combat::pvp::acting_player(world, killer_oid);
         let vc = world
             .objects
             .get_component::<Player>(&victim_oid)
@@ -1171,7 +1171,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
             || t.type2 == item_data::TYPE2_QUEST
             || !t.is_dropable()
             || t.is_time_limited()
-            || crate::game_loop::item_mana::is_shadow_item(mana_left)
+            || crate::game_loop::items::item_mana::is_shadow_item(mana_left)
             // `PVP.ini`'s two lists (`KARMA_LIST_NONDROPPABLE_ITEMS` and its
             // pet twin): 30 ids a PK never scatters — adena, the hero
             // weapons and circlet, the newbie gear — plus 12 pet items.
@@ -1231,7 +1231,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
         {
             inv.remove_item(item_id, count);
         }
-        crate::game_loop::ground_items::spawn_ground_item(
+        crate::game_loop::items::ground_items::spawn_ground_item(
             world,
             item_id,
             count,
@@ -1240,7 +1240,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
             pos.y,
             pos.z,
             victim_oid,
-            crate::game_loop::ground_items::DropSource::Player,
+            crate::game_loop::items::ground_items::DropSource::Player,
         );
         dropped += 1;
     }

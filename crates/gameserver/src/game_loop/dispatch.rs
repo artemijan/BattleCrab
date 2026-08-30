@@ -15,13 +15,13 @@ use tracing::{error, trace};
 
 use super::bypass::handle_request_bypass_to_server;
 use super::chat::{block_list, handle_say2};
-use super::combat::handle_attack_request;
+use super::combat::{duel, handle_attack_request};
 use super::death::{handle_appearing, handle_request_restart_point};
 use super::flood;
 
 use super::items::{
-    handle_request_item_list, handle_request_save_inventory_order, handle_request_un_equip_item,
-    handle_use_item,
+    augment, enchant, ground_items, handle_request_item_list, handle_request_save_inventory_order,
+    handle_request_un_equip_item, handle_use_item, item_auction,
 };
 
 use super::net::{handle_logout, handle_request_restart};
@@ -139,9 +139,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_CRYSTALLIZE_ITEM => {
             super::items::handle_request_crystallize_item(world, client_id, body)
         }
-        cop::REQUEST_DROP_ITEM => {
-            super::ground_items::handle_request_drop_item(world, client_id, body)
-        }
+        cop::REQUEST_DROP_ITEM => ground_items::handle_request_drop_item(world, client_id, body),
         cop::REQUEST_PACKAGE_SENDABLE_ITEM_LIST => {
             super::warehouse::handle_package_sendable_list(world, client_id, body)
         }
@@ -153,7 +151,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::SEND_WARE_HOUSE_WITH_DRAW_LIST => {
             super::warehouse::handle_withdraw(world, client_id, body)
         }
-        cop::REQUEST_ENCHANT_ITEM => super::enchant::handle_enchant(world, client_id, body),
+        cop::REQUEST_ENCHANT_ITEM => enchant::handle_enchant(world, client_id, body),
         cop::REQUEST_MAGIC_SKILL_USE => handle_request_magic_skill_use(world, client_id, body),
         cop::REQUEST_ACQUIRE_SKILL => handle_request_acquire_skill(world, client_id, body),
         cop::REQUEST_ACQUIRE_SKILL_INFO => {
@@ -568,13 +566,13 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             super::settings::handle_save_key_mapping(world, client_id, ex_body)
         }
         exop::REQUEST_CONFIRM_TARGET_ITEM => {
-            super::augment::handle_confirm_target_item(world, client_id, ex_body)
+            augment::handle_confirm_target_item(world, client_id, ex_body)
         }
         exop::REQUEST_CONFIRM_GEMSTONE => {
-            super::augment::handle_confirm_gemstone(world, client_id, ex_body)
+            augment::handle_confirm_gemstone(world, client_id, ex_body)
         }
         exop::REQUEST_CONFIRM_CANCEL_ITEM => {
-            super::augment::handle_confirm_cancel_item(world, client_id, ex_body)
+            augment::handle_confirm_cancel_item(world, client_id, ex_body)
         }
         // RequestManorList (IN_GAME): the castles that offer a manor — the seed
         // catalogue's castles when manor is enabled, else an empty list.
@@ -672,15 +670,11 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                 world, client_id, ex_body,
             )
         }
-        exop::REQUEST_DUEL_START => {
-            super::duel::handle_request_duel_start(world, client_id, ex_body)
-        }
+        exop::REQUEST_DUEL_START => duel::handle_request_duel_start(world, client_id, ex_body),
         exop::REQUEST_DUEL_ANSWER_START => {
-            super::duel::handle_request_duel_answer(world, client_id, ex_body)
+            duel::handle_request_duel_answer(world, client_id, ex_body)
         }
-        exop::REQUEST_DUEL_SURRENDER => {
-            super::duel::handle_request_duel_surrender(world, client_id)
-        }
+        exop::REQUEST_DUEL_SURRENDER => duel::handle_request_duel_surrender(world, client_id),
         exop::REQUEST_SAVE_INVENTORY_ORDER => {
             handle_request_save_inventory_order(world, client_id, ex_body)
         }
@@ -781,32 +775,26 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_LIST_PARTY_MATCHING_WAITING_ROOM => {
             super::party_room::handle_list_waiting_room(world, client_id, ex_body)
         }
-        exop::REQUEST_BID_ITEM_AUCTION => {
-            super::item_auction::on_request_bid(world, client_id, ex_body)
-        }
-        exop::REQUEST_INFO_ITEM_AUCTION => {
-            super::item_auction::on_request_info(world, client_id, ex_body)
-        }
+        exop::REQUEST_BID_ITEM_AUCTION => item_auction::on_request_bid(world, client_id, ex_body),
+        exop::REQUEST_INFO_ITEM_AUCTION => item_auction::on_request_info(world, client_id, ex_body),
         exop::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM => {
-            super::enchant::handle_add_scroll(world, client_id, ex_body)
+            enchant::handle_add_scroll(world, client_id, ex_body)
         }
         exop::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM => {
-            super::enchant::handle_put_target(world, client_id, ex_body)
+            enchant::handle_put_target(world, client_id, ex_body)
         }
-        exop::REQUEST_EX_CANCEL_ENCHANT_ITEM => super::enchant::handle_cancel(world, client_id),
+        exop::REQUEST_EX_CANCEL_ENCHANT_ITEM => enchant::handle_cancel(world, client_id),
         exop::REQUEST_EX_TRY_TO_PUT_ENCHANT_SUPPORT_ITEM => {
-            super::enchant::handle_put_support(world, client_id, ex_body)
+            enchant::handle_put_support(world, client_id, ex_body)
         }
         exop::REQUEST_EX_REMOVE_ENCHANT_SUPPORT_ITEM => {
-            super::enchant::handle_remove_support(world, client_id)
+            enchant::handle_remove_support(world, client_id)
         }
         exop::REQUEST_CONFIRM_REFINER_ITEM => {
-            super::augment::handle_confirm_refiner(world, client_id, ex_body)
+            augment::handle_confirm_refiner(world, client_id, ex_body)
         }
-        exop::REQUEST_REFINE => super::augment::handle_refine(world, client_id, ex_body),
-        exop::REQUEST_REFINE_CANCEL => {
-            super::augment::handle_refine_cancel(world, client_id, ex_body)
-        }
+        exop::REQUEST_REFINE => augment::handle_refine(world, client_id, ex_body),
+        exop::REQUEST_REFINE_CANCEL => augment::handle_refine_cancel(world, client_id, ex_body),
         exop::REQUEST_CHANGE_PARTY_LEADER => {
             party::handle_request_change_party_leader(world, client_id, ex_body)
         }

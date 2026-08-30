@@ -722,7 +722,7 @@ pub(crate) fn remove_clan_member_for_academy(world: &mut World, clan_id: i32, me
 ///
 /// The gate Java puts in front of dissolving a clan or an alliance. Note it
 /// asks about the zone, not about a running siege — unlike
-/// [`crate::game_loop::pvp::active_siege_castle`], which additionally requires
+/// [`crate::game_loop::combat::pvp::active_siege_castle`], which additionally requires
 /// `in_progress`. Preserved as the ported code had it.
 pub(crate) fn in_siege_zone(world: &World, player_oid: i32) -> bool {
     world

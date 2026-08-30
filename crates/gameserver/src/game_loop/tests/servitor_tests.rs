@@ -3063,7 +3063,7 @@ fn a_summon_attacking_a_player_flags_its_owner() {
     let _rx2 = ingame_caster(&mut world, CID + 7, victim, 60, 0);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
 
-    crate::game_loop::pvp::update_pvp_status_target(&mut world, servitor, victim);
+    crate::game_loop::combat::pvp::update_pvp_status_target(&mut world, servitor, victim);
 
     let flagged = world
         .objects
@@ -3300,7 +3300,7 @@ fn a_summons_blow_cannot_kill_a_duel_opponent() {
     };
     world.duels.insert(
         1,
-        crate::game_loop::duel::Duel {
+        crate::game_loop::combat::duel::Duel {
             snapshot: [snap(&world, OWNER), snap(&world, foe_player)],
             id: 1,
             player_a: OWNER,
@@ -3324,7 +3324,7 @@ fn a_summons_blow_cannot_kill_a_duel_opponent() {
         .cur_hp = 50.0;
 
     let capped =
-        crate::game_loop::duel::duel_lethal_guard(&mut world, servitor, foe_player, 9999.0);
+        crate::game_loop::combat::duel::duel_lethal_guard(&mut world, servitor, foe_player, 9999.0);
     assert!(capped, "the summon's lethal blow was capped");
     // The cap sets 1 HP and ends the duel, and ending it runs
     // `restorePlayerConditions`, which heals both sides — so the observable
@@ -3386,7 +3386,7 @@ fn a_summon_kill_counts_for_the_clan_war() {
     // player; before the resolution a summon killer fell out immediately.
     // Reaching it at all is what this asserts — the war bookkeeping itself is
     // covered by the clan tests.
-    let reached = crate::game_loop::pvp::acting_player(&world, servitor);
+    let reached = crate::game_loop::combat::pvp::acting_player(&world, servitor);
     assert_eq!(
         reached, OWNER,
         "the summon resolves to its owner for war credit"
@@ -5737,7 +5737,7 @@ fn a_seated_player_cannot_use_a_collar() {
 /// working.
 #[test]
 fn a_pet_fetches_a_ground_item_into_its_own_bag() {
-    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let collar = give_collar(&mut world);
@@ -5815,7 +5815,7 @@ fn a_pet_fetches_a_ground_item_into_its_own_bag() {
 /// packet that sends a message rather than a bare `ActionFailed`.
 #[test]
 fn a_starving_pet_will_not_fetch() {
-    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
     let (mut world, _db, _l) = servitor_world();
     let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let collar = give_collar(&mut world);

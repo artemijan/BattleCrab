@@ -22,7 +22,7 @@ use crate::model::components::Position;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
-use crate::game_loop::pvp::get_killer_rep_and_pk;
+use crate::game_loop::combat::pvp::get_killer_rep_and_pk;
 use crate::game_loop::target;
 // Re-exported rather than redefined: `cursed_weapon.rs` imports `now_millis`
 // from here alongside the rest of this module's surface.

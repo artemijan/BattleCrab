@@ -101,7 +101,7 @@ pub struct GroundItem {
     /// Java `Item._dropTime`, wall-clock ms — **`-1` means protected**, i.e.
     /// never auto-destroyed (`item.setProtected(dropTime == -1)`).
     ///
-    /// Only [`game_loop::ground_items`](crate::game_loop::ground_items)'
+    /// Only [`game_loop::ground_items`](crate::game_loop::items::ground_items)'
     /// persistence reads it: the decay itself is a scheduler entry, but a row
     /// reloaded from `itemsonground` has to know how much of its lifetime was
     /// already spent, and ticks do not survive a restart.

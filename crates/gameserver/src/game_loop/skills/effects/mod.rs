@@ -823,7 +823,7 @@ pub(crate) fn apply_skill_effects(
             // `Flag.onStart` → `updatePvPFlag(1)`: the reported character can
             // be attacked freely while the debuff is up.
             SkillEffect::PvpFlag => {
-                crate::game_loop::pvp::update_pvp_flag(world, target_oid, 1);
+                crate::game_loop::combat::pvp::update_pvp_flag(world, target_oid, 1);
             }
             SkillEffect::StatModifier(_) => {} // collected below
             // Blessing of Protection: no instant action — it lands purely as

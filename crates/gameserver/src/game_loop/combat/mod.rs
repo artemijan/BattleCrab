@@ -39,7 +39,9 @@ use crate::game_loop::helpers::stat_mul;
 
 mod attack;
 mod damage;
+pub(crate) mod duel;
 mod intent;
+pub mod pvp;
 
 pub(crate) use attack::{abort_attack, attacker_display_name, do_auto_attack, handle_attack_hit};
 #[cfg(test)]

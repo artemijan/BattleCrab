@@ -10,6 +10,7 @@
 //! snaps with `force = true`.
 
 use crate::data::zone_data::ZoneKind;
+use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers::maybe_position;
 use crate::model::components::{Speeds, ZoneFlags};
 use crate::network::server_packets::{self, compass_zone};
@@ -86,7 +87,7 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
     let siege_bit = crate::data::zone_data::ZoneKind::Siege.bit();
     if (old_mask ^ new_mask) & siege_bit != 0
         && new_mask & siege_bit != 0
-        && crate::game_loop::pvp::is_in_siege(world, object_id)
+        && crate::game_loop::combat::pvp::is_in_siege(world, object_id)
     {
         crate::game_loop::siege::arm_fame_task(world, object_id);
     }
@@ -208,7 +209,7 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
 /// `getSiegeState() != 0`, which is *not* `isInSiege()`: the former is set for
 /// any registered clan member for the duration of the siege regardless of
 /// where they stand, so a participant is exempt in a town peace zone miles from
-/// the castle — see [`pvp::has_siege_state`](crate::game_loop::pvp::has_siege_state).
+/// the castle — see [`pvp::has_siege_state`](crate::game_loop::combat::pvp::has_siege_state).
 /// And Java tests it in `onEnter` only, so a player whose siege state changes
 /// while standing still keeps the flag they entered with; recomputing on every
 /// revalidate is *more* responsive, and the difference is only reachable by
@@ -232,7 +233,9 @@ fn apply_zone_config(world: &World, object_id: i32, pos: (i32, i32, i32), mask: 
             // 2 — peace zones are off entirely.
             2 => mask &= !peace_bit,
             // 1 — a siege participant is exempt.
-            1 if crate::game_loop::pvp::has_siege_state(world, object_id) => mask &= !peace_bit,
+            1 if crate::game_loop::combat::pvp::has_siege_state(world, object_id) => {
+                mask &= !peace_bit
+            }
             _ => {}
         }
     }
@@ -253,7 +256,7 @@ fn apply_zone_config(world: &World, object_id: i32, pos: (i32, i32, i32), mask: 
 /// (the attackable siege icon), and — on exit — flag the player (`startPvPFlag`),
 /// which the PvP task then blinks out.
 pub(crate) fn refresh_siege_zone_flag(world: &mut World, object_id: i32) {
-    let now_active_siege = super::pvp::active_siege_castle(world, object_id).is_some();
+    let now_active_siege = pvp::active_siege_castle(world, object_id).is_some();
     let was = world
         .objects
         .get_component::<ZoneFlags>(&object_id)
@@ -276,9 +279,9 @@ pub(crate) fn refresh_siege_zone_flag(world: &mut World, object_id: i32) {
     // UserInfo — the in-siege crown bit (0x80) toggles with zone presence.
     super::player_info::broadcast_user_info(world, object_id);
     // RelationChanged — the attackable siege icon vs everyone nearby.
-    super::pvp::broadcast_siege_relation(world, object_id);
+    pvp::broadcast_siege_relation(world, object_id);
     if !now_active_siege {
-        super::pvp::start_pvp_flag_on_siege_exit(world, object_id);
+        pvp::start_pvp_flag_on_siege_exit(world, object_id);
     }
 }
 

@@ -118,7 +118,7 @@ pub(crate) fn use_equipable_item(
             .get_component::<Inventory>(&object_id)
             .is_some_and(|inv| inv.paperdoll_slot_of(item_object_id).is_some())
     {
-        crate::game_loop::item_mana::on_item_equipped(world, object_id, item_object_id);
+        crate::game_loop::items::item_mana::on_item_equipped(world, object_id, item_object_id);
     }
 }
 
@@ -294,7 +294,7 @@ pub(crate) fn refresh_after_paperdoll_change(world: &mut World, object_id: i32) 
     // `refreshExpertisePenalty` on the owner: a newly equipped over-grade item
     // (or one just removed) changes the grade penalty. It sends its own
     // EtcStatusUpdate + UserInfo when the penalty actually changed.
-    crate::game_loop::expertise::refresh_expertise_penalty(world, object_id);
+    crate::game_loop::skills::expertise::refresh_expertise_penalty(world, object_id);
     crate::game_loop::weight::refresh_weight_penalty(world, object_id);
     // Java re-pumps passive skill effects on the same equip listeners: an
     // armor-conditioned passive (Spellcraft/Magician's Movement) flips as a
@@ -304,7 +304,7 @@ pub(crate) fn refresh_after_paperdoll_change(world: &mut World, object_id: i32) 
     // Runs last because it re-pumps the conditioned passives itself once the
     // granted set actually moved, and re-composes `BaseStats` for a `<stats>`
     // set completing or breaking.
-    crate::game_loop::armor_sets::refresh_armor_sets(world, object_id);
+    crate::game_loop::items::armor_sets::refresh_armor_sets(world, object_id);
 }
 
 /// The unequip Java runs for free when a *worn* item leaves the bag:

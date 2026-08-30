@@ -119,7 +119,11 @@ pub(crate) fn start_attack_intent(
             .objects
             .has_component::<crate::model::components::ServitorOf>(&target_object_id);
     if target_is_playable
-        && crate::game_loop::pvp::protection_blessing_blocks(world, object_id, target_object_id)
+        && crate::game_loop::combat::pvp::protection_blessing_blocks(
+            world,
+            object_id,
+            target_object_id,
+        )
     {
         crate::game_loop::helpers::send_sm_and_action_failed(
             world,
@@ -1121,7 +1125,12 @@ fn player_pickup_think(world: &mut World, object_id: i32) {
     let Some(client_id) = helpers::client_for_player(world, object_id) else {
         return;
     };
-    crate::game_loop::ground_items::pickup_ground_item(world, client_id, object_id, item_object_id);
+    crate::game_loop::items::ground_items::pickup_ground_item(
+        world,
+        client_id,
+        object_id,
+        item_object_id,
+    );
 }
 
 /// A zero-extent `Combatant` standing at a point — lets the shared chase/reach

@@ -790,8 +790,8 @@ fn not_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
     if caster_oid == candidate {
         return false;
     }
-    let caster = crate::game_loop::pvp::acting_player(world, caster_oid);
-    let target = crate::game_loop::pvp::acting_player(world, candidate);
+    let caster = crate::game_loop::combat::pvp::acting_player(world, caster_oid);
+    let target = crate::game_loop::combat::pvp::acting_player(world, candidate);
     let both_players = world.objects.has_component::<Player>(&caster)
         && world.objects.has_component::<Player>(&target);
     if !both_players {
@@ -828,12 +828,12 @@ fn not_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
         return false;
     }
     // A siege zone decides on its own terms and short-circuits the rest.
-    if crate::game_loop::pvp::is_in_siege(world, candidate) {
+    if crate::game_loop::combat::pvp::is_in_siege(world, candidate) {
         return !siege_friend(world, caster, target);
     }
     let pvp_zone = |oid: i32| {
-        crate::game_loop::pvp::in_pvp_zone(world, oid)
-            && !crate::game_loop::pvp::is_in_siege(world, oid)
+        crate::game_loop::combat::pvp::in_pvp_zone(world, oid)
+            && !crate::game_loop::combat::pvp::is_in_siege(world, oid)
     };
     if pvp_zone(caster) && pvp_zone(candidate) {
         return true;
@@ -919,8 +919,8 @@ fn mutual_clan_war(world: &World, a: i32, b: i32) -> bool {
 
 /// `Player.isSiegeFriend(target)` — same side of the siege the target stands in.
 fn siege_friend(world: &World, a: i32, b: i32) -> bool {
-    crate::game_loop::pvp::active_siege_castle(world, a)
-        .zip(crate::game_loop::pvp::active_siege_castle(world, b))
+    crate::game_loop::combat::pvp::active_siege_castle(world, a)
+        .zip(crate::game_loop::combat::pvp::active_siege_castle(world, b))
         .is_some_and(|(x, y)| x == y)
 }
 
@@ -931,8 +931,8 @@ fn is_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
     // Java's friend tests run on `getActingPlayer()` — an owned summon (a
     // symbol totem, a servitor) counts as its owner, so a Day of Doom seal
     // never curses the player who dropped it, or their party/clan.
-    let caster_oid = crate::game_loop::pvp::acting_player(world, caster_oid);
-    let candidate = crate::game_loop::pvp::acting_player(world, candidate);
+    let caster_oid = crate::game_loop::combat::pvp::acting_player(world, caster_oid);
+    let candidate = crate::game_loop::combat::pvp::acting_player(world, candidate);
     if caster_oid == candidate {
         return true;
     }
