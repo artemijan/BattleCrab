@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::warehouse;
+use crate::game_loop::commerce::warehouse;
 
 /// A heal on another player: Heal.java's `power + sqrt(2·mAtk)` amount,
 /// overheal-clamped, SM 1067 to the healed target.

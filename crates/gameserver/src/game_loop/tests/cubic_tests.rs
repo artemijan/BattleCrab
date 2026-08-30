@@ -7,7 +7,7 @@
 use super::*;
 
 use crate::data::cubic_data::{CubicSkill, CubicTargetType, CubicTemplate};
-use crate::game_loop::cubic::{Cubics, handle_cubic_action, summon_cubic};
+use crate::game_loop::skills::cubic::{Cubics, handle_cubic_action, summon_cubic};
 
 const OWNER: i32 = 9911;
 const CID: u32 = 1;
@@ -285,7 +285,7 @@ fn cubics_do_not_outlive_their_owner() {
     register(&mut world, attack_template(1));
     summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
 
-    crate::game_loop::cubic::on_owner_leave_world(&mut world, OWNER);
+    crate::game_loop::skills::cubic::on_owner_leave_world(&mut world, OWNER);
     assert!(cubics(&world).is_empty());
 }
 
@@ -420,7 +420,7 @@ fn the_caster_entity_is_cleaned_up() {
             .is_some()
     );
 
-    crate::game_loop::cubic::remove_cubic(&mut world, OWNER, CUBIC_ID);
+    crate::game_loop::skills::cubic::remove_cubic(&mut world, OWNER, CUBIC_ID);
     assert!(
         world
             .objects

@@ -162,11 +162,11 @@ fn apply_clan_skill_to_member(world: &mut World, member_oid: i32, skill_id: i32,
 /// fold the effects into the member's stat maps, then rebroadcast UserInfo (no
 /// AbnormalStatusUpdate — passive buffs carry no icon).
 fn apply_permanent_passive_buff(world: &mut World, oid: i32, buff: ActiveBuff) {
-    crate::game_loop::stat_ctx::with_stat_ctx(world, oid, |ctx| ctx.apply(buff));
+    crate::game_loop::stats::context::with_stat_ctx(world, oid, |ctx| ctx.apply(buff));
     // Clan skills like Clan Health / Clan Mind carry MaxHp/MaxMp modifiers that
     // `recalculate_stats` doesn't consume — fold them into the vitals too.
     crate::game_loop::skills::effects::recompute_max_vitals(world, oid);
-    crate::game_loop::player_info::broadcast_user_info(world, oid);
+    crate::game_loop::character::player_info::broadcast_user_info(world, oid);
 }
 
 /// The clan's full skill set as an `(id, level)` list (for `PledgeSkillList`).
@@ -392,7 +392,7 @@ pub(crate) fn force_new_leader(world: &mut World, clan_id: i32, new_leader: i32)
             // `setPledgeClass` → `checkItemRestriction()`, which Java also
             // spells out for the ex-leader on the line after the handover.
             crate::game_loop::items::check_item_restriction(world, oid);
-            crate::game_loop::player_info::broadcast_user_info(world, oid);
+            crate::game_loop::character::player_info::broadcast_user_info(world, oid);
         }
     }
     let name = helpers::player_name_or_empty(world, new_leader);

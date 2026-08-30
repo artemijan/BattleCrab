@@ -145,7 +145,7 @@ pub(super) fn magical_attack_range(
     // The shield roll, angle-gated exactly like the melee path (Aegis makes
     // every angle a front angle). `combatant` carries the resolved shield
     // stats and positions the melee swing reads.
-    let caster_ranged = crate::game_loop::ranged::attacker_is_ranged(world, caster_oid);
+    let caster_ranged = crate::game_loop::combat::ranged::attacker_is_ranged(world, caster_oid);
     let (shield, target_shield_def) = {
         let (a, t) = (
             crate::game_loop::combat::combatant(world, caster_oid),
@@ -230,7 +230,7 @@ pub(super) fn magical_attack_mp(
     // `calcShldUse` — a perfect block cuts the drain to 1.
     let (shield_def, shield_rate, con_bonus) =
         crate::game_loop::combat::shield_stats(world, target_oid);
-    let caster_ranged = crate::game_loop::ranged::attacker_is_ranged(world, caster_oid);
+    let caster_ranged = crate::game_loop::combat::ranged::attacker_is_ranged(world, caster_oid);
     let (rate_roll, perfect_roll) = (world.roll(100), world.roll(100));
     let shield = formulas::calc_shield_use(
         shield_rate,
@@ -917,7 +917,7 @@ fn notify_heal(world: &mut World, caster_oid: i32, target_oid: i32, healed: f64)
     // A heal can lift the target back **out** of an HP-conditioned passive's
     // band (Final Frenzy / Final Fortress), which Java notices through
     // `ON_CREATURE_HP_CHANGE`. Both heal writes funnel through here.
-    crate::game_loop::passive_skills::refresh_on_hp_change(world, target_oid);
+    crate::game_loop::stats::passive_skills::refresh_on_hp_change(world, target_oid);
     let caster_name = effects::caster_display_name(world, caster_oid);
     let Some(client_id) = helpers::client_for_player(world, target_oid) else {
         return;
@@ -1371,7 +1371,7 @@ pub(super) fn target_cancel(world: &mut World, ctx: &CastCtx, skill: &Skill, cha
     // `TargetUnselected` with includeSelf, which is what clears the
     // client's selection ring.
     if let Some(client_id) = helpers::client_for_player(world, target_oid) {
-        crate::game_loop::target::set_target(world, client_id, target_oid, None);
+        crate::game_loop::combat::target::set_target(world, client_id, target_oid, None);
     } else if let Some(t) = world
         .objects
         .get_component_mut::<crate::model::components::TargetRef>(&target_oid)

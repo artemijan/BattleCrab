@@ -46,7 +46,7 @@ pub fn ex_show_castle_info(world: &World) -> Vec<u8> {
             .map(|c| c.name.as_str())
             .unwrap_or("");
         w.write_string(owner);
-        w.write_i32(crate::game_loop::castle::tax_percent(
+        w.write_i32(crate::game_loop::siege::treasury::tax_percent(
             world,
             castle.id,
             TaxType::Buy,

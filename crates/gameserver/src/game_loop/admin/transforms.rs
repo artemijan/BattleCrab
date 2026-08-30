@@ -44,7 +44,7 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
     // tested the target's posture, which is a different rule whenever a GM
     // transforms someone else — and the message order matters too, since a
     // player who is both seated and mounted gets whichever check runs first.
-    if crate::game_loop::sit_stand::is_sitting(world, object_id) {
+    if crate::game_loop::character::sit_stand::is_sitting(world, object_id) {
         send_sm_bare_to_client(
             world,
             client_id,
@@ -70,7 +70,7 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
     // test (used for swim speed and geodata) and says so in its own doc;
     // using it here would refuse the transform for anyone in a castle moat
     // or wading where no breath timer ever started.
-    if crate::game_loop::water::is_drowning_task_active(world, target) {
+    if crate::game_loop::space::water::is_drowning_task_active(world, target) {
         send_sm_bare_to_client(
             world,
             client_id,
@@ -155,7 +155,7 @@ pub(super) fn admin_dismount_or_untransform(world: &mut World, object_id: i32) {
 /// (`game_loop::skills::effects`) instead calls [`apply_transform_state`]
 /// directly and lets the buff-landing path own the broadcast, since it's
 /// already sending `UserInfo`/`CharInfo` for the buff that carries this.
-/// `game_loop::cursed_weapon` also calls it for `CursedWeapon.doTransform`.
+/// `game_loop::items::cursed_weapon` also calls it for `CursedWeapon.doTransform`.
 pub(crate) fn apply_transform(world: &mut World, target: i32, transform_id: i32) {
     apply_transform_state(world, target, transform_id);
     broadcast_transform(world, target);
@@ -309,7 +309,7 @@ pub(crate) fn remove_transform_state(world: &mut World, target: i32) -> bool {
 /// Broadcast the transform change: UserInfo to self + CharInfo to nearby (via
 /// `broadcast_user_info`), then [`refresh_transform_visuals`].
 fn broadcast_transform(world: &mut World, target: i32) {
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     refresh_transform_visuals(world, target);
 }
 

@@ -448,7 +448,7 @@ pub fn calc_effect_land_rate(
     // `getBasicPropertyResistBonus(skill.getBasicProperty(), target)` — the
     // mesmerizing-debuff accrual chain (1.0 / 0.6 / 0.3 / 0), multiplied
     // **after** the clamp, which is why level 3 is a hard immunity rather than
-    // a rate the 10 floor rescues. See `game_loop::basic_property`.
+    // a rate the 10 floor rescues. See `game_loop::stats::basic_property`.
     basic_property_resist: f64,
     // `Config.MIN_/MAX_ABNORMAL_STATE_SUCCESS_RATE`, the `constrain` bounds.
     bounds: LandRateBounds,

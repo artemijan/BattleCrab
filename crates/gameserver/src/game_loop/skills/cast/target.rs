@@ -135,7 +135,7 @@ pub(crate) fn resolve_cast_target(
             // castle doors, towers, HQ flags and stationed guards. A clean
             // target still needs Ctrl (force-use).
             let auto_attackable =
-                crate::game_loop::target::is_auto_attackable(world, caster.object_id, t);
+                crate::game_loop::combat::target::is_auto_attackable(world, caster.object_id, t);
             if !auto_attackable && !ctrl {
                 return Err(sm_ids::INVALID_TARGET);
             }
@@ -149,7 +149,7 @@ pub(crate) fn resolve_cast_target(
             if t == caster.object_id {
                 return Ok(t);
             }
-            if crate::game_loop::target::is_auto_attackable(world, caster.object_id, t) {
+            if crate::game_loop::combat::target::is_auto_attackable(world, caster.object_id, t) {
                 return Err(sm_ids::INVALID_TARGET);
             }
             t
@@ -331,7 +331,7 @@ pub(crate) fn finalize_target(
         return Err(sm_ids::CANNOT_SEE_TARGET);
     }
     if matches!(skill.target_type, TargetType::Enemy | TargetType::EnemyOnly)
-        && crate::game_loop::zones::is_inside_peace_zone(world, caster_oid, resolved)
+        && crate::game_loop::space::zones::is_inside_peace_zone(world, caster_oid, resolved)
     {
         return Err(sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE);
     }

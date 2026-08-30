@@ -646,9 +646,9 @@ fn can_summon_is_refused_while_spawn_protected() {
         "unprotected, the summon is allowed"
     );
 
-    crate::game_loop::spawn_protection::arm(&mut world, CASTER);
+    crate::game_loop::combat::spawn_protection::arm(&mut world, CASTER);
     assert!(
-        crate::game_loop::spawn_protection::is_protected(&world, CASTER),
+        crate::game_loop::combat::spawn_protection::is_protected(&world, CASTER),
         "the fixture's config has to actually arm the window"
     );
     assert!(

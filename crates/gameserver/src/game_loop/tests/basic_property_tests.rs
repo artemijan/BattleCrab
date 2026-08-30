@@ -1,4 +1,4 @@
-//! Mesmerizing-debuff resistance — G34 S2 (`game_loop::basic_property`).
+//! Mesmerizing-debuff resistance — G34 S2 (`game_loop::stats::basic_property`).
 //!
 //! Chain-stunning a mob gets harder and then stops working; chain-stunning a
 //! *player* does not, because `Player.hasBasicPropertyResist()` is
@@ -8,7 +8,7 @@
 
 use super::*;
 use crate::game_loop;
-use crate::game_loop::basic_property::{
+use crate::game_loop::stats::basic_property::{
     RESIST_DURATION_TICKS, has_resist, increase_resist_level, resist_bonus, resist_level,
 };
 use crate::model::skill::BasicProperty;

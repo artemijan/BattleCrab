@@ -559,10 +559,10 @@ fn has_shield(world: &World, object_id: i32) -> bool {
 /// **non-quest** inventory size.
 fn free_percent(world: &World, object_id: i32) -> Option<(i32, i32)> {
     let inv = world.objects.get_component::<Inventory>(&object_id)?;
-    let slot_limit = super::super::weight::inventory_limit(world, object_id).max(1);
-    let load_limit = super::super::weight::max_load(world, object_id).max(1);
+    let slot_limit = super::super::stats::weight::inventory_limit(world, object_id).max(1);
+    let load_limit = super::super::stats::weight::max_load(world, object_id).max(1);
     let used_slots = inv.non_quest_size(&world.data.item_data);
-    let load = super::super::weight::total_load(inv, &world.data);
+    let load = super::super::stats::weight::total_load(inv, &world.data);
     Some((
         100 - (used_slots as i32 * 100 / slot_limit),
         100 - ((load * 100 / load_limit as i64) as i32),
@@ -768,7 +768,7 @@ fn can_transform(world: &World, caster: i32) -> Result<(), Refusal> {
 /// `PlayerTeleportProtection` is **0** on this dist, so that window never arms.
 /// `isInAirShip()` has no Interlude analogue.
 fn can_summon(world: &World, caster: i32) -> bool {
-    if crate::game_loop::spawn_protection::is_protected(world, caster) {
+    if crate::game_loop::combat::spawn_protection::is_protected(world, caster) {
         return false;
     }
     helpers::player(world, caster).is_some_and(|p| {

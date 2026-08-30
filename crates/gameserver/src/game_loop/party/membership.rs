@@ -8,10 +8,10 @@ use super::invite::drop_party_if_unborn;
 use super::loot::finish_loot_change;
 use super::loot::finish_loot_change_inline;
 use super::member_view;
+use crate::game_loop::character::player_info::broadcast_user_info;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::send_to_player;
-use crate::game_loop::player_info::broadcast_user_info;
 use crate::model::components::PartyRef;
 use crate::model::components::RequestKind;
 use crate::network::client_packets as cp;
@@ -103,7 +103,7 @@ pub(crate) fn add_party_member(world: &mut World, party_id: u32, new_member: i32
 
     // A member joining a channelled party gets the CC window opened (Java
     // `addPartyMember`'s `ExOpenMPCC` tail).
-    crate::game_loop::command_channel::on_party_member_added(world, party_id, new_member);
+    super::command_channel::on_party_member_added(world, party_id, new_member);
 
     // The 12 s position broadcast starts with the first real member add
     // (Java: `_positionBroadcastTask == null`), initial delay = period / 2.
@@ -138,7 +138,7 @@ pub(crate) fn handle_request_withdrawal_party(world: &mut World, client_id: u32)
     }
     // Java `RequestWithDrawalParty` also drops the player from their matching
     // room (G30).
-    crate::game_loop::party_room::on_party_withdraw(world, player);
+    super::rooms::on_party_withdraw(world, player);
 }
 
 pub(crate) fn handle_request_oust_party_member(world: &mut World, client_id: u32, body: &[u8]) {
@@ -222,7 +222,7 @@ pub(crate) fn handle_request_change_party_leader(world: &mut World, client_id: u
     announce_new_leader(world, party_id);
     // CC authority follows the leading party's leadership (Java
     // `Party.setLeader`'s CC tail, SM 1589).
-    crate::game_loop::command_channel::on_party_leader_changed(world, party_id, player, target);
+    super::command_channel::on_party_leader_changed(world, party_id, player, target);
 }
 
 /// SM 1384 + `broadcastToPartyMembersNewLeader` (window rebuild for all).
@@ -330,7 +330,7 @@ pub(crate) fn remove_party_member(
     // The leaver's CC window closes (Java `removePartyMember`'s `ExCloseMPCC`
     // tail). Java also leaves `CommandChannel._commandLeader` stale when the
     // CC leader disconnects but their party survives — kept.
-    crate::game_loop::command_channel::on_party_member_removed(world, party_id, leaver);
+    super::command_channel::on_party_member_removed(world, party_id, leaver);
 
     // `applyTacticalSigns(player, true)` — the leaver's client drops the
     // markers; the party keeps the signs themselves for whoever stays.
@@ -349,7 +349,7 @@ pub(crate) fn disband_party(world: &mut World, party_id: u32) {
     // A collapsing party takes its command channel down with it when it is
     // the CC leader's party, or just detaches otherwise (Java
     // `removePartyMember`'s size==1 branch).
-    crate::game_loop::command_channel::on_party_dissolving(world, party_id);
+    super::command_channel::on_party_dissolving(world, party_id);
     let Some(party) = world.parties.get_mut(&party_id) else {
         return;
     };

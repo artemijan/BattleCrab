@@ -24,9 +24,9 @@
 //!   is laid out for and whose ceiling the 16000-char row budget assumes.
 
 use crate::data::npc_data::{DropHolder, NpcTemplate};
+use crate::game_loop::combat::target;
 use crate::game_loop::community_board;
 use crate::game_loop::helpers::{format_amount, send_to_client};
-use crate::game_loop::target;
 use crate::network::server_packets;
 use crate::world::World;
 

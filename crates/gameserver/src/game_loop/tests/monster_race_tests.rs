@@ -6,7 +6,7 @@ use super::*;
 
 use std::collections::HashMap;
 
-use crate::game_loop::monster_race::{self, add_bet, calculate_odds, roll_speeds};
+use crate::game_loop::activities::monster_race::{self, add_bet, calculate_odds, roll_speeds};
 use crate::model::monster_race::RaceState;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;

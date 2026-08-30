@@ -9,8 +9,8 @@ use crate::model::inventory::{Inventory, ItemChange};
 use crate::world::World;
 
 use super::send_message;
-use crate::game_loop::{items, target};
-
+use crate::game_loop::combat::target;
+use crate::game_loop::items;
 /// `AdminCreateItem`'s `//create_item [id] [num]` — create `num` (default 1) of
 /// item `id` on the GM, then (always, exactly like Java) reopen
 /// `itemcreation.htm`. Java tokenizes `command.substring(17)`: 1 token → count 1,
@@ -216,7 +216,7 @@ pub(super) fn admin_destroy_items(
     if include_equipped {
         crate::game_loop::items::refresh_equip_state(world, client_id, object_id);
     }
-    crate::game_loop::player_info::broadcast_user_info(world, object_id);
+    crate::game_loop::character::player_info::broadcast_user_info(world, object_id);
     send_message(
         world,
         client_id,
@@ -271,13 +271,13 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
     // The owner's own client needs the InventoryUpdate; the GM gets the same
     // refreshed item list Java answers with.
     super::helpers::send_inventory_update(world, owner, vec![change]);
-    let limit = crate::game_loop::weight::inventory_limit(world, owner);
+    let limit = crate::game_loop::stats::weight::inventory_limit(world, owner);
     if let Some(inv) = world.objects.get_component::<Inventory>(&owner) {
         let name = player_name_or_empty(world, owner);
         let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data, limit);
         send_to_client(world, client_id, pkt);
     }
-    crate::game_loop::player_info::broadcast_user_info(world, owner);
+    crate::game_loop::character::player_info::broadcast_user_info(world, owner);
     send_message(world, client_id, "Item deleted.");
 }
 
@@ -358,12 +358,12 @@ pub(super) fn admin_delete_quest_item(
         return;
     }
     super::helpers::send_inventory_update(world, target, changes);
-    let limit = crate::game_loop::weight::inventory_limit(world, target);
+    let limit = crate::game_loop::stats::weight::inventory_limit(world, target);
     if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
         let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data, limit);
         send_to_client(world, client_id, pkt);
     }
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     send_message(
         world,
         client_id,

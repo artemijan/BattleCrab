@@ -3,7 +3,7 @@
 //! coverage in `teleport_cmds_tests`.
 
 use super::*;
-use crate::game_loop::user_commands;
+use crate::game_loop::client::user_commands;
 
 use crate::model::Player;
 use crate::model::clan::Clan;

@@ -14,6 +14,7 @@ use crate::network::server_packets::{self, MailListView, sm_ids};
 use crate::world::World;
 
 mod attachments;
+pub(crate) mod custom;
 mod expiry;
 mod read;
 mod send;

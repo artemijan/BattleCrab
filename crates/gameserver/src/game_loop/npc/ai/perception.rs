@@ -3,12 +3,12 @@
 
 use super::movement_disabled;
 use crate::game_loop::combat;
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::target;
 use crate::model::components::Position;
 use crate::model::components::Vitals;
 use crate::model::npc::AggroList;
@@ -159,7 +159,7 @@ pub(crate) fn notices_target(world: &World, npc_oid: i32, target_oid: i32) -> bo
     // `Attackable.getHating`'s `act.isSpawnProtected()` arm: a character
     // inside their entry grace period is dropped from the aggro list, so a
     // monster neither takes an interest nor keeps one.
-    if crate::game_loop::spawn_protection::is_protected(world, target_oid) {
+    if crate::game_loop::combat::spawn_protection::is_protected(world, target_oid) {
         return false;
     }
     let flags = abnormal::flags_of(world, target_oid);

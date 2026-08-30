@@ -22,7 +22,7 @@
 //!
 //! The mutable half of a `Product` — how many are left and when they restock —
 //! is **not** here: `world.data` is shared and immutable, so the counts live on
-//! the `World` (`buy_list_stock`) and the rules in `game_loop/shop.rs`.
+//! the `World` (`buy_list_stock`) and the rules in `game_loop/commerce/shop.rs`.
 
 use crate::data::item_data::CrystalType;
 

@@ -217,7 +217,7 @@ impl ClanHallManager {
                     // three item-function tiers map to buylists npcId*100 + 0/1/2.
                     level @ 1..=3 => {
                         let list_id = ctx.npc_id * 100 + (level - 1);
-                        crate::game_loop::shop::show_buy_window(
+                        crate::game_loop::commerce::shop::show_buy_window(
                             ctx.world,
                             ctx.client_id,
                             ctx.player,

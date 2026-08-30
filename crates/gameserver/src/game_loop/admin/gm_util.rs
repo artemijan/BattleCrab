@@ -10,10 +10,10 @@
 //! server has not ported.
 
 use crate::game_loop::admin::find_online_player;
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
-use crate::game_loop::target;
 use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef};
 use crate::model::npc::Npc;
@@ -1085,7 +1085,7 @@ pub(super) fn admin_skill_test(world: &mut World, client_id: u32, object_id: i32
     // an NPC and the broadcasting override for a player, so the GM-as-caster
     // case goes through the player path.
     if caster_oid == object_id {
-        crate::game_loop::target::set_target(world, client_id, object_id, Some(object_id));
+        crate::game_loop::combat::target::set_target(world, client_id, object_id, Some(object_id));
     } else {
         world.objects.add_components(
             &caster_oid,

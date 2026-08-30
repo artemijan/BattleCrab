@@ -5,6 +5,8 @@ pub(crate) mod abnormal;
 pub(crate) mod affect;
 pub(crate) mod cast;
 pub(crate) mod conditions;
+pub(in crate::game_loop) mod cubic;
+pub(in crate::game_loop) mod effect_point;
 pub(crate) mod effects;
 pub(crate) mod enchant;
 pub mod expertise;
@@ -46,7 +48,7 @@ pub(crate) fn handle_request_magic_skill_list(world: &mut World, client_id: u32,
 ///
 /// Dropping the `SkillBook` entry on its own is not enough: a passive skill's
 /// stat effects live on as a hidden `passive` buff, and
-/// [`super::passive_skills::recompute_conditioned_passives`] deliberately only
+/// [`super::stats::passive_skills::recompute_conditioned_passives`] deliberately only
 /// manages passive buffs whose skill is *still in the book* (clan skills and
 /// the expertise penalties are passive buffs with no book entry and must not be
 /// swept), so a skill that has just left it is invisible to that diff and its
@@ -136,7 +138,11 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     // Java: `(_level < 1) || (_level > 1000) || (_id < 1)` — a malformed
     // request is a packet-manipulation signature and punishes.
     if pkt.skill_level < 1 || pkt.skill_level > 1000 || pkt.skill_id < 1 {
-        super::punishment::illegal_action(world, object_id, "Wrong Packet Data in Aquired Skill");
+        super::moderation::punishment::illegal_action(
+            world,
+            object_id,
+            "Wrong Packet Data in Aquired Skill",
+        );
         return;
     }
     // Java's hack check: class skills must be learned in order. Learning a
@@ -159,7 +165,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
                 &[],
             ),
         );
-        super::punishment::handle_illegal_player_action(
+        super::moderation::punishment::handle_illegal_player_action(
             world,
             object_id,
             &format!(
@@ -299,7 +305,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     // `recompute_conditioned_passives` already diffs "book vs currently-applied
     // passive buffs" generically (it isn't armor-condition-specific despite the
     // module name), so this reuses it rather than a bespoke re-apply.
-    super::passive_skills::recompute_conditioned_passives(world, object_id);
+    super::stats::passive_skills::recompute_conditioned_passives(world, object_id);
 
     if let Some(v) = crate::model::PlayerView::of_world(world, object_id)
         && let Some(cs) = world.clients.get(&client_id)
@@ -321,7 +327,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             &v,
             &world.data,
             &world.cfg.character,
-            crate::game_loop::player_info::calculate_relation(world, v.p),
+            crate::game_loop::character::player_info::calculate_relation(world, v.p),
         ));
         // Java `RequestAcquireSkill`: "If skill is expand type then sends
         // packet" — 1368-1372 are the `EnlargeSlot` passives (Expand Dwarven
@@ -339,5 +345,5 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     }
     // `player.updateShortCuts(_id, _level, 0)` — refresh SKILL slots holding
     // the upgraded skill.
-    super::shortcuts::update_skill_shortcuts(world, object_id, skill_id, skill_level);
+    super::client::shortcuts::update_skill_shortcuts(world, object_id, skill_id, skill_level);
 }

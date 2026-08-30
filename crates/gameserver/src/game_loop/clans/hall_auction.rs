@@ -207,7 +207,7 @@ pub(crate) fn place_bid(
     if let Some((prev_clan, prev_amount)) = highest_bidder(world, hall_id) {
         give_clan_adena(world, prev_clan, prev_amount);
         if prev_clan != clan_id {
-            crate::game_loop::warehouse::persist_clan_warehouse(world, prev_clan);
+            crate::game_loop::commerce::warehouse::persist_clan_warehouse(world, prev_clan);
         }
     }
     world.clan_hall_bids.entry(hall_id).or_default().insert(
@@ -218,7 +218,7 @@ pub(crate) fn place_bid(
         },
     );
     // Persist the bidder's warehouse (adena moved) and the bid row.
-    crate::game_loop::warehouse::persist_clan_warehouse(world, clan_id);
+    crate::game_loop::commerce::warehouse::persist_clan_warehouse(world, clan_id);
     let _ = world.db.send(DbCommand::SaveClanHallBid {
         hall_id,
         clan_id,
@@ -379,7 +379,7 @@ pub(crate) fn handle_lease_check(world: &mut World, hall_id: i32) {
     if let Some(clan) = world.clans.get_mut(&owner_id) {
         clan.warehouse.0.remove_item(ADENA_ID, lease);
     }
-    crate::game_loop::warehouse::persist_clan_warehouse(world, owner_id);
+    crate::game_loop::commerce::warehouse::persist_clan_warehouse(world, owner_id);
     let new_paid_until = if let Some(hall) = world.clan_halls.get_mut(&hall_id) {
         hall.paid_until += LEASE_PERIOD_MS;
         hall.paid_until

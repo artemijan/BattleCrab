@@ -310,7 +310,7 @@ pub(crate) fn do_revive_with(
         p.exp += restored;
         p.lost_exp_on_death = 0;
     }
-    crate::game_loop::player_info::broadcast_user_info(world, player_oid);
+    crate::game_loop::character::player_info::broadcast_user_info(world, player_oid);
 }
 
 /// `Player.doRevive`: restore the configured percentages (`RespawnRestoreHP`
@@ -453,8 +453,8 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
         .objects
         .get_component::<crate::model::components::PartyRef>(&earner_oid)
         .map(|r| r.0);
-    let group: Option<Vec<i32>> =
-        earner_party.map(|pid| crate::game_loop::command_channel::cc_or_party_members(world, pid));
+    let group: Option<Vec<i32>> = earner_party
+        .map(|pid| crate::game_loop::party::command_channel::cc_or_party_members(world, pid));
     let members: Vec<i32> = match group {
         Some(g) => g
             .into_iter()

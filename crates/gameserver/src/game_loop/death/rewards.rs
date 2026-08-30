@@ -181,7 +181,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
         // `RaidLootRightsInterval`; an ordinary ground drop by the killer for
         // 15 s. A raid without an active claim is owned by nobody.
         let (owner_id, protect_ticks) = if is_raid {
-            match crate::game_loop::command_channel::loot_rights_cc(world, npc_oid)
+            match crate::game_loop::party::command_channel::loot_rights_cc(world, npc_oid)
                 .and_then(|cc| world.command_channels.get(&cc))
             {
                 Some(cc) => (
@@ -292,7 +292,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
                 // inside `if (useVitalityRate())` — but it is *not* behind
                 // `Config.ENABLE_VITALITY`, which `consume_kill_vitality`
                 // early-returns on, so it has to sit out here.
-                crate::game_loop::pc_cafe::give_point(world, player_oid, exp);
+                crate::game_loop::character::pc_cafe::give_point(world, player_oid, exp);
             }
             continue;
         };
@@ -302,8 +302,9 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
         // level keys the level-gap multiplier and the cutoff. In a command
         // channel the *whole channel* shares (Java `Attackable` line 621:
         // `isInCommandChannel() ? cc.getMembers() : party.getMembers()`).
-        let cc_id = crate::game_loop::command_channel::cc_id_of_party(world, party_id);
-        let members = crate::game_loop::command_channel::cc_or_party_members(world, party_id);
+        let cc_id = crate::game_loop::party::command_channel::cc_id_of_party(world, party_id);
+        let members =
+            crate::game_loop::party::command_channel::cc_or_party_members(world, party_id);
         let share_of: std::collections::HashMap<i32, f64> = shares.iter().copied().collect();
         let mut party_dmg = 0.0;
         let mut rewarded: Vec<(i32, i32)> = Vec::new();
@@ -1223,7 +1224,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
         // wearer would keep an augmented weapon's stats and granted skills
         // after scattering it on the ground.
         if equipped {
-            crate::game_loop::options::remove_item_options(world, victim_oid, obj_id);
+            crate::game_loop::stats::options::remove_item_options(world, victim_oid, obj_id);
         }
         if let Some(inv) = world
             .objects

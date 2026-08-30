@@ -57,7 +57,7 @@ pub(super) fn settle_closing_period(world: &mut World, castle_id: i32) {
         }
         // Reserved-but-unused money goes back to the vault, untaxed.
         if crop.amount > 0 {
-            crate::game_loop::castle::add_to_treasury_no_tax(
+            crate::game_loop::siege::treasury::add_to_treasury_no_tax(
                 world,
                 castle_id,
                 crop.amount * crop.price,
@@ -71,7 +71,9 @@ pub(super) fn settle_closing_period(world: &mut World, castle_id: i32) {
 /// manor closes after this one. (Nothing is charged here — that happens at the
 /// MODIFIABLE → APPROVED step.)
 pub(super) fn gate_next_period_on_treasury(world: &mut World, castle_id: i32) {
-    if crate::game_loop::castle::treasury(world, castle_id) < manor_cost(world, castle_id, false) {
+    if crate::game_loop::siege::treasury::treasury(world, castle_id)
+        < manor_cost(world, castle_id, false)
+    {
         world.manor.set_seed_production(castle_id, true, Vec::new());
         world.manor.set_crop_procure(castle_id, true, Vec::new());
     }
@@ -113,7 +115,7 @@ pub(super) fn charge_next_period(world: &mut World, castle_id: i32) {
         (clan.warehouse.size() as i32 + slots) <= world.cfg.character.warehouse_slots_clan
     });
     let cost = manor_cost(world, castle_id, true);
-    if !fits && crate::game_loop::castle::treasury(world, castle_id) < cost {
+    if !fits && crate::game_loop::siege::treasury::treasury(world, castle_id) < cost {
         world.manor.set_seed_production(castle_id, true, Vec::new());
         world.manor.set_crop_procure(castle_id, true, Vec::new());
         notify_leader(
@@ -122,7 +124,7 @@ pub(super) fn charge_next_period(world: &mut World, castle_id: i32) {
             sm_ids::NOT_ENOUGH_FUNDS_IN_CLAN_WAREHOUSE_FOR_MANOR,
         );
     } else {
-        crate::game_loop::castle::add_to_treasury_no_tax(world, castle_id, -cost);
+        crate::game_loop::siege::treasury::add_to_treasury_no_tax(world, castle_id, -cost);
     }
 }
 
@@ -175,5 +177,5 @@ fn add_to_clan_warehouse(world: &mut World, clan_id: i32, item_id: i32, count: i
             .0
             .add_item(&data.item_data, object_id, item_id, count);
     }
-    crate::game_loop::warehouse::persist_clan_warehouse(world, clan_id);
+    crate::game_loop::commerce::warehouse::persist_clan_warehouse(world, clan_id);
 }

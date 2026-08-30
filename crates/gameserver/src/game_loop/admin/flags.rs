@@ -2,11 +2,11 @@
 //! in [`AdminFlags`](AdminFlags) on the GM or the
 //! targeted player.
 
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{nth_arg, send_sm_bare_to_client};
-use crate::game_loop::target;
 use crate::model::Player;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets;
@@ -126,7 +126,7 @@ pub(super) fn set_hidden(world: &mut World, client_id: u32, object_id: i32, hidd
     world.objects.add_components(&object_id, flags);
     if hidden {
         // Everyone with the GM selected loses the selection first.
-        crate::game_loop::target::release_target_holders(world, object_id);
+        crate::game_loop::combat::target::release_target_holders(world, object_id);
         super::helpers::broadcast_to_others(
             world,
             object_id,
@@ -397,7 +397,7 @@ fn show_ave_menu(world: &World, client_id: u32, page: i32) {
 /// packet — which is why `//para` used to change nothing a player could see
 /// (GitHub #10).
 pub(super) fn push_admin_visuals(world: &mut World, target: i32) {
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     let Some(cid) = crate::game_loop::helpers::client_for_player(world, target) else {
         return;
     };

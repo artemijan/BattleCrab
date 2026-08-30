@@ -6,7 +6,7 @@
 //!
 //! The manager here holds only state and queries; the packet orchestration
 //! (notify petitioner/responder/GMs, the HTML list) lives in
-//! `game_loop::petition`, because this port's managers can't reach the client
+//! `game_loop::moderation::petition`, because this port's managers can't reach the client
 //! sessions.
 
 use std::collections::HashMap;

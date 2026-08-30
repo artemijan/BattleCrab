@@ -113,17 +113,17 @@ imported or path-qualified (`party_room.rs` spells it `.map_or_else(String::new,
 
 | File | Line | Local name |
 |---|---|---|
-| `game_loop/crafting.rs` | 1183 | `name_of` |
-| `game_loop/party_room.rs` | 48 | `name_of` |
+| `game_loop/commerce/crafting.rs` | 1183 | `name_of` |
+| `game_loop/party/rooms.rs` | 48 | `name_of` |
 | `game_loop/duel.rs` | 887 | `player_name` |
 | `game_loop/clans/mod.rs` | 638 | `player_name` (already `pub(crate)`) |
-| `game_loop/command_channel.rs` | 50 | `name_of` |
-| `game_loop/sell_buffs.rs` | 549 | `name_of` |
+| `game_loop/party/command_channel.rs` | 50 | `name_of` |
+| `game_loop/commerce/sell_buffs.rs` | 549 | `name_of` |
 | `game_loop/party.rs` | 310 | `player_name` |
 | `game_loop/olympiad.rs` | 1352 | `player_name` |
 | `game_loop/admin/points.rs` | 380 | `name_of` |
-| `game_loop/four_sepulchers.rs` | 572 | `player_name` |
-| `game_loop/petition.rs` | 27 | `player_name` |
+| `game_loop/activities/four_sepulchers.rs` | 572 | `player_name` |
+| `game_loop/moderation/petition.rs` | 27 | `player_name` |
 | `game_loop/guard.rs` | 158 | `player_name` → `Option<String>` |
 
 **Action.** Keep `guard.rs`'s shape as the canonical one — it loses nothing and
@@ -311,7 +311,7 @@ helper** — they are three different game rules.
 
 ## Phase 4 — Parameter bundling ✅ **done** (`ee4250be`, `9a07ea71`, `b7b149bb`)
 
-- **4a** shipped as `game_loop::stat_ctx::with_stat_ctx`, a **closure-scoped**
+- **4a** shipped as `game_loop::stats::context::with_stat_ctx`, a **closure-scoped**
   borrow rather than a struct the caller holds: half the eight sites make
   several buff calls against one lookup, so a per-call helper would have turned
   one component lookup into N in the stat-recalc path. −244/+44.

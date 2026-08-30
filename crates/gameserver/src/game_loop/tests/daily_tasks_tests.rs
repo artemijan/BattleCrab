@@ -4,7 +4,8 @@
 use super::*;
 
 use crate::db::DbCommand;
-use crate::game_loop::{daily_tasks, vitality};
+use crate::game_loop::character::vitality;
+use crate::game_loop::upkeep::daily_tasks;
 use crate::model::{MAX_VITALITY_POINTS, Player};
 use crate::scheduler::ScheduledTask;
 

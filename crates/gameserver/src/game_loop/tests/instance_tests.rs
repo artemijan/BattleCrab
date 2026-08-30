@@ -81,7 +81,7 @@ fn npcs_are_visible_only_within_their_instance() {
 
 use crate::data::instance_data::{ExitType, InstanceTemplate, SpawnGroup, TemplateSpawn};
 use crate::game_loop::helpers::instance_of;
-use crate::game_loop::instances;
+use crate::game_loop::space::instances;
 use crate::model::door::Door;
 
 /// Register an NPC template so `spawn_npc_at` resolves it, then seed an

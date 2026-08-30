@@ -45,7 +45,7 @@ pub(crate) fn defence_after_shield(
     // `calcShldUse` reads the *attacker's* weapon: a bow raises the block rate
     // by 30 %, on skills exactly as on plain swings — Java takes the flag off
     // `attacker.getAttackType()` with no skill involved either way.
-    let ranged = crate::game_loop::ranged::attacker_is_ranged(world, attacker_oid);
+    let ranged = crate::game_loop::combat::ranged::attacker_is_ranged(world, attacker_oid);
     let (rate_roll, perfect_roll) = (world.roll(100), world.roll(100));
     match formulas::calc_shield_use(
         shield_rate,
@@ -800,8 +800,8 @@ pub(crate) fn physical_attack(
             // `weaponMod` is **70 with a `+pAtk+power` bonus term** for a
             // ranged weapon, 77 for melee — the difference between an
             // archer's skill and a swordsman's.
-            let ranged = crate::game_loop::ranged::is_ranged(
-                crate::game_loop::ranged::equipped_weapon_type(world, caster_oid)
+            let ranged = crate::game_loop::combat::ranged::is_ranged(
+                crate::game_loop::combat::ranged::equipped_weapon_type(world, caster_oid)
                     .unwrap_or_default(),
             );
             formulas::calc_physical_skill_damage(

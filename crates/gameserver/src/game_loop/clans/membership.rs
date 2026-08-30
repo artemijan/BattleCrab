@@ -397,7 +397,7 @@ pub(crate) fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, 
     ) {
         send_to_member(world, player_oid, pkt);
     }
-    crate::game_loop::player_info::broadcast_user_info(world, player_oid);
+    crate::game_loop::character::player_info::broadcast_user_info(world, player_oid);
 }
 
 /// Java `Clan.removeClanMember(objectId, clanJoinExpiryTime)`, narrowed to the
@@ -430,7 +430,7 @@ pub(crate) fn remove_clan_member(
     // no castle has id 0, which `circlet_of` maps to "no circlet".
     if world.cfg.character.remove_castle_circlets {
         let castle_id = world.clans.get(&clan_id).map_or(0, |c| c.castle_id);
-        crate::game_loop::castle::remove_circlet(world, member_oid, castle_id);
+        crate::game_loop::siege::treasury::remove_circlet(world, member_oid, castle_id);
     }
     let Some(clan) = world.clans.get_mut(&clan_id) else {
         return;
@@ -520,7 +520,7 @@ pub(crate) fn remove_clan_member(
             member_oid,
             server_packets::pledge_show_member_list_delete_all(),
         );
-        crate::game_loop::player_info::broadcast_user_info(world, member_oid);
+        crate::game_loop::character::player_info::broadcast_user_info(world, member_oid);
     }
     let _ = world.db.send(DbCommand::RemoveClanMember {
         char_id: member_oid,

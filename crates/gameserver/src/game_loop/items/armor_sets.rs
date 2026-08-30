@@ -340,7 +340,7 @@ pub(crate) fn refresh_armor_sets(world: &mut World, oid: i32) {
     // Re-pump the passives so a newly granted set passive lands in the stat
     // maps (and a dropped one leaves). This sends its own `UserInfo` when the
     // applied set moved.
-    crate::game_loop::passive_skills::refresh_conditioned_passives(world, oid);
+    crate::game_loop::stats::passive_skills::refresh_conditioned_passives(world, oid);
     if skills_changed {
         refresh_skill_list(world, oid);
     }

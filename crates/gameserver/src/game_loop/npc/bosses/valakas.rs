@@ -606,7 +606,7 @@ pub(crate) fn handle_remove_players(world: &mut World) {
 /// lair**, not everyone nearby: a player outside the zone sees nothing, which
 /// is the point of running it on the zone rather than the boss's region.
 fn broadcast_to_lair(world: &World, pkt: &[u8]) {
-    crate::game_loop::zones::broadcast_to_zone(world, BOSS_ZONE_ID, pkt);
+    crate::game_loop::space::zones::broadcast_to_zone(world, BOSS_ZONE_ID, pkt);
 }
 
 // ---------------------------------------------------------------------------

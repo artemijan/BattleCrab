@@ -38,7 +38,7 @@ use crate::world::World;
 
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::{broadcast_near_region_in, instance_of};
-use crate::game_loop::spawn_scripts;
+use crate::game_loop::npc::spawn_scripts;
 
 /// `AttackableThinkTaskManager.TASK_DELAY`: think once per second.
 pub(crate) const NPC_THINK_PERIOD: u64 = 10;

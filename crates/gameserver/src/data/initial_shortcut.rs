@@ -1,7 +1,7 @@
 //! Port of `data/xml/InitialShortcutData` — the shortcut panel a freshly
 //! created character starts with (`data/stats/initialShortcuts.xml`): global
 //! pages, per-classId pages, and the macro presets MACRO slots reference.
-//! Applied at character creation (`game_loop/lobby.rs`); persistence only —
+//! Applied at character creation (`game_loop/client/lobby.rs`); persistence only —
 //! there's no in-world session to echo packets to at that point.
 
 use std::collections::HashMap;

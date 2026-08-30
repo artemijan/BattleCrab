@@ -821,7 +821,7 @@ pub mod sm_ids {
     pub const YOU_CANNOT_CHAT_WHILE_PARTICIPATING_IN_THE_OLYMPIAD: i16 = 4172;
     // World chat (`handlers/chathandlers/ChatWorld`). The quota line's text
     // names 18:30 while this server resets at 06:30 UTC — that string is the
-    // client's, not a claim the port makes; see `game_loop::chat::world_chat`.
+    // client's, not a claim the port makes; see `game_loop::social::chat::world_chat`.
     pub const YOU_HAVE_SPENT_YOUR_WORLD_CHAT_QUOTA_FOR_THE_DAY: i16 = 4239;
     pub const YOU_CAN_USE_WORLD_CHAT_FROM_LV_S1: i16 = 4240;
     pub const YOU_HAVE_S1_SEC_UNTIL_YOU_ARE_ABLE_TO_USE_WORLD_CHAT: i16 = 4241;
@@ -994,7 +994,7 @@ pub mod sm_ids {
     pub const YOUR_VITALITY_IS_AT_MAXIMUM: i16 = 2314;
     pub const YOUR_VITALITY_HAS_INCREASED: i16 = 2315;
     /// Kept for the record only — deliberately **never sent** (it would fire on
-    /// nearly every monster kill); see `game_loop::vitality::set_vitality_points`.
+    /// nearly every monster kill); see `game_loop::character::vitality::set_vitality_points`.
     pub const YOUR_VITALITY_HAS_DECREASED: i16 = 2316;
     pub const YOUR_VITALITY_IS_FULLY_EXHAUSTED: i16 = 2317;
     // Transformation (G19): `ConditionPlayerCanTransform`'s cast refusals.

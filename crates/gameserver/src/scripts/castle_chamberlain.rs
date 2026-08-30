@@ -5,7 +5,7 @@
 //! teleport / buffer pages, the confirm + `set_func` flow), banishing
 //! foreigners, the siege-clan list, the manor entry, the product shop, and
 //! the lord's cloak + crown. The function *effects* live with their systems:
-//! regen in [`crate::game_loop::regen`], the revive exp-restore in the
+//! regen in [`crate::game_loop::stats::regen`], the revive exp-restore in the
 //! restart path, teleport/buffer right here.
 //!
 //! Fort status (`fort_status` / `chamberlain-28.html`) renders an empty list:
@@ -13,14 +13,14 @@
 //! `FortManager` can't produce — and this port has no fortresses, so the page
 //! is what Java shows with none loaded.
 
-use crate::game_loop::castle::{
+use crate::game_loop::helpers::format_amount;
+use crate::game_loop::manor::{castle_owner_clan_id, chamberlain_castle_id};
+use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::siege::treasury::{
     add_to_treasury_no_tax, banish_foreigners, castle_function, door_upgrade_ratio,
     remove_castle_function, set_door_upgrade, set_trap_upgrade, trap_upgrade_level, treasury,
     update_castle_function,
 };
-use crate::game_loop::helpers::format_amount;
-use crate::game_loop::manor::{castle_owner_clan_id, chamberlain_castle_id};
-use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
 use crate::model::castle::{
     CastleSide, FUNC_RESTORE_EXP, FUNC_RESTORE_HP, FUNC_RESTORE_MP, FUNC_SUPPORT, FUNC_TELEPORT,
@@ -856,7 +856,7 @@ fn cast_buff<'a>(ctx: &mut QuestCtx, tokens: &mut impl Iterator<Item = &'a str>)
         .unwrap_or(0.0);
     let file = if cost < npc_mp(ctx) {
         let (npc, player) = (ctx.npc, ctx.player);
-        crate::game_loop::support_magic::cast_from_npc(
+        crate::game_loop::npc::support_magic::cast_from_npc(
             ctx.world,
             npc,
             player,
@@ -912,7 +912,9 @@ fn buy<'a>(ctx: &mut QuestCtx, tokens: &mut impl Iterator<Item = &'a str>) -> Op
     }
     let list_id = tokens.next()?.parse::<i32>().ok()?;
     let (client_id, player, npc) = (ctx.client_id, ctx.player, ctx.npc);
-    crate::game_loop::shop::show_buy_window_taxed(ctx.world, client_id, player, npc, list_id, true);
+    crate::game_loop::commerce::shop::show_buy_window_taxed(
+        ctx.world, client_id, player, npc, list_id, true,
+    );
     None
 }
 

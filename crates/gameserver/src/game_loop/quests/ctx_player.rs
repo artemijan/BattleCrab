@@ -193,7 +193,7 @@ impl<'w> QuestCtx<'w> {
     }
 
     /// The village-master class transfer — routed through the G17 mechanic
-    /// (`game_loop::subclass::set_class_id`), so it moves the *active* slot:
+    /// (`game_loop::character::subclass::set_class_id`), so it moves the *active* slot:
     /// the base class only when the player is on it. Persisted immediately
     /// through the regular `StorePlayer` snapshot.
     pub fn set_class_id(&mut self, class_id: i32) {
@@ -204,7 +204,7 @@ impl<'w> QuestCtx<'w> {
         // would rewrite the character's *base* class if a quest transfer ran
         // while a subclass was active. The shared mechanic moves the active
         // slot only, and also does `rewardSkills` + the stat/UserInfo refresh.
-        crate::game_loop::subclass::set_class_id(self.world, self.player, class_id);
+        crate::game_loop::character::subclass::set_class_id(self.world, self.player, class_id);
         crate::game_loop::net::store_player_now(self.world, self.player);
     }
 

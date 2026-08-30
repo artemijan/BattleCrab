@@ -1,11 +1,11 @@
 //! `FloodProtector.ini` end-to-end: the dispatch gate, the GM bypass and the
 //! punishment arms, driven through `on_packet` rather than the counter's own
-//! API — the counter is unit-tested in `game_loop::flood`, what these pin is
+//! API — the counter is unit-tested in `game_loop::client::flood`, what these pin is
 //! that it is actually *wired* to every packet Java protects.
 
 use super::*;
 use crate::config::flood_protector::{FloodAction, FloodProtectorsConfig};
-use crate::game_loop::flood;
+use crate::game_loop::client::flood;
 use crate::network::client_packets::ex_opcodes as exop;
 use commons::config::PropertiesParser;
 
@@ -268,13 +268,17 @@ fn the_subclass_bypass_is_rate_limited() {
     // Case 5 (change class) targeting the class the character is already on:
     // Java answers with `SubClass_Current.htm`, so an allowed call always
     // replies — which makes "no reply" a clean signal that the gate fired.
-    crate::game_loop::subclass::handle_village_master_bypass(&mut world, 1, 5008, 9008, "5 0");
+    crate::game_loop::character::subclass::handle_village_master_bypass(
+        &mut world, 1, 5008, 9008, "5 0",
+    );
     assert!(
         !drain(&mut rx).is_empty(),
         "the first subclass bypass is answered"
     );
 
-    crate::game_loop::subclass::handle_village_master_bypass(&mut world, 1, 5008, 9008, "5 0");
+    crate::game_loop::character::subclass::handle_village_master_bypass(
+        &mut world, 1, 5008, 9008, "5 0",
+    );
     assert!(
         drain(&mut rx).is_empty(),
         "the second inside the interval is refused before any handling"

@@ -333,7 +333,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
     world.clans.insert(clan_id, clan);
     // `broadcastUserInfo(RELATION, CLAN)` — the full re-send stands in
     // (same G10 substitution for RelationChanged).
-    super::player_info::broadcast_user_info(world, leader_oid);
+    super::character::player_info::broadcast_user_info(world, leader_oid);
     Some(clan_id)
 }
 
@@ -371,7 +371,7 @@ pub(crate) fn set_clan_level(world: &mut World, clan_id: i32, level: i32) {
         }
         // `setPledgeClass` → `checkItemRestriction()`.
         crate::game_loop::items::check_item_restriction(world, oid);
-        super::player_info::broadcast_user_info(world, oid);
+        super::character::player_info::broadcast_user_info(world, oid);
     }
     // Java `Clan.changeLevel`: on reaching the siege min level the online leader
     // gains the siege/leader skills (`SiegeManager.addSiegeSkills(leader)`).
@@ -472,7 +472,7 @@ pub(crate) fn destroy_clan(world: &mut World, clan_id: i32) {
     });
     // broadcastUserInfo for the now clan-less online members.
     for oid in member_ids {
-        super::player_info::broadcast_user_info(world, oid);
+        super::character::player_info::broadcast_user_info(world, oid);
     }
 }
 

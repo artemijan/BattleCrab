@@ -77,7 +77,7 @@ impl QuestScript for OlyManager {
             }
             // The Olympiad equipment reward shop (a multisell, `EQUIPMENT_MULTISELL`).
             "showEquipmentReward" => {
-                crate::game_loop::multisell::separate_and_send(
+                crate::game_loop::commerce::multisell::separate_and_send(
                     ctx.world,
                     ctx.client_id,
                     ctx.player,

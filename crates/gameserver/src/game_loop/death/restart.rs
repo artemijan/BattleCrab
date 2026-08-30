@@ -195,7 +195,7 @@ fn restore_lost_exp(world: &mut World, player_oid: i32, percent: f64) {
     };
     if restored > 0 {
         // Java's `addExp` pushes the new exp to the client immediately.
-        crate::game_loop::player_info::broadcast_user_info(world, player_oid);
+        crate::game_loop::character::player_info::broadcast_user_info(world, player_oid);
     }
 }
 
@@ -214,7 +214,7 @@ fn restore_castle_exp(world: &mut World, player_oid: i32) {
     else {
         return;
     };
-    let Some(func) = crate::game_loop::castle::castle_function(
+    let Some(func) = crate::game_loop::siege::treasury::castle_function(
         world,
         castle_id,
         crate::model::castle::FUNC_RESTORE_EXP,
@@ -377,7 +377,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     // for the client's own skill duration.
     helpers::send_to_player(world, player_oid, server_packets::action_failed());
     crate::game_loop::skills::cast::abort_cast_when_untargeted(world, player_oid);
-    crate::game_loop::target::drop_target_notify(world, player_oid);
+    crate::game_loop::combat::target::drop_target_notify(world, player_oid);
     let Some(heading) = world
         .objects
         .get_component::<Position>(&player_oid)
@@ -392,7 +392,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     );
     // `decayMe`: DeleteObject to everyone who could see the old position
     // (also drops their dangling targets).
-    crate::game_loop::visibility::on_leave_world(world, player_oid);
+    crate::game_loop::space::visibility::on_leave_world(world, player_oid);
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.teleporting = true;
     }
@@ -470,18 +470,18 @@ fn on_teleported(world: &mut World, client_id: Option<u32>, object_id: i32) {
     }
     // `spawnMe`-equivalent visibility exchange at the new position.
     if let Some(cid) = client_id {
-        crate::game_loop::visibility::on_enter_world(world, cid, object_id);
+        crate::game_loop::space::visibility::on_enter_world(world, cid, object_id);
     }
     // Java `onTeleported` → `revalidateZone(true)`. Runs for a detached
     // character too: the destination's zone membership is what later decides
     // whether the shop is still allowed to be there.
-    crate::game_loop::zones::revalidate_zone(world, object_id, true);
+    crate::game_loop::space::zones::revalidate_zone(world, object_id, true);
     // `checkItemRestriction()`, immediately after the revalidation Java pairs
     // it with: this is how the zone- and instance-gated items come off when a
     // teleport takes the wearer out of the place that allowed them.
     crate::game_loop::items::check_item_restriction(world, object_id);
     if let (Some(pkt), Some(cid)) = (
-        crate::game_loop::player_info::user_info_packet(world, object_id),
+        crate::game_loop::character::player_info::user_info_packet(world, object_id),
         client_id,
     ) {
         helpers::send_to_client(world, cid, pkt);

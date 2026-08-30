@@ -123,7 +123,7 @@ fn the_tick_drinks_the_preferred_potion_when_low() {
 
     // Full pools: nothing is drunk, and the "out of potions" line stays quiet
     // because the player *carries* some.
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert_eq!(count_of(&world, HP_GOOD), 5, "no drink at full HP");
     assert!(
         !drain(&mut rx)
@@ -139,7 +139,7 @@ fn the_tick_drinks_the_preferred_potion_when_low() {
         .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .cur_hp = 500.0;
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert_eq!(count_of(&world, HP_GOOD), 4, "the preferred potion");
     assert_eq!(count_of(&world, HP_CHEAP), 5, "the fallback is untouched");
 
@@ -154,7 +154,7 @@ fn the_tick_drinks_the_preferred_potion_when_low() {
         .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .cur_hp = 500.0;
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert_eq!(count_of(&world, HP_CHEAP), 4, "falls through the list");
 
     // MP has its own, lower threshold: 50 % is fine, 20 % is not.
@@ -163,7 +163,7 @@ fn the_tick_drinks_the_preferred_potion_when_low() {
         .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .cur_mp = 250.0;
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert_eq!(
         count_of(&world, MP_POTION),
         5,
@@ -174,7 +174,7 @@ fn the_tick_drinks_the_preferred_potion_when_low() {
         .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .cur_mp = 100.0;
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert_eq!(count_of(&world, MP_POTION), 4, "20 % is below it");
 }
 
@@ -187,7 +187,7 @@ fn an_empty_bag_is_reported_every_tick() {
     drain(&mut rx);
 
     for _ in 0..2 {
-        crate::game_loop::auto_potions::tick(&mut world);
+        crate::game_loop::automation::potions::tick(&mut world);
         assert!(
             drain(&mut rx)
                 .iter()
@@ -211,7 +211,7 @@ fn death_removes_the_player_from_the_loop() {
         .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .dead = true;
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert!(
         !world.auto_potion_players.contains(&PLAYER),
         "dropped, not skipped"
@@ -223,7 +223,7 @@ fn death_removes_the_player_from_the_loop() {
         .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .dead = false;
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert!(!world.auto_potion_players.contains(&PLAYER));
 }
 
@@ -236,7 +236,7 @@ fn an_olympiad_competitor_is_dropped() {
     world.auto_potion_players.insert(PLAYER);
     world.olympiad.in_competition.insert(PLAYER);
 
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert!(!world.auto_potion_players.contains(&PLAYER));
 
     // With the flag on, the same player stays and is topped up.
@@ -247,7 +247,7 @@ fn an_olympiad_competitor_is_dropped() {
         .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .cur_hp = 100.0;
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert!(world.auto_potion_players.contains(&PLAYER), "kept");
     assert_eq!(count_of(&world, HP_GOOD), 4, "and drinks in the arena");
 }
@@ -287,7 +287,7 @@ fn cp_has_its_own_pool() {
         pv.cur_cp = 200.0;
     }
 
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert_eq!(count_of(&world, CP_POTION), 5, "full CP, no drink");
 
     world
@@ -295,7 +295,7 @@ fn cp_has_its_own_pool() {
         .get_component_mut::<PlayerVitals>(&PLAYER)
         .unwrap()
         .cur_cp = 50.0;
-    crate::game_loop::auto_potions::tick(&mut world);
+    crate::game_loop::automation::potions::tick(&mut world);
     assert_eq!(
         count_of(&world, CP_POTION),
         4,

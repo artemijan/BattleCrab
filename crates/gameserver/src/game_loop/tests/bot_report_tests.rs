@@ -4,8 +4,8 @@
 use super::*;
 use crate::config::bot_report::{BotReportConfig, BotReportPunishment};
 use crate::config::chat_filter::ChatFilterConfig;
-use crate::game_loop::bot_report::{self, DAILY_POINTS};
 use crate::game_loop::helpers::set_position;
+use crate::game_loop::moderation::bot_report::{self, DAILY_POINTS};
 use crate::model::components::TargetRef;
 use commons::config::PropertiesParser;
 
@@ -399,7 +399,7 @@ fn ban_chat_channels_gates_the_notice_not_the_block() {
     );
     let mut speaker_rx = ingame_player(&mut world, 1, 6020, 0, 0, 0);
     let mut bystander_rx = ingame_player(&mut world, 2, 6021, 100, 0, 0);
-    crate::game_loop::punishment::start_punishment(
+    crate::game_loop::moderation::punishment::start_punishment(
         &mut world,
         "6020".to_string(),
         PunishmentAffect::Character,

@@ -252,7 +252,7 @@ fn core_says_its_death_lines() {
 // `Core_Attacked` persistence (Java `Core.onSave` / spawn restore)
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::global_vars;
+use crate::game_loop::upkeep::global_vars;
 
 /// The first hit stamps `Core_Attacked`, and the value is written through to
 /// the DB rather than kept only in memory.

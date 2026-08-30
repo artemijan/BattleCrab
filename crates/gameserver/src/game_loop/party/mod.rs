@@ -115,10 +115,12 @@ pub(crate) fn broadcast_to_party(
     }
 }
 
+pub(crate) mod command_channel;
 mod invite;
 mod loot;
 mod membership;
 mod rewards;
+pub(in crate::game_loop) mod rooms;
 mod tactical;
 
 pub(crate) use invite::{

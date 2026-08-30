@@ -124,7 +124,7 @@ pub fn die(object_id: i32, opts: DieOptions) -> Vec<u8> {
 }
 
 /// `ChangeWaitType`'s `newMoveType` constants. Only the fake-death pair is
-/// used here; the sitting/standing pair is sent by `game_loop::sit_stand`.
+/// used here; the sitting/standing pair is sent by `game_loop::character::sit_stand`.
 pub mod wait_type {
     pub const _SITTING: i32 = 0;
     pub const _STANDING: i32 = 1;

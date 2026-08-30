@@ -60,7 +60,7 @@ pub(crate) fn summon_npc(
         .is_some_and(|t| t.type_name == "EffectPoint");
     for _ in 0..npc_count.max(1) {
         if is_effect_point {
-            crate::game_loop::effect_point::spawn_effect_point(
+            crate::game_loop::skills::effect_point::spawn_effect_point(
                 world,
                 target_oid,
                 npc_id,
@@ -70,7 +70,7 @@ pub(crate) fn summon_npc(
                 despawn_delay,
             );
         } else {
-            crate::game_loop::effect_point::spawn_plain_summon(
+            crate::game_loop::skills::effect_point::spawn_plain_summon(
                 world,
                 target_oid,
                 npc_id,

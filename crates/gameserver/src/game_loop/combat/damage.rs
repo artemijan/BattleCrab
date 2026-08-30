@@ -95,8 +95,8 @@ fn absorb_damage_to_hp(
         return;
     }
     // "Do not absorb if weapon is ranged" — a bow drains nothing.
-    if crate::game_loop::ranged::is_ranged(
-        crate::game_loop::ranged::equipped_weapon_type(world, attacker).unwrap_or_default(),
+    if super::ranged::is_ranged(
+        super::ranged::equipped_weapon_type(world, attacker).unwrap_or_default(),
     ) {
         return;
     }
@@ -375,7 +375,7 @@ pub(crate) fn npc_receive_damage(
     if world
         .objects
         .get_component::<crate::model::components::ServitorOf>(&npc_oid)
-        .is_some_and(|s| crate::game_loop::spawn_protection::is_protected(world, s.owner_object_id))
+        .is_some_and(|s| super::spawn_protection::is_protected(world, s.owner_object_id))
     {
         return;
     }
@@ -544,7 +544,11 @@ pub(crate) fn npc_receive_damage(
 
     // Same method's loot-privilege block: a big-enough command channel claims
     // (or refreshes) raid looting rights with this hit.
-    crate::game_loop::command_channel::on_raid_attacked_loot_rights(world, npc_oid, attacker_oid);
+    crate::game_loop::party::command_channel::on_raid_attacked_loot_rights(
+        world,
+        npc_oid,
+        attacker_oid,
+    );
 
     // Quest `onAttack` (Java `addAttackId` scripts, notified from
     // `Attackable.reduceCurrentHp` before any death processing). The acting
@@ -717,7 +721,7 @@ pub(crate) fn player_receive_damage_ex(
     // `PlayerStatus.reduceHp`'s `OFFLINE_MODE_NO_DAMAGE` gate: an unattended
     // shop cannot be hurt at all. Java's condition also re-checks the store
     // type, which is what `is_damage_immune` folds in.
-    if crate::game_loop::offline_trade::is_damage_immune(world, player_oid) {
+    if crate::game_loop::commerce::offline_trade::is_damage_immune(world, player_oid) {
         return;
     }
     // `PlayerStatus.reduceHp`: `if (!isHPConsumption) { if (awake)
@@ -733,15 +737,15 @@ pub(crate) fn player_receive_damage_ex(
     // `PlayerStatus.reduceHp`: being hit stands a seated victim up — and a
     // crafter/shopkeeper loses their store with it. This is why you cannot
     // sit-tank.
-    if crate::game_loop::sit_stand::is_sitting(world, player_oid) {
+    if crate::game_loop::character::sit_stand::is_sitting(world, player_oid) {
         if world
             .objects
             .get_component::<crate::model::Player>(&player_oid)
             .is_some_and(|p| p.store_type != 0)
         {
-            crate::game_loop::private_store::close_any_store(world, player_oid);
+            crate::game_loop::commerce::private_store::close_any_store(world, player_oid);
         }
-        crate::game_loop::sit_stand::stand_up(world, player_oid);
+        crate::game_loop::character::sit_stand::stand_up(world, player_oid);
     }
     let attacker_is_playable = !is_npc_oid(attacker_oid);
     // `PlayerStatus.reduceHp` wraps its whole attacker-aware block — the CP
@@ -803,7 +807,7 @@ pub(crate) fn player_receive_damage_ex(
     // `ON_CREATURE_HP_CHANGE` listener forcing a stat recompute. This is the
     // *down* direction, and the one that has to be immediate: it is what makes
     // Final Frenzy pay off in the fight that triggered it.
-    crate::game_loop::passive_skills::refresh_on_hp_change(world, player_oid);
+    crate::game_loop::stats::passive_skills::refresh_on_hp_change(world, player_oid);
 
     // Victim-side damage message + stance. Self-inflicted damage says nothing
     // (see `attacker_is_other`) — the environmental sources send their own

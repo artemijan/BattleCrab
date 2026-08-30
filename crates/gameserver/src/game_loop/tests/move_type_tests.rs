@@ -14,7 +14,7 @@ use crate::model::movement::MoveData;
 use crate::model::skill::{SkillEffect, StatModifierEffect};
 use crate::model::stats::{MoveType, Stat, StatModifierType};
 
-use crate::game_loop::regen::{move_type_of, movement_regen_multiplier, run_regen_tick};
+use crate::game_loop::stats::regen::{move_type_of, movement_regen_multiplier, run_regen_tick};
 
 const PLAYER: i32 = 4101;
 const CID: u32 = 1;

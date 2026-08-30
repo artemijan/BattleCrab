@@ -744,7 +744,9 @@ pub(crate) fn passes_affect_object(
                     .get_component::<crate::model::npc::Npc>(&candidate)
                     .and_then(|n| world.data.npc_data.get(n.npc_id))
                     .is_some_and(|t| t.race == Some(crate::enums::Race::Undead.ordinal()))
-                && crate::game_loop::target::is_auto_attackable(world, caster_oid, candidate)
+                && crate::game_loop::combat::target::is_auto_attackable(
+                    world, caster_oid, candidate,
+                )
         }
     }
 }
@@ -799,7 +801,7 @@ fn not_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
         // takes: a monster, a door, a siege object. Routed through the general
         // predicate rather than the player-scoped one, which answers `false`
         // for anything that is not a player.
-        return crate::game_loop::target::is_auto_attackable(world, caster_oid, candidate);
+        return crate::game_loop::combat::target::is_auto_attackable(world, caster_oid, candidate);
     }
     if caster == target {
         return false;

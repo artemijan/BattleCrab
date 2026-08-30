@@ -67,7 +67,7 @@ fn npc_restricted_list_is_refused_without_an_npc() {
     let mut rx = ingame_player(&mut world, 1, 8802, 0, 0, 0);
     drain(&mut rx);
 
-    crate::game_loop::multisell::separate_and_send(
+    crate::game_loop::commerce::multisell::separate_and_send(
         &mut world,
         1,
         8802,
@@ -977,7 +977,7 @@ fn the_siege_headquarters_ignores_a_lethal_blow() {
 
 use crate::data::spawn_data::{NpcSpawnDef, SpawnGroup, SpawnTemplate};
 use crate::game_loop;
-use crate::game_loop::spawn_scripts;
+use crate::game_loop::npc::spawn_scripts;
 
 /// The dist really does ship the two spawn-script families this slice serves.
 #[test]
@@ -1170,7 +1170,7 @@ fn an_out_of_phase_respawn_is_refused() {
     let template_idx = world.data.spawn_data.spawns.len() - 1;
 
     // Which half is in phase depends on the wall clock, so ask it.
-    let night = crate::game_loop::game_time::is_night_at(commons::util::now_millis());
+    let night = crate::game_loop::upkeep::game_time::is_night_at(commons::util::now_millis());
     let (in_phase_group, out_of_phase_group) = if night { (1, 0) } else { (0, 1) };
     let (in_phase_mob, out_of_phase_mob) = if night {
         (NIGHT_MOB, DAY_MOB)
@@ -1448,7 +1448,7 @@ fn village_guards_stroll_around_their_post() {
 
 // --- The Mammon economy: inventory-only (`exc_multisell`) exchange windows ---
 
-use crate::game_loop::multisell::handle_multi_sell_choose;
+use crate::game_loop::commerce::multisell::handle_multi_sell_choose;
 use crate::model::inventory::Inventory;
 
 /// `MultiSellChoose` body, with the enchant level the client echoes back for an

@@ -14,7 +14,7 @@ use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
 use super::send_message;
-use crate::game_loop::target;
+use crate::game_loop::combat::target;
 
 /// `AdminSkill`'s `//add_skill <id> [level]` — grant a skill to the targeted
 /// player (or self) and refresh their skill list.
@@ -44,7 +44,7 @@ pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32,
     // Java's `addSkill` applies a passive's effects as it is learned. Without
     // this a `//add_skill`-ed passive sat inert until the next equip change or
     // relog, which makes testing one look like the skill is broken.
-    super::super::passive_skills::refresh_conditioned_passives(world, target);
+    super::super::stats::passive_skills::refresh_conditioned_passives(world, target);
     refresh_skill_list(world, target);
     // Java tells both sides by name, and refreshes the *admin's* skill list too
     // (`activeChar.sendSkillList()`) — harmless when the GM granted to someone
@@ -83,7 +83,7 @@ pub(super) fn admin_remove_skill(world: &mut World, client_id: u32, object_id: i
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
         book.0.remove(&skill_id);
     }
-    super::super::passive_skills::refresh_conditioned_passives(world, target);
+    super::super::stats::passive_skills::refresh_conditioned_passives(world, target);
     refresh_skill_list(world, target);
     send_message(world, client_id, &format!("Removed skill {skill_id}."));
     show_char_skills(world, client_id, target);

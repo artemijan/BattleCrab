@@ -223,7 +223,7 @@ fn disabling_the_teleport_offset_lands_on_the_exact_point() {
 /// (`Attackable.getHating`'s `isSpawnProtected` arm).
 #[test]
 fn spawn_protection_hides_a_new_arrival_until_they_act() {
-    use crate::game_loop::spawn_protection;
+    use crate::game_loop::combat::spawn_protection;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -252,7 +252,7 @@ fn spawn_protection_hides_a_new_arrival_until_they_act() {
 /// The window is a *ceiling*, not a duration: it also lapses on its own.
 #[test]
 fn spawn_protection_expires_on_its_own_clock() {
-    use crate::game_loop::spawn_protection;
+    use crate::game_loop::combat::spawn_protection;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
 
@@ -270,7 +270,7 @@ fn spawn_protection_expires_on_its_own_clock() {
 /// arming with `if (Config.PLAYER_SPAWN_PROTECTION > 0)`.
 #[test]
 fn a_zero_spawn_protection_never_arms() {
-    use crate::game_loop::spawn_protection;
+    use crate::game_loop::combat::spawn_protection;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     world.cfg.character.player_spawn_protection = 0;
@@ -872,7 +872,7 @@ fn forbidden_names_are_matched_as_substrings() {
 /// `handle_character_create` itself, with Java's `REASON_INCORRECT_NAME` (4).
 #[test]
 fn character_create_refuses_a_forbidden_name() {
-    use crate::game_loop::lobby::handle_character_create;
+    use crate::game_loop::client::lobby::handle_character_create;
     use crate::network::server_packets::opcodes;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();

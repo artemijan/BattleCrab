@@ -422,7 +422,8 @@ fn admin_instance_detail_lists_live_instances() {
             doors: vec![],
             groups: vec![],
         });
-    let iid = crate::game_loop::instances::create_from_template(&mut world, 900).expect("template");
+    let iid = crate::game_loop::space::instances::create_from_template(&mut world, 900)
+        .expect("template");
 
     let mut rx = ingame_player_access(&mut world, 1, 6440, 100);
     drain(&mut rx);
@@ -3582,7 +3583,7 @@ fn admin_transform_refused_in_water() {
     // revalidation writes, rather than walking the zone grid itself.
     zones::revalidate_zone(&mut world, 8925, true);
     assert!(
-        crate::game_loop::water::is_drowning_task_active(&world, 8925),
+        crate::game_loop::space::water::is_drowning_task_active(&world, 8925),
         "fixture must actually be drowning for this to mean anything"
     );
     drain(&mut rx);
@@ -5085,7 +5086,7 @@ fn admin_invis_menu_hides_and_reserves_panel() {
     );
 
     // While hidden, a UserInfo broadcast must not leak CharInfo to others.
-    crate::game_loop::player_info::broadcast_user_info(&mut world, 7101);
+    crate::game_loop::character::player_info::broadcast_user_info(&mut world, 7101);
     assert!(
         !drain(&mut obs_rx)
             .iter()
@@ -5782,7 +5783,7 @@ fn tradeoff_refuses_trade_requests() {
     // 7902 asks 7901 to trade — refused, no pending request lands.
     let mut body = Vec::new();
     body.extend_from_slice(&7901i32.to_le_bytes());
-    crate::game_loop::trade::handle_request(&mut world, 2, &body);
+    crate::game_loop::commerce::trade::handle_request(&mut world, 2, &body);
     assert!(
         !world
             .objects
@@ -6631,10 +6632,11 @@ fn admin_instancedestroy_warns_the_players_inside() {
             doors: vec![],
             groups: vec![],
         });
-    let iid = crate::game_loop::instances::create_from_template(&mut world, 902).expect("template");
+    let iid = crate::game_loop::space::instances::create_from_template(&mut world, 902)
+        .expect("template");
     let mut gm = ingame_player_access(&mut world, 1, 6441, 100);
     let mut inhabitant = ingame_player_access(&mut world, 2, 6442, 0);
-    crate::game_loop::instances::enter(&mut world, 6442, iid);
+    crate::game_loop::space::instances::enter(&mut world, 6442, iid);
     drain(&mut gm);
     drain(&mut inhabitant);
 

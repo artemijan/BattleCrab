@@ -148,8 +148,8 @@ pub struct World {
     /// *detached*), keyed by player object id. They are the only players in
     /// `objects` with no entry in `clients`, so the visibility scans — which
     /// enumerate players through `clients` — read this as a second source of
-    /// subjects. See `game_loop::offline_trade`.
-    pub offline_traders: HashMap<i32, crate::game_loop::offline_trade::OfflineTrader>,
+    /// subjects. See `game_loop::commerce::offline_trade`.
+    pub offline_traders: HashMap<i32, crate::game_loop::commerce::offline_trade::OfflineTrader>,
     /// Every in-world object — players and NPCs — as entities in one
     /// `bevy_ecs` world, keyed by object id (stage 2 phase 6; the `Player`/
     /// `Npc` residual-core components are the kind markers). The `InGame`
@@ -189,7 +189,7 @@ pub struct World {
     /// Running tally of minions placed by the current spawn pass, so
     /// `spawn_all`'s reported count matches the world's NPC population.
     /// Per-effect-zone next-fire tick, keyed by index into
-    /// `data.zone_data.zones` — see [`crate::game_loop::effect_zones`].
+    /// `data.zone_data.zones` — see [`crate::game_loop::space::effect_zones`].
     pub effect_zone_next_tick: HashMap<usize, u64>,
     /// The shadow items with a mana beat already in flight, keyed by object id
     /// and valued with the tick that beat is due to fire — Java's per-`Item`
@@ -205,7 +205,7 @@ pub struct World {
     /// it answers a reader's click on the link. Held world-side (not on the
     /// item) because it is session state, not saved item state; the publisher
     /// id lets it die with that player's logout, as Java's flag does with the
-    /// `Item` instance. See [`crate::game_loop::chat`].
+    /// `Item` instance. See [`crate::game_loop::social::chat`].
     pub published_items: HashMap<i32, i32>,
     /// World-chat reuse: speaker object id → the unix-millis instant at which
     /// their next line is allowed (Java `ChatWorld`'s static `REUSE` map).
@@ -229,7 +229,7 @@ pub struct World {
     pub mammon_spawns: HashMap<i32, i32>,
     /// Four Sepulchers per-hall run state (progress, entry clock, tracked
     /// wave spawns).
-    pub four_sepulchers: crate::game_loop::four_sepulchers::FsState,
+    pub four_sepulchers: crate::game_loop::activities::four_sepulchers::FsState,
     pub pending_boss_spawns: Vec<(usize, usize, usize)>,
     /// npc id → its `dbSave` spawn definition, for the death/respawn writes
     /// (Java's `DBSpawnManager._spawns`).
@@ -414,8 +414,8 @@ pub struct World {
     /// **Sparse — an absent key means full stock.** Java pre-fills every
     /// product at construction, but "unseen" and "untouched since the last
     /// restock" are the same state, so there is nothing to pre-fill; see
-    /// [`crate::game_loop::shop`].
-    pub buy_list_stock: HashMap<(i32, i32), crate::game_loop::shop::ProductStock>,
+    /// [`crate::game_loop::commerce::shop`].
+    pub buy_list_stock: HashMap<(i32, i32), crate::game_loop::commerce::shop::ProductStock>,
 
     /// Per-castle **hired** mercenaries — the same table's `isHired = 1` rows,
     /// posted by the owning clan with tickets between sieges and spawned
@@ -477,7 +477,7 @@ pub struct World {
 
     /// Java `BotReportTable`'s three registries — who reported whom, each
     /// reporter's daily point budget, and the per-address cooldown.
-    pub bot_reports: crate::game_loop::bot_report::BotReportTable,
+    pub bot_reports: crate::game_loop::moderation::bot_report::BotReportTable,
 
     /// The in-memory GM petition queue (G31).
     pub petitions: crate::model::petition::PetitionManager,
@@ -538,7 +538,7 @@ pub struct World {
     ///
     /// A flat string map on purpose: Java's is the same, and its keys are
     /// composed at the call site (`"FourSepulchers" + npcId`). Read through
-    /// [`crate::game_loop::global_vars`], which owns the typed accessors and
+    /// [`crate::game_loop::upkeep::global_vars`], which owns the typed accessors and
     /// the write-through to the DB.
     pub global_vars: HashMap<String, String>,
     pub duels: HashMap<u32, crate::game_loop::combat::duel::Duel>,
@@ -694,7 +694,7 @@ impl World {
             mercenaries: HashMap::new(),
             zone_debug_items: Vec::new(),
             olympiad: crate::model::olympiad::OlympiadState::default(),
-            bot_reports: crate::game_loop::bot_report::BotReportTable::default(),
+            bot_reports: crate::game_loop::moderation::bot_report::BotReportTable::default(),
             instances: crate::model::instance::InstanceManager::default(),
             events: crate::model::event::EventManager::default(),
             lottery: crate::model::lottery::LotteryState::default(),

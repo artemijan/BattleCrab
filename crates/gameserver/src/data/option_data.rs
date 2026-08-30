@@ -11,7 +11,7 @@
 //! Of the ~19 400 option ids this dist's `Variations.xml` can actually roll,
 //! about 80 % are stat-only; the rest carry a skill. This loader keeps all of
 //! it; what the runtime *applies* is documented in
-//! [`crate::game_loop::options`].
+//! [`crate::game_loop::stats::options`].
 
 use std::collections::HashMap;
 

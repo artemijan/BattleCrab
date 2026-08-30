@@ -1,7 +1,7 @@
 //! Recipe / crafting packets (G15.7). Ports of `serverpackets/RecipeBookItemList`,
 //! `RecipeItemMakeInfo`, `RecipeShopManageList`, `RecipeShopSellList`,
 //! `RecipeShopItemInfo`, `RecipeShopMsg`. The runtime flow lives in
-//! `game_loop/crafting.rs`.
+//! `game_loop/commerce/crafting.rs`.
 
 use commons::network::PacketWriter;
 

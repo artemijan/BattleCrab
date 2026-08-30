@@ -857,7 +857,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
 
     // With spice in the bag the duration check consumes one and feeds.
     give_test_item(&mut world, 5001, 6643, 1);
-    crate::game_loop::tamed_beast::handle_duration(&mut world, beast_oid);
+    crate::game_loop::servitor::tamed_beast::handle_duration(&mut world, beast_oid);
     assert_eq!(item_count(&world, 5001, 6643), 0, "one spice consumed");
     assert_eq!(
         world
@@ -870,7 +870,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
     );
 
     // Pouch empty and past the newcomer grace: the beast leaves.
-    crate::game_loop::tamed_beast::handle_duration(&mut world, beast_oid);
+    crate::game_loop::servitor::tamed_beast::handle_duration(&mut world, beast_oid);
     assert_eq!(count_npcs(&mut world, TAMED_FIGHTER), 0, "starved out");
 }
 
@@ -1068,10 +1068,10 @@ fn fs_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         mother_tree: None,
     });
     for id in [
-        crate::game_loop::four_sepulchers::CONQUEROR_MANAGER,
-        crate::game_loop::four_sepulchers::MYSTERIOUS_CHEST,
-        crate::game_loop::four_sepulchers::KEY_CHEST,
-        crate::game_loop::four_sepulchers::TELEPORTER,
+        crate::game_loop::activities::four_sepulchers::CONQUEROR_MANAGER,
+        crate::game_loop::activities::four_sepulchers::MYSTERIOUS_CHEST,
+        crate::game_loop::activities::four_sepulchers::KEY_CHEST,
+        crate::game_loop::activities::four_sepulchers::TELEPORTER,
         18120, // wave rewarder
         25346, // Conqueror boss
     ] {
@@ -1120,7 +1120,7 @@ fn fs_party(world: &mut World, oids: [i32; 4]) -> Vec<UnboundedReceiver<bytes::B
         give_test_item(
             world,
             oid,
-            crate::game_loop::four_sepulchers::ENTRANCE_PASS,
+            crate::game_loop::activities::four_sepulchers::ENTRANCE_PASS,
             1,
         );
     }
@@ -1135,7 +1135,7 @@ fn fs_party(world: &mut World, oids: [i32; 4]) -> Vec<UnboundedReceiver<bytes::B
 /// 3-minute chest and 60-minute bell are armed.
 #[test]
 fn four_sepulchers_admission_and_first_wave() {
-    use crate::game_loop::four_sepulchers as fs;
+    use crate::game_loop::activities::four_sepulchers as fs;
     let (mut world, _db, _l) = fs_world();
     add_test_npc(
         &mut world,
@@ -1210,7 +1210,7 @@ fn four_sepulchers_admission_and_first_wave() {
 /// goblet, and the exit teleporter rises from the corpse.
 #[test]
 fn four_sepulchers_boss_pays_goblets() {
-    use crate::game_loop::four_sepulchers as fs;
+    use crate::game_loop::activities::four_sepulchers as fs;
     let (mut world, _db, _l) = fs_world();
     let _rxs = fs_party(&mut world, [5001, 5002, 5003, 5004]);
     // Stand the party in the hall.
@@ -1376,8 +1376,8 @@ fn a_summons_kill_points_the_avenger_at_the_summon() {
 /// it is asserted rather than assumed.
 #[test]
 fn the_sepulcher_entry_stamps_round_trip_through_global_variables() {
-    use crate::game_loop::four_sepulchers as fs;
-    use crate::game_loop::global_vars;
+    use crate::game_loop::activities::four_sepulchers as fs;
+    use crate::game_loop::upkeep::global_vars;
 
     let (mut world, _db, _l) = quest_test_world();
     let stamp = 1_700_000_000_000i64;
@@ -1435,13 +1435,14 @@ fn tamed_beast_buffs_its_underbuffed_owner() {
         world.data.skill_data.insert_for_test(s);
     }
     let _rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
-    let beast_oid =
-        crate::game_loop::tamed_beast::spawn_tamed_beast(&mut world, TAMED, 5001, 2188, 30, 0, 0)
-            .expect("beast spawned");
+    let beast_oid = crate::game_loop::servitor::tamed_beast::spawn_tamed_beast(
+        &mut world, TAMED, 5001, 2188, 30, 0, 0,
+    )
+    .expect("beast spawned");
 
     // Unbuffed owner: 0 of 2 template buffs → the beast starts a cast.
     world.force_roll(0); // the random pick
-    crate::game_loop::tamed_beast::handle_buff_check(&mut world, beast_oid);
+    crate::game_loop::servitor::tamed_beast::handle_buff_check(&mut world, beast_oid);
     assert!(
         world.objects.has_component::<Casting>(&beast_oid),
         "an under-buffed tamer gets a buff cast"
@@ -1459,7 +1460,7 @@ fn tamed_beast_buffs_its_underbuffed_owner() {
         }]),
     );
     world.force_roll(0);
-    crate::game_loop::tamed_beast::handle_buff_check(&mut world, beast_oid);
+    crate::game_loop::servitor::tamed_beast::handle_buff_check(&mut world, beast_oid);
     assert!(
         !world.objects.has_component::<Casting>(&beast_oid),
         "a sufficiently buffed tamer is left alone"

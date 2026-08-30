@@ -4,7 +4,7 @@
 //! multipliers `Attackable.doItemDrop`/the XP path apply to a premium killer.
 //!
 //! It also carries the **PC-café (PA) point** block, which the same ini owns —
-//! `game_loop::pc_cafe` is the subsystem that reads it.
+//! `game_loop::character::pc_cafe` is the subsystem that reads it.
 //!
 //! Only the keys the ported subsystems read are loaded. Not here (no backing
 //! subsystem yet): `PremiumOnlyFishing` (G32).

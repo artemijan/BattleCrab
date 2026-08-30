@@ -11,7 +11,7 @@ use super::opcodes;
 /// Java computes the number in the *constructor*, from the player it is handed:
 /// `level < WORLD_CHAT_MIN_LEVEL ? 0 : max(points - used, 0)`. Taking the
 /// already-resolved count as an argument keeps that arithmetic in one place
-/// (`game_loop::chat::world_chat_points_left`) instead of duplicating the
+/// (`game_loop::social::chat::world_chat_points_left`) instead of duplicating the
 /// level check at each of the three call sites.
 pub fn ex_world_chat_cnt(points_left: i32) -> Vec<u8> {
     let mut w = ex(opcodes::EX_WORLD_CHAT_CNT);

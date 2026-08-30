@@ -13,9 +13,9 @@
 //! feeds the movement pipeline's geodata exemptions and the packet fly
 //! fields.
 
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
-use crate::game_loop::target;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::Player;
 use crate::model::components::Collision;
@@ -141,7 +141,7 @@ pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_ty
     start_feed(world, target, inherited);
     crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
     broadcast_ride(world, target, true);
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     // The visual list has to follow *after* the client has rebuilt the actor
     // around the mount model, or it is dropped with the old one — Java's
     // `updateAbnormalVisualEffects` schedules it 50 ms out for the same reason.
@@ -254,7 +254,7 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
         // zone flag (`Player.isInWater()` returns `_taskWater != null`). They
         // usually agree, but with `AllowWater = False` the task never starts,
         // and Java then refuses a high-altitude dismount even in open sea.
-        let swimming = crate::game_loop::water::is_drowning_task_active(world, target);
+        let swimming = crate::game_loop::space::water::is_drowning_task_active(world, target);
         let client = super::helpers::client_for_player(world, target);
         if !swimming && pos.z > 10000 {
             if let Some(cid) = client {
@@ -316,7 +316,7 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
     super::transforms::restore_class_collision(world, target);
     crate::game_loop::helpers::recalculate_player_stats_and_vitals(world, target);
     broadcast_ride(world, target, false);
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     // Same on the way down, and this leg is a *fix*, not a port: Java's
     // `dismount()` sends `Ride` + `broadcastUserInfo()` and never refreshes the
     // visuals, so a GM who dismounts stays invisible with no STEALTH glow and

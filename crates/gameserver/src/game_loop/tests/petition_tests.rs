@@ -4,7 +4,7 @@
 use super::*;
 
 use crate::db::DbCommand;
-use crate::game_loop::petition;
+use crate::game_loop::moderation::petition;
 use crate::model::Player;
 use crate::model::petition::PetitionState;
 

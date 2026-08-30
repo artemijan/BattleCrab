@@ -60,7 +60,7 @@ pub(crate) fn consume_kill_vitality(
     if is_boss && !world.cfg.character.raidboss_use_vitality {
         return;
     }
-    let delta = crate::game_loop::vitality::kill_vitality_delta(
+    let delta = crate::game_loop::character::vitality::kill_vitality_delta(
         world,
         t.level,
         t.exp,
@@ -68,7 +68,9 @@ pub(crate) fn consume_kill_vitality(
         exp,
         is_boss,
     );
-    crate::game_loop::vitality::update_vitality_points(world, player_oid, delta, true, false);
+    crate::game_loop::character::vitality::update_vitality_points(
+        world, player_oid, delta, true, false,
+    );
     // (Java's `givePcCafePoint` sits beside this call in `Attackable.onKill`,
     // but outside the vitality-enabled guard above — see the two call sites.)
 }
@@ -97,8 +99,8 @@ pub(crate) fn add_exp_and_sp(
         // Java reads the exp and sp multipliers separately; with BONUS_EXP /
         // BONUS_SP unmodelled they are the same value today.
         (
-            crate::game_loop::vitality::exp_bonus_multiplier(world, player_oid),
-            crate::game_loop::vitality::exp_bonus_multiplier(world, player_oid),
+            crate::game_loop::character::vitality::exp_bonus_multiplier(world, player_oid),
+            crate::game_loop::character::vitality::exp_bonus_multiplier(world, player_oid),
         )
     } else {
         (1.0, 1.0)
@@ -226,7 +228,7 @@ fn reduce_karma_for_exp(world: &mut World, player_oid: i32, exp: i64) {
     // The karma flag and name colour other clients draw come off the
     // reputation sign, so a PK crossing back to 0 has to be redrawn.
     crate::game_loop::combat::pvp::update_pvp_title_and_color(world, player_oid, false);
-    crate::game_loop::player_info::broadcast_user_info(world, player_oid);
+    crate::game_loop::character::player_info::broadcast_user_info(world, player_oid);
 }
 
 /// Java `Formulas.calculateKarmaLost(player, finalExp)`:
@@ -291,7 +293,7 @@ fn apply_level_change(world: &mut World, player_oid: i32, old_level: i32, new_le
         }
         return;
     }
-    crate::game_loop::player_info::send_user_info(world, player_oid);
+    crate::game_loop::character::player_info::send_user_info(world, player_oid);
 }
 
 /// `PlayableStat.LAST_PLEDGE_REPUTATION_LEVEL` — the highest level this
@@ -479,7 +481,8 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     // Java `PlayerStat.addLevel` → `PartySmallWindowUpdate(this, true)`.
     crate::game_loop::party::notify_party_all(world, player_oid);
     if let Some(client_id) = helpers::client_for_player(world, player_oid)
-        && let Some(user_info) = crate::game_loop::player_info::user_info_packet(world, player_oid)
+        && let Some(user_info) =
+            crate::game_loop::character::player_info::user_info_packet(world, player_oid)
     {
         if leveled_up {
             helpers::send_sm_bare_to_client(world, client_id, sm_ids::YOUR_LEVEL_HAS_INCREASED);
@@ -569,7 +572,7 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
         // Memory-first: the grant already landed in the `SkillBook`; it persists
         // on the next flush. `updateShortCuts` — panel slots holding the skill
         // pick up the level (also in-memory).
-        crate::game_loop::shortcuts::update_skill_shortcuts(world, player_oid, id, lvl);
+        crate::game_loop::client::shortcuts::update_skill_shortcuts(world, player_oid, id, lvl);
     }
     if world.cfg.character.auto_learn_skills
         && let Some(client_id) = helpers::client_for_player(world, player_oid)
@@ -668,12 +671,12 @@ pub(crate) fn check_player_skills(world: &mut World, player_oid: i32) {
     }
     for &(skill_id, action) in &changes {
         match action {
-            Some(new_level) => crate::game_loop::shortcuts::update_skill_shortcuts(
+            Some(new_level) => crate::game_loop::client::shortcuts::update_skill_shortcuts(
                 world, player_oid, skill_id, new_level,
             ),
-            None => {
-                crate::game_loop::shortcuts::remove_skill_shortcuts(world, player_oid, skill_id)
-            }
+            None => crate::game_loop::client::shortcuts::remove_skill_shortcuts(
+                world, player_oid, skill_id,
+            ),
         }
     }
     recompute_passives_after_skill_change(world, player_oid, &changes);
@@ -696,7 +699,7 @@ fn recompute_passives_after_skill_change(
         .filter_map(|&(id, action)| action.is_none().then_some(id))
         .collect();
     if !removed.is_empty() {
-        crate::game_loop::stat_ctx::with_stat_ctx(world, player_oid, |ctx| {
+        crate::game_loop::stats::context::with_stat_ctx(world, player_oid, |ctx| {
             for &skill_id in &removed {
                 ctx.remove(skill_id);
             }
@@ -704,7 +707,7 @@ fn recompute_passives_after_skill_change(
     }
     // Re-fold conditioned passives from the corrected book (handles downgrades),
     // component-only — no send.
-    crate::game_loop::passive_skills::recompute_conditioned_passives(world, player_oid);
+    crate::game_loop::stats::passive_skills::recompute_conditioned_passives(world, player_oid);
 }
 
 // ---------------------------------------------------------------------------

@@ -132,7 +132,7 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 /// scope, so the residue is now entirely recorded rather than unexamined.
 /// → 144 with the `General.ini` fall-damage cluster: `SafeFallHeight` had
 /// been parked on "needs fall damage", and fall damage now exists
-/// (`game_loop::falling`), so the effect is registered against `Stat::Fall`
+/// (`game_loop::space::falling`), so the effect is registered against `Stat::Fall`
 /// and Acrobatics (173) works. Reachable 975 → 974. `StatUp` (Territory
 /// War) is the only learnable-source name left, and that one is
 /// off-chronicle for good.
@@ -161,7 +161,7 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 /// (Clan Gate), `Recovery` (**empty in Java** — the whole body of its
 /// `instant()` is commented out, so registering it is the honest answer) and
 /// `VitalityPointsRate`. That last one overturned a note in the port:
-/// `game_loop::vitality` said no skill on this dist granted
+/// `game_loop::character::vitality` said no skill on this dist granted
 /// `VITALITY_CONSUME_RATE`, and skill 2580 does — its carrier herbs drop from
 /// the Schuttgart golems this dist spawns. Reachable 974 → 900.
 ///

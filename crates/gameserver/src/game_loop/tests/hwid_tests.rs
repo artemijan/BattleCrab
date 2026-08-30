@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::game_loop::punishment;
+use crate::game_loop::moderation::punishment;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
 use crate::network::client_packets::HardwareInfo;
 

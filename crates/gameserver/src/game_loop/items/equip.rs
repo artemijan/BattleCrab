@@ -203,9 +203,9 @@ fn apply_paperdoll_change(world: &mut World, client_id: u32, object_id: i32, cha
             .get_component::<Inventory>(&object_id)
             .is_some_and(|inv| inv.paperdoll_slot_of(item_oid).is_some());
         if equipped {
-            crate::game_loop::options::apply_item_options(world, object_id, item_oid);
+            crate::game_loop::stats::options::apply_item_options(world, object_id, item_oid);
         } else {
-            crate::game_loop::options::remove_item_options(world, object_id, item_oid);
+            crate::game_loop::stats::options::remove_item_options(world, object_id, item_oid);
         }
     }
     // Memory-first: the paperdoll change already lives in the `Inventory`
@@ -295,11 +295,11 @@ pub(crate) fn refresh_after_paperdoll_change(world: &mut World, object_id: i32) 
     // (or one just removed) changes the grade penalty. It sends its own
     // EtcStatusUpdate + UserInfo when the penalty actually changed.
     crate::game_loop::skills::expertise::refresh_expertise_penalty(world, object_id);
-    crate::game_loop::weight::refresh_weight_penalty(world, object_id);
+    crate::game_loop::stats::weight::refresh_weight_penalty(world, object_id);
     // Java re-pumps passive skill effects on the same equip listeners: an
     // armor-conditioned passive (Spellcraft/Magician's Movement) flips as a
     // robe is worn or removed. Resends its own UserInfo when the set changed.
-    crate::game_loop::passive_skills::refresh_conditioned_passives(world, object_id);
+    crate::game_loop::stats::passive_skills::refresh_conditioned_passives(world, object_id);
     // Java `Inventory.ArmorSetListener` — the same paperdoll listener chain.
     // Runs last because it re-pumps the conditioned passives itself once the
     // granted set actually moved, and re-composes `BaseStats` for a `<stats>`
@@ -342,7 +342,7 @@ pub(crate) fn finish_equipped_item_destroyed(
     // ids, finds nothing, and silently removes no bonuses at all. A destroyed
     // augmented weapon left its stats and granted skills on the wearer.
     for it in unequipped {
-        crate::game_loop::options::remove_option_ids(
+        crate::game_loop::stats::options::remove_option_ids(
             world,
             object_id,
             &[it.augment_option1, it.augment_option2],
@@ -434,5 +434,5 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
         client_id,
         crate::network::enter_world::ex_user_info_equip_slot(object_id, inventory),
     );
-    crate::game_loop::player_info::send_user_info(world, object_id);
+    crate::game_loop::character::player_info::send_user_info(world, object_id);
 }

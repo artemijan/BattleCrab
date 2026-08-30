@@ -671,7 +671,7 @@ fn register_hq_zones(world: &mut World) {
 /// message; their own headquarters instead starts the inactivity clock.
 #[test]
 fn the_enemy_headquarters_kicks_intruders_out() {
-    use crate::game_loop::zones::revalidate_zone;
+    use crate::game_loop::space::zones::revalidate_zone;
     use crate::model::components::Position;
 
     let (mut world, _oids) = fighting_arena(4);
@@ -694,7 +694,7 @@ fn the_enemy_headquarters_kicks_intruders_out() {
 /// it.** The kick itself strips the participant and announces it.
 #[test]
 fn idling_in_your_headquarters_eventually_kicks_you() {
-    use crate::game_loop::zones::revalidate_zone;
+    use crate::game_loop::space::zones::revalidate_zone;
 
     let (mut world, _oids) = fighting_arena(4);
     register_hq_zones(&mut world);
@@ -1016,7 +1016,7 @@ fn teleport_to_arena_groups_teams_into_parties_and_ccs() {
         let ccs: Vec<_> = party_ids
             .iter()
             .map(|pid| {
-                crate::game_loop::command_channel::cc_id_of_party(&world, *pid)
+                crate::game_loop::party::command_channel::cc_id_of_party(&world, *pid)
                     .expect("an overflowing team forms a CC")
             })
             .collect();

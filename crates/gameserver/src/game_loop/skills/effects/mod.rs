@@ -17,11 +17,11 @@
 //! - `traits` — attack/defence trait and skill-rate bookkeeping, the PvP/PvE
 //!   bonus, MP cost and reuse time.
 
-use crate::game_loop::bot_report;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::moderation::bot_report;
 use crate::model::components::{BaseStats, Buffs, CombatStats, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
@@ -487,7 +487,7 @@ pub(crate) fn apply_skill_effects(
                 }
             }
             SkillEffect::SummonCubic { cubic_id, cubic_level } => {
-                crate::game_loop::cubic::summon_cubic(world, target_oid, *cubic_id, *cubic_level);
+                crate::game_loop::skills::cubic::summon_cubic(world, target_oid, *cubic_id, *cubic_level);
             }
             SkillEffect::SummonNpc { npc_id, npc_count, despawn_delay } => {
                 summon_npc(world, target_oid, skill, *npc_id, *npc_count, *despawn_delay);
@@ -622,8 +622,8 @@ pub(crate) fn apply_skill_effects(
             // which runs here so a cast made *at* night takes effect at once
             // rather than at the next dawn.
             SkillEffect::NightStatModify { .. } => {
-                let night = crate::game_loop::game_time::is_night_at(commons::util::now_millis());
-                crate::game_loop::night_stats::refresh_one(world, target_oid, night);
+                let night = crate::game_loop::upkeep::game_time::is_night_at(commons::util::now_millis());
+                crate::game_loop::stats::night_stats::refresh_one(world, target_oid, night);
             }
             // `ReduceDropPenalty` is a pure stat grant (`pump`), merged when
             // the buff lands. `ResurrectionSpecial` does nothing while it is
@@ -753,7 +753,7 @@ pub(crate) fn apply_skill_effects(
                 call_pc(world, caster_oid, target_oid, skill);
             }
             SkillEffect::GiveRecommendation { amount } => {
-                crate::game_loop::reco::apply_give_recommendation(world, caster_oid, target_oid, *amount);
+                crate::game_loop::character::reco::apply_give_recommendation(world, caster_oid, target_oid, *amount);
             }
             SkillEffect::CreateHeadquarter { advanced } => {
                 // `HeadquarterCreate.instant`: the effector (an attacker clan
@@ -952,9 +952,9 @@ pub(crate) fn apply_skill_effects(
             // dist carries either skill, so there is nothing to route there.)
             SkillEffect::Relax { .. } | SkillEffect::ChameleonRest { .. } => {
                 if world.objects.has_component::<crate::model::Player>(&target_oid)
-                    && !crate::game_loop::sit_stand::is_sitting(world, target_oid)
+                    && !crate::game_loop::character::sit_stand::is_sitting(world, target_oid)
                 {
-                    crate::game_loop::sit_stand::sit_down(world, target_oid);
+                    crate::game_loop::character::sit_stand::sit_down(world, target_oid);
                 }
             }
             // `RebalanceHP.instant` — Balance Life (1043). Pool the HP of every
@@ -1076,7 +1076,7 @@ fn set_skill(world: &mut World, player_oid: i32, skill_id: i32, skill_level: i32
     }
     book.0.insert(skill_id, skill_level);
     // A granted passive has to start contributing now, not at the next login.
-    crate::game_loop::passive_skills::recompute_conditioned_passives(world, player_oid);
+    crate::game_loop::stats::passive_skills::recompute_conditioned_passives(world, player_oid);
     refresh_skill_list(world, player_oid);
 }
 
@@ -1276,7 +1276,7 @@ pub(crate) fn start_bot_report_punishment(
     player_oid: i32,
     ptype: PunishmentType,
 ) {
-    crate::game_loop::punishment::start_punishment(
+    crate::game_loop::moderation::punishment::start_punishment(
         world,
         player_oid.to_string(),
         PunishmentAffect::Character,
@@ -1293,7 +1293,7 @@ pub(crate) fn stop_bot_report_punishment(
     player_oid: i32,
     ptype: PunishmentType,
 ) {
-    crate::game_loop::punishment::stop_punishment(
+    crate::game_loop::moderation::punishment::stop_punishment(
         world,
         &player_oid.to_string(),
         PunishmentAffect::Character,

@@ -4,8 +4,8 @@
 
 use super::guard::{self, Guard, OrReject};
 use crate::game_loop::admin::target_player;
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
-use crate::game_loop::target;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
 use crate::network::server_packets::sm_ids;
@@ -260,7 +260,7 @@ pub(super) fn set_field_value(
             IntField::Pvp => p.pvp_kills = value,
         }
     }
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     helpers::send_message(
         world,
         client_id,
@@ -306,10 +306,10 @@ pub(super) fn admin_vitality(
                 helpers::send_message(world, client_id, "Incorrect vitality");
                 return;
             };
-            crate::game_loop::vitality::set_vitality_points(world, target, value, true);
+            crate::game_loop::character::vitality::set_vitality_points(world, target, value, true);
         }
         "full" => {
-            crate::game_loop::vitality::set_vitality_points(
+            crate::game_loop::character::vitality::set_vitality_points(
                 world,
                 target,
                 MAX_VITALITY_POINTS,
@@ -317,7 +317,7 @@ pub(super) fn admin_vitality(
             );
         }
         "empty" => {
-            crate::game_loop::vitality::set_vitality_points(
+            crate::game_loop::character::vitality::set_vitality_points(
                 world,
                 target,
                 MIN_VITALITY_POINTS,
@@ -326,7 +326,7 @@ pub(super) fn admin_vitality(
         }
         _ => {}
     }
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
 }
 
 /// `AdminEditChar`'s `//setclass <id>` — change the target player's (or self's)
@@ -358,7 +358,7 @@ pub(super) fn admin_setclass(world: &mut World, client_id: u32, object_id: i32, 
     // Routed through the shared occupation-change mechanic. This used to set
     // `base_class_id` unconditionally, which — now that subclasses exist —
     // would rewrite the character's *base* class while standing on a subclass.
-    if crate::game_loop::subclass::set_class_id(world, target, class_id) {
+    if crate::game_loop::character::subclass::set_class_id(world, target, class_id) {
         helpers::send_message(world, client_id, &format!("Class set to {class_id}."));
     } else {
         helpers::send_message(
@@ -376,7 +376,7 @@ pub(super) fn admin_set_title(world: &mut World, client_id: u32, object_id: i32,
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.title = title;
     }
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     helpers::send_message(world, client_id, "Title changed.");
 }
 
@@ -403,7 +403,7 @@ pub(super) fn admin_set_color(
             p.name_color = color;
         }
     }
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     helpers::send_message(world, client_id, "Color changed.");
 }
 
@@ -413,7 +413,7 @@ pub(super) fn admin_set_sex(world: &mut World, client_id: u32, object_id: i32) {
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.is_female = !p.is_female;
     }
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     helpers::send_message(world, client_id, "Gender flipped.");
 }
 
@@ -443,7 +443,7 @@ pub(super) fn admin_set_enchant(
     };
     let changes = helpers::modified_changes(world, target, &[item_oid]);
     helpers::send_inventory_update(world, target, changes);
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     helpers::send_message(world, client_id, &format!("Enchant set to +{value}."));
 }
 
@@ -451,7 +451,7 @@ pub(super) fn admin_set_enchant(
 /// `AdminEditChar` opens a picker; the id form is what the GM panel bypasses
 /// use). With no argument, lists the target's current slots.
 pub(super) fn admin_setsubclass(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    use crate::game_loop::subclass::{AddError, add_subclass};
+    use crate::game_loop::character::subclass::{AddError, add_subclass};
 
     let target = target_player(world, object_id);
     let Some(class_id) = helpers::nth_arg::<i32>(args, 0) else {
@@ -520,7 +520,7 @@ pub(super) fn admin_changesubclass(
         return;
     };
     let target = target_player(world, object_id);
-    if crate::game_loop::subclass::set_active_class(world, target, index) {
+    if crate::game_loop::character::subclass::set_active_class(world, target, index) {
         helpers::send_message(
             world,
             client_id,

@@ -19,7 +19,7 @@ use crate::model::components;
 
 use crate::model::Player;
 
-use crate::game_loop::target;
+use crate::game_loop::combat::target;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
@@ -141,7 +141,7 @@ pub(super) fn admin_character_info(
         }
     };
     if retarget {
-        crate::game_loop::target::set_target(world, client_id, object_id, Some(target));
+        crate::game_loop::combat::target::set_target(world, client_id, object_id, Some(target));
     }
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
         return;
@@ -200,7 +200,7 @@ pub(super) fn admin_character_info(
                 .to_string(),
         ),
         None => {
-            let detached = super::super::offline_trade::is_offline_trader(world, target);
+            let detached = super::super::commerce::offline_trade::is_offline_trader(world, target);
             send_message(
                 world,
                 client_id,
@@ -445,7 +445,7 @@ pub(super) fn admin_changename(world: &mut World, client_id: u32, object_id: i32
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.name = new_name.clone();
     }
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     // CharInfo to nearby so the new name shows on other clients too.
     super::visibility::update_region(world, target);
     send_message(world, client_id, &format!("Changed name to {new_name}"));
@@ -581,7 +581,7 @@ pub(super) fn admin_setparam(
         );
     }
     helpers::recalculate_player_stats_and_vitals(world, target);
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
 }
 
 /// Map a `//setparam` stat token (the XML `getValue()` name) to the engine
@@ -660,7 +660,7 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
     // Java clamps inside the setter — `setRecomHave` is
     // `Math.min(Math.max(value, 0), 255)` — so `//rec 99999` lands on 255 and
     // `//rec -5` on 0 rather than storing the number typed (GitHub #7).
-    let val = crate::game_loop::reco::clamp_reco(val);
+    let val = crate::game_loop::character::reco::clamp_reco(val);
     let name = world
         .objects
         .get_component_mut::<Player>(&target)
@@ -669,7 +669,7 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
             p.name.clone()
         })
         .unwrap_or_default();
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
     if let Some(cid) = helpers::client_for_player(world, target) {
         send_message(
             world,

@@ -38,10 +38,10 @@ use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self as sp, enchant_result};
 use crate::world::World;
 
+use crate::game_loop::helpers;
 use crate::game_loop::helpers::{player_of, send_inventory_item_list, send_to_client as send};
 use crate::game_loop::items::{finish_equip_change, unequip_if_worn};
-use crate::game_loop::{helpers, punishment};
-
+use crate::game_loop::moderation::punishment;
 /// Facts about an inventory item the enchant flow needs (item id + current
 /// enchant), or `None` if the object id isn't in the player's inventory.
 fn item_facts(world: &World, player: i32, object_id: i32) -> Option<(i32, i32)> {
@@ -776,7 +776,7 @@ pub(crate) fn over_enchant_sweep(world: &mut World, player: i32) {
     }
     let punishment = world.cfg.character.over_enchant_punishment;
     if punishment != crate::model::punishment::IllegalActionPunishment::None {
-        crate::game_loop::punishment::handle_illegal_player_action(
+        crate::game_loop::moderation::punishment::handle_illegal_player_action(
             world,
             player,
             "has over-enchanted items.",

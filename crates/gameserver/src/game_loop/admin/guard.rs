@@ -16,7 +16,7 @@
 //! ```
 //!
 //! The resolvers themselves live with the subsystems they read — targets in
-//! [`crate::game_loop::target`], clans and positions in
+//! [`crate::game_loop::combat::target`], clans and positions in
 //! [`crate::game_loop::helpers`] — and they deliberately answer `Option`,
 //! picking **no** message of their own: which system message a failed
 //! precondition sends is Java-fidelity data that differs per call site (the very

@@ -5,8 +5,10 @@
 
 use super::*;
 use crate::game_loop::combat::pvp;
+use crate::game_loop::items::cursed_weapon;
 use crate::game_loop::items::ground_items;
-use crate::game_loop::{admin, cursed_weapon, death, passive_skills};
+use crate::game_loop::stats::passive_skills;
+use crate::game_loop::{admin, death};
 use crate::model::Player;
 
 const ZARICHE: i32 = 8190; // Demonic Sword Zariche
@@ -409,7 +411,7 @@ fn death_path_triggers_drop() {
 /// only the *active* ones — and is not sent at all when none are live.
 #[test]
 fn the_cursed_weapon_window_lists_and_locates() {
-    use crate::game_loop::cursed_weapon::{handle_request_list, handle_request_location};
+    use crate::game_loop::items::cursed_weapon::{handle_request_list, handle_request_location};
 
     let (mut world, ..) = test_world();
     load_cursed_weapons(&mut world);

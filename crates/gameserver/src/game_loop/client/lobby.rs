@@ -1,0 +1,986 @@
+//! Lobby / character-management handlers: the AuthLogin → EnterWorld stretch
+//! (character list, name check, create/delete/restore/select).
+
+use crate::game_loop::clans::clan_name_or_empty;
+use crate::game_loop::helpers::clan_of;
+use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::send_to_client;
+use tracing::info;
+
+use crate::db::{self, NewCharacter};
+use crate::loginlink::LoginLinkCommand;
+use crate::network::client_packets::{self as cp, AuthLogin, CharacterCreate};
+use crate::network::server_packets;
+use crate::session::{ClientSession, SessionKey};
+use crate::world::{WaitingClient, World};
+
+/// Port of `RequestCharacterNameCreatable.runImpl`: validate the name, then ask
+/// the DB whether it already exists; the reply is `ExIsCharNameCreatable`.
+pub(crate) fn handle_request_character_name_creatable(
+    world: &mut World,
+    client_id: u32,
+    ex_body: &[u8],
+) {
+    if !matches!(
+        world.clients.get(&client_id),
+        Some(ClientSession::InLobby(_))
+    ) {
+        return;
+    }
+    let Some(name) = cp::read_name_creatable(ex_body) else {
+        return;
+    };
+    // INVALID_NAME=4 (Java `isAlphaNumeric` + template) is decided here; the
+    // name-exists / length checks need the DB.
+    let valid = !name.is_empty() && name.chars().all(|c| c.is_alphanumeric());
+    if !valid {
+        send_to_client(
+            world,
+            client_id,
+            server_packets::ex_is_char_name_creatable(4),
+        );
+        return;
+    }
+    let _ = world
+        .db
+        .send(db::DbCommand::CheckNameCreatable { client_id, name });
+}
+
+/// Port of `NewCharacter.runImpl`: offer the creatable templates that exist.
+pub(crate) fn handle_new_character(world: &mut World, client_id: u32) {
+    if !matches!(
+        world.clients.get(&client_id),
+        Some(ClientSession::InLobby(_))
+    ) {
+        return;
+    }
+    let templates: Vec<_> = crate::data::player_template::CREATABLE_CLASSES
+        .iter()
+        .filter_map(|(class_id, race, _)| {
+            world
+                .data
+                .player_templates
+                .get(*class_id)
+                .map(|t| (*class_id, *race, t))
+        })
+        .collect();
+    send_to_client(
+        world,
+        client_id,
+        server_packets::new_character_success(&templates),
+    );
+}
+
+/// Port of `CharacterCreate.runImpl`: cheap validation on the game thread, then
+/// hand the insert (name-uniqueness + count) to the DB thread.
+pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &[u8]) {
+    if !matches!(
+        world.clients.get(&client_id),
+        Some(ClientSession::InLobby(_))
+    ) {
+        return;
+    }
+    let Some(pkt) = CharacterCreate::read(body) else {
+        return;
+    };
+    use crate::network::server_packets::char_create_fail as fail;
+    // Fail reasons: 16-chars=3, incorrect-name=4, creation-failed=0.
+    // Java `Util.isAlphaNumeric` uses `Character.isLetterOrDigit` (Unicode).
+    // `ForbiddenNames`: Java rejects a name *containing* any listed substring,
+    // case-insensitively — the shipped list is announcement lookalikes, so the
+    // rule is about what the name reads as in chat, not what it equals.
+    let lowered = pkt.name.to_ascii_lowercase();
+    let forbidden = world
+        .cfg
+        .character
+        .forbidden_names
+        .iter()
+        .any(|bad| lowered.contains(bad.as_str()));
+    let name_ok = (1..=16).contains(&pkt.name.chars().count())
+        && !pkt.name.is_empty()
+        && pkt.name.chars().all(|c| c.is_alphanumeric())
+        && !forbidden;
+    let send = |world: &World, body: Vec<u8>| {
+        send_to_client(world, client_id, body);
+    };
+    if pkt.name.chars().count() < 1 || pkt.name.chars().count() > 16 {
+        return send(world, fail(3));
+    }
+    if !name_ok {
+        return send(world, fail(4));
+    }
+    if !(0..=2).contains(&pkt.face)
+        || pkt.hair_style < 0
+        || (!pkt.is_female && pkt.hair_style > 4)
+        || (pkt.is_female && pkt.hair_style > 6)
+        || !(0..=3).contains(&pkt.hair_color)
+    {
+        return send(world, fail(0));
+    }
+    // Only base (creatable) classes; template must exist.
+    let Some(race) = crate::data::player_template::creatable_race(pkt.class_id) else {
+        return send(world, fail(0));
+    };
+    // `Custom/AllowedPlayerRaces.ini` — Java's per-race `switch` in
+    // `CharacterCreate`, each arm sending `REASON_CREATION_FAILED`. All five
+    // races are allowed on this dist, so the gate is inert here; it exists so
+    // an operator turning one off is actually obeyed.
+    if !world.cfg.allowed_races.allows(race as i32) {
+        return send(world, fail(0));
+    }
+    let Some(template) = world.data.player_templates.get(pkt.class_id) else {
+        return send(world, fail(0));
+    };
+    let spawn = template
+        .creation_points
+        .first()
+        .copied()
+        .unwrap_or((0, 0, 0));
+    let account = match world.clients.get(&client_id) {
+        Some(ClientSession::InLobby(s)) => s.account().to_string(),
+        _ => return,
+    };
+    // Created character starts at full HP/MP (Java: setCurrentHp(getMaxHp())).
+    // No equipped gear yet (initial items are added below, then equipped at
+    // enter-world where `from_char` recomputes max with the paperdoll).
+    let no_mods = crate::model::components::StatModifiers::default();
+    let max_hp = crate::model::calc_max_hp(&world.data, template, 1, None, &no_mods) as i32;
+    let max_mp = crate::model::calc_max_mp(&world.data, template, 1, None, &no_mods) as i32;
+    // Initial skills for the class (Java: getAvailableSkills at level 1).
+    let skills = world.data.skill_trees.initial_skills(pkt.class_id);
+    let items = resolve_initial_items(world, pkt.class_id);
+    let (shortcuts, macros) = resolve_initial_shortcuts(world, pkt.class_id, &skills);
+    let data = NewCharacter {
+        account,
+        name: pkt.name,
+        race: race.ordinal(),
+        class_id: pkt.class_id,
+        sex: pkt.is_female as i32,
+        face: pkt.face,
+        hair_style: pkt.hair_style,
+        hair_color: pkt.hair_color,
+        x: spawn.0,
+        y: spawn.1,
+        z: spawn.2,
+        max_hp,
+        max_mp,
+        skills,
+        items,
+        shortcuts,
+        macros,
+        // `CharacterCreate`: only seeded when the system is on, and capped at
+        // the pool maximum. 0 on this dist — a fresh character starts drained.
+        vitality_points: if world.cfg.character.enable_vitality {
+            world
+                .cfg
+                .character
+                .starting_vitality_points
+                .min(crate::model::MAX_VITALITY_POINTS)
+        } else {
+            0
+        },
+    };
+    let _ = world
+        .db
+        .send(db::DbCommand::CreateCharacter { client_id, data });
+}
+
+/// Port of `CharacterCreate.initNewChar`'s equipment loop: replay
+/// `initialEquipment.xml` for `class_id` through a scratch `Inventory` (adding
+/// starting adena too), so slot-conflict resolution matches
+/// `Inventory::equip_item` by construction, then read the final state back out
+/// as DB-ready rows.
+pub(crate) fn resolve_initial_items(world: &World, class_id: i32) -> Vec<db::NewItem> {
+    use crate::data::item_data;
+    use crate::model::inventory::Inventory;
+
+    let catalog = &world.data.item_data;
+    let mut inv = Inventory::new();
+    let mut next_temp_id = -1;
+    let mut alloc = || {
+        let id = next_temp_id;
+        next_temp_id -= 1;
+        id
+    };
+
+    for entry in world.data.initial_equipment.get(class_id) {
+        let object_id = inv.add_item(catalog, alloc(), entry.item_id, entry.count);
+        if entry.equipped {
+            inv.equip_item(catalog, object_id);
+        }
+    }
+    if world.starting_adena > 0 {
+        inv.add_item(catalog, alloc(), item_data::ADENA_ID, world.starting_adena);
+    }
+
+    inv.items()
+        .iter()
+        .map(|item| db::NewItem {
+            item_id: item.item_id,
+            count: item.count,
+            paperdoll_index: inv.paperdoll_slot_of(item.object_id),
+        })
+        .collect()
+}
+
+/// Port of `InitialShortcutData.registerAllShortcuts`' filtering half —
+/// global + class `initialShortcuts.xml` entries, minus SKILL slots the new
+/// character won't know and MACRO slots without an (enabled) preset; the
+/// referenced presets ride along for `character_macroses`. ITEM entries keep
+/// their item id — the DB thread resolves the created item's object id (and
+/// drops entries whose item the class didn't receive), see
+/// `db::create_character`.
+pub(crate) fn resolve_initial_shortcuts(
+    world: &World,
+    class_id: i32,
+    initial_skills: &[(i32, i32)],
+) -> (Vec<db::NewShortcut>, Vec<crate::model::shortcut::Macro>) {
+    use crate::model::shortcut::ShortcutType;
+    let data = &world.data.initial_shortcuts;
+    let mut shortcuts = Vec::new();
+    let mut macros: Vec<crate::model::shortcut::Macro> = Vec::new();
+    for sc in data.global().iter().chain(data.for_class(class_id)) {
+        match sc.kind {
+            ShortcutType::Skill if !initial_skills.iter().any(|&(id, _)| id == sc.id) => continue,
+            ShortcutType::Macro => match data.macro_preset(sc.id) {
+                Some(preset) => {
+                    if !macros.iter().any(|m| m.id == preset.id) {
+                        macros.push(preset.clone());
+                    }
+                }
+                None => continue,
+            },
+            _ => {}
+        }
+        shortcuts.push(db::NewShortcut {
+            slot: sc.slot,
+            page: sc.page,
+            kind: sc.kind,
+            id: sc.id,
+            level: sc.level,
+        });
+    }
+    (shortcuts, macros)
+}
+
+/// Port of `CharacterDelete.runImpl`: mark the slot's character for deletion.
+pub(crate) fn handle_character_delete(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(slot) = cp::read_char_slot(body) else {
+        return;
+    };
+    let ClientSession::InLobby(s) = (match world.clients.get(&client_id) {
+        Some(cs) => cs,
+        None => return,
+    }) else {
+        return;
+    };
+    let Some(chr) = s.char_at(slot) else {
+        s.send(server_packets::char_delete_fail(1)); // UNKNOWN
+        return;
+    };
+    let (char_id, account, char_name) = (chr.object_id, s.account().to_string(), chr.name.clone());
+    s.send(server_packets::char_delete_success());
+    crate::game_loop::mail::on_character_deleted(world, &char_name);
+    if world.delete_days == 0 {
+        let _ = world.db.send(db::DbCommand::DeleteCharacter { char_id });
+        let _ = world
+            .db
+            .send(db::DbCommand::LoadCharacters { client_id, account });
+    } else {
+        let delete_time = commons::util::now_millis() + world.delete_days as i64 * 86_400_000;
+        let _ = world.db.send(db::DbCommand::MarkDelete {
+            client_id,
+            account,
+            char_id,
+            delete_time,
+        });
+    }
+}
+
+/// Port of `CharacterRestore.runImpl`: clear the deletion timer.
+pub(crate) fn handle_character_restore(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(slot) = cp::read_char_slot(body) else {
+        return;
+    };
+    let ClientSession::InLobby(s) = (match world.clients.get(&client_id) {
+        Some(cs) => cs,
+        None => return,
+    }) else {
+        return;
+    };
+    let Some(chr) = s.char_at(slot) else { return };
+    let (char_id, account) = (chr.object_id, s.account().to_string());
+    let _ = world.db.send(db::DbCommand::RestoreCharacter {
+        client_id,
+        account,
+        char_id,
+    });
+}
+
+/// Port of `CharacterSelect.runImpl`: build the chosen character's `Player`,
+/// move to the entering state, and send `CharSelected` (starts the loading
+/// screen; the client then sends `EnterWorld`).
+pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(slot) = cp::read_char_slot(body) else {
+        return;
+    };
+    let ClientSession::InLobby(s) = (match world.clients.get(&client_id) {
+        Some(cs) => cs,
+        None => return,
+    }) else {
+        return;
+    };
+    let Some(mut chr) = s.char_at(slot).cloned() else {
+        return;
+    };
+    // Java `CharacterSelect`'s ban gate (G31): a BAN on the chosen char id /
+    // account / IP / HWID refuses entry — Java closes the connection
+    // (`ServerClose`), which this port does by dropping the session.
+    let account = s.account().to_string();
+    let ip = s.addr.ip().to_string();
+    let hwid = world.hwids.get(&client_id).map(|h| h.mac_address.clone());
+    if crate::game_loop::moderation::punishment::is_banned(
+        world,
+        chr.object_id,
+        &account,
+        &ip,
+        hwid.as_deref(),
+    ) {
+        info!(
+            "GameLoop: refused banned character '{}' (account {account}) at select.",
+            chr.name
+        );
+        world.clients.remove(&client_id); // close(ServerClose)
+        return;
+    }
+    // `Config.DUALBOX_CHECK_MAX_PLAYERS_PER_IP` (2 here) —
+    // `AntiFeedManager.tryAddClient(GAME_ID, …)`: only so many characters from
+    // one address may be *in game* at once. Java answers with
+    // `html/mods/IPRestriction.htm` and returns, leaving the player at the
+    // character list rather than closing the connection.
+    //
+    // Like the TvT cap, the count is derived from the live session list rather
+    // than kept in a parallel counter — a crashed client cannot leak a slot.
+    let max_per_ip = world.cfg.dualbox.max_players_per_ip;
+    if max_per_ip > 0 {
+        let limit = max_per_ip + world.cfg.dualbox.whitelist.get(&ip).copied().unwrap_or(0);
+        let in_game = world
+            .clients
+            .values()
+            .filter(|cs| matches!(cs, ClientSession::InGame(_)))
+            .filter(|cs| cs.addr().ip().to_string() == ip)
+            .count();
+        if in_game as i32 >= limit {
+            // No recipient: this fires at character select, before the
+            // player is in the world — Java's `getHtm(null, path)` case, so
+            // no `GMDebugHtmlPaths` line either way.
+            let html = crate::data::htm_cache::read_htm(format!(
+                "{}data/html/mods/IPRestriction.htm",
+                world.data.root
+            ))
+            .unwrap_or_else(|| {
+                "<html><body>Maximum %max% connection(s) per IP address allowed.</body></html>"
+                    .to_string()
+            })
+            .replace("%max%", &limit.to_string());
+            send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
+            return;
+        }
+    }
+    // `ShortCuts.restoreMe`'s ITEM verification: `from_char` drops shortcuts
+    // whose item left the inventory. Memory-first — the dropped shortcuts simply
+    // aren't in the bundle, so the next flush's reconcile removes their rows; no
+    // per-select DB delete.
+    // Java `restoreCharData` → `checkPlayerSkills`: filter the DB-loaded skill
+    // list against the character's level *before* building the `Player`, so
+    // `from_char` folds the corrected passives (Spellcraft casting speed, etc.)
+    // and the enter-world `UserInfo` is right the first time — no post-spawn
+    // recompute. Panel shortcuts for changed skills are synced to match.
+    filter_skills_on_select(world, &mut chr);
+    let mut bundle = crate::model::Player::from_char(&world.data, &chr);
+    // Java `restoreEffects` (skill-reuse half): re-arm persisted cooldowns off
+    // the current game tick before the bundle enters the world.
+    bundle.restore_reuses(&chr, world.tick, commons::util::now_millis());
+    // The buff half only rides along on the bundle here: a buff can't be applied
+    // to a character that isn't in the world yet, so enter-world does it.
+    bundle.restore_buffs(&chr);
+    // Java `Quest.restoreQuestStates`' `q == null` branch: a `character_quests`
+    // row naming a quest this server does not have is dropped from the live
+    // state **whatever** `AutoDeleteInvalidQuestData` says — the key only
+    // decides whether the row is also deleted.
+    //
+    // This runs here rather than in `from_char` because the quest registry is a
+    // runtime object on `World`, not part of `GameData`; `from_char` sees only
+    // the latter. Same split as the skill check's reporting half.
+    drop_invalid_quest_states(world, &mut bundle, chr.object_id);
+    let selected = server_packets::char_selected(
+        &bundle.view(),
+        s.play_ok1(),
+        crate::game_loop::upkeep::game_time::game_time_minutes(),
+    );
+
+    // Transition InLobby → Entering, holding the built Player bundle.
+    if let Some(ClientSession::InLobby(s)) = world.clients.remove(&client_id) {
+        let s = s.into_entering(bundle);
+        s.send(selected);
+        info!(
+            "GameLoop: client {client_id} selected character '{}'.",
+            s.player().player.name
+        );
+        world
+            .clients
+            .insert(client_id, ClientSession::Entering(Box::new(s)));
+    }
+}
+
+/// Drop quest states whose script is gone, and (under
+/// `AutoDeleteInvalidQuestData`) delete their rows.
+///
+/// Java logs each one at `finer` and continues. The port keeps the same
+/// two-step shape: the in-memory drop is unconditional, the DB delete is the
+/// configured half. Before this, an unknown row rode in the live component and
+/// went straight back out on the next flush, so a quest renamed between builds
+/// left a `QuestState` that no code could reach and no restart could clear.
+pub(crate) fn drop_invalid_quest_states(
+    world: &World,
+    bundle: &mut crate::model::PlayerData,
+    char_id: i32,
+) {
+    let registry = world.quests.clone();
+    let invalid: Vec<String> = bundle
+        .quests
+        .0
+        .keys()
+        .filter(|name| registry.by_name(name).is_none())
+        .cloned()
+        .collect();
+    if invalid.is_empty() {
+        return;
+    }
+    for name in &invalid {
+        tracing::warn!("Unknown quest {name} for char {char_id}; dropping its state.");
+        bundle.quests.0.remove(name);
+    }
+    if world.cfg.general.auto_delete_invalid_quest_data {
+        let _ = world.db.send(crate::db::DbCommand::DeleteQuestRows {
+            char_id,
+            quest_names: invalid,
+        });
+    }
+}
+
+/// Run [`crate::game_loop::death::maybe_skill_remove_on_delevel`] over a just-selected
+/// character's DB-loaded skill list and reconcile its panel shortcuts: matching
+/// SKILL slots follow a downgrade or drop with a removed skill (transform skills
+/// 3080–3259 are kept, per Java `removeSkill`). Both the skill list and the
+/// shortcut edits are persisted; the caller then builds the `Player` from the
+/// corrected `chr`.
+fn filter_skills_on_select(world: &World, chr: &mut crate::character::CharData) {
+    use crate::model::shortcut::ShortcutType;
+    let subs: std::collections::HashMap<i32, i32> = chr
+        .skills
+        .iter()
+        .filter(|&&(_, _, sub)| sub > 0)
+        .map(|&(id, _, sub)| (id, sub))
+        .collect();
+    let mut skills: std::collections::HashMap<i32, i32> =
+        chr.skills.iter().map(|&(id, lvl, _)| (id, lvl)).collect();
+    let changes = crate::game_loop::death::maybe_skill_remove_on_delevel(
+        world,
+        chr.object_id,
+        chr.class_id,
+        chr.level,
+        &mut skills,
+    );
+    if changes.is_empty() {
+        return;
+    }
+    // A downgraded skill loses its enchant (the sub-level belongs to the level
+    // it was enchanted at); an untouched one keeps it.
+    chr.skills = skills
+        .into_iter()
+        .map(|(id, lvl)| {
+            let keep = chr
+                .skills
+                .iter()
+                .any(|&(cid, clvl, _)| cid == id && clvl == lvl);
+            (
+                id,
+                lvl,
+                if keep {
+                    subs.get(&id).copied().unwrap_or(0)
+                } else {
+                    0
+                },
+            )
+        })
+        .collect();
+    for (skill_id, action) in changes {
+        match action {
+            Some(new_level) => {
+                for sc in chr
+                    .shortcuts
+                    .iter_mut()
+                    .filter(|sc| sc.kind == ShortcutType::Skill && sc.id == skill_id)
+                {
+                    sc.level = new_level;
+                }
+            }
+            None if !(3080..=3259).contains(&skill_id) => {
+                chr.shortcuts
+                    .retain(|sc| !(sc.kind == ShortcutType::Skill && sc.id == skill_id));
+            }
+            None => {}
+        }
+    }
+}
+
+/// Port of `EnterWorld.runImpl` (minimal): register the player in the world and
+/// send `UserInfo` so the character appears with correct stats. The long tail of
+/// enter-world packets (inventory, skills, shortcuts, quests, …) is deferred.
+pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
+    let Some(ClientSession::Entering(s)) = world.clients.remove(&client_id) else {
+        // Not in the entering state; ignore (Java gates by ENTERING).
+        if let Some(cs) = world.clients.remove(&client_id) {
+            world.clients.insert(client_id, cs);
+        }
+        return;
+    };
+    let (session, mut bundle) = s.into_ingame();
+    // Clan-leader flag comes from the live clan table (Java reads it off
+    // the restored `Clan` object) — fix it before the first UserInfo.
+    if let Some(clan) = world.clans.get(&bundle.player.clan_id) {
+        bundle.player.clan_leader = clan.leader_id == bundle.player.object_id;
+        bundle.player.pledge_class = clan.pledge_class_of(bundle.player.object_id);
+    } else {
+        bundle.player.clan_leader = false;
+        bundle.player.pledge_class = 0;
+    }
+
+    // `Player.rewardSkills` on char-load: grant any reachable skills the book
+    // is missing (autoGet always; with `AutoLearnSkills`, every reachable class
+    // skill). Runs before the skill/shortcut burst below so both reflect the
+    // grants. The player isn't in `world.objects` yet, so we apply to `bundle`.
+    let learned = {
+        let granted = crate::game_loop::death::reward_skill_grants(
+            &world.data,
+            &world.cfg.character,
+            bundle.player.class_id,
+            bundle.player.level,
+            &bundle.skills.0,
+            bundle.player.is_gm(&world.data),
+        );
+        for &(id, lvl) in &granted {
+            bundle.skills.0.insert(id, lvl);
+            // Memory-first: the grant and any matching shortcut level-bump land
+            // in the in-memory bundle only; they persist on the next flush.
+            for sc in bundle.shortcuts.0.values_mut() {
+                if sc.kind == crate::model::shortcut::ShortcutType::Skill && sc.id == id {
+                    sc.level = lvl;
+                }
+            }
+        }
+        granted
+            .iter()
+            .map(|&(id, _)| id)
+            .collect::<std::collections::HashSet<_>>()
+            .len()
+    };
+
+    // Delevel skill corrections already ran at character select
+    // (`filter_skills_on_select`), so `bundle` carries the filtered skills and
+    // already-correct passive stats — nothing to redo here.
+
+    let view = bundle.view();
+    let player = &bundle.player;
+    let name = player.name.clone();
+    let data = &world.data;
+    use crate::game_loop::combat::pvp;
+    use crate::game_loop::items::{enchant, item_mana};
+    use crate::game_loop::skills::expertise;
+    use crate::network::enter_world as ew;
+    use crate::network::user_info::user_info;
+
+    // The enter-world packet burst (EnterWorld.runImpl). Inventory real as
+    // of G5, skills G6, shortcuts/macros G9.6, friends G10, quest lists
+    // G11, henna G16, mail G30 — the henna block goes out below and the
+    // unread-mail notice rides `mail::on_enter_world` at the end of the burst.
+    session.send(user_info(
+        &view,
+        data,
+        &world.cfg.character,
+        crate::game_loop::character::player_info::calculate_relation(world, view.p),
+    ));
+    // `EnterWorld`: the vitality block only goes out when the system is on.
+    // The player isn't in the world store yet (the bundle still owns them), so
+    // the bonus is computed here rather than through `vitality::`.
+    if world.cfg.character.enable_vitality {
+        let bonus = if player.vitality_points > 0 {
+            world.cfg.rates.rate_vitality_exp_multiplier
+        } else {
+            1.0
+        };
+        let items_used = bundle
+            .variables
+            .get_int(crate::model::components::VITALITY_ITEMS_USED, 0);
+        session.send(ew::ex_vitality_effect_info(
+            player,
+            bonus,
+            items_used,
+            world.cfg.rates.vitality_max_items_allowed,
+        ));
+    }
+    // The character's saved key layout rides the enter-world burst, like Java's
+    // `ExUISetting` there (it reads the same player variable).
+    let key_mapping = crate::game_loop::client::settings::decode_key_mapping(
+        bundle
+            .variables
+            .0
+            .get(crate::model::components::UI_KEY_MAPPING)
+            .map(String::as_str),
+    );
+    session.send(server_packets::ex_ui_setting(&key_mapping));
+    // `MacroList.sendAllMacros` — one packet per stored macro (or one empty
+    // LIST packet), in Java's position before the bookmark/item lists.
+    for pkt in server_packets::send_all_macros(&bundle.macros) {
+        session.send(pkt);
+    }
+    session.send(ew::ex_get_bookmark_info());
+    session.send(ew::item_list(&bundle.inventory, data, false));
+    session.send(ew::ex_quest_item_list(&bundle.inventory, data));
+    session.send(server_packets::shortcut_init(&bundle.shortcuts));
+    session.send(ew::ex_basic_action_list(data));
+    // Java `EnterWorld` sends `HennaInfo` here, inside the burst and ahead of
+    // the welcome message — with the player's real worn dyes (their stat bonus
+    // is already folded into the UserInfo above).
+    session.send(crate::game_loop::character::henna::henna_info_packet(
+        &world.data,
+        player.class_id,
+        &bundle.henna,
+    ));
+    // Clan skills aren't applied yet (the clan login hook runs after the player
+    // is registered and re-sends the merged list) → empty clan set here. Augment
+    // option skills are empty for the same reason: `apply_item_options` runs off
+    // the equip pass, which likewise re-sends the list once it has granted them.
+    session.send(ew::skill_list(
+        &bundle.skills,
+        &bundle.skill_enchants,
+        &crate::model::components::ClanSkills::default(),
+        &crate::model::components::OptionSkills::default(),
+        data,
+    ));
+    session.send(ew::acquire_skill_list(player, &bundle.skills, data));
+    // Initial burst carries 0 charges/0/0; a fresh login never has Force built
+    // up. `refresh_expertise_penalty` (after the player is registered below)
+    // recomputes and resends if any gear is over-grade.
+    session.send(ew::etc_status_update(0, 0, 0, 0, false));
+    session.send(ew::ex_pledge_waiting_list_alarm());
+    session.send(ew::ex_subjob_info(player));
+    let max_load = crate::game_loop::stats::weight::max_load(world, player.object_id);
+    session.send(ew::ex_user_info_inven_weight(
+        player.object_id,
+        &bundle.inventory,
+        data,
+        max_load,
+    ));
+    session.send(ew::ex_adena_inven_count(&bundle.inventory));
+    session.send(ew::ex_storage_max_count(
+        player.race,
+        player.is_gm(&world.data),
+        &world.cfg.character,
+        &bundle.stat_modifiers,
+    ));
+    session.send(ew::ex_user_info_equip_slot(
+        player.object_id,
+        &bundle.inventory,
+    ));
+    session.send(ew::quest_list(&bundle.quests, &world.quests));
+    session.send(ew::ex_rotation(player.object_id, bundle.position.heading));
+    // `L2FriendList` — the real roster (Java sends it at this spot).
+    session.send(crate::game_loop::social::friends::l2_friend_list_packet(
+        world,
+        &bundle.friends,
+    ));
+    session.send(server_packets::skill_cool_time(&bundle.reuses, world.tick));
+    // `EnterWorld`: the recommendation panel state.
+    session.send(server_packets::ex_vote_system_info(
+        player.rec_left,
+        player.rec_have,
+    ));
+
+    // Register the player in the world and re-send UserInfo (Java does both).
+    session.send(user_info(
+        &view,
+        data,
+        &world.cfg.character,
+        crate::game_loop::character::player_info::calculate_relation(world, view.p),
+    ));
+    // No ExSetCompassZoneCode here: Java's EnterWorld never sends one — the
+    // first revalidateZone below pushes the real code (0x08–0x0F). Sending an
+    // out-of-range code (e.g. 0) leaves the client in an unknown zone state
+    // where it refuses to open the world map.
+    session.send(ew::move_to_location(player.object_id, &bundle.position));
+    for kind in 0..4 {
+        session.send(ew::ex_auto_soul_shot(0, true, kind));
+    }
+    session.send(ew::abnormal_status_update(
+        &crate::model::components::Buffs::default(),
+        world.tick,
+    ));
+    session.send(ew::system_message(ew::SM_WELCOME));
+    // `giveAvailableSkills` notice (only the `AutoLearnSkills` path shows it).
+    if world.cfg.character.auto_learn_skills && learned > 0 {
+        session.send(server_packets::system_message_with(
+            server_packets::sm_ids::S1_TEXT,
+            &[server_packets::SmParam::Text(format!(
+                "You have learned {learned} new skills."
+            ))],
+        ));
+    }
+
+    let object_id = player.object_id;
+    let class_id_for_log = player.class_id;
+    // Take the persisted buffs off the bundle before it's consumed; they're
+    // re-applied below, once the entity exists.
+    let pending_buffs = std::mem::take(&mut bundle.pending_buffs);
+    let illegal_skills = std::mem::take(&mut bundle.illegal_skills);
+    bundle.spawn_into(world);
+    info!(
+        "GameLoop: '{name}' entered the world ({} online).",
+        world.objects.count::<crate::model::Player>()
+    );
+    world
+        .clients
+        .insert(client_id, ClientSession::InGame(session));
+    // Java `restoreSkills`' skill check reports through
+    // `Util.handleIllegalPlayerAction(..., BROADCAST)`. The *finding* is made
+    // in `from_char`, which runs at character select against `&GameData` and
+    // has no world; reporting has to wait until there is an entity to name, so
+    // it happens here, one line into enter-world.
+    //
+    // `BROADCAST` is passed explicitly rather than through
+    // `DefaultPunish` — Java hard-codes it at this call site, and it is the
+    // right level: an illegal row is very often a bug or an old build's
+    // leftovers rather than a player cheating, so it tells the GMs and stops.
+    for (skill_id, level) in &illegal_skills {
+        let skill_name = world
+            .data
+            .skill_data
+            .get(*skill_id, *level)
+            .map(|s| s.name.clone())
+            .unwrap_or_default();
+        crate::game_loop::moderation::punishment::handle_illegal_player_action(
+            world,
+            object_id,
+            &format!(
+                "Player {name} has invalid skill {skill_name} ({skill_id}/{level}), \
+                 class:{class_id_for_log}"
+            ),
+            crate::model::punishment::IllegalActionPunishment::Broadcast,
+        );
+    }
+
+    // `EnterWorld`'s instance restore (`RestorePlayerInstance`): put the player
+    // back into the instance they logged out of, if it is still running.
+    crate::game_loop::space::instances::restore_on_login(world, object_id);
+    // `EnterWorld`'s over-enchant sweep, before the protection window so a
+    // punished login is still punished.
+    enchant::over_enchant_sweep(world, object_id);
+    // `EnterWorld`: `if (PLAYER_SPAWN_PROTECTION > 0) setSpawnProtection(true)`
+    // — the grace period against aggressive monsters, ended by the first
+    // deliberate action (`game_loop::spawn_protection`).
+    crate::game_loop::combat::spawn_protection::arm(world, object_id);
+    // Java `EnterWorld` calls `refreshExpertisePenalty` (via `restoreCharData`
+    // → equip listeners): a character wearing over-grade gear logs in already
+    // penalized. Runs now that the player is registered; resends
+    // EtcStatusUpdate + UserInfo only when there's an actual penalty.
+    expertise::refresh_expertise_penalty(world, object_id);
+    crate::game_loop::stats::weight::refresh_weight_penalty(world, object_id);
+    // Java gets its augment bonuses back the same way it gets the expertise
+    // penalty: `restoreCharData` re-runs the equip listeners, and
+    // `VariationInstance.applyBonus` fires for every item already in a paperdoll
+    // slot. This port only ran `apply_item_options` off an actual equip packet,
+    // so an augmented weapon worn *through* a relog contributed nothing until
+    // the player manually re-equipped it — the stat half included, not just the
+    // G15.5 skill half this sits next to.
+    crate::game_loop::stats::options::apply_equipped_item_options(world, object_id);
+    // Java `EnterWorld`'s clan-notice popup: an enabled notice greets every
+    // member at login (`data/html/clanNotice.htm`).
+    show_clan_notice_at_login(world, client_id, object_id);
+    // Java `restoreCharData`/`addSkill` also pumps armor-conditioned passives
+    // (Spellcraft/Magician's Movement) at enter-world: a robe-wearing mystic
+    // logs in with the casting/attack-speed bonus already folded in.
+    crate::game_loop::stats::passive_skills::refresh_conditioned_passives(world, object_id);
+    // Java `EnterWorld` → `restoreEffects` (buff half): the buffs the character
+    // logged out with come back, each resuming the remaining time it had at
+    // logout — offline time doesn't burn buff duration. Runs after the passive
+    // pumps so the buff modifiers stack on top of the same base the cast-time
+    // path would have seen, and before the spawn broadcast so nearby players
+    // get a `CharInfo` that already carries the buffed speed and visuals.
+    crate::game_loop::skills::effects::restore_persisted_buffs(world, object_id, &pending_buffs);
+    // Java `EnterWorld.runImpl`'s GM branch: apply the configured default GM
+    // state (builder-hide / invul / invis / silence / diet) before the spawn
+    // broadcast, so an invisible GM is never described to nearby players.
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_some_and(|p| p.is_gm(&world.data))
+    {
+        crate::game_loop::admin::apply_gm_startup(world, client_id, object_id);
+    }
+    // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every
+    // player visible from the spawn region.
+    crate::game_loop::space::visibility::on_enter_world(world, client_id, object_id);
+    // `CharSummonTable.restorePet` — a pet that was out at logout comes back.
+    // After `on_enter_world` so the owner is already visible to others when
+    // the pet's spawn packets go out.
+    crate::game_loop::servitor::restore_pet_on_login(world, object_id);
+    crate::game_loop::servitor::restore_servitor_on_login(world, object_id);
+    // Java `EnterWorld`, immediately after `spawnMe`: a character who logged
+    // out wielding a cursed weapon comes back cursed — transform, skill and the
+    // `isCursedWeaponEquipped()` flag every gate reads. Also sweeps a leftover
+    // Zariche/Akamanah out of the bag of someone no longer cursed.
+    crate::game_loop::items::cursed_weapon::on_enter_world(world, client_id, object_id);
+    // Schedule the first periodic autosave (Java `PlayerAutoSaveTaskManager.add`)
+    // one interval out; `game_loop::autosave_tick` flushes and reschedules it.
+    let due = world.tick + world.cfg.character.character_data_store_interval_ticks;
+    world.player_autosave_due.insert(object_id, due);
+    // Java `restore` → `startRecoGiveTask`: the per-player fixed-rate task that
+    // hands out recommendations-to-give (10 after 2 h, then 1 hourly).
+    crate::game_loop::character::reco::start_reco_give_task(world, object_id);
+    // Java `EnterWorld` → `player.revalidateZone(true)` — initial zone set +
+    // compass code at the spawn point.
+    crate::game_loop::space::zones::revalidate_zone(world, object_id, true);
+    // "Your friend just logged in" + FriendStatus(ONLINE) to online friends.
+    crate::game_loop::social::friends::on_enter_world(world, object_id);
+    // Pledge window to the member + online ping to the rest of the clan.
+    crate::game_loop::clans::on_enter_world(world, client_id, object_id);
+    // `EnterWorld.notifySponsorOrApprentice` — tell the other half of an
+    // academy mentorship that their partner is on.
+    crate::game_loop::clans::academy::notify_partner_on_login(world, object_id);
+    // Re-apply Olympiad hero status to a crowned character.
+    crate::game_loop::olympiad::on_enter_world(world, object_id);
+    // `EnterWorld`: `player.updatePvpTitleAndColor(false)` — a returning player
+    // wears the rung their PvP count already earned, without a broadcast (the
+    // enter-world burst carries it).
+    pvp::update_pvp_title_and_color(world, object_id, false);
+    // Re-apply / lift jail (Java `JailHandler.onPlayerLogin`, G31).
+    crate::game_loop::moderation::punishment::on_enter_world(world, client_id, object_id);
+    // Unread-mail badge + the "you have mail" notice (G30).
+    crate::game_loop::mail::on_enter_world(world, object_id);
+    // Java `Player.onPlayerEnter` → `ON_PLAYER_LOGIN` listeners — the Q255
+    // newbie tutorial's entry point (it queues its own 5 s timer).
+    crate::game_loop::quests::notify_login(world, client_id, object_id);
+    // Java `EnterWorld`'s `onTransaction(player, true, false)`: this character
+    // is back for real, so whatever offline-shop rows it left behind go away.
+    crate::game_loop::commerce::offline_trade::on_enter_world(world, object_id);
+    // `PcCafePointsManager.run(player)` — arm the retail-like PA-point timer.
+    crate::game_loop::character::pc_cafe::on_enter_world(world, object_id);
+    // Java `EnterWorld`'s inventory sweep: every *worn* shadow item spends a
+    // point of mana on login and re-arms its 60 s beat, so a shadow weapon
+    // can't be parked at the character screen to make it last forever.
+    item_mana::on_enter_world(world, object_id);
+
+    // Java `EnterWorld`: a character that logged out dead comes back dead —
+    // re-open the death dialog.
+    if is_dead(world, object_id) {
+        // Java re-sends the same `Die` the death itself built, so a character
+        // who logged out dead comes back to the *same* restart buttons.
+        let opts = crate::game_loop::death::die_options(world, object_id);
+        send_to_client(world, client_id, server_packets::die(object_id, opts));
+    }
+}
+
+/// Port of `clientpackets/AuthLogin.runImpl`: register the account on this game
+/// server and ask the login server to validate the session key.
+pub(crate) fn handle_auth_login(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = AuthLogin::read(body) else {
+        return;
+    };
+    if pkt.login_name.is_empty() {
+        world.clients.remove(&client_id); // closeNow
+        return;
+    }
+    // Only valid once, from a still-connecting client (Java: accountName == null).
+    if !matches!(
+        world.clients.get(&client_id),
+        Some(ClientSession::Connecting(_))
+    ) {
+        return;
+    }
+    let account = pkt.login_name;
+    // addGameServerLogin: reject a duplicate login for the account.
+    if world.login.accounts_in_gameserver.contains_key(&account) {
+        world.clients.remove(&client_id); // close(null)
+        return;
+    }
+    world
+        .login
+        .accounts_in_gameserver
+        .insert(account.clone(), client_id);
+    let key = SessionKey::new(pkt.login_key1, pkt.login_key2, pkt.play_key1, pkt.play_key2);
+    world.login.waiting.insert(
+        account.clone(),
+        WaitingClient {
+            client_id,
+            session_key: key,
+        },
+    );
+    let _ = world
+        .login
+        .link
+        .send(LoginLinkCommand::PlayerAuthRequest { account, key });
+}
+
+/// Java `EnterWorld`'s `showClanNotice` block: a clan member whose clan has
+/// its notice enabled gets `clanNotice.htm` as a popup, newlines folded to
+/// `<br>` exactly as Java does.
+pub(in crate::game_loop) fn show_clan_notice_at_login(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+) {
+    let notice = clan_of(world, object_id)
+        .and_then(|clan_id| world.clan_notices.get(&clan_id).cloned())
+        .and_then(|(enabled, text)| enabled.then_some(text));
+    let Some(text) = notice else {
+        // Java's `else if (Config.SERVER_NEWS)`: the news page is the
+        // *alternative* to a clan notice, so a player whose clan has one set
+        // never sees the news however the key is configured.
+        show_server_news(world, client_id, object_id);
+        return;
+    };
+    let Some(clan_id) = clan_of(world, object_id) else {
+        return;
+    };
+    let clan_name = clan_name_or_empty(world, clan_id);
+    let Some(html) = crate::data::htm_cache::read_htm_for(
+        world,
+        object_id,
+        format!("{}data/html/clanNotice.htm", world.data.root),
+    ) else {
+        return;
+    };
+    let html = html.replace("%clan_name%", &clan_name).replace(
+        "%notice_text%",
+        &text.replace("\r\n", "<br>").replace('\n', "<br>"),
+    );
+    send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
+}
+
+/// `EnterWorld`'s `Config.SERVER_NEWS` branch: `html/servnews.htm`, shown only
+/// to a player with no clan notice waiting.
+fn show_server_news(world: &World, client_id: u32, object_id: i32) {
+    if !world.cfg.general.show_server_news {
+        return;
+    }
+    let Some(html) = crate::data::htm_cache::read_htm_for(
+        world,
+        object_id,
+        format!("{}data/html/servnews.htm", world.data.root),
+    ) else {
+        // Java's `if (serverNews != null)` — a missing file is silent.
+        return;
+    };
+    send_to_client(world, client_id, server_packets::npc_html_message(0, &html));
+}

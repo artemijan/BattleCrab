@@ -33,7 +33,7 @@ pub(super) fn do_multisell(
     };
     let page = opts.next().map(str::trim);
     render_merchant_page(world, client_id, object_id, page);
-    crate::game_loop::multisell::separate_and_send(
+    crate::game_loop::commerce::multisell::separate_and_send(
         world, client_id, object_id, None, list_id, exchange,
     );
 }
@@ -52,7 +52,7 @@ pub(super) fn do_sell(world: &mut World, client_id: u32, object_id: i32, command
         return;
     };
     let list = list.clone();
-    let refund_items = crate::game_loop::shop::refund_items_of(world, object_id);
+    let refund_items = crate::game_loop::commerce::shop::refund_items_of(world, object_id);
     if let Some(inv) = world.objects.get_component::<Inventory>(&object_id) {
         // Java `HomeBoard`: `new BuyList(…, player, 0)` — the board shop is
         // npc-less, so no castle takes a cut.
@@ -65,7 +65,7 @@ pub(super) fn do_sell(world: &mut World, client_id: u32, object_id: i32, command
                 &world.data,
                 0.0,
                 world.cfg.rates.rate_siege_guards_price,
-                |p| crate::game_loop::shop::stock_left(world, CB_SELL_BUYLIST, p),
+                |p| crate::game_loop::commerce::shop::stock_left(world, CB_SELL_BUYLIST, p),
             ),
         );
         send_to_client(

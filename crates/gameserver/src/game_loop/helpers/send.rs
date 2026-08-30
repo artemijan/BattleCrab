@@ -12,7 +12,7 @@ use crate::world::World;
 /// handler already holds the client id, which packet handlers always do.
 pub(crate) fn send_to_client(world: &World, client_id: u32, packet: Vec<u8>) {
     if let Some(&opcode) = packet.first() {
-        crate::game_loop::dispatch::log_server_packet(world, opcode);
+        crate::game_loop::client::dispatch::log_server_packet(world, opcode);
     }
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(packet);
@@ -142,7 +142,7 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
         .objects
         .get_component::<AdminFlags>(&object_id)
         .is_some_and(|f| f.silence)
-        || crate::game_loop::punishment::is_chat_banned(world, object_id);
+        || crate::game_loop::moderation::punishment::is_chat_banned(world, object_id);
     let charges = world
         .objects
         .get_component::<Player>(&object_id)

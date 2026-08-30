@@ -22,7 +22,7 @@ pub fn block_list(names: &[String]) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// One friend entry + live online flag, assembled by `game_loop/friends.rs`.
+/// One friend entry + live online flag, assembled by `game_loop/social/friends.rs`.
 pub struct FriendEntry {
     pub char_id: i32,
     pub name: String,

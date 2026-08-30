@@ -178,7 +178,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     // message-refusal mode: that is a live chat toggle, and the static
     // `isInBlockList` is what Java reaches for here precisely because the
     // receiver may be offline, where no such flag exists to read.
-    if crate::game_loop::chat::block_list::is_in_block_list(world, receiver_id, player) {
+    if crate::game_loop::social::chat::block_list::is_in_block_list(world, receiver_id, player) {
         send_sm(
             world,
             player,

@@ -80,7 +80,7 @@ impl QuestScript for LastImperialTomb {
         } else if ctx.npc_id == CUBE {
             let player = ctx.player;
             // CUBE talk: send the player back out (Java `teleportPlayerOut`).
-            crate::game_loop::instances::exit(ctx.world, player);
+            crate::game_loop::space::instances::exit(ctx.world, player);
         }
         // Both actions teleport; no chat window is shown.
         None

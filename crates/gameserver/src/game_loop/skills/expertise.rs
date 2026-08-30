@@ -70,7 +70,7 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
     // --- apply phase: swap the penalty buffs, recompute stats. Scoped so the
     // entity-store borrow ends before the component/packet work below. ---
     {
-        let applied = crate::game_loop::stat_ctx::with_stat_ctx(world, object_id, |ctx| {
+        let applied = crate::game_loop::stats::context::with_stat_ctx(world, object_id, |ctx| {
             // `remove` rebuilds the modifier maps from the *remaining* buffs,
             // so removing then re-adding at the new level leaves no stale
             // penalty modifiers (a no-op when the penalty wasn't present).
@@ -131,7 +131,7 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
                 silence,
             ),
         );
-        crate::game_loop::player_info::send_user_info(world, object_id);
+        crate::game_loop::character::player_info::send_user_info(world, object_id);
     }
 }
 

@@ -77,7 +77,7 @@ fn an_unknown_quest_state_is_dropped_from_the_live_component() {
             "the loader hands it over untouched"
         );
 
-        crate::game_loop::lobby::drop_invalid_quest_states(&world, &mut bundle, 4201);
+        crate::game_loop::client::lobby::drop_invalid_quest_states(&world, &mut bundle, 4201);
         assert!(
             bundle.quests.0.is_empty(),
             "delete_rows = {delete_rows}: the live state is dropped regardless"
@@ -116,7 +116,7 @@ fn a_known_quest_state_is_left_alone() {
         crate::model::quest::QuestState::default(),
     );
     let mut bundle = crate::model::Player::from_char(&world.data, &chr);
-    crate::game_loop::lobby::drop_invalid_quest_states(&world, &mut bundle, 4202);
+    crate::game_loop::client::lobby::drop_invalid_quest_states(&world, &mut bundle, 4202);
 
     assert!(
         bundle.quests.0.contains_key(known),

@@ -13,38 +13,38 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     // instance in a player variable so the next login puts them back in it;
     // with it off, Java moves them to the instance's exit location instead so
     // they do not wake up inside a world that no longer exists.
-    crate::game_loop::instances::on_player_logout(world, player_object_id);
+    crate::game_loop::space::instances::on_player_logout(world, player_object_id);
     // deleteMe → leaveParty (DISCONNECTED semantics: leadership transfers)
     // + pending party/friend request cleanup on both sides.
     crate::game_loop::party::on_player_leave_world(world, player_object_id);
-    crate::game_loop::party_room::on_player_leave_world(world, player_object_id);
+    crate::game_loop::party::rooms::on_player_leave_world(world, player_object_id);
     // deleteMe → notifyFriends(MODE_OFFLINE).
-    crate::game_loop::friends::on_leave_world(world, player_object_id);
+    crate::game_loop::social::friends::on_leave_world(world, player_object_id);
     // The `Item._published` flags of this player's items die with the `Item`
     // instances, so their chat links stop resolving (Java: the objects leave
     // the world with them).
-    crate::game_loop::chat::on_player_leave_world(world, player_object_id);
+    crate::game_loop::social::chat::on_player_leave_world(world, player_object_id);
     // A servitor does not outlive its owner's session. Java stores it in
     // `CharSummonTable` for `RestoreServitorOnReconnect`; persistence is a
     // later slice, so for now it simply goes away with them — which is at
     // least better than leaking an ownerless NPC into the world.
     crate::game_loop::servitor::on_owner_leave_world(world, player_object_id);
     // Cubics do not outlive their owner; nothing persists them.
-    crate::game_loop::cubic::on_owner_leave_world(world, player_object_id);
+    crate::game_loop::skills::cubic::on_owner_leave_world(world, player_object_id);
     // deleteMe → clan.broadcastToOnlineMembers(PledgeShowMemberListUpdate offline).
     {
         let clan_id = clan_of_or_zero(world, player_object_id);
         crate::game_loop::clans::on_leave_world(world, player_object_id, clan_id);
     }
     // deleteMe → World.removeVisibleObject: DeleteObject to everyone watching.
-    crate::game_loop::visibility::on_leave_world(world, player_object_id);
+    crate::game_loop::space::visibility::on_leave_world(world, player_object_id);
     // `.apon` does not survive a logout — Java's task manager holds `Player`
     // references and drops anyone offline on its next sweep.
-    crate::game_loop::auto_potions::remove(world, player_object_id);
-    crate::game_loop::auto_play::remove(world, player_object_id);
+    crate::game_loop::automation::potions::remove(world, player_object_id);
+    crate::game_loop::automation::play::remove(world, player_object_id);
     // A buff shop dies with its seller — the flag also gates `canOpenPrivateStore`,
     // so a stale one would follow the character into their next session.
-    crate::game_loop::sell_buffs::clear(world, player_object_id);
+    crate::game_loop::commerce::sell_buffs::clear(world, player_object_id);
     // Stop tracking the player for the periodic autosave; the logout flush below
     // is the final save.
     world.player_autosave_due.remove(&player_object_id);

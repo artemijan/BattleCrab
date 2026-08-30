@@ -67,7 +67,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // `Player.doDie`'s `stopWaterTask()`: a corpse doesn't drown. Without this
     // the breath gauge would keep ticking damage into a dead body, and the bar
     // would still be on screen at the death dialog.
-    crate::game_loop::water::stop_water_task(world, player_oid);
+    crate::game_loop::space::water::stop_water_task(world, player_oid);
 
     // `Player.doDie`'s reputation block: a player killer takes the PvP/PK
     // consequences (counters, karma) for this death.
@@ -88,7 +88,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         .get_component::<Player>(&player_oid)
         .is_some_and(|p| p.cursed_weapon_equipped_id != 0);
     if was_cursed {
-        crate::game_loop::cursed_weapon::on_wielder_death(world, player_oid, killer_oid);
+        crate::game_loop::items::cursed_weapon::on_wielder_death(world, player_oid, killer_oid);
     } else {
         // `onDieDropItem` — a PK (or anyone a monster killed) can scatter part
         // of their inventory on the ground. Runs before the XP penalty.
@@ -142,7 +142,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
 
     // `Instance.onDeath`: a corpse in an instance is expelled after
     // `EjectDeadPlayerTime` minutes unless it is resurrected first.
-    crate::game_loop::instances::arm_eject_on_death(world, player_oid);
+    crate::game_loop::space::instances::arm_eject_on_death(world, player_oid);
 }
 
 /// `Playable.doDie`'s effect block.

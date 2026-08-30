@@ -20,8 +20,8 @@ use super::set_collision_grown;
 use super::stop_bot_report_punishment;
 use super::stop_fake_death;
 use crate::game_loop::abnormal::has_buff;
-use crate::game_loop::bot_report;
 use crate::game_loop::helpers;
+use crate::game_loop::moderation::bot_report;
 
 use crate::model::components::Buffs;
 use crate::model::components::StatModifiers;
@@ -140,7 +140,7 @@ pub(crate) fn handle_dam_over_time_tick(
             SkillEffect::ChameleonRest { power, ticks } if *ticks > 0 => {
                 interval = dot_interval_ticks(*ticks, ratio_ms);
                 if world.objects.has_component::<crate::model::Player>(&target_oid)
-                    && !crate::game_loop::sit_stand::is_sitting(world, target_oid)
+                    && !crate::game_loop::character::sit_stand::is_sitting(world, target_oid)
                 {
                     deactivate_toggle |= is_toggle;
                     continue;
@@ -201,7 +201,7 @@ pub(crate) fn handle_dam_over_time_tick(
                 // "the holder stood up" — Java returns `false` outright, which
                 // cancels the toggle. Standing is how a player turns Relax off.
                 if world.objects.has_component::<crate::model::Player>(&target_oid)
-                    && !crate::game_loop::sit_stand::is_sitting(world, target_oid)
+                    && !crate::game_loop::character::sit_stand::is_sitting(world, target_oid)
                 {
                     deactivate_toggle |= is_toggle;
                     continue;
@@ -643,13 +643,15 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     if was_fake_dead {
         stop_fake_death(world, player_object_id);
     }
-    crate::game_loop::stat_ctx::with_stat_ctx(world, player_object_id, |ctx| ctx.remove(skill_id));
+    crate::game_loop::stats::context::with_stat_ctx(world, player_object_id, |ctx| {
+        ctx.remove(skill_id)
+    });
     // Reverting a MaxHp/MaxMp/MaxCp buff shrinks the bar (and clamps current).
     recompute_max_vitals(world, player_object_id);
     let now = world.tick;
     // Removing the buff reverted its stat contribution — rebroadcast so the
     // client (and nearby players, for speed) see the stats return to normal.
-    crate::game_loop::player_info::broadcast_user_info(world, player_object_id);
+    crate::game_loop::character::player_info::broadcast_user_info(world, player_object_id);
     if is_transform {
         crate::game_loop::admin::transforms::refresh_transform_visuals(world, player_object_id);
     }

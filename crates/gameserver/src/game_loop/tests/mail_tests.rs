@@ -1180,7 +1180,7 @@ fn a_custom_mail_row_is_delivered_and_deleted() {
     drain(&mut rx);
     drain_db(&mut db_rx);
 
-    crate::game_loop::custom_mail::apply_loaded(&mut world, vec![custom_row(3001, "57 1000")]);
+    crate::game_loop::mail::custom::apply_loaded(&mut world, vec![custom_row(3001, "57 1000")]);
 
     let msg = world
         .mail
@@ -1219,7 +1219,7 @@ fn an_offline_recipient_keeps_their_row() {
     world.id_pool = 0x4C00_0200..0x4C00_0300;
     drain_db(&mut db_rx);
 
-    crate::game_loop::custom_mail::apply_loaded(&mut world, vec![custom_row(9999, "57 1000")]);
+    crate::game_loop::mail::custom::apply_loaded(&mut world, vec![custom_row(9999, "57 1000")]);
 
     assert!(
         world.mail.messages.is_empty(),
@@ -1240,7 +1240,7 @@ fn a_row_without_items_is_a_plain_letter() {
     world.id_pool = 0x4C00_0400..0x4C00_0500;
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
-    crate::game_loop::custom_mail::apply_loaded(&mut world, vec![custom_row(3001, "")]);
+    crate::game_loop::mail::custom::apply_loaded(&mut world, vec![custom_row(3001, "")]);
 
     let msg = world
         .mail
@@ -1268,7 +1268,7 @@ fn a_birthday_gift_is_mailed_with_the_name_and_age_filled_in() {
     world.cfg.general.alt_birthday_mail_text = "Hello $c1! You are $s1 today.".into();
     drain(&mut a_rx);
 
-    crate::game_loop::birthday::apply_loaded(
+    crate::game_loop::upkeep::birthday::apply_loaded(
         &mut world,
         vec![
             BirthdayMatch {

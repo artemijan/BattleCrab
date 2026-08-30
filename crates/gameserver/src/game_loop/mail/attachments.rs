@@ -64,7 +64,8 @@ fn attachment_slots(world: &World, player: i32, message_id: i32) -> usize {
         .items()
         .iter()
         .map(|it| {
-            crate::game_loop::weight::slots_needed(world, player, it.item_id, it.count) as usize
+            crate::game_loop::stats::weight::slots_needed(world, player, it.item_id, it.count)
+                as usize
         })
         .sum()
 }
@@ -73,7 +74,7 @@ fn attachment_slots(world: &World, player: i32, message_id: i32) -> usize {
 /// read the plain race cap, dropping the GM cap and the `EnlargeSlot` passive
 /// bonus `weight::inventory_limit` folds in.
 fn inventory_has_room(world: &World, player: i32, slots: usize) -> bool {
-    crate::game_loop::weight::validate_capacity(world, player, slots as i64)
+    crate::game_loop::stats::weight::validate_capacity(world, player, slots as i64)
 }
 
 /// Hand every attachment of `message_id` to `player`, announcing each.
@@ -139,7 +140,7 @@ pub(crate) fn handle_post_attachment(world: &mut World, client_id: u32, body: &[
         return;
     };
     if m.receiver_id != player {
-        crate::game_loop::punishment::illegal_action(
+        crate::game_loop::moderation::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to get not own attachment!"),
@@ -265,7 +266,7 @@ pub(crate) fn handle_cancel_post_attachment(world: &mut World, client_id: u32, b
         return;
     };
     if m.sender_id != player {
-        crate::game_loop::punishment::illegal_action(
+        crate::game_loop::moderation::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to cancel not own post!"),
@@ -361,7 +362,7 @@ pub(crate) fn handle_reject_post_attachment(world: &mut World, client_id: u32, b
         return;
     };
     if m.receiver_id != player {
-        crate::game_loop::punishment::illegal_action(
+        crate::game_loop::moderation::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to reject not own attachment!"),

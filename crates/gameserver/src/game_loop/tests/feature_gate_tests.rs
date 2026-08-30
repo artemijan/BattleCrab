@@ -89,7 +89,7 @@ fn allow_discard_item_off_refuses_the_drop_unless_overridden() {
 fn allow_boat_off_registers_no_ferries() {
     let (mut world, _rx) = gated_world();
     world.cfg.general.allow_boat = false;
-    crate::game_loop::boats::spawn_boats(&mut world);
+    crate::game_loop::space::boats::spawn_boats(&mut world);
     assert_eq!(
         world.objects.count::<Boat>(),
         0,
@@ -97,7 +97,7 @@ fn allow_boat_off_registers_no_ferries() {
     );
 
     let (mut world, _rx) = gated_world();
-    crate::game_loop::boats::spawn_boats(&mut world);
+    crate::game_loop::space::boats::spawn_boats(&mut world);
     assert!(
         world.objects.count::<Boat>() > 0,
         "…and the ferries are back with it on"
@@ -135,7 +135,7 @@ fn allow_refund_off_destroys_the_sold_stack_instead_of_filing_it() {
                 r.push(inst);
             }
         }
-        let shown = crate::game_loop::shop::refund_items_of(&world, 100).len();
+        let shown = crate::game_loop::commerce::shop::refund_items_of(&world, 100).len();
         assert_eq!(
             shown,
             usize::from(key),
@@ -167,12 +167,12 @@ fn the_refund_tab_hides_rows_left_over_from_when_it_was_on() {
         r.push(inst);
     }
     assert_eq!(
-        crate::game_loop::shop::refund_items_of(&world, 100).len(),
+        crate::game_loop::commerce::shop::refund_items_of(&world, 100).len(),
         1
     );
     world.cfg.general.allow_refund = false;
     assert!(
-        crate::game_loop::shop::refund_items_of(&world, 100).is_empty(),
+        crate::game_loop::commerce::shop::refund_items_of(&world, 100).is_empty(),
         "the rows survive but the tab does not show them"
     );
 }
@@ -215,7 +215,7 @@ fn the_chat_scopes_route_by_region_globally_or_not_at_all() {
         drain(&mut speaker_rx);
         drain(&mut listener_rx);
 
-        crate::game_loop::chat::handle_say2(
+        crate::game_loop::social::chat::handle_say2(
             &mut world,
             1,
             &say2_body("hi", ChatType::Trade as i32, None),
@@ -253,7 +253,7 @@ fn trade_chat_needs_level_twenty_and_shout_does_not() {
         drain(&mut speaker_rx);
         drain(&mut listener_rx);
 
-        crate::game_loop::chat::handle_say2(
+        crate::game_loop::social::chat::handle_say2(
             &mut world,
             1,
             &say2_body("hi", chat_type as i32, None),
@@ -291,7 +291,7 @@ fn minimum_chat_level_gates_three_channels_with_their_own_messages() {
             .level = 29;
         drain(&mut rx);
 
-        crate::game_loop::chat::handle_say2(
+        crate::game_loop::social::chat::handle_say2(
             &mut world,
             1,
             &say2_body("hi", chat_type as i32, None),
@@ -317,7 +317,7 @@ fn the_chat_level_gate_exempts_a_chat_conditions_holder() {
         p.cond_overrides |= 1u64 << 8;
     }
     drain(&mut rx);
-    crate::game_loop::chat::handle_say2(
+    crate::game_loop::social::chat::handle_say2(
         &mut world,
         1,
         &say2_body("hi", ChatType::General as i32, None),

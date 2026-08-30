@@ -6,12 +6,12 @@
 use super::guard::{self, Guard, OrReject, Reject};
 use crate::enums::AdminTeleportType;
 use crate::game_loop::admin::find_online_player;
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
-use crate::game_loop::target;
 use crate::model::Player;
 use crate::model::components::Speeds;
 use crate::model::npc::Npc;
@@ -66,8 +66,8 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
             .unwrap_or_default()
     };
     if world.objects.has_component::<Player>(&target) {
-        crate::game_loop::player_info::broadcast_user_info(world, target);
-    } else if let Some(pkt) = crate::game_loop::visibility::npc_info_bytes(world, target) {
+        crate::game_loop::character::player_info::broadcast_user_info(world, target);
+    } else if let Some(pkt) = crate::game_loop::space::visibility::npc_info_bytes(world, target) {
         // Java `broadcastInfo()` for a non-player creature.
         helpers::broadcast_including_self(world, target, &pkt);
     }
@@ -218,7 +218,7 @@ pub(super) fn admin_teleportto(world: &mut World, client_id: u32, object_id: i32
 /// `AdminTeleport`'s click-to-move latches — the "Move:" row of
 /// `html/admin/move.htm` ("Additional Movement Options"). Java arms
 /// `Player.setTeleMode(...)` and the next `MoveBackwardToLocation` consumes it
-/// (see [`crate::game_loop::position::handle_move_backward_to_location`]):
+/// (see [`crate::game_loop::space::position::handle_move_backward_to_location`]):
 ///
 /// * `//instant_move` → `DEMONIC` ("Demonic mode")
 /// * `//teleto sayune` → `SAYUNE`
@@ -332,7 +332,7 @@ pub(super) fn admin_go(
 /// `move.htm`. Java sets `AI_INTENTION_MOVE_TO`, i.e. the GM *walks* there
 /// under the ordinary movement pipeline (geodata clamp, pathfinder, arrival
 /// events) rather than teleporting; the pair only makes sense as a pair, so
-/// this routes to the same [`intention_move_to`](crate::game_loop::position::intention_move_to)
+/// this routes to the same [`intention_move_to`](crate::game_loop::space::position::intention_move_to)
 /// the move packet uses. A malformed coordinate is swallowed silently, as in
 /// Java (`catch (Exception e) {}` with an empty body).
 pub(super) fn admin_walk(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
@@ -346,7 +346,13 @@ pub(super) fn admin_walk(world: &mut World, client_id: u32, object_id: i32, args
     let Some(cur) = helpers::maybe_position(world, object_id) else {
         return;
     };
-    crate::game_loop::position::intention_move_to(world, client_id, object_id, cur, (x, y, z));
+    crate::game_loop::space::position::intention_move_to(
+        world,
+        client_id,
+        object_id,
+        cur,
+        (x, y, z),
+    );
 }
 
 /// `AdminTeleport`'s `//sendhome [name]` — teleport the targeted or named player

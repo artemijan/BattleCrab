@@ -234,7 +234,7 @@ fn buy_seed_trades_adena_for_seeds_and_decrements_stock() {
         "the manor's stock dropped by 5"
     );
     assert_eq!(
-        crate::game_loop::castle::treasury(&world, 1),
+        crate::game_loop::siege::treasury::treasury(&world, 1),
         50,
         "and the sale went into the castle's vault (addToTreasuryNoTax)"
     );
@@ -270,7 +270,7 @@ fn buy_seed_at_an_unowned_castle_banks_nothing() {
     crate::game_loop::manor::handle_request_buy_seed(&mut world, 1, &w.into_bytes());
 
     assert_eq!(inv_count(&world, ADENA_ID), 950, "the buyer still paid");
-    assert_eq!(crate::game_loop::castle::treasury(&world, 1), 0);
+    assert_eq!(crate::game_loop::siege::treasury::treasury(&world, 1), 0);
 }
 
 /// The purchase is refused (no adena taken, no stock change) when the buyer
@@ -1106,7 +1106,7 @@ fn rollover_pays_crops_to_the_warehouse_and_refunds_the_treasury() {
         "60 sold × 0.9 matured crops reached the clan warehouse"
     );
     assert_eq!(
-        crate::game_loop::castle::treasury(&world, 1),
+        crate::game_loop::siege::treasury::treasury(&world, 1),
         40 * 7,
         "the unspent reservation went back to the vault"
     );
@@ -1135,7 +1135,7 @@ fn an_unset_crop_line_settles_nothing() {
     let (mut world, _rx) = settlement_world(0, 0, 7);
     crate::game_loop::manor::advance_manor_mode(&mut world);
     assert_eq!(clan_wh_count(&world, 500, MATURE_ID), 0);
-    assert_eq!(crate::game_loop::castle::treasury(&world, 1), 0);
+    assert_eq!(crate::game_loop::siege::treasury::treasury(&world, 1), 0);
 }
 
 /// **The next period is wiped when the treasury can't cover the one just
@@ -1169,7 +1169,7 @@ fn the_next_period_is_gated_on_the_treasury() {
     // Same setup, but the vault covers the promoted period's 700 adena.
     let (mut world, _rx) = settlement_world(0, 0, 7);
     setup(&mut world);
-    crate::game_loop::castle::add_to_treasury_no_tax(&mut world, 1, 700);
+    crate::game_loop::siege::treasury::add_to_treasury_no_tax(&mut world, 1, 700);
     crate::game_loop::manor::advance_manor_mode(&mut world);
     assert_eq!(
         world.manor.crop_procure(1, true).len(),
@@ -1202,7 +1202,7 @@ fn the_rollover_persists_the_manor() {
             start_amount: 500,
         }],
     );
-    crate::game_loop::castle::add_to_treasury_no_tax(&mut world, 1, 10_000_000);
+    crate::game_loop::siege::treasury::add_to_treasury_no_tax(&mut world, 1, 10_000_000);
     world.manor.set_mode(ManorMode::Approved);
     let mut db = _db;
     drain_db(&mut db);
@@ -1257,14 +1257,14 @@ fn approving_charges_the_manor_cost() {
             reward_type: 1,
         }],
     );
-    crate::game_loop::castle::add_to_treasury_no_tax(&mut world, 1, 1_000);
+    crate::game_loop::siege::treasury::add_to_treasury_no_tax(&mut world, 1, 1_000);
     world.manor.set_mode(ManorMode::Modifiable);
 
     crate::game_loop::manor::advance_manor_mode(&mut world);
 
     assert_eq!(world.manor.mode(), ManorMode::Approved);
     assert_eq!(
-        crate::game_loop::castle::treasury(&world, 1),
+        crate::game_loop::siege::treasury::treasury(&world, 1),
         300,
         "1000 − the period's 700 adena cost"
     );

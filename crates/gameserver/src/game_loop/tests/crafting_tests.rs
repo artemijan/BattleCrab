@@ -4,7 +4,7 @@ use crate::data::item_data::{
     CrystalType, EtcItemType, ItemHandler, ItemKind, ItemTemplate, SLOT_R_HAND,
 };
 use crate::data::recipe_data::{RareProduction, RecipeList};
-use crate::game_loop::crafting;
+use crate::game_loop::commerce::crafting;
 use crate::model::components::{RecipeBook, SkillBook};
 use crate::model::inventory::Inventory;
 
@@ -443,7 +443,7 @@ fn enlarge_slot_expand_dwarven_craft_raises_recipe_limit() {
 
     // Learn Expand Dwarven Craft lvl1 (+6, real dist data) and retry.
     learn_skill(&mut world, 3001, 1368);
-    crate::game_loop::passive_skills::recompute_conditioned_passives(&mut world, 3001);
+    crate::game_loop::stats::passive_skills::recompute_conditioned_passives(&mut world, 3001);
     give_item(&mut world, 3001, 9002, RECIPE_ITEM, 1);
     drain(&mut rx);
 

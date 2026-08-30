@@ -59,7 +59,7 @@ fn account_arg(world: &World, client_id: u32, object_id: i32, args: &[&str]) -> 
     if let Some(&typed) = args.first() {
         return Some(typed.to_string());
     }
-    let target = crate::game_loop::target::current(world, object_id)?;
+    let target = crate::game_loop::combat::target::current(world, object_id)?;
     world
         .objects
         .get_component::<crate::model::Player>(&target)
@@ -127,7 +127,7 @@ fn add_premium(world: &mut World, client_id: u32, object_id: i32, months: i64, a
         _ => None,
     });
     if let Some(oid) = online {
-        super::super::pc_cafe::run(world, oid);
+        super::super::character::pc_cafe::run(world, oid);
     }
 }
 

@@ -102,7 +102,8 @@ pub(crate) fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32)
         let mut slots = 0i64;
         let mut loot_weight = 0i64;
         for &(item_id, count) in &pending {
-            slots += crate::game_loop::weight::slots_needed(world, caster_oid, item_id, count);
+            slots +=
+                crate::game_loop::stats::weight::slots_needed(world, caster_oid, item_id, count);
             // Java's `getSpoilLootItems` yields one *template* per line, so
             // `lootWeight += item.getWeight()` counts each line once — the
             // stack count is deliberately NOT multiplied in, quirk and all.
@@ -113,8 +114,8 @@ pub(crate) fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32)
                 .get(item_id)
                 .map_or(0, |t| i64::from(t.weight));
         }
-        if !crate::game_loop::weight::validate_capacity(world, caster_oid, slots)
-            || !crate::game_loop::weight::validate_weight(world, caster_oid, loot_weight)
+        if !crate::game_loop::stats::weight::validate_capacity(world, caster_oid, slots)
+            || !crate::game_loop::stats::weight::validate_weight(world, caster_oid, loot_weight)
         {
             send_sm_bare_to_player(
                 world,

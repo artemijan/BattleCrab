@@ -382,7 +382,7 @@ impl QuestScript for CastleMercenaryManager {
                     .next()
                     .and_then(|n| format!("{}{}", ctx.npc_id, n.trim()).parse::<i32>().ok())
                 {
-                    crate::game_loop::shop::show_buy_window_taxed(
+                    crate::game_loop::commerce::shop::show_buy_window_taxed(
                         ctx.world,
                         ctx.client_id,
                         ctx.player,

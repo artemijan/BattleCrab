@@ -19,7 +19,7 @@
 
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::maybe_position;
-use crate::game_loop::zones::in_zone;
+use crate::game_loop::space::zones::in_zone;
 
 use commons::util::rnd;
 
@@ -382,7 +382,8 @@ pub(crate) fn resolve_npc_cast_target(
     selected_oid: i32,
     skill: &Skill,
 ) -> Option<i32> {
-    use crate::game_loop::{abnormal, servitor, target};
+    use crate::game_loop::combat::target;
+    use crate::game_loop::{abnormal, servitor};
     use crate::model::skill::TargetType;
 
     // Java passes `getActiveChar().isMovementDisabled()` as `dontMove`, which

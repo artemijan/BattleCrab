@@ -267,7 +267,7 @@ fn say(world: &mut World, text: &str) {
     let mut w = PacketWriter::new();
     w.write_string(text);
     w.write_i32(0); // ChatType::General
-    crate::game_loop::chat::handle_say2(world, CID, &w.into_bytes());
+    crate::game_loop::social::chat::handle_say2(world, CID, &w.into_bytes());
 }
 
 /// **Without premium the panel advertises what premium would give**, showing

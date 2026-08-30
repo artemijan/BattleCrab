@@ -206,7 +206,7 @@ pub(crate) fn use_magic_on(
     // seated player whose skill is also on cooldown hears about the cooldown
     // there and the chair here; ours always names the chair. Every other
     // ordering (passive first, toggles after) matches.
-    if crate::game_loop::sit_stand::is_resting(world, object_id) {
+    if crate::game_loop::character::sit_stand::is_resting(world, object_id) {
         helpers::send_sm_and_action_failed(
             world,
             client_id,

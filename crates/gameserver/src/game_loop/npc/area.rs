@@ -40,10 +40,10 @@ pub(crate) fn spawn_at_boot(world: &mut World) {
     for mammon in MAMMONS {
         relocate_mammon(world, mammon.npc_id);
     }
-    let night = crate::game_loop::game_time::is_night_at(commons::util::now_millis());
+    let night = crate::game_loop::upkeep::game_time::is_night_at(commons::util::now_millis());
     // `ai/others/Spawns/DayNightSpawns.onSpawnActivate` — place the half of
     // every day/night template that matches the phase we booted into.
-    crate::game_loop::spawn_scripts::activate_at_boot(world);
+    super::spawn_scripts::activate_at_boot(world);
     eilhalder_on_day_night_change(world, night);
     world.scheduler.schedule(
         world.tick + DAY_NIGHT_CHECK_TICKS,
@@ -297,15 +297,15 @@ const EILHALDER_DESPAWN_RETRY_TICKS: u64 = 300;
 /// The minute beat: fire the transition handler when day/night flipped,
 /// re-arm carrying the new state (state lives in the task itself).
 pub(crate) fn handle_day_night_check(world: &mut World, was_night: bool) {
-    let night = crate::game_loop::game_time::is_night_at(commons::util::now_millis());
+    let night = crate::game_loop::upkeep::game_time::is_night_at(commons::util::now_millis());
     if night != was_night {
         // Java fires `OnDayNightChange` to every listener: the day/night spawn
         // groups swap, and Eilhalder von Hellmann comes or goes.
-        crate::game_loop::spawn_scripts::on_day_night_change(world, night);
+        super::spawn_scripts::on_day_night_change(world, night);
         eilhalder_on_day_night_change(world, night);
         // `NightStatModify`'s global `OnDayNightChange` listener: re-pump every
         // bearer's night-gated stat and message the Shadow Sense holders.
-        crate::game_loop::night_stats::on_day_night_change(world, night);
+        crate::game_loop::stats::night_stats::on_day_night_change(world, night);
     }
     world.scheduler.schedule(
         world.tick + DAY_NIGHT_CHECK_TICKS,

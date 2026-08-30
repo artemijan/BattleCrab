@@ -80,7 +80,7 @@ pub(crate) fn cast_hall_buff(
     }
     // Trigger-cast (animation + effects), then charge the NPC's MP and arm its
     // reuse — Java `npc.doCast` does both as part of the cast.
-    crate::game_loop::support_magic::cast_from_npc(
+    crate::game_loop::npc::support_magic::cast_from_npc(
         world,
         npc_oid,
         player_oid,
@@ -271,6 +271,6 @@ pub(crate) fn handle_function_expiry(world: &mut World, hall_id: i32, func_id: i
     if let Some(clan) = world.clans.get_mut(&owner_id) {
         clan.warehouse.0.remove_item(tpl.cost_id, tpl.cost_count);
     }
-    crate::game_loop::warehouse::persist_clan_warehouse(world, owner_id);
+    crate::game_loop::commerce::warehouse::persist_clan_warehouse(world, owner_id);
     set_function(world, hall_id, func_id, level, now + tpl.duration_ms);
 }

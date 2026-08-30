@@ -8,7 +8,7 @@
 use super::*;
 use crate::data::buy_list_data::BuyListData;
 use crate::db::DbEvent;
-use crate::game_loop::shop;
+use crate::game_loop::commerce::shop;
 use crate::scheduler::ScheduledTask;
 
 /// Gludin's Cooper — sells raw materials, every line without a `price`.

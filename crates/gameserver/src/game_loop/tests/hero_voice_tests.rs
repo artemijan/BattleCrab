@@ -5,7 +5,7 @@
 
 use super::*;
 use crate::enums::ChatType;
-use crate::game_loop::chat;
+use crate::game_loop::social::chat;
 use crate::model::Player;
 use crate::network::server_packets::{opcodes, sm_ids};
 

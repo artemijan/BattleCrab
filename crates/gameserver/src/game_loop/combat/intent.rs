@@ -76,7 +76,7 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
         .unwrap_or_default()
         .0;
     if current != Some(pkt.object_id) {
-        crate::game_loop::target::set_target(world, client_id, object_id, Some(pkt.object_id));
+        super::target::set_target(world, client_id, object_id, Some(pkt.object_id));
     }
 
     // `pkt.shift` is deliberately dropped — Java's `AttackRequest._attackId`
@@ -107,7 +107,7 @@ pub(crate) fn start_attack_intent(
     // and Java sends **nothing** back — not even `clientActionFailed()` — so
     // the click is swallowed whole. (The `Action` click path does end with an
     // unconditional `ActionFailed` of its own; the `AttackRequest` one doesn't.)
-    if crate::game_loop::sit_stand::is_resting(world, object_id) {
+    if crate::game_loop::character::sit_stand::is_resting(world, object_id) {
         return;
     }
     // `PlayableAI.onIntentionAttack`'s Blessing of Protection pair: refused
@@ -147,7 +147,8 @@ pub(crate) fn start_attack_intent(
             helpers::send_action_failed(world, client_id);
             return;
         }
-        if crate::game_loop::zones::is_inside_peace_zone(world, object_id, target_object_id) {
+        if crate::game_loop::space::zones::is_inside_peace_zone(world, object_id, target_object_id)
+        {
             if let Some(client_id) = helpers::client_for_player(world, object_id) {
                 crate::game_loop::helpers::send_sm_and_action_failed(
                     world,
@@ -163,8 +164,7 @@ pub(crate) fn start_attack_intent(
         // which combatants tear down during a siege, and the stationed guards,
         // which attackers (anyone but a defender) may attack. Other folk aren't
         // attackable without the karma system.
-        let attackable =
-            crate::game_loop::target::is_auto_attackable(world, object_id, target_object_id);
+        let attackable = super::target::is_auto_attackable(world, object_id, target_object_id);
         if !attackable || target_dead {
             helpers::send_action_failed(world, client_id);
             return;
@@ -230,8 +230,8 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
         1.0,
         // Doors are hit with whatever is in hand; the weapon mod still
         // applies, so a bow batters a gate on 154 like it does anything else.
-        crate::game_loop::ranged::is_ranged(
-            crate::game_loop::ranged::equipped_weapon_type(world, attacker_oid).unwrap_or_default(),
+        super::ranged::is_ranged(
+            super::ranged::equipped_weapon_type(world, attacker_oid).unwrap_or_default(),
         ),
         // A door is not a creature: it carries no traits, no elements and no
         // pvp/pve side, so all three multipliers are their identity.
@@ -965,7 +965,7 @@ pub(crate) fn start_interact_intent(world: &mut World, object_id: i32, target_ob
     // `canInteract`, so the click falls through to `AI_INTENTION_INTERACT`,
     // which REST then refuses. Net effect — clicking an NPC while seated does
     // nothing at all, near or far.
-    if crate::game_loop::sit_stand::is_resting(world, object_id) {
+    if crate::game_loop::character::sit_stand::is_resting(world, object_id) {
         return;
     }
     world.objects.add_components(
@@ -1023,7 +1023,7 @@ fn player_interact_think(world: &mut World, object_id: i32) {
     // Re-entry after walking into interaction range: only the chat/interact
     // branch reaches here (attackable targets chase via the attack loop, not
     // this walk-to-interact path), so the dontMove flag is moot.
-    crate::game_loop::target::interact_with_npc(world, client_id, object_id, target_object_id);
+    super::target::interact_with_npc(world, client_id, object_id, target_object_id);
 }
 
 /// `maybeMoveToPawn`'s offset for the pick-up/interact think loops — Java
@@ -1039,7 +1039,7 @@ const PICKUP_APPROACH_RANGE: i32 = 36;
 pub(crate) fn start_pickup_intent(world: &mut World, object_id: i32, item_object_id: i32) {
     // `if (getIntention() == AI_INTENTION_REST) { clientActionFailed(); return; }`
     // — loot stays on the floor until the player stands up.
-    if crate::game_loop::sit_stand::is_resting(world, object_id) {
+    if crate::game_loop::character::sit_stand::is_resting(world, object_id) {
         if let Some(client_id) = helpers::client_for_player(world, object_id) {
             helpers::send_action_failed(world, client_id);
         }
@@ -1193,7 +1193,7 @@ pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
             let Some(cur) = maybe_position(world, object_id) else {
                 return;
             };
-            crate::game_loop::position::intention_move_to(
+            crate::game_loop::space::position::intention_move_to(
                 world,
                 client_id,
                 object_id,

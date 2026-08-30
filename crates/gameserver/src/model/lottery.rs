@@ -1,6 +1,6 @@
 //! Weekly Lucky Lottery runtime state — the World-side counterpart of the Java
 //! `Lottery` singleton's fields (G26.5). The round lifecycle, persistence,
-//! ticket draw + claim live in `game_loop/lottery.rs`.
+//! ticket draw + claim live in `game_loop/activities/lottery.rs`.
 
 use std::collections::HashMap;
 
@@ -35,7 +35,7 @@ pub struct DrawnRound {
 }
 
 /// The lottery manager runtime (Java `Lottery` `_number`/`_prize`/… fields).
-/// Inert until [`crate::game_loop::lottery::on_loaded`] initializes it at boot
+/// Inert until [`crate::game_loop::activities::lottery::on_loaded`] initializes it at boot
 /// (only when `AllowLottery`).
 #[derive(Debug, Default)]
 pub struct LotteryState {

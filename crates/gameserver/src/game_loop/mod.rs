@@ -10,111 +10,51 @@
 
 // Lives under skills/ but keeps its historical game_loop::abnormal path.
 pub(crate) use skills::abnormal;
+pub(crate) mod activities;
 pub(crate) mod admin;
-pub(crate) mod auto_play;
-pub(crate) mod auto_potions;
-pub(crate) mod auto_use;
-mod basic_property;
+pub(crate) mod automation;
 /// Bench-only wrappers over the private tick systems (`benches/tick.rs`).
 #[cfg(feature = "bench-api")]
 pub mod bench_api;
-pub(crate) mod boats;
 // Boss submodules keep their historical `game_loop::<boss>` paths; callers
 // (scripts, death, net, scheduler dispatch) address them through this re-export.
 pub(crate) use npc::bosses::{
     antharas, baium, boss_respawn, common, core_boss, dr_chaos, frintezza, grand_boss, orfen,
     queen_ant, raid_curse, sailren, valakas,
 };
-pub(crate) mod birthday;
 mod boot;
-pub(crate) mod bot_report;
-mod bypass;
-pub(crate) mod castle;
-mod chat;
+pub(crate) mod character;
 pub(crate) mod clans;
+pub(crate) mod client;
 pub(crate) mod combat;
-pub(crate) mod command_channel;
+pub(crate) mod commerce;
 mod community_board;
-mod crafting;
-mod cubic;
-pub(crate) mod cursed_weapon;
-pub(crate) mod custom_mail;
-mod daily_tasks;
 pub(crate) mod death;
-mod dispatch;
-mod effect_point;
-pub(crate) mod effect_zones;
 pub(crate) mod events;
-pub(crate) mod falling;
-pub(crate) mod fishing;
-pub(crate) mod flood;
-pub(crate) mod four_sepulchers;
-mod friends;
-pub(crate) mod game_time;
-pub(crate) mod global_vars;
 pub(crate) mod helpers;
-mod henna;
-pub(crate) mod instances;
 pub(crate) mod items;
-mod lobby;
-pub(crate) mod lottery;
 pub(crate) mod mail;
 pub(crate) mod manor;
-pub(crate) mod monster_race;
-pub(crate) mod multisell;
+pub(crate) mod moderation;
 mod net;
 // The boot-time metric registration is the one thing `main` needs out of `net`;
 // re-exported rather than opening the whole module up.
 pub use net::register_metrics;
-pub(crate) mod night_stats;
 pub mod npc;
-pub(crate) mod observation;
-pub(crate) mod offline_trade;
 pub(crate) mod olympiad;
-mod options;
 mod party;
-mod party_room;
-mod passive_skills;
-pub(crate) mod pc_cafe;
-pub(crate) mod pet_evolve;
-pub(crate) mod petition;
-pub(crate) mod player_actions;
-pub(crate) mod player_info;
-pub(crate) mod position;
-mod private_store;
-pub(crate) mod punishment;
 pub mod quests;
-mod ranged;
-mod reco;
-pub(crate) mod regen;
-pub(crate) mod restart;
-pub(crate) mod sell_buffs;
 pub(crate) mod servitor;
-mod settings;
-pub(crate) mod shop;
-mod shortcuts;
 pub(crate) mod siege;
-mod sit_stand;
 pub(crate) mod skills;
-pub(crate) mod spawn_protection;
-pub(crate) mod spawn_scripts;
-pub(crate) mod stat_ctx;
-pub(crate) mod subclass;
-pub(crate) mod support_magic;
-pub(crate) mod tamed_beast;
-mod target;
+pub(crate) mod social;
+pub(crate) mod space;
+pub(crate) mod stats;
 mod tasks;
 #[cfg(test)]
 mod tests;
 pub(crate) mod time;
-mod trade;
-mod user_commands;
-mod visibility;
-mod vitality;
-mod warehouse;
-pub(crate) mod water;
-pub(crate) mod weight;
-pub(crate) mod zones;
+pub(crate) mod upkeep;
 
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -133,7 +73,7 @@ use crate::game_loop::combat::pvp;
 use crate::game_loop::items::ground_items;
 use net::handle_game_event;
 use npc::{ai, walkers};
-use regen::{REGEN_TICK_PERIOD, run_npc_regen_tick, run_regen_tick};
+use stats::regen::{REGEN_TICK_PERIOD, run_npc_regen_tick, run_regen_tick};
 
 /// Base tick period. Slower Java rates (1 s, 5 s…) become `world.tick % N == 0`
 /// systems on top of this.
@@ -329,14 +269,14 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // needs to recompute the authoritative server-side position each
         // 100 ms, same as Java's `MovementTaskManager`. Region-switch
         // visibility events (CharInfo/DeleteObject) ride along.
-        timed!("movement", visibility::movement_tick(&mut world));
+        timed!("movement", space::visibility::movement_tick(&mut world));
         // Player attack intents (chase + swing) every tick, like Java's
         // event-driven PlayerAI reacting as soon as it's ready to act.
         timed!("player_combat", combat::player_combat_tick(&mut world));
-        if world.tick.is_multiple_of(effect_zones::SWEEP_PERIOD) {
+        if world.tick.is_multiple_of(space::effect_zones::SWEEP_PERIOD) {
             timed!("effect_zones", {
-                effect_zones::effect_zone_tick(&mut world);
-                effect_zones::damage_zone_tick(&mut world);
+                space::effect_zones::effect_zone_tick(&mut world);
+                space::effect_zones::damage_zone_tick(&mut world);
             });
         }
         if world.tick.is_multiple_of(walkers::WALKER_PERIOD) {
@@ -354,22 +294,22 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
                 run_regen_tick(&mut world);
                 run_npc_regen_tick(&mut world);
             });
-            timed!("weight", weight::sweep(&mut world));
+            timed!("weight", stats::weight::sweep(&mut world));
         }
-        if world.tick.is_multiple_of(auto_play::TICK_PERIOD) {
+        if world.tick.is_multiple_of(automation::play::TICK_PERIOD) {
             timed!("auto_play", {
-                auto_play::tick(&mut world);
-                auto_use::tick(&mut world);
+                automation::play::tick(&mut world);
+                automation::use_items::tick(&mut world);
             });
         }
-        if world.tick.is_multiple_of(auto_potions::TICK_PERIOD) {
-            timed!("auto_potions", auto_potions::tick(&mut world));
+        if world.tick.is_multiple_of(automation::potions::TICK_PERIOD) {
+            timed!("auto_potions", automation::potions::tick(&mut world));
         }
         if world
             .tick
-            .is_multiple_of(custom_mail::poll_period_ticks(&world))
+            .is_multiple_of(mail::custom::poll_period_ticks(&world))
         {
-            timed!("custom_mail", custom_mail::poll(&mut world));
+            timed!("custom_mail", mail::custom::poll(&mut world));
         }
         if world.tick.is_multiple_of(AUTOSAVE_CHECK_PERIOD) {
             timed!("autosave", net::autosave_tick(&mut world));
@@ -383,12 +323,12 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // `WaterTask`'s 1 s fixed-rate beat (Java schedules one future per
         // drowning player; the port sweeps the component instead). Every tick,
         // because each player's clock starts when *they* went under.
-        timed!("drowning", water::drown_tick(&mut world));
+        timed!("drowning", space::water::drown_tick(&mut world));
         // `_fallingDamageTask`'s 1.5 s one-shot (Java schedules a future per
         // falling player and cancels it on every further report; the port
         // sweeps the component instead). Every tick: each player's clock
         // starts when *they* stopped falling.
-        timed!("falling", falling::falling_damage_tick(&mut world));
+        timed!("falling", space::falling::falling_damage_tick(&mut world));
         // `ItemsOnGroundManager`'s `scheduleAtFixedRate(this, interval, interval)`
         // — the periodic rewrite of `itemsonground`. Off entirely while
         // `SaveDroppedItem` is off, which is why the period is read here rather

@@ -43,7 +43,7 @@ fn manor_setup_gate(world: &mut World, client_id: u32, manor_id: i32) -> Option<
             .objects
             .get_component::<LastFolkNpc>(&player_oid)
             .is_some_and(|&LastFolkNpc(npc)| {
-                crate::game_loop::target::can_interact(world, player_oid, npc)
+                crate::game_loop::combat::target::can_interact(world, player_oid, npc)
             });
         owns && in_range
     };
@@ -192,8 +192,8 @@ const MAX_ADENA: i64 = 99_999_999_999;
 /// `manager instanceof Merchant && canInteract && getParameters().getInt(...)`).
 fn manor_manager_castle(world: &World, player_oid: i32) -> Option<i32> {
     let &LastFolkNpc(npc) = world.objects.get_component::<LastFolkNpc>(&player_oid)?;
-    if !crate::game_loop::shop::is_merchant(world, npc)
-        || !crate::game_loop::target::can_interact(world, player_oid, npc)
+    if !crate::game_loop::commerce::shop::is_merchant(world, npc)
+        || !crate::game_loop::combat::target::can_interact(world, player_oid, npc)
     {
         return None;
     }
@@ -257,7 +257,7 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
             .map_or(0, |sp| sp.price);
         total_price += price * cnt;
         if total_price > MAX_ADENA {
-            crate::game_loop::punishment::illegal_action(
+            crate::game_loop::moderation::punishment::illegal_action(
                 world,
                 player_oid,
                 &format!(
@@ -272,12 +272,12 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
                 .item_data
                 .get(item_id)
                 .map_or(0, |tpl| i64::from(tpl.weight));
-        slots += crate::game_loop::weight::slots_needed(world, player_oid, item_id, cnt);
+        slots += crate::game_loop::stats::weight::slots_needed(world, player_oid, item_id, cnt);
     }
 
     // Java's order is weight, then slots, then adena — and it matters: an
     // overloaded player with no money is told about the weight, not the money.
-    if !crate::game_loop::weight::validate_weight(world, player_oid, total_weight) {
+    if !crate::game_loop::stats::weight::validate_weight(world, player_oid, total_weight) {
         send_to_client(
             world,
             client_id,
@@ -285,7 +285,7 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
         );
         return;
     }
-    if !crate::game_loop::weight::validate_capacity(world, player_oid, slots) {
+    if !crate::game_loop::stats::weight::validate_capacity(world, player_oid, slots) {
         send_to_client(
             world,
             client_id,
@@ -327,7 +327,7 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
     // castle takes nothing (`addToTreasuryNoTax` returns false on `_ownerId <= 0`),
     // so the adena the buyer just paid simply leaves the economy.
     if total_price > 0 {
-        crate::game_loop::castle::add_to_treasury_no_tax(world, manor_id, total_price);
+        crate::game_loop::siege::treasury::add_to_treasury_no_tax(world, manor_id, total_price);
     }
     crate::game_loop::helpers::send_inventory_update(world, player_oid, added);
     if total_price > 0 {

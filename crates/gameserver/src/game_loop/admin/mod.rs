@@ -79,7 +79,7 @@ pub(crate) use gm_util::{
 };
 pub(crate) use world_cmds::{begin_shutdown, server_shutdown_tick};
 // `SkillList` resends aren't admin-only either: the cursed-weapon login restore
-// (`game_loop::cursed_weapon`) grants a skill outside any GM command.
+// (`game_loop::items::cursed_weapon`) grants a skill outside any GM command.
 pub(crate) use skills::refresh_skill_list;
 
 use instance::*;
@@ -101,9 +101,10 @@ use world_cmds::*;
 // `admin` became a folder these were plain `super::` siblings; re-importing them
 // here keeps every `super::helpers::…` / `super::death::…` call in the bodies
 // resolving (a child's `super` now points at this module).
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::{death, helpers, party, target, visibility};
-
+use crate::game_loop::space::visibility;
+use crate::game_loop::{death, helpers, party};
 /// Java `AdminCommandHandler.useAdminCommand`. `full` is the whole command
 /// string *including* the `admin_` prefix, e.g. `"admin_heal 100"`.
 ///
@@ -446,23 +447,23 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_ban_party" | "admin_partyban" => admin_ban_party(world, client_id, object_id, &args),
         "admin_unban_party" | "admin_partyunban" => admin_unban_party(world, client_id, &args),
         // Petitions (Java `AdminPetition`, G31 slice 3).
-        "admin_view_petitions" => super::petition::send_pending_list(world, object_id),
+        "admin_view_petitions" => super::moderation::petition::send_pending_list(world, object_id),
         "admin_view_petition" => {
             if let Some(id) = args.first().and_then(|a| a.parse().ok()) {
-                super::petition::view_petition(world, object_id, id);
+                super::moderation::petition::view_petition(world, object_id, id);
             }
         }
         "admin_accept_petition" => {
             if let Some(id) = args.first().and_then(|a| a.parse().ok()) {
-                super::petition::accept_petition(world, object_id, id);
+                super::moderation::petition::accept_petition(world, object_id, id);
             }
         }
         "admin_reject_petition" => {
             if let Some(id) = args.first().and_then(|a| a.parse().ok()) {
-                super::petition::reject_petition(world, object_id, id);
+                super::moderation::petition::reject_petition(world, object_id, id);
             }
         }
-        "admin_reset_petitions" => super::petition::reset_petitions(world, object_id),
+        "admin_reset_petitions" => super::moderation::petition::reset_petitions(world, object_id),
         // Login-ban relay + IP tools (Java `AdminEditChar`/login link, G31 slice 4).
         "admin_login_ban" => admin_login_ban(world, client_id, &args),
         "admin_login_unban" => admin_login_unban(world, client_id, &args),
@@ -976,7 +977,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             match target::current_player(world, object_id) {
                 _ if text.is_empty() => send_message(world, client_id, "Usage: //force_peti text"),
                 Some(target) => {
-                    if !super::petition::force_petition(world, object_id, target, &text) {
+                    if !super::moderation::petition::force_petition(world, object_id, target, &text)
+                    {
                         send_message(world, client_id, "That player already has a petition.");
                     }
                 }
@@ -1185,7 +1187,7 @@ pub(crate) fn handle_request_gm_command(world: &mut World, client_id: u32, body:
         // same `GMViewItemList` Java sends here.
         5 => {
             let Some(t) = target else { return };
-            let limit = crate::game_loop::weight::inventory_limit(world, t);
+            let limit = crate::game_loop::stats::weight::inventory_limit(world, t);
             let Some(inv) = world
                 .objects
                 .get_component::<crate::model::inventory::Inventory>(&t)
@@ -1225,8 +1227,8 @@ fn send_character_info(world: &mut World, client_id: u32, target: i32) {
     };
     let is_gm = view.p.is_gm(&world.data);
     let load = (
-        crate::game_loop::weight::total_load(view.inventory, &world.data),
-        crate::game_loop::weight::max_load(world, target),
+        crate::game_loop::stats::weight::total_load(view.inventory, &world.data),
+        crate::game_loop::stats::weight::max_load(world, target),
     );
     let pkt = server_packets::gm_view_character_info(&view, exp_percent, load, is_gm);
     send_to_client(world, client_id, pkt);

@@ -6,7 +6,7 @@
 
 use super::*;
 
-use crate::game_loop::observation;
+use crate::game_loop::space::observation;
 use crate::model::components::{Observing, Position};
 
 const TOWER_ID: i32 = 31031;

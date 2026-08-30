@@ -71,8 +71,8 @@ fn insert_swamp_zone(world: &mut World, p: SwampZoneParams) {
 
 fn sweep(world: &mut World, n: u64) {
     for _ in 0..n {
-        world.tick += crate::game_loop::effect_zones::SWEEP_PERIOD;
-        crate::game_loop::effect_zones::damage_zone_tick(world);
+        world.tick += crate::game_loop::space::effect_zones::SWEEP_PERIOD;
+        crate::game_loop::space::effect_zones::damage_zone_tick(world);
     }
 }
 

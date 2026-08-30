@@ -135,21 +135,21 @@ pub fn begin_move(world: &mut World, client_id: u32, object_id: i32, dest: (i32,
     let Some(cur) = maybe_position(world, object_id) else {
         return;
     };
-    super::position::start_move(world, client_id, object_id, cur, dest, None);
+    super::space::position::start_move(world, client_id, object_id, cur, dest, None);
 }
 
 /// Move an object to (x, y, z) maintaining the region index + zone flags —
 /// the invariant-preserving form of "write Position directly".
 pub fn relocate(world: &mut World, object_id: i32, x: i32, y: i32, z: i32) {
     set_position(world, object_id, (x, y, z));
-    super::visibility::update_region(world, object_id);
-    super::zones::revalidate_zone(world, object_id, true);
+    super::space::visibility::update_region(world, object_id);
+    super::space::zones::revalidate_zone(world, object_id, true);
 }
 
 // ---- the systems under measurement, in game-loop firing order ----
 
 pub fn movement_tick(world: &mut World) {
-    super::visibility::movement_tick(world);
+    super::space::visibility::movement_tick(world);
 }
 
 pub fn npc_ai_tick(world: &mut World) {
@@ -165,20 +165,20 @@ pub fn pvp_flag_tick(world: &mut World) {
 }
 
 pub fn regen_tick(world: &mut World) {
-    super::regen::run_regen_tick(world);
+    super::stats::regen::run_regen_tick(world);
 }
 
 pub fn npc_regen_tick(world: &mut World) {
-    super::regen::run_npc_regen_tick(world);
+    super::stats::regen::run_npc_regen_tick(world);
 }
 
 pub fn effect_zone_ticks(world: &mut World) {
-    super::effect_zones::effect_zone_tick(world);
-    super::effect_zones::damage_zone_tick(world);
+    super::space::effect_zones::effect_zone_tick(world);
+    super::space::effect_zones::damage_zone_tick(world);
 }
 
 pub fn weight_sweep(world: &mut World) {
-    super::weight::sweep(world);
+    super::stats::weight::sweep(world);
 }
 
 pub fn drain_item_audit(world: &mut World) {
@@ -186,7 +186,7 @@ pub fn drain_item_audit(world: &mut World) {
 }
 
 pub fn revalidate_zone(world: &mut World, object_id: i32) {
-    super::zones::revalidate_zone(world, object_id, true);
+    super::space::zones::revalidate_zone(world, object_id, true);
 }
 
 pub fn broadcast_including_self(world: &World, object_id: i32, packet: &[u8]) {

@@ -287,7 +287,7 @@ pub(super) fn do_premium(world: &mut World, client_id: u32, object_id: i32, comm
     );
     // `HomeBoard`: a fresh premium account re-arms the PA-point timer (the
     // `PcCafeOnlyPremium` gate may only now be satisfied).
-    crate::game_loop::pc_cafe::run(world, object_id);
+    crate::game_loop::character::pc_cafe::run(world, object_id);
     serve_page(
         world,
         client_id,

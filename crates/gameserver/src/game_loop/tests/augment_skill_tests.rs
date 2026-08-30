@@ -9,8 +9,8 @@
 use super::*;
 
 use crate::data::option_data::{OptionEntry, OptionSkillType, OptionTrigger};
+use crate::game_loop::commerce::multisell;
 use crate::game_loop::helpers::item_id_of;
-use crate::game_loop::multisell;
 use crate::model::components::{Buffs, OptionSkills, OptionTriggers, SkillBook};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
 
@@ -253,7 +253,7 @@ fn equipped_augments_are_reapplied_at_enter_world() {
         "nothing granted yet"
     );
 
-    crate::game_loop::options::apply_equipped_item_options(&mut world, PLAYER);
+    crate::game_loop::stats::options::apply_equipped_item_options(&mut world, PLAYER);
 
     assert_eq!(
         world

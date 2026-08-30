@@ -1,7 +1,7 @@
 //! The enter-world packet burst (`EnterWorld.runImpl`). Inventory is real as
 //! of G5, skills as of G6, shortcuts/macros as of G9.6, friends as of G10,
 //! quest lists as of G11, hennas as of G16 and mail as of G30 (those builders
-//! live in `server_packets.rs`, `game_loop::henna` and `game_loop::mail`);
+//! live in `server_packets.rs`, `game_loop::character::henna` and `game_loop::mail`);
 //! stat/position/action/item packets carry real values.
 //!
 //! Opcodes: plain packets use a single-byte id; extended packets use `0xFE` +
@@ -12,7 +12,7 @@ use commons::network::PacketWriter;
 use crate::data::GameData;
 use crate::data::item_data::ItemTemplate;
 use crate::enums::InventorySlot;
-use crate::game_loop::weight::total_load;
+use crate::game_loop::stats::weight::total_load;
 use crate::model::Player;
 use crate::model::inventory::ItemInstance;
 use crate::network::masks;

@@ -42,6 +42,9 @@ mod damage;
 pub(crate) mod duel;
 mod intent;
 pub mod pvp;
+pub(in crate::game_loop) mod ranged;
+pub(crate) mod spawn_protection;
+pub(in crate::game_loop) mod target;
 
 pub(crate) use attack::{abort_attack, attacker_display_name, do_auto_attack, handle_attack_hit};
 #[cfg(test)]
@@ -364,7 +367,7 @@ fn move_type_evasion_bonus(world: &World, object_id: i32) -> i32 {
     else {
         return 0;
     };
-    let move_type = crate::game_loop::regen::move_type_of(world, object_id);
+    let move_type = crate::game_loop::stats::regen::move_type_of(world, object_id);
     mods.move_type_value(crate::model::stats::Stat::EvasionRate, move_type) as i32
 }
 

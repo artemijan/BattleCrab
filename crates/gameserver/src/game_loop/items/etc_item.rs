@@ -52,9 +52,12 @@ pub(super) fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, it
         ItemHandler::EnchantScrolls => {
             crate::game_loop::items::enchant::open(world, client_id, object_id, item_object_id)
         }
-        ItemHandler::Recipes => {
-            crate::game_loop::crafting::learn_recipe(world, client_id, object_id, item_object_id)
-        }
+        ItemHandler::Recipes => crate::game_loop::commerce::crafting::learn_recipe(
+            world,
+            client_id,
+            object_id,
+            item_object_id,
+        ),
         // A fishing shot used by hand charges immediately (the fishing engine
         // otherwise charges it on cast via `rechargeShots(fish=true)`).
         ItemHandler::FishShots => {
@@ -97,7 +100,7 @@ pub(super) fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, it
 /// in-flight cast is the `Casting` component.
 fn summon_item_allowed(world: &mut World, client_id: u32, object_id: i32) -> bool {
     use crate::network::server_packets::sm_ids;
-    if !crate::game_loop::flood::gate(
+    if !crate::game_loop::client::flood::gate(
         world,
         client_id,
         crate::config::flood_protector::FloodAction::ItemPetSummon,
@@ -111,7 +114,7 @@ fn summon_item_allowed(world: &mut World, client_id: u32, object_id: i32) -> boo
     {
         return false;
     }
-    if crate::game_loop::sit_stand::is_sitting(world, object_id) {
+    if crate::game_loop::character::sit_stand::is_sitting(world, object_id) {
         crate::game_loop::helpers::send_sm_bare_to_client(
             world,
             client_id,
@@ -179,7 +182,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
     };
     // Java's `rollDice` returns 0 when the flood protector refuses, and the
     // caller turns that into the "try again later" message.
-    if !crate::game_loop::flood::gate(
+    if !crate::game_loop::client::flood::gate(
         world,
         client_id,
         crate::config::flood_protector::FloodAction::RollDice,
@@ -227,7 +230,9 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
     if in_peace {
         crate::game_loop::helpers::broadcast_from(world, object_id, &sm);
-    } else if let Some(party) = crate::game_loop::command_channel::party_id_of(world, object_id) {
+    } else if let Some(party) =
+        crate::game_loop::party::command_channel::party_id_of(world, object_id)
+    {
         crate::game_loop::party::broadcast_to_party(world, party, &sm, Some(object_id));
     }
 }
@@ -373,7 +378,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
     };
     // …and it may only be sown inside its own castle's territory (Java
     // `(taxCastle == null) || (seed.getCastleId() != taxCastle.getResidenceId())`).
-    if crate::game_loop::castle::npc_tax_castle(world, target_oid) != Some(seed_castle) {
+    if crate::game_loop::siege::treasury::npc_tax_castle(world, target_oid) != Some(seed_castle) {
         send(world, sm_ids::THIS_SEED_MAY_NOT_BE_SOWN_HERE);
         return;
     }
@@ -593,7 +598,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     // The canonical `Player.isInventoryUnder80` — the hand-rolled copy this
     // replaces read the plain race cap, dropping the GM cap and the
     // `EnlargeSlot` passive bonus `weight::inventory_limit` folds in.
-    if !crate::game_loop::weight::is_inventory_under_80(world, object_id) {
+    if !crate::game_loop::stats::weight::is_inventory_under_80(world, object_id) {
         helpers::send_to_client(
             world,
             client_id,

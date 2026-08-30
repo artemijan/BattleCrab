@@ -11,6 +11,8 @@ pub(crate) mod cast;
 pub(crate) mod doors;
 pub(crate) mod minions;
 pub(crate) mod say;
+pub(crate) mod spawn_scripts;
+pub(crate) mod support_magic;
 pub(crate) mod teleporter;
 pub mod view;
 pub(crate) mod walkers;
@@ -181,7 +183,7 @@ pub fn spawn_all(world: &mut World) -> usize {
             // Java `SpawnTemplate.spawnAll` = `spawn(SpawnGroup::
             // isSpawningByDefault)`: a `spawnByDefault="false"` group waits for
             // the script that owns it. 95 groups on this dist — the day/night
-            // halves, placed by [`crate::game_loop::spawn_scripts`]. Boot
+            // halves, placed by [`super::spawn_scripts`]. Boot
             // used to place them all, so every day/night map stood with *both*
             // populations at once.
             if !world.data.spawn_data.spawns[spawn_idx].groups[group_idx].spawn_by_default {
@@ -297,7 +299,7 @@ pub(crate) fn spawn_one(
     // which deliberately doesn't run this.
     // `SpawnTemplate.notifySpawnNpc` — the template's own `ai=` script
     // (`NoRandomActivity` pins its NPCs down).
-    crate::game_loop::spawn_scripts::apply_spawn_ai(world, oid, spawn_idx);
+    self::spawn_scripts::apply_spawn_ai(world, oid, spawn_idx);
     // `WalkingManager.onSpawn` — attach a walking route if this id has one.
     crate::game_loop::npc::walkers::on_npc_spawn(world, oid, npc_id);
     // The escort lands in `world.minions_placed` inside `spawn_minion_group`

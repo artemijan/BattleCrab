@@ -5,7 +5,7 @@
 //!
 //! **Departure from the `ItemHandler` pattern.** `data/item_data.rs` resolves
 //! `<set name="handler">` to a typed enum at load time; this loader keeps the
-//! raw string. The dispatcher in `game_loop/player_actions.rs` *is* the
+//! raw string. The dispatcher in `game_loop/client/actions.rs` *is* the
 //! registry — Java's `PlayerActionHandler` map — and it is cold, one lookup per
 //! action-bar press, so a second name table buys nothing. Keeping the string is
 //! what lets a handler the port has no arm for name itself in the log instead

@@ -20,7 +20,7 @@ pub fn near_leader(world: &World, leader: i32, member: i32) -> bool {
 
 /// Object ids of the online players standing in the lair zone.
 pub fn players_in_lair_oids(world: &World, zone: i32) -> Vec<i32> {
-    crate::game_loop::zones::players_in_zone(world, zone)
+    crate::game_loop::space::zones::players_in_zone(world, zone)
 }
 
 /// Is the object inside a boss zone? Falls **open** when the zone table isn't

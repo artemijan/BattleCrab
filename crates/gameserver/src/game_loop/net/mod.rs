@@ -14,7 +14,7 @@ pub(crate) fn handle_game_event(world: &mut World, event: GameEvent) {
         GameEvent::Net(e) => handle_net_event(world, e),
         GameEvent::Login(e) => handle_login_link_event(world, e),
         GameEvent::Db(e) => handle_db_event(world, e),
-        GameEvent::Path(e) => super::position::handle_path_result(world, e),
+        GameEvent::Path(e) => super::space::position::handle_path_result(world, e),
     }
 }
 

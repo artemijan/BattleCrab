@@ -388,6 +388,6 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
     );
 
     // `broadcastUserInfo()` + `sendSkillList()`.
-    crate::game_loop::player_info::broadcast_user_info(world, object_id);
+    crate::game_loop::character::player_info::broadcast_user_info(world, object_id);
     refresh_skill_list(world, object_id);
 }

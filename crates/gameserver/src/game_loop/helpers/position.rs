@@ -25,7 +25,7 @@ pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
 /// `visibility::update_npc_region`, a `TeleportToLocation` or `FlyToLocation`
 /// broadcast, sometimes an instance change — and dropping one of those is how
 /// an object ends up visible to the wrong people or invisible to everyone.
-/// [`crate::game_loop::position`] is where movement the world watches happen
+/// [`crate::game_loop::space::position`] is where movement the world watches happen
 /// lives.
 ///
 /// A no-op for an object that has left the world.

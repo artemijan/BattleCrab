@@ -3,7 +3,10 @@
 
 use super::*;
 use crate::game_loop::items::ground_items;
-use crate::game_loop::{chat, command_channel, party, party_room};
+use crate::game_loop::party;
+use crate::game_loop::party::command_channel;
+use crate::game_loop::party::rooms;
+use crate::game_loop::social::chat;
 use crate::network::server_packets::opcodes;
 use crate::network::server_packets::sm_ids;
 
@@ -360,7 +363,7 @@ fn mpcc_room_lifecycle() {
     );
 
     // …and shows in the MPCC browser (exact-location match).
-    let leader_location = party_room::location_of(&world, 3001);
+    let leader_location = rooms::location_of(&world, 3001);
     on_packet(
         &mut world,
         5,

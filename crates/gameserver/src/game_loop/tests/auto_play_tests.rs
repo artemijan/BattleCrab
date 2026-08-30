@@ -2,7 +2,7 @@
 //! play loop: target acquisition, the mode filter, respectful hunting and loot.
 
 use super::*;
-use crate::game_loop::auto_use;
+use crate::game_loop::automation::use_items;
 
 use crate::model::components::{AutoPlaySettings, Casting, TargetRef, Vitals};
 
@@ -24,7 +24,7 @@ fn add_mob(world: &mut World, oid: i32, npc_id: i32, x: i32, y: i32) {
 }
 
 fn settings_of(world: &World) -> AutoPlaySettings {
-    crate::game_loop::auto_play::settings(world, PLAYER).unwrap()
+    crate::game_loop::automation::play::settings(world, PLAYER).unwrap()
 }
 
 fn set(world: &mut World, f: impl FnOnce(&mut AutoPlaySettings)) {
@@ -82,7 +82,7 @@ fn the_loop_targets_the_nearest_monster() {
     add_mob(&mut world, 4002, 20002, 200, 0);
     set(&mut world, |s| s.active = true);
 
-    crate::game_loop::auto_play::tick(&mut world);
+    crate::game_loop::automation::play::tick(&mut world);
 
     assert_eq!(
         world
@@ -100,7 +100,7 @@ fn a_dead_target_is_released() {
     let (mut world, _rx) = play_world();
     add_mob(&mut world, 4001, 20001, 200, 0);
     set(&mut world, |s| s.active = true);
-    crate::game_loop::auto_play::tick(&mut world);
+    crate::game_loop::automation::play::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -115,7 +115,7 @@ fn a_dead_target_is_released() {
         .unwrap()
         .dead = true;
     add_mob(&mut world, 4002, 20002, 400, 0);
-    crate::game_loop::auto_play::tick(&mut world);
+    crate::game_loop::automation::play::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -139,7 +139,7 @@ fn respectful_hunting_skips_a_busy_mob() {
         s.respectful_hunting = true;
     });
 
-    crate::game_loop::auto_play::tick(&mut world);
+    crate::game_loop::automation::play::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -157,7 +157,7 @@ fn respectful_hunting_skips_a_busy_mob() {
         s.active = true;
         s.respectful_hunting = false;
     });
-    crate::game_loop::auto_play::tick(&mut world);
+    crate::game_loop::automation::play::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -177,7 +177,7 @@ fn short_range_limits_the_scan() {
         s.short_range = true;
     });
 
-    crate::game_loop::auto_play::tick(&mut world);
+    crate::game_loop::automation::play::tick(&mut world);
     assert!(
         world
             .objects
@@ -188,7 +188,7 @@ fn short_range_limits_the_scan() {
     );
 
     set(&mut world, |s| s.short_range = false);
-    crate::game_loop::auto_play::tick(&mut world);
+    crate::game_loop::automation::play::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -210,7 +210,7 @@ fn the_target_mode_filters_what_counts() {
         s.next_target_mode = 3;
     });
 
-    crate::game_loop::auto_play::tick(&mut world);
+    crate::game_loop::automation::play::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -246,7 +246,7 @@ fn loot_in_reach_is_picked_up() {
         s.pickup = true;
     });
 
-    crate::game_loop::auto_play::tick(&mut world);
+    crate::game_loop::automation::play::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -298,7 +298,7 @@ fn use_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
 }
 
 fn auto_use(world: &World) -> AutoUseSettings {
-    auto_use::settings(world, PLAYER)
+    use_items::settings(world, PLAYER)
 }
 
 /// A supply item is used; one the player no longer carries is **dropped from
@@ -316,7 +316,7 @@ fn supply_items_are_used_and_missing_ones_forgotten() {
         },
     );
 
-    auto_use::tick(&mut world);
+    use_items::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -332,7 +332,7 @@ fn supply_items_are_used_and_missing_ones_forgotten() {
         .get_component_mut::<Inventory>(&PLAYER)
         .unwrap()
         .remove_item(SHOT, 1);
-    auto_use::tick(&mut world);
+    use_items::tick(&mut world);
     assert!(
         auto_use(&world).supply_items.is_empty(),
         "a vanished item is forgotten, not retried"
@@ -358,7 +358,7 @@ fn the_potion_drinks_below_the_threshold() {
     );
 
     // Full HP: nothing happens.
-    auto_use::tick(&mut world);
+    use_items::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -372,7 +372,7 @@ fn the_potion_drinks_below_the_threshold() {
         .get_component_mut::<Vitals>(&PLAYER)
         .unwrap()
         .cur_hp = 500.0;
-    auto_use::tick(&mut world);
+    use_items::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -383,7 +383,7 @@ fn the_potion_drinks_below_the_threshold() {
     );
 
     // With none left, the slot empties itself.
-    auto_use::tick(&mut world);
+    use_items::tick(&mut world);
     assert_eq!(auto_use(&world).potion_item, 0);
 }
 
@@ -422,7 +422,7 @@ fn a_peace_zone_stops_items_but_not_buffs() {
         .unwrap()
         .mask |= crate::data::zone_data::ZoneKind::Peace.bit();
 
-    auto_use::tick(&mut world);
+    use_items::tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -457,7 +457,7 @@ fn a_running_buff_is_skipped_and_unknown_skills_forgotten() {
     );
 
     // Neither skill is known → both lists self-clean.
-    auto_use::tick(&mut world);
+    use_items::tick(&mut world);
     assert!(auto_use(&world).buffs.is_empty(), "unknown buff forgotten");
 }
 

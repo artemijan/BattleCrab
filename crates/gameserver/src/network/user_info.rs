@@ -104,7 +104,7 @@ pub fn user_info(
     ));
 
     // RELATION — party/clan bitmask (Java `calculateRelation`); the caller
-    // computes it via `game_loop::player_info::calculate_relation`. Siege (0x80) is
+    // computes it via `game_loop::character::player_info::calculate_relation`. Siege (0x80) is
     // unported and stays clear.
     w.write_i32(relation);
 

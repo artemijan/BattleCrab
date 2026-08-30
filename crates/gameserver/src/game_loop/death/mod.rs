@@ -184,7 +184,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
 
     // `CursedWeaponsManager.checkDrop`: an ordinary monster slain by an
     // un-cursed player has a tiny chance to drop a cursed weapon.
-    super::cursed_weapon::on_monster_killed(world, npc_oid, killer_oid);
+    super::items::cursed_weapon::on_monster_killed(world, npc_oid, killer_oid);
 
     // `Attackable.doDie`'s minion notifications, in Java's order: tell this
     // NPC's leader it lost a minion, then (if it led a pack itself) clear its
@@ -372,7 +372,7 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
     if let Some(ids) = world.npc_regions.get_mut(&region) {
         ids.retain(|&id| id != npc_oid);
     }
-    super::target::release_target_holders(world, npc_oid);
+    super::combat::target::release_target_holders(world, npc_oid);
     broadcast_near_region_in(
         world,
         region,
@@ -400,7 +400,7 @@ pub(crate) fn handle_npc_respawn(
     // A `dayTime`/`nightTime` mob killed near the end of its phase must not
     // climb back out during the other half of the day (Java's `despawnAll`
     // stops the spawn outright; here the scheduled task outlives the despawn).
-    if !super::spawn_scripts::respawn_is_in_phase(world, spawn_idx, group_idx) {
+    if !super::npc::spawn_scripts::respawn_is_in_phase(world, spawn_idx, group_idx) {
         return;
     }
     let Some(object_id) = crate::game_loop::npc::spawn_one(world, spawn_idx, group_idx, npc_idx)
@@ -438,7 +438,7 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
     // `decayMe()`: release every holder's selection, then un-spawn the NPC for
     // the players around its old position. NPCs hold no `TargetRef` here (an
     // NPC's "target" is its aggro list), so only players need the packet.
-    super::target::release_target_holders(world, npc_oid);
+    super::combat::target::release_target_holders(world, npc_oid);
     broadcast_near_region_in(
         world,
         old_region,
@@ -473,7 +473,7 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
         return;
     };
     let visuals = super::abnormal::visual_effects(world, object_id);
-    let clan = super::visibility::npc_clan_block(world, object_id);
+    let clan = super::space::visibility::npc_clan_block(world, object_id);
     let pkt = server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &visuals, clan);
     broadcast_near_region_in(world, region, instance_of(world, object_id), &pkt);
 }

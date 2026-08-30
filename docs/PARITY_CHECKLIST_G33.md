@@ -5,7 +5,7 @@ against the Rust dispatch table, keyed by **opcode value**, to surface any
 packet family that slipped a milestone. Source of truth: Java
 `network/ClientPackets.java` + `ExClientPackets.java` (only `::new` handlers;
 `null` registrations are Java's own no-ops), against
-`game_loop/dispatch.rs` (`on_packet` / `on_ex_packet`, an empty `{}` arm still
+`game_loop/client/dispatch.rs` (`on_packet` / `on_ex_packet`, an empty `{}` arm still
 counting as handled).
 
 ## Summary

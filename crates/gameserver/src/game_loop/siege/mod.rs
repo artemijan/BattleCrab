@@ -29,6 +29,7 @@ pub(crate) use mercenaries::use_ticket as use_mercenary_ticket;
 mod packets;
 mod registration;
 mod schedule;
+pub(crate) mod treasury;
 
 use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers::is_dead;
@@ -104,7 +105,7 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
     // Inside`: now that the siege is active, participants standing in the zone
     // gain the in-siege crown (UserInfo 0x80) + attackable icon. Runs before the
     // teleport below, matching Java's order.
-    super::zones::refresh_siege_zone_for_all(world);
+    super::space::zones::refresh_siege_zone_for_all(world);
 
     // "The <castle> siege has started." + the siege sound, to everyone.
     broadcast_sm(world, sm_ids::THE_S1_SIEGE_HAS_STARTED, castle_id);
@@ -216,7 +217,7 @@ pub(crate) fn handle_siege_fame(world: &mut World, player_oid: i32) {
             sm_ids::YOU_HAVE_ACQUIRED_S1_FAME,
             &[SmParam::Int(amount)],
         );
-        crate::game_loop::player_info::broadcast_user_info(world, player_oid);
+        crate::game_loop::character::player_info::broadcast_user_info(world, player_oid);
     }
     // Still in the zone, so it keeps ticking either way.
     let delay = world.cfg.character.castle_zone_fame_task_frequency as u64 * 10;
@@ -251,7 +252,7 @@ pub(crate) fn update_player_siege_state_flags(world: &mut World, castle_id: i32,
     // `broadcast_user_info` carries both (UserInfo to self, CharInfo to the
     // neighbours), and the relation refresh rides the same path.
     for member in touched {
-        super::player_info::broadcast_user_info(world, member);
+        super::character::player_info::broadcast_user_info(world, member);
         pvp::broadcast_siege_relation(world, member);
     }
 }
@@ -320,7 +321,7 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
     for member in registered_online_members(world, castle_id) {
         crate::game_loop::items::check_item_restriction(world, member);
     }
-    super::zones::refresh_siege_zone_for_all(world);
+    super::space::zones::refresh_siege_zone_for_all(world);
     // `_castle.setFirstMidVictory(false)`.
     if let Some(c) = world.castle_mut(castle_id) {
         c.first_mid_victory = false;

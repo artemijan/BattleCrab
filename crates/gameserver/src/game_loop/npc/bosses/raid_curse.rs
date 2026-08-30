@@ -100,7 +100,7 @@ pub(crate) fn on_skill_cast_near_raid(world: &mut World, caster_oid: i32, skill_
     // `forEachVisibleObjectInRange(this, Attackable.class, ALT_PARTY_RANGE, …)`
     // — the helper has no radius term (Java's visible-object scan is
     // region-based), so the range is applied here.
-    let nearby = crate::game_loop::visibility::visible_creatures(world, caster_oid);
+    let nearby = crate::game_loop::space::visibility::visible_creatures(world, caster_oid);
     for npc_oid in nearby {
         if !crate::geo::distance::within_2d(world, caster_oid, npc_oid, PARTY_RANGE) {
             continue;

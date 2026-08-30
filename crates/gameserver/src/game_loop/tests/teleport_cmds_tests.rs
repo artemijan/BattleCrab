@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::user_commands;
+use crate::game_loop::client::user_commands;
 use crate::model::skill::{AffectObject, AffectScope};
 
 /// `showTeleports` builds the button list: the fee suffix shows only above

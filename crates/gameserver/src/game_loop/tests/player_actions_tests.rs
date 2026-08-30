@@ -9,8 +9,8 @@
 
 use super::*;
 use crate::data::action_data::ActionData;
-use crate::game_loop::dispatch::on_packet;
-use crate::game_loop::player_actions;
+use crate::game_loop::client::actions;
+use crate::game_loop::client::dispatch::on_packet;
 use crate::model::components::Speeds;
 use crate::network::server_packets::opcodes;
 
@@ -253,7 +253,7 @@ fn the_real_action_data_binds_the_emote_and_gait_rows() {
     // And the row `SitStand` has always been reached by — proof the table
     // carries the ids the old allow-list hard-coded.
     assert_eq!(
-        data.row(player_actions::action::SIT_STAND)
+        data.row(actions::action::SIT_STAND)
             .map(|r| r.handler.as_str()),
         Some("SitStand")
     );

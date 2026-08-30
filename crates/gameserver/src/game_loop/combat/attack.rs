@@ -59,16 +59,14 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     // reload delay, ammunition, MP. Only players carry ammunition — an NPC
     // archer shoots freely, as in Java (the whole block is `isPlayer()`-gated
     // apart from the reuse timer).
-    let weapon_type =
-        crate::game_loop::ranged::equipped_weapon_type(world, attacker_oid).unwrap_or_default();
-    if crate::game_loop::ranged::is_ranged(weapon_type)
+    let weapon_type = super::ranged::equipped_weapon_type(world, attacker_oid).unwrap_or_default();
+    if super::ranged::is_ranged(weapon_type)
         && world
             .objects
             .has_component::<crate::model::Player>(&attacker_oid)
-        && let Err(why) =
-            crate::game_loop::ranged::prepare_ranged_shot(world, attacker_oid, weapon_type)
+        && let Err(why) = super::ranged::prepare_ranged_shot(world, attacker_oid, weapon_type)
     {
-        crate::game_loop::ranged::report_refusal(world, attacker_oid, why);
+        super::ranged::report_refusal(world, attacker_oid, why);
         return;
     }
 
@@ -111,7 +109,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         position,
         // `World::now_millis` rather than the free function: the night flag is
         // a decision the client can observe, and tests pin the clock with it.
-        crate::game_loop::game_time::is_night_at(world.now_millis()),
+        crate::game_loop::upkeep::game_time::is_night_at(world.now_millis()),
     );
     // `generateAttackTargetData` — one swing can carry several hits, and a
     // **dual** weapon rolls the whole ladder twice (miss, shield, crit,
@@ -168,7 +166,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             let shield = formulas::calc_shield_use(
                 target.shield_rate,
                 target.con_bonus,
-                crate::game_loop::ranged::is_ranged(weapon_type),
+                super::ranged::is_ranged(weapon_type),
                 from_behind,
                 world.roll(100),
                 world.roll(100),
@@ -218,7 +216,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                     shots_bonus,
                     // A bow/crossbow swings on Java's **154** weapon mod, and
                     // its crits split across both halves of the expression.
-                    crate::game_loop::ranged::is_ranged(weapon_type),
+                    super::ranged::is_ranged(weapon_type),
                     // `calcAutoAttackDamage`'s own `damage *= calcAttackTraitBonus(...)`
                     // — the weapon trait plus every group-2 weakness, which is what
                     // makes the Hunter's "Detect … Weakness" line pay off.

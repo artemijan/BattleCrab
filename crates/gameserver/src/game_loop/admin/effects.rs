@@ -9,10 +9,10 @@
 //! carries the full `MovieHolder` bookkeeping (see [`admin_playmovie`]).
 
 use crate::game_loop::admin::find_online_player;
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{is_creature, nth_arg, object_name};
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client, send_to_client};
-use crate::game_loop::target;
 use crate::geo::distance::within_2d_xy;
 use crate::model::Player;
 use crate::model::components::Position;
@@ -284,7 +284,7 @@ pub(super) fn admin_setteam(
         if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
             p.team = team;
             set += 1;
-            crate::game_loop::player_info::broadcast_user_info(world, target);
+            crate::game_loop::character::player_info::broadcast_user_info(world, target);
         } else if let Some(n) = world
             .objects
             .get_component_mut::<crate::model::npc::Npc>(&target)
@@ -311,7 +311,7 @@ pub(super) fn admin_clearteams(world: &mut World, client_id: u32, object_id: i32
             && p.team != 0
         {
             p.team = 0;
-            crate::game_loop::player_info::broadcast_user_info(world, target);
+            crate::game_loop::character::player_info::broadcast_user_info(world, target);
         }
     }
     send_message(world, client_id, "Teams cleared.");
@@ -556,7 +556,7 @@ pub(super) fn admin_playmovie(world: &mut World, client_id: u32, args: &[&str]) 
         return;
     }
     crate::game_loop::combat::abort_attack(world, object_id);
-    crate::game_loop::position::handle_request_stop_move(world, client_id);
+    crate::game_loop::space::position::handle_request_stop_move(world, client_id);
     world.objects.add_components(
         &object_id,
         InMovie {

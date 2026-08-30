@@ -78,7 +78,7 @@ pub(crate) fn distribute_xp_and_sp(
         // the same `if (useVitalityRate())`.
         if xp > 0.0 && use_vitality_rate {
             crate::game_loop::death::consume_kill_vitality(world, member, level, target, xp);
-            crate::game_loop::pc_cafe::give_point(world, member, xp);
+            crate::game_loop::character::pc_cafe::give_point(world, member, xp);
         }
     }
 }

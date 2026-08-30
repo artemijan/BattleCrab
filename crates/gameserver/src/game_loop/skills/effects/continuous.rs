@@ -227,13 +227,17 @@ pub(crate) fn apply_continuous_effects(
             calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, false),
             // The two `<basicProperty>` terms — a stat subtracted inside
             // `baseMod`, and the mesmerizing-debuff chain multiplied after the
-            // clamp (G34 S2, `game_loop::basic_property`).
-            crate::game_loop::basic_property::abnormal_resist(
+            // clamp (G34 S2, `game_loop::stats::basic_property`).
+            crate::game_loop::stats::basic_property::abnormal_resist(
                 world,
                 target_oid,
                 skill.basic_property,
             ),
-            crate::game_loop::basic_property::resist_bonus(world, target_oid, skill.basic_property),
+            crate::game_loop::stats::basic_property::resist_bonus(
+                world,
+                target_oid,
+                skill.basic_property,
+            ),
             formulas::LandRateBounds::of(&world.cfg.character),
         );
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
@@ -375,7 +379,7 @@ pub(crate) fn apply_continuous_effects(
     if skill.is_debuff
         && (skill.is_continuous || skill.operate_type == crate::model::skill::OperateType::Toggle)
     {
-        crate::game_loop::basic_property::increase_resist_level(
+        crate::game_loop::stats::basic_property::increase_resist_level(
             world,
             target_oid,
             skill.basic_property,
@@ -432,9 +436,10 @@ pub(crate) fn apply_continuous_effects(
     {
         // A target missing any of the seven components can't hold a buff, which
         // is the same "didn't land" answer a refusal gives.
-        let landed =
-            crate::game_loop::stat_ctx::with_stat_ctx(world, target_oid, |ctx| ctx.apply(buff))
-                .unwrap_or(false);
+        let landed = crate::game_loop::stats::context::with_stat_ctx(world, target_oid, |ctx| {
+            ctx.apply(buff)
+        })
+        .unwrap_or(false);
         // A refused buff (a same-type buff of equal/higher level is already up)
         // changes nothing — don't schedule its expiry (a stale `BuffExpire` on a
         // shared skill id would drop the surviving buff early) or rebroadcast.
@@ -469,7 +474,7 @@ pub(crate) fn apply_continuous_effects(
         // follows with `broadcastUserInfo()`. Without this the client shows the
         // buff icon but never the changed stats or movement speed (and other
         // players never see the speed change).
-        crate::game_loop::player_info::broadcast_user_info(world, target_oid);
+        crate::game_loop::character::player_info::broadcast_user_info(world, target_oid);
         // Java pushes the visual set only from `startAbnormalVisualEffect` /
         // `stopAbnormalVisualEffect`, i.e. only when the set actually changed —
         // not on every buff. A skill with no `<abnormalVisualEffect>` can't have

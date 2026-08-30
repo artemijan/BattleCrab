@@ -7,10 +7,11 @@ use super::*;
 use crate::data::item_data::ADENA_ID;
 use crate::data::multisell_data::{Ingredient, MultisellEntry, MultisellList, Product};
 use crate::data::zone_data::{Zone, ZoneKind};
-use crate::game_loop::castle::{
+use crate::game_loop::commerce::multisell;
+use crate::game_loop::commerce::shop;
+use crate::game_loop::siege::treasury::{
     add_to_treasury, add_to_treasury_no_tax, npc_tax_castle, tax_percent, treasury,
 };
-use crate::game_loop::{multisell, shop};
 use crate::model::castle::{Castle, CastleSide, TaxType};
 use crate::model::clan::Clan;
 use crate::model::components::ActiveMultisell;
@@ -506,13 +507,14 @@ fn castle_functions_buy_renew_and_lapse() {
         38_000,
         "the lease came from the buyer"
     );
-    let func = crate::game_loop::castle::castle_function(&world, GLUDIO, FUNC_RESTORE_HP)
+    let func = crate::game_loop::siege::treasury::castle_function(&world, GLUDIO, FUNC_RESTORE_HP)
         .expect("function active");
     assert_eq!(func.level, 300);
 
     // The immediate post-purchase run stamps the end time without charging.
     advance_ticks(&mut world, 2);
-    let func = crate::game_loop::castle::castle_function(&world, GLUDIO, FUNC_RESTORE_HP).unwrap();
+    let func = crate::game_loop::siege::treasury::castle_function(&world, GLUDIO, FUNC_RESTORE_HP)
+        .unwrap();
     assert!(func.end_time > 0, "rental period stamped");
 
     // A period later the clan warehouse pays…
@@ -522,7 +524,12 @@ fn castle_functions_buy_renew_and_lapse() {
         ADENA_ID,
         20_000,
     );
-    crate::game_loop::castle::handle_function_renew(&mut world, GLUDIO, FUNC_RESTORE_HP, true);
+    crate::game_loop::siege::treasury::handle_function_renew(
+        &mut world,
+        GLUDIO,
+        FUNC_RESTORE_HP,
+        true,
+    );
     assert_eq!(
         world.clans[&500].warehouse.0.count_of(ADENA_ID),
         8_000,
@@ -530,9 +537,15 @@ fn castle_functions_buy_renew_and_lapse() {
     );
 
     // …and a warehouse that can't pay loses the function.
-    crate::game_loop::castle::handle_function_renew(&mut world, GLUDIO, FUNC_RESTORE_HP, true);
+    crate::game_loop::siege::treasury::handle_function_renew(
+        &mut world,
+        GLUDIO,
+        FUNC_RESTORE_HP,
+        true,
+    );
     assert!(
-        crate::game_loop::castle::castle_function(&world, GLUDIO, FUNC_RESTORE_HP).is_none(),
+        crate::game_loop::siege::treasury::castle_function(&world, GLUDIO, FUNC_RESTORE_HP)
+            .is_none(),
         "the unpaid function lapsed"
     );
 }
@@ -553,8 +566,12 @@ fn the_buffer_needs_the_rented_support_function() {
         "the function-disabled page: {page}"
     );
     assert!(
-        crate::game_loop::castle::castle_function(&world, GLUDIO, model::castle::FUNC_SUPPORT)
-            .is_none()
+        crate::game_loop::siege::treasury::castle_function(
+            &world,
+            GLUDIO,
+            model::castle::FUNC_SUPPORT
+        )
+        .is_none()
     );
 
     // Rent support level 5 (49,000) and ask again.
@@ -581,7 +598,7 @@ fn trap_upgrade_pays_once_and_remembers_the_level() {
     chamberlain(&mut world, "upgrade_trap_confirm 0 2");
     assert_eq!(adena_of(&world, 100), 6_000_000, "level 2 costs 4,000,000");
     assert_eq!(
-        crate::game_loop::castle::trap_upgrade_level(&world, GLUDIO, 0),
+        crate::game_loop::siege::treasury::trap_upgrade_level(&world, GLUDIO, 0),
         2
     );
     drain(&mut rx);
@@ -595,7 +612,7 @@ fn trap_upgrade_pays_once_and_remembers_the_level() {
         "the already-at page is served"
     );
     assert_eq!(
-        crate::game_loop::castle::trap_upgrade_level(&world, GLUDIO, 0),
+        crate::game_loop::siege::treasury::trap_upgrade_level(&world, GLUDIO, 0),
         2,
         "level unchanged"
     );
@@ -632,7 +649,7 @@ fn castle_regen_multiplier_keeps_javas_integer_division() {
         condition: None,
         mother_tree: None,
     });
-    crate::game_loop::castle::update_castle_function(
+    crate::game_loop::siege::treasury::update_castle_function(
         &mut world,
         GLUDIO,
         model::castle::FUNC_RESTORE_HP,
@@ -640,7 +657,7 @@ fn castle_regen_multiplier_keeps_javas_integer_division() {
         12_000,
         604_800_000,
     );
-    crate::game_loop::castle::update_castle_function(
+    crate::game_loop::siege::treasury::update_castle_function(
         &mut world,
         GLUDIO,
         model::castle::FUNC_RESTORE_MP,
@@ -648,7 +665,7 @@ fn castle_regen_multiplier_keeps_javas_integer_division() {
         45_000,
         604_800_000,
     );
-    let (hp, mp) = crate::game_loop::regen::castle_regen_mult(&world, 100);
+    let (hp, mp) = crate::game_loop::stats::regen::castle_regen_mult(&world, 100);
     assert_eq!(hp, 3.0, "300 / 100 = 3");
     assert_eq!(mp, 0.0, "40 / 100 = 0 — Java's bug, ported as behaviour");
 }

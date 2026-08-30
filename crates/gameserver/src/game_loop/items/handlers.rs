@@ -33,7 +33,7 @@ pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
     if world.inventory_blocked.contains(&object_id) {
         return;
     }
-    let max_load = crate::game_loop::weight::max_load(world, object_id);
+    let max_load = crate::game_loop::stats::weight::max_load(world, object_id);
     let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
     };
@@ -132,7 +132,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     };
     // Java: `_count < 0` punishes; `_count == 0` is a plain refusal.
     if pkt.count < 0 {
-        crate::game_loop::punishment::illegal_action(
+        crate::game_loop::moderation::punishment::illegal_action(
             world,
             object_id,
             &format!(
@@ -189,9 +189,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
             .is_some_and(|p| {
                 p.can_override_cond(crate::game_loop::admin::DESTROY_ALL_ITEMS_ORDINAL)
             });
-        if (undestroyable && !overrides)
-            || crate::game_loop::cursed_weapon::is_cursed_item(world, item_id)
-        {
+        if (undestroyable && !overrides) || super::cursed_weapon::is_cursed_item(world, item_id) {
             send_item_message(world, client_id, "This item cannot be destroyed.");
             return;
         }
@@ -199,7 +197,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     // A non-stackable item can only be destroyed one at a time; asking for
     // more punishes (Java `handleIllegalPlayerAction`).
     if !is_stackable && pkt.count > 1 {
-        crate::game_loop::punishment::illegal_action(
+        crate::game_loop::moderation::punishment::illegal_action(
             world,
             object_id,
             &format!(
@@ -273,7 +271,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     };
     // Java: `_count <= 0` is a punish ("[RequestCrystallizeItem] count <= 0!").
     if pkt.count <= 0 {
-        crate::game_loop::punishment::illegal_action(
+        crate::game_loop::moderation::punishment::illegal_action(
             world,
             player_oid,
             &format!(

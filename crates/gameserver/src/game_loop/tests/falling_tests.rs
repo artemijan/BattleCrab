@@ -7,8 +7,8 @@
 //! `is_falling` alone would pass against a server that never calls it.
 
 use super::*;
-use crate::game_loop::falling::{self, SAFE_FALL_HEIGHT};
-use crate::game_loop::position::handle_validate_position;
+use crate::game_loop::space::falling::{self, SAFE_FALL_HEIGHT};
+use crate::game_loop::space::position::handle_validate_position;
 use crate::model::components::{AdminFlags, FallingDamage, StatModifiers, Vitals};
 use crate::model::stats::Stat;
 

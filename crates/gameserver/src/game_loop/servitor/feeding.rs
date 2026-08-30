@@ -255,7 +255,7 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
     }
     // Java: asking for more than the stack holds punishes.
     if amount > held {
-        crate::game_loop::punishment::illegal_action(
+        crate::game_loop::moderation::punishment::illegal_action(
             world,
             owner,
             &format!(
@@ -301,7 +301,7 @@ pub(crate) fn handle_get_item_from_pet(world: &mut World, client_id: u32, body: 
     };
     // Java: asking for more than the stack holds punishes.
     if amount > held {
-        crate::game_loop::punishment::illegal_action(
+        crate::game_loop::moderation::punishment::illegal_action(
             world,
             owner,
             &format!(

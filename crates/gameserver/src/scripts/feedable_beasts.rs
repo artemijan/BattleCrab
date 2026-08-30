@@ -184,7 +184,7 @@ impl QuestScript for FeedableBeasts {
         {
             if skill_id == t.food_skill {
                 let beast = ctx.npc;
-                crate::game_loop::tamed_beast::on_receive_food(ctx.world, beast);
+                crate::game_loop::servitor::tamed_beast::on_receive_food(ctx.world, beast);
                 let msg = TAMED_TEXT[ctx.roll(TAMED_TEXT.len() as i32) as usize];
                 bark(ctx, beast, msg);
             }
@@ -269,7 +269,7 @@ fn spawn_next(ctx: &mut QuestCtx, growth: &Growth, food: i32) {
     if TAMED_BEASTS.contains(&next_id) {
         let food_skill = food - (GOLDEN_SPICE - SKILL_GOLDEN_SPICE);
         let player = ctx.player;
-        let beast = crate::game_loop::tamed_beast::spawn_tamed_beast(
+        let beast = crate::game_loop::servitor::tamed_beast::spawn_tamed_beast(
             ctx.world, next_id, player, food_skill, x, y, z,
         );
         // SKIP(off-chronicle): Java's quest hooks here — 20 (Bring Up With

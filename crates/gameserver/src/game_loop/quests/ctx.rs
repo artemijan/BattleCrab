@@ -70,7 +70,7 @@ pub(crate) fn add_quest_exp_and_sp(world: &mut World, player: i32, exp: i64, sp:
     // `AbstractScript.addExpAndSp` closes with
     // `givePcCafePoint(player, addExp * RATE_QUEST_REWARD_XP)` — the premium-
     // and rate-multiplied value, which is exactly `exp` here.
-    crate::game_loop::pc_cafe::give_point(world, player, exp as f64);
+    crate::game_loop::character::pc_cafe::give_point(world, player, exp as f64);
 }
 
 impl<'w> QuestCtx<'w> {

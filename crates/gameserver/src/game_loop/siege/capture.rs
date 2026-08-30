@@ -179,7 +179,7 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
         // on this dist). Java runs it once, guarded by `_formerOwner == null`,
         // so a second mid-siege flip does not strip the *new* former owner
         // twice — here `capture` is the only caller, so once per flip.
-        crate::game_loop::castle::remove_circlets_from_clan(world, old, castle_id);
+        super::treasury::remove_circlets_from_clan(world, old, castle_id);
     }
     crate::game_loop::clans::grant_residential_skills_to_clan(world, new_clan_id, castle_id);
 

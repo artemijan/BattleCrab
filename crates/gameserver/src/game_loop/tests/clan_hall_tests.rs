@@ -786,7 +786,7 @@ fn banish_ejects_outsiders_but_not_members() {
 // ---------------------------------------------------------------------------
 
 use crate::game_loop::clans::hall_function::{active_function_value, set_function};
-use crate::game_loop::regen::clan_hall_regen_mult;
+use crate::game_loop::stats::regen::clan_hall_regen_mult;
 
 fn regen_world_with_hall(owner_clan: i32) -> World {
     let (mut world, _db, _l) = combat_test_world();
@@ -1066,7 +1066,7 @@ fn a_manager_serves_its_item_buylist() {
     let player = 8800;
     let mut rx = ingame_player(&mut world, 17, player, 120, 100, 0);
 
-    crate::game_loop::shop::show_buy_window(&mut world, 17, player, npc, 3544700);
+    crate::game_loop::commerce::shop::show_buy_window(&mut world, 17, player, npc, 3544700);
 
     // The ExBuySellList packet (0xFE 0xB8) reaches the client.
     let sent = std::iter::from_fn(|| rx.try_recv().ok()).collect::<Vec<_>>();

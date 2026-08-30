@@ -13,6 +13,7 @@
 
 mod ai;
 mod death;
+pub(crate) mod evolve;
 mod exp;
 mod feeding;
 mod lifetime;
@@ -20,6 +21,7 @@ pub(crate) mod pet;
 mod restore;
 mod shots;
 mod stats;
+pub(crate) mod tamed_beast;
 
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::restore_hp_mp;

@@ -50,7 +50,7 @@ pub const DEFAULT_TITLE_COLOR: i32 = 0x00FF_FF77;
 
 /// `PlayerStat.MAX_VITALITY_POINTS` / `MIN_VITALITY_POINTS` — the bounds every
 /// vitality read and write clamps to. Lives here (rather than in
-/// `game_loop::vitality`) because both the config loader and the stat code need
+/// `game_loop::character::vitality`) because both the config loader and the stat code need
 /// them.
 pub const MAX_VITALITY_POINTS: i32 = 140_000;
 pub const MIN_VITALITY_POINTS: i32 = 0;
@@ -313,7 +313,7 @@ pub struct Player {
     /// `PlayerStat._vitalityPoints` — always clamped to
     /// [`MIN_VITALITY_POINTS`]..=[`MAX_VITALITY_POINTS`]. Persisted in
     /// `characters.vitality_points`; consumed on monster kills and spent as an
-    /// exp/sp multiplier (see `game_loop::vitality`).
+    /// exp/sp multiplier (see `game_loop::character::vitality`).
     pub vitality_points: i32,
     /// `characters.pccafe_points` — PC-cafe loyalty points (`//pccafepoints`).
     pub pccafe_points: i32,
@@ -336,7 +336,7 @@ pub struct Player {
     /// `World::next_reco_give_seq`.
     pub reco_give_seq: u64,
     /// The same guard for the retail-like `PcCafeReward` task
-    /// (`game_loop::pc_cafe`). Re-stamped by every `run`, so an earlier
+    /// (`game_loop::character::pc_cafe`). Re-stamped by every `run`, so an earlier
     /// schedule goes stale instead of stacking a second payout timer.
     pub pc_cafe_seq: u64,
 
@@ -741,7 +741,7 @@ pub struct PlayerData {
     /// Not a component: the finding belongs to the *load*, not to the
     /// character. `from_char` runs against `&GameData` alone and has no world
     /// to broadcast into and no audit sink, so it records what it found and the
-    /// login path ([`game_loop::lobby`](crate::game_loop::lobby)) reports it —
+    /// login path ([`game_loop::client::lobby`](crate::game_loop::client::lobby)) reports it —
     /// the same split `pending_buffs` above uses for the same reason.
     ///
     /// Whether the skills were also *removed* from [`Self::skills`] depends on
@@ -986,7 +986,7 @@ impl<'a> PlayerView<'a> {
                 .map(|c| c.level() as u8)
                 .unwrap_or(0);
         }
-        v.in_water = crate::game_loop::position::is_in_water(world, object_id);
+        v.in_water = crate::game_loop::space::position::is_in_water(world, object_id);
         Some(v)
     }
 }
@@ -2179,7 +2179,7 @@ impl Player {
 /// of what the datapack contains — the sole stats any `StatByMoveType` effect
 /// on this dist targets are `REGENERATE_*` (64 entries) and `EVASION` (1), and
 /// both are finalized at their own call sites, which do add the term
-/// (`game_loop::regen`, `game_loop::combat`). A stat that acquires a
+/// (`game_loop::stats::regen`, `game_loop::combat`). A stat that acquires a
 /// `by_move_type` entry **and** comes through here would silently lose it, so
 /// check that before routing a new stat to this function.
 pub(crate) fn finalize(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
@@ -2516,7 +2516,7 @@ pub(crate) fn weapon_condition_passes(
 /// `<armorType>` condition passes against the worn gear, as a hidden permanent
 /// `ActiveBuff` (Java's `Player.addSkill` passive effects, re-evaluated at pump
 /// time). Skills whose effects are all gated out contribute nothing. Shared by
-/// `from_char` (enter-world) and `game_loop::passive_skills` (equip changes).
+/// `from_char` (enter-world) and `game_loop::stats::passive_skills` (equip changes).
 /// `BaseStats` = the class template's six values **plus every flat bonus that
 /// stacks onto them**: worn hennas (Java `recalcHennaStats`) and complete armor
 /// sets (`BaseStatFinalizer`'s `getBaseStatValue`).

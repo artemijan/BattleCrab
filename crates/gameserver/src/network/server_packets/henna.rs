@@ -1,6 +1,6 @@
 //! Henna / dye symbol packets (G16). Ports of `serverpackets/HennaInfo`,
 //! `HennaEquipList`, `HennaRemoveList`, `HennaItemDrawInfo`,
-//! `HennaItemRemoveInfo`. The runtime flow lives in `game_loop/henna.rs`.
+//! `HennaItemRemoveInfo`. The runtime flow lives in `game_loop/character/henna.rs`.
 //!
 //! Interlude carries only six stats (STR/CON/DEX/INT/MEN/WIT); the LUC/CHA
 //! fields the client expects are written as zero, matching the Java packets.

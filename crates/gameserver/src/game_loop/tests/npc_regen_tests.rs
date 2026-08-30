@@ -51,7 +51,7 @@ fn mp(world: &World, oid: i32) -> f64 {
 /// Run the NPC regen tick `n` times.
 fn regen(world: &mut World, n: usize) {
     for _ in 0..n {
-        crate::game_loop::regen::run_npc_regen_tick(world);
+        crate::game_loop::stats::regen::run_npc_regen_tick(world);
     }
 }
 

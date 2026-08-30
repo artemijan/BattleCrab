@@ -13,12 +13,14 @@ use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
 
+use crate::game_loop::character::player_info;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{broadcast_including_self, client_for_player};
-use crate::game_loop::{clans, combat, command_channel, cursed_weapon, items, player_info, siege};
-
+use crate::game_loop::items::cursed_weapon;
+use crate::game_loop::party::command_channel;
+use crate::game_loop::{clans, combat, items, siege};
 /// `RelationChanged.RELATION_INSIEGE` (0x200) — the "in a siege" bit.
 const RELATION_INSIEGE: i32 = 0x200;
 /// `RelationChanged.RELATION_ENEMY` (0x1000) — the red, attackable siege icon.

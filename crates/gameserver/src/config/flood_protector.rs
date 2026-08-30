@@ -10,9 +10,9 @@
 //! dead: `RollDice`, `ItemPetSummon` and `HeroVoice` are called from the
 //! **datapack scripts** (`handlers/itemhandlers/RollingDice.java`,
 //! `SummonItems.java`, `handlers/chathandlers/ChatHeroVoice.java` — the same
-//! `java/`-only grep blind spot `game_loop::chat`'s header describes, which
+//! `java/`-only grep blind spot `game_loop::social::chat`'s header describes, which
 //! long mislabelled all four as dead here). `HeroVoice` is consumed by
-//! `game_loop::chat::hero_voice`; the two item-handler slots await their
+//! `game_loop::social::chat::hero_voice`; the two item-handler slots await their
 //! handlers. `GlobalChat` alone is unreachable *on this dist*:
 //! `ChatShout`/`ChatTrade` consult it only under `GlobalChatAllowed = global`,
 //! and this dist ships `on` — so shout/trade go un-rate-limited despite the

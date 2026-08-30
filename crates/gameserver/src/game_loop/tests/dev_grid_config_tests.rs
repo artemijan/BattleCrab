@@ -187,7 +187,7 @@ fn the_server_news_is_the_alternative_to_a_clan_notice() {
     drain(&mut rx);
 
     fn popups(world: &mut World, rx: &mut UnboundedReceiver<bytes::Bytes>) -> usize {
-        crate::game_loop::lobby::show_clan_notice_at_login(world, 1, 100);
+        crate::game_loop::client::lobby::show_clan_notice_at_login(world, 1, 100);
         drain(rx)
             .iter()
             .filter(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
@@ -244,7 +244,7 @@ fn the_server_news_is_the_alternative_to_a_clan_notice() {
 /// hoists the unknown branch out has to argue with a test.
 #[test]
 fn the_packet_trace_is_gated_per_direction_and_honours_the_exclusion_list() {
-    use crate::game_loop::dispatch::{client_packet_trace_line, server_packet_trace_line};
+    use crate::game_loop::client::dispatch::{client_packet_trace_line, server_packet_trace_line};
     let (mut world, ..) = test_world();
 
     // Dist values: everything off.

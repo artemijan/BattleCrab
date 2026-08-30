@@ -63,7 +63,7 @@ fn refresh_clan_crest_on_members(world: &mut World, clan_id: i32) {
             p.clan_crest_id = crest_id;
             p.clan_crest_large_id = crest_large_id;
         }
-        crate::game_loop::player_info::broadcast_user_info(world, oid);
+        crate::game_loop::character::player_info::broadcast_user_info(world, oid);
     }
 }
 
@@ -233,7 +233,7 @@ pub(crate) fn handle_request_ex_set_pledge_crest_large(
             // fetched on demand via `RequestExPledgeCrestLarge`) — kept
             // faithful; it's a no-op refresh for everyone but the actor.
             for oid in online_members(world, clan_id) {
-                crate::game_loop::player_info::broadcast_user_info(world, oid);
+                crate::game_loop::character::player_info::broadcast_user_info(world, oid);
             }
             send_sm_with(world, player, sm_ids::THE_CLAN_MARK_HAS_BEEN_DELETED, &[]);
         }
@@ -257,7 +257,7 @@ pub(crate) fn handle_request_ex_set_pledge_crest_large(
         crest_large_id: crest_id,
     });
     for oid in online_members(world, clan_id) {
-        crate::game_loop::player_info::broadcast_user_info(world, oid);
+        crate::game_loop::character::player_info::broadcast_user_info(world, oid);
     }
     send_sm_with(
         world,
@@ -380,7 +380,7 @@ fn set_alliance_crest(world: &mut World, ally_id: i32, crest_id: i32) {
             if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
                 p.ally_crest_id = crest_id;
             }
-            crate::game_loop::player_info::broadcast_user_info(world, oid);
+            crate::game_loop::character::player_info::broadcast_user_info(world, oid);
         }
     }
 }

@@ -17,7 +17,7 @@
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::maybe_position;
 
-use crate::game_loop::instances;
+use crate::game_loop::space::instances;
 use crate::model::components::{AdminFlags, Movement, Position};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -287,7 +287,9 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
                 {
                     c.height = 600.0;
                 }
-                if let Some(pkt) = crate::game_loop::visibility::npc_info_bytes(world, overhead) {
+                if let Some(pkt) =
+                    crate::game_loop::space::visibility::npc_info_bytes(world, overhead)
+                {
                     instances::broadcast_to_instance(world, instance_id, &pkt);
                 }
             }
@@ -907,7 +909,7 @@ fn set_paralyzed(world: &mut World, player_oid: i32, on: bool) {
     let mut flags = admin_flags(world, player_oid);
     flags.paralyzed = on;
     world.objects.add_components(&player_oid, flags);
-    crate::game_loop::player_info::broadcast_user_info(world, player_oid);
+    crate::game_loop::character::player_info::broadcast_user_info(world, player_oid);
 }
 
 fn admin_flags(world: &World, oid: i32) -> AdminFlags {

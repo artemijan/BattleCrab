@@ -647,7 +647,9 @@ fn the_vitality_consume_rate_scales_only_the_loss() {
 
     // No buff: the loss lands in full.
     set(&mut world, 10_000);
-    crate::game_loop::vitality::update_vitality_points(&mut world, CASTER, -1000, true, true);
+    crate::game_loop::character::vitality::update_vitality_points(
+        &mut world, CASTER, -1000, true, true,
+    );
     assert_eq!(vit(&world), 9_000);
 
     // -50 %: half of it.
@@ -658,12 +660,16 @@ fn the_vitality_consume_rate_scales_only_the_loss() {
         .mul
         .insert(Stat::VitalityConsumeRate, 0.5);
     set(&mut world, 10_000);
-    crate::game_loop::vitality::update_vitality_points(&mut world, CASTER, -1000, true, true);
+    crate::game_loop::character::vitality::update_vitality_points(
+        &mut world, CASTER, -1000, true, true,
+    );
     assert_eq!(vit(&world), 9_500);
 
     // …and the gain side is untouched by it.
     set(&mut world, 10_000);
-    crate::game_loop::vitality::update_vitality_points(&mut world, CASTER, 1000, true, true);
+    crate::game_loop::character::vitality::update_vitality_points(
+        &mut world, CASTER, 1000, true, true,
+    );
     assert_eq!(vit(&world), 11_000, "the rate is loss-only");
 
     // A rate of 0 bails out before anything is spent.
@@ -674,6 +680,8 @@ fn the_vitality_consume_rate_scales_only_the_loss() {
         .mul
         .insert(Stat::VitalityConsumeRate, 0.0);
     set(&mut world, 10_000);
-    crate::game_loop::vitality::update_vitality_points(&mut world, CASTER, -1000, true, true);
+    crate::game_loop::character::vitality::update_vitality_points(
+        &mut world, CASTER, -1000, true, true,
+    );
     assert_eq!(vit(&world), 10_000, "no consumption at all");
 }

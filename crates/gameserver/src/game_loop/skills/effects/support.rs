@@ -355,7 +355,7 @@ pub(crate) fn open_recipe_book(world: &mut World, caster_oid: i32, dwarven: bool
                 sm_ids::ITEM_CREATION_IS_NOT_POSSIBLE_WHILE_ENGAGED_IN_A_TRADE,
             );
         } else if let Some(cid) = helpers::client_for_player(world, caster_oid) {
-            crate::game_loop::crafting::request_book_open(world, cid, dwarven);
+            crate::game_loop::commerce::crafting::request_book_open(world, cid, dwarven);
         }
     }
 }
@@ -433,7 +433,7 @@ pub(crate) fn change_appearance(
         AppearancePart::HairStyle => p.hair_style = value,
         AppearancePart::HairColor => p.hair_color = value,
     }
-    crate::game_loop::player_info::broadcast_user_info(world, target_oid);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target_oid);
 }
 
 /// `SendSystemMessageToClan.instant` — `clan.broadcastToOnlineMembers(msg)`.

@@ -1356,7 +1356,7 @@ pub struct AdminFlags {
     /// delivers nothing.
     pub silence: bool,
     /// `isInDietMode` — weight overload is ignored. Set by `GMStartupDietMode`
-    /// and `//diet`; read by [`crate::game_loop::weight`], which reports penalty
+    /// and `//diet`; read by [`crate::game_loop::stats::weight`], which reports penalty
     /// level 0 and "not overloaded" for a dieting GM no matter what they carry.
     pub diet: bool,
     /// `//para`'s `setBlockActions(true)` + `startParalyze()` — ORed into
@@ -1385,7 +1385,7 @@ pub struct RaceTicket(pub [i32; 2]);
 /// `Player._lastFolkNpc`, set by `NpcAction.action`). Bare (non-`npc_`-
 /// prefixed) HTML bypasses like `Quest ClanMaster 9000-02.htm` resolve their
 /// NPC through this — Java uses the `validateHtmlAction` origin id there,
-/// which we don't port (see `game_loop/bypass.rs`); the distance re-check at
+/// which we don't port (see `game_loop/client/bypass.rs`); the distance re-check at
 /// use time is the guard either way. Player-only.
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct LastFolkNpc(pub i32);
@@ -1445,7 +1445,7 @@ impl Default for ZoneFlags {
 /// `Player.isInWater()` is true. Java holds a `ScheduledFuture` whose initial
 /// delay is the breath gauge and whose period is 1 s; the port keeps the tick
 /// the next damage beat is due on and lets
-/// [`game_loop::water`](crate::game_loop::water) sweep it, so "cancel the
+/// [`game_loop::space::water`](crate::game_loop::space::water) sweep it, so "cancel the
 /// task" is just removing the component.
 #[derive(Component, Debug, Clone, Copy)]
 pub struct WaterTask {
@@ -1466,7 +1466,7 @@ impl ZoneFlags {
 /// `ScheduledFuture` off the player, cancelling and re-scheduling it on every
 /// further report so the clock only starts once the player stops falling. The
 /// port keeps the same shape as a component swept by
-/// [`game_loop::falling`](crate::game_loop::falling): "cancel and reschedule"
+/// [`game_loop::space::falling`](crate::game_loop::space::falling): "cancel and reschedule"
 /// is writing [`Self::due_tick`], and the task firing removes the component.
 ///
 /// Same trick as [`WaterTask`], and for the same reason: the scheduler has no
@@ -1542,7 +1542,7 @@ pub enum RequestKind {
 /// `Player.isInMatchingRoom()`. The **authority is `World.matching_rooms`** —
 /// this component exists only because the packet builders take a component
 /// view, and it is written in exactly one place
-/// (`game_loop::party_room`'s join/leave helpers).
+/// (`game_loop::party::rooms`'s join/leave helpers).
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InMatchingRoom;
 

@@ -1,42 +1,42 @@
 //! The `ScheduledTask` dispatch table: route every timer due this tick to its
 //! owning module — the timer face of `dispatch.rs`'s packet routing.
 
+use super::activities::fishing;
+use super::activities::four_sepulchers;
+use super::activities::lottery;
+use super::activities::monster_race;
 use super::admin;
-use super::boats;
-use super::bot_report;
-use super::castle;
+use super::character::pc_cafe;
+use super::character::player_info;
+use super::character::reco;
+use super::character::sit_stand;
 use super::clans;
 use super::combat;
-use super::crafting;
-use super::cubic;
-use super::cursed_weapon;
-use super::daily_tasks;
+use super::commerce::crafting;
+use super::commerce::shop;
 use super::death;
-use super::effect_point;
 use super::events;
-use super::fishing;
-use super::four_sepulchers;
-use super::instances;
-use super::lottery;
+use super::items::cursed_weapon;
 use super::mail;
 use super::manor;
-use super::monster_race;
+use super::moderation::bot_report;
+use super::moderation::punishment;
 use super::npc;
 use super::olympiad;
 use super::party;
-use super::pc_cafe;
-use super::player_info;
-use super::punishment;
 use super::quests;
-use super::reco;
-use super::restart;
 use super::servitor;
-use super::shop;
+use super::servitor::tamed_beast;
 use super::siege;
-use super::sit_stand;
+use super::siege::treasury;
 use super::skills;
-use super::tamed_beast;
-use super::water;
+use super::skills::cubic;
+use super::skills::effect_point;
+use super::space::boats;
+use super::space::instances;
+use super::space::water;
+use super::upkeep::daily_tasks;
+use super::upkeep::restart;
 use crate::game_loop::combat::duel;
 use crate::game_loop::items::ground_items;
 use crate::game_loop::items::item_auction;
@@ -595,7 +595,7 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 castle_id,
                 func_type,
                 charge_warehouse,
-            } => castle::handle_function_renew(world, castle_id, func_type, charge_warehouse),
+            } => treasury::handle_function_renew(world, castle_id, func_type, charge_warehouse),
             ScheduledTask::CreatureSeeSweep => quests::handle_creature_see_sweep(world),
             ScheduledTask::IllegalActionPunish {
                 object_id,

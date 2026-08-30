@@ -184,7 +184,7 @@ pub(crate) fn servitor_toggle_follow(world: &mut World, owner_oid: i32) -> Optio
 /// `ServitorHold` / `ServitorAttack` / `ServitorStop` / `ServitorSkillUse` —
 /// the four `handlers/playeractions/*` entries that order a summon.
 ///
-/// Routed here by handler **name** from `game_loop::player_actions`, which owns
+/// Routed here by handler **name** from `game_loop::client::actions`, which owns
 /// `RequestActionUse` and its guards; this function is only the servitor half.
 /// It used to *be* the packet handler, with an allow-list of ids that silently
 /// dropped every other action in the file — see that module's header.
@@ -322,7 +322,7 @@ fn is_engaged(world: &World, summon_oid: i32) -> bool {
         .get_component::<crate::model::components::AttackState>(&summon_oid)
         .is_some_and(|st| st.attack_end_tick > world.tick);
     mid_swing
-        || crate::game_loop::user_commands::in_combat(world, summon_oid)
+        || crate::game_loop::client::user_commands::in_combat(world, summon_oid)
         || crate::game_loop::abnormal::is_movement_disabled(world, summon_oid)
 }
 

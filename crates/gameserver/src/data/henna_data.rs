@@ -1,6 +1,6 @@
 //! Port of `data/xml/HennaData` + `model/item/Henna` (G16): the dye symbols from
 //! `dist/game/data/stats/hennaList.xml`. The runtime flow (draw/remove windows,
-//! stat application) lives in `game_loop/henna.rs`.
+//! stat application) lives in `game_loop/character/henna.rs`.
 //!
 //! Interlude hennas carry six base-stat bonuses (STR/CON/DEX/INT/MEN/WIT); the
 //! `luc`/`cha` stats present in the Classic XML are ignored by the Java `Henna`

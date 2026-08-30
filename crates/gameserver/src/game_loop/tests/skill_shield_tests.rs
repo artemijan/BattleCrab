@@ -198,8 +198,9 @@ fn a_bow_switches_the_skill_to_the_ranged_formula() {
         inv.equip_item(&data.item_data, oid);
     }
     assert!(
-        crate::game_loop::ranged::is_ranged(
-            crate::game_loop::ranged::equipped_weapon_type(&world, CASTER).unwrap_or_default()
+        crate::game_loop::combat::ranged::is_ranged(
+            crate::game_loop::combat::ranged::equipped_weapon_type(&world, CASTER)
+                .unwrap_or_default()
         ),
         "the Short Bow reports as ranged"
     );

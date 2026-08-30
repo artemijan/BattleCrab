@@ -1,16 +1,16 @@
 //! Game-loop integration tests. Shared fixtures/helpers live here; the
 //! `#[test]` cases are split into topical submodules that `use super::*`.
 
-use super::bypass::handle_request_bypass_to_server;
+use super::client::bypass::handle_request_bypass_to_server;
+use super::client::dispatch::*;
+use super::client::lobby::*;
 use super::combat::handle_attack_request;
+use super::combat::target::*;
 use super::death::handle_request_restart_point;
-use super::dispatch::*;
-use super::lobby::*;
 use super::net::*;
-use super::position::*;
 use super::skills::cast::*;
 use super::skills::*;
-use super::target::*;
+use super::space::position::*;
 use crate::character::CharData;
 use crate::character::FriendInfo;
 use crate::data::spawn_data::Territory;
@@ -18,8 +18,10 @@ use crate::data::{GameData, MultisellData};
 use crate::db::DbEvent;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::npc::ai;
+use crate::game_loop::space::visibility;
+use crate::game_loop::space::zones;
 use crate::game_loop::tasks::apply_due_tasks;
-use crate::game_loop::{combat, items, visibility, zones};
+use crate::game_loop::{combat, items};
 use crate::geo::worker::PathRequest;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::clan::Clan;

@@ -1,6 +1,6 @@
 //! Port of `data/xml/RecipeData` + `model/RecipeList` (G15.7): the crafting
 //! recipes from `dist/game/data/Recipes.xml`. The runtime flow (recipe book,
-//! self-craft, manufacture stores) lives in `game_loop/crafting.rs`.
+//! self-craft, manufacture stores) lives in `game_loop/commerce/crafting.rs`.
 //!
 //! `altStatChange` (XP/SP/GIM) feeds the `AltGameCreation` staged craft —
 //! inert while the config ships `False`, parsed for when it doesn't. The Java `production`-block

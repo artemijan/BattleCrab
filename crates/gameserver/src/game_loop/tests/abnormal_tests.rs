@@ -3718,13 +3718,13 @@ fn shadow_sense_grants_its_accuracy_only_at_night() {
         "the buff lands regardless of the hour"
     );
 
-    crate::game_loop::night_stats::refresh_one(&mut world, CASTER, false);
+    crate::game_loop::stats::night_stats::refresh_one(&mut world, CASTER, false);
     assert_eq!(accuracy(&world), 0.0, "by day it grants nothing");
 
-    crate::game_loop::night_stats::refresh_one(&mut world, CASTER, true);
+    crate::game_loop::stats::night_stats::refresh_one(&mut world, CASTER, true);
     assert_eq!(accuracy(&world), 3.0, "at night the accuracy appears");
 
-    crate::game_loop::night_stats::refresh_one(&mut world, CASTER, false);
+    crate::game_loop::stats::night_stats::refresh_one(&mut world, CASTER, false);
     assert_eq!(accuracy(&world), 0.0, "and dawn takes it back again");
 }
 

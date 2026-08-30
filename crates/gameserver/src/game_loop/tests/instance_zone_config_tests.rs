@@ -8,7 +8,7 @@
 use super::*;
 use crate::data::instance_data::{ExitType, InstanceTemplate};
 use crate::data::zone_data::ZoneKind;
-use crate::game_loop::instances;
+use crate::game_loop::space::instances;
 use crate::model::components::Vitals;
 
 /// A minimal instance template: no spawns, no doors, ORIGIN exit.
@@ -54,7 +54,7 @@ fn peace_zone_mode_two_switches_peace_zones_off_entirely() {
         // Put the player in a peace zone by asserting the mask directly: the
         // fixture has no zone geometry, so the config branch is what is under
         // test, not the lookup.
-        let masked = crate::game_loop::zones::apply_zone_config_for_test(
+        let masked = crate::game_loop::space::zones::apply_zone_config_for_test(
             &world,
             100,
             (0, 0, 0),
@@ -77,7 +77,7 @@ fn peace_zone_mode_one_exempts_only_siege_participants() {
     world.cfg.general.peace_zone_mode = 1;
     let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
 
-    let masked = crate::game_loop::zones::apply_zone_config_for_test(
+    let masked = crate::game_loop::space::zones::apply_zone_config_for_test(
         &world,
         100,
         (0, 0, 0),
@@ -102,7 +102,8 @@ fn jail_is_pvp_adds_the_pvp_flag_only_when_set() {
 
     for key in [false, true] {
         world.cfg.general.jail_is_pvp = key;
-        let masked = crate::game_loop::zones::apply_zone_config_for_test(&world, 100, jail, 0);
+        let masked =
+            crate::game_loop::space::zones::apply_zone_config_for_test(&world, 100, jail, 0);
         assert_eq!(
             masked & ZoneKind::Pvp.bit() != 0,
             key,
@@ -112,7 +113,8 @@ fn jail_is_pvp_adds_the_pvp_flag_only_when_set() {
 
     // …and never outside it.
     world.cfg.general.jail_is_pvp = true;
-    let masked = crate::game_loop::zones::apply_zone_config_for_test(&world, 100, (0, 0, 0), 0);
+    let masked =
+        crate::game_loop::space::zones::apply_zone_config_for_test(&world, 100, (0, 0, 0), 0);
     assert_eq!(
         masked & ZoneKind::Pvp.bit(),
         0,

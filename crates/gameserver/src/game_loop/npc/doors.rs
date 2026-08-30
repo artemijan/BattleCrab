@@ -73,7 +73,7 @@ pub(crate) fn broadcast_status(world: &World, door_oid: i32) {
 /// Door object ids are allocated dynamically, so this scans the door regions.
 /// Instance door copies are skipped: they carry their own
 /// [`InstanceDoorOpen`](crate::model::components::InstanceDoorOpen) state and
-/// are driven through [`crate::game_loop::instances::open_close_door`], so a
+/// are driven through [`crate::game_loop::space::instances::open_close_door`], so a
 /// global open/close must not pick one up.
 pub(crate) fn find_shared_door(world: &World, door_id: i32) -> Option<i32> {
     world.door_regions.values().flatten().copied().find(|&oid| {

@@ -50,7 +50,7 @@ pub(crate) fn set_active_intention(world: &mut World, npc_oid: i32) {
 /// whether or not the walk actually starts, and [`move_npc_to`] can bail on a
 /// rooted mob, a missing speed or no path.
 ///
-/// The player half is [`crate::game_loop::position::intention_move_to`], which
+/// The player half is [`crate::game_loop::space::position::intention_move_to`], which
 /// needs a client id and its own broadcast; callers that may hold either kind
 /// of creature pick between the two.
 ///

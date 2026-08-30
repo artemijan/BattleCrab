@@ -386,7 +386,7 @@ pub struct GeneralConfig {
     ///
     /// **No consumer: the port does not implement that cache.**
     /// `validateHtmlAction` — the registry of which bypasses a player was
-    /// actually sent — is a recorded deviation in `game_loop::bypass`, which
+    /// actually sent — is a recorded deviation in `game_loop::client::bypass`, which
     /// re-checks interaction distance on every route instead. There is no
     /// cache for this key to trace.
     pub html_action_cache_debug: bool,

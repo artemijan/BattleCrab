@@ -7,7 +7,7 @@ use super::players_online;
 use super::reuses_to_save;
 use super::store_and_remove_player;
 use crate::db;
-use crate::game_loop::dispatch::on_packet;
+use crate::game_loop::client::dispatch::on_packet;
 use crate::game_loop::helpers::send_to_client;
 use crate::loginlink::LoginLinkCommand;
 use crate::loginlink::LoginLinkEvent;
@@ -140,7 +140,7 @@ pub(crate) fn handle_request_restart(world: &mut World, client_id: u32) {
     // player with a store open stays behind as an unattended shop. Java then
     // still writes RestartResponse/CharSelectionInfo to the now-closed client;
     // the port simply stops here, which is the same observable outcome.
-    if crate::game_loop::offline_trade::enter_offline_mode(world, client_id) {
+    if crate::game_loop::commerce::offline_trade::enter_offline_mode(world, client_id) {
         return;
     }
     let Some(ClientSession::InGame(s)) = world.clients.remove(&client_id) else {
@@ -181,7 +181,7 @@ pub(crate) fn handle_logout(world: &mut World, client_id: u32) {
             }
             // Java `Logout`: a player with a store open becomes an offline
             // shop instead of leaving the world.
-            if crate::game_loop::offline_trade::enter_offline_mode(world, client_id) {
+            if crate::game_loop::commerce::offline_trade::enter_offline_mode(world, client_id) {
                 return;
             }
             let Some(ClientSession::InGame(s)) = world.clients.remove(&client_id) else {
@@ -250,7 +250,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
             // either way, but a player already in offline mode is *not*
             // deleted. The session is gone before the socket event in the
             // port's own offline path, so this only guards a redundant event.
-            if !crate::game_loop::offline_trade::is_offline_trader(world, oid) {
+            if !crate::game_loop::commerce::offline_trade::is_offline_trader(world, oid) {
                 // TvT: same participant-drop / forfeit on an unexpected disconnect.
                 crate::game_loop::events::tvt::on_player_logout(world, oid);
                 store_and_remove_player(world, oid);
@@ -438,7 +438,7 @@ pub(crate) fn on_characters_loaded(
     // `OFFLINE_DISCONNECT_SAME_ACCOUNT` branch: seeing the list for an account
     // evicts that account's unattended shops. Off on this dist.
     let ids: Vec<i32> = chars.iter().map(|c| c.object_id).collect();
-    crate::game_loop::offline_trade::on_character_list(world, &ids);
+    crate::game_loop::commerce::offline_trade::on_character_list(world, &ids);
     let s = match world.clients.remove(&client_id) {
         Some(ClientSession::Authenticated(s)) => s.into_lobby(chars),
         Some(ClientSession::InLobby(mut s)) => {

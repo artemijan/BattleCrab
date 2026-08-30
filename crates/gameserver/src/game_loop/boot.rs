@@ -1,16 +1,16 @@
 //! Boot-time world population and the shutdown flush — the ordered subsystem
 //! registry `run` used to inline.
 
-use super::boats;
-use super::bot_report;
-use super::cursed_weapon;
-use super::daily_tasks;
+use super::commerce::offline_trade;
 use super::events;
+use super::items::cursed_weapon;
 use super::manor;
+use super::moderation::bot_report;
 use super::net;
-use super::offline_trade;
 use super::olympiad;
-use super::restart;
+use super::space::boats;
+use super::upkeep::daily_tasks;
+use super::upkeep::restart;
 use crate::game_loop::items::ground_items;
 use crate::game_loop::npc::area;
 use crate::game_loop::npc::bosses::boss_respawn;

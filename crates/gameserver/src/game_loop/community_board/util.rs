@@ -3,10 +3,10 @@
 
 use super::render_scheme_names;
 use super::send_cb_html;
+use crate::game_loop::client::user_commands::in_combat;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_message;
 use crate::game_loop::items;
-use crate::game_loop::user_commands::in_combat;
 use crate::model::Player;
 use crate::model::components::Casting;
 use crate::model::inventory::Inventory;

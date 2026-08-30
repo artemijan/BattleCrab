@@ -122,7 +122,7 @@ fn a_coupon_buys_a_shadow_weapon_charged_with_its_duration() {
         "the exchange window opens"
     );
 
-    crate::game_loop::multisell::handle_multi_sell_choose(
+    crate::game_loop::commerce::multisell::handle_multi_sell_choose(
         &mut world,
         1,
         &multisell_choose_body(306893001, 1, 1),
@@ -155,7 +155,7 @@ fn the_c_grade_exchange_refuses_a_d_grade_coupon() {
     items::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, 15);
     drain(&mut rx);
 
-    crate::game_loop::multisell::separate_and_send(
+    crate::game_loop::commerce::multisell::separate_and_send(
         &mut world,
         1,
         PLAYER_OID,
@@ -164,7 +164,7 @@ fn the_c_grade_exchange_refuses_a_d_grade_coupon() {
         false,
     );
     drain(&mut rx);
-    crate::game_loop::multisell::handle_multi_sell_choose(
+    crate::game_loop::commerce::multisell::handle_multi_sell_choose(
         &mut world,
         1,
         &multisell_choose_body(306893002, 1, 1),

@@ -1,7 +1,7 @@
 use super::*;
+use crate::game_loop::character::player_info;
 use crate::game_loop::combat::pvp;
 use crate::game_loop::npc::doors;
-use crate::game_loop::player_info;
 
 /// Melee-attacking a player inside a peace zone is refused with the peaceful-
 /// zone message (`Creature.onForcedAttack`), and no attack intent is set.

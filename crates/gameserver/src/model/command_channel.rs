@@ -1,5 +1,5 @@
 //! Port of `model/CommandChannel` (the state; packet flows live in
-//! `game_loop/command_channel.rs`). A command channel (MPCC) is a group of
+//! `game_loop/party/command_channel.rs`). A command channel (MPCC) is a group of
 //! parties under one command leader — Java keeps it as an object linked from
 //! each `Party`; the port keys it in `World.command_channels` like parties,
 //! with `Party`-side membership derived from the registry.

@@ -3,7 +3,8 @@
 //! restart.
 
 use super::*;
-use crate::game_loop::{chat, offline_trade};
+use crate::game_loop::commerce::offline_trade;
+use crate::game_loop::social::chat;
 use crate::model::components::{PrivateStore, StoreItem};
 
 /// Turn the feature on the way `Custom/OfflineTrade.ini` does on this dist.

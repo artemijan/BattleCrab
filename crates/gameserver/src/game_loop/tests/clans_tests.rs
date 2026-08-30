@@ -1,9 +1,11 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::character::subclass;
 use crate::game_loop::clans::academy;
 use crate::game_loop::combat::pvp;
-use crate::game_loop::{chat, clans, helpers, subclass, warehouse};
-
+use crate::game_loop::commerce::warehouse;
+use crate::game_loop::social::chat;
+use crate::game_loop::{clans, helpers};
 /// The `create_clan` bypass: Java's guard matrix (SM ids in `ClanTable.
 /// createClan` order), then the success path — clan registered + persisted,
 /// leader flags/privileges set, the pledge-window packet trio + SM 189, and
@@ -319,7 +321,7 @@ fn clan_roster_notifications_and_chat() {
 /// unprivileged member is denied the withdraw window, and the leader withdraws.
 #[test]
 fn clan_warehouse_withdrawal_is_leader_only_at_the_shipped_setting() {
-    use crate::game_loop::warehouse;
+    use crate::game_loop::commerce::warehouse;
     use crate::model::clan::{Clan, ClanMember};
     use crate::model::components::ActiveWarehouse;
     let (mut world, _tx, _db_rx, _lrx) = admin_world();
@@ -4956,7 +4958,7 @@ const GLUDIO_CIRCLET: i32 = 6838;
 /// `RemoveCastleCirclets`).
 #[test]
 fn leaving_a_castle_owning_clan_takes_the_circlet() {
-    use crate::game_loop::castle::circlet_of;
+    use crate::game_loop::siege::treasury::circlet_of;
 
     let (mut world, ..) = quest_test_world();
     world.cfg.character.remove_castle_circlets = true;
@@ -5036,7 +5038,7 @@ fn the_circlet_survives_when_the_config_says_so() {
 /// ordinary clan leaver keeps whatever headgear they own.
 #[test]
 fn a_castleless_clan_takes_nothing() {
-    use crate::game_loop::castle::circlet_of;
+    use crate::game_loop::siege::treasury::circlet_of;
     assert_eq!(circlet_of(0), 0, "no castle, no circlet");
     assert_eq!(circlet_of(10), 0, "out of range, as Java's bounds check is");
     // The nine real castles all map to a distinct item.

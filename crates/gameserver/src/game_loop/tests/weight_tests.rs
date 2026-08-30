@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::game_loop::weight;
+use crate::game_loop::stats::weight;
 use crate::model::components::{BaseStats, Buffs};
 use crate::model::inventory::Inventory;
 

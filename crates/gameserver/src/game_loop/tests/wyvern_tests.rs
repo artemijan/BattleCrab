@@ -423,7 +423,7 @@ fn wyvern_manager_exchanges_strider_and_crystals_for_wyvern() {
 fn glow_offsets(world: &mut World, oid: i32) -> (usize, usize) {
     let build = |world: &World| {
         let v = model::PlayerView::of(&world.objects, oid).unwrap();
-        let relation = crate::game_loop::player_info::calculate_relation(world, v.p);
+        let relation = crate::game_loop::character::player_info::calculate_relation(world, v.p);
         (
             crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, relation),
             server_packets::char_info(&v, &[], &[], &Default::default()),
@@ -497,7 +497,7 @@ fn hero_glow_survives_mount_for_gm_and_hero() {
         let (ui_off, ci_off) = glow_offsets(&mut world, oid);
         // Unmounted baseline. (`CharInfo` is coalesced 50 ms out, so tick
         // the scheduler before draining the onlooker.)
-        crate::game_loop::player_info::broadcast_user_info(&mut world, oid);
+        crate::game_loop::character::player_info::broadcast_user_info(&mut world, oid);
         advance_ticks(&mut world, 1);
         let (ui, ci) = (
             drain(own_rx).into_iter().find(|p| p[0] == 0x32).unwrap(),
@@ -589,7 +589,7 @@ fn settruehero_is_a_separate_flag_from_sethero() {
     world.objects.add_components(&8950, TargetRef(Some(8950)));
 
     let true_hero_byte = |pk: &[u8]| pk[pk.len() - 3]; // …trueHero, hairAccessory, abilityPoints
-    crate::game_loop::player_info::broadcast_user_info(&mut world, 8950);
+    crate::game_loop::character::player_info::broadcast_user_info(&mut world, 8950);
     advance_ticks(&mut world, 1);
     let before = drain(&mut ob_rx)
         .into_iter()
@@ -644,7 +644,7 @@ fn char_info_reflects_live_player_state() {
     // Content test, not a timing one — call the coalesced task's body
     // directly rather than waiting out the 50 ms window.
     let snapshot = |world: &mut World, rx: &mut UnboundedReceiver<bytes::Bytes>| {
-        crate::game_loop::player_info::broadcast_char_info_now(world, 8960);
+        crate::game_loop::character::player_info::broadcast_char_info_now(world, 8960);
         drain(rx)
             .into_iter()
             .rev()

@@ -155,7 +155,8 @@ fn has_attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::Tr
 /// entry is a clean 1.0.
 pub(crate) fn calc_weapon_trait_bonus(world: &World, attacker_oid: i32, target_oid: i32) -> f64 {
     let weapon_trait = crate::model::skill::TraitType::of_weapon(
-        crate::game_loop::ranged::equipped_weapon_type(world, attacker_oid).unwrap_or_default(),
+        crate::game_loop::combat::ranged::equipped_weapon_type(world, attacker_oid)
+            .unwrap_or_default(),
     );
     let defence = world
         .objects

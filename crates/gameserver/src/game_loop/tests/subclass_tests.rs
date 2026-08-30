@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::game_loop::subclass::{AddError, add_subclass, set_active_class};
+use crate::game_loop::character::subclass::{AddError, add_subclass, set_active_class};
 use crate::model::Player;
 
 const PLAYER: i32 = 2001;
@@ -403,7 +403,9 @@ fn the_save_carries_hennas_and_shortcuts_for_every_slot() {
 // ---------------------------------------------------------------------------
 // The village-master flow (slice 5).
 
-use crate::game_loop::subclass::{SUBCLASS_MIN_LEVEL, available_subclasses, can_add_subclass};
+use crate::game_loop::character::subclass::{
+    SUBCLASS_MIN_LEVEL, available_subclasses, can_add_subclass,
+};
 
 #[test]
 fn adding_a_subclass_needs_level_75() {
@@ -465,7 +467,7 @@ fn the_available_list_excludes_the_base_lineage_and_held_classes() {
 // ---------------------------------------------------------------------------
 // Occupation change (slice 6).
 
-use crate::game_loop::subclass::set_class_id;
+use crate::game_loop::character::subclass::set_class_id;
 
 #[test]
 fn a_class_change_on_the_base_slot_moves_the_base_class() {
@@ -692,7 +694,7 @@ fn ex_subjob_info_lists_the_base_class_and_subclasses() {
 /// replacement fails, and the player reverts to base.
 #[test]
 fn modify_subclass_wipes_the_slot_and_replaces_it() {
-    use crate::game_loop::subclass::modify_subclass;
+    use crate::game_loop::character::subclass::modify_subclass;
     let (mut world, mut db_rx, _l) = sub_world();
     let _rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
     add_subclass(&mut world, PLAYER, 3).unwrap();

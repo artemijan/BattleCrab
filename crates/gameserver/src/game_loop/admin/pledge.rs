@@ -15,7 +15,7 @@ use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
 use super::send_message;
-use crate::game_loop::target;
+use crate::game_loop::combat::target;
 
 /// Re-show the Game panel (`game_menu.htm`) — Java `AdminPledge.showMainPage`,
 /// run at the end of every branch.

@@ -3,7 +3,8 @@
 
 use super::*;
 use crate::data::zone_data::ZoneKind;
-use crate::game_loop::{death, water};
+use crate::game_loop::death;
+use crate::game_loop::space::water;
 use crate::model::components::{Speeds, Vitals, WaterTask};
 
 /// A `Speeds` with distinct land/swim values, so a slot mix-up is visible.
@@ -298,7 +299,7 @@ fn a_long_swim_click_is_clamped_to_700_units() {
 /// the bug because it was written from the same misreading as the code, which
 /// is the failure mode a test cannot protect against on its own: the fix came
 /// from reading Java's finalizer while porting a *different* stat
-/// (`Stat.FALL`, `game_loop::falling`) that runs through the same function.
+/// (`Stat.FALL`, `game_loop::space::falling`) that runs through the same function.
 #[test]
 fn the_breath_stat_extends_the_gauge() {
     use crate::model::stats::Stat;

@@ -744,7 +744,7 @@ mod tests {
     /// **173 Acrobatics used to be the second**, on the grounds that
     /// `SafeFallHeight` fed a stat with no consumer. Fall damage landed with
     /// `General.ini`'s `EnableFallingDamage`, so the consumer exists
-    /// ([`game_loop::falling`](crate::game_loop::falling)) and the effect is
+    /// ([`game_loop::space::falling`](crate::game_loop::space::falling)) and the effect is
     /// registered — a reminder that "the stat has no consumer" is a statement
     /// about today, not a decision.
     ///

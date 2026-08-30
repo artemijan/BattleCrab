@@ -167,7 +167,7 @@ fn set_access(world: &mut World, target: i32, level: i32, persist: bool) {
             level,
         });
     }
-    crate::game_loop::player_info::broadcast_user_info(world, target);
+    crate::game_loop::character::player_info::broadcast_user_info(world, target);
 }
 
 /// `AdminTarget`'s `//target <name>` — select a player by name (reuses the
@@ -203,7 +203,7 @@ pub(super) fn admin_jail(world: &mut World, client_id: u32, object_id: i32, args
         .get_component::<Player>(&object_id)
         .map(|p| p.name.clone())
         .unwrap_or_else(|| "System".to_string());
-    let applied = super::super::punishment::jail_character(
+    let applied = super::super::moderation::punishment::jail_character(
         world,
         target,
         minutes,
@@ -235,7 +235,7 @@ pub(super) fn admin_unjail(world: &mut World, client_id: u32, args: &[&str]) {
         send_message(world, client_id, &format!("Player '{name}' is not online."));
         return;
     };
-    if super::super::punishment::unjail_character(world, target) {
+    if super::super::moderation::punishment::unjail_character(world, target) {
         send_message(
             world,
             client_id,
@@ -248,7 +248,7 @@ pub(super) fn admin_unjail(world: &mut World, client_id: u32, args: &[&str]) {
 
 // --- Ban / chat-ban / party-ban (Java `AdminPunishment`, G31 slice 2) --------
 
-use crate::game_loop::target;
+use crate::game_loop::combat::target;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
 
 /// The GM's display name for the `punishedBy` field.
@@ -301,12 +301,12 @@ fn char_punish(
     };
     let minutes = nth_arg::<i64>(args, 1).unwrap_or(0);
     let by = gm_name(world, object_id);
-    let applied = super::super::punishment::start_punishment(
+    let applied = super::super::moderation::punishment::start_punishment(
         world,
         target.to_string(),
         PunishmentAffect::Character,
         ptype,
-        super::super::punishment::expiration_from_minutes(minutes),
+        super::super::moderation::punishment::expiration_from_minutes(minutes),
         format!("{verb} by admin"),
         by,
     );
@@ -351,7 +351,7 @@ fn char_unpunish(
         );
         return;
     };
-    if super::super::punishment::stop_character_punishment(world, target, ptype) {
+    if super::super::moderation::punishment::stop_character_punishment(world, target, ptype) {
         send_message(world, client_id, &format!("Punishment lifted for '{arg}'."));
     } else {
         send_message(
@@ -429,12 +429,12 @@ pub(super) fn admin_ban_acc(world: &mut World, client_id: u32, object_id: i32, a
     };
     let minutes = nth_arg::<i64>(args, 1).unwrap_or(0);
     let by = gm_name(world, object_id);
-    let applied = super::super::punishment::start_punishment(
+    let applied = super::super::moderation::punishment::start_punishment(
         world,
         account.to_string(),
         PunishmentAffect::Account,
         PunishmentType::Ban,
-        super::super::punishment::expiration_from_minutes(minutes),
+        super::super::moderation::punishment::expiration_from_minutes(minutes),
         "ban by admin".to_string(),
         by,
     );
@@ -455,7 +455,7 @@ pub(super) fn admin_unban_acc(world: &mut World, client_id: u32, args: &[&str]) 
         send_message(world, client_id, "Usage: //unban_acc <account>");
         return;
     };
-    if super::super::punishment::stop_punishment(
+    if super::super::moderation::punishment::stop_punishment(
         world,
         account,
         PunishmentAffect::Account,
@@ -942,9 +942,9 @@ pub(super) fn admin_punishment_add(
         send_message(world, client_id, &format!("Player '{key}' not found."));
         return;
     };
-    let expiration = super::super::punishment::expiration_from_minutes(minutes.max(0));
+    let expiration = super::super::moderation::punishment::expiration_from_minutes(minutes.max(0));
     let by = gm_name(world, object_id);
-    if super::super::punishment::start_punishment(
+    if super::super::moderation::punishment::start_punishment(
         world,
         key.clone(),
         affect,
@@ -982,7 +982,7 @@ pub(super) fn admin_punishment_remove(world: &mut World, client_id: u32, args: &
     };
     // Removal is lenient: an unresolvable name falls back to the raw key.
     let key = punishment_key(world, key, affect).unwrap_or_else(|| key.to_string());
-    if super::super::punishment::stop_punishment(world, &key, affect, ptype) {
+    if super::super::moderation::punishment::stop_punishment(world, &key, affect, ptype) {
         send_message(world, client_id, &format!("Punishment {ty} removed."));
     } else {
         send_message(world, client_id, "No such punishment is in effect.");

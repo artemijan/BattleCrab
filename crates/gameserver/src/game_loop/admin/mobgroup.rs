@@ -13,7 +13,7 @@ use crate::model::npc::Npc;
 use crate::world::World;
 
 use super::send_message;
-use crate::game_loop::target;
+use crate::game_loop::combat::target;
 
 /// `//mobmenu` — the mob-group admin HTML page.
 pub(super) fn admin_mobmenu(world: &mut World, client_id: u32) {

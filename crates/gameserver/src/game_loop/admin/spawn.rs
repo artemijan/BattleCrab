@@ -10,9 +10,9 @@
 //! and ignored (documented deviation).
 
 use crate::data::npc_data::NpcTemplate;
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
-use crate::game_loop::target;
 use crate::game_loop::{helpers, items};
 use crate::model::components::Position;
 use crate::model::npc::Npc;
@@ -816,7 +816,7 @@ fn npc_object_ids(world: &mut World) -> Vec<i32> {
 /// which is what makes this a "show me the other set" button rather than a
 /// mode.
 pub(super) fn admin_spawn_phase(world: &mut World, client_id: u32, night: bool) {
-    crate::game_loop::spawn_scripts::on_day_night_change(world, night);
+    crate::game_loop::npc::spawn_scripts::on_day_night_change(world, night);
     send_message(
         world,
         client_id,

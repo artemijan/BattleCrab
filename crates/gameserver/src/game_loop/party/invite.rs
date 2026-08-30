@@ -164,7 +164,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
     // Party-ban gate (Java `RequestJoinParty`, G31): a party-banned requestor
     // can't invite, and a party-banned target can't be invited. CHARACTER-affect
     // only (Java `isPartyBanned`).
-    if crate::game_loop::punishment::is_party_banned(world, requestor) {
+    if crate::game_loop::moderation::punishment::is_party_banned(world, requestor) {
         send_sm_to_player(
             world,
             requestor,
@@ -174,7 +174,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
         send_action_failed(world, client_id);
         return;
     }
-    if crate::game_loop::punishment::is_party_banned(world, target) {
+    if crate::game_loop::moderation::punishment::is_party_banned(world, target) {
         send_sm_to_player(
             world,
             requestor,
@@ -186,7 +186,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
     // Java `RequestJoinParty`: `BlockList.isBlocked(target, requestor)` — the
     // *invitee's* list decides. The refusal names the target, so the requestor
     // is told who is ignoring them.
-    if crate::game_loop::chat::block_list::is_blocked(world, target, requestor) {
+    if crate::game_loop::social::chat::block_list::is_blocked(world, target, requestor) {
         send_sm_to_player(
             world,
             requestor,
@@ -349,7 +349,7 @@ pub(crate) fn handle_request_answer_join_party(world: &mut World, client_id: u32
             add_party_member(world, party_id, player);
             // Java `RequestAnswerJoinParty`: if the inviter runs a matching
             // room, the new party member joins that room too (G30).
-            crate::game_loop::party_room::on_party_invite_accepted(world, requestor, player);
+            super::rooms::on_party_invite_accepted(world, requestor, player);
         }
     } else {
         if response == -1 {

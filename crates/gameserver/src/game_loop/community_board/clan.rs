@@ -38,7 +38,7 @@ pub(super) fn show_region_board(world: &mut World, client_id: u32, object_id: i3
         let (clan_name, ally_name) = owner
             .map(|c| (c.name.clone(), c.ally_name.clone()))
             .unwrap_or(("NPC".to_string(), String::new()));
-        let tax = crate::game_loop::castle::tax_percent(
+        let tax = crate::game_loop::siege::treasury::tax_percent(
             world,
             castle_id,
             crate::model::castle::TaxType::Buy,

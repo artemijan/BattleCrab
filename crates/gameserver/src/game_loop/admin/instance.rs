@@ -9,7 +9,7 @@ use super::menu::show_admin_html_replace;
 use super::send_message;
 use crate::data::instance_data::InstanceTemplate;
 use crate::game_loop::helpers::nth_arg;
-use crate::game_loop::instances;
+use crate::game_loop::space::instances;
 use crate::world::World;
 
 /// Templates the retail panel hides from the list — the Olympiad arenas and the
@@ -296,7 +296,9 @@ pub(super) fn admin_instancezone(world: &mut World, client_id: u32, object_id: i
         }
         // No name: Java uses the target if it is a player, and otherwise falls
         // through to `display(activeChar, activeChar)`.
-        _ => crate::game_loop::target::current_player(world, object_id).unwrap_or(object_id),
+        _ => {
+            crate::game_loop::combat::target::current_player(world, object_id).unwrap_or(object_id)
+        }
     };
     display_instance_times(world, client_id, subject);
 }

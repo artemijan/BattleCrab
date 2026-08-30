@@ -8,7 +8,7 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::pet_evolve;
+use crate::game_loop::servitor::evolve;
 use crate::model::components::ServitorOf;
 use crate::model::skill::SkillEffect;
 
@@ -2507,7 +2507,7 @@ fn a_pet_regenerates_from_its_pet_row() {
         v.cur_mp = 1.0;
     }
 
-    crate::game_loop::regen::run_npc_regen_tick(&mut world);
+    crate::game_loop::stats::regen::run_npc_regen_tick(&mut world);
 
     let v = world.objects.get_component::<Vitals>(&pet_oid).unwrap();
     assert_eq!(v.cur_hp, 12.0, "regen_hp 2.0 from the pet row");
@@ -2536,7 +2536,7 @@ fn pet_regen_stops_at_full() {
         .unwrap()
         .cur_hp = max_hp as f64 - 0.5;
 
-    crate::game_loop::regen::run_npc_regen_tick(&mut world);
+    crate::game_loop::stats::regen::run_npc_regen_tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -2565,7 +2565,7 @@ fn pet_regen_uses_the_pet_multiplier() {
     world.cfg.npc.pet_hp_regen_multiplier = 2.0;
     world.cfg.npc.hp_regen_multiplier = 100.0;
 
-    crate::game_loop::regen::run_npc_regen_tick(&mut world);
+    crate::game_loop::stats::regen::run_npc_regen_tick(&mut world);
     assert_eq!(
         world
             .objects
@@ -2585,7 +2585,7 @@ fn a_dead_pet_does_not_regenerate() {
     let pet_oid = summoned_pet(&mut world);
     crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
 
-    crate::game_loop::regen::run_npc_regen_tick(&mut world);
+    crate::game_loop::stats::regen::run_npc_regen_tick(&mut world);
     let v = world.objects.get_component::<Vitals>(&pet_oid).unwrap();
     assert_eq!(v.cur_hp, 0.0, "a corpse stays a corpse");
     assert!(v.dead);
@@ -4637,7 +4637,7 @@ fn evolving_floors_the_experience_at_the_new_species_curve() {
     // Far below the Great Wolf's 1,000,000 for level 55, but above level 10's.
     set_pet_level(&mut world, pet, EVOLVE_MIN_LEVEL, 4_000);
 
-    pet_evolve::handle_evolve(&mut world, CID, OWNER, NPC_OID + 30, "evolve 1");
+    evolve::handle_evolve(&mut world, CID, OWNER, NPC_OID + 30, "evolve 1");
 
     let new_pet = pet_of(&world, OWNER).expect("evolved");
     let link = world.objects.get_component::<PetOf>(&new_pet).unwrap();
@@ -4661,7 +4661,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
     };
 
     // No pet out at all.
-    pet_evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 1");
+    evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 1");
     assert_eq!(held(&world), 0, "nothing handed out");
 
     let collar = give_collar(&mut world);
@@ -4670,7 +4670,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
 
     // Level 54 — one short.
     set_pet_level(&mut world, pet, EVOLVE_MIN_LEVEL - 1, 900_000);
-    pet_evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 1");
+    evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 1");
     assert_eq!(held(&world), 0, "one level short is still short");
     assert!(pet_of(&world, OWNER).is_some(), "and the pet is still out");
 
@@ -4720,7 +4720,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
             skills: Vec::new(),
         });
     set_pet_level(&mut world, pet, EVOLVE_MIN_LEVEL, 1_150_000);
-    pet_evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 3");
+    evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 3");
     assert_eq!(held(&world), 0, "a wolf is not a buffalo");
     assert_eq!(
         world
@@ -4737,7 +4737,7 @@ fn the_evolve_gates_refuse_and_change_nothing() {
         v.dead = true;
     }
     drain(&mut rx);
-    pet_evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 1");
+    evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 1");
     assert_eq!(held(&world), 0, "a dead pet cannot evolve");
     // The exploit attempt punishes: the immediate warning line (S1_TEXT) is
     // the only system message, and the kick lands 5 s later.
@@ -4759,7 +4759,7 @@ fn a_pet_ticket_exchanges_for_a_collar() {
     world.id_pool = 0x4500_0000..0x4500_0100;
 
     // No ticket → nothing.
-    pet_evolve::handle_exchange(&mut world, CID, OWNER, 0, "exchange 1");
+    evolve::handle_exchange(&mut world, CID, OWNER, 0, "exchange 1");
     let count_of = |w: &World, id: i32| {
         w.objects
             .get_component::<Inventory>(&OWNER)
@@ -4770,7 +4770,7 @@ fn a_pet_ticket_exchanges_for_a_collar() {
 
     // Kookaburra ticket 7585 → collar 6650.
     items::add_inventory_item(&mut world, OWNER, 7585, 1).unwrap();
-    pet_evolve::handle_exchange(&mut world, CID, OWNER, 0, "exchange 1");
+    evolve::handle_exchange(&mut world, CID, OWNER, 0, "exchange 1");
     assert_eq!(count_of(&world, 7585), 0, "the ticket is taken");
     assert_eq!(count_of(&world, 6650), 1, "the collar is given");
 }
@@ -4830,7 +4830,7 @@ fn restore_reads_the_level_off_the_collar_enchant() {
         inv.set_item_enchant(snow, 56);
     }
 
-    pet_evolve::handle_restore(&mut world, CID, OWNER, 0, "restore 1");
+    evolve::handle_restore(&mut world, CID, OWNER, 0, "restore 1");
 
     let inv = world.objects.get_component::<Inventory>(&OWNER).unwrap();
     assert_eq!(inv.count_of(10307), 0, "the seasonal collar is consumed");
@@ -5262,14 +5262,14 @@ fn betray_turns_a_servitor_against_its_owner_and_it_stops_obeying() {
     // fixture world ships empty — without the row the refusal below would be
     // "no handler found" rather than "the servitor is unresponsive".
     world.data.action_data.insert_row_for_test(
-        crate::game_loop::player_actions::action::SERVITOR_STOP,
+        crate::game_loop::client::actions::action::SERVITOR_STOP,
         "ServitorStop",
         0,
     );
-    crate::game_loop::player_actions::handle_request_action_use(
+    crate::game_loop::client::actions::handle_request_action_use(
         &mut world,
         CID,
-        &action_use_body(crate::game_loop::player_actions::action::SERVITOR_STOP),
+        &action_use_body(crate::game_loop::client::actions::action::SERVITOR_STOP),
     );
     let pkts = drain(&mut out);
     assert!(
@@ -5389,7 +5389,7 @@ fn dismount_stores_the_drained_feed_on_the_collar_row() {
     let pet = summon_pet(&mut world, OWNER).expect("summoned");
     world.objects.get_component_mut::<PetOf>(&pet).unwrap().fed = 100;
 
-    crate::game_loop::user_commands::mount(&mut world, CID, OWNER);
+    crate::game_loop::client::user_commands::mount(&mut world, CID, OWNER);
     {
         let p = world.objects.get_component::<Player>(&OWNER).unwrap();
         assert!(p.is_mounted(), "the wolf was ridden");

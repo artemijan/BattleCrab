@@ -3,7 +3,7 @@
 //! `PLAN_MACROS_SHORTCUTS.md`). The registry logic lives here as methods
 //! on the [`Shortcuts`]/[`Macros`] components (declared in
 //! `model/components.rs` with the rest of the player component set); DB I/O
-//! and packet echoes stay in the handlers (`game_loop/shortcuts.rs`).
+//! and packet echoes stay in the handlers (`game_loop/client/shortcuts.rs`).
 //!
 //! Macro *execution* is client-side (the client replays each command as
 //! ordinary packets); the server only stores macros and echoes them back.

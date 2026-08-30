@@ -308,7 +308,7 @@ fn start_move(world: &mut World, antharas_oid: i32) {
 /// rule as Valakas's. (This used to broadcast to every player on the server:
 /// the zone filter was never written.)
 fn broadcast_to_lair(world: &World, pkt: &[u8]) {
-    crate::game_loop::zones::broadcast_to_zone(world, LAIR_ZONE_ID, pkt);
+    crate::game_loop::space::zones::broadcast_to_zone(world, LAIR_ZONE_ID, pkt);
 }
 
 // ---------------------------------------------------------------------------

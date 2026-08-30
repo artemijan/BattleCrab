@@ -4,6 +4,7 @@
 pub(crate) mod armor_sets;
 pub(crate) mod augment;
 mod conditions;
+pub(crate) mod cursed_weapon;
 pub mod enchant;
 mod equip;
 mod etc_item;

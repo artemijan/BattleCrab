@@ -858,7 +858,7 @@ pub(crate) fn build_skill(
                         // yields no effect and is recorded as a gap.
                         //
                         // The grant is night-gated and lands through
-                        // `game_loop::night_stats`, not the ordinary stat
+                        // `game_loop::stats::night_stats`, not the ordinary stat
                         // pipeline — see the variant's docs.
                         "NightStatModify" => match value_at(params, "stat", level) {
                             Some("ACCURACY_COMBAT") => vec![skill::SkillEffect::NightStatModify {

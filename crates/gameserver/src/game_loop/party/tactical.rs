@@ -168,7 +168,7 @@ fn set_target_based_on_tactical_sign_id(
     {
         return;
     }
-    crate::game_loop::target::set_target(world, client_id, object_id, Some(target));
+    crate::game_loop::combat::target::set_target(world, client_id, object_id, Some(target));
 }
 
 /// `Party.applyTacticalSigns` — hand one member the party's current signs

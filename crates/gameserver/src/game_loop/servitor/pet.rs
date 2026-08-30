@@ -453,7 +453,9 @@ fn pet_pickup_item(world: &mut World, pet_oid: i32, item_oid: i32) {
     if g.owner_id != 0
         && world.tick < g.owner_until_tick
         && g.owner_id != owner_oid
-        && !crate::game_loop::command_channel::is_in_looter_party(world, owner_oid, g.owner_id)
+        && !crate::game_loop::party::command_channel::is_in_looter_party(
+            world, owner_oid, g.owner_id,
+        )
     {
         crate::game_loop::helpers::send_action_failed(world, client_id);
         crate::game_loop::helpers::send_sm_to_client(

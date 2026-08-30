@@ -71,7 +71,7 @@ fn sell_world() -> (
 fn bypass(world: &mut World, client_id: u32, cmd: &str) {
     let (c, rest) = cmd.split_once(' ').unwrap_or((cmd, ""));
     let oid = if client_id == 1 { SELLER } else { BUYER };
-    crate::game_loop::sell_buffs::handle_bypass(world, client_id, oid, c, rest);
+    crate::game_loop::commerce::sell_buffs::handle_bypass(world, client_id, oid, c, rest);
 }
 
 fn listed(world: &World) -> Vec<(i32, i64)> {
@@ -132,7 +132,9 @@ fn starting_the_shop_seats_the_seller() {
 
     // Empty list → refusal, no shop.
     bypass(&mut world, 1, "sellbuffstart My Shop");
-    assert!(!crate::game_loop::sell_buffs::is_selling(&world, SELLER));
+    assert!(!crate::game_loop::commerce::sell_buffs::is_selling(
+        &world, SELLER
+    ));
     assert!(
         drain(&mut rx)
             .iter()
@@ -142,7 +144,9 @@ fn starting_the_shop_seats_the_seller() {
 
     bypass(&mut world, 1, &format!("sellbuffaddskill {BUFF} 500"));
     bypass(&mut world, 1, "sellbuffstart My Shop");
-    assert!(crate::game_loop::sell_buffs::is_selling(&world, SELLER));
+    assert!(crate::game_loop::commerce::sell_buffs::is_selling(
+        &world, SELLER
+    ));
     let p = world.objects.get_component::<Player>(&SELLER).unwrap();
     assert!(p.sitting, "a seller sits");
     assert_eq!(p.store_type, 8, "PACKAGE_SELL");
@@ -241,13 +245,11 @@ fn a_distant_buyer_cannot_reach_the_shop() {
 #[test]
 fn a_buff_seller_cannot_open_a_normal_store() {
     let (mut world, ..) = sell_world();
-    assert!(crate::game_loop::private_store::can_open_private_store(
-        &world, 1, SELLER
-    ));
+    assert!(crate::game_loop::commerce::private_store::can_open_private_store(&world, 1, SELLER));
     bypass(&mut world, 1, &format!("sellbuffaddskill {BUFF} 500"));
     bypass(&mut world, 1, "sellbuffstart Shop");
     assert!(
-        !crate::game_loop::private_store::can_open_private_store(&world, 1, SELLER),
+        !crate::game_loop::commerce::private_store::can_open_private_store(&world, 1, SELLER),
         "the buff shop blocks the ordinary one"
     );
 }

@@ -1,7 +1,7 @@
 use super::*;
+use crate::game_loop::commerce::shop;
 use crate::game_loop::items::ground_items;
-use crate::game_loop::{death, quests, shop};
-
+use crate::game_loop::{death, quests};
 /// RequestShowMiniMap (0x6C): empty body, answered with `ShowMiniMap` —
 /// map id 0 (base world map) plus the Seven Signs state byte.
 #[test]
@@ -20174,7 +20174,7 @@ fn fishing_cast_hook_and_land_a_fish() {
     );
 
     // Cast: the reel is scheduled for the bait's time (1000 ms → tick +10).
-    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    crate::game_loop::activities::fishing::toggle_fishing(&mut world, 3001);
     assert_eq!(item_count(&world, 3001, FISH), 0, "no catch mid-cast");
 
     // Force a win (roll ≤ 40) then the first catch (roll → Ugly Fish).
@@ -20191,8 +20191,8 @@ fn fishing_cast_hook_and_land_a_fish() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 50_000; // out of the synthetic zones
-    crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // stop (was still fishing)
-    crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // try to start
+    crate::game_loop::activities::fishing::toggle_fishing(&mut world, 3001); // stop (was still fishing)
+    crate::game_loop::activities::fishing::toggle_fishing(&mut world, 3001); // try to start
     world.force_roll(0);
     world.force_roll(0);
     advance_ticks(&mut world, 12);
@@ -20293,7 +20293,7 @@ fn fishing_premium_and_underwater_gates() {
         .data
         .fishing_data
         .insert_bait_for_test(BAIT, bait(true));
-    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    crate::game_loop::activities::fishing::toggle_fishing(&mut world, 3001);
     advance_ticks(&mut world, 12);
     assert_eq!(item_count(&world, 3001, FISH), 0, "premium bait blocked");
     assert_eq!(item_count(&world, 3001, BAIT), 10, "no bait consumed");
@@ -20305,14 +20305,14 @@ fn fishing_premium_and_underwater_gates() {
         .insert_bait_for_test(BAIT, bait(false));
     world.force_roll(0); // win
     world.force_roll(0); // catch
-    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    crate::game_loop::activities::fishing::toggle_fishing(&mut world, 3001);
     advance_ticks(&mut world, 12);
     assert_eq!(
         item_count(&world, 3001, FISH),
         1,
         "non-premium bait catches"
     );
-    crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // stop the auto-recast
+    crate::game_loop::activities::fishing::toggle_fishing(&mut world, 3001); // stop the auto-recast
 
     // --- Gate 2: standing in the water zone → can't fish. ---
     world
@@ -20320,7 +20320,7 @@ fn fishing_premium_and_underwater_gates() {
         .get_component_mut::<Position>(&3001)
         .unwrap()
         .x = 500; // inside the water zone (160..1000)
-    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    crate::game_loop::activities::fishing::toggle_fishing(&mut world, 3001);
     advance_ticks(&mut world, 12);
     assert_eq!(
         item_count(&world, 3001, FISH),
@@ -20403,14 +20403,14 @@ fn fishing_shots_double_the_win_chance() {
 
     // --- No shots: the 40% chance loses on a roll of 41. ---
     world.force_roll(41); // reel win roll: 41 > 40 → lose
-    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    crate::game_loop::activities::fishing::toggle_fishing(&mut world, 3001);
     advance_ticks(&mut world, 12);
     assert_eq!(
         item_count(&world, 3001, FISH),
         0,
         "bare 40%: 41 > 40 → lose"
     );
-    crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // stop the auto-recast
+    crate::game_loop::activities::fishing::toggle_fishing(&mut world, 3001); // stop the auto-recast
 
     // --- Fishing shots on: the chance doubles to 80%, so the same 41 wins. ---
     world
@@ -20420,7 +20420,7 @@ fn fishing_shots_double_the_win_chance() {
         .auto_shots = vec![FISH_SHOT];
     world.force_roll(41); // reel win roll: 41 ≤ 80 → win
     world.force_roll(0); // catch-table roll
-    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    crate::game_loop::activities::fishing::toggle_fishing(&mut world, 3001);
     advance_ticks(&mut world, 12);
     assert_eq!(
         item_count(&world, 3001, FISH),
@@ -20561,7 +20561,7 @@ fn ferry_ride_board_travel_disembark() {
 
     let (mut world, _db, _l) = quest_test_world();
     let route = world.boat_routes.register(ride_route);
-    let boat = crate::game_loop::boats::spawn_boat(&mut world, route);
+    let boat = crate::game_loop::space::boats::spawn_boat(&mut world, route);
     let _rx = ingame_player(&mut world, 1, 3001, 1000, 1000, -3600); // standing on dock A
 
     let ppos = |w: &World| -> (i32, i32) {
@@ -20570,7 +20570,7 @@ fn ferry_ride_board_travel_disembark() {
     };
 
     // Board the anchored ferry.
-    crate::game_loop::boats::board(&mut world, 3001, boat, (0, 0, 0));
+    crate::game_loop::space::boats::board(&mut world, 3001, boat, (0, 0, 0));
     assert!(
         world
             .objects
@@ -20582,12 +20582,12 @@ fn ferry_ride_board_travel_disembark() {
 
     // Weigh anchor (skip the dwell) and sail to dock B (two 400-unit legs at
     // speed 200 ≈ 40 ticks).
-    crate::game_loop::boats::depart(&mut world, boat);
+    crate::game_loop::space::boats::depart(&mut world, boat);
     advance_ticks(&mut world, 45);
     assert_eq!(ppos(&world), (1800, 1000), "the passenger rode to dock B");
 
     // Step off onto the far dock.
-    crate::game_loop::boats::disembark(&mut world, 3001, boat, (1810, 1000, -3600));
+    crate::game_loop::space::boats::disembark(&mut world, 3001, boat, (1810, 1000, -3600));
     assert!(
         world.objects.get_component::<InVehicle>(&3001).is_none(),
         "disembarked"

@@ -7,7 +7,7 @@ use super::*;
 use crate::data::spawn_data::{Territory, ZoneForm};
 use crate::data::zone_data::{Zone, ZoneKind};
 use crate::db::DbCommand;
-use crate::game_loop::punishment;
+use crate::game_loop::moderation::punishment;
 use crate::model::components::Position;
 use crate::model::punishment as punishment_models;
 use crate::scheduler::ScheduledTask;

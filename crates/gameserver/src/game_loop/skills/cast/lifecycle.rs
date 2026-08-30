@@ -461,7 +461,7 @@ fn resume_action_after_cast(
     if target_state(world, target_oid).is_none() {
         return;
     }
-    if !crate::game_loop::target::is_auto_attackable(world, caster_oid, target_oid) {
+    if !crate::game_loop::combat::target::is_auto_attackable(world, caster_oid, target_oid) {
         return;
     }
     match next {

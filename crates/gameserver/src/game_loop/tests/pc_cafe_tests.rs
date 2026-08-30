@@ -5,7 +5,7 @@
 
 use super::*;
 
-use crate::game_loop::pc_cafe;
+use crate::game_loop::character::pc_cafe;
 use crate::model::Player;
 use crate::network::server_packets::sm_ids;
 

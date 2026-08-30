@@ -10,7 +10,7 @@
 //! (`clans::grant_residential_skills_to_clan`); castle **functions** (the
 //! chamberlain's door/trap upgrade tiers) and crests are still deferred, marked
 //! at their sites. The treasury's arithmetic and
-//! persistence live in [`crate::game_loop::castle`].
+//! persistence live in [`crate::game_loop::siege::treasury`].
 
 /// Java `enums/CastleSide`.
 ///
@@ -102,7 +102,7 @@ pub struct Castle {
     /// Fed by the tax on purchases made inside the castle's tax zone, by manor
     /// seed sales and by the owner's chamberlain deposits; drained by
     /// chamberlain withdrawals and the manor's period costs. Only ever moved
-    /// through [`crate::game_loop::castle::add_to_treasury_no_tax`], which
+    /// through [`crate::game_loop::siege::treasury::add_to_treasury_no_tax`], which
     /// persists every change like Java's per-call `UPDATE castle SET treasury`.
     pub treasury: i64,
 }

@@ -1,7 +1,7 @@
 use super::*;
 use crate::game_loop;
-use crate::game_loop::{death, player_actions};
-
+use crate::game_loop::client::actions;
+use crate::game_loop::death;
 /// A move click during a cast is rejected (ActionFailed, cast keeps going)
 /// but saved as the next intention, and the move starts by itself once the
 /// cast stops — Java `PlayerAI.onIntentionMoveTo`'s `saveNextIntention` +
@@ -1004,13 +1004,13 @@ fn sitting_down_and_standing_up_each_take_an_animation() {
     world
         .data
         .action_data
-        .insert_row_for_test(player_actions::action::SIT_STAND, "SitStand", 0);
+        .insert_row_for_test(actions::action::SIT_STAND, "SitStand", 0);
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     drain(&mut rx);
-    let seated = |w: &World| crate::game_loop::sit_stand::is_sitting(w, 3001);
+    let seated = |w: &World| crate::game_loop::character::sit_stand::is_sitting(w, 3001);
     let blocked = |w: &World| abnormal::is_blocked_from_actions(w, 3001);
 
-    player_actions::handle_request_action_use(&mut world, 1, &sit_action_body(0));
+    actions::handle_request_action_use(&mut world, 1, &sit_action_body(0));
     assert!(seated(&world), "seated the instant the toggle is used");
     assert!(blocked(&world), "…and blocked while the animation plays");
     let wt = drain(&mut rx)
@@ -1028,7 +1028,7 @@ fn sitting_down_and_standing_up_each_take_an_animation() {
     assert!(!blocked(&world), "but free to act again");
 
     // Stand: the flag survives until the stand animation finishes.
-    player_actions::handle_request_action_use(&mut world, 1, &sit_action_body(0));
+    actions::handle_request_action_use(&mut world, 1, &sit_action_body(0));
     assert!(
         seated(&world),
         "standing up is not instant — the flag holds through the animation"
@@ -1046,18 +1046,18 @@ fn sitting_selects_the_seated_regen_multiplier() {
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
 
     assert_eq!(
-        crate::game_loop::regen::move_type_of(&world, 3001),
+        crate::game_loop::stats::regen::move_type_of(&world, 3001),
         MoveType::Standing
     );
-    crate::game_loop::sit_stand::sit_down(&mut world, 3001);
+    crate::game_loop::character::sit_stand::sit_down(&mut world, 3001);
     assert_eq!(
-        crate::game_loop::regen::move_type_of(&world, 3001),
+        crate::game_loop::stats::regen::move_type_of(&world, 3001),
         MoveType::Sitting,
         "the seated branch wins"
     );
     assert!(
-        crate::game_loop::regen::movement_regen_multiplier(MoveType::Sitting)
-            > crate::game_loop::regen::movement_regen_multiplier(MoveType::Standing),
+        crate::game_loop::stats::regen::movement_regen_multiplier(MoveType::Sitting)
+            > crate::game_loop::stats::regen::movement_regen_multiplier(MoveType::Standing),
         "and it regenerates faster than standing"
     );
 }
@@ -1072,15 +1072,17 @@ fn taking_a_hit_stands_a_seated_player_up() {
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&3001) {
         v.cur_hp = 500.0;
     }
-    crate::game_loop::sit_stand::sit_down(&mut world, 3001);
+    crate::game_loop::character::sit_stand::sit_down(&mut world, 3001);
     advance_ticks(&mut world, 26);
-    assert!(crate::game_loop::sit_stand::is_sitting(&world, 3001));
+    assert!(crate::game_loop::character::sit_stand::is_sitting(
+        &world, 3001
+    ));
 
     combat::player_receive_damage(&mut world, 3001, 3002, 50.0);
     // The stand-up is scheduled, as any other is.
     advance_ticks(&mut world, 26);
     assert!(
-        !crate::game_loop::sit_stand::is_sitting(&world, 3001),
+        !crate::game_loop::character::sit_stand::is_sitting(&world, 3001),
         "a hit puts them back on their feet"
     );
 }
@@ -1092,7 +1094,7 @@ fn taking_a_hit_stands_a_seated_player_up() {
 fn a_shopkeeper_cannot_stand_while_the_store_is_open() {
     let (mut world, ..) = cast_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
-    crate::game_loop::sit_stand::sit_down(&mut world, 3001);
+    crate::game_loop::character::sit_stand::sit_down(&mut world, 3001);
     advance_ticks(&mut world, 26);
     world
         .objects
@@ -1100,10 +1102,10 @@ fn a_shopkeeper_cannot_stand_while_the_store_is_open() {
         .unwrap()
         .store_type = 1;
 
-    crate::game_loop::sit_stand::stand_up(&mut world, 3001);
+    crate::game_loop::character::sit_stand::stand_up(&mut world, 3001);
     advance_ticks(&mut world, 26);
     assert!(
-        crate::game_loop::sit_stand::is_sitting(&world, 3001),
+        crate::game_loop::character::sit_stand::is_sitting(&world, 3001),
         "the store keeps them seated"
     );
 
@@ -1113,9 +1115,11 @@ fn a_shopkeeper_cannot_stand_while_the_store_is_open() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .store_type = 0;
-    crate::game_loop::sit_stand::stand_up(&mut world, 3001);
+    crate::game_loop::character::sit_stand::stand_up(&mut world, 3001);
     advance_ticks(&mut world, 26);
-    assert!(!crate::game_loop::sit_stand::is_sitting(&world, 3001));
+    assert!(!crate::game_loop::character::sit_stand::is_sitting(
+        &world, 3001
+    ));
 }
 
 /// **The seated *state* is what refuses actions, not the sit animation.** The
@@ -1150,9 +1154,11 @@ fn a_seated_player_cannot_cast_attack_or_move_once_the_animation_lapses() {
     );
     world.objects.add_components(&npc_oid, cs);
 
-    crate::game_loop::sit_stand::sit_down(&mut world, 3001);
+    crate::game_loop::character::sit_stand::sit_down(&mut world, 3001);
     advance_ticks(&mut world, 26); // past the 2.5 s sit animation
-    assert!(crate::game_loop::sit_stand::is_sitting(&world, 3001));
+    assert!(crate::game_loop::character::sit_stand::is_sitting(
+        &world, 3001
+    ));
     assert!(
         !abnormal::is_blocked_from_actions(&world, 3001),
         "the animation block has lapsed — only the seated state is left to say no"
@@ -1201,9 +1207,11 @@ fn a_seated_player_cannot_cast_attack_or_move_once_the_animation_lapses() {
     );
 
     // Positive control: on their feet again, the very same clicks work.
-    crate::game_loop::sit_stand::stand_up(&mut world, 3001);
+    crate::game_loop::character::sit_stand::stand_up(&mut world, 3001);
     advance_ticks(&mut world, 26);
-    assert!(!crate::game_loop::sit_stand::is_sitting(&world, 3001));
+    assert!(!crate::game_loop::character::sit_stand::is_sitting(
+        &world, 3001
+    ));
     drain(&mut rx);
     handle_action(&mut world, 1, &action_body(3002, 0));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
@@ -1259,8 +1267,10 @@ fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
     {
         st.attack_end_tick = 0; // let the sit request past `isAttackingNow()`
     }
-    crate::game_loop::sit_stand::sit_down(&mut world, 3001);
-    assert!(crate::game_loop::sit_stand::is_sitting(&world, 3001));
+    crate::game_loop::character::sit_stand::sit_down(&mut world, 3001);
+    assert!(crate::game_loop::character::sit_stand::is_sitting(
+        &world, 3001
+    ));
     assert!(
         combat::has_attack_stance(&world, 3001),
         "sitting does not sheathe the sword — Java's breakAttack only ends the swing"

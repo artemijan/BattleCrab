@@ -53,7 +53,7 @@ fn a_mother_tree_adds_its_flat_regen_bonus() {
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
 
-    let outside = crate::game_loop::regen::mother_tree_regen_bonus(&world, PLAYER);
+    let outside = crate::game_loop::stats::regen::mother_tree_regen_bonus(&world, PLAYER);
     assert_eq!(outside, (0.0, 0.0), "no bonus off the zone");
 
     world.data.zone_data.insert(zone_at_origin(
@@ -67,7 +67,7 @@ fn a_mother_tree_adds_its_flat_regen_bonus() {
     ));
 
     assert_eq!(
-        crate::game_loop::regen::mother_tree_regen_bonus(&world, PLAYER),
+        crate::game_loop::stats::regen::mother_tree_regen_bonus(&world, PLAYER),
         (2.0, 1.0),
         "the shipped Elven/Devil's Isle pair is 2 HP / 1 MP"
     );
@@ -102,7 +102,7 @@ fn a_no_store_zone_refuses_a_private_store() {
     let mut rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
     drain(&mut rx);
     assert!(
-        crate::game_loop::private_store::can_open_private_store(&world, CID, PLAYER),
+        crate::game_loop::commerce::private_store::can_open_private_store(&world, CID, PLAYER),
         "a shop opens fine on open ground"
     );
 
@@ -112,7 +112,7 @@ fn a_no_store_zone_refuses_a_private_store() {
         .insert(zone_at_origin(ZoneKind::NoStore, None));
 
     assert!(
-        !crate::game_loop::private_store::can_open_private_store(&world, CID, PLAYER),
+        !crate::game_loop::commerce::private_store::can_open_private_store(&world, CID, PLAYER),
         "and is refused inside a NoStoreZone"
     );
     assert!(

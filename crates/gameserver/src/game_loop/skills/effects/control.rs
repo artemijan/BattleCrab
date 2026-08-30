@@ -31,8 +31,11 @@ pub(crate) fn confuse_chance_passes(
     let attribute = attribute_mod(world, caster_oid, target_oid, skill);
     let trait_mod =
         calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, false);
-    let abnormal_resist =
-        crate::game_loop::basic_property::abnormal_resist(world, target_oid, skill.basic_property);
+    let abnormal_resist = crate::game_loop::stats::basic_property::abnormal_resist(
+        world,
+        target_oid,
+        skill.basic_property,
+    );
     let roll = world.roll(100);
     formulas::calc_probability(
         skill.magic_level,
@@ -58,7 +61,7 @@ pub(crate) fn random_bystander(
     caster_oid: i32,
     exclude_caster_and_clan: bool,
 ) -> Option<i32> {
-    let mut candidates = crate::game_loop::visibility::visible_creatures(world, victim_oid);
+    let mut candidates = crate::game_loop::space::visibility::visible_creatures(world, victim_oid);
     if exclude_caster_and_clan {
         candidates.retain(|&oid| oid != caster_oid && !same_npc_faction(world, victim_oid, oid));
     }
@@ -86,7 +89,12 @@ pub(crate) fn retarget_onto(world: &mut World, victim_oid: i32, new_target_oid: 
     if crate::game_loop::combat::is_npc_oid(victim_oid) {
         force_attack_target(world, victim_oid, new_target_oid);
     } else if let Some(client_id) = helpers::client_for_player(world, victim_oid) {
-        crate::game_loop::target::set_target(world, client_id, victim_oid, Some(new_target_oid));
+        crate::game_loop::combat::target::set_target(
+            world,
+            client_id,
+            victim_oid,
+            Some(new_target_oid),
+        );
     }
 }
 
@@ -298,7 +306,7 @@ pub(crate) fn fear_action(world: &mut World, effector: Option<i32>, effected: i3
     // NPC halves of Java's shared `Creature.moveToLocation` (each already does
     // its own geodata/pathfinding pass on top of the clamp above).
     if let Some(client_id) = helpers::client_for_player(world, effected) {
-        crate::game_loop::position::intention_move_to(
+        crate::game_loop::space::position::intention_move_to(
             world,
             client_id,
             effected,
@@ -1255,7 +1263,12 @@ pub(crate) fn target_me(
     if already != Some(caster_oid)
         && let Some(client_id) = helpers::client_for_player(world, target_oid)
     {
-        crate::game_loop::target::set_target(world, client_id, target_oid, Some(caster_oid));
+        crate::game_loop::combat::target::set_target(
+            world,
+            client_id,
+            target_oid,
+            Some(caster_oid),
+        );
     }
     if chance.is_none() {
         world.objects.add_components(
@@ -1440,7 +1453,7 @@ pub(crate) fn hp_by_level(world: &mut World, caster_oid: i32, power: f64) {
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
         v.cur_hp += restored;
     }
-    crate::game_loop::passive_skills::refresh_on_hp_change(world, caster_oid);
+    crate::game_loop::stats::passive_skills::refresh_on_hp_change(world, caster_oid);
     helpers::send_sm_to_player(
         world,
         caster_oid,

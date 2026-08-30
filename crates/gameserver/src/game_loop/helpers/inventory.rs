@@ -79,7 +79,7 @@ pub(crate) fn send_inventory_update(
     let Some(client_id) = client_for_player(world, player_id) else {
         return;
     };
-    let max_load = crate::game_loop::weight::max_load(world, player_id);
+    let max_load = crate::game_loop::stats::weight::max_load(world, player_id);
     let inventory = world.objects.get_component::<Inventory>(&player_id);
     let iu =
         crate::network::enter_world::inventory_update_changes(&world.data, inventory, &changes);

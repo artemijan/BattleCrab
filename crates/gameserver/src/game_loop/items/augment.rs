@@ -19,11 +19,13 @@
 use crate::data::item_data::ADENA_ID;
 use commons::network::PacketReader;
 
+use super::cursed_weapon;
 use crate::game_loop::helpers::item_id_of;
 use crate::game_loop::helpers::{player_of, send_to_client as send};
 use crate::game_loop::helpers::{send_inventory_item_list, send_sm_bare_to_client as send_sm};
+use crate::game_loop::items;
 use crate::game_loop::items::item_mana;
-use crate::game_loop::{cursed_weapon, items, options};
+use crate::game_loop::stats::options;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;

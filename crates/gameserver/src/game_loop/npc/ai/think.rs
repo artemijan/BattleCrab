@@ -439,7 +439,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
         let random_walk = t.map(|t| t.random_walk).unwrap_or(false);
         // `ai/others/Spawns/NoRandomActivity` can clear it per NPC.
         let random_walk =
-            game_loop::spawn_scripts::random_walk_enabled(world, npc_oid, random_walk);
+            game_loop::npc::spawn_scripts::random_walk_enabled(world, npc_oid, random_walk);
         (
             pos.x,
             pos.y,

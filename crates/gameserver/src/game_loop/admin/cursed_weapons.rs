@@ -5,7 +5,7 @@
 //! (`//cw_add` / `//cw_remove`) with the activate / end-of-life lifecycle.
 //!
 //! The autonomous half of the system — drop-from-monster, pickup, and the
-//! expiry `RemoveTask` — now lives in [`crate::game_loop::cursed_weapon`] (G28),
+//! expiry `RemoveTask` — now lives in [`crate::game_loop::items::cursed_weapon`] (G28),
 //! which calls back into `activate` / `end_of_life` here, and owns the login
 //! restore (`on_enter_world`). All three items this header listed as deferred
 //! have since landed or turned out not to exist: drop-on-PK-death is
@@ -23,7 +23,7 @@ use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
 use crate::game_loop::combat::pvp::get_killer_rep_and_pk;
-use crate::game_loop::target;
+use crate::game_loop::combat::target;
 // Re-exported rather than redefined: `cursed_weapon.rs` imports `now_millis`
 // from here alongside the rest of this module's surface.
 pub(crate) use commons::util::now_millis;
@@ -286,7 +286,7 @@ pub(crate) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32,
     let duration = world.cursed_weapons[idx].duration as i64;
     world.cursed_weapons[idx].end_time = now_millis() + duration * 60_000;
     save_data(world, idx);
-    super::super::cursed_weapon::arm_expiry(world, idx);
+    super::super::items::cursed_weapon::arm_expiry(world, idx);
     redraw_panel(world, client_id);
 }
 
@@ -356,8 +356,8 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
     // (`cursed_weapon::on_enter_world`), which runs the same two Java calls.
     // `nb_kills` is still whatever the caller left on the weapon (0 on a fresh
     // grant), so `give_skill` picks Java's level for it either way.
-    crate::game_loop::cursed_weapon::do_transform(world, target, item_id);
-    crate::game_loop::cursed_weapon::give_skill(world, idx, target);
+    crate::game_loop::items::cursed_weapon::do_transform(world, target, item_id);
+    crate::game_loop::items::cursed_weapon::give_skill(world, idx, target);
 
     // Equip the weapon (recalc + broadcast) — the freshly-added item is
     // unequipped, so `use_equipable_item` equips it.
@@ -460,7 +460,7 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
             // rendering the weapon that was just taken away.
             crate::game_loop::items::refresh_equip_state(world, tc, player_id);
         }
-        crate::game_loop::player_info::broadcast_user_info(world, player_id);
+        crate::game_loop::character::player_info::broadcast_user_info(world, player_id);
     } else if is_activated {
         // Java's offline branch of `endOfLife`: the wielder isn't logged in, so
         // the restore happens straight in the database — otherwise they come

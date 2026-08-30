@@ -56,11 +56,11 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
         DbEvent::GlobalVariablesLoaded { entries } => {
             info!("GameLoop: loaded {} global variables.", entries.len());
             world.global_vars = entries.into_iter().collect();
-            crate::game_loop::four_sepulchers::restore_entry_times(world);
+            crate::game_loop::activities::four_sepulchers::restore_entry_times(world);
             // Re-derive upgraded castle-door HP now that the ratios are known
             // (the doors spawned before this table landed) — Java's
             // `loadDoorUpgrade` at castle load.
-            crate::game_loop::castle::apply_door_upgrades_at_boot(world);
+            crate::game_loop::siege::treasury::apply_door_upgrades_at_boot(world);
         }
         DbEvent::GroundItemsLoaded { items } => {
             let n = crate::game_loop::items::ground_items::restore_from_db(world, &items);
@@ -71,13 +71,13 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             world.premium = entries.into_iter().collect();
         }
         DbEvent::LotteryLoaded { row, draws } => {
-            crate::game_loop::lottery::on_loaded(world, row, draws);
+            crate::game_loop::activities::lottery::on_loaded(world, row, draws);
         }
         DbEvent::LotteryTicketsLoaded { round, rows } => {
-            crate::game_loop::lottery::finish_complete(world, round, rows);
+            crate::game_loop::activities::lottery::finish_complete(world, round, rows);
         }
         DbEvent::MdtLoaded { history, bets } => {
-            crate::game_loop::monster_race::on_mdt_loaded(world, history, bets);
+            crate::game_loop::activities::monster_race::on_mdt_loaded(world, history, bets);
         }
         DbEvent::MailLoaded {
             messages,
@@ -103,14 +103,14 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             next_id,
             punishments,
         } => {
-            crate::game_loop::punishment::on_loaded(world, next_id, punishments);
+            crate::game_loop::moderation::punishment::on_loaded(world, next_id, punishments);
         }
         DbEvent::BotReportsLoaded { rows } => {
-            let last_reset = crate::game_loop::bot_report::last_reset_millis(
+            let last_reset = crate::game_loop::moderation::bot_report::last_reset_millis(
                 &world.cfg.bot_report,
                 commons::util::now_millis(),
             );
-            crate::game_loop::bot_report::on_loaded(world, rows, last_reset);
+            crate::game_loop::moderation::bot_report::on_loaded(world, rows, last_reset);
         }
         DbEvent::BufferSchemesLoaded { entries } => {
             // Java `SchemeBufferTable.load` drops any saved skill id no longer
@@ -162,7 +162,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
         }
         DbEvent::OfflineTradersLoaded { traders } => {
             // `GameServer.main`'s `OfflineTraderTable.restoreOfflineTraders()`.
-            crate::game_loop::offline_trade::restore_offline_traders(world, traders);
+            crate::game_loop::commerce::offline_trade::restore_offline_traders(world, traders);
         }
         DbEvent::GrandBossesLoaded { bosses } => {
             // Java skips rows whose NPC template is missing (`NpcData
@@ -221,7 +221,7 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             // re-checks `end_time`).
             for idx in 0..world.cursed_weapons.len() {
                 if world.cursed_weapons[idx].is_activated {
-                    crate::game_loop::cursed_weapon::arm_expiry(world, idx);
+                    crate::game_loop::items::cursed_weapon::arm_expiry(world, idx);
                 }
             }
         }
@@ -384,10 +384,10 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             }
         }
         DbEvent::CustomMailLoaded { rows } => {
-            crate::game_loop::custom_mail::apply_loaded(world, rows);
+            crate::game_loop::mail::custom::apply_loaded(world, rows);
         }
         DbEvent::BirthdaysLoaded { rows } => {
-            crate::game_loop::birthday::apply_loaded(world, rows);
+            crate::game_loop::upkeep::birthday::apply_loaded(world, rows);
         }
         DbEvent::OlympiadLoaded {
             current_cycle,
@@ -445,12 +445,12 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
                 }
                 world.buy_list_stock.insert(
                     (list_id, item_id),
-                    crate::game_loop::shop::ProductStock {
+                    crate::game_loop::commerce::shop::ProductStock {
                         count,
                         next_restock_time,
                     },
                 );
-                crate::game_loop::shop::restart_restock_task(
+                crate::game_loop::commerce::shop::restart_restock_task(
                     world,
                     list_id,
                     item_id,

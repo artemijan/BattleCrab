@@ -12,7 +12,7 @@
 use std::net::SocketAddr;
 
 use crate::character::CharData;
-use crate::game_loop::flood::FloodProtectors;
+use crate::game_loop::client::flood::FloodProtectors;
 use crate::network::OutboundTx;
 
 /// Java `LoginServerThread.SessionKey`: the two 2×int keys agreed with the login

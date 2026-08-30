@@ -5,14 +5,16 @@
 //! region (`SpawnItem`, via `visibility`), and picked up by a click (`Action` →
 //! [`pickup_ground_item`]).
 
+use super::cursed_weapon;
+use crate::game_loop::character::sit_stand;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::{
-    command_channel, cursed_weapon, helpers, items, punishment, quests, sit_stand,
-};
+use crate::game_loop::moderation::punishment;
+use crate::game_loop::party::command_channel;
+use crate::game_loop::{helpers, items, quests};
 use crate::model::components::{GroundItem, Position, RegionCell};
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
@@ -698,7 +700,7 @@ pub(crate) fn store_all(world: &mut World) {
     // Java skips cursed weapons: `CursedWeaponsManager` owns their row and
     // would otherwise write a second one. Also fills in `equipable`, which the
     // loader uses only for the `DestroyEquipableItem` recycle sweep.
-    items.retain(|row| !crate::game_loop::cursed_weapon::is_cursed_item(world, row.item_id));
+    items.retain(|row| !super::cursed_weapon::is_cursed_item(world, row.item_id));
     for row in &mut items {
         row.equipable = world
             .data

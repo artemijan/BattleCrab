@@ -208,7 +208,7 @@ the milestone announce/firework, and only because **no** `announce` attribute
 exists anywhere in `EnchantItemData.xml` on this dist, so nothing could drive
 it.
 
-✅ **Clan warehouse** (`game_loop/warehouse.rs` refactor + `ClanWarehouse`
+✅ **Clan warehouse** (`game_loop/commerce/warehouse.rs` refactor + `ClanWarehouse`
 bypass) — a shared container on `Clan` in `world.clans` (vs. the per-player
 personal one), routed by a new `ActiveWarehouse` component the keeper bypass
 sets (`depositc`/`withdrawc`, since the deposit/withdraw client packets carry no
@@ -325,7 +325,7 @@ exist) — the cheapest playability win on the board.
 `<npcs>` aliases) + `game_loop/teleporter.rs` (`showTeleports`/
 `showTeleportsHunting`/`teleport`/`showNoblesSelect` bypass verbs, fee
 suffix + adena charge, free ≤ `MaxFreeTeleportLevel`, karma gate);
-`BypassUserCmd` (0xB3) → `game_loop/user_commands.rs` with `/unstuck`
+`BypassUserCmd` (0xB3) → `game_loop/client/user_commands.rs` with `/unstuck`
 (30 s forced-hit-time cast of 2099, GM 2100, via the new
 `SkillEffect::EscapeToTown` — also fixes escape *items* once their handlers
 land) and `/loc` (map-region `locId` + coords). Loader/dist-XML/synthetic-
@@ -347,7 +347,7 @@ manufacture store. **Deps:** G15.
 `data/recipe_data.rs` (`RecipeData` — all 631 `Recipes.xml` recipes, ingredients
 + MP/HP `statUse` + `productionRare`) and a `RecipeBook` component
 (dwarven/common recipe-list ids) loaded from `character_recipebook` and persisted
-in the store transaction. `game_loop/crafting.rs` is the **synchronous**
+in the store transaction. `game_loop/commerce/crafting.rs` is the **synchronous**
 `RecipeItemMaker` (this dist is `AltGameCreation = False`, so no staged multi-pass
 craft, craft animation, crafting XP/SP, or HP/MP rest-wait): recipe learning via
 the `Recipes` item handler (craft-skill/level/limit gates), book open/destroy,
@@ -387,7 +387,7 @@ Interlude dyes are permanent (`duration=-1`), so the timed-henna scheduler +
 ✅ **Vitality + variables + premium effects — G16 complete (2026-07-19)** —
 plan `PLAN_G16_VITALITY.md`. The `character_variables`
 key/value store (`PlayerVariables` component, loaded at char load, flushed in
-the store transaction); the vitality pool in `game_loop/vitality.rs` (clamped
+the store transaction); the vitality pool in `game_loop/character/vitality.rs` (clamped
 `0..=140_000`, `setVitalityPoints`'s four notices + `ExVitalityPointInfo` +
 party-window field, `updateVitalityPoints` through the gain/lost rates with the
 `isLucky` exemption); the ×2 exp/sp bonus, folded in via a new `use_bonuses`
@@ -1155,7 +1155,7 @@ the seven seasonal `scripts/events/*` (SquashEvent, MerrySquashmas, …) as the
 breadth list — subject to the scope gate (customs default out).
 
 **Progress (2026-07-23):** the **cursed-weapon half of the gate is met** — the
-autonomous drop → pickup → expiry loop landed (`game_loop/cursed_weapon.rs`,
+autonomous drop → pickup → expiry loop landed (`game_loop/items/cursed_weapon.rs`,
 `PLAN_G28_CURSED_WEAPONS.md`); a cursed weapon can be
 dropped by a monster kill and equipped by whoever picks it up. Deferred to a
 follow-up: kill-count level-up, hungry decay, drop-on-PK-death, login restore.
@@ -1279,7 +1279,7 @@ persistence, since both parties can be offline — and it is what forced the
 `CharInfoTable` equivalent (`World.char_ids_by_name`) the port had gone without,
 because mail is addressed by name to characters who need not be online. Party
 **matching rooms** are complete too (`model/matching_room.rs` +
-`game_loop/party_room.rs`, top 0x7F/0x80/0x81 + ex 0x09/0x0A/0x0B/0x25/0x2F–0x31),
+`game_loop/party/rooms.rs`, top 0x7F/0x80/0x81 + ex 0x09/0x0A/0x0B/0x25/0x2F–0x31),
 including the looking-for-party waiting list, the `bbs` map-region "location"
 attribute, the `UserInfo` `isInMatchingRoom` byte, and the party/logout
 cross-hooks. Six Java defects are deliberately not reproduced (leaked solo
@@ -1291,7 +1291,7 @@ paths) — each listed with its test in
 **Still open on G30:** the retail forum boards + `communitybbs` core, `_bbssell`
 / `_bbsdelevel`, and AdminBBS. **Command channels (MPCC)** were never scheduled
 under any milestone and were tracked as their own remaining-ports-audit item —
-**landed 2026-07-28** (`model/command_channel.rs` + `game_loop/command_channel.rs`):
+**landed 2026-07-28** (`model/command_channel.rs` + `game_loop/party/command_channel.rs`):
 form/join/oust/roster (ex 0x06–0x08/0x2D, the clan-5 / Strategy-Guide /
 Baron+Clan-Imperium forming right, invite always routed to the target party's
 leader), party-side propagation (member open/close, leader transfer SM 1589,

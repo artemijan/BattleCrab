@@ -127,11 +127,11 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // `PhysicalAbnormalResist` / `MagicalAbnormalResist` — both plain
     // `AbstractStatAddEffect`s over `Stat.ABNORMAL_RESIST_{PHYSICAL,MAGICAL}`,
     // which `Formulas.getAbnormalResist` subtracts from a mesmerizing debuff's
-    // base landing chance (G34 S2, `game_loop::basic_property`). No learnable
+    // base landing chance (G34 S2, `game_loop::stats::basic_property`). No learnable
     // source on this dist — 3 items each — but the consumer exists now, so the
     // registry entry is what makes those items real rather than inert.
     // G34 S4 — `Breath` (Boost Breath 195, Eva's Kiss 1073 + 19 Doom-set item
-    // skills), consumed by `game_loop::water`'s breath gauge. Note the two
+    // skills), consumed by `game_loop::space::water`'s breath gauge. Note the two
     // modes read very differently against the 60 000 ms base: Eva's Kiss is
     // `PER 400` (×5, five minutes), Boost Breath is `DIFF 180` (+0.18 s).
     // The second looks like a datapack unit slip, but Java computes exactly
@@ -211,7 +211,7 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("VitalityPointsRate", Stat::VitalityConsumeRate),
     // Acrobatics (173), the one learnable source: `SafeFallHeight` →
     // `Stat.FALL`, a plain single-stat `AbstractStatEffect` consumed by
-    // `game_loop::falling`'s `calc_fall_dam`. It reduces fall *damage*, not
+    // `game_loop::space::falling`'s `calc_fall_dam`. It reduces fall *damage*, not
     // the safe height — see [`Stat::Fall`].
     ("SafeFallHeight", Stat::Fall),
     // `WeightLimit` (Weight Limit 150, Quiver of Holding 418, Super Haste 7029)

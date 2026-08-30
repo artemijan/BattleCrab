@@ -1,7 +1,7 @@
 use super::*;
 use crate::game_loop;
-use crate::game_loop::{party, player_info};
-
+use crate::game_loop::character::player_info;
+use crate::game_loop::party;
 /// General chat reaches the speaker and players within 1250 units, but not a
 /// region-adjacent player standing further away.
 #[test]
@@ -1349,7 +1349,7 @@ fn a_boss_spawn_is_announced_server_wide() {
 /// sitting, so a passer-by never blocks).
 #[test]
 fn a_private_store_needs_room_around_it() {
-    use crate::game_loop::private_store::can_open_private_store;
+    use crate::game_loop::commerce::private_store::can_open_private_store;
 
     let (mut world, ..) = test_world();
     world.cfg.custom_misc.shop_min_range_from_npc = 100;

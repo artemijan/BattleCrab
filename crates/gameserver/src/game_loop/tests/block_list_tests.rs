@@ -4,8 +4,8 @@
 use super::*;
 use crate::db::DbCommand;
 use crate::enums::ChatType;
-use crate::game_loop::chat;
-use crate::game_loop::chat::block_list;
+use crate::game_loop::social::chat;
+use crate::game_loop::social::chat::block_list;
 use crate::model::Player;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets::{opcodes, sm_ids};

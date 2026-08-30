@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::shortcuts;
+use crate::game_loop::client::shortcuts;
 
 /// Registering a skill shortcut echoes `ShortCutRegister` + a `SkillList`
 /// re-send (Java's quirk) and persists; deleting it re-sends the whole

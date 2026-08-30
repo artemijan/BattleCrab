@@ -24,8 +24,8 @@ use crate::world::World;
 
 /// `Inventory.ADENA_ID` — Java's zone visualiser drops adena as its marker.
 use crate::data::item_data::ADENA_ID;
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
-use crate::game_loop::target;
 
 /// `AdminDoorControl`'s `//open`/`//close [doorId]` and `//openall`/`//closeall`
 /// — toggle one door (by template id, or the targeted door) or every door.
@@ -253,7 +253,7 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
         send_message(world, client_id, &format!("Buylist {list_id} not found."));
         return;
     };
-    let refund_items = crate::game_loop::shop::refund_items_of(world, object_id);
+    let refund_items = crate::game_loop::commerce::shop::refund_items_of(world, object_id);
     let Some(inventory) = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&object_id)
@@ -270,7 +270,7 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
             &world.data,
             0.0,
             world.cfg.rates.rate_siege_guards_price,
-            |p| crate::game_loop::shop::stock_left(world, list_id, p),
+            |p| crate::game_loop::commerce::shop::stock_left(world, list_id, p),
         ),
     );
     send_to_client(

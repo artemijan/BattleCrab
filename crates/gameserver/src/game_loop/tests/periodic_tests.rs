@@ -4,8 +4,8 @@ use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::skill_by_id;
 
+use crate::game_loop::character::sit_stand;
 use crate::game_loop::helpers::stat_mul;
-use crate::game_loop::sit_stand;
 use crate::model::components::PlayerVitals;
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,

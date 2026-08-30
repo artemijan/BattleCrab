@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::game_loop::vitality;
+use crate::game_loop::character::vitality;
 use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS};
 use crate::network::server_packets::sm_ids;
 

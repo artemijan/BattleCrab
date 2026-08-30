@@ -1,7 +1,7 @@
 //! `ai/areas/ImperialTomb/FourSepulchers` — the chat/kill/spawn hooks; the
-//! run machinery lives in [`crate::game_loop::four_sepulchers`].
+//! run machinery lives in [`crate::game_loop::activities::four_sepulchers`].
 
-use crate::game_loop::four_sepulchers as fs;
+use crate::game_loop::activities::four_sepulchers as fs;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
@@ -161,7 +161,7 @@ impl QuestScript for FourSepulchers {
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         match event {
             "Enter" => {
-                if !crate::game_loop::four_sepulchers::quest_started_or_completed(
+                if !crate::game_loop::activities::four_sepulchers::quest_started_or_completed(
                     ctx.world,
                     ctx.player,
                     "Q00620_FourGoblets",
@@ -188,7 +188,7 @@ impl QuestScript for FourSepulchers {
                 }
             }
             "OpenGate" => {
-                if !crate::game_loop::four_sepulchers::quest_started_or_completed(
+                if !crate::game_loop::activities::four_sepulchers::quest_started_or_completed(
                     ctx.world,
                     ctx.player,
                     "Q00620_FourGoblets",

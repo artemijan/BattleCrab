@@ -20,10 +20,10 @@ use crate::game_loop::time::TICKS_PER_SECOND;
 use commons::util::rnd;
 use tracing::warn;
 
+use crate::game_loop::client::user_commands::in_combat;
 use crate::game_loop::death::{despawn_npc_by_oid, introduce_npc, teleport_player};
-use crate::game_loop::instances;
 use crate::game_loop::npc::spawn_npc_at;
-use crate::game_loop::user_commands::in_combat;
+use crate::game_loop::space::instances;
 use crate::model::Player;
 use crate::model::components::FishingSession;
 use crate::model::event::TvtPhase;
@@ -628,7 +628,7 @@ pub(crate) fn load_schedule(root: &str) -> Vec<String> {
 const INACTIVITY_TIME_MIN: u64 = 2;
 
 /// Java `TvT.onEnterZone`/`onExitZone` for `colosseum_peace1|2`, fired from
-/// [`crate::game_loop::zones::revalidate_zone`] when the named zone changes.
+/// [`crate::game_loop::space::zones::revalidate_zone`] when the named zone changes.
 ///
 /// - Walking into the **enemy** headquarters bounces you back to your own spawn
 ///   with a screen message ("Entering the enemy headquarters is prohibited!").
@@ -835,7 +835,7 @@ fn buff_heal(world: &mut World, player: i32) {
         .map_or(0, |p| p.class_id);
     let is_mage = world.data.categories.contains("BEGINNER_MAGE", class_id);
     for &skill in if is_mage { MAGE_BUFFS } else { FIGHTER_BUFFS } {
-        crate::game_loop::support_magic::cast_from_npc(world, manager, player, skill);
+        crate::game_loop::npc::support_magic::cast_from_npc(world, manager, player, skill);
     }
     // `setCurrentHp/Mp/Cp(max)` — the heal half. CP lives on its own
     // player-only component.
@@ -1009,7 +1009,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         helpers::send_message(world, client_id, "You cannot register while on a siege.");
         return false;
     }
-    if !crate::game_loop::weight::is_inventory_under_80(world, player) {
+    if !crate::game_loop::stats::weight::is_inventory_under_80(world, player) {
         helpers::send_message(
             world,
             client_id,
@@ -1019,7 +1019,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         return false;
     }
     // `getWeightPenalty() != 0` — *any* penalty band, not just overloaded.
-    if crate::game_loop::weight::current_penalty(world, player) != 0 {
+    if crate::game_loop::stats::weight::current_penalty(world, player) != 0 {
         helpers::send_message(
             world,
             client_id,
@@ -1063,12 +1063,12 @@ fn group_team(world: &mut World, team: &[i32]) {
             if team.len() > PARTY_MEMBER_COUNT {
                 match cc_id {
                     None => {
-                        cc_id = Some(crate::game_loop::command_channel::create_channel(
+                        cc_id = Some(crate::game_loop::party::command_channel::create_channel(
                             world, member, party_id,
                         ));
                     }
                     Some(cc) => {
-                        crate::game_loop::command_channel::add_party_to_channel(
+                        crate::game_loop::party::command_channel::add_party_to_channel(
                             world, cc, party_id,
                         );
                     }

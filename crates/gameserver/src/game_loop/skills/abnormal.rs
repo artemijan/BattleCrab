@@ -165,7 +165,7 @@ pub(crate) fn refresh_visuals(world: &mut World, object_id: i32) {
             object_id, hidden, transform, &visuals,
         ),
     );
-    crate::game_loop::player_info::broadcast_user_info(world, object_id);
+    crate::game_loop::character::player_info::broadcast_user_info(world, object_id);
 }
 
 /// Arm Java's `_abnormalVisualEffectTask`: the visual list goes out **one tick
@@ -260,7 +260,7 @@ pub(crate) fn is_movement_disabled(world: &World, object_id: i32) -> bool {
         // crowd-control flags: carrying past your limit roots you where you
         // stand until you drop something. This is the enforcement half of the
         // weight system — the 4270 passive only slows you down.
-        || crate::game_loop::weight::is_overloaded(world, object_id)
+        || crate::game_loop::stats::weight::is_overloaded(world, object_id)
         || flags_of(world, object_id)
             & (effect_flag::BLOCK_ACTIONS | effect_flag::ROOTED | effect_flag::IMMOBILIZED)
             != 0

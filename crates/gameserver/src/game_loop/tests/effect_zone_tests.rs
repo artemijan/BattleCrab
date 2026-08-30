@@ -111,8 +111,8 @@ fn zone_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
 /// Run the effect-zone sweep `n` times at its real period.
 fn sweep(world: &mut World, n: u64) {
     for _ in 0..n {
-        world.tick += crate::game_loop::effect_zones::SWEEP_PERIOD;
-        crate::game_loop::effect_zones::effect_zone_tick(world);
+        world.tick += crate::game_loop::space::effect_zones::SWEEP_PERIOD;
+        crate::game_loop::space::effect_zones::effect_zone_tick(world);
     }
 }
 

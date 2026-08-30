@@ -4,7 +4,7 @@
 use super::*;
 use crate::db::DbCommand;
 use crate::enums::ChatType;
-use crate::game_loop::chat;
+use crate::game_loop::social::chat;
 use crate::model::Player;
 use crate::model::components::{PlayerVariables, WORLD_CHAT_USED};
 use crate::network::server_packets::{opcodes, sm_ids};
@@ -248,7 +248,7 @@ fn the_daily_reset_clears_the_quota_online_and_offline() {
     drain(&mut rx);
     while db_rx.try_recv().is_ok() {}
 
-    crate::game_loop::daily_tasks::run_reset(&mut world, false);
+    crate::game_loop::upkeep::daily_tasks::run_reset(&mut world, false);
 
     assert_eq!(used(&world, 2001), 0, "online counter cleared in memory");
     assert_eq!(
@@ -284,7 +284,7 @@ fn the_daily_reset_is_gated_on_the_channel_being_enabled() {
     drain(&mut rx);
     while db_rx.try_recv().is_ok() {}
 
-    crate::game_loop::daily_tasks::run_reset(&mut world, false);
+    crate::game_loop::upkeep::daily_tasks::run_reset(&mut world, false);
 
     assert_eq!(used(&world, 2001), 7, "the stored counter is untouched");
     let mut cmds = Vec::new();

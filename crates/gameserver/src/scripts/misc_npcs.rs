@@ -6,7 +6,7 @@
 //! - `ToIVortex` — the Tower of Insolence floor teleports and the dimension
 //!   stone trade.
 //! - `SymbolMaker` — the dye NPCs' chat window (their `Draw`/`Remove` buttons
-//!   were already wired to `game_loop::henna`; without this the window that
+//!   were already wired to `game_loop::character::henna`; without this the window that
 //!   holds the buttons never opened).
 //! - `RandomWalkingGuards` — the five village guards Java lets wander even
 //!   though `Guard`s have random walking off by default.
@@ -254,7 +254,7 @@ const SYMBOL_MAKERS: &[i32] = &[
 
 /// The pages the window navigates between (Java's pass-through `case`s). The
 /// `Draw`/`Remove` buttons on them are handled by the bypass router
-/// (`game_loop::henna`).
+/// (`game_loop::character::henna`).
 const SYMBOL_PAGES: &[&str] = &[
     "symbol_maker.htm",
     "symbol_maker-1.htm",

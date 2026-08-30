@@ -599,8 +599,10 @@ fn delete_favorite_removes_and_writes_through() {
 // --- Merchant (multisell) ---------------------------------------------------
 
 use crate::data::item_data::ADENA_ID;
-use crate::game_loop::multisell::handle_multi_sell_choose;
-use crate::game_loop::{castle, community_board, multisell};
+use crate::game_loop::commerce::multisell;
+use crate::game_loop::commerce::multisell::handle_multi_sell_choose;
+use crate::game_loop::community_board;
+use crate::game_loop::siege::treasury;
 use crate::model::components::ActiveMultisell;
 use crate::model::inventory::Inventory;
 
@@ -1203,7 +1205,7 @@ fn region_board_renders_the_castles() {
         .map(|id| model::castle::Castle {
             id,
             name: format!("C{id}"),
-            side: castle::CastleSide::Neutral,
+            side: treasury::CastleSide::Neutral,
             show_npc_crest: false,
             ticket_buy_count: 0,
             first_mid_victory: false,

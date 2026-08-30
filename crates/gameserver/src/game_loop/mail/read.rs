@@ -28,7 +28,7 @@ pub(crate) fn handle_received_post(world: &mut World, client_id: u32, body: &[u8
         return;
     };
     if m.receiver_id != player {
-        crate::game_loop::punishment::illegal_action(
+        crate::game_loop::moderation::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to receive not own post!"),
@@ -98,7 +98,7 @@ pub(crate) fn handle_sent_post(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     };
     if m.sender_id != player {
-        crate::game_loop::punishment::illegal_action(
+        crate::game_loop::moderation::punishment::illegal_action(
             world,
             player,
             &format!("Player {player} tried to read not own post!"),
@@ -173,7 +173,7 @@ fn handle_delete_post(world: &mut World, client_id: u32, body: &[u8], received: 
         if owner != player {
             // Java: "... tried to delete not own post!" — a punish, not a
             // silent refusal.
-            crate::game_loop::punishment::illegal_action(
+            crate::game_loop::moderation::punishment::illegal_action(
                 world,
                 player,
                 &format!("Player {player} tried to delete not own post!"),

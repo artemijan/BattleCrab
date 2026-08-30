@@ -894,7 +894,7 @@ is why none of it ever became a marker:
   no `TODO`. Its own doc comment said so — *"Other action ids (sit, socials,
   the per-summon skill buttons) are not handled here yet"*. **Fixed on
   2026-08-14**: dispatch is now table-driven off `ActionData.xml` in
-  `game_loop/player_actions.rs`, and a handler with no arm logs Java's own
+  `game_loop/client/actions.rs`, and a handler with no arm logs Java's own
   "couldn't find handler with name" rather than vanishing. Every in-chronicle
   handler behind it landed over 2026-08-14/15 (rows 1, 2 and 3); 13 rows remain,
   all post-Interlude.
@@ -1139,7 +1139,7 @@ player from the aggro list) and `Summon.isInvul` (which *does* make the pet
 invulnerable meanwhile, an asymmetry with the owner). The window is ended by
 `Player.onActionRequest`, which Java calls from exactly five client packets, so
 600 is a ceiling on an AFK login rather than ten minutes of safety. Ported as
-`game_loop::spawn_protection` with the five packets hooked in one place in
+`game_loop::combat::spawn_protection` with the five packets hooked in one place in
 `dispatch`.
 
 `OffsetOnTeleportEnabled`/`MaxOffsetOnTeleport` needed the opposite of the
@@ -1369,7 +1369,7 @@ than a flag: nothing in the port implemented falling at all. Java drives it
 entirely from `ValidatePosition` — `Player.isFalling(z)` prices the drop once,
 arms a 1.5 s task, and returns `true` for the next second so position
 reconciliation is suppressed while the player is in the air. All three landed
-(`game_loop::falling`), plus `Formulas.calcFallDam` and `Stat.FALL`.
+(`game_loop::space::falling`), plus `Formulas.calcFallDam` and `Stat.FALL`.
 
 Three things the Java side had to be read for rather than assumed:
 
@@ -1561,7 +1561,7 @@ and Java's `RequestBypassToServer` never sees one.
 
 Two carried with reasons: `CustomTeleportTable` is **dead in Java** (parsed into
 a field nothing reads), and `HtmlActionCacheDebug` traces Java's
-`validateHtmlAction` cache, which `game_loop::bypass` records as a deliberate
+`validateHtmlAction` cache, which `game_loop::client::bypass` records as a deliberate
 non-port.
 
 **The General.ini feature-gate cluster (10 keys), and a hole in the measure.**
@@ -1718,7 +1718,7 @@ ported.
   Scroll: Recovery (2286) as a skill that lost something. It did not; there was
   nothing to lose.
 * `VitalityPointsRate` — and this one contradicted a note in the port.
-  `game_loop::vitality` said Java's `VITALITY_CONSUME_RATE` scaling was
+  `game_loop::character::vitality` said Java's `VITALITY_CONSUME_RATE` scaling was
   unreachable because "no skill on this dist grants it". Skill 2580 does, at
   -10 %, and its carriers — the Vitality Replenishing Herb family — drop from
   the Schuttgart golems (22801-22808) that this dist spawns in `22_14_Monsters`.
@@ -2299,7 +2299,7 @@ EOF
 
 ```sh
 # rows 1, 2, 3 — action-bar handlers the dist declares, against the arms in
-# `game_loop/player_actions.rs::dispatch`
+# `game_loop/client/actions.rs::dispatch`
 grep -oE 'handler="[A-Za-z]+"' dist/game/data/ActionData.xml | sort | uniq -c | sort -rn
 
 # row 6 — item handlers the dist actually uses, by item count
@@ -2418,7 +2418,7 @@ state nothing sets. Re-run the scan over both files:
 
 ```sh
 # every cop:: name referenced by either dispatch layer, resolved to its opcode
-grep -rhoE 'cop::[A-Z_0-9]+' crates/gameserver/src/game_loop/dispatch.rs \
+grep -rhoE 'cop::[A-Z_0-9]+' crates/gameserver/src/game_loop/client/dispatch.rs \
   crates/gameserver/src/network/connection.rs | sort -u
 ```
 
@@ -2454,7 +2454,7 @@ the answer is that **all 17 features this dist enables are ported, consumed and
 tested** — not 16, a figure two documents drifted to and one re-introduced from
 memory. The three whose consumers are least obvious, recorded so the next audit
 need not re-derive them: L2Walker protection in `game_loop/chat.rs`, the
-private-store spacing rule in `game_loop/private_store.rs`, and the boss spawn
+private-store spacing rule in `game_loop/commerce/private_store.rs`, and the boss spawn
 announcement in `model/npc.rs`. One file, `Custom/PcCafe.ini`, ships and looks
 authoritative but is **dead in Java itself** — `Config.java` never opens it; the
 live PC-cafe keys are in `PremiumSystem.ini`. A shipped ini proves nothing on

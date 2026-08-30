@@ -1116,7 +1116,7 @@ pub enum SkillEffect {
     /// not depending on the clock, and a global `OnDayNightChange` listener
     /// re-pumps every bearer when it flips. This port does the same thing from
     /// the other end: the grant is *not* emitted by `stat_modifier_effects`
-    /// (which has no clock), and `game_loop::night_stats` rewrites the landed
+    /// (which has no clock), and `game_loop::stats::night_stats` rewrites the landed
     /// buff's stored modifiers on every day/night change and when the buff
     /// lands. Same observable behaviour, and the stat hot path stays clean.
     ///
@@ -2400,7 +2400,7 @@ pub struct Skill {
 /// Fear, Aerial Yoke, Silence. Everything else is `NONE`.
 ///
 /// Two independent mechanics read it, and conflating them is how the port
-/// missed both (see [`crate::game_loop::basic_property`]):
+/// missed both (see [`crate::game_loop::stats::basic_property`]):
 ///
 /// 1. `Formulas.getAbnormalResist` — a *stat* lookup
 ///    (`ABNORMAL_RESIST_PHYSICAL` / `_MAGICAL`), subtracted inside `baseMod`.
@@ -3390,7 +3390,7 @@ impl ActiveBuff {
     /// buff's clothes so that `remove_buff` can take them off again, not
     /// abnormals the client should stack or display an icon for.
     ///
-    /// Augment options build a *similar* buff by hand in `game_loop::options`
+    /// Augment options build a *similar* buff by hand in `game_loop::stats::options`
     /// with `expires_at_tick: 0` and an empty abnormal type; that difference is
     /// untested, so it is deliberately not folded in here.
     pub fn passive_pump(skill_id: i32, skill_level: i32, effects: Vec<StatModifierEffect>) -> Self {

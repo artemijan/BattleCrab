@@ -8,9 +8,9 @@
 //! wired through `siege::set_show_npc_crest`.
 
 use crate::db::DbCommand;
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::clan_of_or_zero;
-use crate::game_loop::target;
 use crate::model::Player;
 use crate::model::castle::CastleSide;
 use crate::model::siege::SiegeClanType;
@@ -227,7 +227,7 @@ fn take_castle(world: &mut World, client_id: u32, idx: usize) {
             super::super::siege::set_show_npc_crest(world, castle_id, false);
             super::super::clans::strip_residential_skills_from_clan(world, clan_id, castle_id);
             // `removeOwner` also calls `removeCirclet(clan, residenceId)`.
-            super::super::castle::remove_circlets_from_clan(world, clan_id, castle_id);
+            super::super::siege::treasury::remove_circlets_from_clan(world, clan_id, castle_id);
         }
         None => helpers::send_message(world, client_id, "Error during removing castle!"),
     }
