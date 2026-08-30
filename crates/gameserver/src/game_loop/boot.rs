@@ -5,7 +5,6 @@ use super::boats;
 use super::bot_report;
 use super::cursed_weapon;
 use super::daily_tasks;
-use super::doors;
 use super::events;
 use super::ground_items;
 use super::manor;
@@ -15,6 +14,7 @@ use super::olympiad;
 use super::restart;
 use crate::game_loop::npc::area;
 use crate::game_loop::npc::bosses::boss_respawn;
+use crate::game_loop::npc::doors;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 /// The boot sequence: place the static world content and arm the self-

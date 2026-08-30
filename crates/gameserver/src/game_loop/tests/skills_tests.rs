@@ -6214,7 +6214,7 @@ fn healing_beside_a_fighting_mob_draws_its_hate_onto_the_healer() {
         .unwrap()
         .intention = NpcIntention::Attack;
     // The mob's target is the tank — never the healer.
-    crate::game_loop::minions::add_hate(&mut world, mob, 3002, 500.0);
+    crate::game_loop::npc::minions::add_hate(&mut world, mob, 3002, 500.0);
     assert_eq!(
         world
             .objects

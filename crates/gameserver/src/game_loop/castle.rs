@@ -408,7 +408,7 @@ pub(crate) fn door_upgrade_ratio(world: &World, door_id: i32) -> i32 {
 
 /// The door object carrying `door_id`, for the HP-upgrade stamp.
 ///
-/// Unlike [`crate::game_loop::doors::find_shared_door`] this does **not** skip
+/// Unlike [`crate::game_loop::npc::doors::find_shared_door`] this does **not** skip
 /// instance door copies. That is preserved from the code this replaced rather
 /// than chosen: whether a castle door id can ever appear in an instance
 /// template's doorlist is untested, and quietly changing it here would be a

@@ -52,15 +52,15 @@ impl QuestScript for ValakasTeleporters {
                 None
             }
             GATE_A => {
-                crate::game_loop::doors::open_door_by_id(ctx.world, 24210004);
+                crate::game_loop::npc::doors::open_door_by_id(ctx.world, 24210004);
                 None
             }
             GATE_B => {
-                crate::game_loop::doors::open_door_by_id(ctx.world, 24210005);
+                crate::game_loop::npc::doors::open_door_by_id(ctx.world, 24210005);
                 None
             }
             GATE_C => {
-                crate::game_loop::doors::open_door_by_id(ctx.world, 24210006);
+                crate::game_loop::npc::doors::open_door_by_id(ctx.world, 24210006);
                 None
             }
             _ => None,

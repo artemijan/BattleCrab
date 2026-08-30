@@ -135,7 +135,7 @@ pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_oid: i32
 /// makes every guard aggro the intruder at once.
 fn aggro_room(world: &mut World, room: &[i32], killer_oid: i32) {
     for &mob in room {
-        crate::game_loop::minions::add_hate(world, mob, killer_oid, 1.0);
+        crate::game_loop::npc::minions::add_hate(world, mob, killer_oid, 1.0);
     }
 }
 

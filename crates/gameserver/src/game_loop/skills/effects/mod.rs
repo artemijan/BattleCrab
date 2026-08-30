@@ -32,8 +32,6 @@ use crate::world::World;
 
 use super::instant;
 use crate::game_loop::helpers::send_sm_to_player;
-use crate::game_loop::helpers::send_to_player;
-
 mod continuous;
 pub(crate) mod control;
 pub(crate) mod damage;
@@ -45,6 +43,7 @@ mod ticks;
 mod traits;
 mod triggers;
 
+use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::npc::ai::force_attack_target;
 pub(crate) use continuous::{
     apply_continuous_effects, broadcast_change_wait_type, refresh_abnormal_visuals,
@@ -1078,9 +1077,7 @@ fn set_skill(world: &mut World, player_oid: i32, skill_id: i32, skill_level: i32
     book.0.insert(skill_id, skill_level);
     // A granted passive has to start contributing now, not at the next login.
     crate::game_loop::passive_skills::recompute_conditioned_passives(world, player_oid);
-    if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player_oid) {
-        send_to_player(world, player_oid, pkt);
-    }
+    refresh_skill_list(world, player_oid);
 }
 
 /// `MapRegionManager.getTeleToLocation(player, where)` for the destinations

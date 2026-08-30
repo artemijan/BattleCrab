@@ -13,7 +13,7 @@ use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::helpers::broadcast_near_region;
+use crate::game_loop::helpers::broadcast_near_region;
 use crate::scheduler::ms_to_ticks;
 
 /// `Door.sendInfo(player)`: `StaticObjectInfo` + `DoorStatusUpdate` for one

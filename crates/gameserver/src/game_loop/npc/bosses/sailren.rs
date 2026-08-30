@@ -214,7 +214,7 @@ fn spawn_wave_mob(world: &mut World, npc_id: i32, x: i32, y: i32, z: i32) -> i32
 /// whoever felled the last one.
 fn engage(world: &mut World, mob: i32, killer_oid: i32) {
     if mob != 0 {
-        crate::game_loop::minions::add_hate(world, mob, killer_oid, ENGAGE_HATE);
+        crate::game_loop::npc::minions::add_hate(world, mob, killer_oid, ENGAGE_HATE);
     }
 }
 

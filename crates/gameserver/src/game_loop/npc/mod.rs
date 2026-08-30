@@ -8,6 +8,8 @@ pub(crate) mod ai;
 pub(crate) mod area;
 pub(crate) mod bosses;
 pub(crate) mod cast;
+pub(crate) mod doors;
+pub(crate) mod minions;
 pub(crate) mod say;
 pub(crate) mod teleporter;
 pub mod view;
@@ -300,7 +302,7 @@ pub(crate) fn spawn_one(
     crate::game_loop::npc::walkers::on_npc_spawn(world, oid, npc_id);
     // The escort lands in `world.minions_placed` inside `spawn_minion_group`
     // (the script-chosen named groups count themselves the same way).
-    crate::game_loop::minions::spawn_minions(world, oid);
+    minions::spawn_minions(world, oid);
     announce_boss_spawn(world, oid);
     Some(oid)
 }

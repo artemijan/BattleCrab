@@ -16,6 +16,7 @@
 //! the evidence lives in `data::transform_data`'s module header.
 
 use super::mounts::ride_target;
+use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
 use crate::model::Player;
 use crate::model::components::{Collision, SkillBook};
@@ -333,8 +334,6 @@ pub(crate) fn refresh_transform_visuals(world: &World, target: i32) {
             target, hidden, display_id, &visuals,
         );
         crate::game_loop::helpers::send_to_client(world, cid, ave);
-        if let Some(pkt) = super::helpers::skill_list_packet(world, target) {
-            crate::game_loop::helpers::send_to_client(world, cid, pkt);
-        }
+        refresh_skill_list(world, target);
     }
 }

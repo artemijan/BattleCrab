@@ -122,7 +122,7 @@ fn broadcast_instance_door(world: &World, instance_id: i32, door_oid: i32) {
     let Some(region) = region_cell_of(world, door_oid) else {
         return;
     };
-    let open = crate::game_loop::doors::door_open_state(world, door_oid, door.door_id);
+    let open = crate::game_loop::npc::doors::door_open_state(world, door_oid, door.door_id);
     crate::game_loop::helpers::broadcast_near_region_in(
         world,
         region,

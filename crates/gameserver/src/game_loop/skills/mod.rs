@@ -9,6 +9,7 @@ pub(crate) mod effects;
 pub(crate) mod enchant;
 pub(crate) mod instant;
 
+use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
 use crate::network::client_packets as cp;
@@ -35,9 +36,7 @@ pub(crate) fn handle_request_magic_skill_list(world: &mut World, client_id: u32,
         );
         return;
     }
-    if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player) {
-        send_to_client(world, client_id, pkt);
-    }
+    refresh_skill_list(world, object_id);
 }
 
 /// Java `Player.removeSkill(id)` — take the skill out of the book **and** stop
@@ -310,9 +309,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             return;
         };
         cs.send(server_packets::acquire_skill_done());
-        if let Some(pkt) = super::helpers::skill_list_packet(world, object_id) {
-            cs.send(pkt);
-        }
+        refresh_skill_list(world, object_id);
         cs.send(crate::network::enter_world::acquire_skill_list(
             v.p,
             skills,

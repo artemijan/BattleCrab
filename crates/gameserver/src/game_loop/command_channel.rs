@@ -1104,7 +1104,7 @@ pub(crate) fn on_raid_attacked_loot_rights(world: &mut World, npc_oid: i32, atta
     // Boss only (`!isMinion()`), and only a real raid.
     if world
         .objects
-        .has_component::<crate::game_loop::minions::MinionOf>(&npc_oid)
+        .has_component::<crate::game_loop::npc::minions::MinionOf>(&npc_oid)
         || !super::raid_curse::gives_raid_curse(world, npc_oid)
     {
         return;

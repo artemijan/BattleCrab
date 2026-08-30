@@ -350,8 +350,8 @@ fn the_escort_returns_home_with_its_leader() {
     world.next_npc_object_id = MOB + 1;
 
     place_dragged_mob(&mut world, "Monster", (2000, 0), (0, 0, 0), 0);
-    crate::game_loop::minions::spawn_minions(&mut world, MOB);
-    let escort = crate::game_loop::minions::live_pack(&world, MOB);
+    crate::game_loop::npc::minions::spawn_minions(&mut world, MOB);
+    let escort = crate::game_loop::npc::minions::live_pack(&world, MOB);
     assert_eq!(escort.len(), 2, "escort spawned");
     for &oid in &escort {
         hurt(&mut world, oid);

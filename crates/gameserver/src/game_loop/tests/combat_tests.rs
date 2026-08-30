@@ -1833,7 +1833,7 @@ fn siege_doors_close_on_start_and_breach_on_damage() {
     world.sieges.insert(3, Siege::new(3));
     let door =
         model::door::spawn_door_for_test(&mut world, test_door(24190001, DoorOpenMethod::None)); // closed, hp 1000
-    crate::game_loop::doors::open_door(&mut world, door);
+    crate::game_loop::npc::doors::open_door(&mut world, door);
     assert!(world.geo.doors.is_open(24190001), "door starts open");
 
     // start_siege → the castle gate is closed at full HP.

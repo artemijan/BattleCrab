@@ -6,6 +6,7 @@
 //! deviation lives (see `handle_request_make_macro`).
 
 use super::helpers::send_to_client as send;
+use crate::game_loop::admin::refresh_skill_list;
 use crate::model::components::{Macros, Shortcuts};
 use crate::model::shortcut::{MacroType, MacroUpdateType, Shortcut, ShortcutType};
 use crate::network::client_packets as cp;
@@ -66,9 +67,7 @@ pub(crate) fn handle_request_short_cut_reg(world: &mut World, client_id: u32, bo
     }
 
     send(world, client_id, server_packets::shortcut_register(&sc));
-    if let Some(pkt) = super::helpers::skill_list_packet(world, object_id) {
-        send(world, client_id, pkt);
-    }
+    refresh_skill_list(world, object_id);
 }
 
 /// Port of `clientpackets/RequestShortCutDel.runImpl`.

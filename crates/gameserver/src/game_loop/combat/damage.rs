@@ -614,7 +614,7 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
     }
     // `Attackable.addDamageHate` → `MinionList.onAssist`: hitting one member of
     // a pack pulls in the leader and the rest of the escort.
-    crate::game_loop::minions::on_assist(world, npc_oid, attacker_oid);
+    crate::game_loop::npc::minions::on_assist(world, npc_oid, attacker_oid);
     let now = world.tick;
     let became_running = {
         let Some((mut aggro, mut ai, mut speeds)) =

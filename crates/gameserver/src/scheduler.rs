@@ -506,7 +506,7 @@ pub enum ScheduledTask {
     BossRespawn {
         spawn_ref: (usize, usize, usize),
     },
-    /// A leader's killed minion is due back — see [`crate::game_loop::minions`].
+    /// A leader's killed minion is due back — see [`crate::game_loop::npc::minions`].
     MinionRespawn {
         master_object_id: i32,
         minion_npc_id: i32,

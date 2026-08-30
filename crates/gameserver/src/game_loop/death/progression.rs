@@ -1,4 +1,5 @@
 use crate::data::npc_data::NpcTemplate;
+use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::helpers;
 use crate::model::components;
 
@@ -484,10 +485,7 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             helpers::send_sm_bare_to_client(world, client_id, sm_ids::YOUR_LEVEL_HAS_INCREASED);
         }
         helpers::send_to_client(world, client_id, user_info);
-        let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, player_oid) else {
-            return;
-        };
-        helpers::send_to_client(world, client_id, pkt);
+        refresh_skill_list(world, player_oid);
     }
 }
 

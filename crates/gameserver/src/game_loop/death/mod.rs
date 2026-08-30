@@ -74,7 +74,7 @@ pub(crate) use rewards::{calculate_rewards, give_item, on_die_drop_item};
 
 /// `Inventory.ADENA_ID`.
 pub(crate) use crate::data::item_data::ADENA_ID;
-
+use crate::game_loop::npc::minions;
 // ---------------------------------------------------------------------------
 // NPC death → decay → respawn
 // ---------------------------------------------------------------------------
@@ -188,8 +188,8 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // `Attackable.doDie`'s minion notifications, in Java's order: tell this
     // NPC's leader it lost a minion, then (if it led a pack itself) clear its
     // own escort.
-    super::minions::on_minion_die(world, npc_oid);
-    super::minions::on_master_die(world, npc_oid);
+    minions::on_minion_die(world, npc_oid);
+    minions::on_master_die(world, npc_oid);
 
     // `OnAttackableKill` listeners (Java fires them async off the death
     // path; here it's an ordinary call after rewards — same tick, no

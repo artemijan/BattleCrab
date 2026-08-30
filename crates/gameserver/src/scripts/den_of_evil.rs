@@ -43,13 +43,13 @@ impl QuestScript for RagnaOrcLeaders {
         let npc = ctx.npc;
         match ctx.npc_id {
             RAGNA_ORC_COMMANDER => {
-                crate::game_loop::minions::spawn_minion_group(ctx.world, npc, "Privates1");
+                crate::game_loop::npc::minions::spawn_minion_group(ctx.world, npc, "Privates1");
                 let second = if ctx.roll(2) == 0 {
                     "Privates2"
                 } else {
                     "Privates3"
                 };
-                crate::game_loop::minions::spawn_minion_group(ctx.world, npc, second);
+                crate::game_loop::npc::minions::spawn_minion_group(ctx.world, npc, second);
             }
             RAGNA_ORC_SEER => {
                 // `"Privates" + getRandom(1, 2)`.
@@ -58,7 +58,7 @@ impl QuestScript for RagnaOrcLeaders {
                 } else {
                     "Privates2"
                 };
-                crate::game_loop::minions::spawn_minion_group(ctx.world, npc, group);
+                crate::game_loop::npc::minions::spawn_minion_group(ctx.world, npc, group);
             }
             RAGNA_ORC_HERO => {
                 let group = if ctx.roll(100) < 70 {
@@ -66,7 +66,7 @@ impl QuestScript for RagnaOrcLeaders {
                 } else {
                     "Privates2"
                 };
-                crate::game_loop::minions::spawn_minion_group(ctx.world, npc, group);
+                crate::game_loop::npc::minions::spawn_minion_group(ctx.world, npc, group);
             }
             _ => {}
         }

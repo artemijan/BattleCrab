@@ -41,7 +41,7 @@ fn spawn_nurse(world: &mut World, oid: i32, master: i32) {
     add_test_npc(world, oid, NURSE, "Monster", 40, 20, 0, 0);
     world
         .objects
-        .add_components(&oid, crate::game_loop::minions::MinionOf(master));
+        .add_components(&oid, crate::game_loop::npc::minions::MinionOf(master));
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
         v.max_mp = 10_000;
         v.cur_mp = 10_000.0;
@@ -126,7 +126,7 @@ fn the_queen_spawns_her_nurses_and_royal_guards() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::game_loop::minions::MinionOf>(&a_nurse)
+            .get_component::<crate::game_loop::npc::minions::MinionOf>(&a_nurse)
             .map(|m| m.0),
         Some(QUEEN_OID),
         "the nurses belong to the Queen"

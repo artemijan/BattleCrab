@@ -161,7 +161,7 @@ pub(crate) fn open_close_hall_doors(world: &mut World, hall_id: i32, open: bool)
         .map(|h| h.doors.clone())
         .unwrap_or_default();
     for door_id in doors {
-        crate::game_loop::doors::set_door_by_id(world, door_id, open);
+        crate::game_loop::npc::doors::set_door_by_id(world, door_id, open);
     }
 }
 

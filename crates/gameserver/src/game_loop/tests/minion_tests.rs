@@ -4,7 +4,7 @@
 use super::*;
 
 use crate::data::npc_data::MinionHolder;
-use crate::game_loop::minions::MinionOf;
+use crate::game_loop::npc::minions::MinionOf;
 use crate::model::components::Vitals;
 use crate::model::npc::{AggroList, Npc, NpcAi, NpcIntention};
 
@@ -70,7 +70,7 @@ fn minion_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
 /// directly so the test doesn't need a whole spawn definition).
 fn place_leader(world: &mut World, npc_id: i32) -> i32 {
     add_test_npc(world, LEADER_OID, npc_id, "Monster", 20, 0, 0, 0);
-    crate::game_loop::minions::spawn_minions(world, LEADER_OID);
+    crate::game_loop::npc::minions::spawn_minions(world, LEADER_OID);
     LEADER_OID
 }
 
@@ -134,8 +134,8 @@ fn topping_up_does_not_overshoot_the_declared_count() {
     // (which the respawn path does) must not stack extra minions.
     let (mut world, _db, _l) = minion_world();
     place_leader(&mut world, LEADER_ID);
-    crate::game_loop::minions::spawn_minions(&mut world, LEADER_OID);
-    crate::game_loop::minions::spawn_minions(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::spawn_minions(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::spawn_minions(&mut world, LEADER_OID);
 
     assert_eq!(
         minions_of(&mut world, LEADER_OID).len(),
@@ -150,7 +150,7 @@ fn a_dead_leader_spawns_nothing() {
     add_test_npc(&mut world, LEADER_OID, LEADER_ID, "Monster", 20, 0, 0, 0);
     kill(&mut world, LEADER_OID);
 
-    crate::game_loop::minions::spawn_minions(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::spawn_minions(&mut world, LEADER_OID);
 
     assert!(
         minions_of(&mut world, LEADER_OID).is_empty(),
@@ -170,7 +170,7 @@ fn an_ordinary_leaders_minion_does_not_come_back() {
     let victim = minions_of(&mut world, LEADER_OID)[0];
     kill(&mut world, victim);
 
-    crate::game_loop::minions::on_minion_die(&mut world, victim);
+    crate::game_loop::npc::minions::on_minion_die(&mut world, victim);
     advance_ticks(&mut world, 6000); // 10 min, well past any raid timer
 
     assert_eq!(
@@ -194,10 +194,10 @@ fn a_raid_leaders_minion_returns_after_the_configured_delay() {
         0,
         0,
     );
-    crate::game_loop::minions::spawn_minions(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::spawn_minions(&mut world, LEADER_OID);
     let victim = minions_of(&mut world, LEADER_OID)[0];
     kill(&mut world, victim);
-    crate::game_loop::minions::on_minion_die(&mut world, victim);
+    crate::game_loop::npc::minions::on_minion_die(&mut world, victim);
 
     advance_ticks(&mut world, 2000); // 200 s — not yet
     assert_eq!(minions_of(&mut world, LEADER_OID).len(), 1, "too early");
@@ -230,11 +230,11 @@ fn a_custom_zero_override_beats_the_raid_default() {
         0,
         0,
     );
-    crate::game_loop::minions::spawn_minions(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::spawn_minions(&mut world, LEADER_OID);
     let victim = minions_of(&mut world, LEADER_OID)[0];
     kill(&mut world, victim);
 
-    crate::game_loop::minions::on_minion_die(&mut world, victim);
+    crate::game_loop::npc::minions::on_minion_die(&mut world, victim);
     advance_ticks(&mut world, 6000);
 
     assert_eq!(
@@ -257,12 +257,12 @@ fn no_respawn_once_the_leader_is_dead() {
         0,
         0,
     );
-    crate::game_loop::minions::spawn_minions(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::spawn_minions(&mut world, LEADER_OID);
     let victim = minions_of(&mut world, LEADER_OID)[0];
     kill(&mut world, victim);
     kill(&mut world, LEADER_OID);
 
-    crate::game_loop::minions::on_minion_die(&mut world, victim);
+    crate::game_loop::npc::minions::on_minion_die(&mut world, victim);
     advance_ticks(&mut world, 6000);
 
     assert_eq!(
@@ -288,11 +288,11 @@ fn a_raid_leaders_death_clears_its_escort() {
         0,
         0,
     );
-    crate::game_loop::minions::spawn_minions(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::spawn_minions(&mut world, LEADER_OID);
     assert_eq!(minions_of(&mut world, LEADER_OID).len(), 2);
 
     kill(&mut world, LEADER_OID);
-    crate::game_loop::minions::on_master_die(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::on_master_die(&mut world, LEADER_OID);
 
     assert!(
         minions_of(&mut world, LEADER_OID).is_empty(),
@@ -308,7 +308,7 @@ fn an_ordinary_leaders_death_leaves_its_minions_alive() {
     place_leader(&mut world, LEADER_ID);
     kill(&mut world, LEADER_OID);
 
-    crate::game_loop::minions::on_master_die(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::on_master_die(&mut world, LEADER_OID);
 
     assert_eq!(
         minions_of(&mut world, LEADER_OID).len(),
@@ -324,7 +324,7 @@ fn force_delete_minions_clears_an_ordinary_leaders_escort_too() {
     place_leader(&mut world, LEADER_ID);
     kill(&mut world, LEADER_OID);
 
-    crate::game_loop::minions::on_master_die(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::on_master_die(&mut world, LEADER_OID);
 
     assert!(
         minions_of(&mut world, LEADER_OID).is_empty(),
@@ -342,7 +342,7 @@ fn attacking_a_minion_pulls_in_the_leader_and_the_pack() {
     place_leader(&mut world, LEADER_ID);
     let pack = minions_of(&mut world, LEADER_OID);
 
-    crate::game_loop::minions::on_assist(&mut world, pack[0], PLAYER);
+    crate::game_loop::npc::minions::on_assist(&mut world, pack[0], PLAYER);
 
     assert!(
         hate_on(&world, LEADER_OID, PLAYER) > 0.0,
@@ -364,7 +364,7 @@ fn attacking_the_leader_aggros_the_pack_harder_than_hitting_a_minion() {
     place_leader(&mut world, LEADER_ID);
     let pack = minions_of(&mut world, LEADER_OID);
 
-    crate::game_loop::minions::on_assist(&mut world, LEADER_OID, PLAYER);
+    crate::game_loop::npc::minions::on_assist(&mut world, LEADER_OID, PLAYER);
     let via_leader = hate_on(&world, pack[0], PLAYER);
 
     // Reset and hit a minion instead.
@@ -381,7 +381,7 @@ fn attacking_the_leader_aggros_the_pack_harder_than_hitting_a_minion() {
             .unwrap()
             .intention = NpcIntention::Active;
     }
-    crate::game_loop::minions::on_assist(&mut world, pack[0], PLAYER);
+    crate::game_loop::npc::minions::on_assist(&mut world, pack[0], PLAYER);
     let via_minion = hate_on(&world, pack[1], PLAYER);
 
     assert!(
@@ -404,10 +404,10 @@ fn a_raid_leader_multiplies_the_pack_aggro() {
         0,
         0,
     );
-    crate::game_loop::minions::spawn_minions(&mut world, LEADER_OID);
+    crate::game_loop::npc::minions::spawn_minions(&mut world, LEADER_OID);
     let pack = minions_of(&mut world, LEADER_OID);
 
-    crate::game_loop::minions::on_assist(&mut world, LEADER_OID, PLAYER);
+    crate::game_loop::npc::minions::on_assist(&mut world, LEADER_OID, PLAYER);
 
     // 10 (leader struck) x10 (raid) = 100.
     assert_eq!(

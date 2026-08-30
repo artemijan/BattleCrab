@@ -490,7 +490,7 @@ impl QuestScript for CastleDoorManager {
                 for param in ["DoorId1", "DoorId2"] {
                     let door_id = npc_param(ctx, param);
                     if door_id != 0 {
-                        crate::game_loop::doors::set_door_by_id(ctx.world, door_id, open);
+                        crate::game_loop::npc::doors::set_door_by_id(ctx.world, door_id, open);
                     }
                 }
                 None

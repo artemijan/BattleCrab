@@ -63,7 +63,7 @@ pub(super) fn spawn_castle_doors(world: &mut World, castle_id: i32, weak: bool) 
             }
         }
         if world.geo.doors.is_open(door_id) {
-            crate::game_loop::doors::close_door(world, oid);
+            crate::game_loop::npc::doors::close_door(world, oid);
         }
     }
 }
@@ -92,13 +92,13 @@ pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool
     };
     if breached {
         // `open_door` broadcasts the new state itself, HP included.
-        crate::game_loop::doors::open_door(world, door_oid); // breach — the gate swings open
+        crate::game_loop::npc::doors::open_door(world, door_oid); // breach — the gate swings open
     } else {
         // Java `Door.reduceCurrentHp` → `broadcastStatusUpdate`: the gate's HP
         // and its 0..6 crack grade go out on **every** hit, which is what makes
         // a gate under attack visibly fall apart. Only the breach was announced
         // before, so a besieged gate looked untouched until it burst open.
-        crate::game_loop::doors::broadcast_status(world, door_oid);
+        crate::game_loop::npc::doors::broadcast_status(world, door_oid);
     }
     breached
 }

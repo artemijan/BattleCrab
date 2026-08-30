@@ -254,7 +254,7 @@ pub(crate) fn try_enter(world: &mut World, manager_oid: i32, player: i32) -> Ent
     set_room4_effect_zones(world, sepulcher, false);
     for (s, _, door) in DOORS {
         if s == sepulcher {
-            crate::game_loop::doors::set_door_by_id(world, door, false);
+            crate::game_loop::npc::doors::set_door_by_id(world, door, false);
         }
     }
 
@@ -416,7 +416,7 @@ pub(crate) fn open_gate(world: &mut World, sepulcher: i32) {
     world.four_sepulchers.progress[idx] = wave;
     for (s, w, door) in DOORS {
         if s == sepulcher && w == wave {
-            crate::game_loop::doors::open_door_timed(world, door, 150);
+            crate::game_loop::npc::doors::open_door_timed(world, door, 150);
             break;
         }
     }

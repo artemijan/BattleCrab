@@ -353,7 +353,7 @@ impl QuestScript for TimakOrcTroopLeader {
         if rate <= 0 || ctx.roll(100) + 1 > rate {
             return;
         }
-        if crate::game_loop::minions::count_spawned_minions(ctx.world, ctx.npc) >= 3 {
+        if crate::game_loop::npc::minions::count_spawned_minions(ctx.world, ctx.npc) >= 3 {
             return;
         }
         let privates: Vec<i32> = ctx
@@ -371,13 +371,13 @@ impl QuestScript for TimakOrcTroopLeader {
             .unwrap_or_default();
         for npc_id in privates {
             let already_out =
-                crate::game_loop::minions::minion_of_id_alive(ctx.world, ctx.npc, npc_id);
+                crate::game_loop::npc::minions::minion_of_id_alive(ctx.world, ctx.npc, npc_id);
             if already_out {
                 continue;
             }
             let pick = ctx.roll(TIMAK_BARKS.len() as i32) as usize;
             ctx.npc_say(TIMAK_BARKS[pick]);
-            crate::game_loop::minions::add_minion(ctx.world, ctx.npc, npc_id);
+            crate::game_loop::npc::minions::add_minion(ctx.world, ctx.npc, npc_id);
             break;
         }
     }

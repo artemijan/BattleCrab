@@ -23,6 +23,7 @@
 //! [`OptionSkills`] /
 //! [`OptionTriggers`].
 
+use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::stat_ctx::with_stat_ctx;
 use crate::model::components::{OptionSkills, OptionTriggers};
 use crate::model::inventory::Inventory;
@@ -212,7 +213,7 @@ fn apply_option_skills(world: &mut World, player_oid: i32, option_id: i32) {
             reg.0.insert(trigger.skill_id, *trigger);
         }
     }
-    send_skill_list(world, player_oid);
+    refresh_skill_list(world, player_oid);
 }
 
 /// `Options.remove`'s skill half.
@@ -245,13 +246,5 @@ fn remove_option_skills(world: &mut World, player_oid: i32, option_id: i32) {
             reg.0.remove(&trigger.skill_id);
         }
     }
-    send_skill_list(world, player_oid);
-}
-
-/// `player.sendSkillList()`, which both halves of `Options` end with — the
-/// client only shows a granted active once the list is resent.
-fn send_skill_list(world: &World, player_oid: i32) {
-    if let Some(pkt) = super::helpers::skill_list_packet(world, player_oid) {
-        super::helpers::send_to_player(world, player_oid, pkt);
-    }
+    refresh_skill_list(world, player_oid);
 }

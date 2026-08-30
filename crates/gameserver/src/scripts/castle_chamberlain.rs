@@ -408,7 +408,7 @@ fn operate_door<'a>(
     let open = tokens.next().and_then(|t| t.parse::<i32>().ok()) == Some(1);
     for door_id in tokens.filter_map(|t| t.parse::<i32>().ok()) {
         if open {
-            crate::game_loop::doors::open_door_by_id(ctx.world, door_id);
+            crate::game_loop::npc::doors::open_door_by_id(ctx.world, door_id);
         } else {
             close_door_by_id(ctx.world, door_id);
         }
@@ -436,7 +436,7 @@ fn close_door_by_id(world: &mut crate::world::World, door_id: i32) {
                 .is_some_and(|d| d.door_id == door_id)
     });
     if let Some(oid) = oid {
-        crate::game_loop::doors::close_door(world, oid);
+        crate::game_loop::npc::doors::close_door(world, oid);
     }
 }
 

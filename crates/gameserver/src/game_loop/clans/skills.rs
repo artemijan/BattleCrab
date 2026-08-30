@@ -2,6 +2,7 @@ use super::CLAN_ADVENT_SKILL_ID;
 use super::CLAN_ADVENT_SKILL_LEVEL;
 use crate::db::DbCommand;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::clan_of;
 
@@ -168,13 +169,6 @@ fn apply_permanent_passive_buff(world: &mut World, oid: i32, buff: ActiveBuff) {
     crate::game_loop::player_info::broadcast_user_info(world, oid);
 }
 
-/// Resend a member's merged `SkillList` (own skills + clan skills).
-fn refresh_member_skill_list(world: &World, member_oid: i32) {
-    if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, member_oid) {
-        helpers::send_to_player(world, member_oid, pkt);
-    }
-}
-
 /// The clan's full skill set as an `(id, level)` list (for `PledgeSkillList`).
 pub(crate) fn clan_skill_pairs(world: &World, clan_id: i32) -> Vec<(i32, i32)> {
     world
@@ -209,7 +203,7 @@ pub(crate) fn apply_clan_skills_to_member(world: &mut World, clan_id: i32, membe
         give_residential_skills(world, member_oid, castle_id, clan_id);
     }
     if applied {
-        refresh_member_skill_list(world, member_oid);
+        refresh_skill_list(world, member_oid);
     }
     // The clan window's skill tab (Java sends `PledgeSkillList` on enter-world).
     if let Some(cid) = helpers::client_for_player(world, member_oid) {
@@ -255,7 +249,7 @@ pub(crate) fn apply_siege_skills_to_leader(world: &mut World, clan_id: i32, memb
     for id in ids {
         apply_clan_skill_to_member(world, member_oid, id, 1);
     }
-    refresh_member_skill_list(world, member_oid);
+    refresh_skill_list(world, member_oid);
 }
 
 /// Java `Clan.removeSkillEffects(player)` — strip every clan skill from a member
@@ -275,7 +269,7 @@ pub(crate) fn remove_clan_skills_from_member(world: &mut World, member_oid: i32)
     if let Some(c) = world.objects.get_component_mut::<ClanSkills>(&member_oid) {
         c.0.clear();
     }
-    refresh_member_skill_list(world, member_oid);
+    refresh_skill_list(world, member_oid);
 }
 
 // --- Residential (castle/clan-hall) skills: `AbstractResidence.give/
@@ -307,7 +301,7 @@ pub(crate) fn give_residential_skills(
         }
     }
     if applied {
-        refresh_member_skill_list(world, member_oid);
+        refresh_skill_list(world, member_oid);
     }
 }
 
@@ -338,7 +332,7 @@ pub(crate) fn remove_residential_skills(world: &mut World, member_oid: i32, resi
         removed = true;
     }
     if removed {
-        refresh_member_skill_list(world, member_oid);
+        refresh_skill_list(world, member_oid);
     }
 }
 
@@ -451,7 +445,7 @@ pub(crate) fn add_clan_skill(world: &mut World, clan_id: i32, skill_id: i32, lev
                 level,
             }],
         );
-        refresh_member_skill_list(world, oid);
+        refresh_skill_list(world, oid);
     }
 }
 

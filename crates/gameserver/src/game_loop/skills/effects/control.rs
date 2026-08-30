@@ -1126,7 +1126,7 @@ pub(crate) fn bluff(
         // `setIsRaidMinion(_master.isRaid())` — a minion inherits its master's
         // raid immunity. The port tracks the link as `MinionOf`, so ask the
         // master's template.
-        || crate::game_loop::minions::is_raid_minion(world, target_oid);
+        || crate::game_loop::npc::minions::is_raid_minion(world, target_oid);
     if is_raid || !confuse_chance_passes(world, caster_oid, target_oid, skill, chance) {
         return;
     }

@@ -426,7 +426,7 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
     }
     if world
         .objects
-        .has_component::<crate::game_loop::minions::MinionOf>(&npc_oid)
+        .has_component::<crate::game_loop::npc::minions::MinionOf>(&npc_oid)
     {
         return;
     }

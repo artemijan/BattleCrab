@@ -6,12 +6,12 @@
 use super::friends;
 use super::lobby;
 use super::party;
-use tracing::{error, trace};
-
+use crate::game_loop::admin::refresh_skill_list;
 use crate::network::client_packets::{self as cp, ex_opcodes as exop, opcodes as cop};
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
+use tracing::{error, trace};
 
 use super::bypass::handle_request_bypass_to_server;
 use super::chat::{block_list, handle_say2};
@@ -126,11 +126,8 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         }
         // RequestSkillList (IN_GAME): empty body, just `player.sendSkillList()`.
         cop::REQUEST_SKILL_LIST => {
-            if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id)
-                && let Some(pkt) =
-                    super::helpers::skill_list_packet(world, session.player_object_id())
-            {
-                cs.send(pkt);
+            if let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) {
+                refresh_skill_list(world, session.player_object_id());
             }
         }
         cop::REQUEST_ITEM_LIST => handle_request_item_list(world, client_id),

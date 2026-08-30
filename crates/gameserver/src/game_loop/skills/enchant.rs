@@ -24,14 +24,14 @@
 //! case — parity, not a narrowing. The one Java gate without a port
 //! equivalent is the subclass lock (see [`busy_for_enchant`]).
 
+use crate::game_loop::admin::refresh_skill_list;
+use crate::game_loop::helpers::send_sm_and_action_failed;
 use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_client, send_to_client};
 use crate::model::Player;
 use crate::model::components::{SkillBook, SkillEnchants};
 use crate::network::server_packets;
 use crate::world::World;
 use commons::network::PacketReader;
-
-use crate::game_loop::helpers::send_sm_and_action_failed;
 
 /// `SkillEnchantType` ordinals (Java enum order).
 const NORMAL: i32 = 0;
@@ -388,7 +388,5 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
 
     // `broadcastUserInfo()` + `sendSkillList()`.
     crate::game_loop::player_info::broadcast_user_info(world, object_id);
-    if let Some(pkt) = crate::game_loop::helpers::skill_list_packet(world, object_id) {
-        send_to_client(world, client_id, pkt);
-    }
+    refresh_skill_list(world, object_id);
 }

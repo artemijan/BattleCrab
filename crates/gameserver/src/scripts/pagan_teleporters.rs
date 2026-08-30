@@ -66,11 +66,11 @@ impl QuestScript for PaganTeleporters {
                 {
                     return Some("noItem.htm".into());
                 }
-                crate::game_loop::doors::open_door_timed(ctx.world, OUTER_DOOR, CLOSE_TICKS);
+                crate::game_loop::npc::doors::open_door_timed(ctx.world, OUTER_DOOR, CLOSE_TICKS);
                 Some("FadedMark.htm".into())
             }
             GATEKEEPER_OUTER_OUT => {
-                crate::game_loop::doors::open_door_timed(ctx.world, OUTER_DOOR, CLOSE_TICKS);
+                crate::game_loop::npc::doors::open_door_timed(ctx.world, OUTER_DOOR, CLOSE_TICKS);
                 Some("FadedMark.htm".into())
             }
             GATEKEEPER_INNER_IN => {
@@ -78,13 +78,13 @@ impl QuestScript for PaganTeleporters {
                     return Some("noMark.htm".into());
                 }
                 for door in INNER_DOORS {
-                    crate::game_loop::doors::open_door_timed(ctx.world, door, CLOSE_TICKS);
+                    crate::game_loop::npc::doors::open_door_timed(ctx.world, door, CLOSE_TICKS);
                 }
                 Some("openDoor.htm".into())
             }
             GATEKEEPER_INNER_OUT => {
                 for door in INNER_DOORS {
-                    crate::game_loop::doors::open_door_timed(ctx.world, door, CLOSE_TICKS);
+                    crate::game_loop::npc::doors::open_door_timed(ctx.world, door, CLOSE_TICKS);
                 }
                 Some("FadedMark.htm".into())
             }

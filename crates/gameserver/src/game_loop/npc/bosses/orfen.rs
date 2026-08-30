@@ -57,7 +57,7 @@ pub struct OrfenState {
 pub(crate) fn on_orfen_spawned(world: &mut World, orfen_oid: i32) {
     // Java `spawnBoss` places four Raikel Leos beside Orfen — her `<minions>`
     // escort, which the grand-boss spawn path (`spawn_npc_at`) otherwise skips.
-    crate::game_loop::minions::spawn_minions(world, orfen_oid);
+    crate::game_loop::npc::minions::spawn_minions(world, orfen_oid);
 
     let home = pos_of(world, orfen_oid).unwrap_or(HOME);
     world.objects.add_components(

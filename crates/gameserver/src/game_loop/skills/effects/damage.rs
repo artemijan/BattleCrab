@@ -586,7 +586,7 @@ pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
             .objects
             .get_component::<crate::model::npc::Npc>(&target_oid)
             .is_some_and(|n| n.champion),
-        t.is_raid() || crate::game_loop::minions::is_raid_minion(world, target_oid),
+        t.is_raid() || crate::game_loop::npc::minions::is_raid_minion(world, target_oid),
     );
     if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
         &components::Buffs,

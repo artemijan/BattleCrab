@@ -361,7 +361,7 @@ pub(crate) fn handle_cinematic_step(world: &mut World, step: u8) {
         world.objects.remove_component::<Immobilized>(&baium);
         spawn_archangels(world);
         if let Some(p) = waker {
-            crate::game_loop::minions::add_hate(world, baium, p, ENGAGE_HATE);
+            crate::game_loop::npc::minions::add_hate(world, baium, p, ENGAGE_HATE);
         }
     }
 
@@ -416,7 +416,7 @@ pub(crate) fn handle_select_target(world: &mut World) {
         }
         match nearest_player_in_range(world, angel, ARCHANGEL_REACH) {
             Some(player) => {
-                crate::game_loop::minions::add_hate(world, angel, player, ENGAGE_HATE);
+                crate::game_loop::npc::minions::add_hate(world, angel, player, ENGAGE_HATE);
             }
             None => {
                 if let Some((x, y, z)) = baium_pos {

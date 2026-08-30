@@ -15,6 +15,7 @@ use crate::world::{World, region_of, regions_adjacent};
 
 use super::helpers::client_for_player;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::npc::doors;
 
 /// `CreatureAI.describeStateToPlayer`, players-only: right after a `CharInfo`
 /// introduces `p`, tell the observer about in-flight state — currently just an
@@ -334,7 +335,7 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
         if super::helpers::instance_of(world, door_id) != my_instance {
             continue;
         }
-        super::doors::send_door_info(world, my_session, door_id);
+        doors::send_door_info(world, my_session, door_id);
     }
     for so_id in world.statics_visible_from(my_region) {
         if super::helpers::instance_of(world, so_id) != my_instance {
@@ -487,7 +488,7 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             if !regions_adjacent(old, door_region.0)
                 && super::helpers::instance_of(world, door_id) == my_instance
             {
-                super::doors::send_door_info(world, cs, door_id);
+                doors::send_door_info(world, cs, door_id);
             }
         }
         for door_id in world.doors_visible_from(old) {

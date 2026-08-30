@@ -726,7 +726,7 @@ pub(super) fn open_door(
     }
     let already_open = world.geo.doors.is_open(door_id);
     if world.roll(100) < chance && !already_open {
-        crate::game_loop::doors::open_door(world, target_oid);
+        crate::game_loop::npc::doors::open_door(world, target_oid);
     } else {
         effects::send_sm(
             world,
@@ -772,7 +772,7 @@ pub(super) fn open_chest(world: &mut World, ctx: &CastCtx) {
         // Out of band the box is a mimic: Java gives it a single
         // point of hate and points its AI at the caster.
         effects::broadcast_social_action(world, caster_oid, 13);
-        crate::game_loop::minions::add_hate(world, target_oid, caster_oid, 1.0);
+        crate::game_loop::npc::minions::add_hate(world, target_oid, caster_oid, 1.0);
     }
 }
 

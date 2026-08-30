@@ -42,7 +42,7 @@ pub(crate) fn gives_raid_curse(world: &World, npc_oid: i32) -> bool {
     // A raid minion defers to its master, so a boss's adds curse too.
     world
         .objects
-        .get_component::<crate::game_loop::minions::MinionOf>(&npc_oid)
+        .get_component::<crate::game_loop::npc::minions::MinionOf>(&npc_oid)
         .and_then(|m| world.objects.get_component::<crate::model::npc::Npc>(&m.0))
         .is_some_and(|master| is_raid_template(world, master.npc_id))
 }

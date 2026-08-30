@@ -11,7 +11,7 @@ use crate::game_loop::helpers::broadcast_near_region_in;
 use crate::game_loop::helpers::instance_of;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
-use crate::game_loop::minions;
+use crate::game_loop::npc::minions;
 use crate::game_loop::npc::walkers::WalkState;
 use crate::model::components::Movement;
 use crate::model::components::Position;

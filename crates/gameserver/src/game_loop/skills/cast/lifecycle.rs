@@ -319,7 +319,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             if relevant {
                 let level = helpers::npc_template(world, witness).map_or(1, |tpl| tpl.level);
                 let hate = f64::from(skill.effect_point) * 150.0 / f64::from(level + 7);
-                crate::game_loop::minions::add_hate(world, witness, player_object_id, hate);
+                crate::game_loop::npc::minions::add_hate(world, witness, player_object_id, hate);
             }
         }
     }

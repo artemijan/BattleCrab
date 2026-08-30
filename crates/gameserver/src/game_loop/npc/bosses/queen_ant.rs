@@ -44,7 +44,7 @@ pub(crate) fn on_queen_spawned(world: &mut World, queen_oid: i32) {
     // six nurses and eight royal guards. The grand-boss spawn path
     // (`spawn_npc_at`) deliberately skips a leader's `<minions>` escort, so
     // without this the Queen stands alone: no healers, no guards, no fight.
-    crate::game_loop::minions::spawn_minions(world, queen_oid);
+    crate::game_loop::npc::minions::spawn_minions(world, queen_oid);
 
     let heading = world.roll(360);
     if let Some(larva) =
@@ -153,7 +153,7 @@ fn nurses_of(world: &World, queen_oid: i32) -> Vec<i32> {
                 .is_some_and(|v| !v.dead)
                 && world
                     .objects
-                    .get_component::<crate::game_loop::minions::MinionOf>(oid)
+                    .get_component::<crate::game_loop::npc::minions::MinionOf>(oid)
                     .is_some_and(|m| m.0 == queen_oid)
         })
         .collect()

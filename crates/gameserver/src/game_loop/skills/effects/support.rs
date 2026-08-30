@@ -167,7 +167,7 @@ pub(crate) fn magic_success_input<'a>(
     let target_is_raid = helpers::is_raid_npc(world, target_oid)
         || world
             .objects
-            .get_component::<crate::game_loop::minions::MinionOf>(&target_oid)
+            .get_component::<crate::game_loop::npc::minions::MinionOf>(&target_oid)
             .is_some_and(|leader| helpers::is_raid_npc(world, leader.0));
 
     formulas::MagicSuccess {

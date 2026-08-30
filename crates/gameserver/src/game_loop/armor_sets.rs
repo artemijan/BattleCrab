@@ -32,6 +32,7 @@
 //! that intersection before putting a set skill into a skill tree.
 
 use crate::data::armor_set_data::{ArmorSetData, ArmorSetStats};
+use crate::game_loop::admin::refresh_skill_list;
 use crate::model::components::SkillBook;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::world::World;
@@ -340,11 +341,8 @@ pub(crate) fn refresh_armor_sets(world: &mut World, oid: i32) {
     // maps (and a dropped one leaves). This sends its own `UserInfo` when the
     // applied set moved.
     crate::game_loop::passive_skills::refresh_conditioned_passives(world, oid);
-    if skills_changed
-        && let Some(pkt) = super::helpers::skill_list_packet(world, oid)
-        && let Some(client_id) = super::helpers::client_for_player(world, oid)
-    {
-        super::helpers::send_to_client(world, client_id, pkt);
+    if skills_changed {
+        refresh_skill_list(world, oid);
     }
 }
 
