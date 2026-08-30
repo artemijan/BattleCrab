@@ -3,14 +3,15 @@
 //! `//sendhome`, `//walk`, `//teleport_character`, `//recall_npc`, and the
 //! teleport HTML menus).
 
+use super::guard::{self, Guard, OrReject, Reject};
 use crate::enums::AdminTeleportType;
 use crate::game_loop::admin::find_online_player;
-use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
+use crate::game_loop::target;
 use crate::model::Player;
 use crate::model::components::Speeds;
 use crate::model::npc::Npc;
@@ -46,7 +47,7 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
     };
     // Java's `getTarget()` filtered by `isCreature()`; the port's creature
     // targets are players and NPCs.
-    let target = guard::target(world, object_id)
+    let target = target::current(world, object_id)
         .filter(|oid| {
             world.objects.has_component::<Player>(oid) || world.objects.has_component::<Npc>(oid)
         })
@@ -151,7 +152,7 @@ pub(super) fn admin_recall(world: &mut World, client_id: u32, object_id: i32, ar
 fn recall(world: &mut World, object_id: i32, args: &[&str]) -> Guard<()> {
     let target = match args.first() {
         Some(name) => find_online_player(world, name),
-        None => guard::player_target(world, object_id),
+        None => target::current_player(world, object_id),
     }
     .or_msg("Usage: //recall <player name>")?;
     super::death::teleport_to_object(world, target, object_id);
@@ -172,7 +173,7 @@ pub(super) fn admin_teleto(world: &mut World, client_id: u32, object_id: i32) {
 }
 
 fn teleto(world: &mut World, object_id: i32) -> Guard<()> {
-    let target = guard::target(world, object_id).or_msg("Select a target first.")?;
+    let target = target::current(world, object_id).or_msg("Select a target first.")?;
     super::death::teleport_to_object(world, object_id, target);
     Ok(())
 }
@@ -272,7 +273,7 @@ pub(super) fn admin_goto_char(world: &mut World, client_id: u32, object_id: i32,
 fn goto_char(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -> Guard<()> {
     let target = match args.first() {
         Some(name) => find_online_player(world, name),
-        None => guard::player_target(world, object_id),
+        None => target::current_player(world, object_id),
     }
     // Java: `!target.isPlayer()` → INVALID_TARGET, and no main page.
     .or_sm(sm_ids::INVALID_TARGET)?;
@@ -304,7 +305,7 @@ pub(super) fn admin_go(
     args: &[&str],
 ) {
     let offset = nth_arg::<i32>(args, 0).unwrap_or(150);
-    let Some(mut pos) = guard::maybe_position(world, object_id) else {
+    let Some(mut pos) = helpers::maybe_position(world, object_id) else {
         return;
     };
     match dir {
@@ -342,7 +343,7 @@ pub(super) fn admin_walk(world: &mut World, client_id: u32, object_id: i32, args
     ) else {
         return;
     };
-    let Some(cur) = guard::maybe_position(world, object_id) else {
+    let Some(cur) = helpers::maybe_position(world, object_id) else {
         return;
     };
     crate::game_loop::position::intention_move_to(world, client_id, object_id, cur, (x, y, z));
@@ -360,7 +361,7 @@ fn sendhome(world: &mut World, object_id: i32, args: &[&str]) -> Guard<()> {
     // belongs at the call site rather than inside the resolver.
     let target = match args.first() {
         Some(name) => find_online_player(world, name).or_sm(sm_ids::THAT_PLAYER_IS_NOT_ONLINE)?,
-        None => guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?,
+        None => target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?,
     };
     super::death::teleport_to_town(world, target, 0);
     Ok(())
@@ -386,7 +387,7 @@ fn teleport_character(world: &mut World, object_id: i32, args: &[&str]) -> Guard
     ) else {
         return Err(Reject::Msg("Wrong or no Coordinates given.".to_string()));
     };
-    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     super::death::teleport_player(world, target, x, y, z);
     Ok(())
 }
@@ -400,13 +401,13 @@ pub(super) fn admin_recall_npc(world: &mut World, client_id: u32, object_id: i32
 }
 
 fn recall_npc(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
-    let target = guard::npc_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let target = target::current_npc(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     let npc_id = world
         .objects
         .get_component::<Npc>(&target)
         .map_or(0, |n| n.npc_id);
     let region = region_cell_of(world, target).or_silent()?;
-    let gm_pos = guard::maybe_position(world, object_id).or_silent()?;
+    let gm_pos = helpers::maybe_position(world, object_id).or_silent()?;
     super::death::despawn_npc(world, target, region);
     if let Some(spawned) = crate::game_loop::npc::spawn_npc_at(
         world,

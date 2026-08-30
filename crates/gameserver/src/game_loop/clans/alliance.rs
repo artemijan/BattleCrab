@@ -7,8 +7,8 @@ use super::online_members;
 use super::refuse_if_busy;
 use super::refuse_if_clanless;
 use crate::db::DbCommand;
-use crate::game_loop::guard::clan_of_or_zero;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::clan_of_or_zero;
 
 use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;

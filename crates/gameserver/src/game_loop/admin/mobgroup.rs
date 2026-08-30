@@ -4,8 +4,7 @@
 //! [`Controllable`](Controllable) and steered by the
 //! group's [`MobGroupState`] in `npc_ai::controllable_think`.
 
-use crate::game_loop::guard;
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::set_position;
 use crate::model::components::AdminFlags;
@@ -14,6 +13,7 @@ use crate::model::npc::Npc;
 use crate::world::World;
 
 use super::send_message;
+use crate::game_loop::target;
 
 /// `//mobmenu` — the mob-group admin HTML page.
 pub(super) fn admin_mobmenu(world: &mut World, client_id: u32) {
@@ -276,7 +276,7 @@ pub(super) fn admin_mobgroup_state(
             }
         },
         "attack" | "casting" => {
-            let Some(target) = guard::target(world, object_id) else {
+            let Some(target) = target::current(world, object_id) else {
                 send_message(world, client_id, "Select a target first.");
                 return;
             };

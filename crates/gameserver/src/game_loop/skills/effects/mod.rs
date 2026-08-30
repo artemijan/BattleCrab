@@ -18,8 +18,8 @@
 //!   bonus, MP cost and reuse time.
 
 use crate::game_loop::bot_report;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::skill_by_id;
 use crate::model::components::{BaseStats, Buffs, CombatStats, StatModifiers, Vitals};

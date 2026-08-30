@@ -14,8 +14,8 @@
 //! shadowed — the mutual-war list is unreachable in this build. Kept.
 
 use super::helpers::{send_message, send_sm_to_client as send_sm};
-use crate::game_loop::guard::clan_of;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::clan_of;
 
 use crate::model::components::{Casting, Position};
 use crate::network::client_packets as cp;

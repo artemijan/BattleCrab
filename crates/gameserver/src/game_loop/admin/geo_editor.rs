@@ -14,7 +14,7 @@
 //! mmap'd read-only, unlike Java's mutable block objects); `//geosave` folds
 //! them back into the on-disk format — see [`geo::region::Region::write_to`].
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::nth_arg;
 use std::path::Path;
 

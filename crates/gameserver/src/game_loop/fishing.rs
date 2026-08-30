@@ -12,9 +12,10 @@
 
 use crate::data::item_data::WeaponType;
 use crate::data::zone_data::ZoneKind;
-use crate::game_loop::guard::{in_zone, maybe_position};
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::zones::in_zone;
 use crate::model::Player;
 use crate::model::components::FishingSession;
 use crate::model::inventory::{Inventory, PaperdollSlot};

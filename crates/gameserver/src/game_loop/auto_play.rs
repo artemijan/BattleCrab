@@ -6,9 +6,8 @@
 //! loop below drives the ordinary target/attack/pickup paths on the player's
 //! behalf. See `PLAN_G33_AUTO_PLAY.md`.
 
-use crate::game_loop::guard;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
@@ -17,6 +16,7 @@ use crate::world::World;
 
 use super::helpers::client_for_player;
 use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::target;
 
 /// Java's pool runs every 300 ms; the loop ticks at 100 ms, so every 3 ticks.
 pub(crate) const TICK_PERIOD: u64 = 3;
@@ -202,7 +202,7 @@ fn run_for_player(world: &mut World, player_oid: i32) {
     };
 
     // A live, still-valid target means "keep going" — the pass ends here.
-    if let Some(target) = guard::target(world, player_oid) {
+    if let Some(target) = target::current(world, player_oid) {
         if target_still_valid(world, player_oid, target, s.next_target_mode) {
             keep_attacking(world, player_oid, target, &s);
             return;
@@ -383,7 +383,7 @@ fn leader_target(world: &World, player_oid: i32) -> Option<i32> {
     if leader == player_oid {
         return None;
     }
-    let target = guard::target(world, leader)?;
+    let target = target::current(world, leader)?;
     world
         .objects
         .has_component::<crate::model::npc::Npc>(&target)

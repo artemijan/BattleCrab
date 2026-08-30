@@ -6,7 +6,7 @@
 //! leaving it exchanges `DeleteObject`, and every broadcast helper is scoped
 //! by the same rule (`helpers::broadcast_to_others`).
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{Movement, Position, RegionCell, TargetRef};
 use crate::network::server_packets;

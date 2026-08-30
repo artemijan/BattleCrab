@@ -1,7 +1,6 @@
 //! Position, movement-stop and region-cell helpers.
 
 use super::broadcast_including_self;
-use crate::game_loop::guard::maybe_position;
 use crate::model;
 use crate::model::components::Movement;
 use crate::model::components::RegionCell;
@@ -93,4 +92,24 @@ pub(crate) fn region_cell_of(world: &World, object_id: i32) -> Option<(i32, i32)
         .objects
         .get_component::<RegionCell>(&object_id)
         .map(|r| r.0)
+}
+
+/// The full [`Position`] component of an object — coordinates *and* heading —
+/// or `None` once it has left the world.
+///
+/// [`pos_of`] is the same read narrowed to `(x, y, z)`; take this one where the
+/// heading matters or the whole struct gets passed on.
+pub(crate) fn maybe_position(world: &World, object_id: i32) -> Option<model::components::Position> {
+    world
+        .objects
+        .get_component::<model::components::Position>(&object_id)
+        .copied()
+}
+
+/// [`maybe_position`] for the call sites that hold something which cannot be
+/// anywhere but in the world — panics rather than inventing an origin, because
+/// a missing position there is a bug in the caller, not a despawn.
+pub(crate) fn position(world: &World, object_id: i32) -> model::components::Position {
+    maybe_position(world, object_id)
+        .unwrap_or_else(|| panic!("object {} must have position", object_id))
 }

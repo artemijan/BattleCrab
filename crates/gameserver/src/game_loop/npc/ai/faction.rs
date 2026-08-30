@@ -3,9 +3,9 @@
 
 use super::set_running;
 use crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::pvp;

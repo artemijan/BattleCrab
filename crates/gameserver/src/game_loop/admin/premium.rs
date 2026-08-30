@@ -59,7 +59,7 @@ fn account_arg(world: &World, client_id: u32, object_id: i32, args: &[&str]) -> 
     if let Some(&typed) = args.first() {
         return Some(typed.to_string());
     }
-    let target = crate::game_loop::guard::target(world, object_id)?;
+    let target = crate::game_loop::target::current(world, object_id)?;
     world
         .objects
         .get_component::<crate::model::Player>(&target)

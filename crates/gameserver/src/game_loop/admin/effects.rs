@@ -9,10 +9,10 @@
 //! carries the full `MovieHolder` bookkeeping (see [`admin_playmovie`]).
 
 use crate::game_loop::admin::find_online_player;
-use crate::game_loop::guard;
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{is_creature, nth_arg, object_name};
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client, send_to_client};
+use crate::game_loop::target;
 use crate::geo::distance::within_2d_xy;
 use crate::model::Player;
 use crate::model::components::Position;
@@ -85,7 +85,7 @@ pub(super) fn admin_social(world: &mut World, client_id: u32, object_id: i32, ar
             let Some(social) = args[0].parse::<i32>().ok() else {
                 return;
             };
-            let target = guard::target(world, object_id).unwrap_or(object_id);
+            let target = target::current(world, object_id).unwrap_or(object_id);
             if perform_social(world, social, target, client_id) {
                 let name = object_name(world, target);
                 send_message(
@@ -154,7 +154,7 @@ pub(super) fn admin_effect(world: &mut World, client_id: u32, object_id: i32, ar
     let level = nth_arg::<i32>(args, 1).unwrap_or(1);
     let hit_time = nth_arg::<i32>(args, 2).unwrap_or(1);
     // Java: obj = target, or self if none; must be a creature.
-    let source = guard::target(world, object_id).unwrap_or(object_id);
+    let source = target::current(world, object_id).unwrap_or(object_id);
     if !is_creature(world, source) {
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
@@ -277,7 +277,7 @@ pub(super) fn admin_setteam(
         };
         players_in_radius(world, &origin, radius)
     } else {
-        vec![guard::target(world, object_id).unwrap_or(object_id)]
+        vec![target::current(world, object_id).unwrap_or(object_id)]
     };
     let mut set = 0;
     for target in targets {
@@ -369,7 +369,7 @@ pub(super) fn admin_para(
         };
         players_in_radius(world, &origin, 10_000.0)
     } else {
-        vec![guard::target(world, object_id).unwrap_or(object_id)]
+        vec![target::current(world, object_id).unwrap_or(object_id)]
     };
     for target in &targets {
         let mut flags = world
@@ -400,7 +400,7 @@ pub(super) fn admin_para(
 /// `//bighead` / `//shrinkhead` — the BIG_HEAD abnormal visual on the target.
 pub(super) fn admin_bighead(world: &mut World, client_id: u32, object_id: i32, on: bool) {
     let ave = crate::model::skill::abnormal_visual_client_id("BIG_HEAD").expect("known AVE");
-    let target = guard::target(world, object_id).unwrap_or(object_id);
+    let target = target::current(world, object_id).unwrap_or(object_id);
     set_admin_visual(world, target, ave, on);
     super::flags::push_admin_visuals(world, target);
     send_message(
@@ -667,7 +667,7 @@ pub(super) fn admin_set_displayeffect(
         send_message(world, client_id, "Usage: //set_displayeffect <id>");
         return;
     };
-    let Some(target) = guard::target(world, object_id) else {
+    let Some(target) = target::current(world, object_id) else {
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };

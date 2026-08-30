@@ -313,7 +313,7 @@ const LAST_PLEDGE_REPUTATION_LEVEL: &str = "LAST_PLEDGE_REPUTATION_LEVEL";
 /// goes out either. It is implemented rather than stubbed because the config
 /// is the only thing making it inert.
 fn add_reputation_to_clan_for_levels(world: &mut World, player_oid: i32, new_level: i32) {
-    let Some(clan_id) = crate::game_loop::guard::clan_of(world, player_oid) else {
+    let Some(clan_id) = crate::game_loop::helpers::clan_of(world, player_oid) else {
         return;
     };
     // "When a character from clan level 3 or above increases its level, CRP

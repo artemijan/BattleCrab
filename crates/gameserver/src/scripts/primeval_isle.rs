@@ -9,8 +9,8 @@
 //! most-hated specials). Skipped as off-chronicle: the Deinonychus Mesozoic
 //! Stone taming reward (Gracia-era item 14828).
 
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::npc::ai;
 use crate::game_loop::quests::{QuestCtx, QuestScript};

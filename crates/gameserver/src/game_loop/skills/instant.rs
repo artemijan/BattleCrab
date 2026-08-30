@@ -7,8 +7,8 @@
 //! equivalent because the match was the last statement in the effect loop.
 
 use super::effects;
-use crate::game_loop::guard::target_is_chest;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::is_chest;
 
 use crate::model::components::{Buffs, CombatStats, Vitals};
 use crate::model::formulas;
@@ -743,7 +743,7 @@ pub(super) fn open_chest(world: &mut World, ctx: &CastCtx) {
         ..
     } = *ctx;
     let dead = helpers::is_dead(world, target_oid);
-    if !target_is_chest(world, target_oid)
+    if !is_chest(world, target_oid)
         || dead
         || crate::game_loop::helpers::instance_of(world, caster_oid)
             != crate::game_loop::helpers::instance_of(world, target_oid)

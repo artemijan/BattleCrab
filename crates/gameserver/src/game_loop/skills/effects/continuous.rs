@@ -12,8 +12,8 @@ use super::merge_defence_traits;
 use super::merge_skill_rates;
 use super::recompute_max_vitals;
 use super::schedule_dam_over_time;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 
 use crate::model::components::Buffs;
 use crate::model::formulas;

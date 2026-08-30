@@ -10,8 +10,8 @@ use super::send_pet_info;
 use super::send_pet_item_list;
 use super::set_summon_link;
 use super::start_feed;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 
 use crate::model::components::ServitorOf;
 use crate::model::components::Vitals;

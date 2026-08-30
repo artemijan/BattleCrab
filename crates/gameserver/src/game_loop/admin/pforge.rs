@@ -18,7 +18,7 @@
 //! port deferred it; without this note the refusal reads as a porting gap and
 //! invites someone to "finish" a feature that does not exist.
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use commons::network::PacketWriter;
 

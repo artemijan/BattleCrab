@@ -45,7 +45,7 @@ pub(crate) fn use_ticket(
     item_object_id: i32,
     item_id: i32,
 ) {
-    let Some(pos) = crate::game_loop::guard::maybe_position(world, object_id) else {
+    let Some(pos) = crate::game_loop::helpers::maybe_position(world, object_id) else {
         return;
     };
     // `CastleManager.getCastle(player)` — which castle's grounds is this?
@@ -152,7 +152,7 @@ pub(crate) fn handle_confirm(world: &mut World, object_id: i32, accepted: bool) 
     if !accepted {
         return true;
     }
-    let Some(pos) = crate::game_loop::guard::maybe_position(world, object_id) else {
+    let Some(pos) = crate::game_loop::helpers::maybe_position(world, object_id) else {
         return true;
     };
     // Java re-checks the spacing on the *answer* as well as the use: 15 s is

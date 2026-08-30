@@ -21,8 +21,8 @@
 //! G25's olympiad matches reuse this shape, which is why the audit put duels
 //! here rather than with the end-game milestones.
 
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 use crate::model::Player;
 use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};
 use crate::network::server_packets::{self, SmParam, sm_ids};

@@ -1,8 +1,8 @@
 //! Skill & buff commands — `AdminSkill`'s `//add_skill`/`//remove_skill` and
 //! `AdminBuffs`' `//buff`/`//getbuffs`/`//stopbuff`/`//stopallbuffs`.
 
+use super::guard::{self, Guard, OrReject};
 use crate::game_loop::clans::clan_name_or_empty;
-use crate::game_loop::guard::{self, Guard, OrReject};
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
@@ -14,6 +14,7 @@ use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
 use super::send_message;
+use crate::game_loop::target;
 
 /// `AdminSkill`'s `//add_skill <id> [level]` — grant a skill to the targeted
 /// player (or self) and refresh their skill list.
@@ -36,7 +37,7 @@ pub(super) fn admin_add_skill(world: &mut World, client_id: u32, object_id: i32,
         );
         return;
     }
-    let target = guard::player_target(world, object_id).unwrap_or(object_id);
+    let target = target::current_player(world, object_id).unwrap_or(object_id);
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
         book.0.insert(skill_id, level);
     }
@@ -78,7 +79,7 @@ pub(super) fn admin_remove_skill(world: &mut World, client_id: u32, object_id: i
         send_message(world, client_id, "Usage: //remove_skill <id>");
         return;
     };
-    let target = guard::player_target(world, object_id).unwrap_or(object_id);
+    let target = target::current_player(world, object_id).unwrap_or(object_id);
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
         book.0.remove(&skill_id);
     }
@@ -125,7 +126,7 @@ pub(super) fn admin_give_all_skills(world: &mut World, client_id: u32, object_id
 }
 
 fn give_all_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
-    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     super::death::reward_skills(world, target);
     refresh_skill_list(world, target);
     let name = player_name_or_empty(world, target);
@@ -159,8 +160,9 @@ fn give_clan_skills(
     include_squad: bool,
 ) -> Guard<()> {
     use crate::network::server_packets::SmParam;
-    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
-    let clan_id = guard::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
+    let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let clan_id =
+        helpers::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
     let target_name = player_name_or_empty(world, target);
     // Java warns when the target isn't the leader but grants to the clan anyway.
     if world
@@ -197,7 +199,7 @@ pub(super) fn admin_remove_all_skills(world: &mut World, client_id: u32, object_
 }
 
 fn remove_all_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
-    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
         book.0.clear();
     }
@@ -229,7 +231,7 @@ pub(super) fn admin_get_skills(world: &mut World, client_id: u32, object_id: i32
 }
 
 fn get_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
-    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     // Java refuses self-targeting with free text, not a system message.
     (target != object_id)
         .then_some(())
@@ -285,7 +287,7 @@ pub(super) fn admin_reset_skills(world: &mut World, client_id: u32, object_id: i
 }
 
 fn reset_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
-    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
         book.0.clear();
     }
@@ -315,7 +317,7 @@ pub(super) fn admin_cast(world: &mut World, client_id: u32, object_id: i32, args
         );
         return;
     };
-    let target = guard::target(world, object_id).unwrap_or(object_id);
+    let target = target::current(world, object_id).unwrap_or(object_id);
     send_message(
         world,
         client_id,
@@ -358,7 +360,7 @@ pub(super) fn admin_skill_menu(world: &mut World, client_id: u32, command: &str,
 /// a different message from the `INVALID_TARGET` the sibling pages use).
 fn remove_skills_page(world: &mut World, client_id: u32, page: usize) {
     let gm = world.player_oid(client_id).unwrap_or(0);
-    let Some(target) = guard::player_target(world, gm) else {
+    let Some(target) = target::current_player(world, gm) else {
         send_sm_bare_to_client(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET);
         return;
     };
@@ -444,7 +446,7 @@ pub(super) fn admin_buff(world: &mut World, client_id: u32, object_id: i32, args
         );
         return;
     };
-    let target = guard::target(world, object_id).unwrap_or(object_id);
+    let target = target::current(world, object_id).unwrap_or(object_id);
     crate::game_loop::skills::effects::apply_skill_effects(world, object_id, target, &skill);
 }
 
@@ -489,7 +491,7 @@ fn show_buffs(world: &mut World, client_id: u32, object_id: i32, args: &[&str], 
                 return;
             }
         },
-        None => guard::target(world, object_id)
+        None => target::current(world, object_id)
             .filter(|oid| {
                 world.objects.has_component::<Player>(oid)
                     || world.objects.has_component::<crate::model::npc::Npc>(oid)
@@ -626,7 +628,7 @@ fn removereuse(world: &mut World, client_id: u32, object_id: i32, args: &[&str])
     let target = match args.first() {
         Some(name) => super::find_online_player(world, name)
             .or_msg(format!("The player {name} is not online."))?,
-        None => guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?,
+        None => target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?,
     };
     if let Some(reuses) = world
         .objects
@@ -658,7 +660,7 @@ pub(super) fn admin_stopbuff(world: &mut World, client_id: u32, object_id: i32, 
         send_message(world, client_id, "Usage: //stopbuff <skillId>");
         return;
     };
-    let target = guard::target(world, object_id).unwrap_or(object_id);
+    let target = target::current(world, object_id).unwrap_or(object_id);
     crate::game_loop::skills::effects::handle_buff_expire(world, target, skill_id);
     send_message(world, client_id, &format!("Removed buff {skill_id}."));
 }
@@ -667,7 +669,7 @@ pub(super) fn admin_stopbuff(world: &mut World, client_id: u32, object_id: i32, 
 /// the target (passive grade-penalty pumps are kept). Each removal reverts its
 /// stat contribution through the buff-expiry path.
 pub(super) fn admin_stopallbuffs(world: &mut World, client_id: u32, object_id: i32) {
-    let target = guard::target(world, object_id).unwrap_or(object_id);
+    let target = target::current(world, object_id).unwrap_or(object_id);
     let count = crate::game_loop::skills::effects::expire_active_buffs(world, target);
     send_message(world, client_id, &format!("Removed {count} buff(s)."));
 }

@@ -15,8 +15,8 @@
 //! 2 s `skill_task` combat-skill AI (his breath/AoE/utility skills) are ported.
 
 use crate::game_loop::common::players_in_lair_oids;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::Position;

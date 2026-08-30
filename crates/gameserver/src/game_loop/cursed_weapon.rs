@@ -14,7 +14,7 @@
 //! slice. There is no HP decay to port: Java's only HP touch is the full heal
 //! `activate` gives the new wielder.
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{npc_template, send_inventory_item_list};
 use crate::game_loop::time::MILLIS_PER_MINUTE;

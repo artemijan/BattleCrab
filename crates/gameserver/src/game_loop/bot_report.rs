@@ -293,7 +293,7 @@ fn check_report(world: &World, reporter_oid: i32, target_oid: i32) -> Result<(),
 /// Java's `reportedBySameClan`: is any existing reporter in the would-be
 /// reporter's clan?
 fn reported_by_same_clan(world: &World, rcd: &ReportedCharData, reporter_oid: i32) -> bool {
-    let Some(clan_id) = crate::game_loop::guard::clan_of(world, reporter_oid) else {
+    let Some(clan_id) = crate::game_loop::helpers::clan_of(world, reporter_oid) else {
         return false;
     };
     rcd.reporters.keys().any(|&other| {
@@ -305,7 +305,7 @@ fn reported_by_same_clan(world: &World, rcd: &ReportedCharData, reporter_oid: i3
 }
 
 fn at_war_with(world: &World, a_oid: i32, b_oid: i32) -> bool {
-    let clan_of = |oid: i32| crate::game_loop::guard::clan_of(world, oid);
+    let clan_of = |oid: i32| crate::game_loop::helpers::clan_of(world, oid);
     let (Some(a), Some(b)) = (clan_of(a_oid), clan_of(b_oid)) else {
         return false;
     };

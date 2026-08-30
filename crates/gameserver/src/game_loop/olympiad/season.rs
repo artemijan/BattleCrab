@@ -12,7 +12,7 @@ use super::save_all;
 use crate::db::DbCommand;
 use crate::db::HeroRow;
 use crate::db::OlympiadEomRow;
-use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::clan_of_or_zero;
 use crate::network::server_packets as sp;
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;

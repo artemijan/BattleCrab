@@ -17,8 +17,9 @@
 //! ported, but no NPC on this dist carries a resurrect skill in its
 //! `<skillList>`.
 
-use crate::game_loop::guard::{in_zone, maybe_position};
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::zones::in_zone;
 
 use commons::util::rnd;
 

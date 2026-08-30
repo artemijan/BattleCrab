@@ -10,7 +10,7 @@
 //! `//next_missing_html` teleports the GM to the first offender so they can
 //! look at it.
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::world::World;
 
 use super::send_message;

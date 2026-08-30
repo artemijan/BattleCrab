@@ -13,8 +13,8 @@
 //! (`on_player_logout`), and the freeze applies `Immobilized` +
 //! `SkillsDisabled` like Java's `disableAllSkills`.
 
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 
 use crate::game_loop::time::TICKS_PER_SECOND;
 use commons::util::rnd;

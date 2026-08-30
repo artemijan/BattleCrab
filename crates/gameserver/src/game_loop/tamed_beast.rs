@@ -10,8 +10,8 @@
 //! beast's `<skillList>` (see [`handle_buff_check`]).
 
 use crate::game_loop::death::despawn_npc_by_oid;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::skill_by_id;

@@ -6,7 +6,7 @@
 //! reduce to karma (`Player.reputation`) + the runtime flag. PVP-zone (arena)
 //! exemptions land with Phase 2, when those zones are loaded.
 
-use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::clan_of_or_zero;
 use crate::model::Player;
 use crate::model::components::{PvpState, ZoneFlags};
 use crate::network::server_packets;

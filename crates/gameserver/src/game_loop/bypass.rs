@@ -236,7 +236,7 @@ fn handle_player_help(world: &mut World, client_id: u32, command: &str) {
 /// stands in — which is why a fisherman in the middle of a town can answer at
 /// all. `nearest_castle_at` is that lookup.
 fn handle_territory_status(world: &mut World, client_id: u32, npc_object_id: i32) {
-    let Some(pos) = crate::game_loop::guard::maybe_position(world, npc_object_id) else {
+    let Some(pos) = crate::game_loop::helpers::maybe_position(world, npc_object_id) else {
         return;
     };
     let Some(castle_id) = world.data.zone_data.nearest_castle_at(pos.x, pos.y, pos.z) else {

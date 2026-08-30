@@ -7,7 +7,7 @@
 //! chain the test fixtures use. Feature-gated so nothing here exists in a
 //! normal build; none of it is API.
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{restore_hp_mp, set_position};
 use std::sync::Arc;
 

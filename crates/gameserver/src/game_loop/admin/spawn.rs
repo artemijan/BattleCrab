@@ -10,10 +10,10 @@
 //! and ignored (documented deviation).
 
 use crate::data::npc_data::NpcTemplate;
-use crate::game_loop::guard;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
+use crate::game_loop::target;
 use crate::model::components::Position;
 use crate::model::npc::Npc;
 use crate::world::World;
@@ -59,7 +59,7 @@ pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, arg
     let count = helpers::nth_arg::<i32>(args, 1).unwrap_or(1);
     // Anchor object = current target (any object) or the GM (Java
     // `target == null ? activeChar : target`); the message reports its id.
-    let anchor = guard::target(world, object_id).unwrap_or(object_id);
+    let anchor = target::current(world, object_id).unwrap_or(object_id);
     let Some(pos) = world
         .objects
         .get_component::<Position>(&anchor)
@@ -364,7 +364,7 @@ pub(super) fn admin_top_spawn_count(world: &mut World, client_id: u32, args: &[&
 /// position (Java prints spawn/AI internals; text summary here).
 pub(super) fn admin_spawn_debug_print(world: &mut World, client_id: u32, object_id: i32) {
     let Some(target) =
-        guard::target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
+        target::current(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
     else {
         send_sm_bare_to_client(
             world,
@@ -730,7 +730,7 @@ pub(super) fn admin_summon(world: &mut World, client_id: u32, object_id: i32, ar
 
 /// `AdminDelete`'s `//delete` — despawn the targeted NPC.
 pub(super) fn admin_delete(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = guard::target(world, object_id) else {
+    let Some(target) = target::current(world, object_id) else {
         send_message(world, client_id, "Select an NPC first.");
         return;
     };
@@ -878,7 +878,7 @@ pub(super) fn admin_instance_spawns(world: &mut World, client_id: u32, args: &[&
             skipped += 1;
             continue;
         }
-        let Some(pos) = guard::maybe_position(world, npc_oid) else {
+        let Some(pos) = helpers::maybe_position(world, npc_oid) else {
             continue;
         };
         rows.push_str(&format!(

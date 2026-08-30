@@ -2,7 +2,7 @@
 //! `REGEN_TICK_PERIOD` ticks from the game loop.
 
 use crate::data::GameData;
-use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::clan_of_or_zero;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;

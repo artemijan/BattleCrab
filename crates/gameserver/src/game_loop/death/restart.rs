@@ -1,7 +1,7 @@
 use super::do_revive;
-use crate::game_loop::guard::clan_of;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::clan_of;
+use crate::game_loop::helpers::maybe_position;
 
 use crate::model::Player;
 use crate::model::components::Intent;

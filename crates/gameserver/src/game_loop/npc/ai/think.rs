@@ -29,8 +29,8 @@ use crate::model::components;
 
 use crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
 
-use crate::game_loop::guard::maybe_position;
-use crate::game_loop::guard::position;
+use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::helpers::position;
 
 use crate::model::npc::AggroList;
 use crate::model::npc::NpcAi;

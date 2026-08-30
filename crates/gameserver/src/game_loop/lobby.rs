@@ -2,7 +2,7 @@
 //! (character list, name check, create/delete/restore/select).
 
 use crate::game_loop::clans::clan_name_or_empty;
-use crate::game_loop::guard::clan_of;
+use crate::game_loop::helpers::clan_of;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_to_client;
 use tracing::info;

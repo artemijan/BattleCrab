@@ -13,9 +13,9 @@
 //! feeds the movement pipeline's geodata exemptions and the packet fly
 //! fields.
 
-use crate::game_loop::guard;
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
+use crate::game_loop::target;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::Player;
 use crate::model::components::Collision;
@@ -54,7 +54,7 @@ impl Mount {
 /// player, else the GM. Shared with [`super::transforms`], whose `//transform`
 /// commands pick their subject the same way.
 pub(super) fn ride_target(world: &World, object_id: i32) -> i32 {
-    guard::target(world, object_id)
+    target::current(world, object_id)
         .filter(|&oid| oid != object_id && world.objects.has_component::<Player>(&oid))
         .unwrap_or(object_id)
 }

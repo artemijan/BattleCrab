@@ -17,7 +17,7 @@
 //! - The Mon/Tue window is evaluated in **UTC**, like the port's other
 //!   wall-clock work (`daily_tasks`), where Java uses server-local time.
 
-use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::clan_of_or_zero;
 use crate::game_loop::helpers::{
     is_dead, npc_name_or_empty, npc_template, send_message, send_to_client,
 };

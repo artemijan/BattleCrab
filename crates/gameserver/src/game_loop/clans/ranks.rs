@@ -10,8 +10,8 @@ use super::online_members;
 use super::send_to_member;
 use super::set_clan_level;
 use crate::db::DbCommand;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 use crate::game_loop::helpers::send_to_client;
@@ -415,7 +415,7 @@ pub(crate) fn handle_request_pledge_power_grade_list(world: &World, client_id: u
 /// Resolve a named member of the acting player's clan; `None` when the player
 /// is clanless or the name is not in the roster.
 fn clan_member_by_name(world: &World, player: i32, name: &str) -> Option<(i32, ClanMember)> {
-    let clan_id = crate::game_loop::guard::clan_of(world, player)?;
+    let clan_id = crate::game_loop::helpers::clan_of(world, player)?;
     let clan = world.clans.get(&clan_id)?;
     clan.member_by_name(name).map(|m| (clan_id, m.clone()))
 }
@@ -462,7 +462,7 @@ pub(crate) fn handle_request_pledge_member_list(world: &mut World, client_id: u3
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(clan_id) = crate::game_loop::guard::clan_of(world, player) else {
+    let Some(clan_id) = crate::game_loop::helpers::clan_of(world, player) else {
         return;
     };
     let Some(clan) = world.clans.get(&clan_id) else {
@@ -615,7 +615,7 @@ pub(crate) fn handle_request_pledge_reorganize_member(
     if is_selected == 0 {
         return;
     }
-    let Some((clan_id, privs)) = crate::game_loop::guard::clan_and_privs(world, player) else {
+    let Some((clan_id, privs)) = crate::game_loop::helpers::clan_and_privs(world, player) else {
         return;
     };
     if clan_id == 0 {

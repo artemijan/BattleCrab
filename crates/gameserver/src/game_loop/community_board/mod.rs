@@ -158,7 +158,7 @@ pub(crate) fn handle_write_command(
         let Some(object_id) = world.player_oid(client_id) else {
             return;
         };
-        let Some(clan_id) = super::guard::clan_of(world, object_id) else {
+        let Some(clan_id) = super::helpers::clan_of(world, object_id) else {
             return;
         };
         let is_leader = world

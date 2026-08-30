@@ -5,8 +5,8 @@ use super::do_auto_attack;
 use super::refresh_attack_stance;
 use super::target_is_dead;
 use super::wields_two_handed;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 use crate::model::components;
 
 use crate::game_loop::skills::effects::target_p_def;

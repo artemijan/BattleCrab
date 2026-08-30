@@ -9,10 +9,10 @@
 //! put cubics ahead of agathions (166 skills, none of them learnable).
 
 use crate::data::cubic_data::{CubicSkill, CubicTargetType, CubicTemplate};
-use crate::game_loop::guard;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::target;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::geo::distance::within_3d;
 use crate::model::components::{Position, Vitals};
@@ -333,12 +333,12 @@ fn choose_skill(world: &mut World, template: &CubicTemplate) -> Option<CubicSkil
 
 /// The owner's target, but only while it is still alive.
 ///
-/// Deliberately **not** [`guard::target`], which answers the
+/// Deliberately **not** [`target::current`], which answers the
 /// raw selection: a cubic that fires at a corpse wastes its cast and its reuse.
 /// The name says `live_` so the next reader does not "collapse" it into the
 /// plain resolver the way the identical-looking copies elsewhere were.
 fn live_target(world: &World, owner_oid: i32) -> Option<i32> {
-    let target = guard::target(world, owner_oid)?;
+    let target = target::current(world, owner_oid)?;
     // A dead target is not worth a cast.
     if is_dead(world, target) {
         return None;

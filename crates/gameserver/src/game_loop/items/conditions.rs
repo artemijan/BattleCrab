@@ -395,7 +395,7 @@ fn in_vehicle(world: &World, player_oid: i32) -> bool {
 }
 
 fn in_any_zone(world: &World, object_id: i32, zone_ids: &[i32]) -> bool {
-    let Some(pos) = crate::game_loop::guard::maybe_position(world, object_id) else {
+    let Some(pos) = crate::game_loop::helpers::maybe_position(world, object_id) else {
         return false;
     };
     world

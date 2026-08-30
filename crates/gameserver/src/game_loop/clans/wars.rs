@@ -9,7 +9,7 @@ use super::clan_name_or_empty;
 use super::online_members;
 use super::send_to_member;
 use crate::db::DbCommand;
-use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::clan_of_or_zero;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 use crate::game_loop::helpers::send_to_client;
@@ -417,7 +417,7 @@ pub(crate) fn handle_request_surrender_pledge_war(world: &mut World, client_id: 
     let Some(name) = PacketReader::new(body).read_string() else {
         return;
     };
-    let Some((clan_id, privs)) = crate::game_loop::guard::clan_and_privs(world, player) else {
+    let Some((clan_id, privs)) = crate::game_loop::helpers::clan_and_privs(world, player) else {
         return;
     };
     let player_name = player_name_or_empty(world, player);

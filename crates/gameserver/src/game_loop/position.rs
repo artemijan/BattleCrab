@@ -1,8 +1,8 @@
 //! Movement/position handlers (`MoveBackwardToLocation`, `RequestStopMove`,
 //! `ValidatePosition`) and the path-worker reply handler (`handle_path_result`).
 
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 use crate::model::components;
 
 use crate::geo::worker::{PathEvent, PathRequest};

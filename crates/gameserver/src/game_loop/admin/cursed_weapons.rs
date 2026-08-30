@@ -16,7 +16,6 @@
 //! cursed weapon at all — its only HP touch is the full heal on pickup.
 
 use crate::db::DbCommand;
-use crate::game_loop::guard;
 use crate::game_loop::helpers::{send_inventory_item_list, send_message, send_to_client};
 use crate::model::Player;
 use crate::model::components::Position;
@@ -24,6 +23,7 @@ use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
 use crate::game_loop::pvp::get_killer_rep_and_pk;
+use crate::game_loop::target;
 // Re-exported rather than redefined: `cursed_weapon.rs` imports `now_millis`
 // from here alongside the rest of this module's surface.
 pub(crate) use commons::util::now_millis;
@@ -262,7 +262,7 @@ pub(crate) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32,
         return;
     }
     // Target the selected player, else the GM (Java falls back to activeChar).
-    let target = guard::player_target(world, gm_object_id).unwrap_or(gm_object_id);
+    let target = target::current_player(world, gm_object_id).unwrap_or(gm_object_id);
     // Java's `//cw_add` does **not** route through
     // `CursedWeaponsManager.activate`, so it has no "cannot own 2 cursed
     // swords" branch either: it calls `target.addItem(...)` and then

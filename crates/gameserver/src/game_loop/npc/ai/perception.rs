@@ -3,9 +3,9 @@
 
 use super::movement_disabled;
 use crate::game_loop::combat;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_raid_npc;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::target;

@@ -11,7 +11,7 @@
 //! dist — Classic event content — so it is not ported; see
 //! `PLAN_G22_AI_OTHERS.md`'s skip table.)
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::components::{Immobilized, Position, Vitals};

@@ -21,7 +21,7 @@
 //! the port's single-threaded game loop cannot interleave two swaps.
 
 use crate::config::flood_protector::FloodAction;
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::SkillBook;

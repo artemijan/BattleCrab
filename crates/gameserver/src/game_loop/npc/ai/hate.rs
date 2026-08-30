@@ -2,9 +2,9 @@
 //! `onEvtForgetObject`.
 
 use super::set_active;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::broadcast_near_region_in;
 use crate::game_loop::helpers::instance_of;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::components::Movement;
 use crate::model::components::RegionCell;

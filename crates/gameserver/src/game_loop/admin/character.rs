@@ -2,9 +2,10 @@
 //! `AdminLevel` / `AdminEnchant` family that mutates a player's progression,
 //! integer fields, appearance, and equipment enchant levels.
 
+use super::guard::{self, Guard, OrReject};
 use crate::game_loop::admin::target_player;
-use crate::game_loop::guard::{self, Guard, OrReject};
 use crate::game_loop::helpers;
+use crate::game_loop::target;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
 use crate::network::server_packets::sm_ids;
@@ -22,7 +23,7 @@ pub(super) fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32
 
 fn add_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -> Guard<()> {
     // Java `adminAddExpSp`: the target must be a player, else INVALID_TARGET.
-    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     // Exactly two numeric tokens, else the usage hint (Java: `countTokens() != 2`
     // or a parse failure returns false → "Usage" sysmessage).
     match (
@@ -69,7 +70,7 @@ pub(super) fn admin_remove_exp_sp(
 }
 
 fn remove_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) -> Guard<()> {
-    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     match (
         args.len(),
         helpers::nth_arg::<i64>(args, 0),
@@ -109,7 +110,7 @@ pub(super) fn admin_add_exp_sp_menu(world: &mut World, client_id: u32, object_id
 }
 
 fn add_exp_sp_menu(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
-    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
     let Some(p) = world.objects.get_component::<Player>(&target) else {
         return Ok(());
     };
@@ -147,7 +148,7 @@ pub(super) fn admin_change_level(
         );
         return;
     };
-    let target = guard::player_target(world, object_id).unwrap_or(object_id);
+    let target = target::current_player(world, object_id).unwrap_or(object_id);
     let Some(current) = world
         .objects
         .get_component::<Player>(&target)
@@ -287,7 +288,7 @@ pub(super) fn admin_vitality(
         helpers::send_message(world, client_id, "Vitality is not enabled on the server!");
         return;
     }
-    let Some(target) = guard::player_target(world, object_id) else {
+    let Some(target) = target::current_player(world, object_id) else {
         helpers::send_message(world, client_id, "Target not found or not a player");
         return;
     };
@@ -431,7 +432,7 @@ pub(super) fn admin_set_enchant(
         helpers::send_message(world, client_id, "Usage: //set<slot> <0..127>");
         return;
     };
-    let target = guard::player_target(world, object_id).unwrap_or(object_id);
+    let target = target::current_player(world, object_id).unwrap_or(object_id);
     let changed = world
         .objects
         .get_component_mut::<Inventory>(&target)

@@ -12,14 +12,14 @@
 //! since G31.
 
 use crate::game_loop::admin::find_online_player;
-use crate::game_loop::guard;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
 use crate::model::components;
 
 use crate::model::Player;
 
+use crate::game_loop::target;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
@@ -71,7 +71,7 @@ fn panel_vitals(world: &World, target: i32) -> (components::Vitals, components::
 /// carries its remaining lifetime instead), so targeting one is `INVALID_TARGET`
 /// exactly like targeting a player.
 pub(super) fn admin_fullfood(world: &mut World, client_id: u32, gm_object_id: i32) {
-    let pet = guard::target(world, gm_object_id)
+    let pet = target::current(world, gm_object_id)
         .filter(|oid| world.objects.has_component::<components::PetOf>(oid));
     let Some(pet_oid) = pet else {
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
@@ -132,7 +132,7 @@ pub(super) fn admin_character_info(
             }
         }
     } else {
-        match guard::player_target(world, object_id) {
+        match target::current_player(world, object_id) {
             Some(t) => (t, false),
             None => {
                 send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
@@ -387,7 +387,7 @@ pub(super) fn admin_find_account(world: &mut World, client_id: u32, args: &[&str
 /// `//edit_character` — the `charedit.htm` field-editor for the current target
 /// (Java `editCharacter`). Falls back to `INVALID_TARGET` with no player target.
 pub(super) fn admin_edit_character(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = guard::player_target(world, object_id) else {
+    let Some(target) = target::current_player(world, object_id) else {
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -430,7 +430,7 @@ pub(super) fn admin_changename(world: &mut World, client_id: u32, object_id: i32
         send_message(world, client_id, "Usage: //changename <new_name>");
         return;
     };
-    let Some(target) = guard::player_target(world, object_id) else {
+    let Some(target) = target::current_player(world, object_id) else {
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -454,7 +454,7 @@ pub(super) fn admin_changename(world: &mut World, client_id: u32, object_id: i32
 /// `//set_pvp_flag` — toggle the target playable's PvP flag (Java
 /// `updatePvPFlag(abs(flag - 1))`).
 pub(super) fn admin_set_pvp_flag(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = guard::player_target(world, object_id) else {
+    let Some(target) = target::current_player(world, object_id) else {
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -471,7 +471,7 @@ pub(super) fn admin_set_pvp_flag(world: &mut World, client_id: u32, object_id: i
 pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let target = match args.first().and_then(|n| find_online_player(world, n)) {
         Some(t) => t,
-        None => match guard::player_target(world, object_id) {
+        None => match target::current_player(world, object_id) {
             Some(t) => t,
             None => {
                 send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
@@ -544,7 +544,7 @@ pub(super) fn admin_setparam(
         }
         return;
     };
-    let target = guard::target(world, object_id)
+    let target = target::current(world, object_id)
         .filter(|oid| {
             world
                 .objects
@@ -653,7 +653,7 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
         send_message(world, client_id, "Usage: //rec number");
         return;
     };
-    let Some(target) = guard::player_target(world, object_id) else {
+    let Some(target) = target::current_player(world, object_id) else {
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -686,7 +686,7 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
 
 /// The targeted summon's (npc_oid, owner_oid), if the target is one.
 fn targeted_summon(world: &World, object_id: i32) -> Option<(i32, i32)> {
-    let target = guard::target(world, object_id)?;
+    let target = target::current(world, object_id)?;
     let owner = world
         .objects
         .get_component::<components::ServitorOf>(&target)?
@@ -850,7 +850,7 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
 fn quest_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
     args.first()
         .and_then(|name| find_online_player(world, name))
-        .or_else(|| guard::player_target(world, object_id))
+        .or_else(|| target::current_player(world, object_id))
         .or(Some(object_id).filter(|oid| world.objects.has_component::<Player>(oid)))
 }
 

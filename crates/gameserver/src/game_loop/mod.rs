@@ -59,7 +59,6 @@ mod friends;
 pub(crate) mod game_time;
 pub(crate) mod global_vars;
 pub(crate) mod ground_items;
-pub(crate) mod guard;
 pub(crate) mod helpers;
 mod henna;
 pub(crate) mod instances;

@@ -2,10 +2,11 @@
 //! in [`AdminFlags`](AdminFlags) on the GM or the
 //! targeted player.
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{nth_arg, send_sm_bare_to_client};
-use crate::game_loop::{guard, helpers};
+use crate::game_loop::target;
 use crate::model::Player;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets;
@@ -88,7 +89,7 @@ pub(super) fn admin_invis_menu(world: &mut World, client_id: u32, object_id: i32
 /// flips any targeted Creature; NPC invisibility isn't modeled in the port,
 /// so non-player targets are refused like Java's null-target branch).
 pub(super) fn admin_setinvis(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = guard::player_target(world, object_id) else {
+    let Some(target) = target::current_player(world, object_id) else {
         helpers::send_message(world, client_id, "Invalid target.");
         return;
     };
@@ -312,7 +313,7 @@ pub(super) fn toggle_flag_on_target(
     object_id: i32,
     flag: GmFlag,
 ) {
-    let Some(target) = guard::player_target(world, object_id) else {
+    let Some(target) = target::current_player(world, object_id) else {
         helpers::send_message(world, client_id, "Select a player first.");
         return;
     };
@@ -470,7 +471,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
         }
         out
     } else {
-        vec![guard::target(world, object_id).unwrap_or(object_id)]
+        vec![target::current(world, object_id).unwrap_or(object_id)]
     };
 
     let mut toggled_on = 0;

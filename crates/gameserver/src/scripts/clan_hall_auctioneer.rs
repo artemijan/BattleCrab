@@ -261,7 +261,7 @@ fn owner_names(world: &World, owner_id: i32) -> (String, String) {
 }
 
 fn clan_of(ctx: &QuestCtx) -> Option<i32> {
-    crate::game_loop::guard::clan_of(ctx.world, ctx.player)
+    crate::game_loop::helpers::clan_of(ctx.world, ctx.player)
 }
 
 /// The value after `key` (e.g. `id=`), tolerating the dist templates' quotes and

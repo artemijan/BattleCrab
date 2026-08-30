@@ -10,9 +10,9 @@
 //! 1 s `MANAGE_SKILL` re-arm (the port re-casts from the damage hook instead).
 
 use crate::game_loop::common::{near_leader, players_in_lair_oids};
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::set_position;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::scheduler::ScheduledTask;

@@ -1,4 +1,4 @@
-//! Guard clauses for command handlers.
+//! Guard clauses for admin/bypass command handlers.
 //!
 //! Nearly every admin/bypass handler opens with the same shape: resolve
 //! something (the current target, the target's clan, a parsed argument), and if
@@ -11,17 +11,20 @@
 //! module gives failure a value — [`Reject`] — so a handler can bail with `?`:
 //!
 //! ```ignore
-//! let target  = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
-//! let clan_id = guard::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
+//! let target  = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+//! let clan_id = helpers::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
 //! ```
 //!
-//! The resolvers deliberately answer `Option` and pick **no** message of their
-//! own: which system message a failed precondition sends is Java-fidelity data
-//! that differs per call site (the very same "no clan" check answers
-//! `THE_TARGET_MUST_BE_A_CLAN_MEMBER` in `AdminSkill` and a plain "Target player
-//! has no clan!" in `AdminPledge`). Baking a message into the resolver would let
-//! the next ported command silently send the wrong one, so the message stays at
-//! the call site where a reviewer diffs it against the Java.
+//! The resolvers themselves live with the subsystems they read — targets in
+//! [`crate::game_loop::target`], clans and positions in
+//! [`crate::game_loop::helpers`] — and they deliberately answer `Option`,
+//! picking **no** message of their own: which system message a failed
+//! precondition sends is Java-fidelity data that differs per call site (the very
+//! same "no clan" check answers `THE_TARGET_MUST_BE_A_CLAN_MEMBER` in
+//! `AdminSkill` and a plain "Target player has no clan!" in `AdminPledge`).
+//! Baking a message into the resolver would let the next ported command silently
+//! send the wrong one, so the message stays at the call site where a reviewer
+//! diffs it against the Java.
 //!
 //! Handlers that adopt this return [`Guard<()>`] and get wrapped by a thin
 //! public function that hands the rejection to [`finish`]. Keeping the wrapper
@@ -29,14 +32,9 @@
 //! Game panel after *both* outcomes — without pushing that tail into the shared
 //! helper.
 
-use crate::data::zone_data::ZoneKind;
-use crate::model::Player;
-use crate::model::components::{Position, TargetRef};
-use crate::model::npc::Npc;
+use crate::game_loop::helpers;
 use crate::network::server_packets::{SmParam, sm_ids};
 use crate::world::World;
-
-use super::helpers;
 
 /// Why a handler stopped early, and what the client should be told about it.
 ///
@@ -120,86 +118,4 @@ pub(crate) fn finish(world: &World, client_id: u32, result: Guard<()>) {
     if let Err(reject) = result {
         report(world, client_id, reject);
     }
-}
-
-// ---------------------------------------------------------------------------
-// Resolvers — all answer `Option`, none picks a message
-// ---------------------------------------------------------------------------
-
-/// The object id this creature currently has selected, if any.
-pub(crate) fn target(world: &World, object_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<TargetRef>(&object_id)
-        .and_then(|t| t.0)
-}
-
-/// The current target, but only when it is a player — Java's
-/// `target == null || !target.isPlayer()` guard in one call.
-pub(crate) fn player_target(world: &World, object_id: i32) -> Option<i32> {
-    target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-}
-
-/// The current target, but only when it is an NPC.
-pub(crate) fn npc_target(world: &World, object_id: i32) -> Option<i32> {
-    target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
-}
-
-/// The player's clan id, or `None` when they are clanless — Java
-/// `player.getClan() == null`, which the port spells as the sentinel `0`.
-pub(crate) fn clan_of(world: &World, player_object_id: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<Player>(&player_object_id)
-        .map(|p| p.clan_id)
-        .filter(|&clan_id| clan_id != 0)
-}
-
-/// A player's `(clan_id, clan_privs)` pair — the opening of every clan packet
-/// handler that gates on a privilege, since the privilege mask is only
-/// meaningful alongside the clan it belongs to. `None` once the player has left
-/// the world; `clan_id == 0` still means clanless, which each handler refuses
-/// with its own system message.
-pub(crate) fn clan_and_privs(world: &World, player_object_id: i32) -> Option<(i32, i32)> {
-    world
-        .objects
-        .get_component::<Player>(&player_object_id)
-        .map(|p| (p.clan_id, p.clan_privs))
-}
-
-/// The player's clan id with Java's `0` sentinel for clanless, for the call
-/// sites that compare against clan ids read straight off the wire or out of a
-/// row and so need the sentinel anyway.
-///
-/// Prefer [`clan_of`]: the `Option` makes "clanless" unrepresentable as a clan
-/// id, which is what stops two clanless players comparing equal. Reach for this
-/// only where the sentinel is genuinely the shape needed.
-pub(crate) fn clan_of_or_zero(world: &World, player_object_id: i32) -> i32 {
-    clan_of(world, player_object_id).unwrap_or(0)
-}
-
-/// An object's position.
-pub(crate) fn maybe_position(world: &World, object_id: i32) -> Option<Position> {
-    world.objects.get_component::<Position>(&object_id).copied()
-}
-pub(crate) fn in_zone(world: &World, obj_id: i32, zone_kind: ZoneKind) -> bool {
-    maybe_position(world, obj_id).is_some_and(|p| {
-        world
-            .data
-            .zone_data
-            .zones_at(p.x, p.y, p.z)
-            .any(|z| z.kind == zone_kind)
-    })
-}
-pub(crate) fn position(world: &World, object_id: i32) -> Position {
-    maybe_position(world, object_id)
-        .unwrap_or_else(|| panic!("object {} must have position", object_id))
-}
-
-pub(crate) fn target_is_chest(world: &World, target_oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<Npc>(&target_oid)
-        .and_then(|n| world.data.npc_data.get(n.npc_id))
-        .is_some_and(|tpl| tpl.type_name == "Chest")
 }

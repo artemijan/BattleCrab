@@ -9,7 +9,8 @@
 //! 100-unit `last_validate` distance), enter world / teleport / position
 //! snaps with `force = true`.
 
-use crate::game_loop::guard::maybe_position;
+use crate::data::zone_data::ZoneKind;
+use crate::game_loop::helpers::maybe_position;
 use crate::model::components::{Speeds, ZoneFlags};
 use crate::network::server_packets::{self, compass_zone};
 use crate::world::World;
@@ -372,4 +373,20 @@ pub(crate) fn broadcast_to_zone(world: &World, zone_id: i32, pkt: &[u8]) {
     for oid in players_in_zone(world, zone_id) {
         send_to_player(world, oid, pkt.to_vec());
     }
+}
+
+/// Whether an object stands in any zone of `zone_kind` right now.
+///
+/// The kind-based counterpart to [`crate::game_loop::helpers::in_zone`], which
+/// tests one already-resolved zone: this one asks the point index, so it suits
+/// the "am I in *a* water/peace/fishing zone?" checks that don't have a
+/// particular zone in hand. `false` for an object that has left the world.
+pub(crate) fn in_zone(world: &World, object_id: i32, zone_kind: ZoneKind) -> bool {
+    maybe_position(world, object_id).is_some_and(|p| {
+        world
+            .data
+            .zone_data
+            .zones_at(p.x, p.y, p.z)
+            .any(|z| z.kind == zone_kind)
+    })
 }

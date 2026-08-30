@@ -15,9 +15,9 @@
 //!   deliberately not "tidied".
 //! - **Either is attacked** → [`on_assist`] spreads aggro across the pack.
 
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_raid_npc;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_template;
 use crate::model::npc;
 use commons::util::rnd;

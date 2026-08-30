@@ -5,8 +5,8 @@
 //! and hero buttons on the same panel stay unimplemented until their subsystems
 //! land (G21/G24/G25).
 
+use super::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::clans::clan_name_or_empty;
-use crate::game_loop::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::send_to_client;
@@ -15,6 +15,7 @@ use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
 use super::send_message;
+use crate::game_loop::target;
 
 /// Re-show the Game panel (`game_menu.htm`) — Java `AdminPledge.showMainPage`,
 /// run at the end of every branch.
@@ -42,7 +43,7 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
 /// The body of [`admin_pledge`]; every precondition bails through `?`.
 fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&str]) -> Guard<()> {
     // Java: the target must be a player, else INVALID_TARGET + showMainPage.
-    let target = guard::player_target(world, gm_object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let target = target::current_player(world, gm_object_id).or_sm(sm_ids::INVALID_TARGET)?;
 
     // Java requires BOTH an action and a parameter token for every sub-command —
     // including `info`/`dismiss`, whose Game-panel buttons carry no parameter, so
@@ -52,7 +53,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
         return Err(Reject::Msg("Missing parameters!".to_string()));
     };
 
-    let clan_id = guard::clan_of(world, target);
+    let clan_id = helpers::clan_of(world, target);
     let target_name = helpers::player_name_or_empty(world, target);
 
     match action {
@@ -260,9 +261,10 @@ fn clan_changeleader(
     let target = args
         .first()
         .and_then(|name| super::find_online_player(world, name))
-        .or_else(|| guard::player_target(world, object_id))
+        .or_else(|| target::current_player(world, object_id))
         .or_sm(sm_ids::INVALID_TARGET)?;
-    let clan_id = guard::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
+    let clan_id =
+        helpers::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
     if crate::game_loop::clans::force_new_leader(world, clan_id, target) {
         send_message(world, client_id, "Clan leader changed.");
     } else {
@@ -295,8 +297,9 @@ fn add_clan_skill(world: &mut World, client_id: u32, object_id: i32, args: &[&st
         .skill_data
         .get(skill_id, level)
         .or_msg("No such skill/level.")?;
-    let target = guard::player_target(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
-    let clan_id = guard::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
+    let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
+    let clan_id =
+        helpers::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
     // Java `AdminSkill` sends the same message for "no clan" and "not the
     // leader", so both spellings of the check keep that one id.
     world

@@ -13,7 +13,7 @@ use super::helpers::{
     adena, player_of, send_inventory_item_list, send_sm_bare_to_client as send_sm,
 };
 use crate::data::item_data::ADENA_ID;
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::components::{PrivateStore, StoreItem};
 use crate::model::inventory::{Inventory, ItemInstance};

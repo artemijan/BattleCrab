@@ -19,7 +19,7 @@
 //! His threat table is the shared `boss_threat` one — Antharas keeps an
 //! identical copy in Java. Only the skill ladder below is Baium's own.
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::{Immobilized, Position, Vitals};

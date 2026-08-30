@@ -14,7 +14,7 @@
 
 use crate::data::item_data::ADENA_ID;
 use crate::db::DbCommand;
-use crate::game_loop::guard::clan_of_or_zero;
+use crate::game_loop::helpers::clan_of_or_zero;
 use crate::model::clan_hall::{ClanHallBid, ClanHallType};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;

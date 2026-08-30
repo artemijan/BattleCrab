@@ -296,7 +296,7 @@ pub(super) fn admin_instancezone(world: &mut World, client_id: u32, object_id: i
         }
         // No name: Java uses the target if it is a player, and otherwise falls
         // through to `display(activeChar, activeChar)`.
-        _ => crate::game_loop::guard::player_target(world, object_id).unwrap_or(object_id),
+        _ => crate::game_loop::target::current_player(world, object_id).unwrap_or(object_id),
     };
     display_instance_times(world, client_id, subject);
 }

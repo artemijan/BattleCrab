@@ -9,7 +9,7 @@
 //! (`"FourSepulchers" + managerNpcId`) and rehydrated at boot, so the
 //! 60-minute re-entry gate survives a restart.
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::model::components::{Position, RegionCell, Vitals};

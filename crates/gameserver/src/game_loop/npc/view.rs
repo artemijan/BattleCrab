@@ -24,8 +24,9 @@
 //!   is laid out for and whose ceiling the 16000-char row budget assumes.
 
 use crate::data::npc_data::{DropHolder, NpcTemplate};
+use crate::game_loop::community_board;
 use crate::game_loop::helpers::{format_amount, send_to_client};
-use crate::game_loop::{community_board, guard};
+use crate::game_loop::target;
 use crate::network::server_packets;
 use crate::world::World;
 
@@ -144,7 +145,7 @@ pub(crate) fn handle_npc_view_bypass(world: &World, client_id: u32, object_id: i
     let Some(npc_object_id) = it
         .next()
         .and_then(|s| s.parse::<i32>().ok())
-        .or_else(|| guard::target(world, object_id))
+        .or_else(|| target::current(world, object_id))
         .filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id))
     else {
         return;

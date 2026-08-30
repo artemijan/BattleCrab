@@ -21,7 +21,7 @@ mod restore;
 mod shots;
 mod stats;
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::restore_hp_mp;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::time::TICKS_PER_SECOND;

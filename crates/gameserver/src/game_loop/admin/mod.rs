@@ -16,7 +16,6 @@ use serde_json::json;
 use tracing::warn;
 
 use crate::enums::AdminTeleportType;
-use crate::game_loop::guard;
 use crate::model::Player;
 use crate::model::inventory::PaperdollSlot;
 use crate::network::server_packets::{self, sm_ids};
@@ -34,6 +33,7 @@ mod flags;
 mod geo_editor;
 mod gm_util;
 mod grand_boss;
+mod guard;
 pub(crate) mod hero;
 mod instance;
 mod items;
@@ -551,7 +551,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // `//show_skills` opens the target's char-skills window (Java
         // `showMainPage` → `charskills.htm`), not the skill catalog.
         "admin_show_skills" => {
-            let target = guard::target(world, object_id)
+            let target = target::current(world, object_id)
                 .filter(|oid| world.objects.has_component::<Player>(oid))
                 .unwrap_or(object_id);
             show_char_skills(world, client_id, target)
@@ -973,7 +973,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_unban_menu" => admin_unban_menu(world, client_id, &args),
         "admin_force_peti" => {
             let text = args.join(" ");
-            match guard::player_target(world, object_id) {
+            match target::current_player(world, object_id) {
                 _ if text.is_empty() => send_message(world, client_id, "Usage: //force_peti text"),
                 Some(target) => {
                     if !super::petition::force_petition(world, object_id, target, &text) {
@@ -1036,7 +1036,7 @@ fn show_effects_main_page(world: &mut World, client_id: u32, command: &str) {
 
 /// EditChar target = the current target if it's a player, else the GM.
 pub(super) fn target_player(world: &World, object_id: i32) -> i32 {
-    guard::player_target(world, object_id).unwrap_or(object_id)
+    target::current_player(world, object_id).unwrap_or(object_id)
 }
 
 /// Java `target.getName()` for the GM-audit record, with Java's `"no-target"`
@@ -1044,7 +1044,7 @@ pub(super) fn target_player(world: &World, object_id: i32) -> i32 {
 /// NPCs resolve through the template, since the object itself only carries the
 /// template id.
 fn target_display_name(world: &World, gm_object_id: i32) -> String {
-    let Some(target_id) = guard::target(world, gm_object_id) else {
+    let Some(target_id) = target::current(world, gm_object_id) else {
         return "no-target".to_string();
     };
     maybe_object_name(world, target_id).unwrap_or(format!("object:{target_id}"))
@@ -1162,7 +1162,7 @@ pub(crate) fn handle_request_gm_command(world: &mut World, client_id: u32, body:
         // Player clan.
         2 => {
             let Some(t) = target else { return };
-            let Some(cid) = guard::clan_of(world, t) else {
+            let Some(cid) = helpers::clan_of(world, t) else {
                 return;
             };
             let Some(clan) = world.clans.get(&cid) else {

@@ -36,9 +36,9 @@
 //! which is the same set for every `affect_range` the dist actually uses (the
 //! largest is 2000, comfortably inside a region block).
 
-use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::region_cell_of;
 use crate::model::Player;
@@ -859,7 +859,7 @@ fn not_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
         return true;
     }
     let ally_of = |oid: i32| {
-        crate::game_loop::guard::clan_of(world, oid)
+        crate::game_loop::helpers::clan_of(world, oid)
             .and_then(|cid| world.clans.get(&cid))
             .map(|c| c.ally_id)
             .unwrap_or(0)
@@ -909,8 +909,8 @@ fn same_command_channel(world: &World, a: i32, b: i32) -> bool {
 /// to be **mutual**, so a one-sided declaration does not open an AoE.
 fn mutual_clan_war(world: &World, a: i32, b: i32) -> bool {
     let (Some(x), Some(y)) = (
-        crate::game_loop::guard::clan_of(world, a),
-        crate::game_loop::guard::clan_of(world, b),
+        crate::game_loop::helpers::clan_of(world, a),
+        crate::game_loop::helpers::clan_of(world, b),
     ) else {
         return false;
     };

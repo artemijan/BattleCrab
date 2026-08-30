@@ -8,8 +8,8 @@ use super::resolve_cast_target;
 use super::set_skill_reuse;
 use super::start_casting;
 use super::target_state;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 use crate::model::components;
 
 use crate::game_loop::skills::effects::apply_skill_effects;

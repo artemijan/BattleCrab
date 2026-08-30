@@ -1,8 +1,8 @@
 //! Target resolution: `Skill.getTarget` + the targethandler scripts as a
 //! static match, plus the target-state and cast-range checks.
 
-use crate::game_loop::guard::maybe_position;
-use crate::game_loop::guard::target_is_chest;
+use crate::game_loop::helpers::is_chest;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_template;
 use crate::model::Player;
 use crate::model::components::Collision;
@@ -265,7 +265,7 @@ pub(crate) fn resolve_cast_target(
         TargetType::DoorTreasure => {
             let t = caster_target.ok_or(sm_ids::THAT_IS_AN_INCORRECT_TARGET)?;
             let is_door = world.objects.has_component::<crate::model::door::Door>(&t);
-            if !is_door && !target_is_chest(world, t) {
+            if !is_door && !is_chest(world, t) {
                 return Err(sm_ids::THAT_IS_AN_INCORRECT_TARGET);
             }
             t

@@ -21,7 +21,7 @@
 //! - `resurrect` — revive requests/answers, the restore percentages, pet
 //!   revive, and raid points.
 
-use crate::game_loop::guard::maybe_position;
+use crate::game_loop::helpers::maybe_position;
 
 use crate::game_loop::helpers::set_position_heading;
 

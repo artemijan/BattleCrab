@@ -3,9 +3,9 @@
 
 use super::QuestCtx;
 use super::load_quest_html;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::hp_fraction;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::npc::cast;
 use crate::model::components::QuestTimerSeqs;

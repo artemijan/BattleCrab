@@ -8,8 +8,9 @@
 //! wired through `siege::set_show_npc_crest`.
 
 use crate::db::DbCommand;
-use crate::game_loop::guard::clan_of_or_zero;
-use crate::game_loop::{guard, helpers};
+use crate::game_loop::helpers;
+use crate::game_loop::helpers::clan_of_or_zero;
+use crate::game_loop::target;
 use crate::model::Player;
 use crate::model::castle::CastleSide;
 use crate::model::siege::SiegeClanType;
@@ -42,7 +43,7 @@ fn owner_clan(world: &World, castle_id: i32) -> Option<i32> {
 
 /// Java `checkTarget`: the GM's target is a player that belongs to a clan.
 fn clanned_target(world: &World, gm_object_id: i32) -> Option<i32> {
-    let target = guard::target(world, gm_object_id)?;
+    let target = target::current(world, gm_object_id)?;
     world
         .objects
         .get_component::<Player>(&target)

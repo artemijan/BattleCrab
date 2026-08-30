@@ -10,10 +10,10 @@
 //! server has not ported.
 
 use crate::game_loop::admin::find_online_player;
-use crate::game_loop::guard;
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
+use crate::game_loop::target;
 use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef};
 use crate::model::npc::Npc;
@@ -114,7 +114,7 @@ pub(super) fn admin_online(world: &mut World, client_id: u32) {
 
 /// `AdminTargetSay`'s `//targetsay <text>` — make the current target say `text`.
 pub(super) fn admin_targetsay(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(target) = guard::target(world, object_id) else {
+    let Some(target) = target::current(world, object_id) else {
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -373,7 +373,7 @@ pub(super) fn admin_kick_non_gm(world: &mut World, client_id: u32) {
 fn resolve_named_or_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
     match args.first() {
         Some(name) => find_online_player(world, name),
-        None => guard::player_target(world, object_id),
+        None => target::current_player(world, object_id),
     }
 }
 
@@ -415,7 +415,7 @@ pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i3
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let Some(clan_id) = guard::clan_of(world, target) else {
+    let Some(clan_id) = helpers::clan_of(world, target) else {
         send_message(world, client_id, "Player is not in a clan.");
         recall_all(world, object_id, &[target]);
         return;
@@ -513,7 +513,7 @@ pub(super) fn admin_bbs(world: &mut World, client_id: u32, object_id: i32) {
 /// `AdminBuffs`' `//viewblockedeffects` — list the abnormal slots currently
 /// blocked on the target by live `BlockAbnormalSlot` effects.
 pub(super) fn admin_viewblockedeffects(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = guard::target(world, object_id).or(Some(object_id)) else {
+    let Some(target) = target::current(world, object_id).or(Some(object_id)) else {
         return;
     };
     let mut blocked: Vec<String> = Vec::new();
@@ -739,7 +739,7 @@ pub(super) fn admin_set_exception(
 /// quest-state editor — the two were aliased here, so this button used to open
 /// the player menu and answer `INVALID_TARGET` on an NPC.
 pub(super) fn admin_show_quests(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = guard::target(world, object_id) else {
+    let Some(target) = target::current(world, object_id) else {
         send_message(world, client_id, "Get a target first.");
         return;
     };
@@ -850,7 +850,7 @@ pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, 
     match args.get(1).copied() {
         Some("give") => {
             let clan_id =
-                guard::target(world, object_id).and_then(|oid| guard::clan_of(world, oid));
+                target::current(world, object_id).and_then(|oid| helpers::clan_of(world, oid));
             let Some(clan_id) = clan_id else {
                 send_message(world, client_id, "Target a member of the receiving clan.");
                 return;
@@ -1075,8 +1075,8 @@ pub(super) fn admin_skill_test(world: &mut World, client_id: u32, object_id: i32
         return;
     };
     let (Some(caster_pos), Some(gm_pos)) = (
-        crate::game_loop::guard::maybe_position(world, caster_oid),
-        crate::game_loop::guard::maybe_position(world, object_id),
+        crate::game_loop::helpers::maybe_position(world, caster_oid),
+        crate::game_loop::helpers::maybe_position(world, object_id),
     ) else {
         return;
     };

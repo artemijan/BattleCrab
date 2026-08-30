@@ -2,8 +2,8 @@
 //! `Player.setTarget` port, and (G8) the `NpcAction` interact path — talking
 //! to a targeted NPC opens its chat window.
 
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers;
+use crate::game_loop::helpers::maybe_position;
 use crate::model::components;
 
 use crate::game_loop::npc::{teleporter, view};
@@ -861,4 +861,24 @@ fn load_chat_window_html(
         None => read(format!("{root}data/html/default/{pom}.htm"))
             .or_else(|| read(format!("{root}data/html/npcdefault.htm"))),
     }
+}
+
+/// The object id this creature currently has selected, if any.
+pub(crate) fn current(world: &World, object_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<components::TargetRef>(&object_id)
+        .and_then(|t| t.0)
+}
+
+/// The current target, but only when it is a player — Java's
+/// `target == null || !target.isPlayer()` guard in one call.
+pub(crate) fn current_player(world: &World, object_id: i32) -> Option<i32> {
+    current(world, object_id).filter(|oid| world.objects.has_component::<crate::model::Player>(oid))
+}
+
+/// The current target, but only when it is an NPC.
+pub(crate) fn current_npc(world: &World, object_id: i32) -> Option<i32> {
+    current(world, object_id)
+        .filter(|oid| world.objects.has_component::<crate::model::npc::Npc>(oid))
 }

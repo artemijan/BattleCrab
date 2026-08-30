@@ -20,8 +20,8 @@
 //! range, and no throne/bench is interactive on this dist; and the queued
 //! sit-on-arrival `NextAction`, which needs an AI next-action slot.
 
-use crate::game_loop::guard::maybe_position;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::model::Player;
 use crate::network::server_packets;
