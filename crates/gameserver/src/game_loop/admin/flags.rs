@@ -4,9 +4,9 @@
 
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{nth_arg, send_sm_bare_to_client};
+use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::model::components::AdminFlags;
 use crate::network::server_packets;

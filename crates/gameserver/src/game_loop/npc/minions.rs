@@ -18,10 +18,10 @@
 use crate::game_loop;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_raid_npc;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::npc_template;
 use crate::game_loop::npc::ai::set_attack_intention;
+use crate::game_loop::space::position::maybe_position;
 use crate::model::components::Vitals;
 use crate::model::npc;
 use crate::scheduler::{ScheduledTask, ms_to_ticks};

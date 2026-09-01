@@ -16,7 +16,7 @@
 
 use crate::game_loop::common::players_in_lair_oids;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::Position;

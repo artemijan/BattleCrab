@@ -7,6 +7,7 @@
 //! packets that let a player change it.
 
 pub(in crate::game_loop) mod henna;
+pub mod inventory;
 pub(crate) mod pc_cafe;
 pub(crate) mod player_info;
 pub(in crate::game_loop) mod reco;

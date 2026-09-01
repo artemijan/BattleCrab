@@ -1,7 +1,7 @@
 use super::*;
 use crate::game_loop;
 use crate::game_loop::admin;
-use crate::game_loop::helpers::set_position;
+use crate::game_loop::space::position::set_position;
 
 /// A GM's `//serverinfo` runs and answers with server-info text lines.
 #[test]

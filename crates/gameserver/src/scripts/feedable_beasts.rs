@@ -8,8 +8,8 @@
 //! spawns on this dist — dead content, not ported.
 
 use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::pos_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::space::position::pos_of;
 use crate::model::components::RegionCell;
 
 const GOLDEN_SPICE: i32 = 6643;

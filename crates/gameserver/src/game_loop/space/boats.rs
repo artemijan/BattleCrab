@@ -20,8 +20,8 @@
 //! if a second boat ever shares a dock.
 
 use crate::enums::ChatType;
-use crate::game_loop::helpers::maybe_position;
-use crate::game_loop::helpers::{send_inventory_update, set_position};
+use crate::game_loop::helpers::send_inventory_update;
+use crate::game_loop::space::position::{maybe_position, set_position};
 use crate::geo::distance::{dist3d_xyz, distance_2d_xy};
 use crate::model::boat;
 

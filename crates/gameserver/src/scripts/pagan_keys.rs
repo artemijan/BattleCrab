@@ -2,9 +2,9 @@
 //! drop the Anteroom Key, Triol's Laypersons the Chapel Key, Triol's
 //! Priests the Key of Darkness — 10% each, honoring `AutoLoot`.
 
-use crate::game_loop::helpers::pos_of;
 use crate::game_loop::items::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::space::position::pos_of;
 
 const ANTEROOM_KEY: i32 = 8273;
 const CHAPEL_KEY: i32 = 8274;

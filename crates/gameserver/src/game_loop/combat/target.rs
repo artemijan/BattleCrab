@@ -4,7 +4,7 @@
 
 use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 use crate::model::components;
 
 use crate::game_loop::npc::{teleporter, view};

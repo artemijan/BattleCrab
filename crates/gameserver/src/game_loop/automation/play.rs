@@ -7,17 +7,17 @@
 //! behalf. See `PLAN_G33_AUTO_PLAY.md`.
 
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::model::components::{AutoPlaySettings, GroundItem, Position};
 use crate::world::World;
 
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers::client_for_player;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::items::ground_items;
+use crate::game_loop::space::position::region_cell_of;
 
 /// Java's pool runs every 300 ms; the loop ticks at 100 ms, so every 3 ticks.
 pub(crate) const TICK_PERIOD: u64 = 3;

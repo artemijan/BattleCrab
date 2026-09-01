@@ -6,7 +6,7 @@ use super::caster_display_name;
 use super::expire_buffs_where;
 use super::max_recoverable;
 use super::player_or_npc_level;
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, items};
 
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;

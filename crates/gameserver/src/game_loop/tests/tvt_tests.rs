@@ -3,7 +3,7 @@
 //! scoring + respawn, and EndFight (winner reward / tie, forfeit, teardown).
 
 use super::*;
-use crate::game_loop::helpers::set_position;
+use crate::game_loop::space::position::set_position;
 
 use crate::data::instance_data::{ExitType, InstanceTemplate};
 use crate::game_loop::events::tvt;

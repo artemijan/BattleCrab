@@ -21,8 +21,8 @@
 //! sit-on-arrival `NextAction`, which needs an AI next-action slot.
 
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;

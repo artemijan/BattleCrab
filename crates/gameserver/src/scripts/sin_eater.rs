@@ -8,7 +8,7 @@
 //! `ON_CREATURE_DEATH` / `onSummonTalk`; this port has no summon-event
 //! registry, so each site calls in directly.
 
-use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::space::position::region_cell_of;
 use crate::model::npc::Npc;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;

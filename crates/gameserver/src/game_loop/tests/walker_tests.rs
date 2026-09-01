@@ -1,7 +1,7 @@
 //! NPC walking routes (G21 slice 10) — `WalkingManager` / `WalkInfo`.
 
 use super::*;
-use crate::game_loop::helpers::set_position;
+use crate::game_loop::space::position::set_position;
 
 use crate::data::route_data::{RepeatStyle, RouteData, WalkNode, WalkRoute};
 use crate::game_loop::npc::walkers::WalkState;

@@ -12,7 +12,7 @@
 //! boot. The status field (on the golem's `grand_bosses` record) is DrChaos's
 //! own three-state ladder, distinct from the two-/four-state ones elsewhere.
 
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::{MILLIS_PER_HOUR, TICKS_PER_SECOND};
 use crate::geo::distance::within_2d_xy;
 use crate::model::components::{DrChaosGolem, DrChaosState, Vitals};

@@ -4,8 +4,8 @@
 use super::*;
 use crate::config::bot_report::{BotReportConfig, BotReportPunishment};
 use crate::config::chat_filter::ChatFilterConfig;
-use crate::game_loop::helpers::set_position;
 use crate::game_loop::moderation::bot_report::{self, DAILY_POINTS};
+use crate::game_loop::space::position::set_position;
 use crate::model::components::TargetRef;
 use commons::config::PropertiesParser;
 

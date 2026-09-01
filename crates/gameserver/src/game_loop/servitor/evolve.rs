@@ -32,7 +32,7 @@
 //! pet manager would accept it, and leaving it out would be a silent gap if the
 //! NPC is ever spawned.
 
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 use tracing::warn;
 
 use crate::game_loop::helpers::item_id_of;

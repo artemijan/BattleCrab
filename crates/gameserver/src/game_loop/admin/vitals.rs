@@ -4,8 +4,8 @@
 
 use crate::game_loop::admin::{find_online_player, target_player};
 use crate::game_loop::combat::target;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
+use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
 use crate::model::npc::Npc;

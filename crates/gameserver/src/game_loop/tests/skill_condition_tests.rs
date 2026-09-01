@@ -5,8 +5,8 @@
 //! honoured. Before S1 every one of these casts succeeded.
 
 use super::*;
-use crate::game_loop::helpers::set_position;
 use crate::game_loop::skills::cast::handle_request_magic_skill_use;
+use crate::game_loop::space::position::set_position;
 use crate::model::components::{SkillBook, Vitals};
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::sm_ids;

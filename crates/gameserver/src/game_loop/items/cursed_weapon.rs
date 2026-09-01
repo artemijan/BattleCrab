@@ -15,9 +15,9 @@
 //! `activate` gives the new wielder.
 
 use crate::game_loop::combat::pvp;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{npc_template, send_inventory_item_list};
+use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::MILLIS_PER_MINUTE;
 use crate::model::Player;
 use crate::model::components::{Position, SkillBook};
@@ -27,8 +27,8 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use crate::game_loop::admin::cursed_weapons::{activate, end_of_life, idx_by_item, now_millis};
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::items::ground_items::{DropSource, despawn_ground_item, spawn_ground_item};
+use crate::game_loop::space::position::region_cell_of;
 
 /// Java `CursedWeapon.dropRate` is out of 100000 (config comment "100000 for
 /// 100%"), so a value of 50 is 0.05%.

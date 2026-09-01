@@ -18,7 +18,7 @@
 //! `<skillList>`.
 
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::zones::in_zone;
 
 use commons::util::rnd;

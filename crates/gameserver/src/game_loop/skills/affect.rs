@@ -38,9 +38,9 @@
 
 use crate::game_loop::helpers::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell};
 use crate::model::skill::{AffectObject, AffectScope, Skill, TargetType};

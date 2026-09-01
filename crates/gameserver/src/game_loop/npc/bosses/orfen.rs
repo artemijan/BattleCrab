@@ -10,9 +10,9 @@
 //! - **The half-HP relocation.** The first time Orfen drops below half health
 //!   it teleports to its "home" spawn point, once per life.
 
-use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::set_position;
 use crate::game_loop::npc::cast;
+use crate::game_loop::space::position::pos_of;
+use crate::game_loop::space::position::set_position;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;

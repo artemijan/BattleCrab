@@ -13,9 +13,9 @@
 use crate::data::item_data::WeaponType;
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::maybe_position;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::items;
+use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::space::position::region_cell_of;
 use crate::game_loop::space::zones::in_zone;
 use crate::model::Player;
 use crate::model::components::FishingSession;

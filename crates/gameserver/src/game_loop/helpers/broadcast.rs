@@ -2,7 +2,7 @@
 
 use super::client_for_player;
 use super::instance_of;
-use super::region_cell_of;
+use crate::game_loop::space::position::region_cell_of;
 use crate::world::World;
 /// `World.forEachVisibleObject`: only players whose world region is in the
 /// broadcaster's 3×3 surrounding-region block **and same instance** receive it.

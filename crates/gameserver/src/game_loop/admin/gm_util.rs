@@ -12,8 +12,8 @@
 use crate::game_loop::admin::find_online_player;
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
+use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef};
 use crate::model::npc::Npc;

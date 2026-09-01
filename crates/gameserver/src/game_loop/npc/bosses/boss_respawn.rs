@@ -18,8 +18,8 @@
 //! [`spawn_all`]: crate::game_loop::npc::spawn_all
 use crate::data::spawn_data;
 use crate::db::{DbCommand, NpcRespawnRow};
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::space::position::maybe_position;
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;

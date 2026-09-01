@@ -4,9 +4,9 @@
 //! content.
 
 use crate::data::item_data::ADENA_ID;
-use crate::game_loop::helpers::pos_of;
 use crate::game_loop::items::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::space::position::pos_of;
 
 const RAGNA_ORC_COMMANDER: i32 = 22694;
 const RAGNA_ORC_SEER: i32 = 22697;

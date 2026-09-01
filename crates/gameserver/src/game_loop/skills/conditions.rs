@@ -36,7 +36,7 @@
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::abnormal::flags_of;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 use crate::model::components;
 use crate::model::skill;
 

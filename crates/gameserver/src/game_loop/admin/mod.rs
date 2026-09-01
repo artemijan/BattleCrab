@@ -102,7 +102,7 @@ use world_cmds::*;
 // here keeps every `super::helpers::…` / `super::death::…` call in the bodies
 // resolving (a child's `super` now points at this module).
 use crate::game_loop::combat::{death, target};
-use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::space::position::region_cell_of;
 use crate::game_loop::space::visibility;
 use crate::game_loop::{helpers, party};
 /// Java `AdminCommandHandler.useAdminCommand`. `full` is the whole command

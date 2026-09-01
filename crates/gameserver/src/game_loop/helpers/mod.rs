@@ -9,20 +9,25 @@
 //! belongs to `crate::scheduler`, `npc_say` to `npc::say`, and so on.
 
 mod broadcast;
-mod inventory;
 mod lookup;
-mod position;
 mod send;
 mod vitals;
 
-pub(crate) use broadcast::{
-    broadcast_from, broadcast_including_self, broadcast_near_region, broadcast_near_region_in,
-    broadcast_to_others,
-};
-pub(crate) use inventory::{
+pub(crate) use crate::game_loop::character::inventory::{
     add_inventory_item_changes, added_changes, adena, carried_item, count_of,
     get_inventory_items_oids, give_transferred_item, item_id_of, modified_changes,
     remove_inventory_item_change, send_inventory_item_list, send_inventory_update,
+};
+pub(crate) use crate::game_loop::space::position::maybe_position;
+pub(crate) use crate::game_loop::space::position::pos_of;
+pub(crate) use crate::game_loop::space::position::position;
+pub(crate) use crate::game_loop::space::position::region_cell_of;
+pub(crate) use crate::game_loop::space::position::set_position;
+pub(crate) use crate::game_loop::space::position::set_position_heading;
+pub(crate) use crate::game_loop::space::position::stop_movement;
+pub(crate) use broadcast::{
+    broadcast_from, broadcast_including_self, broadcast_near_region, broadcast_near_region_in,
+    broadcast_to_others,
 };
 pub(crate) use lookup::{
     clan_and_privs, clan_of, clan_of_or_zero, class_level, client_for_player, format_amount,
@@ -32,10 +37,6 @@ pub(crate) use lookup::{
     player_name_or_empty, player_of, player_race, player_race_or_human, player_var, player_var_int,
     reuses_mut, set_npc_title, set_player_var, set_player_var_int, skill_by_id, unset_player_var,
     update_admin_flags,
-};
-pub(crate) use position::{
-    maybe_position, pos_of, position, region_cell_of, set_position, set_position_heading,
-    stop_movement,
 };
 pub(crate) use send::{
     announce_to_all_online, disconnect_player, send_action_failed, send_etc_status_update,

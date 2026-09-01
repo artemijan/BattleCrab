@@ -10,11 +10,11 @@
 //! `PrivateStoreMsgSell`. Manufacture (workshop) stores belong to `crafting`.
 
 use crate::data::item_data::ADENA_ID;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{
     adena, player_of, send_inventory_item_list, send_sm_bare_to_client as send_sm,
 };
+use crate::game_loop::space::position::maybe_position;
 use crate::model::components::{PrivateStore, StoreItem};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::network::client_packets as cp;
@@ -448,7 +448,7 @@ pub(crate) fn is_store_owner(world: &World, oid: i32) -> bool {
 // checked when the store opens and again per sale — Java re-checks because the
 // owner can spend elsewhere while the store stands.
 
-use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::space::position::region_cell_of;
 use crate::model::components::{PrivateBuyStore, WantedItem};
 
 const STORE_TYPE_BUY: u8 = 3;

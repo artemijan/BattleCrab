@@ -22,8 +22,8 @@
 //! here rather than with the end-game milestones.
 
 use crate::game_loop::character::player_info;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::space::instances;
+use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{combat, helpers, party};
 use crate::model::Player;
 use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};

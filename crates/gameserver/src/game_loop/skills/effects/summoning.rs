@@ -2,7 +2,7 @@
 //! betrayal flip, extracted from the `apply_skill_effects` match.
 
 use super::servitor_owner_of;
-use crate::game_loop::helpers::pos_of;
+use crate::game_loop::space::position::pos_of;
 use crate::model::components::Vitals;
 use crate::model::skill::Skill;
 use crate::world::World;

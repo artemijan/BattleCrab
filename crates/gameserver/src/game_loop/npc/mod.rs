@@ -5,11 +5,9 @@ use crate::game_loop::combat::death::calculate_rewards;
 use crate::game_loop::combat::{pvp, target};
 use crate::game_loop::core_boss::CORE;
 use crate::game_loop::dr_chaos::CHAOS_GOLEM;
-use crate::game_loop::helpers::{
-    broadcast_near_region_in, instance_of, maybe_position, npc_id_of, region_cell_of,
-    set_position_heading,
-};
+use crate::game_loop::helpers::{broadcast_near_region_in, instance_of, npc_id_of};
 use crate::game_loop::items::cursed_weapon;
+use crate::game_loop::space::position::{maybe_position, region_cell_of, set_position_heading};
 use crate::game_loop::space::visibility;
 use crate::game_loop::valakas::VALAKAS;
 use crate::game_loop::{

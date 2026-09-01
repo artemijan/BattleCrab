@@ -7,7 +7,7 @@ use super::destroy_item_by_id;
 use super::item_skills;
 use crate::data::item_data::ItemHandler;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 
 use crate::model::inventory::Inventory;
 use crate::network::server_packets;

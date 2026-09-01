@@ -23,9 +23,9 @@ mod shots;
 mod stats;
 pub(crate) mod tamed_beast;
 
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::restore_hp_mp;
 use crate::game_loop::helpers::send_to_player;
+use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
 use crate::network::server_packets;

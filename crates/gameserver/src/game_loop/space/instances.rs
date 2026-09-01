@@ -5,8 +5,8 @@
 
 use crate::data::instance_data::ExitType;
 use crate::game_loop::helpers::instance_of;
-use crate::game_loop::helpers::pos_of;
-use crate::game_loop::helpers::region_cell_of;
+use crate::game_loop::space::position::pos_of;
+use crate::game_loop::space::position::region_cell_of;
 use crate::model::components::{InstanceDoorOpen, InstanceId, Position, RegionCell};
 use crate::model::door::Door;
 use crate::network::server_packets;

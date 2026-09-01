@@ -8,12 +8,12 @@
 use super::cursed_weapon;
 use crate::game_loop::character::sit_stand;
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::maybe_position;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::moderation::punishment;
 use crate::game_loop::party::command_channel;
+use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::space::position::region_cell_of;
 use crate::game_loop::{helpers, items, quests};
 use crate::model::components::{GroundItem, Position, RegionCell};
 use crate::model::inventory::Inventory;

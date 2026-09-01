@@ -11,8 +11,8 @@
 
 use crate::data::npc_data::NpcTemplate;
 use crate::game_loop::combat::target;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
+use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, items, npc};
 use crate::model::components::Position;
 use crate::model::npc::Npc;

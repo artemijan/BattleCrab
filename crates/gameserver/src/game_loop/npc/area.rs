@@ -10,8 +10,8 @@
 
 use crate::game_loop::helpers::announce_to_all_online;
 use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::pos_of;
 use crate::game_loop::npc::despawn_npc_by_oid;
+use crate::game_loop::space::position::pos_of;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::scheduler::ms_to_ticks;

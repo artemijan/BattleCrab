@@ -7,17 +7,17 @@
 //! by the same rule (`helpers::broadcast_to_others`).
 
 use crate::game_loop::combat::pvp;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::space::position::maybe_position;
 use crate::model::components::{Movement, Position, RegionCell, TargetRef};
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::{World, region_of, regions_adjacent};
 
 use crate::game_loop::helpers::client_for_player;
-use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::items::ground_items;
 use crate::game_loop::npc::doors;
+use crate::game_loop::space::position::region_cell_of;
 
 /// `CreatureAI.describeStateToPlayer`, players-only: right after a `CharInfo`
 /// introduces `p`, tell the observer about in-flight state — currently just an

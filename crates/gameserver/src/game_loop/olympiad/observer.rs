@@ -2,8 +2,8 @@
 //! spectator flags.
 
 use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::pos_of;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::space::position::pos_of;
 use crate::model::components::OlympiadObserver;
 use crate::model::olympiad::OlympiadMatch;
 use crate::network::server_packets as sp;

@@ -9,7 +9,7 @@ use super::servitor_of;
 use super::sync_pet_row;
 use super::unsummon_servitor;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 
 use crate::game_loop::npc::ai::force_attack_target;
 use crate::model::components::Position;

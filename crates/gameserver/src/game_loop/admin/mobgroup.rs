@@ -4,9 +4,9 @@
 //! [`Controllable`](Controllable) and steered by the
 //! group's [`MobGroupState`] in `npc_ai::controllable_think`.
 
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::nth_arg;
-use crate::game_loop::helpers::set_position;
+use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::space::position::set_position;
 use crate::model::components::AdminFlags;
 use crate::model::mob_group::{Controllable, MobGroup, MobGroupState};
 use crate::model::npc::Npc;

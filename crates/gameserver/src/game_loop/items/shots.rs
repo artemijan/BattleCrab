@@ -3,8 +3,8 @@
 
 use crate::data::item_data::ItemHandler;
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::space::position::maybe_position;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;

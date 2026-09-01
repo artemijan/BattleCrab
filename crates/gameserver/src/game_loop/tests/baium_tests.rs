@@ -3,7 +3,7 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::baium;
-use crate::game_loop::helpers::set_position;
+use crate::game_loop::space::position::set_position;
 
 use crate::game_loop::baium::{ARCHANGEL, BAIUM};
 

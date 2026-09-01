@@ -1,7 +1,7 @@
 //! Inventory reads and the InventoryUpdate change builders.
 
-use super::client_for_player;
-use super::send_to_player;
+use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::send_to_player;
 use crate::model;
 use crate::model::inventory::Inventory;
 use crate::world::World;

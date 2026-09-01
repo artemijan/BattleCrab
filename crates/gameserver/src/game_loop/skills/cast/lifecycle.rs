@@ -9,7 +9,7 @@ use super::stop_casting;
 use super::target_state;
 use crate::game_loop::common::maybe_distance_too_far;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 
 use crate::game_loop::skills::effects::apply_skill_effects;
 use crate::model::Player;

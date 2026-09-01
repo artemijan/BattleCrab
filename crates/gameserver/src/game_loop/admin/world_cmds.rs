@@ -10,11 +10,11 @@
 //! those siblings stay on the not-implemented path.
 
 use crate::data::zone_data::ZoneKind;
-use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
 use crate::game_loop::npc::doors;
+use crate::game_loop::space::position::maybe_position;
 use crate::model::components::ZoneFlags;
 
 use crate::model::door::Door;

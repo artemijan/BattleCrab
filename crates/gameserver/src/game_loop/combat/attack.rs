@@ -10,7 +10,7 @@ use super::shots_bonus_of;
 use super::vitals_of;
 use super::wields_two_handed;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::maybe_position;
+use crate::game_loop::space::position::maybe_position;
 
 use crate::model::components::AttackState;
 use crate::model::components::Intent;
