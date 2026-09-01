@@ -8,7 +8,7 @@ use super::spawn_castle_doors;
 use super::spawn_siege_npcs;
 use super::update_player_siege_state_flags;
 use crate::db::DbCommand;
-use crate::game_loop::helpers::npc_template;
+use crate::game_loop::npc::npc_template;
 use crate::model::Player;
 use crate::model::siege::SiegeClanType;
 use crate::world::World;

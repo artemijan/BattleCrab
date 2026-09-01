@@ -1,6 +1,6 @@
 use super::do_revive;
+use crate::game_loop::clans::clan_of;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::clan_of;
 use crate::game_loop::space::position::maybe_position;
 
 use crate::model::Player;

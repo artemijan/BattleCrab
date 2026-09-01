@@ -1,8 +1,8 @@
 //! Post-cast consequences per target: reflection, PvP/PvE matchup effects,
 //! flagging, hate and the AI wake.
 
-use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::stat_add;
+use crate::game_loop::npc::npc_template;
 use crate::model::Player;
 use crate::model::skill::Skill;
 use crate::model::skill::SkillEffect;

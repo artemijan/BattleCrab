@@ -12,7 +12,7 @@
 
 use crate::data::item_data::ADENA_ID;
 use crate::db::DbCommand;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 use crate::model::clan_hall::ActiveFunction;
 use crate::model::components::{Reuses, Vitals};
 use crate::scheduler::ScheduledTask;

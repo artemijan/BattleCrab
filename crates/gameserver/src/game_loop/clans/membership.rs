@@ -19,7 +19,7 @@ use super::remove_clan_skills_from_member;
 use super::send_to_member;
 use super::sync_clan_insignia;
 use crate::db::DbCommand;
-use crate::game_loop::helpers::clan_of_or_zero;
+use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::class_level;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::player_name_or_empty;

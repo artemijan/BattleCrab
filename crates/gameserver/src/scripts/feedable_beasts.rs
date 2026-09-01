@@ -7,7 +7,7 @@
 //! The sibling `BeastFarm.java` (Gracia spice revamp, NPCs 18874+) never
 //! spawns on this dist — dead content, not ported.
 
-use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::game_loop::space::position::pos_of;
 use crate::model::components::RegionCell;

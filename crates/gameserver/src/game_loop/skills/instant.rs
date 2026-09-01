@@ -8,7 +8,7 @@
 
 use super::effects;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::is_chest;
+use crate::game_loop::npc::is_chest;
 
 use crate::model::components::{Buffs, CombatStats, Vitals};
 use crate::model::formulas;

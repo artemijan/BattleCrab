@@ -10,8 +10,8 @@
 //! Stone taming reward (Gracia-era item 14828).
 
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::npc::ai;
+use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::game_loop::space::position::maybe_position;
 use crate::model::components::{Position, Vitals};

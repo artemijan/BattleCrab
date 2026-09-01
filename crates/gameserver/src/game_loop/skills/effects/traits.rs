@@ -1,6 +1,6 @@
 use super::creature_level;
-use crate::game_loop::helpers::npc_name_or_empty;
-use crate::game_loop::helpers::npc_template;
+use crate::game_loop::npc::npc_name_or_empty;
+use crate::game_loop::npc::npc_template;
 use crate::model::components::BaseStats;
 use crate::model::components::Buffs;
 use crate::model::components::StatModifiers;

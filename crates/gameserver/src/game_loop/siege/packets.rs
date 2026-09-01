@@ -12,7 +12,7 @@ use super::owner_clan_id_opt;
 use super::register;
 use super::remove_registration;
 use crate::db::DbCommand;
-use crate::game_loop::helpers::clan_of_or_zero;
+use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::send_sm_bare_to_client as send_sm_to;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;

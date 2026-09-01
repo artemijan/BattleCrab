@@ -1,5 +1,5 @@
+use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::clan_of_or_zero;
 
 use crate::model::Player;
 use crate::model::components::BaseStats;

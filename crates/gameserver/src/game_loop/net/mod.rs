@@ -43,6 +43,7 @@ pub fn register_metrics() {
     crate::network::register_metrics();
 }
 
+pub mod broadcast;
 mod db_events;
 mod persistence;
 mod session;

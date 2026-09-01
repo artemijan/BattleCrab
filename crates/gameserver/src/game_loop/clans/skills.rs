@@ -3,8 +3,8 @@ use super::CLAN_ADVENT_SKILL_LEVEL;
 use crate::db::DbCommand;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::admin::refresh_skill_list;
+use crate::game_loop::clans::clan_of;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::clan_of;
 
 use crate::model::Player;
 use crate::model::components::ClanSkills;

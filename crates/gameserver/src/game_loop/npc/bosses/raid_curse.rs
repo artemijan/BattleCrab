@@ -13,7 +13,8 @@
 //! | 4215 `RAID_CURSE`  | `Mute` + `PhysicalMute` | 3600 s | casting a **good** skill nearby |
 //! | 4515 `RAID_CURSE2` | `BlockActions`          | 120 s  | attacking it, or casting a **bad** skill nearby |
 
-use crate::game_loop::helpers::{lvl_of_npc, skill_by_id};
+use crate::game_loop::npc::lvl_of_npc;
+use crate::game_loop::skills::skill_by_id;
 use crate::model::Player;
 use crate::world::World;
 

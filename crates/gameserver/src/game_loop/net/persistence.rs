@@ -2,7 +2,7 @@
 //! and shutdown saves, and the store-then-remove leave path.
 
 use crate::db;
-use crate::game_loop::helpers::clan_of_or_zero;
+use crate::game_loop::clans::clan_of_or_zero;
 use crate::world::World;
 use tracing::info;
 /// Take the player out of the world and persist them — Java

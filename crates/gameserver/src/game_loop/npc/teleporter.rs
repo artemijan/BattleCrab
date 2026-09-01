@@ -17,15 +17,14 @@
 //! - The Mon/Tue window is evaluated in **UTC**, like the port's other
 //!   wall-clock work (`daily_tasks`), where Java uses server-local time.
 
-use crate::game_loop::helpers::clan_of_or_zero;
-use crate::game_loop::helpers::{
-    is_dead, npc_name_or_empty, npc_template, send_message, send_to_client,
-};
+use crate::game_loop::clans::clan_of_or_zero;
+use crate::game_loop::helpers::{is_dead, send_message, send_to_client};
 use tracing::warn;
 
 use crate::data::item_data::ADENA_ID;
 use crate::data::teleporter_data::{TeleportHolder, TeleportLocation};
 use crate::game_loop::combat::death;
+use crate::game_loop::npc::{npc_name_or_empty, npc_template};
 use crate::game_loop::{items, siege};
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;

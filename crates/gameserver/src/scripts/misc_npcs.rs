@@ -12,8 +12,8 @@
 //!   though `Guard`s have random walking off by default.
 
 use crate::data::item_data::ADENA_ID;
-use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::skills::skill_by_id;
 // ---------------------------------------------------------------------------
 // ArenaManager
 // ---------------------------------------------------------------------------

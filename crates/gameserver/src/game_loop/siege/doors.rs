@@ -3,7 +3,7 @@
 
 use super::capture;
 use super::teleport_all_to_town;
-use crate::game_loop::helpers::clan_of_or_zero;
+use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::model::components::Position;

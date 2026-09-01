@@ -2,7 +2,7 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 
 use crate::game_loop::character::sit_stand;
 use crate::game_loop::helpers::stat_mul;

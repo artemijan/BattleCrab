@@ -42,7 +42,7 @@ use crate::model::components::LastFolkNpc;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 
-use crate::game_loop::helpers::npc_id_of;
+use crate::game_loop::npc::npc_id_of;
 
 /// The clan that owns `castle_id`, if any (Java `Castle.getOwnerId()`), re-
 /// exported so scripts outside `game_loop` can gate on castle ownership without

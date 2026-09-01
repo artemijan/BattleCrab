@@ -8,9 +8,9 @@
 //! wired through `siege::set_show_npc_crest`.
 
 use crate::db::DbCommand;
+use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::clan_of_or_zero;
 use crate::model::Player;
 use crate::model::castle::CastleSide;
 use crate::model::siege::SiegeClanType;

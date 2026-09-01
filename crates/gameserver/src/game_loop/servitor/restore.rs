@@ -6,7 +6,7 @@ use super::broadcast_summon_info;
 use super::send_pet_info;
 use super::servitor_of;
 use super::summon_pet;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::ServitorOf;
 use crate::model::components::Vitals;

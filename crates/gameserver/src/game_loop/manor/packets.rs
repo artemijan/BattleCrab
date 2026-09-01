@@ -4,16 +4,16 @@
 use super::persist::save_after_action;
 use super::reference_price;
 use crate::data::item_data::ADENA_ID;
+use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::helpers::send_sm_to_client;
+use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::items;
 /// Java `RequestSetSeed`/`RequestSetCrop`'s shared owner gate. Returns the
 /// player object id when: the manor is in its **modifiable** period, the
 /// player's clan owns castle `manor_id`, they hold `CS_MANOR_ADMIN`, and they
 /// are in range of the chamberlain (last folk NPC). Otherwise sends
 /// `ActionFailed` and returns `None`, mirroring Java's early-outs.
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::send_action_failed;
-use crate::game_loop::helpers::send_sm_to_client;
-use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::items;
+use crate::game_loop::npc::npc_template;
 use crate::model::Player;
 use crate::model::clan::CS_MANOR_ADMIN;
 use crate::model::components::LastFolkNpc;

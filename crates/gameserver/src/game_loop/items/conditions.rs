@@ -40,7 +40,8 @@
 
 use crate::data::item_cond::{Cond, CondMessage};
 use crate::data::item_data::ItemTemplate;
-use crate::game_loop::helpers::{instance_of, level_of, npc_id_of, player_race, send_sm_to_player};
+use crate::game_loop::helpers::{instance_of, level_of, player_race, send_sm_to_player};
+use crate::game_loop::npc::npc_id_of;
 use crate::model::Player;
 use crate::model::castle::CastleSide;
 use crate::model::components::ServitorOf;

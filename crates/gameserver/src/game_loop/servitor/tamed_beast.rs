@@ -10,11 +10,11 @@
 //! beast's `<skillList>` (see [`handle_buff_check`]).
 
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::npc_id_of;
-use crate::game_loop::helpers::npc_template;
-use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::items;
 use crate::game_loop::npc::despawn_npc_by_oid;
+use crate::game_loop::npc::npc_id_of;
+use crate::game_loop::npc::npc_template;
+use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::components::{Position, TamedBeastOf, Vitals};
 use crate::scheduler::ScheduledTask;

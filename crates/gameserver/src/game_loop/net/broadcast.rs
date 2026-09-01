@@ -1,7 +1,7 @@
 //! Broadcast helpers over regions and onlookers.
 
-use super::client_for_player;
-use super::instance_of;
+use crate::game_loop::helpers::client_for_player;
+use crate::game_loop::helpers::instance_of;
 use crate::game_loop::space::position::region_cell_of;
 use crate::world::World;
 /// `World.forEachVisibleObject`: only players whose world region is in the

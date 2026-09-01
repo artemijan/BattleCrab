@@ -5,7 +5,7 @@ use super::overhit_bonus;
 use crate::data::item_data::ADENA_ID;
 use crate::data::npc_data::DropHolder;
 use crate::data::npc_data::NpcTemplate;
-use crate::game_loop::helpers::clan_of_or_zero;
+use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::{send_sm_to_client, send_to_client};
 use crate::game_loop::items::ground_items::reserve_for;

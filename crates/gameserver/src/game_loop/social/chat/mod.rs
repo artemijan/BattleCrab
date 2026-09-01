@@ -15,7 +15,7 @@
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
 use crate::enums::ChatType;
-use crate::game_loop::helpers::clan_of_or_zero;
+use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::{helpers, items};
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell};

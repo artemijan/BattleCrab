@@ -10,8 +10,8 @@
 //! `count`/`restock_delay` parsing, prices, the grade filter — is in
 //! [`crate::data::buy_list_data`].
 
-use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
+use crate::game_loop::npc::npc_template;
 use tracing::warn;
 
 use crate::data::buy_list_data::Product;
@@ -27,8 +27,8 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use crate::game_loop::combat::target::can_interact;
-use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::send_sm_and_action_failed;
+use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::siege::treasury::{handle_tax_payment, npc_tax_rate as merchant_tax_rate};
 
 /// `MAX_ADENA` (Config.MAX_ADENA default 99 999 999 999).

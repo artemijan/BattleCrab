@@ -19,7 +19,7 @@
 //! counts the report without punishing since the punish path needs a `Player`).
 
 use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 use std::collections::HashMap;
 
 use crate::config::bot_report::BotReportConfig;

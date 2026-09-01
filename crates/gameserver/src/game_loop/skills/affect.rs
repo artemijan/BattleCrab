@@ -36,9 +36,9 @@
 //! which is the same set for every `affect_range` the dist actually uses (the
 //! largest is 2000, comfortably inside a region block).
 
-use crate::game_loop::helpers::clan_of_or_zero;
+use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::npc_template;
+use crate::game_loop::npc::npc_template;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;

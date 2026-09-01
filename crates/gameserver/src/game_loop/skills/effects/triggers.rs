@@ -1,5 +1,5 @@
 use super::apply_skill_effects;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 use crate::model::components::Buffs;
 use crate::model::components::Vitals;
 use crate::model::skill::Skill;

@@ -4,7 +4,7 @@
 use super::MAX_SCHEMES;
 use super::charge;
 use super::serve_page;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 use crate::model::inventory::Inventory;
 use crate::world::World;
 use tracing::warn;

@@ -13,8 +13,8 @@
 //! (90) and `registerHandler` overwrites by id, so the war-list's third id is
 //! shadowed — the mutual-war list is unreachable in this build. Kept.
 
+use crate::game_loop::clans::clan_of;
 use crate::game_loop::helpers;
-use crate::game_loop::helpers::clan_of;
 use crate::game_loop::helpers::{send_message, send_sm_to_client as send_sm};
 
 use crate::model::components::{Casting, Position};

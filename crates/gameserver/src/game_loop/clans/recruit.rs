@@ -2,7 +2,7 @@ use super::add_clan_member;
 use super::clan_membership;
 use super::send_to_member;
 use crate::db::DbCommand;
-use crate::game_loop::helpers::clan_of_or_zero;
+use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;

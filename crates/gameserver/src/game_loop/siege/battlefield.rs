@@ -1,8 +1,8 @@
 //! The battlefield NPCs: control/flame towers, siege guards, siege flags
 //! and the advanced headquarter.
 
-use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::npc::npc_template;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::model::components::AdvancedHeadquarter;

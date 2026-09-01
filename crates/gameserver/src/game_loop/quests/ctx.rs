@@ -4,8 +4,8 @@
 
 use super::QuestScript;
 use super::no_quest_html;
-use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::npc::npc_id_of;
 use crate::model::components::Quests;
 use crate::model::quest;
 use crate::model::quest::COND_VAR;

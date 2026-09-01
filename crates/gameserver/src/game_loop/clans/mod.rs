@@ -786,3 +786,36 @@ pub(crate) fn clan_name(world: &World, clan_id: i32) -> Option<String> {
 pub(crate) fn clan_name_or_empty(world: &World, clan_id: i32) -> String {
     clan_name(world, clan_id).unwrap_or_default()
 }
+
+/// The player's clan id, or `None` when they are clanless — Java
+/// `player.getClan() == null`, which the port spells as the sentinel `0`.
+pub(crate) fn clan_of(world: &World, player_object_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Player>(&player_object_id)
+        .map(|p| p.clan_id)
+        .filter(|&clan_id| clan_id != 0)
+}
+
+/// A player's `(clan_id, clan_privs)` pair — the opening of every clan packet
+/// handler that gates on a privilege, since the privilege mask is only
+/// meaningful alongside the clan it belongs to. `None` once the player has left
+/// the world; `clan_id == 0` still means clanless, which each handler refuses
+/// with its own system message.
+pub(crate) fn clan_and_privs(world: &World, player_object_id: i32) -> Option<(i32, i32)> {
+    world
+        .objects
+        .get_component::<Player>(&player_object_id)
+        .map(|p| (p.clan_id, p.clan_privs))
+}
+
+/// The player's clan id with Java's `0` sentinel for clanless, for the call
+/// sites that compare against clan ids read straight off the wire or out of a
+/// row and so need the sentinel anyway.
+///
+/// Prefer [`clan_of`]: the `Option` makes "clanless" unrepresentable as a clan
+/// id, which is what stops two clanless players comparing equal. Reach for this
+/// only where the sentinel is genuinely the shape needed.
+pub(crate) fn clan_of_or_zero(world: &World, player_object_id: i32) -> i32 {
+    clan_of(world, player_object_id).unwrap_or(0)
+}

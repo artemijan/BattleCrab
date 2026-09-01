@@ -1,9 +1,9 @@
 use super::grant_and_notify;
 use super::magic_success_input;
-use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_sm_bare_to_player as send_sm;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_player;
+use crate::game_loop::npc::npc_template;
 use crate::model::components::Vitals;
 use crate::model::formulas;
 use crate::model::skill::Skill;

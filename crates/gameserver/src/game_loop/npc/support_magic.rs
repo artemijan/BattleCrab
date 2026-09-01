@@ -16,7 +16,7 @@
 //!   unported). The remaining buffs and the animation land normally.
 
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
 use tracing::warn;
 

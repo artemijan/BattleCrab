@@ -5,13 +5,12 @@
 //! `model/actor/instance/EffectPoint.java` (the fixed-rate `union_skill` cast
 //! task + the despawn schedule); both halves live here.
 
-use crate::game_loop::helpers::skill_by_id;
-use crate::game_loop::helpers::{npc_template, set_npc_title};
+use crate::game_loop::skills::skill_by_id;
 use crate::model::components::{SummonerRef, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use crate::game_loop::npc::cast;
+use crate::game_loop::npc::{cast, npc_template, set_npc_title};
 use crate::scheduler::ms_to_ticks;
 
 /// The `SummonNpc` effect's `EffectPoint` branch: spawn the totem at the

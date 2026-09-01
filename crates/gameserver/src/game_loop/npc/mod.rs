@@ -5,7 +5,7 @@ use crate::game_loop::combat::death::calculate_rewards;
 use crate::game_loop::combat::{pvp, target};
 use crate::game_loop::core_boss::CORE;
 use crate::game_loop::dr_chaos::CHAOS_GOLEM;
-use crate::game_loop::helpers::{broadcast_near_region_in, instance_of, npc_id_of};
+use crate::game_loop::helpers::{broadcast_near_region_in, instance_of};
 use crate::game_loop::items::cursed_weapon;
 use crate::game_loop::space::position::{maybe_position, region_cell_of, set_position_heading};
 use crate::game_loop::space::visibility;
@@ -14,6 +14,7 @@ use crate::game_loop::{
     abnormal, antharas, boss_respawn, core_boss, dr_chaos, grand_boss, quests, sailren, servitor,
     siege, valakas,
 };
+use crate::model::Player;
 use crate::model::components::{Movement, RegionCell, Vitals};
 use crate::model::npc::{AggroList, Npc, NpcAi};
 use crate::network::server_packets;
@@ -1110,4 +1111,105 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
     let clan = visibility::npc_clan_block(world, object_id);
     let pkt = server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &visuals, clan);
     broadcast_near_region_in(world, region, instance_of(world, object_id), &pkt);
+}
+
+pub(crate) fn set_npc_title(world: &mut World, npc_oid: i32, name: String) {
+    // `npc.setTitle(npcTemplate.getName())` — a plain summon wears its own
+    // name as its title (the name itself already defaults to the template's).
+    if let Some(npc) = world.objects.get_component_mut::<Npc>(&npc_oid) {
+        npc.title_override = Some(name);
+    }
+}
+
+/// The datapack template behind an NPC object — Java `Npc.getTemplate()`.
+///
+/// `None` covers both "the object has left the world" and "it is not an NPC at
+/// all" (a player, a door, a dropped item), which every caller treats the same:
+/// there is nothing to read a template fact off, so bail.
+///
+/// The template is borrowed out of `world.data`, which is immutable after boot,
+/// so the returned reference lives as long as the `&World` rather than as long
+/// as the component lookup.
+pub(crate) fn npc_template(
+    world: &World,
+    object_id: i32,
+) -> Option<&crate::data::npc_data::NpcTemplate> {
+    world
+        .objects
+        .get_component::<Npc>(&object_id)
+        .and_then(|n| n.template(world))
+}
+
+/// Java `Creature.isRaid()` — true only for a `RaidBoss`/`GrandBoss` NPC. A
+/// player, a door, or a plain monster is false, and so is a raid *minion*: Java
+/// tracks that separately as `isRaidMinion()`, which the port answers with
+/// [`crate::game_loop::npc::minions::is_raid_minion`]. Callers that gate on either
+/// (most of the boss-immunity checks) have to ask both.
+pub(crate) fn is_raid_npc(world: &World, object_id: i32) -> bool {
+    npc_template(world, object_id).is_some_and(|t| t.is_raid())
+}
+
+/// Java `WorldObject.isCreature()` — a player or an NPC, the only two creature
+/// kinds this server models. Doors, static objects and ground items are not
+/// creatures, and several handlers (`AdminEffects.performSocial`,
+/// `TacticalSignUse`) refuse outright on anything that is not one.
+pub(crate) fn is_creature(world: &World, object_id: i32) -> bool {
+    world.objects.has_component::<Player>(&object_id)
+        || world.objects.has_component::<Npc>(&object_id)
+}
+
+/// An NPC's template name, empty when the object is gone or has no template.
+///
+/// The NPC counterpart of [`clans::player_name_or_empty`] — the pet/servitor persist
+/// paths and the summon UI all want a `String` and treat "no template" as no
+/// name.
+pub(crate) fn npc_name_or_empty(world: &World, object_id: i32) -> String {
+    npc_template(world, object_id)
+        .map(|t| t.name.clone())
+        .unwrap_or_default()
+}
+
+/// A **datapack** NPC's display name by template id — Java
+/// `NpcData.getTemplate(npcId).getName()`, empty when no such template exists.
+///
+/// Distinct from [`npc_name_or_empty`], which takes a spawned object's id; this
+/// answers for an NPC that need not be in the world at all (the admin spawn and
+/// recall commands name a template before placing it).
+pub(crate) fn npc_template_name(world: &World, npc_id: i32) -> String {
+    world
+        .data
+        .npc_data
+        .get(npc_id)
+        .map(|t| t.name.clone())
+        .unwrap_or_default()
+}
+
+pub(crate) fn lvl_of_npc(world: &World, object_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Npc>(&object_id)
+        .and_then(|n| world.data.npc_data.get(n.npc_id))
+        .map(|t| t.level)
+}
+
+/// The template id behind an object id, or `None` when there is no [`Npc`]
+/// there at all — a player, a dropped item, or an id whose npc has already
+/// despawned. Callers that want a sentinel spell it themselves (`.unwrap_or(0)`,
+/// `map_or`), since 0 is a legitimate template id in some tables.
+pub(crate) fn npc_id_of(world: &World, object_id: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Npc>(&object_id)
+        .map(|npc| npc.npc_id)
+}
+
+/// Whether an object id is a treasure chest — Java's `instanceof Chest`, which
+/// the port reads off the template's `type_name`. `false` for anything that
+/// isn't an NPC at all.
+pub(crate) fn is_chest(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<Npc>(&object_id)
+        .and_then(|n| world.data.npc_data.get(n.npc_id))
+        .is_some_and(|tpl| tpl.type_name == "Chest")
 }

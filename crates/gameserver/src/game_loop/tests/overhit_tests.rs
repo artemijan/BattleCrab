@@ -1,7 +1,7 @@
 //! Over-hit (G20): bonus XP for a killing blow that overshoots.
 
 use super::*;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 
 use crate::model::components::Overhit;
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};

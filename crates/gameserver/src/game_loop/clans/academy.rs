@@ -29,7 +29,7 @@
 //! SUBPLEDGE arm rather than deferred — it is a *verified skip*, not a
 //! gap).
 
-use crate::game_loop::helpers::clan_of;
+use crate::game_loop::clans::clan_of;
 use tracing::info;
 
 use crate::db::DbCommand;

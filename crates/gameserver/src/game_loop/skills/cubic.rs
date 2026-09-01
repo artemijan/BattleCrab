@@ -11,7 +11,7 @@
 use crate::data::cubic_data::{CubicSkill, CubicTargetType, CubicTemplate};
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::geo::distance::within_3d;

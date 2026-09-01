@@ -10,9 +10,10 @@
 
 use crate::game_loop::admin::find_online_player;
 use crate::game_loop::combat::target;
-use crate::game_loop::helpers::{is_creature, nth_arg, object_name};
+use crate::game_loop::helpers::{nth_arg, object_name};
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client, send_to_client};
 use crate::game_loop::npc;
+use crate::game_loop::npc::is_creature;
 use crate::game_loop::space::position::maybe_position;
 use crate::geo::distance::within_2d_xy;
 use crate::model::Player;

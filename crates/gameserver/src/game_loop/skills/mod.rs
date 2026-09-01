@@ -16,6 +16,7 @@ use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::items;
+use crate::model;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::world::World;
@@ -346,4 +347,17 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     // `player.updateShortCuts(_id, _level, 0)` — refresh SKILL slots holding
     // the upgraded skill.
     super::client::shortcuts::update_skill_shortcuts(world, object_id, skill_id, skill_level);
+}
+
+/// Java `SkillData.getSkill(id, level)` — a datapack skill, **cloned**.
+///
+/// The clone is not incidental. Every `apply_*` in the skill pipeline wants
+/// `&mut World`, so a borrow of `world.data.skill_data` cannot survive the
+/// call; sixty-odd lookup sites all cloned immediately, and each spelled the
+/// four-segment path out by hand. This is that, said once.
+///
+/// Enchanted sub-levels go through `SkillData::get_enchanted` instead — they
+/// are a different lookup, not a defaulted argument.
+pub(crate) fn skill_by_id(world: &World, id: i32, level: i32) -> Option<model::skill::Skill> {
+    world.data.skill_data.get(id, level).cloned()
 }

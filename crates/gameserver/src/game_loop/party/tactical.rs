@@ -13,7 +13,8 @@
 //! all, on retail as here — the signs are party state and there is nowhere to
 //! put them.
 
-use crate::game_loop::helpers::{is_creature, object_name, send_action_failed, send_to_player};
+use crate::game_loop::helpers::{object_name, send_action_failed, send_to_player};
+use crate::game_loop::npc::is_creature;
 use crate::model::components::{PartyRef, TargetRef};
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;

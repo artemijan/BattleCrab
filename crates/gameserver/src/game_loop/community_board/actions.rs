@@ -9,7 +9,7 @@ use super::serve_page;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_message;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 use crate::model::Player;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets as sp;

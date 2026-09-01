@@ -12,8 +12,8 @@ use tracing::info;
 
 use crate::db::DbCommand;
 use crate::game_loop::helpers::announce_to_all_online;
-use crate::game_loop::helpers::npc_id_of;
 use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
+use crate::game_loop::npc::npc_id_of;
 use crate::model::components::LotoPicks;
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::model::lottery::LotteryRow;

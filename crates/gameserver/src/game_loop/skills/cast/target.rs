@@ -1,8 +1,8 @@
 //! Target resolution: `Skill.getTarget` + the targethandler scripts as a
 //! static match, plus the target-state and cast-range checks.
 
-use crate::game_loop::helpers::is_chest;
-use crate::game_loop::helpers::npc_template;
+use crate::game_loop::npc::is_chest;
+use crate::game_loop::npc::npc_template;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::model::components::Collision;

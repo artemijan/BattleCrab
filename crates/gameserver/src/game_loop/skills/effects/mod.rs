@@ -19,8 +19,8 @@
 
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::moderation::bot_report;
+use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::components::{BaseStats, Buffs, CombatStats, StatModifiers, Vitals};
 use crate::model::formulas;

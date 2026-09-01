@@ -17,10 +17,10 @@
 //!   their systems).
 
 use crate::game_loop::combat::target::can_interact;
-use crate::game_loop::helpers::npc_template;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::items::{augment, item_auction};
+use crate::game_loop::npc::npc_template;
 use crate::game_loop::npc::{teleporter, view};
 use crate::model::components::LastFolkNpc;
 use crate::network::client_packets as cp;

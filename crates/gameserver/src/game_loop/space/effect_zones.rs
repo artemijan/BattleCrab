@@ -15,7 +15,7 @@
 //! per-creature chance roll — without the enter/exit bookkeeping. A zone with
 //! nobody in it costs one hash lookup and never advances its timer.
 
-use crate::game_loop::helpers::skill_by_id;
+use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
 use commons::util::rnd;
 
