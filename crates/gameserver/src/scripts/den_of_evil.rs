@@ -3,6 +3,7 @@
 //! and its eyes (18812–18814) have no spawns, so only the orcs are live
 //! content.
 
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::pos_of;
 use crate::game_loop::items::ground_items::{LOOT_PROTECTION_TICKS, reserve_for};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
@@ -78,7 +79,6 @@ impl QuestScript for RagnaOrcLeaders {
 // ---------------------------------------------------------------------------
 
 const FRIGHTENED_ORC: i32 = 18807;
-const ADENA_ID: i32 = crate::data::item_data::ADENA_ID;
 /// The small payout: 10 × 10 000 adena at 1 000-in-100 000.
 const ADENA_SMALL: i64 = 10_000;
 const CHANCE_SMALL: i32 = 1000;

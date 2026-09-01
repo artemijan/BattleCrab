@@ -163,5 +163,5 @@ pub(crate) fn handle_effect_point_cast(world: &mut World, npc_oid: i32) {
 /// `Npc.scheduleDespawn` firing: remove the totem from the world. The cast
 /// task dies with it (its next fire finds no living NPC).
 pub(crate) fn handle_effect_point_despawn(world: &mut World, npc_oid: i32) {
-    crate::game_loop::death::despawn_npc_by_oid(world, npc_oid);
+    crate::game_loop::npc::despawn_npc_by_oid(world, npc_oid);
 }

@@ -1026,7 +1026,7 @@ fn killing_antharas_spawns_the_exit_cube_and_clears_minions() {
     );
     assert_eq!(spawned(&mut world), 2, "two adds before the kill");
 
-    crate::game_loop::death::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
+    crate::game_loop::npc::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
 
     assert_eq!(spawned(&mut world), 0, "DESPAWN_MINIONS cleared the adds");
     assert!(
@@ -1067,7 +1067,7 @@ fn the_death_cube_teleports_out_through_the_router() {
         LAIR_POINT.2,
     );
 
-    crate::game_loop::death::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
+    crate::game_loop::npc::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
     let cube_oid = cube_in_lair(&world).expect("cube spawned on death");
 
     // The killer stands beside the cube; the named bypass reaches teleportOut.
@@ -1108,7 +1108,7 @@ fn clear_zone_ousts_players_and_despawns_the_cube_through_the_loop() {
         LAIR_POINT.1,
         LAIR_POINT.2,
     );
-    crate::game_loop::death::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
+    crate::game_loop::npc::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
     assert!(
         cube_in_lair(&world).is_some(),
         "cube present before the clear"

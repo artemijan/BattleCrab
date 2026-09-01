@@ -19,7 +19,7 @@ pub(super) fn spawn_siege_npcs(world: &mut World, castle_id: i32, spawns: &[Sieg
         if let Some(oid) =
             crate::game_loop::npc::spawn_npc_at(world, s.npc_id, s.x, s.y, s.z, s.heading)
         {
-            crate::game_loop::death::introduce_npc(world, oid);
+            crate::game_loop::npc::introduce_npc(world, oid);
             // Java `spawnControlTower` counts the live control towers.
             let is_control_tower = world
                 .data
@@ -137,7 +137,7 @@ pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32, advanced: boo
     else {
         return false;
     };
-    crate::game_loop::death::introduce_npc(world, oid);
+    crate::game_loop::npc::introduce_npc(world, oid);
     // `new SiegeFlag(player, template, isAdvanced)` — skill 326's flag is the
     // same NPC (35062) but takes half damage. See `AdvancedHeadquarter` and
     // docs/CUSTOM_DIST_DEVIATIONS.md for why this halves rather than

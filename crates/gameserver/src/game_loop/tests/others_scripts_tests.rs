@@ -1178,14 +1178,14 @@ fn an_out_of_phase_respawn_is_refused() {
         (DAY_MOB, NIGHT_MOB)
     };
 
-    crate::game_loop::death::handle_npc_respawn(&mut world, template_idx, out_of_phase_group, 0);
+    crate::game_loop::npc::handle_npc_respawn(&mut world, template_idx, out_of_phase_group, 0);
     assert_eq!(
         npc_count(&mut world, out_of_phase_mob),
         0,
         "the out-of-phase respawn is dropped"
     );
 
-    crate::game_loop::death::handle_npc_respawn(&mut world, template_idx, in_phase_group, 0);
+    crate::game_loop::npc::handle_npc_respawn(&mut world, template_idx, in_phase_group, 0);
     assert_eq!(
         npc_count(&mut world, in_phase_mob),
         1,

@@ -4,15 +4,14 @@
 use super::clear_aggro;
 use super::set_active;
 use super::stop_npc;
-use crate::game_loop::abnormal;
 use crate::game_loop::combat;
-use crate::game_loop::death;
 use crate::game_loop::helpers::broadcast_near_region_in;
 use crate::game_loop::helpers::instance_of;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::npc::minions;
 use crate::game_loop::npc::walkers::WalkState;
+use crate::game_loop::{abnormal, npc};
 use crate::model::components::Movement;
 use crate::model::components::Position;
 use crate::model::components::Speeds;
@@ -106,7 +105,7 @@ fn leash_send_home(world: &mut World, npc_oid: i32, spawn: (i32, i32, i32)) {
         .get_component::<Position>(&npc_oid)
         .map(|p| p.heading)
         .unwrap_or(0);
-    death::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
+    npc::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
 }
 
 /// `moveToPawn` for a chasing NPC: walk to the edge of attack reach,

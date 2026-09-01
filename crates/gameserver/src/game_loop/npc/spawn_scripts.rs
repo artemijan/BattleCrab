@@ -82,7 +82,7 @@ fn apply_phase(world: &mut World, night: bool, despawn_stale: bool) -> usize {
                 // only appeared once a player left the region and came back.
                 if despawn_stale {
                     for oid in fresh {
-                        crate::game_loop::death::introduce_npc(world, oid);
+                        crate::game_loop::npc::introduce_npc(world, oid);
                     }
                 }
             } else if despawn_stale {
@@ -126,7 +126,7 @@ fn despawn_group(world: &mut World, spawn_idx: usize, group_idx: usize) {
             }
         });
     for (oid, region) in victims {
-        crate::game_loop::death::despawn_npc(world, oid, region);
+        crate::game_loop::npc::despawn_npc(world, oid, region);
     }
 }
 

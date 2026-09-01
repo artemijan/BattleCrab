@@ -307,7 +307,7 @@ pub(crate) fn destroy(world: &mut World, instance_id: i32) {
         .map(|i| i.npcs.clone())
         .unwrap_or_default();
     for npc_oid in npcs {
-        crate::game_loop::death::despawn_npc_by_oid(world, npc_oid);
+        crate::game_loop::npc::despawn_npc_by_oid(world, npc_oid);
     }
     let doors = world
         .instances

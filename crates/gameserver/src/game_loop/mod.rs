@@ -29,7 +29,6 @@ pub(crate) mod client;
 pub(crate) mod combat;
 pub(crate) mod commerce;
 mod community_board;
-pub(crate) mod death;
 pub(crate) mod events;
 pub(crate) mod helpers;
 pub(crate) mod items;
@@ -61,13 +60,13 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
-use tracing::{info, warn};
-
 use crate::data::GameData;
 use crate::db;
 use crate::events::GameEventRx;
 use crate::loginlink::CommandTx;
 use crate::world::World;
+use combat::death;
+use tracing::{info, warn};
 
 use crate::game_loop::combat::pvp;
 use crate::game_loop::items::ground_items;

@@ -790,7 +790,7 @@ fn the_creation_and_loot_keys_parse_to_the_shipped_values() {
 /// dropping for the walk-over pickup that is the point of a herb.
 #[test]
 fn herbs_are_excluded_from_ordinary_auto_loot() {
-    use crate::game_loop::death::auto_loots_for_test as auto_loots;
+    use crate::game_loop::combat::death::auto_loots_for_test as auto_loots;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     const HERB: i32 = 8_600;
@@ -828,7 +828,7 @@ fn herbs_are_excluded_from_ordinary_auto_loot() {
 /// first.
 #[test]
 fn the_auto_loot_id_list_overrides_every_other_flag() {
-    use crate::game_loop::death::auto_loots_for_test as auto_loots;
+    use crate::game_loop::combat::death::auto_loots_for_test as auto_loots;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     const HERB: i32 = 8_602;
     let mut t = crate::data::item_data::ItemTemplate::default();

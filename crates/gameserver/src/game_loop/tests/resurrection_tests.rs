@@ -9,7 +9,7 @@ use crate::game_loop::abnormal::has_buff;
 
 use crate::model::skill::{SkillEffect, TargetType};
 
-use crate::game_loop::death::{do_revive_with, handle_revive_answer, revive_request};
+use crate::game_loop::combat::death::{do_revive_with, handle_revive_answer, revive_request};
 
 const REVIVER: i32 = 9601;
 const CORPSE: i32 = 9602;

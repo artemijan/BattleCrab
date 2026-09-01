@@ -1,6 +1,6 @@
 use super::*;
 use crate::game_loop;
-use crate::game_loop::death;
+use crate::game_loop::npc;
 
 /// `Action` on a monster tints `MyTargetSelected` with the level gap; a second
 /// click on the already-targeted (out-of-range) monster starts the attack and
@@ -517,7 +517,7 @@ fn decaying_mob_sends_target_unselected_to_all_holders() {
     drain(&mut b_rx);
 
     // Player 1 lands the kill — the corpse stays selected (sweep window).
-    death::npc_do_die(&mut world, npc_oid, 3001);
+    npc::npc_do_die(&mut world, npc_oid, 3001);
     let got_unselect = |packets: &[Vec<u8>], player_oid: i32| {
         packets
             .iter()
@@ -543,7 +543,7 @@ fn decaying_mob_sends_target_unselected_to_all_holders() {
 
     // Corpse decays → both clients get their own TargetUnselected (payload
     // carries the *deselecting* player's id) and both server-side targets clear.
-    death::handle_npc_decay(&mut world, npc_oid);
+    npc::handle_npc_decay(&mut world, npc_oid);
     assert!(
         got_unselect(&drain(&mut a_rx), 3001),
         "killer's ring clears at decay"
@@ -2274,6 +2274,7 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
 /// siege's control-tower count (Java ControlTower.onDeath → Siege.killedCT).
 #[test]
 fn siege_control_tower_destruction_decrements_the_count() {
+    use crate::game_loop::npc;
     use model::siege::{Siege, SiegeSpawn};
     let (mut world, ..) = test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000);
@@ -2306,7 +2307,7 @@ fn siege_control_tower_destruction_decrements_the_count() {
     );
 
     // Destroy it → the count drops.
-    death::npc_do_die(&mut world, tower, 0);
+    npc::npc_do_die(&mut world, tower, 0);
     assert_eq!(
         world.sieges[&3].control_tower_count, 0,
         "destruction decremented the count"
@@ -2427,6 +2428,7 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
 /// Java `HeadquarterCreate` + `Siege.getFlag`/`killedFlag`.
 #[test]
 fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
+    use crate::game_loop::npc;
     use model::clan::{Clan, ClanMember};
     use model::siege::{Siege, SiegeClanType};
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -2523,7 +2525,7 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
     );
 
     // A defender destroys the flag → it stops being a respawn point.
-    death::npc_do_die(&mut world, flag, 0);
+    npc::npc_do_die(&mut world, flag, 0);
     assert_eq!(world.sieges[&3].flag_of(700), None, "killed flag removed");
     assert!(!crate::game_loop::siege::attackable_siege_flag(
         &world, flag
@@ -2686,6 +2688,7 @@ fn restart_to(point_type: i32) -> Vec<u8> {
 /// pipeline's targeting gate is unit-tested separately in `resolve_cast_target`).
 #[test]
 fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
+    use crate::game_loop::npc;
     use model::skill::{AffectObject, AffectScope, Skill, SkillEffect, TargetType};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -2819,7 +2822,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     );
 
     // Kill it → the spoil list rolls into the corpse's sweep loot.
-    death::npc_do_die(&mut world, npc_oid, 3001);
+    npc::npc_do_die(&mut world, npc_oid, 3001);
     assert_eq!(
         world
             .objects

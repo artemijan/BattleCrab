@@ -1,7 +1,7 @@
 use super::*;
 use crate::game_loop;
 use crate::game_loop::client::actions;
-use crate::game_loop::death;
+use crate::game_loop::combat::death;
 /// A move click during a cast is rejected (ActionFailed, cast keeps going)
 /// but saved as the next intention, and the move starts by itself once the
 /// cast stops — Java `PlayerAI.onIntentionMoveTo`'s `saveNextIntention` +

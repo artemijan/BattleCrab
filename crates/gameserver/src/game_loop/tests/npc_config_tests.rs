@@ -34,7 +34,7 @@ fn a_spoiled_corpse_outlives_a_plain_one_by_the_configured_extension() {
                 .expect("npc")
                 .spoiler_object_id = 3001;
         }
-        crate::game_loop::death::npc_do_die(&mut world, npc_oid, 0);
+        crate::game_loop::npc::npc_do_die(&mut world, npc_oid, 0);
         world
             .objects
             .get_component::<Npc>(&npc_oid)
@@ -74,7 +74,7 @@ fn a_seeded_corpse_takes_the_same_extension_as_a_spoiled_one() {
         .get_component_mut::<Npc>(&npc_oid)
         .expect("npc")
         .seeded = true;
-    crate::game_loop::death::npc_do_die(&mut world, npc_oid, 0);
+    crate::game_loop::npc::npc_do_die(&mut world, npc_oid, 0);
     assert_eq!(
         world
             .objects

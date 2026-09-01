@@ -585,7 +585,7 @@ pub(crate) fn npc_receive_damage(
         );
     }
     if died {
-        crate::game_loop::death::npc_do_die(world, npc_oid, attacker_oid);
+        crate::game_loop::npc::npc_do_die(world, npc_oid, attacker_oid);
         return;
     }
     // `broadcastStatusUpdate` — the HP bar for everyone targeting it.

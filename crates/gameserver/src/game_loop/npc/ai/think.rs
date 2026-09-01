@@ -579,7 +579,7 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
                 .get_component::<components::Position>(&npc_oid)
                 .map(|p| p.heading)
                 .unwrap_or(0);
-            game_loop::death::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
+            game_loop::npc::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
         }
         return;
     }

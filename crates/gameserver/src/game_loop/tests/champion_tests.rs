@@ -621,7 +621,7 @@ fn a_champion_multiplies_the_quest_item_payout() {
             .unwrap()
             .champion = champion;
         world.force_roll(0); // give_item_randomly roll_f64 → hit
-        crate::game_loop::death::npc_do_die(&mut world, mob, PLAYER);
+        crate::game_loop::npc::npc_do_die(&mut world, mob, PLAYER);
         item_count(&world, PLAYER, SNAKE_SCALE)
     };
 
@@ -677,7 +677,7 @@ fn the_quest_item_multiplier_respects_the_master_gate() {
         .unwrap()
         .champion = true;
     world.force_roll(0);
-    crate::game_loop::death::npc_do_die(&mut world, mob, PLAYER);
+    crate::game_loop::npc::npc_do_die(&mut world, mob, PLAYER);
     assert_eq!(
         item_count(&world, PLAYER, SNAKE_SCALE),
         1,

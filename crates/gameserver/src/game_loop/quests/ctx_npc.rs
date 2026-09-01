@@ -49,7 +49,7 @@ impl<'w> QuestCtx<'w> {
         else {
             return;
         };
-        crate::game_loop::death::despawn_npc(self.world, self.npc, region);
+        crate::game_loop::npc::despawn_npc(self.world, self.npc, region);
     }
 
     /// `addSpawn(npcId, npc, randomOffset, 0, …)` followed by
@@ -419,7 +419,7 @@ impl<'w> QuestCtx<'w> {
             return None;
         }
         let spawned = crate::game_loop::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
-        crate::game_loop::death::introduce_npc(self.world, spawned);
+        crate::game_loop::npc::introduce_npc(self.world, spawned);
         self.link_summoned(spawned);
         crate::game_loop::ai::seed_attack(self.world, spawned, self.player);
         Some(spawned)
@@ -443,7 +443,7 @@ impl<'w> QuestCtx<'w> {
             }
         }
         let spawned = crate::game_loop::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
-        crate::game_loop::death::introduce_npc(self.world, spawned);
+        crate::game_loop::npc::introduce_npc(self.world, spawned);
         self.link_summoned(spawned);
         Some(spawned)
     }
@@ -524,7 +524,7 @@ impl<'w> QuestCtx<'w> {
             return None;
         }
         let spawned = crate::game_loop::npc::spawn_npc_at(self.world, npc_id, x, y, z, 0)?;
-        crate::game_loop::death::introduce_npc(self.world, spawned);
+        crate::game_loop::npc::introduce_npc(self.world, spawned);
         self.link_summoned(spawned);
         Some(spawned)
     }

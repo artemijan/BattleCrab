@@ -35,7 +35,7 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
     if !dead {
         return;
     }
-    let race = crate::game_loop::helpers::player_race_or_human(world, object_id);
+    let race = helpers::player_race_or_human(world, object_id);
     let pick = if world.cfg.character.random_respawn_in_town {
         world.roll(64) as usize
     } else {
@@ -322,7 +322,7 @@ pub(crate) fn teleport_to_town(world: &mut World, player_oid: i32, pick: usize) 
     let Some(pos) = maybe_position(world, player_oid) else {
         return;
     };
-    let race = crate::game_loop::helpers::player_race_or_human(world, player_oid);
+    let race = helpers::player_race_or_human(world, player_oid);
     let Some((x, y, z)) = world
         .data
         .map_region

@@ -113,9 +113,9 @@ fn raid_respawn_multipliers_scale_a_boss_window_before_it_is_rolled() {
         game_loop::npc::spawn_all(&mut world);
         crate::game_loop::boss_respawn::resolve_boot(&mut world, Vec::new());
         let oid = live_boss(&mut world).expect("boss placed");
-        crate::game_loop::death::npc_do_die(&mut world, oid, 0);
+        crate::game_loop::npc::npc_do_die(&mut world, oid, 0);
         // The corpse has to decay before `decreaseCount` schedules the respawn.
-        crate::game_loop::death::handle_npc_decay(&mut world, oid);
+        crate::game_loop::npc::handle_npc_decay(&mut world, oid);
         npc_respawn_delay(&world)
     };
 
@@ -146,8 +146,8 @@ fn the_raid_respawn_multipliers_leave_ordinary_spawns_alone() {
     world.data.spawn_data.spawns[0].groups[0].npcs[0].db_save = false;
     game_loop::npc::spawn_all(&mut world);
     let oid = live_boss(&mut world).expect("a non-dbSave line spawns statically");
-    crate::game_loop::death::npc_do_die(&mut world, oid, 0);
-    crate::game_loop::death::handle_npc_decay(&mut world, oid);
+    crate::game_loop::npc::npc_do_die(&mut world, oid, 0);
+    crate::game_loop::npc::handle_npc_decay(&mut world, oid);
     let delay = npc_respawn_delay(&world);
     assert_eq!(
         delay,
@@ -297,7 +297,7 @@ fn killing_a_boss_banks_its_absolute_respawn_time() {
         v.cur_hp = 0.0;
         v.dead = true;
     }
-    crate::game_loop::death::handle_npc_decay(&mut world, oid);
+    crate::game_loop::npc::handle_npc_decay(&mut world, oid);
 
     let cmds = drain_db(&mut db);
     let banked = cmds.iter().find_map(|c| match c {
@@ -330,7 +330,7 @@ fn an_ordinary_monster_death_writes_no_respawn_row() {
         v.cur_hp = 0.0;
         v.dead = true;
     }
-    crate::game_loop::death::handle_npc_decay(&mut world, NPC_OID);
+    crate::game_loop::npc::handle_npc_decay(&mut world, NPC_OID);
 
     let cmds = drain_db(&mut db);
     assert!(

@@ -7,11 +7,11 @@ use super::guard::{self, Guard, OrReject, Reject};
 use crate::enums::AdminTeleportType;
 use crate::game_loop::admin::find_online_player;
 use crate::game_loop::combat::target;
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
+use crate::game_loop::{helpers, npc};
 use crate::model::Player;
 use crate::model::components::Speeds;
 use crate::model::npc::Npc;
@@ -414,7 +414,7 @@ fn recall_npc(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
         .map_or(0, |n| n.npc_id);
     let region = region_cell_of(world, target).or_silent()?;
     let gm_pos = helpers::maybe_position(world, object_id).or_silent()?;
-    super::death::despawn_npc(world, target, region);
+    npc::despawn_npc(world, target, region);
     if let Some(spawned) = crate::game_loop::npc::spawn_npc_at(
         world,
         npc_id,
@@ -423,7 +423,7 @@ fn recall_npc(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
         gm_pos.z,
         gm_pos.heading,
     ) {
-        super::death::introduce_npc(world, spawned);
+        npc::introduce_npc(world, spawned);
         let name = helpers::npc_template_name(world, npc_id);
         send_message(world, client_id, &format!("Recalled {name}."));
     }

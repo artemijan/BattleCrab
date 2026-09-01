@@ -13,6 +13,7 @@ use crate::game_loop::combat::target;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{is_creature, nth_arg, object_name};
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client, send_to_client};
+use crate::game_loop::npc;
 use crate::geo::distance::within_2d_xy;
 use crate::model::Player;
 use crate::model::components::Position;
@@ -292,7 +293,7 @@ pub(super) fn admin_setteam(
             n.team = team;
             set += 1;
             // The aura rides `NpcInfo`, so the whole packet is re-sent.
-            super::death::introduce_npc(world, target);
+            npc::introduce_npc(world, target);
         }
     }
     send_message(world, client_id, &format!("Team set on {set} target(s)."));

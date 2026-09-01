@@ -2,7 +2,8 @@
 //! Noblesse Blessing is up — then the blessing is the only thing lost.
 
 use super::*;
-use crate::game_loop::{abnormal, death};
+use crate::game_loop::abnormal;
+use crate::game_loop::combat::death;
 use crate::model::components::Vitals;
 use crate::model::skill::{
     AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType, effect_flag,

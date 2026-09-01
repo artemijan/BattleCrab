@@ -681,7 +681,7 @@ fn siege_info_offers_the_hour_list_when_open() {
 /// an attacker never "to siege HQ".
 #[test]
 fn the_death_window_offers_the_siege_restart_buttons() {
-    use crate::game_loop::death::die_options;
+    use crate::game_loop::combat::death::die_options;
     use crate::model::siege::{Siege, SiegeClanType};
 
     const DEF: i32 = 8801;
@@ -744,7 +744,7 @@ fn the_death_window_offers_the_siege_restart_buttons() {
 /// hall, `to_castle` when it owns a castle anywhere on the map.
 #[test]
 fn the_death_window_offers_the_ordinary_restart_buttons() {
-    use crate::game_loop::death::die_options;
+    use crate::game_loop::combat::death::die_options;
 
     const OID: i32 = 8803;
     let (mut world, _tx, _db, _l) = test_world();
@@ -829,7 +829,7 @@ fn a_spoiled_corpse_is_marked_sweepable_in_its_die_packet() {
                 .spoiler_object_id = KILLER;
         }
         drain(&mut rx);
-        crate::game_loop::death::npc_do_die(&mut world, MOB, KILLER);
+        crate::game_loop::npc::npc_do_die(&mut world, MOB, KILLER);
         sweepable_of(&drain(&mut rx)).expect("a Die packet was broadcast")
     };
 

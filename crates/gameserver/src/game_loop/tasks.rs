@@ -14,7 +14,6 @@ use super::clans;
 use super::combat;
 use super::commerce::crafting;
 use super::commerce::shop;
-use super::death;
 use super::events;
 use super::items::cursed_weapon;
 use super::mail;
@@ -311,7 +310,7 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 core_boss::handle_despawn_minions(world);
             }
             ScheduledTask::DespawnNpc { npc_oid } => {
-                death::despawn_npc_by_oid(world, npc_oid);
+                npc::despawn_npc_by_oid(world, npc_oid);
             }
             ScheduledTask::BoatArrive { boat_object_id } => {
                 boats::handle_arrive(world, boat_object_id);
@@ -424,7 +423,7 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 // Java `doDie(null)`. Killer 0 is inert on every reward and
                 // aggro path (both gate on the killer being playable), so this
                 // is the animation and the corpse and nothing else.
-                death::npc_do_die(world, npc_oid, 0);
+                npc::npc_do_die(world, npc_oid, 0);
             }
             ScheduledTask::SiegeFame { player_oid } => {
                 siege::handle_siege_fame(world, player_oid);
@@ -448,14 +447,14 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 minions::handle_minion_respawn(world, master_object_id, minion_npc_id);
             }
             ScheduledTask::NpcDecay { npc_object_id } => {
-                death::handle_npc_decay(world, npc_object_id);
+                npc::handle_npc_decay(world, npc_object_id);
             }
             ScheduledTask::NpcRespawn {
                 spawn_idx,
                 group_idx,
                 npc_idx,
             } => {
-                death::handle_npc_respawn(world, spawn_idx, group_idx, npc_idx);
+                npc::handle_npc_respawn(world, spawn_idx, group_idx, npc_idx);
             }
             ScheduledTask::RequestTimeout { object_id, seq } => {
                 party::handle_request_timeout(world, object_id, seq);

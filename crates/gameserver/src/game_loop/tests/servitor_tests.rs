@@ -2055,7 +2055,7 @@ fn a_dying_pet_loses_experience() {
         2
     );
 
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
     let after = pet_exp(&world, pet_oid);
     assert!(after < before, "exp was lost on death ({before} → {after})");
     assert_eq!(
@@ -2087,7 +2087,7 @@ fn the_death_penalty_cannot_delevel_a_pet() {
         "exactly at the threshold"
     );
 
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
     let pet = *world.objects.get_component::<PetOf>(&pet_oid).unwrap();
     assert_eq!(pet.level, 2, "still level 2");
     assert_eq!(
@@ -2110,7 +2110,7 @@ fn a_duel_death_costs_the_pet_no_experience() {
     world
         .objects
         .add_components(&OWNER, model::components::DuelRef(1));
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
 
     assert_eq!(
         pet_exp(&world, pet_oid),
@@ -2129,7 +2129,7 @@ fn resurrection_restores_a_share_of_the_lost_experience() {
     add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
     let before_death = pet_exp(&world, pet_oid);
 
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
     let after_death = pet_exp(&world, pet_oid);
     let lost = before_death - after_death;
     assert!(lost > 0);
@@ -2159,7 +2159,7 @@ fn a_partial_resurrection_restores_part_of_the_loss() {
     add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
     let before_death = pet_exp(&world, pet_oid);
 
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
     let after_death = pet_exp(&world, pet_oid);
     let lost = before_death - after_death;
 
@@ -2211,7 +2211,7 @@ fn a_max_level_pet_loses_nothing_on_death() {
     assert_eq!(pet.level, 3, "at the species cap");
     let before = pet.exp;
 
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
     assert_eq!(
         pet_exp(&world, pet_oid),
         before,
@@ -2231,7 +2231,7 @@ fn reviving_a_pet_asks_its_owner() {
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let pet_oid = summoned_pet(&mut world);
     add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
 
     let reviver = OWNER + 5;
     let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
@@ -2254,7 +2254,7 @@ fn accepting_revives_the_pet_and_restores_its_exp() {
     let pet_oid = summoned_pet(&mut world);
     add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
     let before_death = world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp;
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
     let after_death = world.objects.get_component::<PetOf>(&pet_oid).unwrap().exp;
     assert!(after_death < before_death, "the penalty applied");
 
@@ -2282,7 +2282,7 @@ fn declining_leaves_the_pet_dead() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let pet_oid = summoned_pet(&mut world);
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
 
     let reviver = OWNER + 5;
     let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
@@ -2337,7 +2337,7 @@ fn a_pet_revival_does_not_revive_the_owner() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let pet_oid = summoned_pet(&mut world);
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
     // Kill the owner too, so "did the wrong one revive?" is answerable.
     world
         .objects
@@ -2390,8 +2390,8 @@ fn a_decayed_pet_corpse_destroys_the_collar_and_the_row() {
     crate::game_loop::servitor::sync_pet_row(&mut world, OWNER);
     assert_eq!(owner_has(&world, WOLF_COLLAR), 1);
 
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
-    crate::game_loop::death::handle_npc_decay(&mut world, pet_oid);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::handle_npc_decay(&mut world, pet_oid);
 
     assert_eq!(owner_has(&world, WOLF_COLLAR), 0, "the collar was consumed");
     assert!(
@@ -2424,8 +2424,8 @@ fn a_decayed_pet_hands_its_inventory_back() {
         "the food is in the pet's bag, not the owner's"
     );
 
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
-    crate::game_loop::death::handle_npc_decay(&mut world, pet_oid);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::handle_npc_decay(&mut world, pet_oid);
 
     assert_eq!(
         owner_has(&world, WOLF_FOOD),
@@ -2455,7 +2455,7 @@ fn resurrecting_before_decay_saves_the_pet() {
     wolf_with_exp_curve(&mut world);
     park_collar(&mut world, collar);
     let pet_oid = summon_pet(&mut world, OWNER).unwrap();
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
 
     let reviver = OWNER + 5;
     let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
@@ -2463,7 +2463,7 @@ fn resurrecting_before_decay_saves_the_pet() {
     crate::game_loop::death::handle_revive_answer(&mut world, OWNER, true);
 
     // The decay task fires regardless; it must be a no-op now.
-    crate::game_loop::death::handle_npc_decay(&mut world, pet_oid);
+    crate::game_loop::npc::handle_npc_decay(&mut world, pet_oid);
 
     assert_eq!(owner_has(&world, WOLF_COLLAR), 1, "the collar survived");
     assert!(pet_of(&world, OWNER).is_some(), "and so did the pet");
@@ -2478,8 +2478,8 @@ fn a_decayed_servitor_does_not_take_the_pet_path() {
     let collar = give_collar(&mut world);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
 
-    crate::game_loop::death::npc_do_die(&mut world, servitor, OWNER);
-    crate::game_loop::death::handle_npc_decay(&mut world, servitor);
+    crate::game_loop::npc::npc_do_die(&mut world, servitor, OWNER);
+    crate::game_loop::npc::handle_npc_decay(&mut world, servitor);
 
     assert_eq!(
         owner_has(&world, WOLF_COLLAR),
@@ -2583,7 +2583,7 @@ fn a_dead_pet_does_not_regenerate() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let pet_oid = summoned_pet(&mut world);
-    crate::game_loop::death::npc_do_die(&mut world, pet_oid, OWNER);
+    crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
 
     crate::game_loop::stats::regen::run_npc_regen_tick(&mut world);
     let v = world.objects.get_component::<Vitals>(&pet_oid).unwrap();
@@ -3186,7 +3186,7 @@ fn a_summon_killing_blow_credits_its_owner() {
         .get_component_mut::<Player>(&OWNER)
         .unwrap()
         .exp = 0;
-    crate::game_loop::death::npc_do_die(&mut world, FOE, servitor);
+    crate::game_loop::npc::npc_do_die(&mut world, FOE, servitor);
 
     let exp = world.objects.get_component::<Player>(&OWNER).unwrap().exp;
     assert!(
@@ -3228,7 +3228,7 @@ fn an_owner_and_their_summon_share_one_slice() {
         world.objects.get_component_mut::<Player>(&oid).unwrap().exp = 0;
     }
 
-    crate::game_loop::death::npc_do_die(&mut world, FOE, servitor);
+    crate::game_loop::npc::npc_do_die(&mut world, FOE, servitor);
 
     let owner_exp = world.objects.get_component::<Player>(&OWNER).unwrap().exp;
     let rival_exp = world.objects.get_component::<Player>(&rival).unwrap().exp;

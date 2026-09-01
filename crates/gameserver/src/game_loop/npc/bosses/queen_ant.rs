@@ -72,7 +72,7 @@ pub(crate) fn on_queen_spawned(world: &mut World, queen_oid: i32) {
 /// mistress (the shared respawn timer is armed by `grand_boss`).
 pub(crate) fn on_queen_killed(world: &mut World) {
     if let Some(larva) = crate::game_loop::grand_boss::find_alive(world, LARVA) {
-        crate::game_loop::death::despawn_npc_by_oid(world, larva);
+        crate::game_loop::npc::despawn_npc_by_oid(world, larva);
     }
 }
 

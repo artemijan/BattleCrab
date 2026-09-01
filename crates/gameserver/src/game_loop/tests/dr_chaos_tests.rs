@@ -294,7 +294,7 @@ fn killing_the_golem_through_the_death_path_marks_it_dead() {
     dr_chaos::resolve_at_boot(&mut world);
     let golem = find_spawned(&world, CHAOS_GOLEM).unwrap();
 
-    crate::game_loop::death::npc_do_die(&mut world, golem, 0);
+    crate::game_loop::npc::npc_do_die(&mut world, golem, 0);
 
     assert_eq!(
         dr_chaos_status(&world),

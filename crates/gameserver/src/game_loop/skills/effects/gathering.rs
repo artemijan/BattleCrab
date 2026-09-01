@@ -381,5 +381,5 @@ pub(crate) fn apply_consume_body(world: &mut World, _caster_oid: i32, target_oid
     }
     // `endDecayTask()` runs `onDecay` now; the corpse's originally-scheduled
     // `NpcDecay` task then becomes a no-op (the entity is already despawned).
-    crate::game_loop::death::handle_npc_decay(world, target_oid);
+    crate::game_loop::npc::handle_npc_decay(world, target_oid);
 }

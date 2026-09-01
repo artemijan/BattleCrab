@@ -3,7 +3,7 @@
 
 use super::*;
 use crate::data::zone_data::ZoneKind;
-use crate::game_loop::death;
+use crate::game_loop::combat::death;
 use crate::game_loop::space::water;
 use crate::model::components::{Speeds, Vitals, WaterTask};
 

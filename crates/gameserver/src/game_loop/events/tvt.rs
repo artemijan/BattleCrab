@@ -21,8 +21,8 @@ use commons::util::rnd;
 use tracing::warn;
 
 use crate::game_loop::client::user_commands::in_combat;
-use crate::game_loop::death::{despawn_npc_by_oid, introduce_npc, teleport_player};
-use crate::game_loop::npc::spawn_npc_at;
+use crate::game_loop::combat::death::teleport_player;
+use crate::game_loop::npc::{despawn_npc_by_oid, introduce_npc, spawn_npc_at};
 use crate::game_loop::space::instances;
 use crate::model::Player;
 use crate::model::components::FishingSession;

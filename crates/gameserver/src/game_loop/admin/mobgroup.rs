@@ -14,6 +14,7 @@ use crate::world::World;
 
 use super::send_message;
 use crate::game_loop::combat::target;
+use crate::game_loop::npc;
 
 /// `//mobmenu` — the mob-group admin HTML page.
 pub(super) fn admin_mobmenu(world: &mut World, client_id: u32) {
@@ -140,7 +141,7 @@ pub(super) fn admin_mobgroup_spawn(
             world
                 .objects
                 .add_components(&oid, Controllable { group_id });
-            super::death::introduce_npc(world, oid);
+            npc::introduce_npc(world, oid);
             members.push(oid);
         }
     }
@@ -185,7 +186,7 @@ pub(super) fn admin_mobgroup_kill(
             .get_component::<crate::model::components::Vitals>(&oid)
             .is_some_and(|v| !v.dead)
         {
-            super::death::npc_do_die(world, oid, object_id);
+            npc::npc_do_die(world, oid, object_id);
         }
     }
     send_message(world, client_id, &format!("Mob group {group_id} killed."));
@@ -363,7 +364,7 @@ fn alive(world: &World, group: &MobGroup) -> usize {
 fn despawn_members(world: &mut World, group_id: i32) {
     for oid in members(world, group_id) {
         if world.objects.has_component::<Npc>(&oid) {
-            super::death::despawn_npc_by_oid(world, oid);
+            npc::despawn_npc_by_oid(world, oid);
         }
     }
     if let Some(g) = world.mob_groups.get_mut(&group_id) {

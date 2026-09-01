@@ -11,10 +11,9 @@
 //! - `RandomWalkingGuards` — the five village guards Java lets wander even
 //!   though `Guard`s have random walking off by default.
 
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-const ADENA_ID: i32 = crate::data::item_data::ADENA_ID;
-
 // ---------------------------------------------------------------------------
 // ArenaManager
 // ---------------------------------------------------------------------------

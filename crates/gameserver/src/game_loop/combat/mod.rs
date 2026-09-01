@@ -39,6 +39,7 @@ use crate::game_loop::helpers::stat_mul;
 
 mod attack;
 mod damage;
+pub(crate) mod death;
 pub(crate) mod duel;
 mod intent;
 pub mod pvp;

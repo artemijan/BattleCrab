@@ -4,6 +4,7 @@
 
 use super::finish_equipped_item_destroyed;
 use super::unequipped_by_removal;
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets;
@@ -11,6 +12,7 @@ use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 use tracing::warn;
+
 /// The stack-or-create core of `Player.addItem`: merge into an existing
 /// stack (persisting the new count) or allocate an object id and insert a
 /// fresh instance. Non-stackable items get one instance *per unit*, mirroring
@@ -280,7 +282,7 @@ pub(crate) fn give_item_with_earned_message_enchanted(
     }
     // Snapshot after the enchant stamp, so the packet carries the `+N`.
     let changes = crate::game_loop::helpers::added_changes(world, player, &added);
-    let sm = if item_id == crate::game_loop::death::ADENA_ID {
+    let sm = if item_id == ADENA_ID {
         server_packets::system_message_with(
             sm_ids::YOU_HAVE_EARNED_S1_ADENA,
             &[SmParam::Long(count)],

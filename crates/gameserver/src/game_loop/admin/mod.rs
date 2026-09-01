@@ -77,10 +77,10 @@ pub(crate) use gm_util::{
     DESTROY_ALL_ITEMS_ORDINAL, DROP_ALL_ITEMS_ORDINAL, ITEM_CONDITIONS_ORDINAL,
     SKILL_CONDITIONS_ORDINAL, ZONE_CONDITIONS_ORDINAL, all_exceptions_mask,
 };
-pub(crate) use world_cmds::{begin_shutdown, server_shutdown_tick};
 // `SkillList` resends aren't admin-only either: the cursed-weapon login restore
 // (`game_loop::items::cursed_weapon`) grants a skill outside any GM command.
 pub(crate) use skills::refresh_skill_list;
+pub(crate) use world_cmds::{begin_shutdown, server_shutdown_tick};
 
 use instance::*;
 use items::*;
@@ -101,10 +101,10 @@ use world_cmds::*;
 // `admin` became a folder these were plain `super::` siblings; re-importing them
 // here keeps every `super::helpers::…` / `super::death::…` call in the bodies
 // resolving (a child's `super` now points at this module).
-use crate::game_loop::combat::target;
+use crate::game_loop::combat::{death, target};
 use crate::game_loop::helpers::region_cell_of;
 use crate::game_loop::space::visibility;
-use crate::game_loop::{death, helpers, party};
+use crate::game_loop::{helpers, party};
 /// Java `AdminCommandHandler.useAdminCommand`. `full` is the whole command
 /// string *including* the `admin_` prefix, e.g. `"admin_heal 100"`.
 ///

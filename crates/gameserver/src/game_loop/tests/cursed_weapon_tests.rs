@@ -4,11 +4,11 @@
 //! (`admin_cursed_weapons_info_add_remove`).
 
 use super::*;
-use crate::game_loop::combat::pvp;
+use crate::game_loop::combat::{death, pvp};
 use crate::game_loop::items::cursed_weapon;
 use crate::game_loop::items::ground_items;
 use crate::game_loop::stats::passive_skills;
-use crate::game_loop::{admin, death};
+use crate::game_loop::{admin, npc};
 use crate::model::Player;
 
 const ZARICHE: i32 = 8190; // Demonic Sword Zariche
@@ -393,7 +393,7 @@ fn death_path_triggers_drop() {
     let idx = cw_idx(&world, ZARICHE);
     world.cursed_weapons[idx].drop_rate = 100_000;
 
-    death::npc_do_die(&mut world, MONSTER_OID, KILLER_OID);
+    npc::npc_do_die(&mut world, MONSTER_OID, KILLER_OID);
 
     assert!(
         world.cursed_weapons[idx].is_dropped,

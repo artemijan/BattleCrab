@@ -447,7 +447,7 @@ fn archangels(world: &World) -> Vec<i32> {
 }
 
 fn despawn(world: &mut World, oid: i32) {
-    crate::game_loop::death::despawn_npc_by_oid(world, oid);
+    crate::game_loop::npc::despawn_npc_by_oid(world, oid);
 }
 
 /// Does this archangel already hate a living player?

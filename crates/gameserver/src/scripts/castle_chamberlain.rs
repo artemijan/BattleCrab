@@ -13,6 +13,7 @@
 //! `FortManager` can't produce — and this port has no fortresses, so the page
 //! is what Java shows with none loaded.
 
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::helpers::format_amount;
 use crate::game_loop::manor::{castle_owner_clan_id, chamberlain_castle_id};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
@@ -32,8 +33,6 @@ use crate::model::clan::{
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
 
-/// `Inventory.ADENA_ID`.
-const ADENA_ID: i32 = crate::data::item_data::ADENA_ID;
 /// The Lord's Crown and the two side cloaks.
 const CROWN: i32 = 6841;
 const LORD_CLOAK_OF_LIGHT: i32 = 34925;

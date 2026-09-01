@@ -15,8 +15,8 @@ use tracing::{error, trace};
 
 use super::bypass::handle_request_bypass_to_server;
 use super::flood;
+use crate::game_loop::combat::death::{handle_appearing, handle_request_restart_point};
 use crate::game_loop::combat::{duel, handle_attack_request};
-use crate::game_loop::death::{handle_appearing, handle_request_restart_point};
 use crate::game_loop::social::chat::{block_list, handle_say2};
 
 use crate::game_loop::items::{

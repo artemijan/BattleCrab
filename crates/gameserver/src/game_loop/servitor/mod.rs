@@ -194,7 +194,7 @@ pub(crate) fn unsummon_servitor(world: &mut World, owner_oid: i32) -> Option<i32
         .objects
         .get_component::<crate::model::components::RegionCell>(&servitor_oid)?
         .0;
-    crate::game_loop::death::despawn_npc(world, servitor_oid, region);
+    crate::game_loop::npc::despawn_npc(world, servitor_oid, region);
     Some(servitor_oid)
 }
 

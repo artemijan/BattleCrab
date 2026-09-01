@@ -522,7 +522,7 @@ fn clear_hall(world: &mut World, zone_id: i32, _include_players: bool) {
         });
     }
     for (oid, region) in goners {
-        crate::game_loop::death::despawn_npc(world, oid, region);
+        crate::game_loop::npc::despawn_npc(world, oid, region);
     }
 }
 

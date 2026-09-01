@@ -224,7 +224,7 @@ fn killing_a_raid_boss_awards_raid_points() {
     add_test_npc(&mut world, BOSS, BOSS_NPC, "RaidBoss", 20, 60, 0, 0);
     seed_damage(&mut world, BOSS, PLAYER, 500.0);
 
-    crate::game_loop::death::npc_do_die(&mut world, BOSS, PLAYER);
+    crate::game_loop::npc::npc_do_die(&mut world, BOSS, PLAYER);
     assert_eq!(points_of(&world, PLAYER), 100, "solo killer takes the lot");
 }
 
@@ -236,7 +236,7 @@ fn an_ordinary_monster_awards_no_raid_points() {
     add_test_npc(&mut world, BOSS, MOB_NPC, "Monster", 20, 60, 0, 0);
     seed_damage(&mut world, BOSS, PLAYER, 500.0);
 
-    crate::game_loop::death::npc_do_die(&mut world, BOSS, PLAYER);
+    crate::game_loop::npc::npc_do_die(&mut world, BOSS, PLAYER);
     assert_eq!(points_of(&world, PLAYER), 0);
 }
 
@@ -254,7 +254,7 @@ fn a_party_splits_the_raid_points() {
 
     make_party(&mut world, &[PLAYER, mate], LootRule::FindersKeepers);
 
-    crate::game_loop::death::npc_do_die(&mut world, BOSS, PLAYER);
+    crate::game_loop::npc::npc_do_die(&mut world, BOSS, PLAYER);
     assert_eq!(points_of(&world, PLAYER), 50, "split two ways");
     assert_eq!(
         points_of(&world, mate),
@@ -281,7 +281,7 @@ fn a_distant_party_member_earns_no_raid_points() {
         .unwrap()
         .x += 100_000;
 
-    crate::game_loop::death::npc_do_die(&mut world, BOSS, PLAYER);
+    crate::game_loop::npc::npc_do_die(&mut world, BOSS, PLAYER);
     assert_eq!(points_of(&world, mate), 0, "out of range, no points");
     assert_eq!(
         points_of(&world, PLAYER),
@@ -300,7 +300,7 @@ fn the_raid_point_rate_is_applied() {
     seed_damage(&mut world, BOSS, PLAYER, 500.0);
     world.cfg.rates.rate_raidboss_points = 3.0;
 
-    crate::game_loop::death::npc_do_die(&mut world, BOSS, PLAYER);
+    crate::game_loop::npc::npc_do_die(&mut world, BOSS, PLAYER);
     assert_eq!(points_of(&world, PLAYER), 300);
 }
 

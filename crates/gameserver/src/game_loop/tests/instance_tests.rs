@@ -356,7 +356,7 @@ fn instanced_npc_despawn_reaches_only_the_instance() {
         .get_component::<model::components::RegionCell>(&800)
         .expect("npc region")
         .0;
-    crate::game_loop::death::despawn_npc(&mut world, 800, region);
+    crate::game_loop::npc::despawn_npc(&mut world, 800, region);
 
     assert!(
         saw_delete_object(&drain(&mut rx_in)),

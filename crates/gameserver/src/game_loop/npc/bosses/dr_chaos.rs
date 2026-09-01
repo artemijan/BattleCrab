@@ -92,7 +92,7 @@ fn spawn_dr_chaos(world: &mut World) {
     ) else {
         return;
     };
-    crate::game_loop::death::introduce_npc(world, oid);
+    crate::game_loop::npc::introduce_npc(world, oid);
     world
         .objects
         .add_components(&oid, DrChaosState { pissed_off: 30 });
@@ -162,7 +162,7 @@ fn become_angry(world: &mut World, dr_chaos_oid: i32) {
         .remove_component::<DrChaosState>(&dr_chaos_oid);
     // `setIntention(MOVE_TO, grotto)` — cosmetic; teleport rather than model
     // the walk (scripted bosses teleport elsewhere in the port too).
-    crate::game_loop::death::relocate_npc(world, dr_chaos_oid, GROTTO.0, GROTTO.1, GROTTO.2, 0);
+    crate::game_loop::npc::relocate_npc(world, dr_chaos_oid, GROTTO.0, GROTTO.1, GROTTO.2, 0);
     crate::game_loop::npc::say::npc_say_text(
         world,
         dr_chaos_oid,
@@ -215,7 +215,7 @@ pub(crate) fn handle_transform(world: &mut World, dr_chaos_oid: i32, step: u8) {
                 dr_chaos_oid,
                 &special_camera(dr_chaos_oid, 1, -150, 10, 3500, 1000, 5000, 0, 0, 0, 0, 0),
             );
-            crate::game_loop::death::relocate_npc(
+            crate::game_loop::npc::relocate_npc(
                 world,
                 dr_chaos_oid,
                 GROTTO.0,
@@ -226,7 +226,7 @@ pub(crate) fn handle_transform(world: &mut World, dr_chaos_oid: i32, step: u8) {
         }
         5 => {
             // Delete Dr. Chaos, spawn the golem with its intro.
-            crate::game_loop::death::despawn_npc_by_oid(world, dr_chaos_oid);
+            crate::game_loop::npc::despawn_npc_by_oid(world, dr_chaos_oid);
             spawn_golem(world, GOLEM_SPAWN.0, GOLEM_SPAWN.1, GOLEM_SPAWN.2, false);
         }
         _ => {}
@@ -239,7 +239,7 @@ pub(crate) fn handle_transform(world: &mut World, dr_chaos_oid: i32, step: u8) {
 fn spawn_golem(world: &mut World, x: i32, y: i32, z: i32, restore: bool) -> Option<i32> {
     use crate::network::server_packets::{play_sound, social_action, special_camera};
     let oid = crate::game_loop::npc::spawn_npc_at(world, CHAOS_GOLEM, x, y, z, 0)?;
-    crate::game_loop::death::introduce_npc(world, oid);
+    crate::game_loop::npc::introduce_npc(world, oid);
     world.objects.add_components(
         &oid,
         DrChaosGolem {
@@ -286,7 +286,7 @@ pub(crate) fn handle_golem_despawn(world: &mut World, golem_oid: i32) {
         return;
     };
     if world.tick.saturating_sub(g.last_attack_tick) >= GOLEM_IDLE_TICKS {
-        crate::game_loop::death::despawn_npc_by_oid(world, golem_oid);
+        crate::game_loop::npc::despawn_npc_by_oid(world, golem_oid);
         crate::game_loop::grand_boss::set_status(world, CHAOS_GOLEM, NORMAL);
         spawn_dr_chaos(world);
     } else {

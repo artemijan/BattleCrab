@@ -561,7 +561,7 @@ fn killing_valakas_arms_the_death_cinematic() {
         IN_LAIR.2,
     );
 
-    crate::game_loop::death::npc_do_die(&mut world, VALAKAS_OID, PLAYER);
+    crate::game_loop::npc::npc_do_die(&mut world, VALAKAS_OID, PLAYER);
 
     assert!(
         world
@@ -591,7 +591,7 @@ fn the_death_cinematic_spawns_the_exit_cubes() {
         IN_LAIR.2,
     );
 
-    crate::game_loop::death::npc_do_die(&mut world, VALAKAS_OID, PLAYER);
+    crate::game_loop::npc::npc_do_die(&mut world, VALAKAS_OID, PLAYER);
     assert_eq!(spawned_cubes(&world), 0, "no cubes until die_8");
 
     // die_8 fires at 16_500 ms → 160 ticks; advance past it.

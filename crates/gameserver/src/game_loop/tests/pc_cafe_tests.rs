@@ -381,7 +381,7 @@ fn a_real_kill_pays_pa_points_even_with_vitality_off() {
             .get_component_mut::<Vitals>(&NPC_OID)
             .unwrap()
             .cur_hp = 1.0;
-        crate::game_loop::death::npc_do_die(&mut world, NPC_OID, PLAYER);
+        crate::game_loop::npc::npc_do_die(&mut world, NPC_OID, PLAYER);
 
         assert!(
             points(&world) > 0,

@@ -25,7 +25,8 @@ use tracing::warn;
 
 use crate::data::item_data::ADENA_ID;
 use crate::data::teleporter_data::{TeleportHolder, TeleportLocation};
-use crate::game_loop::{death, items, siege};
+use crate::game_loop::combat::death;
+use crate::game_loop::{items, siege};
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 

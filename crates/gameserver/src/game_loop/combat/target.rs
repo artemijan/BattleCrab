@@ -679,7 +679,7 @@ pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
 ///
 /// Call this *before* broadcasting the object's `DeleteObject`, per
 /// [`drop_target_notify`]'s contract. Shared by corpse decay / `//delete`
-/// ([`crate::game_loop::death::despawn_npc`]), NPC teleports ([`crate::game_loop::death::relocate_npc`])
+/// ([`crate::game_loop::npc::despawn_npc`]), NPC teleports ([`crate::game_loop::npc::relocate_npc`])
 /// and `//invis`.
 pub(crate) fn release_target_holders(world: &mut World, object_id: i32) {
     let mut holders: Vec<i32> = Vec::new();

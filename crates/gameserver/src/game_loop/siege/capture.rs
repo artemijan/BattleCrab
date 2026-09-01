@@ -264,7 +264,7 @@ fn remove_flags_of_defenders(world: &mut World, castle_id: i32) {
         None => Vec::new(),
     };
     for (clan_id, flag_oid) in doomed {
-        crate::game_loop::death::despawn_npc_by_oid(world, flag_oid);
+        crate::game_loop::npc::despawn_npc_by_oid(world, flag_oid);
         if let Some(siege) = world.sieges.get_mut(&castle_id) {
             siege
                 .flags
@@ -291,7 +291,7 @@ fn respawn_siege_towers(world: &mut World, castle_id: i32) {
         })
         .unwrap_or_default();
     for oid in towers {
-        crate::game_loop::death::despawn_npc_by_oid(world, oid);
+        crate::game_loop::npc::despawn_npc_by_oid(world, oid);
         if let Some(siege) = world.sieges.get_mut(&castle_id) {
             siege.spawned_npcs.retain(|&o| o != oid);
         }

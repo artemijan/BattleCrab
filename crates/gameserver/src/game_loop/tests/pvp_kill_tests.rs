@@ -352,7 +352,7 @@ fn war_deaths_never_drop_items() {
 // Karma decay — `PlayerStat.addExp`'s "Set new karma" block
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::death::add_exp_and_sp;
+use crate::game_loop::combat::death::add_exp_and_sp;
 
 /// Give the world a karma table and put `oid` at `level` with `reputation`.
 fn pk_at(world: &mut World, oid: i32, level: i32, reputation: i32) {

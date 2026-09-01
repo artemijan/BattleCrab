@@ -174,7 +174,7 @@ pub(crate) fn handle_despawn_minions(world: &mut World) {
         .flat_map(|(id, ..)| world.npcs_with_id(*id).iter().copied())
         .collect();
     for oid in doomed {
-        crate::game_loop::death::despawn_npc_by_oid(world, oid);
+        crate::game_loop::npc::despawn_npc_by_oid(world, oid);
     }
 }
 

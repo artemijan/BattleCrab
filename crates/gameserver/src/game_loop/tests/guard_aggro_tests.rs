@@ -371,7 +371,7 @@ fn a_clan_mate_already_fighting_is_left_alone() {
 fn one_shot_kill(world: &mut World, mate_npc_id: i32, mate_x: i32, killer: i32) {
     add_test_npc(world, GUARD_OID, ORC_A_ID, "Monster", 10, 100, 0, 0);
     add_test_npc(world, MATE_OID, mate_npc_id, "Monster", 10, mate_x, 0, 0);
-    crate::game_loop::death::npc_do_die(world, GUARD_OID, killer);
+    crate::game_loop::npc::npc_do_die(world, GUARD_OID, killer);
 }
 
 #[test]

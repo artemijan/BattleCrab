@@ -346,7 +346,7 @@ fn killing_a_monster_drains_vitality() {
         .get_component_mut::<Vitals>(&NPC_OID)
         .unwrap()
         .cur_hp = 1.0;
-    crate::game_loop::death::npc_do_die(&mut world, NPC_OID, OID);
+    crate::game_loop::npc::npc_do_die(&mut world, NPC_OID, OID);
 
     assert!(
         points(&world, OID) < 10_000,

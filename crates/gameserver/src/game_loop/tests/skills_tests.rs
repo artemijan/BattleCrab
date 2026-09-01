@@ -1,7 +1,7 @@
 use super::*;
 use crate::game_loop;
 use crate::game_loop::abnormal::has_buff;
-use crate::game_loop::death;
+use crate::game_loop::combat::death;
 use crate::game_loop::helpers::skill_by_id;
 use crate::game_loop::skills::expertise;
 use crate::game_loop::stats::passive_skills;
@@ -2077,6 +2077,7 @@ fn broadcast_is_scoped_to_surrounding_regions() {
 /// position and comes before the `Die` broadcast.
 #[test]
 fn moving_mob_death_broadcasts_stop_move() {
+    use crate::game_loop::npc;
     use model::components::Movement;
     use model::movement::MoveData;
 
@@ -2101,7 +2102,7 @@ fn moving_mob_death_broadcasts_stop_move() {
     );
     drain(&mut a_rx);
 
-    death::npc_do_die(&mut world, npc_oid, 3001);
+    npc::npc_do_die(&mut world, npc_oid, 3001);
 
     let packets = drain(&mut a_rx);
     let stop_idx = packets

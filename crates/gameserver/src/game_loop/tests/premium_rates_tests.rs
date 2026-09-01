@@ -6,7 +6,7 @@
 
 use super::*;
 
-use crate::game_loop::death::{PremiumDropRate, premium_drop_mult};
+use crate::game_loop::combat::death::{PremiumDropRate, premium_drop_mult};
 use crate::model::Player;
 
 const PLAYER: i32 = 8001;

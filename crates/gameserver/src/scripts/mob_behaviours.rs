@@ -234,7 +234,7 @@ impl QuestScript for PolymorphingOnAttack {
         ) else {
             return;
         };
-        crate::game_loop::death::introduce_npc(ctx.world, spawned);
+        crate::game_loop::npc::introduce_npc(ctx.world, spawned);
         // `addDamageHate(originalAttacker, 0, 500)` + `AI_INTENTION_ATTACK`.
         ctx.seed_npc_attack(spawned, attacker);
     }

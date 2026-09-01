@@ -15,7 +15,7 @@
 //!   deliberately not "tidied".
 //! - **Either is attacked** → [`on_assist`] spreads aggro across the pack.
 
-use crate::game_loop::death;
+use crate::game_loop;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::is_raid_npc;
 use crate::game_loop::helpers::maybe_position;
@@ -24,10 +24,9 @@ use crate::game_loop::helpers::npc_template;
 use crate::game_loop::npc::ai::set_attack_intention;
 use crate::model::components::Vitals;
 use crate::model::npc;
-use commons::util::rnd;
-
 use crate::scheduler::{ScheduledTask, ms_to_ticks};
 use crate::world::World;
+use commons::util::rnd;
 
 /// `MinionList.initializeNpc`: minions land in a ring around the leader,
 /// `offset` out, no closer than the leader's collision radius + 30.
@@ -318,7 +317,7 @@ pub(crate) fn on_master_die(world: &mut World, master_oid: i32) {
     }
 
     for oid in live_pack(world, master_oid) {
-        death::despawn_npc_by_oid(world, oid);
+        game_loop::npc::despawn_npc_by_oid(world, oid);
     }
 }
 

@@ -34,7 +34,7 @@ use crate::world::World;
 /// character from both the death exp penalty and vitality consumption. Shared
 /// with the death path rather than reimplemented: two copies of one predicate
 /// is two places for the level bound to drift.
-use crate::game_loop::death::is_lucky;
+use crate::game_loop::combat::death::is_lucky;
 use crate::game_loop::helpers::send_sm_bare_to_player as send_sm;
 
 /// `PlayerStat.getVitalityPoints` — the stored pool, clamped. (Java's

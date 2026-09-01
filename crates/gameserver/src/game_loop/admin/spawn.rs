@@ -13,7 +13,7 @@ use crate::data::npc_data::NpcTemplate;
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers::maybe_position;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
-use crate::game_loop::{helpers, items};
+use crate::game_loop::{helpers, items, npc};
 use crate::model::components::Position;
 use crate::model::npc::Npc;
 use crate::world::World;
@@ -77,7 +77,7 @@ pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, arg
         if let Some(spawned) =
             crate::game_loop::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, heading)
         {
-            super::death::introduce_npc(world, spawned);
+            npc::introduce_npc(world, spawned);
         }
     }
     send_message(
@@ -118,7 +118,7 @@ pub(super) fn admin_spawnat(world: &mut World, client_id: u32, object_id: i32, a
             .map_or(0, |p| p.heading)
     });
     if let Some(spawned) = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, heading) {
-        super::death::introduce_npc(world, spawned);
+        npc::introduce_npc(world, spawned);
         send_message(
             world,
             client_id,
@@ -687,7 +687,7 @@ pub(super) fn admin_delete_npc_by_object_id(
         .get_component::<Npc>(&target_oid)
         .map_or(0, |n| n.npc_id);
     let name = helpers::npc_template_name(world, npc_id);
-    super::death::despawn_npc(world, target_oid, region);
+    npc::despawn_npc(world, target_oid, region);
     send_message(world, client_id, &format!("{name} have been deleted."));
     // Java `processBypass` re-renders the scan list with the same parser —
     // the page and filter params ride along.
@@ -738,7 +738,7 @@ pub(super) fn admin_delete(world: &mut World, client_id: u32, object_id: i32) {
         send_message(world, client_id, "Target is not an NPC.");
         return;
     }
-    super::death::despawn_npc_by_oid(world, target);
+    npc::despawn_npc_by_oid(world, target);
 }
 
 // ---------------------------------------------------------------------------
@@ -760,7 +760,7 @@ pub(super) fn admin_unspawnall(world: &mut World, client_id: u32) {
     };
     let count = all.len();
     for (oid, region) in all {
-        super::death::despawn_npc(world, oid, region);
+        npc::despawn_npc(world, oid, region);
     }
     send_message(world, client_id, &format!("{count} NPCs deleted."));
 }
@@ -785,7 +785,7 @@ pub(super) fn admin_respawnall(world: &mut World, client_id: u32) {
     crate::game_loop::boss_respawn::resolve_boot(world, Vec::new());
     crate::game_loop::grand_boss::resolve_at_boot(world);
     for oid in npc_object_ids(world) {
-        super::death::introduce_npc(world, oid);
+        npc::introduce_npc(world, oid);
     }
     send_message(world, client_id, &format!("{spawned} NPCs respawned."));
 }
