@@ -99,7 +99,7 @@ fn resist_buff_pumps_a_multiplier() {
 /// multiply (Java's `constrain(baseMod * buffDebuffMod, min, max)`).
 #[test]
 fn resist_multiplier_lowers_the_landing_rate() {
-    use crate::model::formulas::calc_effect_land_rate;
+    use crate::model::formulas::land_rate::calc_effect_land_rate;
 
     // magic_level 40 vs target level 40, activate_rate 50, lvl_bonus 0
     // → base_mod = 3*0 + 50 + 30 = 80.

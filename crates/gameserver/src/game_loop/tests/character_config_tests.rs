@@ -117,7 +117,7 @@ fn the_grade_filter_follows_the_config_key() {
 /// an impossibility.
 #[test]
 fn the_debuff_land_rate_clamp_follows_the_config_keys() {
-    use crate::model::formulas::{LandRateBounds, calc_effect_land_rate};
+    use crate::model::formulas::land_rate::{LandRateBounds, calc_effect_land_rate};
     // A wildly favourable matchup clamps down to the ceiling, a hopeless one
     // up to the floor.
     let rate = |b: LandRateBounds, target_level: i32| {
@@ -590,7 +590,7 @@ fn the_interruption_keys_parse_to_the_shipped_values() {
 /// the key was set.
 #[test]
 fn a_cast_is_only_interruptible_while_the_cast_branch_is_on() {
-    use crate::model::formulas::calc_atk_break;
+    use crate::model::formulas::progression::calc_atk_break;
     // A roll of 0 breaks whenever the branch applies at all.
     assert!(
         calc_atk_break(100.0, 1.0, 0, 0.0, 1.0, true),

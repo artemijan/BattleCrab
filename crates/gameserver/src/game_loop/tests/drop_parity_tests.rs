@@ -119,9 +119,9 @@ mod java {
 
     const ADENA: i32 = 57;
 
-    /// `Util.map`, which the port shares as `formulas::map_range`.
+    /// `Util.map`, which the port shares as `formulas::progression::map_range`.
     fn map(value: f64, in_min: f64, in_max: f64, out_min: f64, out_max: f64) -> f64 {
-        crate::model::formulas::map_range(value, in_min, in_max, out_min, out_max)
+        crate::model::formulas::progression::map_range(value, in_min, in_max, out_min, out_max)
     }
 
     /// The chance chain of `calculateGroupDrop`/`calculateUngroupedDrop`. Herb

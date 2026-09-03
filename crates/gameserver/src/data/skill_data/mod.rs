@@ -112,7 +112,7 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // Focus Death 355/Critical Blow 409/Mortal Strike 410/Assassination 432
     // (all `PER`): `FatalBlowRate` → `Stat.BLOW_RATE` (single-stat
     // `AbstractStatEffect`, multiplicative). Folded into
-    // `formulas::calc_blow_success`, which previously had no term for it at
+    // `formulas::physical::calc_blow_success`, which previously had no term for it at
     // all — `BLOW_RATE` was identity 1.0 no matter what a caster had learned.
     ("FatalBlowRate", Stat::BlowRate),
     // Higher Mana Gain (285), a learnable passive: `ManaCharge` →
@@ -150,7 +150,7 @@ pub(crate) const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("CubicMastery", Stat::MaxCubic),
     ("LimitHp", Stat::MaxRecoverableHp),
     // The PvP/PvE balance family — every one an `AbstractStatPercentEffect`,
-    // all consumed by `formulas::calculate_pvp_pve_bonus`.
+    // all consumed by `formulas::progression::calculate_pvp_pve_bonus`.
     (
         "PvpPhysicalAttackDamageBonus",
         Stat::PvpPhysicalAttackDamage,

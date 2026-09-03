@@ -39,7 +39,7 @@ pub(crate) fn confuse_chance_passes(
         skill.basic_property,
     );
     let roll = world.roll(100);
-    formulas::calc_probability(
+    formulas::magic::calc_probability(
         skill.magic_level,
         chance,
         level,

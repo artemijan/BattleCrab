@@ -94,7 +94,7 @@ pub struct Skill {
     pub magic_level: i32,
     /// Java `activateRate` (default -1) — a debuff's base landing rate before the
     /// level/resist math in `Formulas.calcEffectSuccess`. `-1` means the effect
-    /// always lands (no resist roll). Feeds `formulas::calc_effect_land_rate`.
+    /// always lands (no resist roll). Feeds `formulas::land_rate::calc_effect_land_rate`.
     pub activate_rate: i32,
     /// Java `lvlBonusRate` (default 0) — how steeply the caster/target level gap
     /// swings the debuff landing rate; multiplies the level term in

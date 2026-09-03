@@ -6,7 +6,8 @@
 //! Seal of Gloom 1210 pair it with an already-ported `ManaDamOverTime`, so they
 //! landed but did none of the up-front damage.
 
-use crate::model::formulas::{self, MagicFailure};
+use crate::model::formulas;
+use crate::model::formulas::magic::MagicFailure;
 use crate::model::skill::effects::SkillEffect;
 
 // ---------------------------------------------------------------------------
@@ -18,7 +19,7 @@ use crate::model::skill::effects::SkillEffect;
 #[test]
 fn mana_dam_follows_the_java_formula() {
     // sqrt(100)=10, ×power 20 = 200, ×(970/97 = 10) = 2000, ÷mDef 50 = 40.
-    let d = formulas::calc_mana_dam(
+    let d = formulas::magic::calc_mana_dam(
         100.0,
         50.0,
         970.0,
@@ -38,7 +39,7 @@ fn mana_dam_follows_the_java_formula() {
 /// the effect feel different from an HP nuke.
 #[test]
 fn a_bigger_mp_pool_is_drained_harder() {
-    let small = formulas::calc_mana_dam(
+    let small = formulas::magic::calc_mana_dam(
         100.0,
         50.0,
         500.0,
@@ -50,7 +51,7 @@ fn a_bigger_mp_pool_is_drained_harder() {
         1.0,
         1.0,
     );
-    let big = formulas::calc_mana_dam(
+    let big = formulas::magic::calc_mana_dam(
         100.0,
         50.0,
         1000.0,
@@ -72,7 +73,7 @@ fn a_bigger_mp_pool_is_drained_harder() {
 /// `criticalLimit` — a cap with no equivalent in any HP formula.
 #[test]
 fn a_crit_triples_the_drain_and_then_clamps_to_the_limit() {
-    let base = formulas::calc_mana_dam(
+    let base = formulas::magic::calc_mana_dam(
         100.0,
         50.0,
         970.0,
@@ -84,7 +85,7 @@ fn a_crit_triples_the_drain_and_then_clamps_to_the_limit() {
         1.0,
         1.0,
     );
-    let crit = formulas::calc_mana_dam(
+    let crit = formulas::magic::calc_mana_dam(
         100.0,
         50.0,
         970.0,
@@ -99,7 +100,7 @@ fn a_crit_triples_the_drain_and_then_clamps_to_the_limit() {
     assert!((crit - base * 3.0).abs() < 1e-9, "×3 when under the cap");
 
     // Same crit against a 100 cap: clamped, not tripled.
-    let capped = formulas::calc_mana_dam(
+    let capped = formulas::magic::calc_mana_dam(
         100.0,
         50.0,
         970.0,
@@ -122,7 +123,7 @@ fn a_crit_triples_the_drain_and_then_clamps_to_the_limit() {
 /// `calc_magic_dam` applies them.
 #[test]
 fn spiritshots_scale_matk_before_the_square_root() {
-    let plain = formulas::calc_mana_dam(
+    let plain = formulas::magic::calc_mana_dam(
         100.0,
         50.0,
         970.0,
@@ -134,7 +135,7 @@ fn spiritshots_scale_matk_before_the_square_root() {
         1.0,
         1.0,
     );
-    let sps = formulas::calc_mana_dam(
+    let sps = formulas::magic::calc_mana_dam(
         100.0,
         50.0,
         970.0,
@@ -157,7 +158,7 @@ fn spiritshots_scale_matk_before_the_square_root() {
 /// thing. Ported as written.
 #[test]
 fn a_resisted_drain_is_halved_not_floored() {
-    let full = formulas::calc_mana_dam(
+    let full = formulas::magic::calc_mana_dam(
         100.0,
         50.0,
         970.0,
@@ -170,7 +171,7 @@ fn a_resisted_drain_is_halved_not_floored() {
         1.0,
     );
     for failure in [MagicFailure::Half, MagicFailure::Resisted] {
-        let d = formulas::calc_mana_dam(
+        let d = formulas::magic::calc_mana_dam(
             100.0, 50.0, 970.0, 20.0, 1.0, failure, false, 7000.0, 1.0, 1.0,
         );
         assert!((d - full / 2.0).abs() < 1e-9, "{failure:?} halves, got {d}");
@@ -188,17 +189,17 @@ fn a_resisted_drain_is_halved_not_floored() {
 fn magic_affected_compares_attack_against_defence() {
     // attack = 2*mAtk = 200 vs defence 200 → d = 0, refused (strict >).
     assert!(
-        !formulas::calc_magic_affected(100.0, 200.0, 0.0),
+        !formulas::magic::calc_magic_affected(100.0, 200.0, 0.0),
         "a dead heat does not land"
     );
     // A clear mAtk edge lands.
     assert!(
-        formulas::calc_magic_affected(100.0, 50.0, 0.0),
+        formulas::magic::calc_magic_affected(100.0, 50.0, 0.0),
         "more attack than defence lands"
     );
     // And a clear deficit does not.
     assert!(
-        !formulas::calc_magic_affected(10.0, 500.0, 0.0),
+        !formulas::magic::calc_magic_affected(10.0, 500.0, 0.0),
         "far more defence than attack fails"
     );
 }
@@ -209,20 +210,20 @@ fn magic_affected_compares_attack_against_defence() {
 fn the_gaussian_can_flip_the_verdict_either_way() {
     // Overwhelming attack, but a bad enough draw still fails.
     assert!(
-        formulas::calc_magic_affected(100.0, 0.0, 0.0),
+        formulas::magic::calc_magic_affected(100.0, 0.0, 0.0),
         "baseline lands"
     );
     assert!(
-        !formulas::calc_magic_affected(100.0, 0.0, -4.0),
+        !formulas::magic::calc_magic_affected(100.0, 0.0, -4.0),
         "a bad draw loses it"
     );
     // Overwhelming defence, but a good enough draw lands it.
     assert!(
-        !formulas::calc_magic_affected(10.0, 500.0, 0.0),
+        !formulas::magic::calc_magic_affected(10.0, 500.0, 0.0),
         "baseline fails"
     );
     assert!(
-        formulas::calc_magic_affected(10.0, 500.0, 4.0),
+        formulas::magic::calc_magic_affected(10.0, 500.0, 4.0),
         "a good draw wins it"
     );
 }
@@ -232,7 +233,7 @@ fn the_gaussian_can_flip_the_verdict_either_way() {
 #[test]
 fn a_zero_attack_actor_never_lands_the_drain() {
     assert!(
-        !formulas::calc_magic_affected(0.0, 0.0, 5.0),
+        !formulas::magic::calc_magic_affected(0.0, 0.0, 5.0),
         "no attack, no drain, whatever the roll"
     );
 }

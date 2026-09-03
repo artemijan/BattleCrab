@@ -374,7 +374,7 @@ fn channeling_cast_time_is_static() {
             .get_component::<model::components::StatModifiers>(&CASTER)
             .unwrap();
         let combat = world.objects.get_component::<CombatStats>(&CASTER).unwrap();
-        formulas::calc_cast_times(p, base, mods, combat, &world.data, skill, false, None)
+        formulas::timing::calc_cast_times(p, base, mods, combat, &world.data, skill, false, None)
     };
 
     let (channel_slow, cancel, _) = hit_of(&world, &channel);

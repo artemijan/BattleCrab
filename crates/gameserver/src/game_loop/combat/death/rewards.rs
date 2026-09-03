@@ -266,7 +266,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
                 continue; // Java `isInSurroundingRegion(attacker)`.
             }
             let player_level = p.level;
-            let gap = formulas::exp_sp_level_gap_multiplier(player_level, t.level);
+            let gap = formulas::progression::exp_sp_level_gap_multiplier(player_level, t.level);
             let mut exp = (t.exp * rate_xp * damage / total_damage * gap).max(0.0);
             let mut sp = (t.sp * rate_sp * damage / total_damage * gap).max(0.0);
             // Java multiplies both by `CHAMPION_REWARDS_EXP_SP` here — before
@@ -355,7 +355,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
         } else {
             1.0
         };
-        let gap = formulas::exp_sp_level_gap_multiplier(party_lvl, t.level);
+        let gap = formulas::progression::exp_sp_level_gap_multiplier(party_lvl, t.level);
         let exp = (t.exp * rate_xp * party_dmg / total_damage * gap).max(0.0)
             * party_mul
             * champion_exp_sp;
@@ -821,14 +821,14 @@ fn drop_ctx(
         .map(|p| p.level)?;
     let level_diff = (t.level - killer_level) as f64;
     let r = &world.cfg.rates;
-    let adena_gap_chance = formulas::map_range(
+    let adena_gap_chance = formulas::progression::map_range(
         level_diff,
         -(r.drop_adena_max_level_difference as f64),
         -(r.drop_adena_min_level_difference as f64),
         r.drop_adena_min_level_gap_chance,
         100.0,
     );
-    let item_gap_chance = formulas::map_range(
+    let item_gap_chance = formulas::progression::map_range(
         level_diff,
         -(r.drop_item_max_level_difference as f64),
         -(r.drop_item_min_level_difference as f64),

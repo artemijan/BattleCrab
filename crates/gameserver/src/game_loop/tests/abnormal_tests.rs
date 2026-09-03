@@ -1485,7 +1485,7 @@ fn the_shield_angle_flag_lets_a_shield_block_from_behind() {
 
     // The formula's own behaviour, which the flag feeds: a back attack is
     // unblockable, and that is the *only* thing the flag changes.
-    use crate::model::formulas::{SHIELD_NONE, SHIELD_SUCCEED, calc_shield_use};
+    use crate::model::formulas::physical::{SHIELD_NONE, SHIELD_SUCCEED, calc_shield_use};
     assert_eq!(
         calc_shield_use(90.0, 1.0, false, true, 0, 99),
         SHIELD_NONE,

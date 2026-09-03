@@ -47,7 +47,7 @@ pub(crate) fn defence_after_shield(
     // `attacker.getAttackType()` with no skill involved either way.
     let ranged = crate::game_loop::combat::ranged::attacker_is_ranged(world, attacker_oid);
     let (rate_roll, perfect_roll) = (world.roll(100), world.roll(100));
-    match formulas::calc_shield_use(
+    match formulas::physical::calc_shield_use(
         shield_rate,
         con_bonus,
         ranged,
@@ -55,8 +55,8 @@ pub(crate) fn defence_after_shield(
         rate_roll,
         perfect_roll,
     ) {
-        formulas::SHIELD_PERFECT => None,
-        formulas::SHIELD_SUCCEED => Some(base_defence + shield_def),
+        formulas::physical::SHIELD_PERFECT => None,
+        formulas::physical::SHIELD_SUCCEED => Some(base_defence + shield_def),
         _ => Some(base_defence),
     }
 }
@@ -155,7 +155,7 @@ fn attribute_mod_of(
         }
     };
     let defence = element_stat(world, target_oid, element, true);
-    formulas::calc_attribute_bonus(attack, defence)
+    formulas::land_rate::calc_attribute_bonus(attack, defence)
 }
 
 /// One element stat (`*_POWER` / `*_RES`) read the `AttributeFinalizer` way:
@@ -787,7 +787,8 @@ pub(crate) fn physical_attack(
         base_defence,
         ignore_shield_defence,
     );
-    let crit = formulas::calc_physical_skill_crit(critical_chance, str_bonus, world.roll(100));
+    let crit =
+        formulas::physical::calc_physical_skill_crit(critical_chance, str_bonus, world.roll(100));
     let rand_roll = if random_dmg > 0 {
         world.roll(2 * random_dmg + 1) - random_dmg
     } else {
@@ -804,14 +805,14 @@ pub(crate) fn physical_attack(
                 crate::game_loop::combat::ranged::equipped_weapon_type(world, caster_oid)
                     .unwrap_or_default(),
             );
-            formulas::calc_physical_skill_damage(
+            formulas::physical::calc_physical_skill_damage(
                 p_atk,
                 p_atk_mod,
                 defence,
                 1.0, // already folded into `defence` above
                 power,
-                formulas::level_mod(level),
-                formulas::random_damage_multiplier(rand_roll),
+                formulas::physical::level_mod(level),
+                formulas::physical::random_damage_multiplier(rand_roll),
                 crit,
                 crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
                 ss,

@@ -108,7 +108,7 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 /// redistribution rather than a heal).
 /// → 155 at sub-slice 12: the whole PvP/PvE balance family — fifteen names
 /// in one go, because they share one consumer
-/// (`formulas::calculate_pvp_pve_bonus`) that had to be written first. The
+/// (`formulas::progression::calculate_pvp_pve_bonus`) that had to be written first. The
 /// biggest single drop in *reachable* terms this epic has seen: 1684 →
 /// 1355.
 /// → 153 at sub-slice 13: the physical-attack pair —

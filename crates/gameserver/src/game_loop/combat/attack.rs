@@ -72,11 +72,11 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         return;
     }
 
-    let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
+    let time_atk = formulas::timing::calculate_time_between_attacks(attacker.p_atk_spd);
     // Two-handed timing needs the weapon's body part — item kinds are parsed
     // (G5), so check the equipped right hand for SLOT_LR_HAND.
     let two_handed = wields_two_handed(world, attacker_oid);
-    let time_to_hit = formulas::calculate_time_to_hit(time_atk, two_handed);
+    let time_to_hit = formulas::timing::calculate_time_to_hit(time_atk, two_handed);
 
     // Face the target (Java `setHeading(calculateHeadingFrom(...))`).
     let heading = movement::calculate_heading(
@@ -136,7 +136,12 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     let mut shot_consumed = false;
     for _ in 0..if is_dual { 2 } else { 1 } {
         let miss_roll = world.roll(1000);
-        let miss = formulas::calc_hit_miss(attacker.accuracy, target.evasion, condition, miss_roll);
+        let miss = formulas::physical::calc_hit_miss(
+            attacker.accuracy,
+            target.evasion,
+            condition,
+            miss_roll,
+        );
         // `generateHit`: a charged soulshot is spent on the first non-miss and
         // doubles the swing (`unchargeShot(SOULSHOTS)`); a later hit of the
         // same swing reuses the charge.
@@ -155,7 +160,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         // above the flat 2 (`ShotsBonusFinalizer`).
         let shots_bonus = shots_bonus_of(world, attacker_oid);
         let (crit, damage, shield) = if miss {
-            (false, 0, formulas::SHIELD_NONE)
+            (false, 0, formulas::physical::SHIELD_NONE)
         } else {
             // Shield block (`calcShldUse`): a back attack (attacker outside the
             // 120° front arc) can't be blocked, and a **bow** attacker raises
@@ -165,7 +170,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             // angle a front angle — so the back-attack exemption simply drops.
             let from_behind = matches!(position, crate::model::movement::Position::Back)
                 && !crate::game_loop::abnormal::shields_from_all_angles(world, target_oid);
-            let shield = formulas::calc_shield_use(
+            let shield = formulas::physical::calc_shield_use(
                 target.shield_rate,
                 target.con_bonus,
                 super::ranged::is_ranged(weapon_type),
@@ -178,7 +183,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             // Armor Mastery 233 makes its wearer harder to crit, it does not make
             // its wearer crit less.
             let (def_crit_mul, def_crit_add) = defence_crit_rate(world, target_oid);
-            let crit = formulas::calc_auto_attack_crit(
+            let crit = formulas::physical::calc_auto_attack_crit(
                 attacker.crit_stat,
                 def_crit_mul,
                 def_crit_add,
@@ -196,20 +201,20 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             // A normal block adds the shield's defence to pDef; a perfect block
             // reduces the hit to 1 (Java `SHIELD_DEFENSE_PERFECT_BLOCK`).
             let eff_pdef = target.p_def
-                + if shield == formulas::SHIELD_SUCCEED {
+                + if shield == formulas::physical::SHIELD_SUCCEED {
                     target.shield_def
                 } else {
                     0.0
                 };
-            let dmg = if shield == formulas::SHIELD_PERFECT {
+            let dmg = if shield == formulas::physical::SHIELD_PERFECT {
                 1.0
             } else {
                 // `calcAutoAttackDamage`'s own `damage *= calcAttackTraitBonus(...)`
                 // — the weapon trait plus every group-2 weakness, which is what
                 // makes the Hunter's "Detect … Weakness" line pay off.
-                formulas::calc_auto_attack_damage(
+                formulas::physical::calc_auto_attack_damage(
                     attacker.p_atk,
-                    formulas::random_damage_multiplier(rand_roll),
+                    formulas::physical::random_damage_multiplier(rand_roll),
                     position,
                     eff_pdef,
                     crit,
@@ -254,7 +259,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         // Notify a shielding player their block landed (Interlude has only the
         // "succeeded" message; the perfect block reuses it) — per hit, like
         // Java's `calcShldUse`.
-        if shield != formulas::SHIELD_NONE {
+        if shield != formulas::physical::SHIELD_NONE {
             helpers::send_sm_bare_to_player(world, target_oid, sm_ids::SHIELD_DEFENSE_SUCCEEDED);
         }
         rolled.push((miss, crit, damage, ss, shield));

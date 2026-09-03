@@ -357,7 +357,7 @@ pub(crate) fn apply_skill_effects(
     // over, which the 80-level cap here makes reachable (Java's own level
     // branch, `calcCrit`'s magic arm).
     let mcrit = skill.magic_type == 1
-        && formulas::calc_magic_crit(
+        && formulas::magic::calc_magic_crit(
             m_crit_rate,
             skill.is_bad(),
             creature_level(world, caster_oid),
@@ -377,7 +377,7 @@ pub(crate) fn apply_skill_effects(
     // id this chronicle can reach: the two sets differ only at ids ≥ 143
     // (Ertheia and the awakened classes), which no character here holds.
     let heal_caster = {
-        use crate::model::formulas::HealCaster;
+        use crate::model::formulas::heal::HealCaster;
         match world
             .objects
             .get_component::<crate::model::Player>(&caster_oid)

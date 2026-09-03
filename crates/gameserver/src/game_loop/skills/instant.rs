@@ -37,7 +37,7 @@ pub(super) struct CastCtx {
     pub magic_shots_bonus: f64,
     /// Which of `Heal.instant`'s three caster arms the effector answers to —
     /// `isPlayer() && isMageClass()`, `isSummon()` or `isNpc()`.
-    pub heal_caster: formulas::HealCaster,
+    pub heal_caster: formulas::heal::HealCaster,
 }
 
 /// Java `Formulas.calcMagicDam` together with the multiplier tail every
@@ -75,7 +75,7 @@ fn magic_damage(
     } = *ctx;
     let m_atk = effects::caster_m_atk(world, caster_oid);
     let failure = effects::roll_magic_failure(world, caster_oid, target_oid, skill, is_drain);
-    formulas::calc_magic_dam(
+    formulas::magic::calc_magic_dam(
         m_atk,
         m_def,
         power,
@@ -158,7 +158,7 @@ pub(super) fn magical_attack_range(
                 let from_behind = matches!(position, crate::model::movement::Position::Back)
                     && !crate::game_loop::abnormal::shields_from_all_angles(world, target_oid);
                 (
-                    formulas::calc_shield_use(
+                    formulas::physical::calc_shield_use(
                         t.shield_rate,
                         t.con_bonus,
                         caster_ranged,
@@ -169,18 +169,18 @@ pub(super) fn magical_attack_range(
                     t.shield_def,
                 )
             }
-            _ => (formulas::SHIELD_NONE, 0.0),
+            _ => (formulas::physical::SHIELD_NONE, 0.0),
         }
     };
-    if shield != formulas::SHIELD_NONE {
+    if shield != formulas::physical::SHIELD_NONE {
         helpers::send_sm_bare_to_player(world, target_oid, sm_ids::SHIELD_DEFENSE_SUCCEEDED);
     }
     let caster_name = effects::caster_display_name(world, caster_oid);
-    let damage = if shield == formulas::SHIELD_PERFECT {
+    let damage = if shield == formulas::physical::SHIELD_PERFECT {
         1.0
     } else {
         let mut m_def = effects::target_m_def(world, target_oid);
-        if shield == formulas::SHIELD_SUCCEED {
+        if shield == formulas::physical::SHIELD_SUCCEED {
             m_def += (target_shield_def * shield_def_percent) / 100.0;
         }
         magic_damage(world, ctx, skill, power, m_def, false)
@@ -213,7 +213,7 @@ pub(super) fn magical_attack_mp(
     // an *active bad* skill — all four of these are.
     let defence = if skill.is_bad() { m_def } else { 0.0 };
     let gaussian = world.roll_gaussian();
-    if !formulas::calc_magic_affected(m_atk, defence, gaussian) {
+    if !formulas::magic::calc_magic_affected(m_atk, defence, gaussian) {
         // Java messages both sides and bails.
         helpers::send_sm_bare_to_player(world, caster_oid, sm_ids::YOUR_ATTACK_HAS_FAILED);
         helpers::send_sm_to_player(
@@ -233,7 +233,7 @@ pub(super) fn magical_attack_mp(
         crate::game_loop::combat::shield_stats(world, target_oid);
     let caster_ranged = crate::game_loop::combat::ranged::attacker_is_ranged(world, caster_oid);
     let (rate_roll, perfect_roll) = (world.roll(100), world.roll(100));
-    let shield = formulas::calc_shield_use(
+    let shield = formulas::physical::calc_shield_use(
         shield_rate,
         con_bonus,
         caster_ranged,
@@ -257,13 +257,13 @@ pub(super) fn magical_attack_mp(
         .map(|v| v.max_mp as f64)
         .unwrap_or(0.0);
     let failure = effects::roll_magic_failure(world, caster_oid, target_oid, skill, false);
-    let damage = if shield == formulas::SHIELD_PERFECT {
+    let damage = if shield == formulas::physical::SHIELD_PERFECT {
         1.0
     } else {
-        formulas::calc_mana_dam(
+        formulas::magic::calc_mana_dam(
             m_atk,
             m_def
-                + if shield == formulas::SHIELD_SUCCEED {
+                + if shield == formulas::physical::SHIELD_SUCCEED {
                     shield_def
                 } else {
                     0.0
@@ -405,7 +405,7 @@ pub(super) fn blow(
 
     // `calcBlowSuccess`: does the blow land? A miss is silent
     // (Java's `calcSuccess == false` skips the whole effect).
-    let landed = formulas::calc_blow_success(
+    let landed = formulas::physical::calc_blow_success(
         weapon_crit,
         position,
         crate::game_loop::combat::crit_rate_position_mul(world, caster_oid, position),
@@ -439,12 +439,12 @@ pub(super) fn blow(
     let mut damage = match defence {
         None => 1.0,
         Some(defence) => {
-            let mut d = formulas::calc_blow_damage(
+            let mut d = formulas::physical::calc_blow_damage(
                 p_atk,
                 power,
                 defence,
                 position,
-                formulas::random_damage_multiplier(rand_roll),
+                formulas::physical::random_damage_multiplier(rand_roll),
                 ss,
                 // `Stat.SHOTS_BONUS` — the enchant-scaled shot multiplier
                 // (`ShotsBonusFinalizer`), read live off the attacker.
@@ -468,7 +468,7 @@ pub(super) fn blow(
     // kept here (it stays in the RNG stream either way) and simply
     // has nothing to double.
     if let Some(cc) = critical_chance
-        && formulas::calc_physical_skill_crit(cc, str_bonus, world.roll(100))
+        && formulas::physical::calc_physical_skill_crit(cc, str_bonus, world.roll(100))
         && defence.is_some()
     {
         damage *= 2.0;
@@ -968,7 +968,7 @@ pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) 
         ..
     } = *ctx;
     let m_atk = effects::caster_m_atk(world, caster_oid);
-    let mut amount = formulas::calc_heal(
+    let mut amount = formulas::heal::calc_heal(
         power,
         m_atk,
         mcrit,
@@ -1147,20 +1147,21 @@ pub(super) fn energy_attack(
         base_defence,
         ignore_shield_defence,
     );
-    let crit = formulas::calc_physical_skill_crit(critical_chance, str_bonus, world.roll(100));
+    let crit =
+        formulas::physical::calc_physical_skill_crit(critical_chance, str_bonus, world.roll(100));
     // `energyChargesBoost = 1 + (charge * 0.1)` — 10% bonus damage
     // per charge spent, the whole point of building Force first.
     let energy_charges_boost = 1.0 + charge as f64 * 0.1;
     let damage = match defence {
         None => 1.0,
         Some(defence) => {
-            formulas::calc_physical_skill_damage(
+            formulas::physical::calc_physical_skill_damage(
                 p_atk,
                 1.0, // no separate pAtkMod term in Java's EnergyAttack formula
                 defence,
                 1.0, // already folded into `defence` above
                 power,
-                formulas::level_mod(level),
+                formulas::physical::level_mod(level),
                 1.0, // no random-damage term in Java's EnergyAttack formula
                 crit,
                 crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),

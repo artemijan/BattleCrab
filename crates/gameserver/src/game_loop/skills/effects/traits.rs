@@ -272,7 +272,7 @@ pub(crate) fn pvp_pve_bonus(
         // Java folds in the class-balance config multipliers and a dragon
         // weapon's `DRAGON_WEAPON_DEFENCE` here; the former are blank on this
         // dist (every class 1.0) and dragon weapons post-date Interlude.
-        return formulas::calculate_pvp_pve_bonus(
+        return formulas::progression::calculate_pvp_pve_bonus(
             mul(attacker_oid, atk_stat),
             mul(target_oid, def_stat),
             1.0,
@@ -310,14 +310,14 @@ pub(crate) fn pvp_pve_bonus(
         } else {
             1.0
         };
-        let penalty = formulas::npc_level_damage_penalty(
+        let penalty = formulas::progression::npc_level_damage_penalty(
             &world.cfg.npc.skill_dmg_penalty_for_lvl_differences,
             creature_level(world, target_oid),
             creature_level(world, attacker_oid),
             template(target_oid).is_some_and(|t| t.is_raid()),
             world.cfg.npc.min_npc_level_for_dmg_penalty,
         );
-        return formulas::calculate_pvp_pve_bonus(
+        return formulas::progression::calculate_pvp_pve_bonus(
             mul(attacker_oid, atk_stat),
             mul(target_oid, def_stat),
             1.0,

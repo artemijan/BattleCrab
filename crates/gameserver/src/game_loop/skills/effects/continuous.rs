@@ -216,7 +216,7 @@ pub(crate) fn apply_continuous_effects(
         } else {
             1.0
         };
-        let rate = formulas::calc_effect_land_rate(
+        let rate = formulas::land_rate::calc_effect_land_rate(
             skill.magic_level,
             skill.activate_rate,
             skill.lvl_bonus_rate,
@@ -239,7 +239,7 @@ pub(crate) fn apply_continuous_effects(
                 target_oid,
                 skill.basic_property,
             ),
-            formulas::LandRateBounds::of(&world.cfg.character),
+            formulas::land_rate::LandRateBounds::of(&world.cfg.character),
         );
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
         // message so the outcome line reflects it and the roll order stays stable.

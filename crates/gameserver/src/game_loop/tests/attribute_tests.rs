@@ -6,7 +6,7 @@
 use super::*;
 
 use crate::model::components::{Buffs, StatModifiers, Vitals};
-use crate::model::formulas::calc_attribute_bonus;
+use crate::model::formulas::land_rate::calc_attribute_bonus;
 use crate::model::skill::active_buff::ActiveBuff;
 use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
 use crate::model::skill::target::{OperateType, TargetType};
@@ -79,10 +79,30 @@ fn attribute_bonus_curve_and_caps() {
 
     // The land-rate element factor: a fire debuff vs a fire-weak target
     // (element_mod > 1) lands more often than vs a resistant one.
-    let weak =
-        formulas::calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.2, 1.0, 0.0, 1.0, Default::default());
-    let strong =
-        formulas::calc_effect_land_rate(40, 50, 0, 40, 1.0, 0.8, 1.0, 0.0, 1.0, Default::default());
+    let weak = formulas::land_rate::calc_effect_land_rate(
+        40,
+        50,
+        0,
+        40,
+        1.0,
+        1.2,
+        1.0,
+        0.0,
+        1.0,
+        Default::default(),
+    );
+    let strong = formulas::land_rate::calc_effect_land_rate(
+        40,
+        50,
+        0,
+        40,
+        1.0,
+        0.8,
+        1.0,
+        0.0,
+        1.0,
+        Default::default(),
+    );
     assert!(weak > strong);
 }
 

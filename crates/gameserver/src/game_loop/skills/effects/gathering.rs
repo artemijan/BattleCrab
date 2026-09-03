@@ -49,7 +49,7 @@ pub(crate) fn apply_spoil(world: &mut World, caster_oid: i32, target_oid: i32, s
         .skill_chance_penalty_for_lvl_differences
         .clone();
     let input = magic_success_input(world, caster_oid, target_oid, skill, &penalty);
-    if !formulas::calc_magic_success(&input, world.roll(100)) {
+    if !formulas::magic::calc_magic_success(&input, world.roll(100)) {
         // Magic resisted: `applyEffectScope` skips `instant()` — no effect,
         // and Java sends no message on a failed `calcSuccess`.
         return;

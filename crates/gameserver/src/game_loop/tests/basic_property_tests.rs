@@ -115,7 +115,7 @@ fn mobs_accrue_resistance_and_players_do_not() {
 /// stun through instead of none.
 #[test]
 fn the_two_basic_property_terms_enter_the_formula_at_different_points() {
-    use crate::model::formulas::calc_effect_land_rate;
+    use crate::model::formulas::land_rate::calc_effect_land_rate;
 
     // baseMod = (magicLevel − targetLevel + 3) × lvlBonusRate + activateRate + 30.
     // With lvlBonusRate 0 the level gap drops out: 0 + 50 + 30 = 80, inside the

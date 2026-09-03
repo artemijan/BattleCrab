@@ -24,14 +24,14 @@ fn heal_on_other_restores_hp_with_formula() {
 
     advance_ticks(&mut world, 10); // hit 500 ms + cancel 500 ms
 
-    let heal = formulas::calc_heal(
+    let heal = formulas::heal::calc_heal(
         83.0,
         pcs(&world, 3001).m_atk,
         false,
         false,
         false,
         0,
-        formulas::HealCaster::PlayerMage,
+        formulas::heal::HealCaster::PlayerMage,
         1.0,
     );
     assert!(

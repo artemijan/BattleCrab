@@ -147,7 +147,7 @@ pub(crate) fn magic_success_input<'a>(
     target_oid: i32,
     skill: &Skill,
     penalty: &'a [f64],
-) -> formulas::MagicSuccess<'a> {
+) -> formulas::magic::MagicSuccess<'a> {
     // Java `attacker.isAttackable() || target.isAttackable()`. `isAttackable()`
     // is the `Attackable` class test (monsters, guards, defenders), not
     // `isAutoAttackable` — a peaceful Folk on either side takes the PvP branch.
@@ -170,7 +170,7 @@ pub(crate) fn magic_success_input<'a>(
             .get_component::<npc::minions::MinionOf>(&target_oid)
             .is_some_and(|leader| npc::is_raid_npc(world, leader.0));
 
-    formulas::MagicSuccess {
+    formulas::magic::MagicSuccess {
         pve: is_attackable(caster_oid) || is_attackable(target_oid),
         target_level: creature_level(world, target_oid),
         effective_level: if world
@@ -223,11 +223,11 @@ pub(crate) fn roll_magic_failure(
     target_oid: i32,
     skill: &Skill,
     is_drain: bool,
-) -> formulas::MagicFailure {
+) -> formulas::magic::MagicFailure {
     use server_packets::{SmParam, sm_ids};
 
     if !world.cfg.character.magic_failures {
-        return formulas::MagicFailure::None;
+        return formulas::magic::MagicFailure::None;
     }
 
     let penalty = world
@@ -236,8 +236,8 @@ pub(crate) fn roll_magic_failure(
         .skill_chance_penalty_for_lvl_differences
         .clone();
     let input = magic_success_input(world, caster_oid, target_oid, skill, &penalty);
-    if formulas::calc_magic_success(&input, world.roll(100)) {
-        return formulas::MagicFailure::None;
+    if formulas::magic::calc_magic_success(&input, world.roll(100)) {
+        return formulas::magic::MagicFailure::None;
     }
 
     let caster_is_player = world
@@ -253,7 +253,7 @@ pub(crate) fn roll_magic_failure(
         // Java re-runs `calcMagicSuccess` here — an independent second roll,
         // not a reuse of the first one's result.
         let input = magic_success_input(world, caster_oid, target_oid, skill, &penalty);
-        if formulas::calc_magic_success(&input, world.roll(100)) {
+        if formulas::magic::calc_magic_success(&input, world.roll(100)) {
             if is_drain {
                 // A drain keeps its own retail line, which says the same thing
                 // in the terms of the skill that caused it.
@@ -273,7 +273,7 @@ pub(crate) fn roll_magic_failure(
                     server_packets::system_message(&message),
                 );
             }
-            formulas::MagicFailure::Half
+            formulas::magic::MagicFailure::Half
         } else {
             let target_name = creature_name(world, target_oid);
             send_sm_with(
@@ -288,11 +288,11 @@ pub(crate) fn roll_magic_failure(
                     },
                 ],
             );
-            formulas::MagicFailure::Resisted
+            formulas::magic::MagicFailure::Resisted
         }
     } else {
         // NPC caster: Java leaves `damage` untouched.
-        formulas::MagicFailure::None
+        formulas::magic::MagicFailure::None
     };
 
     if target_is_player {
@@ -467,5 +467,5 @@ pub(crate) fn random_damage_multiplier_of(world: &mut World, oid: i32) -> f64 {
         return 1.0;
     }
     let roll = world.roll(2 * r + 1) - r;
-    crate::model::formulas::random_damage_multiplier(roll)
+    crate::model::formulas::physical::random_damage_multiplier(roll)
 }

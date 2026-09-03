@@ -7,7 +7,7 @@
 
 use super::*;
 
-use crate::model::formulas::calc_auto_attack_crit;
+use crate::model::formulas::physical::calc_auto_attack_crit;
 use crate::model::movement::Position;
 use crate::model::stats::Stat;
 

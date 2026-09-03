@@ -254,7 +254,7 @@ pub(crate) fn crit_damage_auto(
     attacker_oid: i32,
     target_oid: i32,
     position: movement::Position,
-) -> formulas::CritDamage {
+) -> formulas::physical::CritDamage {
     use crate::model::components::StatModifiers;
     use crate::model::stats::Stat;
     let attacker = world.objects.get_component::<StatModifiers>(&attacker_oid);
@@ -270,7 +270,7 @@ pub(crate) fn crit_damage_auto(
     let position_mul = attacker
         .map(|m| m.position_value(Stat::CriticalDamage, position))
         .unwrap_or(1.0);
-    formulas::CritDamage {
+    formulas::physical::CritDamage {
         mul: 2.0
             * mul_of(attacker, Stat::CriticalDamage)
             * position_mul
@@ -289,7 +289,7 @@ pub(crate) fn blow_crit_damage(
     attacker_oid: i32,
     target_oid: i32,
     position: movement::Position,
-) -> formulas::BlowCritDamage {
+) -> formulas::physical::BlowCritDamage {
     use crate::model::components::StatModifiers;
     use crate::model::stats::Stat;
     let attacker = world.objects.get_component::<StatModifiers>(&attacker_oid);
@@ -302,7 +302,7 @@ pub(crate) fn blow_crit_damage(
         .map(|m| m.position_value(Stat::CriticalDamage, position))
         .unwrap_or(1.0);
     let vuln = mul_of(target, Stat::DefenceCriticalDamage);
-    formulas::BlowCritDamage {
+    formulas::physical::BlowCritDamage {
         mult: mul_of(attacker, Stat::CriticalDamage)
             * (((position_mul - 1.0) / 2.0) + 1.0)
             * (((vuln - 1.0) / 2.0) + 1.0),

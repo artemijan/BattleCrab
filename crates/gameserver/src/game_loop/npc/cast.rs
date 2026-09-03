@@ -607,7 +607,8 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     } else {
         (skill.hit_time as f64 / factor) as i32
     };
-    let cool_ms = crate::model::formulas::calc_atk_spd(combat, skill, skill.cool_time as f64);
+    let cool_ms =
+        crate::model::formulas::timing::calc_atk_spd(combat, skill, skill.cool_time as f64);
 
     // Face the target.
     let heading = crate::model::movement::calculate_heading((tx - cx) as f64, (ty - cy) as f64);

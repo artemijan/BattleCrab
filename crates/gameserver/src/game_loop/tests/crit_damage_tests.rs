@@ -10,7 +10,8 @@
 use super::*;
 
 use crate::model::components::StatModifiers;
-use crate::model::formulas::{self, CritDamage};
+use crate::model::formulas;
+use crate::model::formulas::physical::CritDamage;
 use crate::model::movement::Position;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::stats::{Stat, StatQualifier};
@@ -47,7 +48,7 @@ fn crit_stats_do_not_touch_a_normal_hit() {
         mul: 10.0,
         add: 1000.0,
     };
-    let plain = formulas::calc_auto_attack_damage(
+    let plain = formulas::physical::calc_auto_attack_damage(
         100.0,
         1.0,
         Position::Front,
@@ -61,7 +62,7 @@ fn crit_stats_do_not_touch_a_normal_hit() {
         1.0,
         1.0,
     );
-    let with_stats = formulas::calc_auto_attack_damage(
+    let with_stats = formulas::physical::calc_auto_attack_damage(
         100.0,
         1.0,
         Position::Front,
@@ -86,7 +87,7 @@ fn crit_stats_do_not_touch_a_normal_hit() {
 /// which is what every pre-existing damage test relies on.
 #[test]
 fn default_crit_damage_reproduces_the_old_hard_coded_double() {
-    let base = formulas::calc_auto_attack_damage(
+    let base = formulas::physical::calc_auto_attack_damage(
         100.0,
         1.0,
         Position::Front,
@@ -100,7 +101,7 @@ fn default_crit_damage_reproduces_the_old_hard_coded_double() {
         1.0,
         1.0,
     );
-    let crit = formulas::calc_auto_attack_damage(
+    let crit = formulas::physical::calc_auto_attack_damage(
         100.0,
         1.0,
         Position::Front,
@@ -126,7 +127,7 @@ fn default_crit_damage_reproduces_the_old_hard_coded_double() {
 #[test]
 fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
     // pAtk 100, no prox bonus, pDef 50 → base attack term is 100.
-    let doubled = formulas::calc_auto_attack_damage(
+    let doubled = formulas::physical::calc_auto_attack_damage(
         100.0,
         1.0,
         Position::Front,
@@ -140,7 +141,7 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
         1.0,
         1.0,
     );
-    let default_crit = formulas::calc_auto_attack_damage(
+    let default_crit = formulas::physical::calc_auto_attack_damage(
         100.0,
         1.0,
         Position::Front,
@@ -160,7 +161,7 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
     );
 
     // cAtkAdd = 50 → attack becomes (100*2 + 50) = 250, ×77 / 50.
-    let with_add = formulas::calc_auto_attack_damage(
+    let with_add = formulas::physical::calc_auto_attack_damage(
         100.0,
         1.0,
         Position::Front,
@@ -184,7 +185,7 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
 
     // With soulshots the add is applied *after* the ss multiply, so it is
     // NOT doubled: (100*2*2 + 50) rather than ((100*2 + 50)*2).
-    let ss = formulas::calc_auto_attack_damage(
+    let ss = formulas::physical::calc_auto_attack_damage(
         100.0,
         1.0,
         Position::Front,
@@ -211,12 +212,12 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
 /// only when the cast actually crit.
 #[test]
 fn magic_crit_multiplier_applies_only_on_a_magic_crit() {
-    let none = formulas::MagicFailure::None;
-    let plain = formulas::calc_magic_dam(100.0, 60.0, 12.0, false, 3.0, 1.0, none, 1.0);
-    let base = formulas::calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, none, 1.0);
+    let none = formulas::magic::MagicFailure::None;
+    let plain = formulas::magic::calc_magic_dam(100.0, 60.0, 12.0, false, 3.0, 1.0, none, 1.0);
+    let base = formulas::magic::calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, none, 1.0);
     assert_eq!(plain, base, "a non-crit cast ignores the crit multiplier");
 
-    let crit = formulas::calc_magic_dam(100.0, 60.0, 12.0, true, 3.0, 1.0, none, 1.0);
+    let crit = formulas::magic::calc_magic_dam(100.0, 60.0, 12.0, true, 3.0, 1.0, none, 1.0);
     assert!(
         (crit - base * 3.0).abs() < 1e-9,
         "a magic crit takes the full multiplier"
@@ -484,7 +485,7 @@ fn a_physical_skill_crit_reads_the_skill_crit_stats_not_the_autoattack_one() {
 /// would read as a pure buff and pass any back-attack-only test.
 #[test]
 fn focus_chance_scales_crit_rate_per_position_including_downwards() {
-    use crate::model::formulas::calc_critical_position_bonus;
+    use crate::model::formulas::physical::calc_critical_position_bonus;
     use crate::model::movement::Position;
 
     // Unbuffed: Java's flat 1.0 / 1.1 / 1.3.
@@ -518,10 +519,10 @@ fn focus_chance_scales_crit_rate_per_position_including_downwards() {
 /// the damage by 20 %, not 40 %.
 #[test]
 fn a_blow_reads_the_crit_damage_stats() {
-    use crate::model::formulas::BlowCritDamage;
+    use crate::model::formulas::physical::BlowCritDamage;
 
     let blow = |cd: BlowCritDamage| {
-        formulas::calc_blow_damage(200.0, 80.0, 60.0, Position::Back, 1.0, false, 1.0, cd)
+        formulas::physical::calc_blow_damage(200.0, 80.0, 60.0, Position::Back, 1.0, false, 1.0, cd)
     };
     let base = blow(BlowCritDamage::default());
     assert!(base > 0.0);

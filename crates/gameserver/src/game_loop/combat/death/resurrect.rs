@@ -154,7 +154,7 @@ pub(crate) fn revive_request(
         })
         .unwrap_or(1.0);
     let restore_percent =
-        crate::model::formulas::calc_resurrect_restore_percent(power as f64, wit_bonus);
+        crate::model::formulas::land_rate::calc_resurrect_restore_percent(power as f64, wit_bonus);
 
     let lost = if is_pet {
         // A pet's restorable exp is the gap the death penalty opened.

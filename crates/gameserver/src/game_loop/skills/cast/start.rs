@@ -75,7 +75,7 @@ pub(crate) fn start_casting(
                 crate::model::stats::Stat::PhysicalAttackSpeed,
             )
         });
-    let (hit_ms, cancel_ms, cool_ms) = formulas::calc_cast_times(
+    let (hit_ms, cancel_ms, cool_ms) = formulas::timing::calc_cast_times(
         player,
         base,
         mods,

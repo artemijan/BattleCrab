@@ -890,7 +890,7 @@ pub(crate) fn player_receive_damage_ex(
         // `bow` branch belongs to an auto-attack in flight, which this path
         // does not model.
         let applies = world.cfg.character.alt_game_cancel_cast;
-        if formulas::calc_atk_break(
+        if formulas::progression::calc_atk_break(
             damage, men_bonus, break_roll, cancel_add, cancel_mul, applies,
         ) {
             break_cast(world, player_oid);

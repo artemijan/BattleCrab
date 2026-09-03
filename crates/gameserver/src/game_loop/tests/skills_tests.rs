@@ -1128,14 +1128,14 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
 
     let m_atk = pcs(&world, 3001).m_atk;
     let m_def = pcs(&world, 3002).m_def;
-    let damage = formulas::calc_magic_dam(
+    let damage = formulas::magic::calc_magic_dam(
         m_atk,
         m_def,
         12.0,
         false,
         2.0,
         1.0,
-        formulas::MagicFailure::None,
+        formulas::magic::MagicFailure::None,
         1.0,
     );
     assert!(
@@ -2445,14 +2445,14 @@ fn nuke_on_a_same_level_monster_deals_full_damage() {
     add_test_npc(&mut world, npc_oid, 40098, "Monster", 5, 100, 0, 0);
     let m_atk = pcs(&world, 3001).m_atk;
     let m_def = pcs(&world, npc_oid).m_def; // `pcs` reads any object's CombatStats
-    let unresisted = formulas::calc_magic_dam(
+    let unresisted = formulas::magic::calc_magic_dam(
         m_atk,
         m_def,
         12.0,
         false,
         2.0,
         1.0,
-        formulas::MagicFailure::None,
+        formulas::magic::MagicFailure::None,
         1.0,
     );
     assert!(
@@ -5166,7 +5166,7 @@ fn archery_passive_raises_bow_attack_range() {
 
 /// G19 `FatalBlowRate`: Assassination (432, real dist data, unconditioned
 /// `PER +3`) raises `Stat::BlowRate`, the caster-side multiplier
-/// `formulas::calc_blow_success` folds into the Backstab/Lethal-Blow-style
+/// `formulas::physical::calc_blow_success` folds into the Backstab/Lethal-Blow-style
 /// landing roll. Before this slice `Stat::BlowRate` didn't exist and the
 /// formula had no term for it at all — the skill was a passive that did
 /// nothing. Checked at the `StatModifiers` level (the formula's own boundary
@@ -5703,7 +5703,7 @@ fn energy_attack_spends_charges_for_bonus_damage() {
     // one actually consumes a pushed value depends on tick timing rather
     // than cast order — tolerate either outcome instead of fighting that.
     let level = world.objects.get_component::<Player>(&5511).unwrap().level;
-    let level_mod = formulas::level_mod(level);
+    let level_mod = formulas::physical::level_mod(level);
     let base = (77.0 * ((p_atk * level_mod) + 369.0) / p_def.max(1.0)) * 1.2;
     let actual_damage = npc_hp_before - pvit(&world, npc_oid).cur_hp;
     assert!(
@@ -6552,11 +6552,12 @@ fn own_summon_interact_fires_summon_talk() {
 /// time.
 #[test]
 fn magic_damage_varies_with_the_casters_random_spread() {
-    use crate::model::formulas::{self, MagicFailure};
+    use crate::model::formulas;
+    use crate::model::formulas::magic::MagicFailure;
 
     // The formula's own term first: ±10 % around the deterministic value.
     let at = |random_mul: f64| {
-        formulas::calc_magic_dam(
+        formulas::magic::calc_magic_dam(
             100.0,
             60.0,
             12.0,
@@ -6619,7 +6620,7 @@ fn a_charged_spiritshot_shortens_the_cast() {
             .objects
             .get_component::<StatModifiers>(&3001)
             .expect("mods");
-        formulas::calc_skill_time_factor(p, base, mods, &world.data, skill, charged, None)
+        formulas::timing::calc_skill_time_factor(p, base, mods, &world.data, skill, charged, None)
     };
 
     let plain = factor(false, &world);
@@ -6646,7 +6647,15 @@ fn a_charged_spiritshot_shortens_the_cast() {
         .get_component::<StatModifiers>(&3001)
         .expect("mods");
     assert_eq!(
-        formulas::calc_skill_time_factor(p, base, mods, &world.data, &channeled, true, None),
+        formulas::timing::calc_skill_time_factor(
+            p,
+            base,
+            mods,
+            &world.data,
+            &channeled,
+            true,
+            None
+        ),
         1.0,
         "a channeling skill's timing is static"
     );

@@ -500,9 +500,15 @@ fn a_physical_skill_casts_at_the_weapons_attack_speed() {
         .objects
         .get_component::<crate::model::components::StatModifiers>(&oid)
         .expect("stat modifiers");
-    let bare = crate::model::formulas::calc_atk_spd_multiplier(p, base, mods, &world.data, None);
-    let armed =
-        crate::model::formulas::calc_atk_spd_multiplier(p, base, mods, &world.data, weapon_speed);
+    let bare =
+        crate::model::formulas::timing::calc_atk_spd_multiplier(p, base, mods, &world.data, None);
+    let armed = crate::model::formulas::timing::calc_atk_spd_multiplier(
+        p,
+        base,
+        mods,
+        &world.data,
+        weapon_speed,
+    );
     assert!(
         (armed / bare - 379.0 / template_base).abs() < 1e-9,
         "the multiplier scales by weapon/template ({armed} vs {bare}, base {template_base})"

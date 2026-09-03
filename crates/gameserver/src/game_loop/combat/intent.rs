@@ -218,14 +218,14 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
 
     // Damage: pAtk vs the door's pDef (front, no crit, no shot).
     let door_pdef = target_p_def(world, door_oid);
-    let damage = formulas::calc_auto_attack_damage(
+    let damage = formulas::physical::calc_auto_attack_damage(
         attacker.p_atk,
         1.0,
         movement::Position::Front,
         door_pdef,
         false,
         // A door swing never crits, so the crit stats are never read.
-        formulas::CritDamage::default(),
+        formulas::physical::CritDamage::default(),
         false,
         // No shot is spent on a door, so `SHOTS_BONUS` never multiplies
         // anything — Java's `ssBonus` is a flat 1 on the `ss == false` arm.
@@ -254,7 +254,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
 
     // Pace the loop: hold the next swing for the attacker's attack period and
     // fire the swing-end hook (queued action), exactly like `do_auto_attack`.
-    let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
+    let time_atk = formulas::timing::calculate_time_between_attacks(attacker.p_atk_spd);
     let now = world.tick;
     let mut swing_seq = 0;
     if let Some(st) = world
@@ -274,7 +274,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     // schedules `onHitTimeNotDual`); the shared `AttackHit` task carries the
     // door branch, and the seq guard drops it if the swing is aborted.
     let two_handed = wields_two_handed(world, attacker_oid);
-    let time_to_hit = formulas::calculate_time_to_hit(time_atk, two_handed);
+    let time_to_hit = formulas::timing::calculate_time_to_hit(time_atk, two_handed);
     world.scheduler.schedule(
         now + ms_to_ticks(time_to_hit),
         ScheduledTask::AttackHit {

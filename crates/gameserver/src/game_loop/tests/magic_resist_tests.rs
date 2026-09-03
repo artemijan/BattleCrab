@@ -8,7 +8,7 @@
 
 use super::*;
 
-use crate::model::formulas::{MagicSuccess, calc_magic_success_rate};
+use crate::model::formulas::magic::{MagicSuccess, calc_magic_success_rate};
 use crate::model::stats::Stat;
 
 const DIST: &str = crate::data::DIST_GAME;

@@ -366,13 +366,13 @@ fn melee_kill_rewards_and_decay() {
     // Attacker at (0,0), target heading 0 at (30,0) → attacker is BEHIND.
     let p_atk = pcs(&world, 3001).p_atk;
     let p_def = 40.0 * (5.0 + 89.0) / 100.0;
-    let expected = formulas::calc_auto_attack_damage(
+    let expected = formulas::physical::calc_auto_attack_damage(
         p_atk,
         1.0,
         model::movement::Position::Back,
         p_def,
         false,
-        formulas::CritDamage::default(),
+        formulas::physical::CritDamage::default(),
         false,
         1.0,
         false,

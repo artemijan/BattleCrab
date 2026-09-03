@@ -38,7 +38,9 @@
 //! did on the day they were written. The transcription is checked in instead,
 //! and it can be re-read against Java's source by anyone.
 
-use gameserver::model::formulas::{self, CritDamage, HealCaster};
+use gameserver::model::formulas;
+use gameserver::model::formulas::heal::HealCaster;
+use gameserver::model::formulas::physical::CritDamage;
 use gameserver::model::movement::Position;
 
 // `common` is shared with the census tests, which use more of it than the
@@ -50,7 +52,7 @@ mod common;
 /// came from; nothing here calls the port.
 mod java {
     use gameserver::data::item_data::CrystalType as Grade;
-    use gameserver::model::formulas::HealCaster as Caster;
+    use gameserver::model::formulas::heal::HealCaster as Caster;
     use gameserver::model::movement::Position;
 
     /// `Formulas.calcAutoAttackDamage`:
@@ -1159,7 +1161,7 @@ fn auto_attack_damage_matches_java_across_the_grid() {
                                                 mul: c_mul,
                                                 add: c_add,
                                             };
-                                            let ours = formulas::calc_auto_attack_damage(
+                                            let ours = formulas::physical::calc_auto_attack_damage(
                                                 p_atk,
                                                 random_mul,
                                                 position,
@@ -1216,7 +1218,7 @@ fn auto_attack_damage_matches_java_across_the_grid() {
 #[test]
 fn the_ranged_weapon_mod_doubles_and_its_crit_splits() {
     let plain = |is_ranged| {
-        formulas::calc_auto_attack_damage(
+        formulas::physical::calc_auto_attack_damage(
             100.0,
             1.0,
             Position::Front,
@@ -1240,7 +1242,7 @@ fn the_ranged_weapon_mod_doubles_and_its_crit_splits() {
     // melee crit takes the crit branch alone. With cAtk 2 that makes the
     // ranged crit 1.5× its own flat hit, not 2×.
     let crit = |is_ranged| {
-        formulas::calc_auto_attack_damage(
+        formulas::physical::calc_auto_attack_damage(
             100.0,
             1.0,
             Position::Front,
@@ -1271,7 +1273,7 @@ fn attribute_bonus_matches_java_across_the_band() {
     for attack in (0..=400).step_by(7) {
         for defence in (0..=400).step_by(11) {
             let (a, d) = (attack as f64, defence as f64);
-            let ours = formulas::calc_attribute_bonus(a, d);
+            let ours = formulas::land_rate::calc_attribute_bonus(a, d);
             let theirs = java::attribute_bonus(a, d);
             assert!(
                 (ours - theirs).abs() < 1e-9,
@@ -1295,7 +1297,7 @@ fn physical_skill_damage_matches_java_across_the_grid() {
                             for &(ss, shots_bonus) in SHOTS {
                                 for &is_ranged in &[false, true] {
                                     for &m in MODS {
-                                        let ours = formulas::calc_physical_skill_damage(
+                                        let ours = formulas::physical::calc_physical_skill_damage(
                                             p_atk,
                                             1.0,
                                             p_def,
@@ -1349,7 +1351,7 @@ fn physical_skill_damage_matches_java_across_the_grid() {
 /// `randomMod` the port had been dropping.
 #[test]
 fn magic_damage_matches_java_across_the_grid() {
-    use gameserver::model::formulas::MagicFailure;
+    use gameserver::model::formulas::magic::MagicFailure;
 
     let mut cases = 0usize;
     for &m_atk in &[1.0, 40.0, 900.0, 4_000.0] {
@@ -1364,7 +1366,7 @@ fn magic_damage_matches_java_across_the_grid() {
                         for &mcrit in &[false, true] {
                             for &random_mod in RANDOM_MULS {
                                 for &m in MODS {
-                                    let ours = formulas::calc_magic_dam(
+                                    let ours = formulas::magic::calc_magic_dam(
                                         m_atk, m_def, power, mcrit, 3.0, shots, failure, random_mod,
                                     ) * m;
                                     let theirs = java::magic_damage(
@@ -1393,7 +1395,7 @@ fn magic_damage_matches_java_across_the_grid() {
 /// that only bites when the attacker carries the stats.
 #[test]
 fn blow_damage_matches_java_across_the_grid() {
-    use gameserver::model::formulas::BlowCritDamage;
+    use gameserver::model::formulas::physical::BlowCritDamage;
 
     let mut cases = 0usize;
     for &p_atk in P_ATKS {
@@ -1405,7 +1407,7 @@ fn blow_damage_matches_java_across_the_grid() {
                             for &cd_mult in &[1.0, 1.35, 2.2] {
                                 for &cd_patk in &[0.0, 18.0] {
                                     for &m in MODS {
-                                        let ours = formulas::calc_blow_damage(
+                                        let ours = formulas::physical::calc_blow_damage(
                                             p_atk,
                                             power,
                                             p_def,
@@ -1454,7 +1456,7 @@ fn blow_damage_matches_java_across_the_grid() {
 /// pvp/pve multipliers go in **before** the crit's `min(damage·3, critLimit)`.
 #[test]
 fn mana_damage_matches_java_across_the_grid() {
-    use gameserver::model::formulas::MagicFailure;
+    use gameserver::model::formulas::magic::MagicFailure;
 
     let mut cases = 0usize;
     for &m_atk in &[1.0, 40.0, 900.0, 4_000.0] {
@@ -1471,7 +1473,7 @@ fn mana_damage_matches_java_across_the_grid() {
                             // bind on every input.
                             for &limit in &[100.0, 1_450.0, 7_000.0] {
                                 for &m in MODS {
-                                    let ours = formulas::calc_mana_dam(
+                                    let ours = formulas::magic::calc_mana_dam(
                                         m_atk, m_def, max_mp, power, 1.0, failure, mcrit, limit, m,
                                         m,
                                     );
@@ -1527,13 +1529,13 @@ fn timing_formulas_match_java_across_the_grid() {
                     ..Default::default()
                 };
                 assert_eq!(
-                    formulas::calc_atk_spd(&combat, &skill, skill_time),
+                    formulas::timing::calc_atk_spd(&combat, &skill, skill_time),
                     java::atk_spd(skill_time, spd, magic),
                     "calcAtkSpd diverged at skillTime {skill_time}, spd {spd}, magic {magic}"
                 );
             }
             assert_eq!(
-                formulas::calculate_time_between_attacks(spd),
+                formulas::timing::calculate_time_between_attacks(spd),
                 java::time_between_attacks(spd),
                 "calculateTimeBetweenAttacks diverged at {spd}"
             );
@@ -1592,7 +1594,7 @@ fn heal_amount_matches_java_across_the_grid() {
                     for &caster in CASTERS {
                         for &shots_bonus in &[1.0, 1.012, 1.048] {
                             for &mcrit in &[false, true] {
-                                let ours = formulas::calc_heal(
+                                let ours = formulas::heal::calc_heal(
                                     power,
                                     m_atk,
                                     mcrit,
@@ -1641,7 +1643,7 @@ fn shield_use_matches_java_across_the_grid() {
             for &ranged in &[false, true] {
                 for rate_roll in [0, 19, 25, 26, 50, 99] {
                     for perfect_roll in [0, 50, 71, 72, 99] {
-                        let ours = formulas::calc_shield_use(
+                        let ours = formulas::physical::calc_shield_use(
                             shield_rate,
                             con_bonus,
                             ranged,
@@ -1682,7 +1684,7 @@ fn shield_use_matches_java_across_the_grid() {
 /// continuous skill whose `activateRate` is not the `-1` sentinel.
 #[test]
 fn effect_land_rate_matches_java_across_the_grid() {
-    let bounds = formulas::LandRateBounds {
+    let bounds = formulas::land_rate::LandRateBounds {
         min: 10.0,
         max: 90.0,
     };
@@ -1697,7 +1699,7 @@ fn effect_land_rate_matches_java_across_the_grid() {
                                 for &(basic_property, basic_resist) in
                                     &[(0.0, 1.0), (13.0, 0.6), (40.0, 0.0)]
                                 {
-                                    let ours = formulas::calc_effect_land_rate(
+                                    let ours = formulas::land_rate::calc_effect_land_rate(
                                         magic_level,
                                         activate_rate,
                                         lvl_bonus_rate,
@@ -1762,7 +1764,7 @@ fn magic_success_rate_matches_java_across_the_grid() {
                             &[(100, 100), (100, 118), (100, 122), (100, 128), (100, 140)]
                         {
                             for &res_modifier in &[0.5, 1.0, 1.3] {
-                                let input = formulas::MagicSuccess {
+                                let input = formulas::magic::MagicSuccess {
                                     pve,
                                     target_level,
                                     effective_level,
@@ -1774,7 +1776,7 @@ fn magic_success_rate_matches_java_across_the_grid() {
                                     magic_evasion,
                                     res_modifier,
                                 };
-                                let ours = formulas::calc_magic_success_rate(&input);
+                                let ours = formulas::magic::calc_magic_success_rate(&input);
                                 let theirs = java::magic_success_rate(
                                     pve,
                                     target_level,
@@ -1813,7 +1815,7 @@ fn magic_success_rate_matches_java_across_the_grid() {
 fn resurrect_restore_matches_java_across_the_band() {
     for base in [0.0, 1.0, 20.0, 35.0, 50.0, 70.0, 85.0, 100.0] {
         for wit_bonus in [0.5, 1.0, 1.16, 1.4, 2.0, 3.0] {
-            let ours = formulas::calc_resurrect_restore_percent(base, wit_bonus);
+            let ours = formulas::land_rate::calc_resurrect_restore_percent(base, wit_bonus);
             let theirs = java::resurrect_restore_percent(base, wit_bonus);
             assert_eq!(
                 ours.to_bits(),
@@ -2001,7 +2003,8 @@ fn hit_rolls_match_java_across_the_grid() {
                              {ours} vs {theirs}"
                         );
                         for &roll in ROLLS_1000 {
-                            let ours = formulas::calc_hit_miss(accuracy, evasion, theirs, roll);
+                            let ours =
+                                formulas::physical::calc_hit_miss(accuracy, evasion, theirs, roll);
                             let theirs = java::hit_miss(accuracy, evasion, theirs, roll);
                             assert_eq!(
                                 ours, theirs,
@@ -2044,7 +2047,7 @@ fn auto_attack_crit_rolls_match_java_across_the_grid() {
                             for &attacker_level in LEVELS {
                                 for &target_level in LEVELS {
                                     for &roll in ROLLS_100 {
-                                        let ours = formulas::calc_auto_attack_crit(
+                                        let ours = formulas::physical::calc_auto_attack_crit(
                                             crit_stat,
                                             defence_mul,
                                             defence_add,
@@ -2096,7 +2099,8 @@ fn the_critical_height_bonus_is_flat_one_at_every_z() {
     for &z in Z_DIFFS {
         for &to_z in &[-1_000, 0, 1_000] {
             assert!(
-                (formulas::calc_critical_height_bonus(z + to_z, to_z) - 1.0).abs() < 1e-12,
+                (formulas::physical::calc_critical_height_bonus(z + to_z, to_z) - 1.0).abs()
+                    < 1e-12,
                 "height bonus moved at z {z}"
             );
             assert!(
@@ -2120,7 +2124,7 @@ fn skill_crit_rolls_match_java_across_the_grid() {
             for &caster_level in LEVELS {
                 for &target_level in LEVELS {
                     for &roll in ROLLS_1000 {
-                        let ours = formulas::calc_magic_crit(
+                        let ours = formulas::magic::calc_magic_crit(
                             rate,
                             is_bad,
                             caster_level,
@@ -2144,7 +2148,7 @@ fn skill_crit_rolls_match_java_across_the_grid() {
     for &chance in &[0.0, 5.0, 10.0, 15.0, 40.0, 100.0] {
         for &stat_bonus in &[0.5, 1.0, 1.2, 3.0] {
             for &roll in ROLLS_100 {
-                let ours = formulas::calc_physical_skill_crit(chance, stat_bonus, roll);
+                let ours = formulas::physical::calc_physical_skill_crit(chance, stat_bonus, roll);
                 // `CRITICAL_RATE_SKILL` has no carrier on this dist, so the
                 // rate bonus is the identity the port folds away.
                 let theirs = java::physical_skill_crit(chance, stat_bonus, 1.0, roll);
@@ -2174,7 +2178,7 @@ fn blow_success_matches_java_across_the_grid() {
                         for &blow_rate_mod in &[1.0, 1.03, 1.3] {
                             for &limit in &[80.0, 100.0] {
                                 for &roll in ROLLS_100 {
-                                    let ours = formulas::calc_blow_success(
+                                    let ours = formulas::physical::calc_blow_success(
                                         weapon_critical,
                                         position,
                                         position_mul,
@@ -2228,7 +2232,7 @@ fn atk_break_matches_java_across_the_grid() {
             for &cancel_mul in &[1.0, 0.5, 1.4] {
                 for &cancel_add in &[0.0, -20.0, 30.0] {
                     for &roll in ROLLS_100 {
-                        let ours = formulas::calc_atk_break(
+                        let ours = formulas::progression::calc_atk_break(
                             dmg, men_bonus, roll, cancel_add, cancel_mul, true,
                         );
                         let theirs = java::atk_break(dmg, men_bonus, cancel_mul, cancel_add, roll);
@@ -2243,7 +2247,9 @@ fn atk_break_matches_java_across_the_grid() {
             }
         }
         // The gates are the caller's, and a closed gate is an unconditional no.
-        assert!(!formulas::calc_atk_break(dmg, 1.0, 0, 0.0, 1.0, false));
+        assert!(!formulas::progression::calc_atk_break(
+            dmg, 1.0, 0, 0.0, 1.0, false
+        ));
     }
     assert!(cases > 1_000, "the grid collapsed to {cases} cases");
 }
@@ -2261,7 +2267,7 @@ fn pvp_pve_bonus_matches_java_across_the_grid() {
             for &raid_attack_mul in &[1.0, 1.2] {
                 for &raid_defence_mul in &[1.0, 1.3] {
                     for &penalty in &[1.0, 0.7, 0.35, 0.05] {
-                        let ours = formulas::calculate_pvp_pve_bonus(
+                        let ours = formulas::progression::calculate_pvp_pve_bonus(
                             attack_mul,
                             defence_mul,
                             raid_attack_mul,
@@ -2301,7 +2307,7 @@ fn magic_affected_matches_java_across_the_grid() {
     for &m_atk in &[1.0, 50.0, 300.0, 2_000.0] {
         for &defence in &[0.0, 50.0, 300.0, 2_000.0] {
             for &gaussian in &[-4.0, -1.0, -0.25, 0.0, 0.25, 1.0, 4.0] {
-                let ours = formulas::calc_magic_affected(m_atk, defence, gaussian);
+                let ours = formulas::magic::calc_magic_affected(m_atk, defence, gaussian);
                 // No `MagicalAttackMp` carrier declares a `<trait>`, so Java's
                 // `calcGeneralTraitBonus` returns 1 for every drain here.
                 let theirs = java::magic_affected(m_atk, defence, 1.0, gaussian);
@@ -2315,7 +2321,7 @@ fn magic_affected_matches_java_across_the_grid() {
     }
     // Java divides by zero when both sides are 0 and gets NaN, which compares
     // false; the port guards explicitly and returns the same answer.
-    assert!(!formulas::calc_magic_affected(0.0, 0.0, 5.0));
+    assert!(!formulas::magic::calc_magic_affected(0.0, 0.0, 5.0));
     assert!(cases > 50, "the grid collapsed to {cases} cases");
 }
 
@@ -2324,7 +2330,7 @@ fn magic_affected_matches_java_across_the_grid() {
 #[test]
 fn random_damage_multiplier_matches_java_across_the_band() {
     for roll in -30..=30 {
-        let ours = formulas::random_damage_multiplier(roll);
+        let ours = formulas::physical::random_damage_multiplier(roll);
         let theirs = java::random_damage_multiplier(roll);
         assert!(
             (ours - theirs).abs() < 1e-12,
