@@ -494,7 +494,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32) -> Option<()> {
         .remove_item(ADENA_ID, price);
     increase_prize(world, price);
 
-    let ticket_oid = *crate::game_loop::items::add_inventory_item(world, player, TICKET_ITEM, 1)?
+    let ticket_oid = *inventory::add_inventory_item(world, player, TICKET_ITEM, 1)?
         .first()
         .unwrap();
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
@@ -596,8 +596,7 @@ fn claim_ticket(world: &mut World, client_id: u32, player: i32, item_oid: i32) {
             .into_iter()
             .collect();
     if prize > 0
-        && let Some(oids) =
-            crate::game_loop::items::add_inventory_item(world, player, ADENA_ID, prize)
+        && let Some(oids) = inventory::add_inventory_item(world, player, ADENA_ID, prize)
         && let Some(inv) = world.objects.get_component::<Inventory>(&player)
         && let Some(it) = inv.by_object_id(oids[0])
     {

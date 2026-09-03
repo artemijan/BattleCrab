@@ -180,8 +180,8 @@ pub struct Inventory {
     /// or the owning player. Rather than route all ~43 callers of
     /// [`Self::remove_item`] through a `World`-aware helper (borrow surgery at
     /// every site, for an audit feature), the removal is *noted* here and
-    /// [`crate::game_loop::items::drain_item_audit`] turns it into a record on
-    /// the next tick, where the context exists.
+    /// [`crate::game_loop::character::inventory::drain_item_audit`] turns it
+    /// into a record on the next tick, where the context exists.
     ///
     /// Only ever appended by the removal methods and drained by that function,
     /// so an inventory nobody drains (mail attachments, which never call the
@@ -567,7 +567,8 @@ impl Inventory {
     }
 
     /// Takes the noted losses, leaving the buffer empty. Called by
-    /// [`crate::game_loop::items::drain_item_audit`] — see [`Self::pending_audit`].
+    /// [`crate::game_loop::character::inventory::drain_item_audit`] — see
+    /// [`Self::pending_audit`].
     pub fn take_pending_audit(&mut self) -> Vec<(i32, i64)> {
         std::mem::take(&mut self.pending_audit)
     }

@@ -29,6 +29,7 @@
 //! SUBPLEDGE arm rather than deferred — it is a *verified skip*, not a
 //! gap).
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::clans::clan_of;
 use tracing::info;
 
@@ -162,7 +163,7 @@ pub(crate) fn graduate(world: &mut World, player_oid: i32) -> bool {
         sm_ids::CONGRATULATIONS_YOU_WILL_NOW_GRADUATE_FROM_THE_CLAN_ACADEMY,
     );
     // The graduation gift.
-    let _ = crate::game_loop::items::add_inventory_item(world, player_oid, ACADEMY_CIRCLET, 1);
+    let _ = inventory::add_inventory_item(world, player_oid, ACADEMY_CIRCLET, 1);
 
     info!("GameLoop: '{name}' graduated from clan {clan_id}'s academy (+{points} rep).");
     true

@@ -7,6 +7,7 @@
 
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::character::inventory;
 use crate::game_loop::servitor::evolve;
 use crate::game_loop::skills::skill_by_id;
 use crate::model::components::ServitorOf;
@@ -4769,7 +4770,7 @@ fn a_pet_ticket_exchanges_for_a_collar() {
     assert_eq!(count_of(&world, 6650), 0);
 
     // Kookaburra ticket 7585 → collar 6650.
-    items::add_inventory_item(&mut world, OWNER, 7585, 1).unwrap();
+    inventory::add_inventory_item(&mut world, OWNER, 7585, 1).unwrap();
     evolve::handle_exchange(&mut world, CID, OWNER, 0, "exchange 1");
     assert_eq!(count_of(&world, 7585), 0, "the ticket is taken");
     assert_eq!(count_of(&world, 6650), 1, "the collar is given");

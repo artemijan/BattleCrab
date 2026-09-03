@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::character::inventory;
 use crate::game_loop::client::user_commands;
 use crate::model::skill::{AffectObject, AffectScope};
 
@@ -577,7 +578,7 @@ fn a_ward_carrier_cannot_teleport() {
     flag.item_id = 9819;
     flag.name = "Combat Flag".into();
     world.data.item_data.insert_for_test(flag);
-    items::add_inventory_item(&mut world, 3001, 9819, 1);
+    inventory::add_inventory_item(&mut world, 3001, 9819, 1);
     drain(&mut rx);
 
     handle_request_bypass_to_server(

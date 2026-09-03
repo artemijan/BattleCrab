@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::character::inventory;
 use crate::game_loop::commerce::shop;
 use crate::game_loop::items::ground_items;
 use crate::game_loop::{npc, quests};
@@ -295,7 +296,7 @@ fn quest_q00258_accept_collect_turn_in() {
     assert!(sound_names(&pkts).contains(&"ItemSound.quest_itemget".to_string()));
 
     // 38 more pelts, then the 40th kill flips cond 2 (+ mark + middle).
-    items::add_inventory_item(&mut world, 3001, 702, 38).unwrap();
+    inventory::add_inventory_item(&mut world, 3001, 702, 38).unwrap();
     let wolf2 = NPC_OID + 2;
     add_test_npc(&mut world, wolf2, 20442, "Monster", 5, 30, 0, 0);
     npc::npc_do_die(&mut world, wolf2, 3001);
@@ -433,7 +434,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     drain(&mut rx);
 
     // 9 bones banked, the 10th caps the collection: cond 2 + middle sound.
-    items::add_inventory_item(&mut world, 3001, 809, 8).unwrap();
+    inventory::add_inventory_item(&mut world, 3001, 809, 8).unwrap();
     let skel3 = NPC_OID + 3;
     add_test_npc(&mut world, skel3, 20517, "Monster", 5, 30, 0, 0);
     world.force_roll(0);
@@ -496,7 +497,7 @@ fn quest_abort_wipes_state_and_items() {
             "npc_{NPC_OID}_Quest Q00258_BringWolfPelts 30001-03.html"
         )),
     );
-    items::add_inventory_item(&mut world, 3001, 702, 5).unwrap();
+    inventory::add_inventory_item(&mut world, 3001, 702, 5).unwrap();
     drain(&mut rx);
     drain_db(&mut db_rx);
 
@@ -750,9 +751,9 @@ fn sell_list_hides_unsellable_and_refund_round_trips() {
                 ..Default::default()
             });
     }
-    items::add_inventory_item(&mut world, 3001, 9001, 1);
-    items::add_inventory_item(&mut world, 3001, 9002, 1);
-    items::add_inventory_item(&mut world, 3001, 9003, 10);
+    inventory::add_inventory_item(&mut world, 3001, 9001, 1);
+    inventory::add_inventory_item(&mut world, 3001, 9002, 1);
+    inventory::add_inventory_item(&mut world, 3001, 9003, 10);
     let obj_of = |world: &World, item_id: i32| {
         world
             .objects
@@ -869,7 +870,7 @@ fn refund_container_caps_at_twelve() {
             price: 60,
             ..Default::default()
         });
-    items::add_inventory_item(&mut world, 3001, 9003, 20);
+    inventory::add_inventory_item(&mut world, 3001, 9003, 20);
     let potion_oid = world
         .objects
         .get_component::<Inventory>(&3001)
@@ -1196,7 +1197,7 @@ fn orc_change1_first_class_transfer() {
         p.class_id = 44; // Orc Fighter
         p.base_class_id = 44;
     }
-    items::add_inventory_item(&mut world, 3001, 1592, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1592, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -1282,7 +1283,7 @@ fn teleport_with_charm_consumes_token() {
     );
 
     // With a token: teleport + consumption.
-    items::add_inventory_item(&mut world, 3001, 1659, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1659, 1);
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
     assert_eq!(item_count(&world, 3001, 1659), 0, "token consumed");
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
@@ -1454,7 +1455,7 @@ fn request_sell_item_pays_adena() {
             enchant_limit: 0,
             is_magic_weapon: false,
         });
-    items::add_inventory_item(&mut world, 3001, 5000, 10).expect("trophies");
+    inventory::add_inventory_item(&mut world, 3001, 5000, 10).expect("trophies");
     let oid = item_oid(&world, 3001, 5000);
     drain(&mut rx);
 
@@ -1694,7 +1695,7 @@ fn dwarf_warehouse_change1_first_class_transfer() {
         p.class_id = 53;
         p.base_class_id = 53;
     }
-    items::add_inventory_item(&mut world, 3001, 1642, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1642, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -1750,7 +1751,7 @@ fn dwarf_change1_refuses_below_level_20() {
         p.class_id = 53;
         p.base_class_id = 53;
     }
-    items::add_inventory_item(&mut world, 3001, 1635, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1635, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -1903,7 +1904,7 @@ fn elf_human_fighter_change1_transfers_by_race() {
         p.class_id = 0; // Fighter
         p.base_class_id = 0;
     }
-    items::add_inventory_item(&mut world, 3001, 1145, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1145, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -1974,7 +1975,7 @@ fn elf_human_wizard_change1_elf_branch() {
         p.class_id = 25; // Elven Mage
         p.base_class_id = 25;
     }
-    items::add_inventory_item(&mut world, 3001, 1235, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1235, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -2070,7 +2071,7 @@ fn dark_elf_change1_transfers_by_row_index() {
         p.class_id = 31; // Dark Fighter
         p.base_class_id = 31;
     }
-    items::add_inventory_item(&mut world, 3001, 1244, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1244, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -2108,7 +2109,7 @@ fn dark_elf_change1_rejects_the_wrong_source_class() {
         p.class_id = 38; // Dark MAGE asking for the fighter row
         p.base_class_id = 38;
     }
-    items::add_inventory_item(&mut world, 3001, 1244, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1244, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -2394,7 +2395,7 @@ fn dwarf_change2_second_class_transfer() {
         p.base_class_id = 56;
     }
     for id in [3119, 3238, 2867] {
-        items::add_inventory_item(&mut world, 3001, id, 1);
+        inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2450,8 +2451,8 @@ fn dwarf_change2_requires_all_three_marks() {
         p.base_class_id = 56;
     }
     // Two of the three.
-    items::add_inventory_item(&mut world, 3001, 3119, 1);
-    items::add_inventory_item(&mut world, 3001, 3238, 1);
+    inventory::add_inventory_item(&mut world, 3001, 3119, 1);
+    inventory::add_inventory_item(&mut world, 3001, 3238, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -2513,7 +2514,7 @@ fn dwarf_change2_requires_level_40() {
         p.base_class_id = 54;
     }
     for id in [3119, 3238, 2809] {
-        items::add_inventory_item(&mut world, 3001, id, 1);
+        inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2601,7 +2602,7 @@ fn orc_change2_transfer_pays_coupons() {
         p.base_class_id = 45;
     }
     for id in [2627, 3203, 3276] {
-        items::add_inventory_item(&mut world, 3001, id, 1);
+        inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2653,7 +2654,7 @@ fn dark_elf_change2_uses_row_index_and_pays_nothing() {
         p.base_class_id = 32;
     }
     for id in [2633, 3172, 3307] {
-        items::add_inventory_item(&mut world, 3001, id, 1);
+        inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2710,7 +2711,7 @@ fn change2_scripts_require_all_three_marks() {
         p.class_id = 45;
         p.base_class_id = 45;
     }
-    items::add_inventory_item(&mut world, 3001, 2627, 1); // one of three
+    inventory::add_inventory_item(&mut world, 3001, 2627, 1); // one of three
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -2815,7 +2816,7 @@ fn elf_human_change2_second_class_transfer() {
         p.base_class_id = 1;
     }
     for id in [2627, 2734, 2762] {
-        items::add_inventory_item(&mut world, 3001, id, 1);
+        inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2873,7 +2874,7 @@ fn elf_human_change2_rejects_the_wrong_source_class() {
         p.base_class_id = 4;
     }
     for id in [2633, 3140, 2820] {
-        items::add_inventory_item(&mut world, 3001, id, 1);
+        inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -2929,7 +2930,7 @@ fn elf_human_change2_requires_all_three_marks() {
         p.base_class_id = 15;
     }
     for id in [2721, 2734] {
-        items::add_inventory_item(&mut world, 3001, id, 1); // two of three
+        inventory::add_inventory_item(&mut world, 3001, id, 1); // two of three
     }
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -3736,7 +3737,7 @@ fn quest_q00401_rusted_sword_chance_is_out_of_ten() {
         }
         drain_db(&mut db_rx);
         accept_q401(&mut world);
-        items::add_inventory_item(&mut world, 3001, 1139, 1); // guild mark
+        inventory::add_inventory_item(&mut world, 3001, 1139, 1); // guild mark
         drain(&mut rx);
 
         let mob = NPC_OID + 1;
@@ -3869,7 +3870,7 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
             "npc_{NPC_OID}_Quest Q00403_PathOfTheRogue 30379-06.htm"
         )),
     );
-    items::add_inventory_item(&mut world, 3001, 1185, 1); // the most-wanted list
+    inventory::add_inventory_item(&mut world, 3001, 1185, 1); // the most-wanted list
     drain(&mut rx);
 
     let bandit = NPC_OID + 1;
@@ -4013,7 +4014,7 @@ fn q402_world_with_coins(coins: usize) -> (World, UnboundedReceiver<bytes::Bytes
         &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-08.htm")),
     );
     for id in [1162, 1163, 1164, 1165, 1166, 1167].iter().take(coins) {
-        items::add_inventory_item(&mut world, 3001, *id, 1);
+        inventory::add_inventory_item(&mut world, 3001, *id, 1);
     }
     drain(&mut rx);
     (world, rx)
@@ -4332,7 +4333,7 @@ fn quest_window_drops_a_finished_quest_with_nothing_to_say() {
 fn quest_window_probe_does_not_consume_the_turn_in_items() {
     let (mut world, mut rx) = q404_world();
     for id in TRINKETS_Q404 {
-        items::add_inventory_item(&mut world, 3001, id, 1);
+        inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
     drain(&mut rx);
 
@@ -4636,7 +4637,7 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
     // Jump the first errand by granting the 2nd letter directly. Zigaunt's
     // 1st-letter branch is only reached when the 2nd is absent, so leaving
     // the 1st in the bag doesn't change any path under test.
-    items::add_inventory_item(&mut world, 3001, 1192, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1192, 1);
     drain(&mut rx);
 
     handle_request_bypass_to_server(
@@ -5917,7 +5918,7 @@ fn quest_q00414_teeth_come_from_kuruka_and_reset_the_meter() {
 fn quest_q00414_umbar_heads_spend_the_reports() {
     let (mut world, _rx) = q414_world();
     for _ in 0..10 {
-        items::add_inventory_item(&mut world, 3001, 1580, 1); // 10 teeth
+        inventory::add_inventory_item(&mut world, 3001, 1580, 1); // 10 teeth
     }
     handle_request_bypass_to_server(
         &mut world,
@@ -6163,7 +6164,7 @@ fn quest_q00415_pouch_takes_five_kills_not_four() {
 #[test]
 fn quest_q00415_fourth_pouch_converts_on_the_twelfth_kill() {
     let (mut world, _rx) = q415_world(None);
-    items::add_inventory_item(&mut world, 3001, 1607, 1); // the 4th pouch
+    inventory::add_inventory_item(&mut world, 3001, 1607, 1); // the 4th pouch
     let mut oid = NPC_OID + 300;
     let mobs = [(20014, 1612), (20017, 1609), (20024, 1611), (20359, 1610)];
     let mut killed = 0;
@@ -6325,7 +6326,7 @@ fn quest_q00416_holder_count_is_a_cond_gate_not_a_quantity() {
 
     // Advance to cond 6 the short way: hand the player the flame charm and set
     // the cond, mirroring Umos' hand-over.
-    items::add_inventory_item(&mut world, 3001, 1624, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1624, 1);
     set_quest_cond(&mut world, 3001, Q416, 6);
     let mob = NPC_OID + 101;
     add_test_npc(&mut world, mob, 20335, "Monster", 20, 30, 0, 0);
@@ -6376,7 +6377,7 @@ fn quest_q00416_first_stage_needs_one_of_each_trophy() {
 #[test]
 fn quest_q00416_durka_meter_summons_without_aggro() {
     let (mut world, _rx) = q416_world();
-    items::add_inventory_item(&mut world, 3001, 1627, 1); // spirit net
+    inventory::add_inventory_item(&mut world, 3001, 1627, 1); // spirit net
     set_quest_cond(&mut world, 3001, Q416, 9);
 
     // Below the threshold the kill just pays a parasite.
@@ -6388,7 +6389,7 @@ fn quest_q00416_durka_meter_summons_without_aggro() {
 
     // Eight parasites makes the summon certain.
     for _ in 0..7 {
-        items::add_inventory_item(&mut world, 3001, 1629, 1);
+        inventory::add_inventory_item(&mut world, 3001, 1629, 1);
     }
     assert_eq!(item_count(&world, 3001, 1629), 8);
     let mob2 = NPC_OID + 301;
@@ -6418,7 +6419,7 @@ fn quest_q00416_finish_awards_the_mask_of_medium() {
     let (umos, duda) = (NPC_OID + 20, NPC_OID + 21);
     add_test_npc(&mut world, umos, 30502, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, duda, 30593, "Folk", 5, 100, 0, 0);
-    items::add_inventory_item(&mut world, 3001, 1628, 1); // bound spirit
+    inventory::add_inventory_item(&mut world, 3001, 1628, 1); // bound spirit
     set_quest_cond(&mut world, 3001, Q416, 9);
     drain(&mut rx);
 
@@ -6636,10 +6637,10 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     add_test_npc(&mut world, pinter, 30298, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, kluto, 30317, "Folk", 5, 100, 0, 0);
     for _ in 0..10 {
-        items::add_inventory_item(&mut world, 3001, 1636, 1);
+        inventory::add_inventory_item(&mut world, 3001, 1636, 1);
     }
     for _ in 0..2 {
-        items::add_inventory_item(&mut world, 3001, 1637, 1);
+        inventory::add_inventory_item(&mut world, 3001, 1637, 1);
     }
 
     handle_request_bypass_to_server(
@@ -6794,7 +6795,7 @@ fn mark_spoiled(world: &mut World, npc_oid: i32, player: i32) {
 fn quest_q00417_payout_requires_a_spoiled_corpse() {
     for (spoil, expected) in [(false, 0), (true, 1)] {
         let (mut world, _rx) = q417_world();
-        items::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
+        inventory::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
         let bear = NPC_OID + 100;
         add_test_npc(&mut world, bear, 27058, "Monster", 20, 30, 0, 0);
         combat::npc_receive_damage(&mut world, bear, 3001, 10.0, false);
@@ -6819,7 +6820,7 @@ fn quest_q00417_payout_requires_a_spoiled_corpse() {
 #[test]
 fn quest_q00417_drop_chance_fifty_means_always() {
     let (mut world, _rx) = q417_world();
-    items::add_inventory_item(&mut world, 3001, 1654, 1); // tarantula picture
+    inventory::add_inventory_item(&mut world, 3001, 1654, 1); // tarantula picture
     for i in 0..6 {
         let mob = NPC_OID + 200 + i;
         add_test_npc(&mut world, mob, 20403, "Monster", 20, 30, 0, 0);
@@ -6839,7 +6840,7 @@ fn quest_q00417_drop_chance_fifty_means_always() {
 #[test]
 fn quest_q00417_honey_bear_summon_meter_escalates() {
     let (mut world, _rx) = q417_world();
-    items::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
+    inventory::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
 
     // First kill: flag is 0, so no roll happens at all — it just rises.
     let b1 = NPC_OID + 300;
@@ -6872,7 +6873,7 @@ fn quest_q00417_deliveries_bump_the_tens_digit() {
     let shari = NPC_OID + 20;
     add_test_npc(&mut world, shari, 30517, "Folk", 5, 100, 0, 0);
 
-    items::add_inventory_item(&mut world, 3001, 1648, 1); // Shari's axe
+    inventory::add_inventory_item(&mut world, 3001, 1648, 1); // Shari's axe
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -6889,14 +6890,14 @@ fn quest_q00417_deliveries_bump_the_tens_digit() {
         "not promoted on the first"
     );
 
-    items::add_inventory_item(&mut world, 3001, 1648, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1648, 1);
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!("npc_{shari}_Quest {Q417}")),
     );
     assert_eq!(quest_memo_ex(&world, 3001, Q417, 1), 20);
-    items::add_inventory_item(&mut world, 3001, 1648, 1);
+    inventory::add_inventory_item(&mut world, 3001, 1648, 1);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -6917,7 +6918,7 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
     let (torai, raut) = (NPC_OID + 30, NPC_OID + 31);
     add_test_npc(&mut world, torai, 30557, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, raut, 30316, "Folk", 5, 100, 0, 0);
-    items::add_inventory_item(&mut world, 3001, 1644, 1); // teleport scroll
+    inventory::add_inventory_item(&mut world, 3001, 1644, 1); // teleport scroll
 
     handle_request_bypass_to_server(
         &mut world,

@@ -1,5 +1,6 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
+use crate::game_loop::character::inventory;
 use crate::game_loop::character::subclass;
 use crate::game_loop::clans::academy;
 use crate::game_loop::clans::clan_skills::reapply_clan_advent_on_profession_change;
@@ -484,7 +485,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
         .clan_privs = 0;
 
     // Leader deposits 500 adena into the shared clan warehouse.
-    items::add_inventory_item(&mut world, 3001, 57, 500).unwrap();
+    inventory::add_inventory_item(&mut world, 3001, 57, 500).unwrap();
     let adena_oid = item_oid(&world, 3001, 57);
     warehouse::open_clan(&mut world, 1, 3001, false); // keeper bypass → active = clan
     let deposit = {
@@ -4965,7 +4966,7 @@ fn leaving_a_castle_owning_clan_takes_the_circlet() {
     world.cfg.character.remove_castle_circlets = true;
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     add_quest_items(&mut world, &[(GLUDIO_CIRCLET, "Circlet of Gludio", false)]);
-    items::add_inventory_item(&mut world, 3001, GLUDIO_CIRCLET, 1);
+    inventory::add_inventory_item(&mut world, 3001, GLUDIO_CIRCLET, 1);
 
     // A clan that owns Gludio, with 3001 on the roster.
     let mut clan = castle_owning_clan(700);
@@ -5008,7 +5009,7 @@ fn the_circlet_survives_when_the_config_says_so() {
     world.cfg.character.remove_castle_circlets = false;
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     add_quest_items(&mut world, &[(GLUDIO_CIRCLET, "Circlet of Gludio", false)]);
-    items::add_inventory_item(&mut world, 3001, GLUDIO_CIRCLET, 1);
+    inventory::add_inventory_item(&mut world, 3001, GLUDIO_CIRCLET, 1);
 
     let mut clan = castle_owning_clan(701);
     clan.castle_id = 1;

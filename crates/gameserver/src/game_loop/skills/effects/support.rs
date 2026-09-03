@@ -91,8 +91,7 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
     use server_packets::{SmParam, sm_ids};
 
     for &(item_id, amount, enchant) in grants {
-        let Some(added) =
-            crate::game_loop::items::add_inventory_item_tracked(world, target_oid, item_id, amount)
+        let Some(added) = inventory::add_inventory_item_tracked(world, target_oid, item_id, amount)
         else {
             continue;
         };

@@ -466,8 +466,8 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
 
     for product in &entry.products {
         let total = product_count(product.count, prod_mult) * pkt.amount;
-        let added = crate::game_loop::items::add_inventory_item(world, player, product.id, total)
-            .unwrap_or_default();
+        let added =
+            inventory::add_inventory_item(world, player, product.id, total).unwrap_or_default();
         // Java: `maintainEnchantment` copies the consumed equippable's enchant
         // (and augmentation) onto the new item, once, when both are equippable.
         let equippable_product = world.data.item_data.get(product.id).is_some_and(|t| {

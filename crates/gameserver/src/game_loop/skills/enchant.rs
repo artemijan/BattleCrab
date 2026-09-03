@@ -25,9 +25,9 @@
 //! equivalent is the subclass lock (see [`busy_for_enchant`]).
 
 use crate::game_loop::admin::refresh_skill_list;
+use crate::game_loop::character::inventory::take_items;
 use crate::game_loop::helpers::send_sm_and_action_failed;
 use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_client, send_to_client};
-use crate::game_loop::items::take_items;
 use crate::model::Player;
 use crate::model::components::{SkillBook, SkillEnchants};
 use crate::network::server_packets;

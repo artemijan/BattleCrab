@@ -6,6 +6,7 @@
 //! grounds was consumed as a no-op and no defender ever appeared.
 
 use super::*;
+use crate::game_loop::character::inventory;
 
 use crate::data::castle_siege_guards::SiegeGuardHolder;
 use crate::data::zone_data::{Zone, ZoneKind};
@@ -110,7 +111,7 @@ fn merc_world(max_npc_amount: i32) -> (World, UnboundedReceiver<bytes::Bytes>) {
     if let Some(p) = world.objects.get_component_mut::<Player>(&LORD) {
         p.clan_id = CLAN;
     }
-    items::add_inventory_item(&mut world, LORD, TICKET, 5).unwrap();
+    inventory::add_inventory_item(&mut world, LORD, TICKET, 5).unwrap();
     (world, rx)
 }
 

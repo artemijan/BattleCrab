@@ -17,7 +17,7 @@
 use crate::enums::ChatType;
 use crate::game_loop::character::inventory;
 use crate::game_loop::clans::clan_of_or_zero;
-use crate::game_loop::{helpers, items};
+use crate::game_loop::helpers;
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell};
 use crate::model::inventory::{Inventory, ItemInstance};
@@ -1096,8 +1096,8 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
                 helpers::send_message(world, client_id, &text);
                 return;
             }
-            items::take_items(world, client_id, player_oid, ADENA_ITEM_ID, adena);
-            items::add_inventory_item(world, player_oid, GOLDBAR_ITEM_ID, goldbars);
+            inventory::take_items(world, client_id, player_oid, ADENA_ITEM_ID, adena);
+            inventory::add_inventory_item(world, player_oid, GOLDBAR_ITEM_ID, goldbars);
             let text =
                 format!("Thank you, you now have {goldbars} Goldbar(s), and {adena} less adena.");
             helpers::send_message(world, client_id, &text);
@@ -1108,8 +1108,8 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
                 helpers::send_message(world, client_id, &text);
                 return;
             }
-            items::take_items(world, client_id, player_oid, GOLDBAR_ITEM_ID, goldbars);
-            items::add_inventory_item(world, player_oid, ADENA_ITEM_ID, adena);
+            inventory::take_items(world, client_id, player_oid, GOLDBAR_ITEM_ID, goldbars);
+            inventory::add_inventory_item(world, player_oid, ADENA_ITEM_ID, adena);
             let text =
                 format!("Thank you, you now have {adena} Adena, and {goldbars} less Goldbar(s).");
             helpers::send_message(world, client_id, &text);

@@ -1,4 +1,5 @@
 use super::*;
+use crate::game_loop::character::inventory;
 use crate::game_loop::commerce::warehouse;
 
 /// A heal on another player: Heal.java's `power + sqrt(2·mAtk)` amount,
@@ -382,7 +383,7 @@ fn destroying_an_equipped_quest_item_repaints_the_paperdoll() {
     assert_eq!(rhand_oid(&packets), SWORD_OID, "sword equipped in RHand");
 
     // `exitQuest`'s registered-quest-item sweep: destroy every one of them.
-    let taken = items::take_items(&mut world, 1, 3001, SWORD, -1);
+    let taken = inventory::take_items(&mut world, 1, 3001, SWORD, -1);
     assert!(taken, "the sword was destroyed");
 
     let packets = drain(&mut a_rx);
@@ -2242,7 +2243,7 @@ fn soulshot_charges_consumes_and_plays_visual() {
     ));
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     grant_and_equip(&mut world, 3001, 1, 9500);
-    let shot_oid = items::add_inventory_item(&mut world, 3001, 1463, 10).unwrap()[0];
+    let shot_oid = inventory::add_inventory_item(&mut world, 3001, 1463, 10).unwrap()[0];
     drain(&mut a_rx);
 
     items::use_equipable_item(&mut world, 1, 3001, shot_oid);
@@ -2297,7 +2298,7 @@ fn soulshot_wrong_grade_is_refused() {
     ));
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     grant_and_equip(&mut world, 3001, 1, 9500);
-    let shot_oid = items::add_inventory_item(&mut world, 3001, 1464, 10).unwrap()[0];
+    let shot_oid = inventory::add_inventory_item(&mut world, 3001, 1464, 10).unwrap()[0];
     drain(&mut a_rx);
 
     items::use_equipable_item(&mut world, 1, 3001, shot_oid);
@@ -2570,7 +2571,7 @@ fn auto_soulshot_toggle_activates_and_recharges() {
     ));
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     grant_and_equip(&mut world, 3001, 1, 9500);
-    items::add_inventory_item(&mut world, 3001, 1463, 10);
+    inventory::add_inventory_item(&mut world, 3001, 1463, 10);
     drain(&mut a_rx);
 
     // itemId=1463, enable=1, type=0.
@@ -2659,7 +2660,7 @@ fn destroy_item_removes_from_inventory() {
     let mut rx = ingame_player_access(&mut world, 1, 9100, 0);
     drain(&mut rx);
 
-    items::add_inventory_item(&mut world, 9100, 57, 1000).expect("adena added");
+    inventory::add_inventory_item(&mut world, 9100, 57, 1000).expect("adena added");
     let inv = |w: &World| {
         w.objects
             .get_component::<Inventory>(&9100)
@@ -2705,7 +2706,7 @@ fn giving_adena_refreshes_the_adena_counter() {
     let mut rx = ingame_player_access(&mut world, 1, 9100, 0);
     drain(&mut rx);
 
-    items::give_item_with_earned_message(&mut world, 1, 9100, 57, 100_000);
+    inventory::give_item_with_earned_message(&mut world, 1, 9100, 57, 100_000);
 
     let pkts = drain(&mut rx);
     assert!(
@@ -2736,7 +2737,7 @@ fn drop_and_pickup_ground_item() {
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9200, 0);
     drain(&mut rx);
-    items::add_inventory_item(&mut world, 9200, 57, 1000).expect("adena");
+    inventory::add_inventory_item(&mut world, 9200, 57, 1000).expect("adena");
     let count_of = |w: &World| {
         w.objects
             .get_component::<Inventory>(&9200)
@@ -2820,7 +2821,7 @@ fn a_dropped_item_keeps_its_enchant_when_picked_back_up() {
     // dropable. The starter Squire's Sword is `is_dropable="false"`, so a drop
     // of it is correctly refused and would make this test vacuous.
     const SWORD: i32 = 1;
-    items::add_inventory_item(&mut world, 9200, SWORD, 1).expect("sword");
+    inventory::add_inventory_item(&mut world, 9200, SWORD, 1).expect("sword");
     let sword_oid = item_oid(&world, 9200, SWORD);
     world
         .objects
@@ -2874,7 +2875,7 @@ const DROP_AT: (i32, i32, i32) = (61, 72, 13);
 /// Give `count` adena to `player_oid` and drop it via `RequestDropItem` at a
 /// fixed spot; returns the resulting ground-item object id.
 fn drop_adena(world: &mut World, client_id: u32, player_oid: i32, count: i64) -> i32 {
-    items::add_inventory_item(world, player_oid, 57, count).expect("adena");
+    inventory::add_inventory_item(world, player_oid, 57, count).expect("adena");
     let adena_oid = item_oid(world, player_oid, 57);
     let item_oid = world.next_npc_object_id;
     let mut w = PacketWriter::new();
@@ -2902,7 +2903,7 @@ fn drop_item_packet(item_oid: i32, count: i64, x: i32, y: i32, z: i32) -> Vec<u8
 
 /// Give the player adena and return its inventory object id.
 fn give_adena(world: &mut World, player_oid: i32, count: i64) -> i32 {
-    items::add_inventory_item(world, player_oid, 57, count).expect("adena");
+    inventory::add_inventory_item(world, player_oid, 57, count).expect("adena");
     item_oid(world, player_oid, 57)
 }
 
@@ -3195,7 +3196,7 @@ fn bound_item_cannot_be_discarded() {
     let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
     drain(&mut rx);
 
-    items::add_inventory_item(&mut world, 9300, BOUND_BOX, 1).expect("bound box");
+    inventory::add_inventory_item(&mut world, 9300, BOUND_BOX, 1).expect("bound box");
     let box_oid = item_oid(&world, 9300, BOUND_BOX);
     let would_be_ground_oid = world.next_npc_object_id;
 
@@ -3466,7 +3467,7 @@ fn warehouse_deposit_withdraw_and_persist() {
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9400, 0);
     drain(&mut rx);
-    items::add_inventory_item(&mut world, 9400, 57, 1000).expect("adena");
+    inventory::add_inventory_item(&mut world, 9400, 57, 1000).expect("adena");
     let inv_adena = |w: &World| {
         w.objects
             .get_component::<Inventory>(&9400)
@@ -3541,7 +3542,7 @@ fn crystallize_item_yields_crystals_when_skilled() {
 
     let mut rx = ingame_player_access(&mut world, 1, 9500, 0);
     drain(&mut rx);
-    items::add_inventory_item(&mut world, 9500, 40, 1).expect("boots");
+    inventory::add_inventory_item(&mut world, 9500, 40, 1).expect("boots");
     let boots_oid = item_oid(&world, 9500, 40);
     let crystallize = |oid: i32| -> Vec<u8> {
         let mut w = PacketWriter::new();
@@ -3593,8 +3594,8 @@ fn private_store_sell_and_buy() {
     drain(&mut seller_rx);
     drain(&mut buyer_rx);
     // Seller has 10 Crystal (D); buyer has 1000 adena.
-    items::add_inventory_item(&mut world, 9600, 1458, 10).unwrap();
-    items::add_inventory_item(&mut world, 9601, 57, 1000).unwrap();
+    inventory::add_inventory_item(&mut world, 9600, 1458, 10).unwrap();
+    inventory::add_inventory_item(&mut world, 9601, 57, 1000).unwrap();
     let crystal_oid = item_oid(&world, 9600, 1458);
 
     // Seller sets the store: sell 4 crystals at 100 adena each.
@@ -3695,8 +3696,8 @@ fn player_trade_swaps_items() {
     let mut b_rx = ingame_player_access(&mut world, 2, 9701, 0);
     drain(&mut a_rx);
     drain(&mut b_rx);
-    items::add_inventory_item(&mut world, 9700, 1458, 10).unwrap(); // A: Crystal D
-    items::add_inventory_item(&mut world, 9701, 1459, 10).unwrap(); // B: Crystal C
+    inventory::add_inventory_item(&mut world, 9700, 1458, 10).unwrap(); // A: Crystal D
+    inventory::add_inventory_item(&mut world, 9701, 1459, 10).unwrap(); // B: Crystal C
     let a_oid = item_oid(&world, 9700, 1458);
     let b_oid = item_oid(&world, 9701, 1459);
     let one_int = |op: u8, v: i32| {
@@ -3812,8 +3813,8 @@ fn enchant_scroll_success_and_failure() {
 
     let mut rx = ingame_player_access(&mut world, 1, 9800, 0);
     drain(&mut rx);
-    items::add_inventory_item(&mut world, 9800, 955, 5).unwrap();
-    items::add_inventory_item(&mut world, 9800, 69, 1).unwrap();
+    inventory::add_inventory_item(&mut world, 9800, 955, 5).unwrap();
+    inventory::add_inventory_item(&mut world, 9800, 69, 1).unwrap();
     let scroll_oid = item_oid(&world, 9800, 955);
     let sword_oid = item_oid(&world, 9800, 69);
 
@@ -3944,9 +3945,9 @@ fn enchant_support_item_bonus_and_consume() {
 
     // Bastard Sword 69 (D weapon), Enchant Weapon D scroll 955, and the D-grade
     // weapon support "Lucky Enchant Stone" 12362 (+20 bonus, valid at +3..9).
-    items::add_inventory_item(&mut world, 9850, 955, 1).unwrap();
-    items::add_inventory_item(&mut world, 9850, 69, 1).unwrap();
-    items::add_inventory_item(&mut world, 9850, 12362, 1).unwrap();
+    inventory::add_inventory_item(&mut world, 9850, 955, 1).unwrap();
+    inventory::add_inventory_item(&mut world, 9850, 69, 1).unwrap();
+    inventory::add_inventory_item(&mut world, 9850, 12362, 1).unwrap();
     let (scroll, sword, support) = (
         item_oid(&world, 9850, 955),
         item_oid(&world, 9850, 69),
@@ -4127,10 +4128,10 @@ fn augment_make_and_cancel() {
 
     // Crimson Sword (2551, augmentable D weapon), Life Stone Lv.46 (8723),
     // Gemstone D (2130) ×20, and adena for the cancel fee (95000).
-    items::add_inventory_item(&mut world, 9900, 2551, 1).unwrap();
-    items::add_inventory_item(&mut world, 9900, 8723, 1).unwrap();
-    items::add_inventory_item(&mut world, 9900, 2130, 20).unwrap();
-    items::add_inventory_item(&mut world, 9900, 57, 200_000).unwrap();
+    inventory::add_inventory_item(&mut world, 9900, 2551, 1).unwrap();
+    inventory::add_inventory_item(&mut world, 9900, 8723, 1).unwrap();
+    inventory::add_inventory_item(&mut world, 9900, 2130, 20).unwrap();
+    inventory::add_inventory_item(&mut world, 9900, 57, 200_000).unwrap();
     let (weapon, lifestone, gem) = (
         item_oid(&world, 9900, 2551),
         item_oid(&world, 9900, 8723),
@@ -4278,8 +4279,8 @@ fn private_buy_store_takes_items_and_pays_out() {
     drain(&mut owner_rx);
     drain(&mut seller_rx);
     // The buyer has 1000 adena to spend; the seller has 10 D-grade crystals.
-    items::add_inventory_item(&mut world, 9610, 57, 1000).unwrap();
-    items::add_inventory_item(&mut world, 9611, 1458, 10).unwrap();
+    inventory::add_inventory_item(&mut world, 9610, 57, 1000).unwrap();
+    inventory::add_inventory_item(&mut world, 9611, 1458, 10).unwrap();
     let crystal_oid = item_oid(&world, 9611, 1458);
 
     // Wanted: 4 crystals at 100 adena each (400 total, affordable).
@@ -4377,7 +4378,7 @@ fn private_buy_store_refuses_an_unaffordable_list() {
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut rx = ingame_player_access(&mut world, 1, 9612, 0);
     drain(&mut rx);
-    items::add_inventory_item(&mut world, 9612, 57, 100).unwrap();
+    inventory::add_inventory_item(&mut world, 9612, 57, 100).unwrap();
 
     // 10 × 100 = 1000 adena wanted, but only 100 in the purse.
     on_packet(&mut world, 1, set_buy_list(&[(1458, 10, 100)]));
@@ -4408,7 +4409,7 @@ fn private_buy_store_enforces_the_slot_limit() {
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut rx = ingame_player_access(&mut world, 1, 9613, 0);
     drain(&mut rx);
-    items::add_inventory_item(&mut world, 9613, 57, 1_000_000).unwrap();
+    inventory::add_inventory_item(&mut world, 9613, 57, 1_000_000).unwrap();
 
     let five = [
         (1458, 1, 100),
@@ -4580,9 +4581,9 @@ fn package_store_is_all_or_nothing() {
     let mut seller_rx = ingame_player_access(&mut world, 1, 9700, 0);
     let mut buyer_rx = ingame_player_access(&mut world, 2, 9701, 0);
     // Two distinct items so the package has two lines.
-    items::add_inventory_item(&mut world, 9700, 1458, 5).unwrap(); // Crystal (D)
-    items::add_inventory_item(&mut world, 9700, 1459, 5).unwrap(); // Crystal (C)
-    items::add_inventory_item(&mut world, 9701, 57, 10_000).unwrap();
+    inventory::add_inventory_item(&mut world, 9700, 1458, 5).unwrap(); // Crystal (D)
+    inventory::add_inventory_item(&mut world, 9700, 1459, 5).unwrap(); // Crystal (C)
+    inventory::add_inventory_item(&mut world, 9701, 57, 10_000).unwrap();
     let (a, b) = (item_oid(&world, 9700, 1458), item_oid(&world, 9700, 1459));
     drain(&mut seller_rx);
     drain(&mut buyer_rx);
@@ -4780,8 +4781,8 @@ fn freight_send_delivers_to_an_offline_character() {
             .is_freightable,
         "fixture assumption: 10649 is freightable"
     );
-    items::add_inventory_item(&mut world, 9901, FREIGHTABLE, 10).unwrap();
-    items::add_inventory_item(&mut world, 9901, 57, 5_000).unwrap();
+    inventory::add_inventory_item(&mut world, 9901, FREIGHTABLE, 10).unwrap();
+    inventory::add_inventory_item(&mut world, 9901, 57, 5_000).unwrap();
     let crystal = item_oid(&world, 9901, FREIGHTABLE);
     drain(&mut rx);
 
@@ -4864,8 +4865,8 @@ fn freight_send_refuses_bad_items_and_strangers() {
 
     // Adena — like every other Interlude-range item on this dist — is not
     // freightable; 10649 is, and stands in for a legal cargo below.
-    items::add_inventory_item(&mut world, 9903, 57, 5_000).unwrap();
-    items::add_inventory_item(&mut world, 9903, 10649, 5).unwrap();
+    inventory::add_inventory_item(&mut world, 9903, 57, 5_000).unwrap();
+    inventory::add_inventory_item(&mut world, 9903, 10649, 5).unwrap();
     assert!(
         !world.data.item_data.get(1458).unwrap().is_freightable,
         "Crystal (D) — an Interlude item — may not be freighted"
@@ -5069,10 +5070,10 @@ fn the_augment_window_confirms_each_slot() {
     ));
     world.id_pool = 0x4700_0000..0x4700_0200;
     let mut rx = ingame_player_access(&mut world, 1, 9910, 0);
-    items::add_inventory_item(&mut world, 9910, 2551, 1).unwrap(); // Crimson Sword
-    items::add_inventory_item(&mut world, 9910, 8723, 1).unwrap(); // Life Stone 46
-    items::add_inventory_item(&mut world, 9910, 2130, 20).unwrap(); // Gemstone D
-    items::add_inventory_item(&mut world, 9910, 1458, 1).unwrap(); // Crystal (D)
+    inventory::add_inventory_item(&mut world, 9910, 2551, 1).unwrap(); // Crimson Sword
+    inventory::add_inventory_item(&mut world, 9910, 8723, 1).unwrap(); // Life Stone 46
+    inventory::add_inventory_item(&mut world, 9910, 2130, 20).unwrap(); // Gemstone D
+    inventory::add_inventory_item(&mut world, 9910, 1458, 1).unwrap(); // Crystal (D)
     let (weapon, lifestone, gem, crystal) = (
         item_oid(&world, 9910, 2551),
         item_oid(&world, 9910, 8723),
@@ -5383,7 +5384,7 @@ fn a_shop_window_suppresses_item_list_refreshes_briefly() {
     );
 
     // Block, as opening a shop/warehouse does.
-    crate::game_loop::items::block_inventory(&mut world, 3001);
+    inventory::block_inventory(&mut world, 3001);
     items::handle_request_item_list(&mut world, 1);
     assert!(
         drain(&mut rx).is_empty(),
@@ -5437,8 +5438,8 @@ fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
 
     let mut rx = ingame_player_access(&mut world, 1, PLAYER, 0);
     drain(&mut rx);
-    items::add_inventory_item(&mut world, PLAYER, SCROLL, 5).unwrap();
-    items::add_inventory_item(&mut world, PLAYER, SWORD, 1).unwrap();
+    inventory::add_inventory_item(&mut world, PLAYER, SCROLL, 5).unwrap();
+    inventory::add_inventory_item(&mut world, PLAYER, SWORD, 1).unwrap();
     let scroll_oid = item_oid(&world, PLAYER, SCROLL);
     let sword_oid = item_oid(&world, PLAYER, SWORD);
     let level = |w: &World| {
@@ -5541,8 +5542,8 @@ fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
 
     let mut rx = ingame_player_access(&mut world, 1, PLAYER, 0);
     drain(&mut rx);
-    items::add_inventory_item(&mut world, PLAYER, 955, 3).unwrap();
-    items::add_inventory_item(&mut world, PLAYER, 69, 1).unwrap();
+    inventory::add_inventory_item(&mut world, PLAYER, 955, 3).unwrap();
+    inventory::add_inventory_item(&mut world, PLAYER, 69, 1).unwrap();
     let scroll_oid = item_oid(&world, PLAYER, 955);
     let sword_oid = item_oid(&world, PLAYER, 69);
     let level = |w: &World| {
@@ -5655,7 +5656,7 @@ fn a_book_opens_its_help_page_and_survives() {
     world.id_pool = 0x4400_0000..0x4400_0200;
     let mut rx = ingame_player(&mut world, 1, 8801, 0, 0, 0);
     const BOOK: i32 = 7100; // "Importance of Strain"
-    items::add_inventory_item(&mut world, 8801, BOOK, 1).unwrap();
+    inventory::add_inventory_item(&mut world, 8801, BOOK, 1).unwrap();
     let obj = item_oid(&world, 8801, BOOK);
     drain(&mut rx);
 
@@ -5687,7 +5688,7 @@ fn rolling_a_die_broadcasts_the_result() {
     let mut rx = ingame_player(&mut world, 1, 8802, 0, 0, 0);
     let mut bystander = ingame_player(&mut world, 2, 8803, 60, 0, 0);
     const DIE: i32 = 4625; // Dice (Heart)
-    items::add_inventory_item(&mut world, 8802, DIE, 1).unwrap();
+    inventory::add_inventory_item(&mut world, 8802, DIE, 1).unwrap();
     let obj = item_oid(&world, 8802, DIE);
     drain(&mut rx);
     drain(&mut bystander);
@@ -5753,7 +5754,7 @@ fn enchanted_armour_adds_its_max_hp_bonus() {
         "the plain arm, not the full-armour one"
     );
 
-    items::add_inventory_item(&mut world, 8901, CHEST, 1).unwrap();
+    inventory::add_inventory_item(&mut world, 8901, CHEST, 1).unwrap();
     let obj = item_oid(&world, 8901, CHEST);
     items::use_equipable_item(&mut world, 1, 8901, obj);
 
@@ -5805,7 +5806,7 @@ fn enchanted_jewellery_pays_no_hp_bonus() {
         "slot assumption"
     );
 
-    items::add_inventory_item(&mut world, 8902, NECKLACE, 1).unwrap();
+    inventory::add_inventory_item(&mut world, 8902, NECKLACE, 1).unwrap();
     let obj = item_oid(&world, 8902, NECKLACE);
     items::use_equipable_item(&mut world, 1, 8902, obj);
     crate::game_loop::helpers::recalculate_player_stats_and_vitals(&mut world, 8902);

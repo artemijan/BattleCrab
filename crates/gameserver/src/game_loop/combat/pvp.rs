@@ -6,6 +6,7 @@
 //! reduce to karma (`Player.reputation`) + the runtime flag. PVP-zone (arena)
 //! exemptions land with Phase 2, when those zones are loaded.
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::model::Player;
 use crate::model::components::{PvpState, ZoneFlags};
@@ -19,7 +20,7 @@ use crate::game_loop::items::cursed_weapon;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::party::command_channel;
 use crate::game_loop::space::position::region_cell_of;
-use crate::game_loop::{clans, combat, items, siege};
+use crate::game_loop::{clans, combat, siege};
 
 /// `RelationChanged.RELATION_INSIEGE` (0x200) — the "in a siege" bit.
 const RELATION_INSIEGE: i32 = 0x200;
@@ -798,7 +799,7 @@ pub(crate) fn pay_kill_reward(world: &mut World, killer_oid: i32, victim_oid: i3
     if !enabled || amount <= 0 {
         return;
     }
-    items::add_inventory_item(world, killer_oid, item_id, amount);
+    inventory::add_inventory_item(world, killer_oid, item_id, amount);
     if message {
         send_sm_to_player(
             world,

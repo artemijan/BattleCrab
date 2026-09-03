@@ -3,6 +3,7 @@
 //! NPC dialog.
 
 use super::*;
+use crate::game_loop::character::inventory;
 
 use crate::game_loop::activities::lottery;
 use crate::game_loop::character::inventory::adena;
@@ -189,7 +190,7 @@ fn buying_a_ticket_charges_adena_grows_the_pot_and_mints_the_ticket() {
 
     add_test_npc(&mut world, 500, 30991, "Folk", 70, 0, 0, 0);
     ingame_player(&mut world, 1, 100, 0, 0, 0);
-    items::add_inventory_item(&mut world, 100, 57, 10_000);
+    inventory::add_inventory_item(&mut world, 100, 57, 10_000);
     // Five picked numbers.
     world
         .objects
@@ -219,7 +220,7 @@ fn selling_closed_refuses_the_purchase() {
     drain_db(&mut db_rx);
     add_test_npc(&mut world, 500, 30991, "Folk", 70, 0, 0, 0);
     ingame_player(&mut world, 1, 100, 0, 0, 0);
-    items::add_inventory_item(&mut world, 100, 57, 10_000);
+    inventory::add_inventory_item(&mut world, 100, 57, 10_000);
     world
         .objects
         .add_components(&100, model::components::LotoPicks([1, 2, 3, 4, 5]));
@@ -271,7 +272,7 @@ fn claiming_a_winning_ticket_pays_out_and_consumes_it() {
     add_test_npc(&mut world, 500, 30991, "Folk", 70, 0, 0, 0);
     ingame_player(&mut world, 1, 100, 0, 0, 0);
     // A round-1 winning ticket (5-match: enchant 31).
-    let oid = items::add_inventory_item(&mut world, 100, 4442, 1).unwrap()[0];
+    let oid = inventory::add_inventory_item(&mut world, 100, 4442, 1).unwrap()[0];
     world
         .objects
         .get_component_mut::<Inventory>(&100)

@@ -133,7 +133,7 @@ pub(crate) fn open_deposit_window(world: &mut World, client_id: u32) {
     // Java's warehouse bypass handlers call `setInventoryBlockingStatus(true)`
     // before showing the window, same reason as the merchant list.
     if let Some(oid) = world.player_oid(client_id) {
-        crate::game_loop::items::block_inventory(world, oid);
+        inventory::block_inventory(world, oid);
     }
     let Some(player_oid) = player_of(world, client_id) else {
         return;
@@ -164,7 +164,7 @@ pub(crate) fn open_withdraw_window(world: &mut World, client_id: u32) {
     // Java's warehouse bypass handlers call `setInventoryBlockingStatus(true)`
     // before showing the window, same reason as the merchant list.
     if let Some(oid) = world.player_oid(client_id) {
-        crate::game_loop::items::block_inventory(world, oid);
+        inventory::block_inventory(world, oid);
     }
     let Some(player_oid) = player_of(world, client_id) else {
         return;

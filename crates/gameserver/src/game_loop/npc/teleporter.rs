@@ -17,6 +17,7 @@
 //! - The Mon/Tue window is evaluated in **UTC**, like the port's other
 //!   wall-clock work (`daily_tasks`), where Java uses server-local time.
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::{is_dead, send_message, send_to_client};
 use tracing::warn;
@@ -25,7 +26,7 @@ use crate::data::item_data::ADENA_ID;
 use crate::data::teleporter_data::{TeleportHolder, TeleportLocation};
 use crate::game_loop::combat::death;
 use crate::game_loop::npc::{npc_name_or_empty, npc_template};
-use crate::game_loop::{items, siege};
+use crate::game_loop::siege;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 
@@ -370,7 +371,7 @@ pub(crate) fn do_teleport(
             .get_component::<crate::model::inventory::Inventory>(&object_id)
             .map(|inv| inv.count_of(loc.fee_id))
             .unwrap_or(0);
-        if have < fee || !items::take_items(world, client_id, object_id, loc.fee_id, fee) {
+        if have < fee || !inventory::take_items(world, client_id, object_id, loc.fee_id, fee) {
             if loc.fee_id == ADENA_ID {
                 send_to_client(
                     world,

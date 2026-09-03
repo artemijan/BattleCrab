@@ -11,7 +11,6 @@ use crate::world::World;
 
 use super::send_message;
 use crate::game_loop::combat::target;
-use crate::game_loop::items;
 /// `AdminCreateItem`'s `//create_item [id] [num]` — create `num` (default 1) of
 /// item `id` on the GM, then (always, exactly like Java) reopen
 /// `itemcreation.htm`. Java tokenizes `command.substring(17)`: 1 token → count 1,
@@ -45,7 +44,7 @@ fn create_item(world: &mut World, gm_client: u32, gm_oid: i32, target: i32, id: 
         );
         return;
     }
-    if crate::game_loop::items::add_inventory_item(world, target, id, num).is_none() {
+    if inventory::add_inventory_item(world, target, id, num).is_none() {
         return;
     }
     // target.sendMessage(...) only when the target is another player.
@@ -110,7 +109,7 @@ pub(super) fn admin_give_item_target(
     let Some(tcid) = super::helpers::client_for_player(world, target) else {
         return;
     };
-    items::give_item_with_earned_message(world, tcid, target, item_id, count);
+    inventory::give_item_with_earned_message(world, tcid, target, item_id, count);
 }
 
 /// `AdminCreateItem`'s `//give_item_to_all <id> [count]` — give to every online
@@ -131,7 +130,7 @@ pub(super) fn admin_give_item_to_all(world: &mut World, client_id: u32, args: &[
     let recipients: Vec<(u32, i32)> = world.in_game_clients().collect();
     let count_given = recipients.len();
     for (cid, oid) in recipients {
-        items::give_item_with_earned_message(world, cid, oid, item_id, count);
+        inventory::give_item_with_earned_message(world, cid, oid, item_id, count);
     }
     send_message(
         world,
@@ -152,7 +151,7 @@ pub(super) fn admin_create_coin(world: &mut World, client_id: u32, object_id: i3
         return;
     };
     let count = nth_arg::<i64>(args, 1).unwrap_or(1).max(1);
-    items::give_item_with_earned_message(world, client_id, object_id, item_id, count);
+    inventory::give_item_with_earned_message(world, client_id, object_id, item_id, count);
 }
 
 /// Java `AdminCreateItem.getCoinId` — the fixed name→item-id table.

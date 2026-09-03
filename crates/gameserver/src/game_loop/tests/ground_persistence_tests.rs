@@ -9,6 +9,7 @@
 
 use super::*;
 use crate::db::GroundItemRow;
+use crate::game_loop::character::inventory;
 use crate::game_loop::items::ground_items;
 use crate::model::components::{GroundItem, Position};
 
@@ -212,7 +213,8 @@ fn multiple_item_drop_splits_non_stackables_and_its_off_branch_loses_the_rest() 
         world.cfg.general.multiple_item_drop = key;
         let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
 
-        let created = items::add_inventory_item(&mut world, 100, NON_STACKABLE, 5).expect("added");
+        let created =
+            inventory::add_inventory_item(&mut world, 100, NON_STACKABLE, 5).expect("added");
         assert_eq!(
             created.len(),
             expect_units,
@@ -225,7 +227,7 @@ fn multiple_item_drop_splits_non_stackables_and_its_off_branch_loses_the_rest() 
         );
 
         // A stackable is one instance of N regardless.
-        let created = items::add_inventory_item(&mut world, 100, STACKABLE, 5).expect("added");
+        let created = inventory::add_inventory_item(&mut world, 100, STACKABLE, 5).expect("added");
         assert_eq!(created.len(), 1, "a stackable never splits");
         assert_eq!(inv_count(&world, STACKABLE), 5);
     }
@@ -247,7 +249,7 @@ fn update_items_on_char_store_selects_whether_the_save_carries_items() {
         let (mut world, mut db_rx) = ground_world();
         world.cfg.general.update_items_on_char_store = key;
         let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
-        items::add_inventory_item(&mut world, 100, STACKABLE, 10);
+        inventory::add_inventory_item(&mut world, 100, STACKABLE, 10);
 
         crate::game_loop::net::store_player_now(&mut world, 100);
         let save = loop {

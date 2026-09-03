@@ -2,6 +2,7 @@
 //! the inbox/outbox/attachable listings.
 
 use super::*;
+use crate::game_loop::character::inventory;
 
 use crate::model::inventory::Inventory;
 use crate::model::mail::{MailType, Message};
@@ -289,7 +290,7 @@ fn the_attachable_item_list_returns_unequipped_non_quest_items_in_a_peace_zone()
         .unwrap()
         .mask = crate::data::zone_data::ZoneKind::Peace.bit();
     world.id_pool = 0x5000_0000..0x5000_0100;
-    items::add_inventory_item(&mut world, 3001, 57, 5000);
+    inventory::add_inventory_item(&mut world, 3001, 57, 5000);
     drain(&mut rx);
 
     on_packet(
@@ -409,7 +410,7 @@ fn adena_of(world: &World, oid: i32) -> i64 {
 }
 
 fn give_adena(world: &mut World, oid: i32, count: i64) {
-    items::add_inventory_item(world, oid, 57, count);
+    inventory::add_inventory_item(world, oid, 57, count);
 }
 
 #[test]
@@ -457,7 +458,7 @@ fn sending_a_mail_charges_the_flat_fee_and_reaches_the_recipient() {
 fn each_attachment_slot_adds_a_thousand_adena_to_the_fee() {
     let (mut world, mut a_rx, _b, _db) = mail_world();
     give_adena(&mut world, 3001, 10_000);
-    items::add_inventory_item(&mut world, 3001, 1060, 3); // healing potions
+    inventory::add_inventory_item(&mut world, 3001, 1060, 3); // healing potions
     let potion_oid = item_oid(&world, 3001, 1060);
     drain(&mut a_rx);
 

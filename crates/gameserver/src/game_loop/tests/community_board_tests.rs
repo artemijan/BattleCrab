@@ -3,6 +3,7 @@
 //! teleport actions are driven end-to-end through `handle_parse_command`.
 
 use super::*;
+use crate::game_loop::character::inventory;
 
 use crate::config::community_board::{CommunityBoardConfig, scan_available_teleports};
 use crate::game_loop::community_board::handle_parse_command;
@@ -648,7 +649,7 @@ fn multisell_choose_exchanges_adena_for_the_product() {
     world.id_pool = 0x7000_0000..0x7000_1000;
     let mut rx = ingame_player(&mut world, 1, 7206, 0, 0, 0);
     // 600026 entry 1: 50,000,000 adena → 1 Cloth Belt (13894).
-    items::add_inventory_item(&mut world, 7206, ADENA_ID, 50_000_000);
+    inventory::add_inventory_item(&mut world, 7206, ADENA_ID, 50_000_000);
     drain(&mut rx);
 
     handle_parse_command(&mut world, 1, "_bbsmultisell;600026,_bbstop");
@@ -677,7 +678,7 @@ fn multisell_choose_refused_without_enough_adena() {
     load_real_multisell_data(&mut world, DIST);
     world.id_pool = 0x7000_0000..0x7000_1000;
     let mut rx = ingame_player(&mut world, 1, 7207, 0, 0, 0);
-    items::add_inventory_item(&mut world, 7207, ADENA_ID, 1_000); // far short
+    inventory::add_inventory_item(&mut world, 7207, ADENA_ID, 1_000); // far short
     drain(&mut rx);
 
     handle_parse_command(&mut world, 1, "_bbsmultisell;600026,_bbstop");
@@ -703,7 +704,7 @@ fn multisell_choose_ignored_for_a_stale_list() {
     load_real_multisell_data(&mut world, DIST);
     world.id_pool = 0x7000_0000..0x7000_1000;
     let mut rx = ingame_player(&mut world, 1, 7208, 0, 0, 0);
-    items::add_inventory_item(&mut world, 7208, ADENA_ID, 50_000_000);
+    inventory::add_inventory_item(&mut world, 7208, ADENA_ID, 50_000_000);
     drain(&mut rx);
 
     // No multisell opened → a forged choose is dropped, nothing charged.
@@ -961,7 +962,7 @@ fn a_multisell_can_charge_clan_reputation_and_refuses_in_javas_order() {
         load_real_multisell_data(&mut world, DIST);
         world.id_pool = 0x7100_0000..0x7100_1000;
         let rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
-        items::add_inventory_item(&mut world, PLAYER, ADENA_ID, ADENA_COST);
+        inventory::add_inventory_item(&mut world, PLAYER, ADENA_ID, ADENA_COST);
         if in_clan {
             world.clans.insert(
                 CLAN,

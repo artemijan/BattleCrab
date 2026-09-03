@@ -9,8 +9,8 @@
 //! (`"FourSepulchers" + managerNpcId`) and rehydrated at boot, so the
 //! 60-minute re-entry gate survives a restart.
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::items;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::components::{Position, RegionCell, Vitals};
@@ -581,13 +581,13 @@ fn take_item(world: &mut World, player: i32, item_id: i32, count: i64) {
         return;
     }
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, player) {
-        items::take_items(world, client_id, player, item_id, count);
+        inventory::take_items(world, client_id, player, item_id, count);
     }
 }
 
 fn give_item(world: &mut World, player: i32, item_id: i32, count: i64) {
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, player) {
-        items::give_item_with_earned_message(world, client_id, player, item_id, count);
+        inventory::give_item_with_earned_message(world, client_id, player, item_id, count);
     }
 }
 

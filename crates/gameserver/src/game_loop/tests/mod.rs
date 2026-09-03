@@ -15,6 +15,7 @@ use crate::character::FriendInfo;
 use crate::data::spawn_data::Territory;
 use crate::data::{GameData, MultisellData};
 use crate::db::DbEvent;
+use crate::game_loop::character::inventory;
 use crate::game_loop::combat::death::handle_request_restart_point;
 use crate::game_loop::npc::ai;
 use crate::game_loop::skills::skill_by_id;
@@ -2407,7 +2408,7 @@ fn shop_world() -> (World, db::CmdRx, UnboundedReceiver<bytes::Bytes>) {
         });
     add_test_npc(&mut world, NPC_OID, 30001, "Merchant", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    items::add_inventory_item(&mut world, 3001, 57, 1000);
+    inventory::add_inventory_item(&mut world, 3001, 57, 1000);
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
     drain(&mut rx);
     (world, db_rx, rx)
@@ -2565,7 +2566,7 @@ fn shot_weapon(
 
 /// Equip a freshly granted item and return its object id.
 fn grant_and_equip(world: &mut World, player_oid: i32, client_id: u32, item_id: i32) -> i32 {
-    let oid = items::add_inventory_item(world, player_oid, item_id, 1).unwrap()[0];
+    let oid = inventory::add_inventory_item(world, player_oid, item_id, 1).unwrap()[0];
     items::use_equipable_item(world, client_id, player_oid, oid);
     oid
 }
@@ -2738,7 +2739,7 @@ fn teleporter_world(adena: i64) -> (World, UnboundedReceiver<bytes::Bytes>) {
     add_test_npc(&mut world, NPC_OID, 30001, "Teleporter", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     if adena > 0 {
-        items::add_inventory_item(&mut world, 3001, 57, adena);
+        inventory::add_inventory_item(&mut world, 3001, 57, adena);
     }
     drain(&mut rx);
     (world, rx)

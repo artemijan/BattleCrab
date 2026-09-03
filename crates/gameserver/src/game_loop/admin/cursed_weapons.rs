@@ -16,6 +16,7 @@
 //! cursed weapon at all — its only HP touch is the full heal on pickup.
 
 use crate::db::DbCommand;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::{send_message, send_to_client};
 use crate::model::Player;
 use crate::model::components::Position;
@@ -324,8 +325,7 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
         return;
     };
     // addItem — give the weapon.
-    let Some(item_oids) = crate::game_loop::items::add_inventory_item(world, target, item_id, 1)
-    else {
+    let Some(item_oids) = inventory::add_inventory_item(world, target, item_id, 1) else {
         return;
     };
     let item_oid = item_oids[0];

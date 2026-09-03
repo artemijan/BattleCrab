@@ -4,6 +4,7 @@
 //! operator can enable it.
 
 use super::*;
+use crate::game_loop::character::inventory;
 
 use crate::data::item_data::ADENA_ID;
 use crate::data::manor_data::Seed;
@@ -216,7 +217,7 @@ fn buy_seed_trades_adena_for_seeds_and_decrements_stock() {
             start_amount: 500,
         }],
     );
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
 
     // Buy 5 of seed 5016 (price 10 → 50 adena).
     let mut w = PacketWriter::new();
@@ -260,7 +261,7 @@ fn buy_seed_at_an_unowned_castle_banks_nothing() {
             start_amount: 500,
         }],
     );
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
 
     let mut w = PacketWriter::new();
     w.write_i32(1);
@@ -291,7 +292,7 @@ fn buy_seed_refused_without_adena() {
             start_amount: 500,
         }],
     );
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 10); // far short of 50
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 10); // far short of 50
 
     let mut w = PacketWriter::new();
     w.write_i32(1);
@@ -327,7 +328,7 @@ fn buy_seed_refused_when_overdrawing_stock() {
             start_amount: 500,
         }],
     );
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
 
     let mut w = PacketWriter::new();
     w.write_i32(1);
@@ -368,8 +369,8 @@ fn sell_crop_same_manor_pays_reward_without_fee() {
             reward_type: 1,
         }],
     );
-    let crop_oid = items::add_inventory_item(&mut world, 100, 5073, 20).unwrap()[0];
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000);
+    let crop_oid = inventory::add_inventory_item(&mut world, 100, 5073, 20).unwrap()[0];
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 10_000);
 
     // Sell 10 crops registered at manor 1.
     let mut w = PacketWriter::new();
@@ -416,8 +417,8 @@ fn sell_crop_cross_manor_charges_five_percent_fee() {
             reward_type: 1,
         }],
     );
-    let crop_oid = items::add_inventory_item(&mut world, 100, 5073, 20).unwrap()[0];
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000_000);
+    let crop_oid = inventory::add_inventory_item(&mut world, 100, 5073, 20).unwrap()[0];
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 1_000_000);
 
     // Sell 10 crops registered at manor 2 → price 10,000,000 → fee 500,000.
     let mut w = PacketWriter::new();
@@ -998,7 +999,7 @@ fn sowing_is_gated_on_the_seeds_own_territory() {
     }
     // Give the player the seed item and target the mob.
     let seed_oid =
-        items::add_inventory_item(&mut world, 100, 5016, 1).expect("the seed was added")[0];
+        inventory::add_inventory_item(&mut world, 100, 5016, 1).expect("the seed was added")[0];
     world.objects.add_components(&100, TargetRef(Some(NPC_OID)));
 
     // The mob stands in *Dion's* tax territory — wrong castle, refused.
@@ -1425,7 +1426,7 @@ fn buy_seed_refused_when_it_would_exceed_the_weight_limit() {
         t.is_stackable = true;
         world.data.item_data.insert_for_test(t);
     }
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000_000);
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 1_000_000);
     drain(&mut rx);
 
     let mut w = PacketWriter::new();

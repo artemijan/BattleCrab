@@ -55,6 +55,7 @@ mod tests;
 pub(crate) mod time;
 pub(crate) mod upkeep;
 
+use crate::game_loop::character::inventory;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
@@ -341,7 +342,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // Item losses noted by the inventory removal methods become audit
         // records here, where the config gate and the owning player exist.
         // Every tick: a record that waits is a record that a crash loses.
-        timed!("item_audit", items::drain_item_audit(&mut world));
+        timed!("item_audit", inventory::drain_item_audit(&mut world));
         // 4. Flush outbound packets / DB commands — added in G3+.
 
         // The tick's *busy* time: event handling (waiting excluded) plus the

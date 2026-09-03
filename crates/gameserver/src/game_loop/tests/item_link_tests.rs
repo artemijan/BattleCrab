@@ -3,6 +3,7 @@
 //! clicks in the chat line.
 
 use super::*;
+use crate::game_loop::character::inventory;
 
 const LINKED_ITEM: i32 = 9101;
 
@@ -78,7 +79,8 @@ fn a_shift_clicked_item_can_be_inspected_by_the_reader() {
     let (mut world, ..) = link_world();
     let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
-    let item_oid = items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
+    let item_oid =
+        inventory::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -120,7 +122,8 @@ fn an_unpublished_item_is_never_answered() {
     let (mut world, ..) = link_world();
     let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
-    let item_oid = items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
+    let item_oid =
+        inventory::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -140,7 +143,7 @@ fn linking_an_item_you_do_not_own_drops_the_line() {
     let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
     let other_oid =
-        items::add_inventory_item(&mut world, 3002, LINKED_ITEM, 1).expect("granted")[0];
+        inventory::add_inventory_item(&mut world, 3002, LINKED_ITEM, 1).expect("granted")[0];
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -167,7 +170,8 @@ fn an_item_link_raises_the_chat_length_cap() {
     let (mut world, ..) = link_world();
     let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
-    let item_oid = items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
+    let item_oid =
+        inventory::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
     drain(&mut a_rx);
     drain(&mut b_rx);
 
@@ -209,7 +213,8 @@ fn logging_out_kills_the_publishers_links() {
     let (mut world, ..) = link_world();
     let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
-    let item_oid = items::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
+    let item_oid =
+        inventory::add_inventory_item(&mut world, 3001, LINKED_ITEM, 1).expect("granted")[0];
     drain(&mut a_rx);
     drain(&mut b_rx);
     say(

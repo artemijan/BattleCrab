@@ -314,7 +314,7 @@ pub(crate) fn pickup_ground_item(
         &server_packets::get_item(player_oid, item_oid, pos.x, pos.y, pos.z),
     );
     despawn_ground_item(world, item_oid, region);
-    items::give_item_with_earned_message_enchanted(
+    inventory::give_item_with_earned_message_enchanted(
         world, client_id, player_oid, g.item_id, g.count, g.enchant,
     );
     // Java `ON_PLAYER_ITEM_PICKUP` (the tutorial's Blue Gemstone listener).

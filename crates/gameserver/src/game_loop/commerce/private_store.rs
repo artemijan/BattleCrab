@@ -343,7 +343,7 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&buyer) {
         inv.remove_item(ADENA_ID, total);
     }
-    crate::game_loop::items::add_inventory_item(world, seller, ADENA_ID, total);
+    inventory::add_inventory_item(world, seller, ADENA_ID, total);
 
     // Refresh both inventories.
     inventory::send_inventory_item_list(world, buyer);
@@ -835,7 +835,7 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&owner) {
         inv.remove_item(ADENA_ID, total);
     }
-    crate::game_loop::items::add_inventory_item(world, seller, ADENA_ID, total);
+    inventory::add_inventory_item(world, seller, ADENA_ID, total);
 
     inventory::send_inventory_item_list(world, seller);
     inventory::send_inventory_item_list(world, owner);

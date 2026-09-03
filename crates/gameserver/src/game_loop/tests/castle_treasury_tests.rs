@@ -3,6 +3,7 @@
 //! manor seed sales, and the chamberlain's vault console.
 
 use super::*;
+use crate::game_loop::character::inventory;
 
 use crate::data::item_data::ADENA_ID;
 use crate::data::multisell_data::{Ingredient, MultisellEntry, MultisellList, Product};
@@ -404,7 +405,7 @@ fn chamberlain(world: &mut World, event: &str) {
 fn the_chamberlain_deposits_and_withdraws() {
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, GLUDIO, 500);
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 200_000);
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 200_000);
     drain(&mut rx);
 
     chamberlain(&mut world, "deposit 150000");
@@ -455,7 +456,7 @@ fn withdrawing_over_the_balance_is_refused() {
 fn depositing_more_than_you_hold_is_refused() {
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, GLUDIO, 500);
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 100);
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 100);
     drain(&mut rx);
 
     chamberlain(&mut world, "deposit 5000");
@@ -476,7 +477,7 @@ fn the_vault_gates_on_ownership() {
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, 2, 500); // Dion, not Gludio
     own(&mut world, GLUDIO, 501); // Gludio belongs to someone else
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000);
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 10_000);
     drain(&mut rx);
 
     chamberlain(&mut world, "deposit 5000");
@@ -497,7 +498,7 @@ fn castle_functions_buy_renew_and_lapse() {
     use crate::model::castle::FUNC_RESTORE_HP;
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, GLUDIO, 500);
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 50_000);
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 50_000);
     drain(&mut rx);
 
     // Buy HP-regen level 300 (fee 12,000 from Feature.ini defaults).
@@ -556,7 +557,7 @@ fn castle_functions_buy_renew_and_lapse() {
 fn the_buffer_needs_the_rented_support_function() {
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, GLUDIO, 500);
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 100_000);
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 100_000);
     drain(&mut rx);
 
     chamberlain(&mut world, "buffer");
@@ -592,7 +593,7 @@ fn the_buffer_needs_the_rented_support_function() {
 fn trap_upgrade_pays_once_and_remembers_the_level() {
     let (mut world, mut rx) = chamberlain_vault_world();
     own_as_leader(&mut world, GLUDIO, 500);
-    items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000_000);
+    inventory::add_inventory_item(&mut world, 100, ADENA_ID, 10_000_000);
     drain(&mut rx);
 
     chamberlain(&mut world, "upgrade_trap_confirm 0 2");

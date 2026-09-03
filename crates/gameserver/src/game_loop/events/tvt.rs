@@ -13,8 +13,9 @@
 //! (`on_player_logout`), and the freeze applies `Immobilized` +
 //! `SkillsDisabled` like Java's `disableAllSkills`.
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::space::position::maybe_position;
-use crate::game_loop::{helpers, items, skills};
+use crate::game_loop::{helpers, skills};
 
 use crate::game_loop::time::TICKS_PER_SECOND;
 use commons::util::rnd;
@@ -414,7 +415,7 @@ fn reward_team(world: &mut World, team: u8) {
         firework(world, player);
         broadcast_social(world, player, SOCIAL_WIN);
         if let Some(cid) = helpers::client_for_player(world, player) {
-            items::give_item_with_earned_message(
+            inventory::give_item_with_earned_message(
                 world,
                 cid,
                 player,

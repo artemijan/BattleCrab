@@ -17,8 +17,8 @@ use tracing::warn;
 use crate::data::buy_list_data::Product;
 use crate::data::item_data::ADENA_ID;
 use crate::game_loop::character::inventory;
+use crate::game_loop::helpers;
 use crate::game_loop::helpers::send_message;
-use crate::game_loop::{helpers, items};
 use crate::model::components::TargetRef;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
@@ -247,7 +247,7 @@ pub(crate) fn show_buy_window_taxed(
     // borrows `world.data` — and the ordering is unobservable, since the flag
     // gates the client's *next* packet, which cannot arrive until this handler
     // has returned.
-    crate::game_loop::items::block_inventory(world, player);
+    inventory::block_inventory(world, player);
 }
 
 /// Port of `clientpackets/RequestBuyItem.runImpl`, minus the karma gate and
@@ -444,7 +444,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
         send_sm_and_action_failed(world, client_id, sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]);
         return;
     }
-    if sub_total > 0 && !items::take_items(world, client_id, player, ADENA_ID, sub_total) {
+    if sub_total > 0 && !inventory::take_items(world, client_id, player, ADENA_ID, sub_total) {
         send_sm_and_action_failed(world, client_id, sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]);
         return;
     }
@@ -598,7 +598,7 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
     }
 
     if total_price > 0 {
-        crate::game_loop::items::add_inventory_item(world, player, ADENA_ID, total_price);
+        inventory::add_inventory_item(world, player, ADENA_ID, total_price);
         // Fold the (grown) adena stack into the same InventoryUpdate.
         if let Some(adena) = world
             .objects
@@ -702,7 +702,8 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
         .map(|i| i.adena())
         .unwrap_or(0);
     if held_adena < adena_cost
-        || (adena_cost > 0 && !items::take_items(world, client_id, player, ADENA_ID, adena_cost))
+        || (adena_cost > 0
+            && !inventory::take_items(world, client_id, player, ADENA_ID, adena_cost))
     {
         send_sm_and_action_failed(world, client_id, sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]);
         return;
@@ -837,7 +838,7 @@ pub(crate) fn handle_request_preview_item(world: &mut World, client_id: u32, bod
     }
 
     // "a Try On is not Free".
-    if total_price > 0 && !items::take_items(world, client_id, player, ADENA_ID, total_price) {
+    if total_price > 0 && !inventory::take_items(world, client_id, player, ADENA_ID, total_price) {
         send_sm_and_action_failed(world, client_id, sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]);
         return;
     }

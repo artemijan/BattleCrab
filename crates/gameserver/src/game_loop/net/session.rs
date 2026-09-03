@@ -7,6 +7,7 @@ use super::players_online;
 use super::reuses_to_save;
 use super::store_and_remove_player;
 use crate::db;
+use crate::game_loop::character::inventory;
 use crate::game_loop::client::dispatch::on_packet;
 use crate::game_loop::helpers::send_to_client;
 use crate::loginlink::LoginLinkCommand;
@@ -211,7 +212,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
     // after removal the inventory is gone and the per-tick drain would never
     // see them. The last thing someone does before vanishing is exactly what an
     // audit gets asked about.
-    crate::game_loop::items::drain_item_audit(world);
+    inventory::drain_item_audit(world);
 
     // Java `GameClient.onDisconnection` → the `accounting` logger. Recorded
     // first, while the account and character are still reachable through the

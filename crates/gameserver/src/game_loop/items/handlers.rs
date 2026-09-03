@@ -1,12 +1,12 @@
 //! Packet handlers: item list, use-item entry, destroy, crystallize and
 //! inventory-order save.
 
-use super::add_inventory_item;
 use super::cursed_weapon_blocks_equip;
 use super::finish_equip_change;
 use super::unequip_if_worn;
 use super::use_equipable_item;
 use crate::game_loop::character::inventory;
+use crate::game_loop::character::inventory::add_inventory_item;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::inventory::Inventory;

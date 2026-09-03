@@ -5,6 +5,7 @@
 //! dialog + the client packets (slice 3). Winner→warehouse delivery is slice 4.
 
 use crate::data::item_data::ADENA_ID;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::time::MILLIS_PER_MINUTE;
 use commons::util::rnd;
@@ -12,7 +13,7 @@ use tracing::info;
 
 use crate::db::DbCommand;
 use crate::game_loop::helpers::{player_of, send_sm_bare_to_client as send_sm};
-use crate::game_loop::{items, npc};
+use crate::game_loop::npc;
 use crate::model::inventory::Inventory;
 use crate::model::item_auction::{AuctionState, ExtendState, ItemAuction};
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
@@ -836,7 +837,7 @@ fn reduce_adena(world: &mut World, player: i32, count: i64) -> bool {
 
 fn add_adena(world: &mut World, player: i32, count: i64) {
     if count > 0 {
-        items::add_inventory_item(world, player, ADENA_ID, count);
+        inventory::add_inventory_item(world, player, ADENA_ID, count);
     }
 }
 

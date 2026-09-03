@@ -2,6 +2,7 @@
 //! CC chat, and the MPCC matching rooms.
 
 use super::*;
+use crate::game_loop::character::inventory;
 use crate::game_loop::items::ground_items;
 use crate::game_loop::party;
 use crate::game_loop::party::command_channel;
@@ -45,7 +46,7 @@ fn two_parties(world: &mut World) -> Vec<UnboundedReceiver<bytes::Bytes>> {
 /// Invite B (via its member P3004 — the dialog must land on leader P3003) and
 /// accept, forming a channel led by 3001.
 fn form_channel(world: &mut World) {
-    items::add_inventory_item(world, 3001, STRATEGY_GUIDE, 1);
+    inventory::add_inventory_item(world, 3001, STRATEGY_GUIDE, 1);
     on_packet(
         world,
         1,
@@ -96,7 +97,7 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
 
     // With the Strategy Guide, inviting through *member* P3004: the dialog
     // goes to B's leader P3003.
-    items::add_inventory_item(&mut world, 3001, STRATEGY_GUIDE, 1);
+    inventory::add_inventory_item(&mut world, 3001, STRATEGY_GUIDE, 1);
     on_packet(
         &mut world,
         1,

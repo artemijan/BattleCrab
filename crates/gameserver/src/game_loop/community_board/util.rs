@@ -3,10 +3,10 @@
 
 use super::render_scheme_names;
 use super::send_cb_html;
+use crate::game_loop::character::inventory;
 use crate::game_loop::client::user_commands::in_combat;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_message;
-use crate::game_loop::items;
 use crate::model::Player;
 use crate::model::components::Casting;
 use crate::model::inventory::Inventory;
@@ -166,7 +166,7 @@ pub(super) fn charge_item(
         .get_component::<Inventory>(&object_id)
         .map(|inv| inv.count_of(item_id))
         .unwrap_or(0);
-    if have < price || !items::take_items(world, client_id, object_id, item_id, price) {
+    if have < price || !inventory::take_items(world, client_id, object_id, item_id, price) {
         send_message(world, client_id, "Not enough currency!");
         return false;
     }

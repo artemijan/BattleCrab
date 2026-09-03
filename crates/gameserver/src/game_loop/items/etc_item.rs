@@ -4,8 +4,8 @@
 use super::charge_fish_shot;
 use super::charge_shot;
 use super::destroy_item_by_id;
-use super::item_skills;
 use crate::data::item_data::ItemHandler;
+use crate::game_loop::skills::item_skills;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, npc, skills};
 

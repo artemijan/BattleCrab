@@ -2,6 +2,7 @@
 //! (slice 1), and the auction lifecycle + scheduling state machine (slice 2).
 
 use super::*;
+use crate::game_loop::character::inventory;
 
 use crate::data::item_auction_data::{AuctionInstanceCfg, AuctionItem, AuctionSchedule};
 use crate::game_loop::items::item_auction;
@@ -199,7 +200,7 @@ fn bidding_world(player: i32, adena: i64) -> World {
         },
     );
     ingame_player(&mut world, 1, player, 0, 0, 0);
-    items::add_inventory_item(&mut world, player, 57, adena);
+    inventory::add_inventory_item(&mut world, player, 57, adena);
     world
 }
 
@@ -246,7 +247,7 @@ fn raising_your_own_bid_charges_only_the_delta() {
 fn canceling_a_losing_bid_refunds_the_adena() {
     let mut world = bidding_world(100, 500_000);
     ingame_player(&mut world, 2, 200, 0, 0, 0);
-    items::add_inventory_item(&mut world, 200, 57, 500_000);
+    inventory::add_inventory_item(&mut world, 200, 57, 500_000);
     // 100 bids 150k, then 200 outbids with 200k → 100 is a loser.
     item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
     item_auction::register_bid(&mut world, 31113, 1, 200, 200_000);
@@ -343,7 +344,7 @@ fn canceled_bids_are_cleared_when_the_auction_finishes() {
     t.item_id = 9901;
     world.data.item_data.insert_for_test(t);
     ingame_player(&mut world, 2, 200, 0, 0, 0);
-    items::add_inventory_item(&mut world, 200, 57, 500_000);
+    inventory::add_inventory_item(&mut world, 200, 57, 500_000);
     // 100 bids, 200 outbids, 100 cancels (a canceled losing bid remains as a row).
     item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
     item_auction::register_bid(&mut world, 31113, 1, 200, 200_000);

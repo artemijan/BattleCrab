@@ -4,6 +4,7 @@
 //! (`admin_cursed_weapons_info_add_remove`).
 
 use super::*;
+use crate::game_loop::character::inventory;
 use crate::game_loop::combat::{death, pvp};
 use crate::game_loop::items::cursed_weapon;
 use crate::game_loop::items::ground_items;
@@ -653,7 +654,7 @@ fn relog_destroys_a_stray_cursed_weapon() {
     load_curse_data(&mut world);
     world.id_pool = 0x3000_0000..0x3000_0100;
     let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
-    items::add_inventory_item(&mut world, PICKER_OID, ZARICHE, 1)
+    inventory::add_inventory_item(&mut world, PICKER_OID, ZARICHE, 1)
         .expect("the leftover sword is in the bag");
 
     cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
@@ -706,7 +707,7 @@ fn cursed_wielder_cannot_equip_another_weapon() {
     let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
     let idx = cw_idx(&world, ZARICHE);
     admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
-    let sword_oid = items::add_inventory_item(&mut world, PICKER_OID, SQUIRES_SWORD, 1)
+    let sword_oid = inventory::add_inventory_item(&mut world, PICKER_OID, SQUIRES_SWORD, 1)
         .expect("spare sword added")[0];
 
     let mut body = Vec::new();
@@ -737,7 +738,7 @@ fn uncursed_player_can_still_equip_a_weapon() {
     load_curse_data(&mut world);
     world.id_pool = 0x3000_0000..0x3000_0100;
     let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
-    let sword_oid = items::add_inventory_item(&mut world, PICKER_OID, SQUIRES_SWORD, 1)
+    let sword_oid = inventory::add_inventory_item(&mut world, PICKER_OID, SQUIRES_SWORD, 1)
         .expect("sword added")[0];
 
     let mut body = Vec::new();

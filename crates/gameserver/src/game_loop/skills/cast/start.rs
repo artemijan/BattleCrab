@@ -4,10 +4,11 @@
 use super::set_skill_reuse;
 use super::stop_channelizing;
 use super::target_state;
+use crate::game_loop::character::inventory;
 use crate::game_loop::combat::run_queued_action;
+use crate::game_loop::helpers;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position;
-use crate::game_loop::{helpers, items};
 use crate::model::Player;
 use crate::model::components::Casting;
 use crate::model::components::Position;
@@ -111,7 +112,7 @@ pub(crate) fn start_casting(
                 .get(skill.item_consume_id)
                 .is_none_or(|t| t.default_action == crate::data::item_data::ActionType::Other);
         if is_reagent {
-            items::take_items(
+            inventory::take_items(
                 world,
                 client_id,
                 object_id,

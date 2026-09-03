@@ -12,6 +12,7 @@
 
 use crate::data::item_data::WeaponType;
 use crate::data::zone_data::ZoneKind;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::items;
 use crate::game_loop::space::position::maybe_position;
@@ -278,7 +279,7 @@ fn reel_in(world: &mut World, player: i32, win: bool, consume_bait: bool) {
     let bait = equipped_bait(world, player);
     let client_id = client_for_player(world, player);
 
-    if consume_bait && !items::take_items(world, client_id.unwrap_or(0), player, bait, 1) {
+    if consume_bait && !inventory::take_items(world, client_id.unwrap_or(0), player, bait, 1) {
         // No bait — no reward.
         broadcast_end(world, player, REASON_LOSE);
         return;
@@ -306,7 +307,13 @@ fn reel_in(world: &mut World, player: i32, win: bool, consume_bait: bool) {
             }
         };
         if fish != 0 {
-            items::give_item_with_earned_message(world, client_id.unwrap_or(0), player, fish, 1);
+            inventory::give_item_with_earned_message(
+                world,
+                client_id.unwrap_or(0),
+                player,
+                fish,
+                1,
+            );
             if xp > 0 || sp_amt > 0 {
                 crate::game_loop::death::add_exp_and_sp(
                     world,

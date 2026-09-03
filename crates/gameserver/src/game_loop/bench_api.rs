@@ -7,6 +7,7 @@
 //! chain the test fixtures use. Feature-gated so nothing here exists in a
 //! normal build; none of it is API.
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::restore_hp_mp;
 use crate::game_loop::space::position::{maybe_position, set_position};
 use std::sync::Arc;
@@ -182,7 +183,7 @@ pub fn weight_sweep(world: &mut World) {
 }
 
 pub fn drain_item_audit(world: &mut World) {
-    super::items::drain_item_audit(world);
+    inventory::drain_item_audit(world);
 }
 
 pub fn revalidate_zone(world: &mut World, object_id: i32) {

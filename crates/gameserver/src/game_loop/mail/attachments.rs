@@ -91,8 +91,7 @@ fn grant_attachments(world: &mut World, player: i32, message_id: i32) {
         })
         .unwrap_or_default();
     for (item_id, count, enchant) in taken {
-        if let Some(oids) =
-            crate::game_loop::items::add_inventory_item(world, player, item_id, count)
+        if let Some(oids) = inventory::add_inventory_item(world, player, item_id, count)
             && enchant > 0
             && let Some(inv) = world.objects.get_component_mut::<Inventory>(&player)
         {
@@ -221,7 +220,7 @@ pub(crate) fn handle_post_attachment(world: &mut World, client_id: u32, body: &[
 /// character's stored inventory.
 fn pay_sender(world: &mut World, sender_id: i32, adena: i64) {
     if world.objects.has_component::<Inventory>(&sender_id) {
-        crate::game_loop::items::add_inventory_item(world, sender_id, ADENA_ID, adena);
+        inventory::add_inventory_item(world, sender_id, ADENA_ID, adena);
         inventory::send_inventory_item_list(world, sender_id);
         return;
     }

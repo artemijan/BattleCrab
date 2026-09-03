@@ -944,7 +944,7 @@ fn settle_and_reward(
         if let Some(inv) = world.objects.get_component_mut::<Inventory>(&customer) {
             inv.remove_item(ADENA_ID, price);
         }
-        crate::game_loop::items::add_inventory_item(world, crafter, ADENA_ID, price);
+        inventory::add_inventory_item(world, crafter, ADENA_ID, price);
     }
 
     // Consume materials from the customer + disappear messages.
@@ -1033,7 +1033,7 @@ fn reward(
         count = rare.count;
     }
 
-    crate::game_loop::items::add_inventory_item(world, customer, item_id, count as i64);
+    inventory::add_inventory_item(world, customer, item_id, count as i64);
     // `rewardPlayer`'s ALT_GAME_CREATION tail: the crafter earns XP/SP scaled
     // by the recipe level, the rare production, and the creation-speed knobs.
     if world.cfg.character.alt_game_creation {

@@ -8,7 +8,6 @@ use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::items;
 /// Java `RequestSetSeed`/`RequestSetCrop`'s shared owner gate. Returns the
 /// player object id when: the manor is in its **modifiable** period, the
 /// player's clan owns castle `manor_id`, they hold `CS_MANOR_ADMIN`, and they
@@ -307,7 +306,9 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
         );
         return;
     }
-    if total_price > 0 && !items::take_items(world, client_id, player_oid, ADENA_ID, total_price) {
+    if total_price > 0
+        && !inventory::take_items(world, client_id, player_oid, ADENA_ID, total_price)
+    {
         return;
     }
 
@@ -462,7 +463,7 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
             continue;
         }
         if fee > 0 {
-            items::take_items(world, client_id, player_oid, ADENA_ID, fee);
+            inventory::take_items(world, client_id, player_oid, ADENA_ID, fee);
         }
         if let Some(change) =
             inventory::remove_inventory_item_change(world, player_oid, obj_id, cnt)

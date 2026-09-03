@@ -2,6 +2,7 @@
 //! Mammon merchants.
 
 use super::*;
+use crate::game_loop::character::inventory;
 
 use crate::data::zone_data::ZoneData;
 use crate::game_loop::npc::area::{
@@ -1503,7 +1504,7 @@ fn rows_of(world: &World, player: i32) -> Vec<model::components::PreparedRow> {
 #[test]
 fn an_exchange_window_lists_only_the_players_own_items() {
     let (mut world, mut rx) = mammon_world();
-    let oids = items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon");
+    let oids = inventory::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon");
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8801) {
         inv.set_item_enchant(oids[0], 5);
     }
@@ -1538,7 +1539,7 @@ fn an_exchange_window_lists_only_the_players_own_items() {
 #[test]
 fn an_equipped_item_is_not_offered() {
     let (mut world, mut rx) = mammon_world();
-    let oids = items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon");
+    let oids = inventory::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon");
     {
         let World { objects, data, .. } = &mut world;
         let inv = objects.get_component_mut::<Inventory>(&8801).unwrap();
@@ -1565,8 +1566,8 @@ fn an_equipped_item_is_not_offered() {
 #[test]
 fn the_exchange_consumes_the_paired_instance() {
     let (mut world, mut rx) = mammon_world();
-    let plain = items::add_inventory_item(&mut world, 8801, 4681, 1).expect("first")[0];
-    let enchanted = items::add_inventory_item(&mut world, 8801, 4681, 1).expect("second")[0];
+    let plain = inventory::add_inventory_item(&mut world, 8801, 4681, 1).expect("first")[0];
+    let enchanted = inventory::add_inventory_item(&mut world, 8801, 4681, 1).expect("second")[0];
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8801) {
         inv.set_item_enchant(enchanted, 5);
     }
@@ -1605,7 +1606,7 @@ fn the_exchange_consumes_the_paired_instance() {
 #[test]
 fn a_mismatched_echo_is_refused() {
     let (mut world, mut rx) = mammon_world();
-    let oid = items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon")[0];
+    let oid = inventory::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon")[0];
     drain(&mut rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -1651,7 +1652,8 @@ fn maintain_enchantment_carries_the_enchant_over() {
         let entry = &list.entries[0];
         (entry.ingredients[0].id, entry.products[0].id)
     };
-    let oid = items::add_inventory_item(&mut world, 8802, ingredient_id, 1).expect("ingredient")[0];
+    let oid =
+        inventory::add_inventory_item(&mut world, 8802, ingredient_id, 1).expect("ingredient")[0];
     // Everything else the entry wants (adena and the like).
     let extras: Vec<(i32, i64)> = {
         let list = world.data.multisells.get(1005).expect("list 1005");
@@ -1663,7 +1665,7 @@ fn maintain_enchantment_carries_the_enchant_over() {
             .collect()
     };
     for (id, count) in extras {
-        items::add_inventory_item(&mut world, 8802, id, count);
+        inventory::add_inventory_item(&mut world, 8802, id, count);
     }
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8802) {
         inv.set_item_enchant(oid, 7);

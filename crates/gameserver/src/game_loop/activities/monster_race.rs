@@ -456,9 +456,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, comm
             .unwrap_or_default();
         // Mint the ticket (enchant = race number, custom_type1 = lane,
         // custom_type2 = price / 100).
-        if let Some(oids) =
-            crate::game_loop::items::add_inventory_item(world, player, RACE_TICKET_ITEM, 1)
-        {
+        if let Some(oids) = inventory::add_inventory_item(world, player, RACE_TICKET_ITEM, 1) {
             let oid = oids[0];
             if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
                 inv.set_lotto_fields(oid, lane, race_number, (price / 100) as i32);
@@ -616,7 +614,7 @@ fn calculate_win(world: &mut World, player: i32, command: &str) {
             0.01
         }) as i64;
     if payout > 0 {
-        crate::game_loop::items::add_inventory_item(world, player, ADENA_ID, payout);
+        inventory::add_inventory_item(world, player, ADENA_ID, payout);
     }
     let mut changes: Vec<ItemChange> = removed.into_iter().collect();
     if let Some(inv) = world.objects.get_component::<Inventory>(&player)

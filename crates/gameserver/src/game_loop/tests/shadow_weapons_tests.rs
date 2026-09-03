@@ -5,6 +5,7 @@
 
 use super::*;
 use crate::data::multisell_data::MultisellData;
+use crate::game_loop::character::inventory;
 use crate::model::inventory::Inventory;
 
 const DIST: &str = crate::data::DIST_GAME;
@@ -63,10 +64,10 @@ fn the_desk_offers_the_page_matching_the_coupons_held() {
         let (mut world, _db_rx) = shadow_test_world();
         let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
         if d > 0 {
-            items::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, d);
+            inventory::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, d);
         }
         if c > 0 {
-            items::add_inventory_item(&mut world, PLAYER_OID, COUPON_C, c);
+            inventory::add_inventory_item(&mut world, PLAYER_OID, COUPON_C, c);
         }
         drain(&mut rx);
 
@@ -104,7 +105,7 @@ fn the_desk_offers_the_page_matching_the_coupons_held() {
 fn a_coupon_buys_a_shadow_weapon_charged_with_its_duration() {
     let (mut world, _db_rx) = shadow_test_world();
     let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
-    items::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, 15);
+    inventory::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, 15);
     drain(&mut rx);
 
     talk_shadow_desk(&mut world);
@@ -152,7 +153,7 @@ fn a_coupon_buys_a_shadow_weapon_charged_with_its_duration() {
 fn the_c_grade_exchange_refuses_a_d_grade_coupon() {
     let (mut world, _db_rx) = shadow_test_world();
     let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
-    items::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, 15);
+    inventory::add_inventory_item(&mut world, PLAYER_OID, COUPON_D, 15);
     drain(&mut rx);
 
     crate::game_loop::commerce::multisell::separate_and_send(
@@ -189,7 +190,7 @@ fn the_c_grade_exchange_refuses_a_d_grade_coupon() {
 /// Give the player a shadow weapon straight from the catalog and equip it.
 /// Returns its object id.
 fn equip_shadow_weapon(world: &mut World, rx: &mut UnboundedReceiver<bytes::Bytes>) -> i32 {
-    let oid = items::add_inventory_item(world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD, 1)
+    let oid = inventory::add_inventory_item(world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD, 1)
         .expect("granted")[0];
     items::use_equipable_item(world, 1, PLAYER_OID, oid);
     drain(rx);
@@ -244,7 +245,7 @@ fn a_worn_shadow_weapon_burns_one_mana_per_minute() {
 fn an_unworn_shadow_weapon_does_not_burn_mana() {
     let (mut world, _db_rx) = shadow_test_world();
     let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
-    items::add_inventory_item(&mut world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD, 1);
+    inventory::add_inventory_item(&mut world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD, 1);
     drain(&mut rx);
 
     advance_world(
@@ -367,8 +368,8 @@ fn a_shadow_weapon_cannot_be_crystallized() {
     world.data.item_data.insert_for_test(template);
 
     let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
-    let item_oid =
-        items::add_inventory_item(&mut world, PLAYER_OID, BASTARD_SWORD, 1).expect("granted")[0];
+    let item_oid = inventory::add_inventory_item(&mut world, PLAYER_OID, BASTARD_SWORD, 1)
+        .expect("granted")[0];
     // The Crystallize skill above the D-grade requirement, so only the shadow
     // guard can refuse this.
     world.objects.add_components(

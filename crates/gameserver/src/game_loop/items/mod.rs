@@ -10,7 +10,6 @@ mod equip;
 mod etc_item;
 pub(crate) mod ground_items;
 mod handlers;
-mod inventory;
 pub(crate) mod item_auction;
 pub(crate) mod item_mana;
 mod shots;
@@ -32,11 +31,6 @@ pub(crate) use handlers::{
     handle_request_crystallize_item, handle_request_destroy_item, handle_request_item_list,
     handle_request_save_inventory_order, handle_request_un_equip_item, handle_use_item,
     send_item_message,
-};
-pub(crate) use inventory::{
-    add_inventory_item, add_inventory_item_tracked, block_inventory, drain_item_audit,
-    give_item_with_earned_message, give_item_with_earned_message_enchanted, item_skills,
-    take_items,
 };
 pub(crate) use shots::{
     auto_shots, charge_fish_shot, charge_shot, handle_request_auto_soul_shot, recharge_shots,

@@ -3,6 +3,7 @@
 //! restart.
 
 use super::*;
+use crate::game_loop::character::inventory;
 use crate::game_loop::commerce::offline_trade;
 use crate::game_loop::social::chat;
 use crate::model::components::{PrivateStore, StoreItem};
@@ -208,8 +209,8 @@ fn buying_out_an_unattended_shop_sends_it_home() {
     world.id_pool = 0x4100_0000..0x4100_0200;
     let _seller_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     let _buyer_rx = ingame_player(&mut world, 2, 5002, 120, 200, 0);
-    items::add_inventory_item(&mut world, 5001, 1458, 4).unwrap();
-    items::add_inventory_item(&mut world, 5002, 57, 1000).unwrap();
+    inventory::add_inventory_item(&mut world, 5001, 1458, 4).unwrap();
+    inventory::add_inventory_item(&mut world, 5002, 57, 1000).unwrap();
     let crystal = world
         .objects
         .get_component::<Inventory>(&5001)

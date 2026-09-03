@@ -13,9 +13,9 @@ pub mod expertise;
 pub(crate) mod instant;
 
 use crate::game_loop::admin::refresh_skill_list;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::items;
 use crate::model;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -263,7 +263,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
         // check above means it always succeeds, but a failure must stay silent
         // rather than announce an item that never left the bag.
         for &(item_id, count) in &required_items {
-            if !items::take_items(world, client_id, object_id, item_id, count) {
+            if !inventory::take_items(world, client_id, object_id, item_id, count) {
                 continue;
             }
             if count > 1 {
@@ -360,4 +360,14 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
 /// are a different lookup, not a defaulted argument.
 pub(crate) fn skill_by_id(world: &World, id: i32, level: i32) -> Option<model::skill::Skill> {
     world.data.skill_data.get(id, level).cloned()
+}
+
+/// The `NORMAL` item-skill list Java's `PetFood` handler runs.
+pub(crate) fn item_skills(world: &World, item_id: i32) -> Vec<(i32, i32)> {
+    world
+        .data
+        .item_data
+        .get(item_id)
+        .map(|t| t.item_skills.clone())
+        .unwrap_or_default()
 }

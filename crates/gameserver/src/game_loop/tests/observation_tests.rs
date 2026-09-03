@@ -5,6 +5,7 @@
 //! nothing.
 
 use super::*;
+use crate::game_loop::character::inventory;
 
 use crate::game_loop::space::observation;
 use crate::model::components::{Observing, Position};
@@ -65,7 +66,7 @@ fn adena(world: &World) -> i64 {
 #[test]
 fn a_tower_seat_is_bought_entered_and_left() {
     let (mut world, mut rx) = tower_world();
-    items::add_inventory_item(&mut world, PLAYER, 57, 1000).unwrap();
+    inventory::add_inventory_item(&mut world, PLAYER, 57, 1000).unwrap();
     let home = pos_of(&world);
     drain(&mut rx);
 
@@ -119,7 +120,7 @@ fn a_tower_seat_is_bought_entered_and_left() {
 #[test]
 fn a_seat_that_cannot_be_paid_for_is_not_entered() {
     let (mut world, mut rx) = tower_world();
-    items::add_inventory_item(&mut world, PLAYER, 57, SEAT_COST - 1).unwrap();
+    inventory::add_inventory_item(&mut world, PLAYER, 57, SEAT_COST - 1).unwrap();
     let home = pos_of(&world);
     drain(&mut rx);
 
@@ -134,7 +135,7 @@ fn a_seat_that_cannot_be_paid_for_is_not_entered() {
 #[test]
 fn a_player_with_a_summon_is_refused() {
     let (mut world, mut rx) = tower_world();
-    items::add_inventory_item(&mut world, PLAYER, 57, 1000).unwrap();
+    inventory::add_inventory_item(&mut world, PLAYER, 57, 1000).unwrap();
     // Park a servitor on the player through the same link the orders use.
     let mut t = crate::data::npc_data::default_template(14799);
     t.type_name = "Servitor".into();
@@ -156,7 +157,7 @@ fn a_player_with_a_summon_is_refused() {
 #[test]
 fn a_bad_index_or_a_non_tower_buys_nothing() {
     let (mut world, _rx) = tower_world();
-    items::add_inventory_item(&mut world, PLAYER, 57, 1000).unwrap();
+    inventory::add_inventory_item(&mut world, PLAYER, 57, 1000).unwrap();
 
     observe(&mut world, "99");
     assert!(
@@ -194,7 +195,7 @@ fn a_bad_index_or_a_non_tower_buys_nothing() {
 #[test]
 fn a_spectator_cannot_click_anything() {
     let (mut world, mut rx) = tower_world();
-    items::add_inventory_item(&mut world, PLAYER, 57, 1000).unwrap();
+    inventory::add_inventory_item(&mut world, PLAYER, 57, 1000).unwrap();
     observe(&mut world, "18");
     assert!(world.objects.has_component::<Observing>(&PLAYER));
     let seat = pos_of(&world);

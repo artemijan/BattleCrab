@@ -17,9 +17,9 @@
 //! A seller too low on MP is refused with a message rather than the cast
 //! silently failing.
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::combat::duel;
 use crate::game_loop::helpers::{is_dead, nth_arg, player_name_or_empty, send_message};
-use crate::game_loop::items;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::skills::skill_by_id;
 use crate::model::Player;
@@ -471,8 +471,8 @@ fn buy_skill(world: &mut World, client_id: u32, buyer_oid: i32, args: &[&str]) {
         send_buff_menu(world, client_id, buyer_oid, seller_oid, index);
         return;
     }
-    items::take_items(world, client_id, buyer_oid, payment_id, price);
-    items::add_inventory_item(world, seller_oid, payment_id, price);
+    inventory::take_items(world, client_id, buyer_oid, payment_id, price);
+    inventory::add_inventory_item(world, seller_oid, payment_id, price);
     crate::game_loop::helpers::spend_mp(world, seller_oid, mp_cost);
     // `skill.activateSkill(seller, player)` — the *seller* casts it on the
     // buyer, so the buff is attributed to the seller like any other cast.

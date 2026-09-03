@@ -18,7 +18,7 @@ use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::items::item_skills;
+use crate::game_loop::skills::item_skills;
 use crate::model::Player;
 use crate::model::components::{AutoPlaySettings, AutoUseSettings, SkillBook, ZoneFlags};
 use crate::model::inventory::Inventory;

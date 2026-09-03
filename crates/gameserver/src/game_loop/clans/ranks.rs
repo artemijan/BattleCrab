@@ -10,10 +10,11 @@ use super::online_members;
 use super::send_to_member;
 use super::set_clan_level;
 use crate::db::DbCommand;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
-use crate::game_loop::{clans, helpers, items};
+use crate::game_loop::{clans, helpers};
 use crate::model::Player;
 use crate::model::clan::ClanMember;
 use crate::network::server_packets;
@@ -87,7 +88,7 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
         );
         return;
     }
-    if !items::take_items(world, client_id, player_oid, item_id, item_count) {
+    if !inventory::take_items(world, client_id, player_oid, item_id, item_count) {
         helpers::send_sm_bare_to_client(
             world,
             client_id,

@@ -1,6 +1,7 @@
 use super::*;
 use crate::game_loop;
 use crate::game_loop::admin;
+use crate::game_loop::character::inventory;
 use crate::game_loop::space::position::set_position;
 
 /// A GM's `//serverinfo` runs and answers with server-info text lines.
@@ -1847,7 +1848,7 @@ fn admin_delete_quest_item_by_template_id() {
         .name
         .clone();
     world.objects.add_components(&7213, TargetRef(Some(7214)));
-    items::add_inventory_item(&mut world, 7214, 57, 10);
+    inventory::add_inventory_item(&mut world, 7214, 57, 10);
     drain(&mut gm_rx);
 
     let held = |w: &World, oid: i32| {
@@ -1867,7 +1868,7 @@ fn admin_delete_quest_item_by_template_id() {
     assert_eq!(held(&world, 7214), 0, "no count = all of it");
 
     // A trailing name wins over the target: stock the GM, aim at the player.
-    items::add_inventory_item(&mut world, 7213, 57, 8);
+    inventory::add_inventory_item(&mut world, 7213, 57, 8);
     assert_eq!(held(&world, 7213), 8, "GM stocked");
     on_packet(
         &mut world,

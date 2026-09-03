@@ -9,8 +9,8 @@
 //! minutes. A 5 s `CheckOwnerBuffs` beat keeps the tamer buffed from the
 //! beast's `<skillList>` (see [`handle_buff_check`]).
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::items;
 use crate::game_loop::npc::despawn_npc_by_oid;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::npc::npc_template;
@@ -126,7 +126,7 @@ pub(crate) fn handle_duration(world: &mut World, beast_oid: i32) {
             spice,
             crate::game_loop::helpers::client_for_player(world, owner),
         ) {
-            items::take_items(world, client_id, owner, item, 1);
+            inventory::take_items(world, client_id, owner, item, 1);
         }
         on_receive_food(world, beast_oid);
     } else if remaining < MAX_DURATION_TICKS - NO_FOOD_GRACE_TICKS {

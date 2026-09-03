@@ -123,7 +123,7 @@ fn arm_archer(world: &mut World, arrows: i64, arrow_id: i32) {
 }
 
 /// Add an item straight to the inventory with an explicit object id —
-/// `cast_test_world` seeds no id pool, so `items::add_inventory_item` would bail
+/// `cast_test_world` seeds no id pool, so `inventory::add_inventory_item` would bail
 /// on `alloc_object_id`.
 fn give(world: &mut World, oid: i32, item_id: i32, count: i64) -> i32 {
     let obj_id = 0x5000_0000 + item_id;

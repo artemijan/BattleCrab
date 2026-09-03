@@ -8,6 +8,7 @@
 use super::*;
 use crate::data::buy_list_data::BuyListData;
 use crate::db::DbEvent;
+use crate::game_loop::character::inventory;
 use crate::game_loop::commerce::shop;
 use crate::scheduler::ScheduledTask;
 
@@ -44,7 +45,7 @@ fn dist_shop_world(npc_id: i32) -> (World, db::CmdRx, UnboundedReceiver<bytes::B
     world.data.buy_lists = lists;
     add_test_npc(&mut world, NPC_OID, npc_id, "Merchant", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    items::add_inventory_item(&mut world, 3001, 57, 10_000_000);
+    inventory::add_inventory_item(&mut world, 3001, 57, 10_000_000);
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
     drain(&mut rx);
     (world, db_rx, rx)

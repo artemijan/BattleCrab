@@ -126,7 +126,7 @@ pub(crate) fn handle_exchange(
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player_oid) {
         inv.remove_item(ticket, 1);
     }
-    let _ = crate::game_loop::items::add_inventory_item(world, player_oid, collar, 1);
+    let _ = inventory::add_inventory_item(world, player_oid, collar, 1);
     inventory::send_inventory_item_list(world, player_oid);
 }
 
@@ -240,7 +240,7 @@ fn do_evolve(
     crate::game_loop::servitor::unsummon_servitor(world, player_oid);
     destroy_collar(world, player_oid, collar_object_id);
 
-    let Some(new_collar) = crate::game_loop::items::add_inventory_item(world, player_oid, give, 1)
+    let Some(new_collar) = inventory::add_inventory_item(world, player_oid, give, 1)
         .and_then(|ids| ids.first().copied())
     else {
         return false;
@@ -302,7 +302,7 @@ fn do_restore(
         sm_ids::S1_DISAPPEARED,
         &[server_packets::SmParam::ItemName(take)],
     );
-    let Some(new_collar) = crate::game_loop::items::add_inventory_item(world, player_oid, give, 1)
+    let Some(new_collar) = inventory::add_inventory_item(world, player_oid, give, 1)
         .and_then(|ids| ids.first().copied())
     else {
         return false;
