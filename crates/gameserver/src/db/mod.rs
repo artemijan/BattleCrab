@@ -16,7 +16,8 @@
 //! - `commands` — the thread's main loop: receive a [`DbCommand`], run it,
 //!   emit any [`DbEvent`].
 //! - `queries` — the `load_*` readers and the handful of writers they sit
-//!   beside; the only place that speaks sea-orm.
+//!   beside; the only place that speaks sea-orm, split by the same domains
+//!   as `commands`.
 
 use std::thread::JoinHandle;
 
@@ -30,20 +31,35 @@ pub use boot::GroundItemBootConfig;
 pub(crate) use boot::{clean_up_database, send_boot_events, verify_schema};
 pub use character::{CharData, FriendInfo, ItemRow};
 pub(crate) use commands::run;
-pub(crate) use queries::{
-    BLOCK_RELATION, clear_ground_items, count_characters, create_character, delete_char,
-    item_row_model, load_all_block_lists, load_bot_reports, load_buffer_schemes,
-    load_buy_list_stock, load_castles, load_char_ids_by_name, load_clan_hall_bidders,
-    load_clan_hall_owners, load_clan_notices, load_clan_wars, load_clans, load_crests,
-    load_cursed_weapons, load_favorites, load_global_variables, load_grandboss_data,
-    load_ground_items, load_hero_diary, load_heroes, load_hired_siege_guards, load_item_auctions,
-    load_lottery, load_lottery_draws, load_mail, load_manor_procure, load_manor_production,
-    load_mdt_bets, load_mdt_history, load_next_id, load_npc_respawns, load_offline_traders,
-    load_olympiad, load_premium, load_punishments, load_recruit_applicants, load_recruit_clans,
-    load_recruit_waiting, load_residence_functions, load_siege_clans, load_siege_guards,
-    name_exists, reload, store_ground_items, store_player, warn_err,
+pub(crate) use queries::account::{load_buffer_schemes, load_favorites, load_premium};
+pub(crate) use queries::character_load::{load_char_ids_by_name, reload};
+pub(crate) use queries::character_store::{
+    count_characters, create_character, delete_char, name_exists, store_player,
 };
-pub use queries::{NpcRespawnRow, OfflineTraderRow};
+pub(crate) use queries::clans::{
+    load_clan_notices, load_clan_wars, load_clans, load_crests, load_recruit_applicants,
+    load_recruit_clans, load_recruit_waiting,
+};
+pub use queries::commerce::OfflineTraderRow;
+pub(crate) use queries::commerce::{load_buy_list_stock, load_item_auctions, load_offline_traders};
+pub(crate) use queries::minigames::{
+    load_lottery, load_lottery_draws, load_mdt_bets, load_mdt_history,
+};
+pub(crate) use queries::olympiad::{load_hero_diary, load_heroes, load_olympiad};
+pub(crate) use queries::residences::{
+    load_castles, load_clan_hall_bidders, load_clan_hall_owners, load_cursed_weapons,
+    load_hired_siege_guards, load_manor_procure, load_manor_production, load_residence_functions,
+    load_siege_clans, load_siege_guards,
+};
+pub(crate) use queries::social::{
+    BLOCK_RELATION, load_all_block_lists, load_bot_reports, load_mail, load_punishments,
+};
+pub use queries::world::NpcRespawnRow;
+pub(crate) use queries::world::{
+    clear_ground_items, load_global_variables, load_grandboss_data, load_ground_items,
+    load_next_id, load_npc_respawns, store_ground_items,
+};
+pub(crate) use queries::{item_row_model, warn_err};
 pub use types::{
     BirthdayDay, BirthdayMatch, ClanHallBidRow, ClanHallRow, CmdTx, CreateResult, CursedWeaponRow,
     CustomMailRow, DbCommand, DbEvent, FreightItemRow, GroundItemRow, HeroRow, MailRow,
