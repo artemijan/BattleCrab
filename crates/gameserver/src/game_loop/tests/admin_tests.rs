@@ -7732,6 +7732,72 @@ fn vitality_commands_report_a_disabled_system() {
     );
 }
 
+/// **The vitality commands have to say what they did** (GitHub #8). Java's
+/// `AdminVitality` is silent on success, so a GM pressing "Vit Set" / "Vit Max"
+/// cannot tell a command that worked from one that did nothing — which is what
+/// the report described. Every arm now names the state of the system and the
+/// outcome: the pool before and after, the clamp when the typed number is out
+/// of range, and "nothing changed" when it is already there.
+#[test]
+fn vitality_commands_report_the_outcome() {
+    let (mut world, ..) = admin_world();
+    world.cfg.character.enable_vitality = true;
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7415, 100);
+    let _victim = ingame_player_access(&mut world, 2, 7416, 0);
+    drain(&mut gm_rx);
+    world.objects.add_components(&7415, TargetRef(Some(7416)));
+
+    let run = |world: &mut World, cmd: &str, rx: &mut _| {
+        on_packet(
+            world,
+            1,
+            [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body(cmd)].concat(),
+        );
+        drain(rx)
+            .iter()
+            .filter_map(|p| system_message_text(p))
+            .collect::<Vec<_>>()
+    };
+
+    // A number outside 0..=140000 still succeeds — say so, rather than leave
+    // the GM reading the difference as a failure.
+    let texts = run(&mut world, "set_vitality 999999", &mut gm_rx);
+    assert!(
+        texts.iter().any(|t| t.contains("Vitality is enabled")
+            && t.contains("set to 140000")
+            && t.contains("clamped")),
+        "the clamp is reported as a success: {texts:?}"
+    );
+
+    // Already there: a distinct line, not silence and not a success line.
+    let texts = run(&mut world, "full_vitality", &mut gm_rx);
+    assert!(
+        texts
+            .iter()
+            .any(|t| t.contains("Vitality is enabled") && t.contains("nothing changed")),
+        "a no-op is reported as a no-op: {texts:?}"
+    );
+
+    // And the move back down reports both ends of it.
+    let texts = run(&mut world, "empty_vitality", &mut gm_rx);
+    assert!(
+        texts.iter().any(|t| t.contains("Vitality is enabled")
+            && t.contains("set to 0")
+            && t.contains("was 140000")),
+        "the before/after pair is reported: {texts:?}"
+    );
+
+    // Nothing targeted is a refusal, and still names the state of the system.
+    world.objects.add_components(&7415, TargetRef(None));
+    let texts = run(&mut world, "full_vitality", &mut gm_rx);
+    assert!(
+        texts
+            .iter()
+            .any(|t| t.contains("Vitality is enabled") && t.contains("Target not found")),
+        "the no-target refusal names the state too: {texts:?}"
+    );
+}
+
 /// **`//para` has to be visible** (GitHub #10). Java's
 /// `startAbnormalVisualEffect` ends in `updateAbnormalVisualEffects()`, which
 /// sends the owner their own `ExUserInfoAbnormalVisualEffect` alongside the

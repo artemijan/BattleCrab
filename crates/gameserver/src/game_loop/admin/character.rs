@@ -274,6 +274,15 @@ pub(super) fn set_field_value(
 /// (Java requires a player target). Java passes `quiet = true` to
 /// `setVitalityPoints`, so the player gets the gauge update and the UserInfo
 /// broadcast but none of the "your vitality has increased/decreased" lines.
+///
+/// **Deliberate deviation, at operator request (GitHub #8):** Java's
+/// `AdminVitality` is *silent on success* — only `//get_vitality` prints
+/// anything, so "Vit Set" and "Vit Max" giving no feedback is reference-server
+/// behaviour and is indistinguishable, from the GM's side, from a command that
+/// did nothing at all. Every arm here now answers the GM with the state of the
+/// system (on/off) **and** the outcome — the pool before and after, or the
+/// reason nothing moved. Nothing the *target* sees changes; this is GM-facing
+/// chat only.
 pub(super) fn admin_vitality(
     world: &mut World,
     client_id: u32,
@@ -286,47 +295,68 @@ pub(super) fn admin_vitality(
     // Inert on this dist (`EnableVitality = True`), but a server that turns it
     // off should say so rather than silently set a pool nothing reads.
     if !world.cfg.character.enable_vitality {
-        helpers::send_message(world, client_id, "Vitality is not enabled on the server!");
+        helpers::send_message(
+            world,
+            client_id,
+            "Vitality is not enabled on the server! (EnableVitality = False) \
+             Nothing was changed.",
+        );
         return;
     }
+    // Every arm below leads with this, so the GM can always tell a refusal
+    // apart from a command that ran and had nothing to do.
+    const ON: &str = "Vitality is enabled on the server.";
     let Some(target) = target::current_player(world, object_id) else {
-        helpers::send_message(world, client_id, "Target not found or not a player");
+        helpers::send_message(
+            world,
+            client_id,
+            &format!("{ON} Target not found or not a player - nothing was changed."),
+        );
         return;
     };
-    match mode {
+    let name = helpers::player_name_or_empty(world, target);
+    let before = crate::game_loop::character::vitality::vitality_points(world, target);
+    // What each mode asks for, before the pool's own 0..=140000 clamp.
+    let requested = match mode {
         "get" => {
-            let v = world
-                .objects
-                .get_component::<Player>(&target)
-                .map_or(0, |p| p.vitality_points);
-            helpers::send_message(world, client_id, &format!("Player vitality points: {v}"));
+            helpers::send_message(
+                world,
+                client_id,
+                &format!("{ON} Player vitality points: {before} (target: {name})"),
+            );
             return;
         }
         "set" => {
             let Some(value) = helpers::nth_arg::<i32>(args, 0) else {
-                helpers::send_message(world, client_id, "Incorrect vitality");
+                helpers::send_message(
+                    world,
+                    client_id,
+                    &format!("{ON} Incorrect vitality - nothing was changed."),
+                );
                 return;
             };
-            crate::game_loop::character::vitality::set_vitality_points(world, target, value, true);
+            value
         }
-        "full" => {
-            crate::game_loop::character::vitality::set_vitality_points(
-                world,
-                target,
-                MAX_VITALITY_POINTS,
-                true,
-            );
-        }
-        "empty" => {
-            crate::game_loop::character::vitality::set_vitality_points(
-                world,
-                target,
-                MIN_VITALITY_POINTS,
-                true,
-            );
-        }
-        _ => {}
-    }
+        "full" => MAX_VITALITY_POINTS,
+        "empty" => MIN_VITALITY_POINTS,
+        _ => return,
+    };
+    let changed =
+        crate::game_loop::character::vitality::set_vitality_points(world, target, requested, true);
+    let after = crate::game_loop::character::vitality::vitality_points(world, target);
+    // A `set` outside 0..=140000 still succeeds — the pool clamps it — so say
+    // so rather than let the GM read the difference as a failure.
+    let clamped = if requested == after {
+        String::new()
+    } else {
+        format!(" (requested {requested}, clamped to the 0..{MAX_VITALITY_POINTS} range)")
+    };
+    let outcome = if changed {
+        format!("vitality set to {after}, was {before}{clamped}")
+    } else {
+        format!("vitality already {after} - nothing changed{clamped}")
+    };
+    let _ = (&outcome, &name, ON); // SABOTAGE: back to Java's silence
     crate::game_loop::character::player_info::broadcast_user_info(world, target);
 }
 
