@@ -356,7 +356,7 @@ pub(super) fn admin_vitality(
     } else {
         format!("vitality already {after} - nothing changed{clamped}")
     };
-    let _ = (&outcome, &name, ON); // SABOTAGE: back to Java's silence
+    helpers::send_message(world, client_id, &format!("{ON} {name}: {outcome}."));
     crate::game_loop::character::player_info::broadcast_user_info(world, target);
 }
 
