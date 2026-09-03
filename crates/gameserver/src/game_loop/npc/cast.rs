@@ -356,7 +356,7 @@ fn check_skill_target(world: &World, npc_oid: i32, target_oid: i32, skill: &Skil
     let heals = skill
         .effects
         .iter()
-        .any(|e| matches!(e, crate::model::skill::SkillEffect::Heal { .. }));
+        .any(|e| matches!(e, crate::model::skill::effects::SkillEffect::Heal { .. }));
     if heals && vitals.cur_hp >= vitals.max_hp as f64 {
         return false;
     }
@@ -386,7 +386,7 @@ pub(crate) fn resolve_npc_cast_target(
 ) -> Option<i32> {
     use crate::game_loop::combat::target;
     use crate::game_loop::{abnormal, servitor};
-    use crate::model::skill::TargetType;
+    use crate::model::skill::target::TargetType;
 
     // Java passes `getActiveChar().isMovementDisabled()` as `dontMove`, which
     // turns the TARGET/ENEMY handlers' "walk into cast range" into a refusal —
@@ -762,7 +762,7 @@ fn skill_target_reconsider(
     if skill
         .effects
         .iter()
-        .any(|e| matches!(e, crate::model::skill::SkillEffect::Heal { .. }))
+        .any(|e| matches!(e, crate::model::skill::effects::SkillEffect::Heal { .. }))
     {
         return valid
             .into_iter()

@@ -9,9 +9,9 @@ use crate::game_loop::space::position::pos_of;
 use crate::game_loop::abnormal;
 use crate::game_loop::helpers::stat_add;
 use crate::model::components::{Buffs, Casting, Movement};
-use crate::model::skill::{
-    AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType, effect_flag,
-};
+use crate::model::skill::{Skill, effect_flag};
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const CASTER: i32 = 2001;
 const VICTIM: i32 = 2002;
@@ -27,7 +27,7 @@ fn cc_skill(id: i32, effect: SkillEffect, abnormal: &str) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -983,7 +983,7 @@ fn target_cancel_slides_off_a_much_higher_level_target() {
 /// above.)
 #[test]
 fn a_trait_resistance_lowers_the_target_cancel_chance() {
-    use crate::model::skill::TraitType;
+    use crate::model::skill::traits::TraitType;
 
     let cancel = |resist: bool| {
         let (mut world, _db, _l) = cc2_world();
@@ -1922,7 +1922,7 @@ fn enlarge_abnormal_slot_raises_the_buff_cap_and_gives_it_back() {
     world.data.combat_caps.max_buff_count = 2; // small enough to observe
     let mut boost = cc_skill(9361, SkillEffect::Root, "SLOT_BOOST");
     boost.effects = vec![SkillEffect::StatModifier(
-        model::skill::StatModifierEffect {
+        model::skill::effects::StatModifierEffect {
             stat: Stat::MaxBuffSlots,
             mode: StatModifierType::Diff,
             amount: 2.0,
@@ -2313,7 +2313,7 @@ fn skill_mastery_draws_a_continuous_chance_not_a_whole_percent() {
 #[test]
 fn skill_mastery_doubles_a_buffs_duration() {
     use crate::model::components::StatModifiers;
-    use crate::model::skill::StatModifierEffect;
+    use crate::model::skill::effects::StatModifierEffect;
     use crate::model::stats::{BaseStat, Stat, StatModifierType};
 
     const TARGET: i32 = 4711;
@@ -3739,7 +3739,7 @@ fn shadow_sense_grants_its_accuracy_only_at_night() {
 /// nothing because the cast never started, not because an effect was missing.
 #[test]
 fn a3_and_ca5_skills_parse_as_castable_operate_types() {
-    use crate::model::skill::OperateType;
+    use crate::model::skill::target::OperateType;
 
     let skills = dist::skills();
     for (id, name, expected) in [
@@ -3820,7 +3820,7 @@ fn the_others_target_type_refuses_the_caster_with_its_own_message() {
 /// skill 2213 alone carries 22 towns, one per level.
 #[test]
 fn every_destination_escape_scroll_now_carries_a_teleport() {
-    use crate::model::skill::SkillEffect as E;
+    use crate::model::skill::effects::SkillEffect as E;
 
     let skills = dist::skills();
     // Two levels of the same scroll must give two *different* destinations.
@@ -4194,7 +4194,8 @@ fn a_self_continuous_skills_debuff_shows_no_icon_to_its_victim() {
 #[test]
 fn a_hidden_buff_is_absent_from_the_icon_row_and_the_visuals() {
     use crate::model::components::Buffs;
-    use crate::model::skill::{ActiveBuff, BuffSlot};
+    use crate::model::skill::BuffSlot;
+    use crate::model::skill::active_buff::ActiveBuff;
 
     let buff = |displayed: bool| ActiveBuff {
         skill_id: 321,
@@ -4289,7 +4290,8 @@ fn a_hit_can_break_a_stun_but_only_on_the_one_in_fourteen_roll() {
 #[test]
 fn breaking_a_stun_leaves_other_block_actions_debuffs_alone() {
     use crate::game_loop::skills::effects::try_break_stun;
-    use crate::model::skill::{SkillEffect, effect_flag};
+    use crate::model::skill::effect_flag;
+    use crate::model::skill::effects::SkillEffect;
 
     let (mut world, _db, _l) = cc_world();
     // A sleep: same mechanic, different abnormal type.

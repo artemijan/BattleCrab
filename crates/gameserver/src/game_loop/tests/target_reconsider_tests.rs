@@ -6,7 +6,9 @@ use super::*;
 use crate::data::npc_data::{AiType, MinionHolder};
 use crate::model::components::{Casting, Vitals};
 use crate::model::npc::NpcIntention;
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const PLAYER: i32 = 2001;
 const CID: u32 = 1;
@@ -24,7 +26,7 @@ fn support_skill(id: i32, effects: Vec<SkillEffect>, continuous: bool) -> Skill 
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -321,7 +323,7 @@ fn a_buff_goes_to_a_faction_mate_that_lacks_it() {
     // (`checkSkillTarget` refuses a re-cast of a held abnormal).
     world.objects.add_components(
         &HEALER,
-        Buffs(vec![model::skill::ActiveBuff {
+        Buffs(vec![model::skill::active_buff::ActiveBuff {
             skill_id: BUFF_SKILL,
             abnormal_type: "MIGHT".into(),
             abnormal_level: 1,

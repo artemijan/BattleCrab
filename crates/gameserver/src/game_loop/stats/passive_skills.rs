@@ -16,7 +16,7 @@
 
 use crate::model::components::SkillBook;
 use crate::model::inventory::Inventory;
-use crate::model::skill::StatModifierEffect;
+use crate::model::skill::effects::StatModifierEffect;
 use crate::world::World;
 
 /// Re-derive the armor-conditioned passive buffs from the player's known
@@ -40,7 +40,7 @@ pub(crate) fn refresh_conditioned_passives(world: &mut World, object_id: i32) {
 /// are learnable carriers on this dist, so for every other character this is a
 /// single pass over the skill book with no allocation and no recompute.
 pub(crate) fn refresh_on_hp_change(world: &mut World, object_id: i32) {
-    use crate::model::skill::SkillEffect;
+    use crate::model::skill::effects::SkillEffect;
     let carries = world
         .objects
         .get_component::<SkillBook>(&object_id)

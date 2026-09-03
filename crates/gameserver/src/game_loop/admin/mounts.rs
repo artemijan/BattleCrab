@@ -21,7 +21,7 @@ use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::Player;
 use crate::model::components::Collision;
 use crate::model::inventory::{Inventory, PaperdollSlot};
-use crate::model::skill::OperateType;
+use crate::model::skill::target::OperateType;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 

@@ -7,7 +7,7 @@
 //! landed but did none of the up-front damage.
 
 use crate::model::formulas::{self, MagicFailure};
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 
 // ---------------------------------------------------------------------------
 // calcManaDam

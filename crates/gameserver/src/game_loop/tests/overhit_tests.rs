@@ -4,7 +4,9 @@ use super::*;
 use crate::game_loop::skills::skill_by_id;
 
 use crate::model::components::Overhit;
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const CASTER: i32 = 2001;
 const CID: u32 = 1;
@@ -18,7 +20,7 @@ fn nuke(id: i32, power: f64, over_hit: bool) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,

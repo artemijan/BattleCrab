@@ -1274,7 +1274,7 @@ fn send_skill_info(world: &mut World, client_id: u32, target: i32, name: &str) {
             .map(|(&id, &level)| {
                 let passive =
                     world.data.skill_data.get(id, level).is_some_and(|s| {
-                        s.operate_type == crate::model::skill::OperateType::Passive
+                        s.operate_type == crate::model::skill::target::OperateType::Passive
                     });
                 (id, level, passive, clan_ids.contains(&id))
             })

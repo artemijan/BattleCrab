@@ -7,7 +7,8 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
 
-use crate::model::skill::{SkillEffect, TargetType};
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::TargetType;
 
 use crate::game_loop::combat::death::{do_revive_with, handle_revive_answer, revive_request};
 
@@ -556,7 +557,7 @@ fn salvation_spares_the_rest_of_the_buffs_through_death() {
         abnormal_time: 1200,
         abnormal_type: "HASTE".into(),
         effects: vec![SkillEffect::StatModifier(
-            model::skill::StatModifierEffect {
+            model::skill::effects::StatModifierEffect {
                 stat: Stat::RunSpeed,
                 mode: model::stats::StatModifierType::Diff,
                 amount: 30.0,

@@ -10,7 +10,7 @@ use super::*;
 use crate::game_loop;
 
 use crate::model::components::{StatModifiers, Vitals};
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 use crate::model::stats::Stat;
 
 const ATTACKER: i32 = 4001;

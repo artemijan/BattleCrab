@@ -26,12 +26,12 @@ fn curse_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     for (id, effects) in [
         (
             RAID_CURSE2,
-            vec![model::skill::SkillEffect::BlockActions { conditional: false }],
+            vec![model::skill::effects::SkillEffect::BlockActions { conditional: false }],
         ),
         (
             RAID_CURSE,
-            vec![model::skill::SkillEffect::StatModifier(
-                model::skill::StatModifierEffect {
+            vec![model::skill::effects::SkillEffect::StatModifier(
+                model::skill::effects::StatModifierEffect {
                     stat: Stat::RunSpeed,
                     mode: model::stats::StatModifierType::Diff,
                     amount: -1.0,

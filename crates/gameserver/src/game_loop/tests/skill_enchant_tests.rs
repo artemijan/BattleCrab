@@ -8,7 +8,9 @@ use super::*;
 
 use crate::data::enchant_skill_groups::EnchantSkillCost;
 use crate::model::components::{SkillEnchants, Vitals};
-use crate::model::skill::{OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{OperateType, TargetType};
 
 const CASTER: i32 = 2001;
 const CID: u32 = 1;

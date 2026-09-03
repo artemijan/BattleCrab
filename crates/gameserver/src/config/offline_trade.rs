@@ -110,7 +110,7 @@ impl OfflineTradeConfig {
                 .split(&[',', ';'][..])
                 .map(str::trim)
                 .filter(|s| !s.is_empty())
-                .filter_map(crate::model::skill::abnormal_visual_client_id)
+                .filter_map(crate::model::skill::abnormal::abnormal_visual_client_id)
                 .collect(),
             restore_offliners: p.get_bool("RestoreOffliners", d.restore_offliners),
             max_days: p.get_int("OfflineMaxDays", d.max_days),

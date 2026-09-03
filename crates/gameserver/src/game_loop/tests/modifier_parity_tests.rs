@@ -23,12 +23,12 @@ use super::*;
 
 use crate::game_loop::skills::effects as port;
 use crate::model::components::{AttackTraits, DefenceTraits, StatModifiers, Vitals};
-use crate::model::skill::{TraitType, WeaknessTrait};
+use crate::model::skill::traits::{TraitType, WeaknessTrait};
 use crate::model::stats::Stat;
 
 /// Transcriptions of Java's expressions. Nothing here touches the port.
 mod java {
-    use crate::model::skill::TraitType;
+    use crate::model::skill::traits::TraitType;
 
     /// `Formulas.calcGeneralTraitBonus`:
     ///
@@ -175,7 +175,7 @@ fn traits_under_test() -> [TraitType; 4] {
     [
         TraitType::Shock,
         TraitType::Weakness(WeaknessTrait::Dragon),
-        TraitType::Weapon(crate::model::skill::WeaponTrait::Bow),
+        TraitType::Weapon(crate::model::skill::traits::WeaponTrait::Bow),
         TraitType::None,
     ]
 }

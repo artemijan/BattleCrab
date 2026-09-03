@@ -217,7 +217,7 @@ fn stamp_equip_reuse(world: &mut World, oid: i32, granted: &[(i32, i32)]) {
                 || skill
                     .effects
                     .iter()
-                    .any(|e| matches!(e, crate::model::skill::SkillEffect::Transform { .. }))
+                    .any(|e| matches!(e, crate::model::skill::effects::SkillEffect::Transform { .. }))
             {
                 return None;
             }

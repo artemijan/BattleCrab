@@ -7,7 +7,7 @@ use crate::model::components::StatModifiers;
 use crate::model::formulas;
 use crate::model::skill::BuffSlot;
 use crate::model::skill::Skill;
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 use crate::world::World;
 
 /// The caster's name for the damage system messages. NPCs cast skills as of
@@ -84,11 +84,11 @@ pub(crate) fn calc_general_trait_bonus(
     world: &World,
     attacker_oid: i32,
     target_oid: i32,
-    trait_type: crate::model::skill::TraitType,
+    trait_type: crate::model::skill::traits::TraitType,
     ignore_resistance: bool,
 ) -> f64 {
     use crate::model::components::DefenceTraits;
-    use crate::model::skill::TraitType;
+    use crate::model::skill::traits::TraitType;
     if trait_type == TraitType::None {
         return 1.0;
     }
@@ -128,7 +128,7 @@ pub(crate) fn calc_general_trait_bonus(
 /// Java `getAttackTrait` — **1.0** for anyone without a matching `AttackTrait`
 /// buff (the table's identity), which is what makes the group-3 case read as
 /// the plain `1 − defence`.
-fn attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::TraitType) -> f64 {
+fn attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::traits::TraitType) -> f64 {
     world
         .objects
         .get_component::<crate::model::components::AttackTraits>(&oid)
@@ -139,7 +139,7 @@ fn attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::TraitT
 /// Java `hasAttackTrait` — membership, which is a *different* question from the
 /// value: an unbuffed attacker's value is 1.0 but `hasAttackTrait` is false, and
 /// the group-2 branch gates on the latter.
-fn has_attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::TraitType) -> bool {
+fn has_attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::traits::TraitType) -> bool {
     world
         .objects
         .get_component::<crate::model::components::AttackTraits>(&oid)
@@ -154,7 +154,7 @@ fn has_attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::Tr
 /// no `hasDefenceTrait` gate here — the raw table value is read, so an absent
 /// entry is a clean 1.0.
 pub(crate) fn calc_weapon_trait_bonus(world: &World, attacker_oid: i32, target_oid: i32) -> f64 {
-    let weapon_trait = crate::model::skill::TraitType::of_weapon(
+    let weapon_trait = crate::model::skill::traits::TraitType::of_weapon(
         crate::game_loop::combat::ranged::equipped_weapon_type(world, attacker_oid)
             .unwrap_or_default(),
     );
@@ -177,7 +177,7 @@ pub(crate) fn calc_weakness_bonus(
     world: &World,
     attacker_oid: i32,
     target_oid: i32,
-    skill_trait: crate::model::skill::TraitType,
+    skill_trait: crate::model::skill::traits::TraitType,
 ) -> f64 {
     use crate::model::components::DefenceTraits;
     let Some(defence) = world.objects.get_component::<DefenceTraits>(&target_oid) else {
@@ -187,7 +187,7 @@ pub(crate) fn calc_weakness_bonus(
         return 1.0;
     }
     let mut result = 1.0;
-    for weakness in crate::model::skill::TraitType::ALL_WEAKNESS {
+    for weakness in crate::model::skill::traits::TraitType::ALL_WEAKNESS {
         if weakness == skill_trait {
             continue;
         }
@@ -328,7 +328,7 @@ pub(crate) fn calc_attack_trait_bonus(world: &World, attacker_oid: i32, target_o
         return 0.0;
     }
     let mut weakness = 1.0;
-    for t in crate::model::skill::TraitType::ALL_WEAKNESS {
+    for t in crate::model::skill::traits::TraitType::ALL_WEAKNESS {
         weakness *= calc_general_trait_bonus(world, attacker_oid, target_oid, t, true);
         if weakness == 0.0 {
             return 0.0;
@@ -341,7 +341,7 @@ pub(crate) fn calc_attack_trait_bonus(world: &World, attacker_oid: i32, target_o
 pub(crate) fn merge_defence_traits(
     world: &mut World,
     target_oid: i32,
-    traits: &[(crate::model::skill::TraitType, f64)],
+    traits: &[(crate::model::skill::traits::TraitType, f64)],
 ) {
     use crate::model::components::DefenceTraits;
     if traits.is_empty() {
@@ -378,7 +378,7 @@ pub(crate) fn merge_defence_traits(
 pub(crate) fn merge_attack_traits(
     world: &mut World,
     target_oid: i32,
-    traits: &[(crate::model::skill::TraitType, f64)],
+    traits: &[(crate::model::skill::traits::TraitType, f64)],
 ) {
     use crate::model::components::AttackTraits;
     if traits.is_empty() {
@@ -406,7 +406,7 @@ pub(crate) fn merge_attack_traits(
 pub(crate) fn remove_attack_traits(
     world: &mut World,
     target_oid: i32,
-    traits: &[(crate::model::skill::TraitType, f64)],
+    traits: &[(crate::model::skill::traits::TraitType, f64)],
 ) {
     use crate::model::components::AttackTraits;
     let Some(at) = world.objects.get_component_mut::<AttackTraits>(&target_oid) else {
@@ -426,7 +426,7 @@ pub(crate) fn remove_attack_traits(
 pub(crate) fn remove_defence_traits(
     world: &mut World,
     target_oid: i32,
-    traits: &[(crate::model::skill::TraitType, f64)],
+    traits: &[(crate::model::skill::traits::TraitType, f64)],
 ) {
     use crate::model::components::DefenceTraits;
     let Some(dt) = world
@@ -500,7 +500,7 @@ pub(crate) fn merge_skill_rates(world: &mut World, target_oid: i32, skill: &Skil
 /// buff tables' merge/un-merge discipline.
 pub(crate) fn refresh_passive_skill_rates(world: &mut World, object_id: i32) {
     use crate::model::components::{SkillBook, SkillRateStats};
-    use crate::model::skill::OperateType;
+    use crate::model::skill::target::OperateType;
 
     let Some(book) = world.objects.get_component::<SkillBook>(&object_id) else {
         return;

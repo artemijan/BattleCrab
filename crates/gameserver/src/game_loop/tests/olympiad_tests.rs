@@ -918,7 +918,7 @@ fn point_mark_exchange_gives_marks_of_battle() {
 #[test]
 fn match_start_strips_active_buffs() {
     use crate::model::components::Buffs;
-    use crate::model::skill::ActiveBuff;
+    use crate::model::skill::active_buff::ActiveBuff;
     let (mut world, _tx, _db, _l) = test_world();
     let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
     let buff = ActiveBuff {

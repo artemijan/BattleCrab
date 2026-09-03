@@ -15,7 +15,8 @@
 
 use std::collections::HashMap;
 
-use crate::model::skill::{OperateType, SkillEffect};
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::OperateType;
 
 use super::npc_data::NpcData;
 use super::skill_data::SkillData;

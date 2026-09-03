@@ -237,7 +237,8 @@ fn check_if_pvp_classifies_targets() {
 #[test]
 fn blessing_of_protection_blocks_the_pk_both_ways() {
     use crate::model::components::Intent;
-    use crate::model::skill::{ActiveBuff, BuffSlot};
+    use crate::model::skill::BuffSlot;
+    use crate::model::skill::active_buff::ActiveBuff;
 
     let (mut world, ..) = combat_test_world();
     two_players(&mut world);

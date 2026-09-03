@@ -11,7 +11,7 @@ use super::*;
 
 use crate::model::components::{Movement, PlayerVitals, Speeds, StatModifiers};
 use crate::model::movement::MoveData;
-use crate::model::skill::{SkillEffect, StatModifierEffect};
+use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
 use crate::model::stats::{MoveType, Stat, StatModifierType};
 
 use crate::game_loop::stats::regen::{move_type_of, movement_regen_multiplier, run_regen_tick};

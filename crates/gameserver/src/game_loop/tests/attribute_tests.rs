@@ -7,9 +7,10 @@ use super::*;
 
 use crate::model::components::{Buffs, StatModifiers, Vitals};
 use crate::model::formulas::calc_attribute_bonus;
-use crate::model::skill::{
-    ActiveBuff, BuffSlot, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
-};
+use crate::model::skill::{BuffSlot, Skill};
+use crate::model::skill::active_buff::ActiveBuff;
+use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
+use crate::model::skill::target::{OperateType, TargetType};
 use crate::model::stats::{Element, Stat, StatModifierType};
 
 const CASTER: i32 = 2001;

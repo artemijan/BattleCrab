@@ -19,7 +19,7 @@ use crate::network::server_packets::opcodes;
 
 pub(crate) const OPCODE_USER_INFO: u8 = 0x32;
 
-use crate::model::skill::STEALTH_CLIENT_ID;
+use crate::model::skill::abnormal::STEALTH_CLIENT_ID;
 
 /// Port of `serverpackets/ExUserInfoAbnormalVisualEffect`. Carries the
 /// transformation id (so the GM sees their own transformed model — UserInfo has

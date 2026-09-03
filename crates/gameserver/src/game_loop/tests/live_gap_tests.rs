@@ -11,10 +11,10 @@ use super::*;
 use crate::game_loop;
 use crate::game_loop::space::position;
 use crate::model::components::{Buffs, Position, SkillBook, Vitals};
-use crate::model::skill::{
-    AffectObject, AffectScope, CompanionKind, EscapeDest, OperateType, ResidenceType, Skill,
-    SkillCondition, SkillEffect, TargetType,
-};
+use crate::model::skill::Skill;
+use crate::model::skill::condition::{CompanionKind, ResidenceType, SkillCondition};
+use crate::model::skill::effects::{EscapeDest, SkillEffect};
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const CASTER: i32 = 4101;
 const CID: u32 = 1;
@@ -545,7 +545,7 @@ fn teleport_to_target_puts_the_caster_behind_its_target() {
 /// Style Change and Dye potions, all Interlude items whose skills did nothing.
 #[test]
 fn the_appearance_potions_change_the_head_and_say_so() {
-    use crate::model::skill::AppearancePart;
+    use crate::model::skill::effects::AppearancePart;
 
     let (mut world, ..) = cast_test_world();
     let mut rx = ingame_caster(&mut world, CID, CASTER, 0, 0);

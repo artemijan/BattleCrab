@@ -7,9 +7,9 @@ use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::character::sit_stand;
 use crate::game_loop::helpers::stat_mul;
 use crate::model::components::PlayerVitals;
-use crate::model::skill::{
-    AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
-};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 use crate::model::stats::{Stat, StatModifierType};
 
 const CASTER: i32 = 2001;
@@ -19,7 +19,7 @@ fn periodic_skill(id: i32, effects: Vec<SkillEffect>, toggle: bool) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,

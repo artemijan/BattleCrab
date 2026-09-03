@@ -219,8 +219,8 @@ fn stop_relaxing(world: &mut World, object_id: i32) {
                         // standing up cancels.
                         matches!(
                             e,
-                            crate::model::skill::SkillEffect::Relax { .. }
-                                | crate::model::skill::SkillEffect::ChameleonRest { .. }
+                            crate::model::skill::effects::SkillEffect::Relax { .. }
+                                | crate::model::skill::effects::SkillEffect::ChameleonRest { .. }
                         )
                     })
                 })

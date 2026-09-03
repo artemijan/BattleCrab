@@ -1242,7 +1242,7 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
 fn item_skill_potion_heals_and_enforces_reuse() {
     use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
     use crate::model::inventory::Inventory;
-    use crate::model::skill::SkillEffect;
+    use crate::model::skill::effects::SkillEffect;
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -1250,7 +1250,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 2031,
@@ -1392,7 +1392,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
     use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
     use crate::model::components::Casting;
     use crate::model::inventory::Inventory;
-    use crate::model::skill::SkillEffect;
+    use crate::model::skill::effects::SkillEffect;
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -1426,7 +1426,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         mp_initial_consume: 0,
         hp_consume: 0,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 9909,
         item_consume_count: 1,
         abnormal_time: 0,
@@ -1445,7 +1445,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         is_debuff: false,
         stay_after_death: false,
         effects: vec![SkillEffect::Escape {
-            dest: model::skill::EscapeDest::Town,
+            dest: model::skill::effects::EscapeDest::Town,
         }],
         ..Default::default()
     });
@@ -1551,7 +1551,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
 fn item_skill_give_item_grants_reward_and_consumes_pack() {
     use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
     use crate::model::inventory::Inventory;
-    use crate::model::skill::SkillEffect;
+    use crate::model::skill::effects::SkillEffect;
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     world.id_pool = 0x4000_0000..0x4000_0100;
@@ -1560,7 +1560,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 22490,
@@ -1723,9 +1723,8 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
 fn item_skill_give_item_random_grants_one_weighted_group() {
     use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
     use crate::model::inventory::Inventory;
-    use crate::model::skill::{
-        AffectObject, AffectScope, RestorationGroup, RestorationItem, SkillEffect,
-    };
+    use crate::model::skill::effects::{RestorationGroup, RestorationItem, SkillEffect};
+    use crate::model::skill::target::{AffectObject, AffectScope};
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     world.id_pool = 0x4000_0000..0x4000_0100;
@@ -1742,7 +1741,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 323,
@@ -1921,7 +1920,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
 fn item_skill_give_item_random_rolls_enchant_on_created_item() {
     use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
     use crate::model::inventory::Inventory;
-    use crate::model::skill::{RestorationGroup, RestorationItem, SkillEffect};
+    use crate::model::skill::effects::{RestorationGroup, RestorationItem, SkillEffect};
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     world.id_pool = 0x4000_0000..0x4000_0100;
@@ -1937,7 +1936,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 324,
@@ -4452,7 +4451,7 @@ fn augment_options_apply_while_the_item_is_equipped() {
     };
     use crate::data::option_data::OptionEntry;
     use crate::model::inventory::Inventory;
-    use crate::model::skill::StatModifierEffect;
+    use crate::model::skill::effects::StatModifierEffect;
     use crate::model::stats::{Stat, StatModifierType};
 
     let (mut world, ..) = test_world();
@@ -4915,7 +4914,8 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
     use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
     use crate::model::components::Casting;
     use crate::model::inventory::Inventory;
-    use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
+    use crate::model::skill::Skill;
+    use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     world.id_pool = 0x4600_0000..0x4600_0100;
@@ -4942,7 +4942,7 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
         mp_initial_consume: 0,
         hp_consume: 0,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 8058,
         item_consume_count: 1,
         abnormal_time: 0,

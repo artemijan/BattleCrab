@@ -60,7 +60,9 @@ use components::{
     Position, RegionCell, Reuses, Shortcuts, SkillBook, Speeds, StatModifiers, TargetRef, Vitals,
 };
 use inventory::Inventory;
-use skill::{ActiveBuff, BuffSlot, StatModifierEffect};
+use skill::BuffSlot;
+use skill::active_buff::ActiveBuff;
+use skill::effects::StatModifierEffect;
 use stats::{BaseStat, Stat, StatModifierType};
 
 /// Java `SkillCaster`'s per-cast state, one NORMAL casting slot (no dual
@@ -2229,7 +2231,8 @@ fn finalize_speed(mods: &StatModifiers, stat: Stat, base: f64) -> f64 {
 /// wears no armor pieces, and Java's `<using kind="Heavy">` evaluates false
 /// there too.
 fn npc_passive_mods(data: &GameData, t: &crate::data::npc_data::NpcTemplate) -> StatModifiers {
-    use crate::model::skill::{OperateType, SkillEffect};
+    use crate::model::skill::effects::SkillEffect;
+    use crate::model::skill::target::OperateType;
     let mut mods = StatModifiers::default();
     for &(skill_id, level) in &t.skill_list {
         let Some(skill) = data.skill_data.get(skill_id, level) else {
@@ -2585,7 +2588,8 @@ pub(crate) fn conditioned_passive_buffs(
     inventory: &Inventory,
     hp_percent_now: i32,
 ) -> Vec<ActiveBuff> {
-    use crate::model::skill::{OperateType, SkillEffect};
+    use crate::model::skill::effects::SkillEffect;
+    use crate::model::skill::target::OperateType;
     let mut out = Vec::new();
     for (&skill_id, &level) in &skills.0 {
         let Some(skill) = data.skill_data.get(skill_id, level) else {

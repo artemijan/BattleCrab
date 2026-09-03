@@ -1509,7 +1509,8 @@ fn positions_blow() -> [(Position, f64); 3] {
 /// factor, including the spiritshot bonus and the channeling early return.
 #[test]
 fn timing_formulas_match_java_across_the_grid() {
-    use gameserver::model::skill::{OperateType, Skill};
+    use gameserver::model::skill::Skill;
+    use gameserver::model::skill::target::OperateType;
 
     // `calcAtkSpd` / `calculateTimeBetweenAttacks` — pure integer maths, so
     // the comparison is exact.

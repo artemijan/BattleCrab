@@ -64,16 +64,16 @@ pub(crate) fn build_skill(
             // 369, Critical Blow 409, Aura Flare 1231) and CA5 (Battle Stance
             // 426, Spell Stance 427) were seven learnable skills in exactly
             // that state.
-            Some("A1" | "A2" | "A3" | "A4" | "A5" | "A6") => skill::OperateType::Active,
-            Some("P") => skill::OperateType::Passive,
-            Some("T") => skill::OperateType::Toggle,
+            Some("A1" | "A2" | "A3" | "A4" | "A5" | "A6") => skill::target::OperateType::Active,
+            Some("P") => skill::target::OperateType::Passive,
+            Some("T") => skill::target::OperateType::Toggle,
             // `SkillOperateType.isChanneling()`: CA1, CA2, CA5.
-            Some("CA1" | "CA2" | "CA5") => skill::OperateType::Channeling,
+            Some("CA1" | "CA2" | "CA5") => skill::target::OperateType::Channeling,
             other => {
                 if let Some(raw) = other {
                     SkillGaps::record(&mut gaps.borrow_mut().operate_types, raw, id);
                 }
-                skill::OperateType::Other
+                skill::target::OperateType::Other
             }
         };
         // Java `SkillOperateType.isContinuous()` — the A2..A6/DA2..DA5 family.
@@ -86,31 +86,31 @@ pub(crate) fn build_skill(
             Some("A2" | "A3" | "A4" | "A5" | "A6" | "DA2" | "DA4" | "DA5")
         );
         let target_type = match value_at(values, "targetType", level) {
-            Some("SELF") => skill::TargetType::Self_,
-            Some("TARGET") => skill::TargetType::Target,
-            Some("ENEMY") => skill::TargetType::Enemy,
-            Some("ENEMY_ONLY") => skill::TargetType::EnemyOnly,
-            Some("ENEMY_NOT") => skill::TargetType::EnemyNot,
-            Some("NPC_BODY") => skill::TargetType::NpcBody,
-            Some("DOOR_TREASURE") => skill::TargetType::DoorTreasure,
-            Some("OTHERS") => skill::TargetType::Others,
-            Some("SUMMON") => skill::TargetType::Summon,
-            Some("OWNER_PET") => skill::TargetType::OwnerPet,
-            Some("PC_BODY") => skill::TargetType::PcBody,
-            Some("GROUND") => skill::TargetType::Ground,
-            Some("NONE") => skill::TargetType::None_,
+            Some("SELF") => skill::target::TargetType::Self_,
+            Some("TARGET") => skill::target::TargetType::Target,
+            Some("ENEMY") => skill::target::TargetType::Enemy,
+            Some("ENEMY_ONLY") => skill::target::TargetType::EnemyOnly,
+            Some("ENEMY_NOT") => skill::target::TargetType::EnemyNot,
+            Some("NPC_BODY") => skill::target::TargetType::NpcBody,
+            Some("DOOR_TREASURE") => skill::target::TargetType::DoorTreasure,
+            Some("OTHERS") => skill::target::TargetType::Others,
+            Some("SUMMON") => skill::target::TargetType::Summon,
+            Some("OWNER_PET") => skill::target::TargetType::OwnerPet,
+            Some("PC_BODY") => skill::target::TargetType::PcBody,
+            Some("GROUND") => skill::target::TargetType::Ground,
+            Some("NONE") => skill::target::TargetType::None_,
             other => {
                 if let Some(raw) = other {
                     SkillGaps::record(&mut gaps.borrow_mut().target_types, raw, id);
                 }
-                skill::TargetType::Other
+                skill::target::TargetType::Other
             }
         };
         // `<abnormalVisualEffect>` is a `;`-separated list of enum names.
         let abnormal_visuals: Vec<i16> = value_at(values, "abnormalVisualEffect", level)
             .unwrap_or("")
             .split(';')
-            .filter_map(|n| crate::model::skill::abnormal_visual_client_id(n.trim()))
+            .filter_map(|n| crate::model::skill::abnormal::abnormal_visual_client_id(n.trim()))
             .collect();
         // `overHit` is an **effect** parameter, not a skill field — the damage
         // handlers (Backstab, EnergyAttack, PhysicalAttack, …) each read
@@ -129,44 +129,44 @@ pub(crate) fn build_skill(
         // `<trait>` — the debuff's own trait, matched against the target's
         // `DefenceTrait` resistances when it lands.
         let trait_type = value_at(values, "trait", level)
-            .map(crate::model::skill::TraitType::from_xml)
+            .map(crate::model::skill::traits::TraitType::from_xml)
             .unwrap_or_default();
         // `affectScope` defaults to SINGLE when absent (Java's Skill ctor).
         let affect_scope = match value_at(values, "affectScope", level) {
-            Some("RANGE") => skill::AffectScope::Range,
-            Some("POINT_BLANK") => skill::AffectScope::PointBlank,
-            Some("PARTY") => skill::AffectScope::Party,
-            Some("PLEDGE") => skill::AffectScope::Pledge,
-            Some("DEAD_PLEDGE") => skill::AffectScope::DeadPledge,
-            Some("DEAD_PARTY") => skill::AffectScope::DeadParty,
-            Some("DEAD_UNION") => skill::AffectScope::DeadUnion,
-            Some("FAN") => skill::AffectScope::Fan,
-            Some("FAN_PB") => skill::AffectScope::FanPointBlank,
-            Some("SQUARE") => skill::AffectScope::Square,
-            Some("SQUARE_PB") => skill::AffectScope::SquarePointBlank,
-            Some("RING_RANGE") => skill::AffectScope::RingRange,
-            Some("SINGLE") | Some("NONE") | None => skill::AffectScope::Single,
+            Some("RANGE") => skill::target::AffectScope::Range,
+            Some("POINT_BLANK") => skill::target::AffectScope::PointBlank,
+            Some("PARTY") => skill::target::AffectScope::Party,
+            Some("PLEDGE") => skill::target::AffectScope::Pledge,
+            Some("DEAD_PLEDGE") => skill::target::AffectScope::DeadPledge,
+            Some("DEAD_PARTY") => skill::target::AffectScope::DeadParty,
+            Some("DEAD_UNION") => skill::target::AffectScope::DeadUnion,
+            Some("FAN") => skill::target::AffectScope::Fan,
+            Some("FAN_PB") => skill::target::AffectScope::FanPointBlank,
+            Some("SQUARE") => skill::target::AffectScope::Square,
+            Some("SQUARE_PB") => skill::target::AffectScope::SquarePointBlank,
+            Some("RING_RANGE") => skill::target::AffectScope::RingRange,
+            Some("SINGLE") | Some("NONE") | None => skill::target::AffectScope::Single,
             other => {
                 if let Some(raw) = other {
                     SkillGaps::record(&mut gaps.borrow_mut().affect_scopes, raw, id);
                 }
-                skill::AffectScope::Other
+                skill::target::AffectScope::Other
             }
         };
         // `affectObject` defaults to ALL. `*_PC` narrows Java's check to
         // players only; with no non-player creature able to be a "friend" in
         // the ported world they collapse onto the same filter.
         let affect_object = match value_at(values, "affectObject", level) {
-            Some("NOT_FRIEND") | Some("NOT_FRIEND_PC") => skill::AffectObject::NotFriend,
-            Some("FRIEND") | Some("FRIEND_PC") => skill::AffectObject::Friend,
-            Some("CLAN") => skill::AffectObject::Clan,
-            Some("UNDEAD_REAL_ENEMY") => skill::AffectObject::UndeadRealEnemy,
-            Some("ALL") | None => skill::AffectObject::All,
+            Some("NOT_FRIEND") | Some("NOT_FRIEND_PC") => skill::target::AffectObject::NotFriend,
+            Some("FRIEND") | Some("FRIEND_PC") => skill::target::AffectObject::Friend,
+            Some("CLAN") => skill::target::AffectObject::Clan,
+            Some("UNDEAD_REAL_ENEMY") => skill::target::AffectObject::UndeadRealEnemy,
+            Some("ALL") | None => skill::target::AffectObject::All,
             other => {
                 if let Some(raw) = other {
                     SkillGaps::record(&mut gaps.borrow_mut().affect_objects, raw, id);
                 }
-                skill::AffectObject::Other
+                skill::target::AffectObject::Other
             }
         };
         let affect_range = get_i("affectRange", 0);
@@ -191,7 +191,7 @@ pub(crate) fn build_skill(
 
         // Java keeps one condition list per `SkillConditionScope`; unported
         // names drop out here (see `build_condition`'s fail-open note).
-        let cond_scope = |want: CondScope| -> Vec<skill::SkillCondition> {
+        let cond_scope = |want: CondScope| -> Vec<skill::condition::SkillCondition> {
             conditions
                 .iter()
                 .filter(|c| c.scope == want)
@@ -236,7 +236,7 @@ pub(crate) fn build_skill(
                     // unconditional, which is Java's `_hpPercent <= 0` case.
                     let hp_percent = param("hpPercent").unwrap_or(0.0) as i32;
                     let stat_mod = |stat: Stat, amount: f64| {
-                        skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                        skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
                             stat,
                             mode: modifier_mode,
                             amount,
@@ -266,8 +266,8 @@ pub(crate) fn build_skill(
                                 .and_then(crate::model::stats::MoveType::from_xml);
                             match (stat, move_type, param("value")) {
                                 (Some(stat), Some(move_type), Some(amount)) => {
-                                    vec![skill::SkillEffect::StatModifier(
-                                        skill::StatModifierEffect {
+                                    vec![skill::effects::SkillEffect::StatModifier(
+                                        skill::effects::StatModifierEffect {
                                             stat,
                                             mode: StatModifierType::Diff,
                                             amount,
@@ -302,7 +302,7 @@ pub(crate) fn build_skill(
                             param("amount")
                                 .filter(|_| slot == "DEBUFF")
                                 .map(|amount| {
-                                    skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
                                         stat: Stat::ResistAbnormalDebuff,
                                         mode: StatModifierType::Per,
                                         amount,
@@ -324,7 +324,7 @@ pub(crate) fn build_skill(
                             param("amount")
                                 .filter(|_| slot == "BUFF")
                                 .map(|amount| {
-                                    skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
                                         stat: Stat::ResistDispelBuff,
                                         mode: StatModifierType::Per,
                                         amount,
@@ -350,7 +350,7 @@ pub(crate) fn build_skill(
                             if slots.is_empty() {
                                 return Vec::new();
                             }
-                            vec![skill::SkillEffect::BlockAbnormalSlot { slots }]
+                            vec![skill::effects::SkillEffect::BlockAbnormalSlot { slots }]
                         }
                         // Stun / sleep / paralyze (540 uses) and Root (79): no stat
                         // modifier at all — the whole mechanic is the abnormal-state
@@ -359,9 +359,9 @@ pub(crate) fn build_skill(
                         // 6038/6039/6040/6055/6056). Each is a pure state
                         // effect: the work happens on the buff's start and
                         // exit, not at parse time.
-                        "BlockChat" => vec![skill::SkillEffect::BlockChat],
-                        "BlockParty" => vec![skill::SkillEffect::BlockParty],
-                        "Flag" => vec![skill::SkillEffect::PvpFlag],
+                        "BlockChat" => vec![skill::effects::SkillEffect::BlockChat],
+                        "BlockParty" => vec![skill::effects::SkillEffect::BlockParty],
+                        "Flag" => vec![skill::effects::SkillEffect::PvpFlag],
                         "BlockAction" => {
                             // `<blockedActions>-2</blockedActions>` — Java
                             // splits on ',' and parses each as an int.
@@ -372,7 +372,7 @@ pub(crate) fn build_skill(
                                         .collect::<Vec<_>>()
                                 })
                                 .unwrap_or_default();
-                            vec![skill::SkillEffect::BlockAction { blocked_actions }]
+                            vec![skill::effects::SkillEffect::BlockAction { blocked_actions }]
                         }
                         "BlockActions" => {
                             // Java: a non-empty `allowedSkills` whitelist makes this
@@ -380,9 +380,9 @@ pub(crate) fn build_skill(
                             // way in `hasBlockActions()`.
                             let conditional = value_at(params, "allowedSkills", level)
                                 .is_some_and(|v| !v.trim().is_empty());
-                            vec![skill::SkillEffect::BlockActions { conditional }]
+                            vec![skill::effects::SkillEffect::BlockActions { conditional }]
                         }
-                        "Root" => vec![skill::SkillEffect::Root],
+                        "Root" => vec![skill::effects::SkillEffect::Root],
                         // The elemental attribute pair (PLAN_G19_ATTRIBUTES.md):
                         // one flat StatModifier per element named in the
                         // (comma-separable) `attribute` param, default FIRE —
@@ -408,21 +408,21 @@ pub(crate) fn build_skill(
                         // The rest of the state-flag CC family (Seal of Silence,
                         // Shield Slam, Mystic Immunity, Horror): no parameters, the
                         // mechanic is entirely the flag.
-                        "Mute" => vec![skill::SkillEffect::Mute],
-                        "PhysicalMute" => vec![skill::SkillEffect::PhysicalMute],
-                        "DebuffBlock" => vec![skill::SkillEffect::DebuffBlock],
+                        "Mute" => vec![skill::effects::SkillEffect::Mute],
+                        "PhysicalMute" => vec![skill::effects::SkillEffect::PhysicalMute],
+                        "DebuffBlock" => vec![skill::effects::SkillEffect::DebuffBlock],
                         // G34 S3 — flag-only effects. Each maps to one
                         // `effect_flag` bit; see `Skill::effect_flags`.
                         // `SkillEvasion` is *not* a plain stat: Java keys it by
                         // `magicType` in a separate map, so a skill-dodge buff
                         // dodges only its own bucket (0 = physical skills).
-                        "SkillEvasion" => vec![skill::SkillEffect::SkillEvasion {
+                        "SkillEvasion" => vec![skill::effects::SkillEffect::SkillEvasion {
                             magic_type: value_at(params, "magicType", level)
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(0),
                             amount: param("amount").unwrap_or(0.0),
                         }],
-                        "SkillTurning" => vec![skill::SkillEffect::SkillTurning {
+                        "SkillTurning" => vec![skill::effects::SkillEffect::SkillTurning {
                             chance: param("chance").unwrap_or(100.0) as i32,
                             static_chance: value_at(params, "staticChance", level)
                                 .is_some_and(|v| v.eq_ignore_ascii_case("true")),
@@ -433,8 +433,8 @@ pub(crate) fn build_skill(
                         "EnlargeAbnormalSlot" => value_at(params, "slots", level)
                             .and_then(|v| v.parse::<f64>().ok())
                             .map(|slots| {
-                                vec![skill::SkillEffect::StatModifier(
-                                    skill::StatModifierEffect {
+                                vec![skill::effects::SkillEffect::StatModifier(
+                                    skill::effects::StatModifierEffect {
                                         stat: Stat::MaxBuffSlots,
                                         mode: StatModifierType::Diff,
                                         amount: slots,
@@ -452,7 +452,7 @@ pub(crate) fn build_skill(
                         // `DispelBySlot`'s `TYPE=level` pairs.
                         "DispelBySlotMyself" => value_at(params, "dispel", level)
                             .map(|d| {
-                                vec![skill::SkillEffect::DispelBySlotMyself {
+                                vec![skill::effects::SkillEffect::DispelBySlotMyself {
                                     dispel: d
                                         .split(';')
                                         .map(|t| t.trim().to_string())
@@ -465,8 +465,8 @@ pub(crate) fn build_skill(
                         // magnitude — `calcSkillMastery` reads it back through
                         // `BaseStat.values()[val]` to pick which stat's bonus
                         // drives the proc chance.
-                        "SkillMastery" => vec![skill::SkillEffect::StatModifier(
-                            skill::StatModifierEffect {
+                        "SkillMastery" => vec![skill::effects::SkillEffect::StatModifier(
+                            skill::effects::StatModifierEffect {
                                 stat: Stat::SkillMastery,
                                 mode: StatModifierType::Diff,
                                 // The **Rust** discriminant, parsed by name — see
@@ -487,37 +487,37 @@ pub(crate) fn build_skill(
                         // handler has only a `canStart` guard. The mechanic
                         // lives in `Player.isLucky()`, which asks whether the
                         // *buff* is present, so all this has to do is land.
-                        "Lucky" => vec![skill::SkillEffect::Lucky],
+                        "Lucky" => vec![skill::effects::SkillEffect::Lucky],
                         // Java's `chance` default is 0 — a door skill with no
                         // `<chance>` never opens anything. Unlock declares one
                         // at every level, so the default is only a guard.
-                        "OpenDoor" => vec![skill::SkillEffect::OpenDoor {
+                        "OpenDoor" => vec![skill::effects::SkillEffect::OpenDoor {
                             chance: param("chance").unwrap_or(0.0) as i32,
                             is_item: value_at(params, "isItem", level) == Some("true"),
                         }],
-                        "OpenChest" => vec![skill::SkillEffect::OpenChest],
-                        "Bluff" => vec![skill::SkillEffect::Bluff {
+                        "OpenChest" => vec![skill::effects::SkillEffect::OpenChest],
+                        "Bluff" => vec![skill::effects::SkillEffect::Bluff {
                             chance: param("chance").unwrap_or(100.0) as i32,
                         }],
                         // Java's default here is **-1**, not 100: a negative
                         // chance means "always", which is what Erase relies on.
-                        "Unsummon" => vec![skill::SkillEffect::Unsummon {
+                        "Unsummon" => vec![skill::effects::SkillEffect::Unsummon {
                             chance: param("chance").unwrap_or(-1.0) as i32,
                         }],
                         "DeathLink" => param("power")
-                            .map(|power| vec![skill::SkillEffect::DeathLink { power }])
+                            .map(|power| vec![skill::effects::SkillEffect::DeathLink { power }])
                             .unwrap_or_default(),
                         // `CpHealPercent` — a share of **max CP**, clamped by
                         // `getMaxRecoverableCp()`. `power == 100` is the full
                         // pool (Java special-cases it to the same number).
                         "CpHealPercent" => param("power")
-                            .map(|power| vec![skill::SkillEffect::CpHealPercent { power }])
+                            .map(|power| vec![skill::effects::SkillEffect::CpHealPercent { power }])
                             .unwrap_or_default(),
                         // `HpByLevel` heals the **effector**, not the effected
                         // — Life Scavenge (46) and Corpse Life Drain (1151) top
                         // the *caster* up off a corpse.
                         "HpByLevel" => param("power")
-                            .map(|power| vec![skill::SkillEffect::HpByLevel { power }])
+                            .map(|power| vec![skill::effects::SkillEffect::HpByLevel { power }])
                             .unwrap_or_default(),
                         // `MpVampiricAttack` pumps **two** values from one
                         // `<amount>`: the percentage (÷100) and a `sum`
@@ -531,7 +531,7 @@ pub(crate) fn build_skill(
                         // which would honour the (absent) mode and read `Diff`.
                         "VampiricDefence" => param("amount")
                             .map(|amount| {
-                                skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                                skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
                                     stat: Stat::AbsorbDamageDefence,
                                     mode: StatModifierType::Per,
                                     amount,
@@ -548,7 +548,7 @@ pub(crate) fn build_skill(
                             .map(|amount| {
                                 let chance = param("chance").unwrap_or(30.0);
                                 vec![
-                                    skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
                                         stat: Stat::AbsorbManaDamagePercent,
                                         mode: StatModifierType::Diff,
                                         amount: amount / 100.0,
@@ -558,7 +558,7 @@ pub(crate) fn build_skill(
                                         two_handed: false,
                                         hp_percent: 0,
                                     }),
-                                    skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
                                         stat: Stat::MpVampiricSum,
                                         mode: StatModifierType::Diff,
                                         amount: amount * chance,
@@ -571,34 +571,34 @@ pub(crate) fn build_skill(
                                 ]
                             })
                             .unwrap_or_default(),
-                        "TargetMe" => vec![skill::SkillEffect::TargetMe],
-                        "TargetMeProbability" => vec![skill::SkillEffect::TargetMeProbability {
+                        "TargetMe" => vec![skill::effects::SkillEffect::TargetMe],
+                        "TargetMeProbability" => vec![skill::effects::SkillEffect::TargetMeProbability {
                             chance: param("chance").unwrap_or(100.0) as i32,
                         }],
-                        "BuffBlock" => vec![skill::SkillEffect::BuffBlock],
+                        "BuffBlock" => vec![skill::effects::SkillEffect::BuffBlock],
                         "PhysicalShieldAngleAll" => {
-                            vec![skill::SkillEffect::PhysicalShieldAngleAll]
+                            vec![skill::effects::SkillEffect::PhysicalShieldAngleAll]
                         }
-                        "Passive" => vec![skill::SkillEffect::Passive],
-                        "Untargetable" => vec![skill::SkillEffect::Untargetable],
-                        "DisableTargeting" => vec![skill::SkillEffect::DisableTargeting],
-                        "PhysicalAttackMute" => vec![skill::SkillEffect::PhysicalAttackMute],
-                        "BlockResurrection" => vec![skill::SkillEffect::BlockResurrection],
-                        "BlockEscape" => vec![skill::SkillEffect::BlockEscape],
-                        "AbnormalShield" => vec![skill::SkillEffect::AbnormalShield],
-                        "BlockControl" => vec![skill::SkillEffect::BlockControl],
+                        "Passive" => vec![skill::effects::SkillEffect::Passive],
+                        "Untargetable" => vec![skill::effects::SkillEffect::Untargetable],
+                        "DisableTargeting" => vec![skill::effects::SkillEffect::DisableTargeting],
+                        "PhysicalAttackMute" => vec![skill::effects::SkillEffect::PhysicalAttackMute],
+                        "BlockResurrection" => vec![skill::effects::SkillEffect::BlockResurrection],
+                        "BlockEscape" => vec![skill::effects::SkillEffect::BlockEscape],
+                        "AbnormalShield" => vec![skill::effects::SkillEffect::AbnormalShield],
+                        "BlockControl" => vec![skill::effects::SkillEffect::BlockControl],
                         "TargetCancel" => {
                             let chance = value_at(params, "chance", level)
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(100);
-                            vec![skill::SkillEffect::TargetCancel { chance }]
+                            vec![skill::effects::SkillEffect::TargetCancel { chance }]
                         }
                         // Aggression 28/18, Judgment 401, Tribunal 400: no params.
-                        "GetAgro" => vec![skill::SkillEffect::GetAgro],
+                        "GetAgro" => vec![skill::effects::SkillEffect::GetAgro],
                         // Charm 15, Lure 51: `power` (default 0, Java always
                         // instantiates the handler even with no param).
                         "AddHate" => {
-                            vec![skill::SkillEffect::AddHate {
+                            vec![skill::effects::SkillEffect::AddHate {
                                 power: param("power").unwrap_or(0.0),
                             }]
                         }
@@ -606,13 +606,13 @@ pub(crate) fn build_skill(
                             let chance = value_at(params, "chance", level)
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(100);
-                            vec![skill::SkillEffect::DeleteHate { chance }]
+                            vec![skill::effects::SkillEffect::DeleteHate { chance }]
                         }
                         "DeleteHateOfMe" => {
                             let chance = value_at(params, "chance", level)
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(100);
-                            vec![skill::SkillEffect::DeleteHateOfMe { chance }]
+                            vec![skill::effects::SkillEffect::DeleteHateOfMe { chance }]
                         }
                         // (`TargetMe` and `RandomizeHate`, once deferred here,
                         // both landed in G34 S4 — see their own arms in this
@@ -624,12 +624,12 @@ pub(crate) fn build_skill(
                         // `<item>power</item>` parses to the param key `item`, not
                         // `power`). Mirror that default here; do NOT drop the effect,
                         // or the skill becomes a silent no-op.
-                        "MagicalAttack" => vec![skill::SkillEffect::MagicalAttack {
+                        "MagicalAttack" => vec![skill::effects::SkillEffect::MagicalAttack {
                             power: param("power").unwrap_or(0.0),
                         }],
                         // The EffectPoint totem spawner (Symbol of Noise 455, Day
                         // of Doom 1422, Anti-summoning Field 1424; PLAN_G19_SYMBOLS.md).
-                        "SummonNpc" => vec![skill::SkillEffect::SummonNpc {
+                        "SummonNpc" => vec![skill::effects::SkillEffect::SummonNpc {
                             npc_id: param("npcId").unwrap_or(0.0) as i32,
                             npc_count: param("npcCount").unwrap_or(1.0) as i32,
                             despawn_delay: param("despawnDelay").unwrap_or(0.0) as i32,
@@ -639,7 +639,7 @@ pub(crate) fn build_skill(
                         // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
                         // `MagicalAttack`, plus the `shieldDefPercent` shield-block
                         // term its own variant carries.
-                        "MagicalAttackRange" => vec![skill::SkillEffect::MagicalAttackRange {
+                        "MagicalAttackRange" => vec![skill::effects::SkillEffect::MagicalAttackRange {
                             power: param("power").unwrap_or(0.0),
                             shield_def_percent: param("shieldDefPercent").unwrap_or(0.0),
                         }],
@@ -654,12 +654,12 @@ pub(crate) fn build_skill(
                         // NPC caster would NPE in Java's own handler. Same
                         // silent-drop trap as `MagicalAttackRange` if left
                         // unhandled, hence the arm.
-                        "MagicalSoulAttack" => vec![skill::SkillEffect::MagicalAttack {
+                        "MagicalSoulAttack" => vec![skill::effects::SkillEffect::MagicalAttack {
                             power: param("power").unwrap_or(0.0),
                         }],
                         // Vampiric Touch/Claw: magic damage + self-heal of
                         // `percentage`% of the drained HP.
-                        "HpDrain" => vec![skill::SkillEffect::HpDrain {
+                        "HpDrain" => vec![skill::effects::SkillEffect::HpDrain {
                             power: param("power").unwrap_or(0.0),
                             percentage: param("percentage").unwrap_or(0.0),
                         }],
@@ -686,7 +686,7 @@ pub(crate) fn build_skill(
                             .collect(),
                         // Instant CP change (Braveheart, Wrath, Touch of Death).
                         "Cp" => param("amount")
-                            .map(|amount| skill::SkillEffect::Cp {
+                            .map(|amount| skill::effects::SkillEffect::Cp {
                                 amount,
                                 percent: modifier_mode == StatModifierType::Per,
                             })
@@ -699,7 +699,7 @@ pub(crate) fn build_skill(
                                     .and_then(|v| v.parse::<i32>().ok()),
                             ) {
                                 (Some(power), Some(ticks)) if ticks > 0 => {
-                                    vec![skill::SkillEffect::HealOverTime { power, ticks }]
+                                    vec![skill::effects::SkillEffect::HealOverTime { power, ticks }]
                                 }
                                 _ => Vec::new(),
                             }
@@ -712,7 +712,7 @@ pub(crate) fn build_skill(
                                     .and_then(|v| v.parse::<i32>().ok()),
                             ) {
                                 (Some(power), Some(ticks)) if ticks > 0 => {
-                                    vec![skill::SkillEffect::Relax { power, ticks }]
+                                    vec![skill::effects::SkillEffect::Relax { power, ticks }]
                                 }
                                 _ => Vec::new(),
                             }
@@ -724,7 +724,7 @@ pub(crate) fn build_skill(
                                     .and_then(|v| v.parse::<i32>().ok()),
                             ) {
                                 (Some(power), Some(ticks)) if ticks > 0 => {
-                                    vec![skill::SkillEffect::ChameleonRest { power, ticks }]
+                                    vec![skill::effects::SkillEffect::ChameleonRest { power, ticks }]
                                 }
                                 _ => Vec::new(),
                             }
@@ -736,12 +736,12 @@ pub(crate) fn build_skill(
                                     .and_then(|v| v.parse::<i32>().ok()),
                             ) {
                                 (Some(power), Some(ticks)) if ticks > 0 => {
-                                    vec![skill::SkillEffect::ManaHealOverTime { power, ticks }]
+                                    vec![skill::effects::SkillEffect::ManaHealOverTime { power, ticks }]
                                 }
                                 _ => Vec::new(),
                             }
                         }
-                        "RebalanceHP" => vec![skill::SkillEffect::RebalanceHp],
+                        "RebalanceHP" => vec![skill::effects::SkillEffect::RebalanceHp],
                         "ManaDamOverTime" => {
                             match (
                                 param("power"),
@@ -749,12 +749,12 @@ pub(crate) fn build_skill(
                                     .and_then(|v| v.parse::<i32>().ok()),
                             ) {
                                 (Some(power), Some(ticks)) if ticks > 0 => {
-                                    vec![skill::SkillEffect::ManaDamOverTime { power, ticks }]
+                                    vec![skill::effects::SkillEffect::ManaDamOverTime { power, ticks }]
                                 }
                                 _ => Vec::new(),
                             }
                         }
-                        "DamOverTime" => vec![skill::SkillEffect::DamOverTime {
+                        "DamOverTime" => vec![skill::effects::SkillEffect::DamOverTime {
                             power: param("power").unwrap_or(0.0),
                             ticks: param("ticks").unwrap_or(0.0) as i32,
                             can_kill: value_at(params, "canKill", level) == Some("true"),
@@ -764,19 +764,19 @@ pub(crate) fn build_skill(
                         // (its charged-soul boost is unmodeled → ×1). Backstab also
                         // requires flanking. Their `Lethal` sibling effect is a
                         // separate `<effect>` block, parsed in its own arm below.
-                        "FatalBlow" => vec![skill::SkillEffect::Blow {
+                        "FatalBlow" => vec![skill::effects::SkillEffect::Blow {
                             power: param("power").unwrap_or(0.0),
                             chance_boost: param("chanceBoost").unwrap_or(0.0),
                             critical_chance: Some(param("criticalChance").unwrap_or(0.0)),
                             backstab: false,
                         }],
-                        "Backstab" => vec![skill::SkillEffect::Blow {
+                        "Backstab" => vec![skill::effects::SkillEffect::Blow {
                             power: param("power").unwrap_or(0.0),
                             chance_boost: param("chanceBoost").unwrap_or(0.0),
                             critical_chance: Some(param("criticalChance").unwrap_or(0.0)),
                             backstab: true,
                         }],
-                        "SoulBlow" => vec![skill::SkillEffect::Blow {
+                        "SoulBlow" => vec![skill::effects::SkillEffect::Blow {
                             power: param("power").unwrap_or(0.0),
                             chance_boost: param("chanceBoost").unwrap_or(0.0),
                             critical_chance: None,
@@ -789,7 +789,7 @@ pub(crate) fn build_skill(
                         // and the bonus instant-kill/half-kill chance never
                         // rolled — only these skills' other (already-ported)
                         // effect landed.
-                        "Lethal" => vec![skill::SkillEffect::Lethal {
+                        "Lethal" => vec![skill::effects::SkillEffect::Lethal {
                             full_lethal: param("fullLethal").unwrap_or(0.0),
                             half_lethal: param("halfLethal").unwrap_or(0.0),
                         }],
@@ -810,7 +810,7 @@ pub(crate) fn build_skill(
                         // `PhysicalAttack`'s 10, and it has no
                         // `ignoreShieldDefence` param at all.
                         "PhysicalAttackHpLink" => {
-                            vec![skill::SkillEffect::PhysicalAttackHpLink {
+                            vec![skill::effects::SkillEffect::PhysicalAttackHpLink {
                                 power: param("power").unwrap_or(0.0),
                                 p_atk_mod: 1.0,
                                 p_def_mod: 1.0,
@@ -824,17 +824,17 @@ pub(crate) fn build_skill(
                         // `skillLevelScaleTo` scales off an existing buff —
                         // neither is used by any reachable carrier here.
                         "CallSkill" => match param("skillId") {
-                            Some(sid) if sid > 0.0 => vec![skill::SkillEffect::CallSkill {
+                            Some(sid) if sid > 0.0 => vec![skill::effects::SkillEffect::CallSkill {
                                 skill_id: sid as i32,
                                 skill_level: param("skillLevel").unwrap_or(1.0).max(1.0) as i32,
                                 chance: param("chance").unwrap_or(100.0) as i32,
                             }],
                             _ => Vec::new(),
                         },
-                        "PolearmSingleTarget" => vec![skill::SkillEffect::PolearmSingleTarget],
+                        "PolearmSingleTarget" => vec![skill::effects::SkillEffect::PolearmSingleTarget],
                         "ReduceDropPenalty" => {
                             use crate::model::skill::ReduceDropKind;
-                            vec![skill::SkillEffect::ReduceDropPenalty {
+                            vec![skill::effects::SkillEffect::ReduceDropPenalty {
                                 // Java `mergeMul(stat, amount/100 + 1)`.
                                 exp_mul: param("exp").unwrap_or(0.0) / 100.0 + 1.0,
                                 kind: match value_at(params, "type", level) {
@@ -844,7 +844,7 @@ pub(crate) fn build_skill(
                                 },
                             }]
                         }
-                        "ResurrectionSpecial" => vec![skill::SkillEffect::ResurrectionSpecial {
+                        "ResurrectionSpecial" => vec![skill::effects::SkillEffect::ResurrectionSpecial {
                             power: param("power").unwrap_or(0.0) as i32,
                             hp_percent: param("hpPercent").unwrap_or(0.0) as i32,
                             mp_percent: param("mpPercent").unwrap_or(0.0) as i32,
@@ -861,17 +861,17 @@ pub(crate) fn build_skill(
                         // `game_loop::stats::night_stats`, not the ordinary stat
                         // pipeline — see the variant's docs.
                         "NightStatModify" => match value_at(params, "stat", level) {
-                            Some("ACCURACY_COMBAT") => vec![skill::SkillEffect::NightStatModify {
+                            Some("ACCURACY_COMBAT") => vec![skill::effects::SkillEffect::NightStatModify {
                                 stat: Stat::AccuracyCombat,
                                 amount: param("amount").unwrap_or(0.0),
                                 mode: modifier_mode,
                             }],
                             _ => Vec::new(),
                         },
-                        "Betray" => vec![skill::SkillEffect::Betray],
-                        "ImmobilePetBuff" => vec![skill::SkillEffect::ImmobilePetBuff],
-                        "CallParty" => vec![skill::SkillEffect::CallParty],
-                        "TriggerSkillByDamage" => vec![skill::SkillEffect::TriggerSkillByDamage {
+                        "Betray" => vec![skill::effects::SkillEffect::Betray],
+                        "ImmobilePetBuff" => vec![skill::effects::SkillEffect::ImmobilePetBuff],
+                        "CallParty" => vec![skill::effects::SkillEffect::CallParty],
+                        "TriggerSkillByDamage" => vec![skill::effects::SkillEffect::TriggerSkillByDamage {
                             min_damage: param("minDamage").unwrap_or(1.0) as i32,
                             chance: param("chance").unwrap_or(100.0) as i32,
                             skill_id: param("skillId").unwrap_or(0.0) as i32,
@@ -884,7 +884,7 @@ pub(crate) fn build_skill(
                             on_attacker: value_at(params, "targetType", level) == Some("ENEMY"),
                         }],
                         "TriggerSkillByMagicType" => {
-                            vec![skill::SkillEffect::TriggerSkillByMagicType {
+                            vec![skill::effects::SkillEffect::TriggerSkillByMagicType {
                                 magic_types: value_at(params, "magicTypes", level)
                                     .map(|v| {
                                         v.split(';').filter_map(|t| t.trim().parse().ok()).collect()
@@ -899,7 +899,7 @@ pub(crate) fn build_skill(
                             }]
                         }
                         "PhysicalAttack" | "PhysicalSoulAttack" => {
-                            vec![skill::SkillEffect::PhysicalAttack {
+                            vec![skill::effects::SkillEffect::PhysicalAttack {
                                 power: param("power").unwrap_or(0.0),
                                 p_atk_mod: param("pAtkMod").unwrap_or(1.0),
                                 p_def_mod: param("pDefMod").unwrap_or(1.0),
@@ -911,21 +911,21 @@ pub(crate) fn build_skill(
                                 ) == Some("true"),
                             }]
                         }
-                        "Heal" => vec![skill::SkillEffect::Heal {
+                        "Heal" => vec![skill::effects::SkillEffect::Heal {
                             power: param("power").unwrap_or(0.0),
                         }],
                         // Miracle (1426), Benediction (1271), Restore Life (1258),
                         // Revival (181), Touch of Life (341): without this arm the
                         // effect fell through to `EFFECT_REGISTRY`, wasn't found,
                         // and the heal amount was silently 0.
-                        "HealPercent" => vec![skill::SkillEffect::HealPercent {
+                        "HealPercent" => vec![skill::effects::SkillEffect::HealPercent {
                             power: param("power").unwrap_or(0.0),
                         }],
                         // Sonic Focus (8), Focus Force (50), Sonic Rage (345), …:
                         // without this arm the effect fell through to
                         // `EFFECT_REGISTRY`, wasn't found, and the "build Force"
                         // toggle/skill did nothing.
-                        "FocusMomentum" => vec![skill::SkillEffect::FocusMomentum {
+                        "FocusMomentum" => vec![skill::effects::SkillEffect::FocusMomentum {
                             amount: param("amount").unwrap_or(1.0) as i32,
                             max_charges: param("maxCharges").unwrap_or(0.0) as i32,
                         }],
@@ -937,7 +937,7 @@ pub(crate) fn build_skill(
                         // set, so it reaches `_chargeConsume` the same way. Without
                         // this arm the effect fell through to `EFFECT_REGISTRY`,
                         // wasn't found, and every Force-spend attack did nothing.
-                        "EnergyAttack" => vec![skill::SkillEffect::EnergyAttack {
+                        "EnergyAttack" => vec![skill::effects::SkillEffect::EnergyAttack {
                             power: param("power").unwrap_or(0.0),
                             critical_chance: param("criticalChance").unwrap_or(10.0),
                             p_def_mod: param("pDefMod").unwrap_or(1.0),
@@ -949,18 +949,18 @@ pub(crate) fn build_skill(
                         }],
                         // Pet food (Wolf Food 2048, etc.). Without this arm the
                         // food item was consumed and restored nothing.
-                        "Feed" => vec![skill::SkillEffect::Feed {
+                        "Feed" => vec![skill::effects::SkillEffect::Feed {
                             normal: param("normal").unwrap_or(0.0) as i32,
                             ride: param("ride").unwrap_or(0.0) as i32,
                             wyvern: param("wyvern").unwrap_or(0.0) as i32,
                         }],
-                        "SummonCubic" => vec![skill::SkillEffect::SummonCubic {
+                        "SummonCubic" => vec![skill::effects::SkillEffect::SummonCubic {
                             cubic_id: param("cubicId").unwrap_or(-1.0) as i32,
                             cubic_level: param("cubicLvl").unwrap_or(0.0) as i32,
                         }],
                         "Restoration" => match (param("itemId"), param("itemCount")) {
                             (Some(item_id), Some(item_count)) => {
-                                vec![skill::SkillEffect::GiveItem {
+                                vec![skill::effects::SkillEffect::GiveItem {
                                     item_id: item_id as i32,
                                     item_count: item_count as i64,
                                     item_enchant_level: param("itemEnchantmentLevel").unwrap_or(0.0)
@@ -969,20 +969,20 @@ pub(crate) fn build_skill(
                             }
                             _ => Vec::new(),
                         },
-                        "RestorationRandom" => vec![skill::SkillEffect::GiveItemRandom {
+                        "RestorationRandom" => vec![skill::effects::SkillEffect::GiveItemRandom {
                             groups: groups.clone(),
                         }],
                         // Spoil (254/…): mark the mob spoiled. No params — the
                         // landing roll and target checks live in the effect handler.
-                        "Spoil" => vec![skill::SkillEffect::Spoil],
+                        "Spoil" => vec![skill::effects::SkillEffect::Spoil],
                         // Sweeper (42/474): claim the dead mob's spoil loot.
-                        "Sweeper" => vec![skill::SkillEffect::Sweeper],
+                        "Sweeper" => vec![skill::effects::SkillEffect::Sweeper],
                         // ConsumeBody (paired with Sweeper on 42): decay the corpse.
-                        "ConsumeBody" => vec![skill::SkillEffect::ConsumeBody],
+                        "ConsumeBody" => vec![skill::effects::SkillEffect::ConsumeBody],
                         // Sow (2097): the manor sow, cast via a Seed item.
-                        "Sow" => vec![skill::SkillEffect::Sow],
+                        "Sow" => vec![skill::effects::SkillEffect::Sow],
                         // Harvesting (2098): claim a sown corpse's crop.
-                        "Harvesting" => vec![skill::SkillEffect::Harvesting],
+                        "Harvesting" => vec![skill::effects::SkillEffect::Harvesting],
                         // Cure Poison/Bleeding etc.: the `<dispel>` string is a
                         // per-level `"TYPE,level"` list (Java splits on ';' then ',').
                         // Falls through to an empty effect (silent no-op, like other
@@ -1005,7 +1005,7 @@ pub(crate) fn build_skill(
                             let rate = value_at(params, "rate", level)
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(100);
-                            vec![skill::SkillEffect::DispelBySlotProbability { dispel, rate }]
+                            vec![skill::effects::SkillEffect::DispelBySlotProbability { dispel, rate }]
                         }
                         "DispelBySlot" => match value_at(params, "dispel", level) {
                             Some(spec) if !spec.is_empty() => {
@@ -1022,7 +1022,7 @@ pub(crate) fn build_skill(
                                 if dispel.is_empty() {
                                     Vec::new()
                                 } else {
-                                    vec![skill::SkillEffect::DispelBySlot { dispel }]
+                                    vec![skill::effects::SkillEffect::DispelBySlot { dispel }]
                                 }
                             }
                             _ => Vec::new(),
@@ -1033,9 +1033,9 @@ pub(crate) fn build_skill(
                         // to BUFF (Java's `DispelSlotType` default) when absent.
                         "DispelByCategory" => {
                             let slot = match value_at(params, "slot", level) {
-                                Some("DEBUFF") => skill::DispelSlot::Debuff,
-                                Some("ALL") => skill::DispelSlot::All,
-                                _ => skill::DispelSlot::Buff,
+                                Some("DEBUFF") => skill::effects::DispelSlot::Debuff,
+                                Some("ALL") => skill::effects::DispelSlot::All,
+                                _ => skill::effects::DispelSlot::Buff,
                             };
                             let rate = value_at(params, "rate", level)
                                 .and_then(|v| v.parse::<i32>().ok())
@@ -1043,12 +1043,12 @@ pub(crate) fn build_skill(
                             let max = value_at(params, "max", level)
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(0);
-                            vec![skill::SkillEffect::DispelByCategory { slot, rate, max }]
+                            vec![skill::effects::SkillEffect::DispelByCategory { slot, rate, max }]
                         }
                         // Both the basic (247) and advanced (326) HQ skills
                         // carry this; only 326 sets `<isAdvanced>true</…>`,
                         // which halves the flag's incoming damage.
-                        "HeadquarterCreate" => vec![skill::SkillEffect::CreateHeadquarter {
+                        "HeadquarterCreate" => vec![skill::effects::SkillEffect::CreateHeadquarter {
                             advanced: value_at(params, "isAdvanced", level)
                                 .is_some_and(|v| v.eq_ignore_ascii_case("true")),
                         }],
@@ -1057,17 +1057,17 @@ pub(crate) fn build_skill(
                         // window. Without these arms both skills parsed to zero
                         // effects and the cast did nothing.
                         "OpenCommonRecipeBook" => {
-                            vec![skill::SkillEffect::OpenRecipeBook { dwarven: false }]
+                            vec![skill::effects::SkillEffect::OpenRecipeBook { dwarven: false }]
                         }
                         "OpenDwarfRecipeBook" => {
-                            vec![skill::SkillEffect::OpenRecipeBook { dwarven: true }]
+                            vec![skill::effects::SkillEffect::OpenRecipeBook { dwarven: true }]
                         }
                         // Java throws if amount is 0/missing; we drop the effect
                         // (silent no-op) to match how other bad effect bodies fall
                         // through, rather than panicking at data-load.
                         "GiveRecommendation" => match param("amount") {
                             Some(amount) if amount != 0.0 => {
-                                vec![skill::SkillEffect::GiveRecommendation {
+                                vec![skill::effects::SkillEffect::GiveRecommendation {
                                     amount: amount as i32,
                                 }]
                             }
@@ -1076,7 +1076,7 @@ pub(crate) fn build_skill(
                         // Fixed-destination teleports — the Scrolls of Escape.
                         // Coordinates are per *level*: skill 2213 alone carries
                         // 22 towns, one per level.
-                        "Teleport" => vec![skill::SkillEffect::Teleport {
+                        "Teleport" => vec![skill::effects::SkillEffect::Teleport {
                             x: param("x").unwrap_or(0.0) as i32,
                             y: param("y").unwrap_or(0.0) as i32,
                             z: param("z").unwrap_or(0.0) as i32,
@@ -1085,7 +1085,7 @@ pub(crate) fn build_skill(
                         // no `calcHeal`, no healing-stat scaling, no overheal
                         // message. `DIFF` is a flat amount, `PER` a share of
                         // **max** HP.
-                        "Hp" => vec![skill::SkillEffect::Hp {
+                        "Hp" => vec![skill::effects::SkillEffect::Hp {
                             amount: param("amount").unwrap_or(0.0),
                             percent: mode == "PER",
                         }],
@@ -1099,44 +1099,44 @@ pub(crate) fn build_skill(
                                 Some("TOWN" | "CLANHALL" | "CASTLE")
                             ) =>
                         {
-                            vec![skill::SkillEffect::Escape {
+                            vec![skill::effects::SkillEffect::Escape {
                                 dest: match value_at(params, "escapeType", level) {
-                                    Some("CLANHALL") => skill::EscapeDest::ClanHall,
-                                    Some("CASTLE") => skill::EscapeDest::Castle,
-                                    _ => skill::EscapeDest::Town,
+                                    Some("CLANHALL") => skill::effects::EscapeDest::ClanHall,
+                                    Some("CASTLE") => skill::effects::EscapeDest::Castle,
+                                    _ => skill::effects::EscapeDest::Town,
                                 },
                             }]
                         }
-                        "DispelAll" => vec![skill::SkillEffect::DispelAll],
-                        "Grow" => vec![skill::SkillEffect::Grow],
+                        "DispelAll" => vec![skill::effects::SkillEffect::DispelAll],
+                        "Grow" => vec![skill::effects::SkillEffect::Grow],
                         // Java `params.getInt("sp", 0)` — an int on the XML, but
                         // the award path takes the same i64 as every other SP
                         // grant.
                         // The three appearance potions, one variant.
-                        "ChangeFace" => vec![skill::SkillEffect::ChangeAppearance {
-                            part: skill::AppearancePart::Face,
+                        "ChangeFace" => vec![skill::effects::SkillEffect::ChangeAppearance {
+                            part: skill::effects::AppearancePart::Face,
                             value: param("value").unwrap_or(0.0) as i32,
                         }],
-                        "ChangeHairStyle" => vec![skill::SkillEffect::ChangeAppearance {
-                            part: skill::AppearancePart::HairStyle,
+                        "ChangeHairStyle" => vec![skill::effects::SkillEffect::ChangeAppearance {
+                            part: skill::effects::AppearancePart::HairStyle,
                             value: param("value").unwrap_or(0.0) as i32,
                         }],
-                        "ChangeHairColor" => vec![skill::SkillEffect::ChangeAppearance {
-                            part: skill::AppearancePart::HairColor,
+                        "ChangeHairColor" => vec![skill::effects::SkillEffect::ChangeAppearance {
+                            part: skill::effects::AppearancePart::HairColor,
                             value: param("value").unwrap_or(0.0) as i32,
                         }],
                         "SendSystemMessageToClan" => {
-                            vec![skill::SkillEffect::SendSystemMessageToClan {
+                            vec![skill::effects::SkillEffect::SendSystemMessageToClan {
                                 message_id: param("id").unwrap_or(0.0) as i16,
                             }]
                         }
                         // Empty in Java — see the variant.
-                        "Recovery" => vec![skill::SkillEffect::Recovery],
-                        "GiveSp" => vec![skill::SkillEffect::GiveSp {
+                        "Recovery" => vec![skill::effects::SkillEffect::Recovery],
+                        "GiveSp" => vec![skill::effects::SkillEffect::GiveSp {
                             sp: param("sp").unwrap_or(0.0) as i64,
                         }],
-                        "TeleportToTarget" => vec![skill::SkillEffect::TeleportToTarget],
-                        "SetSkill" => vec![skill::SkillEffect::SetSkill {
+                        "TeleportToTarget" => vec![skill::effects::SkillEffect::TeleportToTarget],
+                        "SetSkill" => vec![skill::effects::SkillEffect::SetSkill {
                             skill_id: value_at(params, "skillId", level)
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(0),
@@ -1149,7 +1149,7 @@ pub(crate) fn build_skill(
                         // Friend toll, charged to the **target**; the monster
                         // half reads neither and every monster carrier omits
                         // them, which is why they default to 0.
-                        "CallPc" => vec![skill::SkillEffect::CallPc {
+                        "CallPc" => vec![skill::effects::SkillEffect::CallPc {
                             item_id: value_at(params, "itemId", level)
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(0),
@@ -1193,13 +1193,13 @@ pub(crate) fn build_skill(
                         // modifier, so it would otherwise fall through to an empty
                         // effect list and never land as a buff — carry a marker so
                         // `apply_skill_effects` still creates the icon-only timed buff.
-                        "ProtectionBlessing" => vec![skill::SkillEffect::ProtectionBlessing],
+                        "ProtectionBlessing" => vec![skill::effects::SkillEffect::ProtectionBlessing],
                         // Noblesse Blessing (1323): no params, no stat modifier —
                         // the whole mechanic is the `NOBLESS_BLESSING` flag the
                         // death path reads. Without this arm the effect fell through
                         // to `EFFECT_REGISTRY`, wasn't found, and the buff was
                         // dropped whole (the skill cast but nothing landed).
-                        "NoblesseBless" => vec![skill::SkillEffect::NoblesseBless],
+                        "NoblesseBless" => vec![skill::effects::SkillEffect::NoblesseBless],
                         // Fear (65/405/450/1092/1169/1272/1381/1400): forced flight.
                         // The `<effect name="Fear"/>` element carries no params in
                         // this dist — Java's `Fear` constructor ignores its `StatSet`
@@ -1209,7 +1209,7 @@ pub(crate) fn build_skill(
                         // already landed before this arm existed (icon, duration and
                         // the `BLOCK_CONTROL` flag); what was missing was the flight
                         // itself, so the debuff simply never moved anyone.
-                        "Fear" => vec![skill::SkillEffect::Fear { ticks: FEAR_TICKS }],
+                        "Fear" => vec![skill::effects::SkillEffect::Fear { ticks: FEAR_TICKS }],
                         // Silent Move 221, Stealth 411, Dance of Shadows 366, and
                         // the stealth half of Fake Death 60. Java's handler is an
                         // empty constructor plus `getEffectFlags` — a pure state
@@ -1223,7 +1223,7 @@ pub(crate) fn build_skill(
                         // Mana Burn and Mana Storm carry only this effect, so before
                         // this arm both parsed to an empty effect list and were
                         // dropped whole — the nukes cast and drained nothing.
-                        "MagicalAttackMp" => vec![skill::SkillEffect::MagicalAttackMp {
+                        "MagicalAttackMp" => vec![skill::effects::SkillEffect::MagicalAttackMp {
                             power: param("power").unwrap_or(0.0),
                             critical: value_at(params, "critical", level) == Some("true"),
                             critical_limit: param("criticalLimit").unwrap_or(0.0),
@@ -1231,29 +1231,29 @@ pub(crate) fn build_skill(
                         // The MP-restore family. All four are instant effects that
                         // differ only in how the amount is computed; the shared
                         // apply path lives in `restore_mp`.
-                        "ManaHeal" => vec![skill::SkillEffect::ManaHeal {
+                        "ManaHeal" => vec![skill::effects::SkillEffect::ManaHeal {
                             power: param("power").unwrap_or(0.0),
                         }],
-                        "ManaHealByLevel" => vec![skill::SkillEffect::ManaHealByLevel {
+                        "ManaHealByLevel" => vec![skill::effects::SkillEffect::ManaHealByLevel {
                             power: param("power").unwrap_or(0.0),
                         }],
-                        "ManaHealPercent" => vec![skill::SkillEffect::ManaHealPercent {
+                        "ManaHealPercent" => vec![skill::effects::SkillEffect::ManaHealPercent {
                             power: param("power").unwrap_or(0.0),
                         }],
                         // Java's `Mp` handler reads `amount`/`mode`, not `power`.
-                        "Mp" => vec![skill::SkillEffect::MpRestore {
+                        "Mp" => vec![skill::effects::SkillEffect::MpRestore {
                             amount: param("amount").unwrap_or(0.0),
                             percent: modifier_mode == StatModifierType::Per,
                         }],
                         // Java defaults `chance` to 100 when the tag is absent —
                         // which is every Confuse skill on this dist (only the two
                         // `RandomizeHate` ones declare 80).
-                        "Confuse" => vec![skill::SkillEffect::Confuse {
+                        "Confuse" => vec![skill::effects::SkillEffect::Confuse {
                             chance: value_at(params, "chance", level)
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(100),
                         }],
-                        "RandomizeHate" => vec![skill::SkillEffect::RandomizeHate {
+                        "RandomizeHate" => vec![skill::effects::SkillEffect::RandomizeHate {
                             chance: value_at(params, "chance", level)
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(100),
@@ -1283,7 +1283,7 @@ pub(crate) fn build_skill(
                             if skill_id == 0 {
                                 Vec::new()
                             } else {
-                                vec![skill::SkillEffect::TriggerSkillByAttack {
+                                vec![skill::effects::SkillEffect::TriggerSkillByAttack {
                                     min_damage: int_param("minDamage", 1),
                                     chance: int_param("chance", 100),
                                     skill_id,
@@ -1326,8 +1326,8 @@ pub(crate) fn build_skill(
                                 } else {
                                     StatModifierType::Diff
                                 };
-                                Some(skill::SkillEffect::StatModifier(
-                                    skill::StatModifierEffect {
+                                Some(skill::effects::SkillEffect::StatModifier(
+                                    skill::effects::StatModifierEffect {
                                         stat,
                                         mode,
                                         amount,
@@ -1352,7 +1352,7 @@ pub(crate) fn build_skill(
                                     .and_then(|v| v.parse().ok())
                                     .unwrap_or(d)
                             };
-                            vec![skill::SkillEffect::Resurrection {
+                            vec![skill::effects::SkillEffect::Resurrection {
                                 power: int_param("power", 0),
                                 hp_percent: int_param("hpPercent", 0),
                                 mp_percent: int_param("mpPercent", 0),
@@ -1372,7 +1372,7 @@ pub(crate) fn build_skill(
                             if npc_id == 0 {
                                 Vec::new()
                             } else {
-                                vec![skill::SkillEffect::Summon {
+                                vec![skill::effects::SkillEffect::Summon {
                                     npc_id,
                                     life_time: int_param("lifeTime", 0),
                                     consume_item_id: int_param("consumeItemId", 0),
@@ -1380,8 +1380,8 @@ pub(crate) fn build_skill(
                                 }]
                             }
                         }
-                        "SummonPet" => vec![skill::SkillEffect::SummonPet],
-                        "BlockMove" => vec![skill::SkillEffect::BlockMove],
+                        "SummonPet" => vec![skill::effects::SkillEffect::SummonPet],
+                        "BlockMove" => vec![skill::effects::SkillEffect::BlockMove],
                         // `type` picks the Java stat: PHYSICAL (the default) or
                         // MAGICAL. Physical Mirror 350 and Magical Mirror 351 carry
                         // *only* this effect, so both were dropped whole before it.
@@ -1396,11 +1396,11 @@ pub(crate) fn build_skill(
                         // Java matches element names exactly too, so the condition
                         // is inert on both sides and is faithfully reproduced by
                         // not special-casing it.
-                        "ReflectSkill" => vec![skill::SkillEffect::ReflectSkill {
+                        "ReflectSkill" => vec![skill::effects::SkillEffect::ReflectSkill {
                             magic: value_at(params, "type", level) == Some("MAGIC"),
                             amount: param("amount").unwrap_or(0.0),
                         }],
-                        "SilentMove" => vec![skill::SkillEffect::SilentMove],
+                        "SilentMove" => vec![skill::effects::SkillEffect::SilentMove],
                         // Fake Death 60. Two halves: the `FAKE_DEATH` flag and an
                         // MP upkeep with the same `power * getTicksMultiplier()`
                         // shape as `ManaDamOverTime`, which it shares the tick
@@ -1408,7 +1408,7 @@ pub(crate) fn build_skill(
                         // `SilentMove`, so with both unported the effect list came
                         // out empty and the whole skill was dropped — it cast and
                         // did nothing at all.
-                        "FakeDeath" => vec![skill::SkillEffect::FakeDeath {
+                        "FakeDeath" => vec![skill::effects::SkillEffect::FakeDeath {
                             power: param("power").unwrap_or(0.0),
                             ticks: value_at(params, "ticks", level)
                                 .and_then(|v| v.parse().ok())
@@ -1422,7 +1422,7 @@ pub(crate) fn build_skill(
                         // this arm the effect fell through to `EFFECT_REGISTRY`,
                         // wasn't found, and the buff was dropped whole.
                         "Transformation" => match param("transformationId") {
-                            Some(id) if id != 0.0 => vec![skill::SkillEffect::Transform {
+                            Some(id) if id != 0.0 => vec![skill::effects::SkillEffect::Transform {
                                 transformation_id: id as i32,
                             }],
                             _ => Vec::new(),
@@ -1439,7 +1439,7 @@ pub(crate) fn build_skill(
                                     .and_then(|v| v.parse::<i32>().ok()),
                             ) {
                                 (Some(power), Some(ticks)) if ticks > 0 => {
-                                    vec![skill::SkillEffect::MpConsumePerLevel { power, ticks }]
+                                    vec![skill::effects::SkillEffect::MpConsumePerLevel { power, ticks }]
                                 }
                                 _ => Vec::new(),
                             }
@@ -1525,7 +1525,7 @@ pub(crate) fn build_skill(
                             };
                             param("amount")
                                 .map(|amount| {
-                                    skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
                                         stat: Stat::CriticalRate,
                                         mode: StatModifierType::Per,
                                         amount,
@@ -1550,7 +1550,7 @@ pub(crate) fn build_skill(
                             };
                             param("amount")
                                 .map(|amount| {
-                                    skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
                                         stat: Stat::CriticalDamage,
                                         mode: StatModifierType::Per,
                                         amount,
@@ -1574,24 +1574,24 @@ pub(crate) fn build_skill(
                         "DefenceTrait" => {
                             // Every param is a trait name → percent; Java
                             // divides by 100 and treats >= 1.0 as invulnerable.
-                            let traits: Vec<(crate::model::skill::TraitType, f64)> = params
+                            let traits: Vec<(crate::model::skill::traits::TraitType, f64)> = params
                                 .keys()
                                 .filter_map(|key| {
                                     let raw = value_at(params, key, level)?;
                                     let pct: f64 = raw.parse().ok()?;
                                     Some((
-                                        crate::model::skill::TraitType::from_xml(key),
+                                        crate::model::skill::traits::TraitType::from_xml(key),
                                         pct / 100.0,
                                     ))
                                 })
                                 .collect();
-                            vec![skill::SkillEffect::DefenceTrait { traits }]
+                            vec![skill::effects::SkillEffect::DefenceTrait { traits }]
                         }
                         // Vampiric Rage (1268): Java `VampiricAttack` grants a chance
                         // to absorb a % of melee damage as HP. The melee-absorb path
                         // isn't modeled, so carry an icon-only marker rather than
                         // dropping the buff.
-                        "VampiricAttack" => vec![skill::SkillEffect::VampiricAttack {
+                        "VampiricAttack" => vec![skill::effects::SkillEffect::VampiricAttack {
                             amount: param("amount").unwrap_or(0.0),
                             chance: param("chance").unwrap_or(0.0),
                         }],
@@ -1604,18 +1604,18 @@ pub(crate) fn build_skill(
                         // Same shape as `DefenceTrait`: every param is a trait
                         // name → percent, divided by 100.
                         "AttackTrait" => {
-                            let traits: Vec<(crate::model::skill::TraitType, f64)> = params
+                            let traits: Vec<(crate::model::skill::traits::TraitType, f64)> = params
                                 .keys()
                                 .filter_map(|key| {
                                     let raw = value_at(params, key, level)?;
                                     let pct: f64 = raw.parse().ok()?;
                                     Some((
-                                        crate::model::skill::TraitType::from_xml(key),
+                                        crate::model::skill::traits::TraitType::from_xml(key),
                                         pct / 100.0,
                                     ))
                                 })
                                 .collect();
-                            vec![skill::SkillEffect::AttackTrait { traits }]
+                            vec![skill::effects::SkillEffect::AttackTrait { traits }]
                         }
                         // Celestial Shield (1418), Flames of Invincibility (1427),
                         // Dance of Medusa (367), Sonic/Force Barrier (442/443): a
@@ -1627,7 +1627,7 @@ pub(crate) fn build_skill(
                         // invulnerability shields did nothing.
                         "DamageBlock" => {
                             let ty = value_at(params, "type", level);
-                            vec![skill::SkillEffect::DamageBlock {
+                            vec![skill::effects::SkillEffect::DamageBlock {
                                 block_hp: ty == Some("BLOCK_HP"),
                                 block_mp: ty == Some("BLOCK_MP"),
                             }]
@@ -1643,13 +1643,13 @@ pub(crate) fn build_skill(
                         // downstream rather than dropping the buff — `Holy
                         // Squad` (615) really does carry `0` for its first two
                         // levels.
-                        "MagicMpCost" => vec![skill::SkillEffect::MagicMpCost {
+                        "MagicMpCost" => vec![skill::effects::SkillEffect::MagicMpCost {
                             magic_type: effect_magic_type(params, level),
                             amount: value_at(params, "amount", level)
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(0.0),
                         }],
-                        "Reuse" => vec![skill::SkillEffect::Reuse {
+                        "Reuse" => vec![skill::effects::SkillEffect::Reuse {
                             magic_type: effect_magic_type(params, level),
                             amount: value_at(params, "amount", level)
                                 .and_then(|v| v.parse().ok())
@@ -1660,7 +1660,7 @@ pub(crate) fn build_skill(
                         // (like `VampiricAttack`) rather than dropping the buff
                         // whole at the empty-effects guard — it must still show
                         // and expire.
-                        "DamageShield" => vec![skill::SkillEffect::DamageShield {
+                        "DamageShield" => vec![skill::effects::SkillEffect::DamageShield {
                             amount: param("amount").unwrap_or(0.0),
                         }],
                         // Expand Inventory/Warehouse/Trade/Common Craft/Dwarven

@@ -270,7 +270,7 @@ fn a_rooted_mob_still_refuses_to_move() {
     // Root the mob via a buff carrying the movement-disabled flag.
     world.objects.add_components(
         &oid,
-        Buffs(vec![model::skill::ActiveBuff {
+        Buffs(vec![model::skill::active_buff::ActiveBuff {
             skill_id: 1,
             abnormal_type: "ROOT".into(),
             abnormal_level: 1,

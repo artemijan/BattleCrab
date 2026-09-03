@@ -1246,7 +1246,8 @@ fn superhaste_maxmp_doubles_mp() {
 #[test]
 fn passive_max_mp_skill_boosts_mp_at_login() {
     use crate::model::components::StatModifiers;
-    use crate::model::skill::{OperateType, SkillEffect, StatModifierEffect};
+    use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
+    use crate::model::skill::target::OperateType;
     use crate::model::stats::{Stat, StatModifierType};
 
     let (mut world, _db_rx, _link_rx) = quest_test_world();
@@ -1288,7 +1289,7 @@ fn clan_skills_move_max_hp_mp_cp() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
     use crate::model::clan::{Clan, ClanMember};
     use crate::model::components::{PlayerVitals, StatModifiers, Vitals};
-    use crate::model::skill::{SkillEffect, StatModifierEffect};
+    use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();

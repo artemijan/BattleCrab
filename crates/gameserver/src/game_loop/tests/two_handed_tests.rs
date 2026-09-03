@@ -5,7 +5,7 @@
 //! Both conditions are separate axes: a one-handed mace fails the slot test
 //! even though it passes the weapon-type one.
 
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 use crate::model::stats::Stat;
 
 /// The `(stat, weapon_mask_set, two_handed)` triples a skill contributes.
@@ -171,7 +171,7 @@ fn an_unconditioned_modifier_is_not_two_handed_gated() {
 /// without breaking every literal. An unconditioned modifier is the default.
 #[test]
 fn stat_modifier_default_is_unconditioned() {
-    let d = crate::model::skill::StatModifierEffect::default();
+    let d = crate::model::skill::effects::StatModifierEffect::default();
     assert_eq!(d.armor_condition, 0);
     assert_eq!(d.weapon_condition, 0);
     assert!(!d.two_handed);

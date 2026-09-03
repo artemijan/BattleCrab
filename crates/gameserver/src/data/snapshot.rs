@@ -56,7 +56,7 @@ const LAYOUT_SOURCES: &[&str] = &[
     "src/model/movement.rs",
     "src/model/shortcut.rs",
     "src/model/siege.rs",
-    "src/model/skill.rs",
+    "src/model/skill",
     "src/model/stats.rs",
 ];
 

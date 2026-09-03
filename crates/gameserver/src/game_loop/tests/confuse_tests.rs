@@ -12,7 +12,7 @@ use super::*;
 
 use crate::model::formulas;
 use crate::model::npc::AggroList;
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 
 const CASTER: i32 = 7001;
 const CID: u32 = 1;
@@ -70,11 +70,12 @@ fn cast(
     magic_level: i32,
     target: i32,
 ) {
-    use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
+    use crate::model::skill::Skill;
+    use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
     let skill = Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: skill_id,

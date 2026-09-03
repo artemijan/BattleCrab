@@ -132,7 +132,7 @@ fn a_no_store_zone_refuses_a_private_store() {
 /// saying the zone kinds did not exist.
 #[test]
 fn a_no_summon_friend_zone_blocks_summon_friend() {
-    use crate::model::skill::SkillCondition;
+    use crate::model::skill::condition::SkillCondition;
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
     let ok = |w: &World| conditions::check_for_test(w, PLAYER, PLAYER, &[SkillCondition::CallPc]);
@@ -155,7 +155,7 @@ fn a_no_summon_friend_zone_blocks_summon_friend() {
 /// the 69 landing zones and nowhere else; anyone on foot is unaffected.
 #[test]
 fn a_wyvern_rider_may_only_untransform_over_a_landing_zone() {
-    use crate::model::skill::SkillCondition;
+    use crate::model::skill::condition::SkillCondition;
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
     let ok = |w: &World| {
@@ -182,7 +182,7 @@ fn a_wyvern_rider_may_only_untransform_over_a_landing_zone() {
 /// is what changes the answer.
 #[test]
 fn the_landing_zone_is_geometric() {
-    use crate::model::skill::SkillCondition;
+    use crate::model::skill::condition::SkillCondition;
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, CID, PLAYER, 0, 0, 0);
     const MOUNT_WYVERN: u8 = 2;

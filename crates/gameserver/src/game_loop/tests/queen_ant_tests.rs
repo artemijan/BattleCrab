@@ -30,7 +30,7 @@ fn queen_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
             id,
             level: 1,
             magic_type: 1,
-            effects: vec![model::skill::SkillEffect::Heal { power: 1000.0 }],
+            effects: vec![model::skill::effects::SkillEffect::Heal { power: 1000.0 }],
             ..Default::default()
         });
     }

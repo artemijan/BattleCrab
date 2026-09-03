@@ -13,7 +13,9 @@ use crate::game_loop::skills::effects::{
     merge_skill_rates, mp_consume_for, remove_skill_rates, reuse_time_for,
 };
 use crate::model::components::SkillRateStats;
-use crate::model::skill::{Skill, SkillEffect, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::TargetType;
 
 const CASTER: i32 = 7001;
 const CID: u32 = 1;

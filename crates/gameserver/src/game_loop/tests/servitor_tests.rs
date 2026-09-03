@@ -11,7 +11,7 @@ use crate::game_loop::character::inventory;
 use crate::game_loop::servitor::evolve;
 use crate::game_loop::skills::skill_by_id;
 use crate::model::components::ServitorOf;
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 
 use crate::game_loop::servitor::{
     handle_life_tick, on_owner_leave_world, pet_of, servitor_attack, servitor_follow_tick,
@@ -2982,7 +2982,7 @@ fn a_stat_buff_on_a_servitor_changes_its_stats() {
         target_type: TargetType::Summon,
         abnormal_time: 1200,
         effects: vec![SkillEffect::StatModifier(
-            model::skill::StatModifierEffect {
+            model::skill::effects::StatModifierEffect {
                 stat: Stat::RunSpeed,
                 mode: model::stats::StatModifierType::Diff,
                 amount: 50.0,
@@ -3022,7 +3022,7 @@ fn buffing_a_servitor_refreshes_its_client_info() {
         target_type: TargetType::Summon,
         abnormal_time: 1200,
         effects: vec![SkillEffect::StatModifier(
-            model::skill::StatModifierEffect {
+            model::skill::effects::StatModifierEffect {
                 stat: Stat::RunSpeed,
                 mode: model::stats::StatModifierType::Diff,
                 amount: 50.0,
@@ -3882,7 +3882,7 @@ fn a_servitors_buffs_survive_a_relog() {
         level: 1,
         abnormal_time: 1200,
         effects: vec![SkillEffect::StatModifier(
-            model::skill::StatModifierEffect {
+            model::skill::effects::StatModifierEffect {
                 stat: Stat::RunSpeed,
                 mode: model::stats::StatModifierType::Diff,
                 amount: 50.0,
@@ -3940,7 +3940,7 @@ fn an_expired_servitor_buff_is_not_saved() {
         level: 1,
         abnormal_time: 10,
         effects: vec![SkillEffect::StatModifier(
-            model::skill::StatModifierEffect {
+            model::skill::effects::StatModifierEffect {
                 stat: Stat::RunSpeed,
                 mode: model::stats::StatModifierType::Diff,
                 amount: 50.0,
@@ -4439,7 +4439,7 @@ fn community_board_pet_buffer_targets_the_summon() {
 #[test]
 fn a_servitor_can_be_feared() {
     use crate::model::components::{Movement, Position};
-    use crate::model::skill::SkillEffect;
+    use crate::model::skill::effects::SkillEffect;
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 100, 200);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).expect("summoned");
@@ -4868,7 +4868,7 @@ fn sharing_skill(id: i32, shared: bool, is_debuff: bool) -> Skill {
         is_debuff,
         // A stat pump so the buff is a real continuous entry, not a bare flag.
         effects: vec![SkillEffect::StatModifier(
-            model::skill::StatModifierEffect {
+            model::skill::effects::StatModifierEffect {
                 stat: Stat::PhysicalAttack,
                 mode: model::stats::StatModifierType::Per,
                 amount: 8.0,
@@ -5360,7 +5360,7 @@ fn a_dead_servitor_can_be_resurrected_but_a_live_one_cannot() {
 
     // Resurrection-blocked (Java `isResurrectionBlocked`): refused again.
     let mut buffs = Buffs::default();
-    buffs.0.push(model::skill::ActiveBuff {
+    buffs.0.push(model::skill::active_buff::ActiveBuff {
         skill_id: 1,
         slot: model::skill::BuffSlot::Uncapped,
         effect_flags: model::skill::effect_flag::BLOCK_RESURRECTION,

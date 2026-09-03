@@ -11,7 +11,7 @@
 //! Unlike most G19 slices this fixes *already-ported* effects behaving wrongly
 //! rather than adding new ones.
 
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 use crate::model::stats::Stat;
 
 /// How many modifiers for `stat` this skill level carries.

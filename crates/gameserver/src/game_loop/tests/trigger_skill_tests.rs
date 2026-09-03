@@ -9,7 +9,7 @@ use super::*;
 use crate::game_loop::abnormal::has_buff;
 
 use crate::model::components::{Buffs, SkillBook};
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 
 const PLAYER: i32 = 8001;
 const CID: u32 = 1;
@@ -33,14 +33,14 @@ fn trigger_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
 /// Build a carrier skill holding one `TriggerSkillByAttack`, plus the skill it
 /// triggers (a plain 60s stat buff, so "did it fire" is just "is the buff up").
 fn install(world: &mut World, effect: SkillEffect) {
-    use crate::model::skill::{
-        AffectObject, AffectScope, OperateType, Skill, StatModifierEffect, TargetType,
-    };
+    use crate::model::skill::Skill;
+    use crate::model::skill::effects::StatModifierEffect;
+    use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
     use crate::model::stats::{Stat, StatModifierType};
     let base = |id: i32, effects: Vec<SkillEffect>, abnormal_time: i32, op: OperateType| Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,

@@ -6,7 +6,9 @@
 use super::*;
 
 use crate::model::components::{Casting, GroundSkillTarget, Vitals};
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const CASTER: i32 = 2001;
 const CID: u32 = 1;
@@ -467,7 +469,7 @@ fn channeled_skill(level: i32) -> Skill {
         abnormal_type: "PHYSICAL_STANCE".into(),
         magic_type: 2,
         effects: vec![SkillEffect::StatModifier(
-            model::skill::StatModifierEffect {
+            model::skill::effects::StatModifierEffect {
                 stat: Stat::PhysicalAttack,
                 mode: model::stats::StatModifierType::Diff,
                 amount: (5 * level) as f64,

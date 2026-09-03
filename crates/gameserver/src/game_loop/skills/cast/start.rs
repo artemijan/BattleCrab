@@ -15,7 +15,7 @@ use crate::model::components::Position;
 use crate::model::components::QueuedAction;
 use crate::model::components::Vitals;
 use crate::model::formulas;
-use crate::model::skill::OperateType;
+use crate::model::skill::target::OperateType;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;

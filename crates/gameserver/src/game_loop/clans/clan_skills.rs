@@ -8,7 +8,7 @@ use crate::game_loop::helpers;
 use crate::game_loop::skills::skill_by_id;
 use crate::model::Player;
 use crate::model::components::ClanSkills;
-use crate::model::skill::ActiveBuff;
+use crate::model::skill::active_buff::ActiveBuff;
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;

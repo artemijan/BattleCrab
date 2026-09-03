@@ -25,7 +25,9 @@ use crate::game_loop::space::position::maybe_position;
 use crate::model::components::{BaseStats, Buffs, CombatStats, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
-use crate::model::skill::{ActiveBuff, Skill, SkillEffect};
+use crate::model::skill::Skill;
+use crate::model::skill::active_buff::ActiveBuff;
+use crate::model::skill::effects::SkillEffect;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -1089,8 +1091,8 @@ fn set_skill(world: &mut World, player_oid: i32, skill_id: i32, skill_level: i32
 /// player is not a wasted scroll — it is a town escape. Only the *blessed*
 /// scrolls refuse, and they refuse in their `OpHome` condition before the
 /// effect ever runs.
-fn escape_to(world: &mut World, player_oid: i32, dest: crate::model::skill::EscapeDest) {
-    use crate::model::skill::EscapeDest;
+fn escape_to(world: &mut World, player_oid: i32, dest: crate::model::skill::effects::EscapeDest) {
+    use crate::model::skill::effects::EscapeDest;
 
     if let Some((x, y, z)) = match dest {
         EscapeDest::Town => None,

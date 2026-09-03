@@ -12,7 +12,9 @@ use crate::data::option_data::{OptionEntry, OptionSkillType, OptionTrigger};
 use crate::game_loop::character::inventory::item_id_of;
 use crate::game_loop::commerce::multisell;
 use crate::model::components::{Buffs, OptionSkills, OptionTriggers, SkillBook};
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const PLAYER: i32 = 8001;
 const CID: u32 = 1;

@@ -341,7 +341,7 @@ const AVE_PAGE_SIZE: usize = 100;
 /// builder's default — **numbered** page buttons, not the `<< < > >>` strip of
 /// `NextPrevPageHandler`, which this page never uses.
 fn show_ave_menu(world: &World, client_id: u32, page: i32) {
-    let all = crate::model::skill::ABNORMAL_VISUAL_EFFECTS;
+    let all = crate::model::skill::abnormal::ABNORMAL_VISUAL_EFFECTS;
     // Java `PageBuilder.build()`: pages = ceil(n / size), render the pager only
     // past a single page, then clamp the page.
     let pages =
@@ -441,7 +441,7 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
         return;
     }
     let name = first.unwrap_or_default();
-    let Some(ave) = crate::model::skill::abnormal_visual_client_id(&name.to_uppercase()) else {
+    let Some(ave) = crate::model::skill::abnormal::abnormal_visual_client_id(&name.to_uppercase()) else {
         helpers::send_message(
             world,
             client_id,

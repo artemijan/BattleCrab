@@ -252,7 +252,8 @@ fn a_gm_skips_every_skill_condition() {
 #[test]
 fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
     use crate::game_loop::skills::effects::control::check_summon_target_status;
-    use crate::model::skill::{ActiveBuff, BuffSlot, effect_flag};
+    use crate::model::skill::{BuffSlot, effect_flag};
+    use crate::model::skill::active_buff::ActiveBuff;
     use commons::system_messages::SmParam;
 
     const MEMBER: i32 = 5921;
@@ -478,7 +479,7 @@ fn summon_friend_charges_the_target_prompts_them_and_teleports_on_accept() {
 // ---------------------------------------------------------------------------
 
 use crate::game_loop::skills::conditions::check_for_test;
-use crate::model::skill::SkillCondition;
+use crate::model::skill::condition::SkillCondition;
 
 /// `OpMainjob` — the summon spellbooks refuse on a subclass.
 #[test]

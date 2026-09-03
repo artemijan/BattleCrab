@@ -2,7 +2,7 @@
 
 use crate::game_loop::helpers::send_sm_and_action_failed;
 use crate::game_loop::helpers::send_sm_bare_to_player;
-use crate::model::skill::OperateType;
+use crate::model::skill::target::OperateType;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
 use crate::scheduler::ms_to_ticks;

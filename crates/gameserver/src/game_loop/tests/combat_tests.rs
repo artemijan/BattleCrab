@@ -2689,7 +2689,9 @@ fn restart_to(point_type: i32) -> Vec<u8> {
 #[test]
 fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     use crate::game_loop::npc;
-    use model::skill::{AffectObject, AffectScope, Skill, SkillEffect, TargetType};
+    use model::skill::Skill;
+    use model::skill::effects::SkillEffect;
+    use model::skill::target::{AffectObject, AffectScope, TargetType};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2761,7 +2763,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     let make = |id: i32, target_type, magic_level, effects| Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,

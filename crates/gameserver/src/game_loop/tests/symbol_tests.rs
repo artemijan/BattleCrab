@@ -7,10 +7,10 @@ use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::grand_boss::find_spawned;
 use crate::model::components::{Casting, SummonerRef};
-use crate::model::skill::{
-    AffectObject, AffectScope, OpExistNpcCondition, OperateType, Skill, SkillCondition,
-    SkillEffect, TargetType,
-};
+use crate::model::skill::Skill;
+use crate::model::skill::condition::{OpExistNpcCondition, SkillCondition};
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 use crate::model::stats::{Stat, StatModifierType};
 
 const CASTER: i32 = 2001;
@@ -58,7 +58,7 @@ fn aura_skill() -> Skill {
         abnormal_type: "MULTI_DEBUFF".into(),
         magic_type: 2,
         effects: vec![SkillEffect::StatModifier(
-            model::skill::StatModifierEffect {
+            model::skill::effects::StatModifierEffect {
                 stat: Stat::RunSpeed,
                 mode: StatModifierType::Per,
                 amount: -50.0,

@@ -27,9 +27,9 @@ use crate::model::components::Buffs;
 use crate::model::components::StatModifiers;
 use crate::model::components::Vitals;
 use crate::model::punishment::PunishmentType;
-use crate::model::skill::ActiveBuff;
+use crate::model::skill::active_buff::ActiveBuff;
 use crate::model::skill::Skill;
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -71,7 +71,7 @@ pub(crate) fn handle_dam_over_time_tick(
     // Set when a tick returns Java's `false` for a *toggle*, which cancels it
     // (`BuffInfo.onTick` only honours the return value for toggles).
     let mut deactivate_toggle = false;
-    let is_toggle = skill.operate_type == crate::model::skill::OperateType::Toggle;
+    let is_toggle = skill.operate_type == crate::model::skill::target::OperateType::Toggle;
 
     for effect in &skill.effects {
         match effect {

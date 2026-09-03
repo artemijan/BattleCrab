@@ -3,7 +3,7 @@
 //!
 //! This is the **legacy** condition tree, and it is not the one skills use.
 //! `SkillData` reads named `<condition name="OpXxx">` elements
-//! ([`crate::model::skill::SkillCondition`]); `<cond>` is an attribute-driven
+//! ([`crate::model::skill::condition::SkillCondition`]); `<cond>` is an attribute-driven
 //! tree of `<and>`/`<or>`/`<not>` over `<player …>`/`<target …>` elements,
 //! parsed by `DocumentBase` — whose **only** subclass in the Java tree is
 //! `DocumentItem`. That matters twice over:

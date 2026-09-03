@@ -570,7 +570,7 @@ pub fn calc_skill_time_factor(
     // `skill.getOperateType().isChanneling()` heads the same early return as
     // the three static magic types: a channeled skill's timing is fixed, so
     // its factor is 1 and its cancel time is **not** divided by cast speed.
-    if skill.operate_type == crate::model::skill::OperateType::Channeling
+    if skill.operate_type == crate::model::skill::target::OperateType::Channeling
         || skill.magic_type == 2
         || skill.magic_type == 4
         || skill.magic_type == 21
@@ -663,7 +663,7 @@ pub fn calc_cast_times(
     // Volcano channels its full duration regardless of casting speed. The
     // cancel term does not scale either: `calcSkillTimeFactor` returns 1 for a
     // channeling skill, which this comment used to claim the opposite of.
-    if skill.operate_type == crate::model::skill::OperateType::Channeling {
+    if skill.operate_type == crate::model::skill::target::OperateType::Channeling {
         let hit = (skill.hit_time as f64 - cancel).max(0.0) as i32;
         let cool = calc_atk_spd(combat, skill, skill.cool_time as f64);
         return (hit, 2866, cool);

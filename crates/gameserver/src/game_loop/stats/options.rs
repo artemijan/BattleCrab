@@ -27,7 +27,9 @@ use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::stats::context::with_stat_ctx;
 use crate::model::components::{OptionSkills, OptionTriggers};
 use crate::model::inventory::Inventory;
-use crate::model::skill::{ActiveBuff, BuffSlot, StatModifierEffect};
+use crate::model::skill::BuffSlot;
+use crate::model::skill::active_buff::ActiveBuff;
+use crate::model::skill::effects::StatModifierEffect;
 use crate::world::World;
 
 /// Option buffs live at `OPTION_BUFF_ID_BASE - option_id`, well below any real
@@ -156,7 +158,8 @@ fn remove_option(world: &mut World, player_oid: i32, option_id: i32) {
 /// An option's stat contributions: its own `<effects>` plus the effects of the
 /// passive skills it grants (Java applies both through the same effect list).
 fn option_effects(world: &World, option_id: i32) -> Option<Vec<StatModifierEffect>> {
-    use crate::model::skill::{OperateType, SkillEffect};
+    use crate::model::skill::effects::SkillEffect;
+    use crate::model::skill::target::OperateType;
 
     let entry = world.data.options.get(option_id)?;
     let mut effects = entry.effects.clone();

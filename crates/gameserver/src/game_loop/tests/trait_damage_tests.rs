@@ -14,7 +14,8 @@ use crate::game_loop::skills::effects::{
     calc_attack_trait_bonus, calc_general_trait_bonus, calc_weakness_bonus,
     calc_weapon_trait_bonus, merge_attack_traits, merge_defence_traits, remove_attack_traits,
 };
-use crate::model::skill::{SkillEffect, TraitType, WeaknessTrait, WeaponTrait};
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::traits::{TraitType, WeaknessTrait, WeaponTrait};
 
 const ATTACKER: i32 = 5001;
 const TARGET: i32 = 5002;

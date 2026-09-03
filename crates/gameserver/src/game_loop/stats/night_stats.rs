@@ -15,7 +15,7 @@
 //! reason: at a handful of players per flip it is not worth an index.
 
 use crate::game_loop::helpers::send_sm_to_player;
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 use crate::network::server_packets::{SmParam, sm_ids};
 use crate::world::World;
 
@@ -29,7 +29,7 @@ const SHADOW_SENSE: i32 = 294;
 /// whether the caller needs to broadcast the new stats.
 pub(crate) fn refresh_one(world: &mut World, object_id: i32, night: bool) -> bool {
     // What the buffs *should* contribute right now, keyed by skill id.
-    let wanted: Vec<(i32, Vec<crate::model::skill::StatModifierEffect>)> = {
+    let wanted: Vec<(i32, Vec<crate::model::skill::effects::StatModifierEffect>)> = {
         let Some(buffs) = world
             .objects
             .get_component::<crate::model::components::Buffs>(&object_id)
@@ -46,7 +46,7 @@ pub(crate) fn refresh_one(world: &mut World, object_id: i32, night: bool) -> boo
                     .iter()
                     .filter_map(|e| match e {
                         SkillEffect::NightStatModify { stat, amount, mode } if night => {
-                            Some(crate::model::skill::StatModifierEffect {
+                            Some(crate::model::skill::effects::StatModifierEffect {
                                 stat: *stat,
                                 mode: *mode,
                                 amount: *amount,

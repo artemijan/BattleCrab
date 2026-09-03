@@ -5,9 +5,9 @@ use super::*;
 use crate::game_loop::abnormal;
 use crate::game_loop::combat::death;
 use crate::model::components::Vitals;
-use crate::model::skill::{
-    AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType, effect_flag,
-};
+use crate::model::skill::{Skill, effect_flag};
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 use crate::model::stats::{Stat, StatModifierType};
 
 const VICTIM: i32 = 2001;
@@ -27,7 +27,7 @@ fn buff_skill(id: i32, effects: Vec<SkillEffect>, stay_after_death: bool) -> Ski
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -71,7 +71,7 @@ fn buff_skill(id: i32, effects: Vec<SkillEffect>, stay_after_death: bool) -> Ski
 
 fn death_buff_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
-    let pump = SkillEffect::StatModifier(model::skill::StatModifierEffect {
+    let pump = SkillEffect::StatModifier(model::skill::effects::StatModifierEffect {
         stat: Stat::PhysicalAttack,
         mode: StatModifierType::Per,
         amount: 8.0,

@@ -12,9 +12,9 @@ use crate::game_loop::{helpers, npc, skills};
 use crate::model::components;
 
 use crate::model::formulas;
-use crate::model::skill::ActiveBuff;
+use crate::model::skill::active_buff::ActiveBuff;
 use crate::model::skill::Skill;
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;

@@ -188,7 +188,7 @@ pub fn skill_list(
     for (&skill_id, &level) in &merged {
         let skill = data.skill_data.get(skill_id, level);
         let passive =
-            skill.is_some_and(|s| s.operate_type == crate::model::skill::OperateType::Passive);
+            skill.is_some_and(|s| s.operate_type == crate::model::skill::target::OperateType::Passive);
         w.write_i32(passive as i32);
         w.write_i16(level as i16);
         // The enchant sub-level (1001–3020) — how the client shows the +N.

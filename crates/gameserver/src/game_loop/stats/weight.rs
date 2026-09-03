@@ -17,7 +17,8 @@ use crate::model::Player;
 use crate::model::components;
 
 use crate::model::inventory::Inventory;
-use crate::model::skill::{ActiveBuff, StatModifierEffect};
+use crate::model::skill::active_buff::ActiveBuff;
+use crate::model::skill::effects::StatModifierEffect;
 use crate::world::World;
 
 /// Java `CommonSkill.WEIGHT_PENALTY`.

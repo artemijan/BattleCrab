@@ -3,7 +3,7 @@ use crate::game_loop::skills::skill_by_id;
 use crate::model::components::Buffs;
 use crate::model::components::Vitals;
 use crate::model::skill::Skill;
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 use crate::world::World;
 
 fn known_buffs(buffs: &Buffs) -> Vec<(i32, i32)> {

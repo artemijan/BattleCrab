@@ -699,7 +699,7 @@ fn char_info_reflects_live_player_state() {
 /// late* — Java schedules its own refresh 50 ms out rather than inline.
 #[test]
 fn mounting_and_dismounting_resend_the_visual_effects() {
-    use crate::model::skill::STEALTH_CLIENT_ID;
+    use crate::model::skill::abnormal::STEALTH_CLIENT_ID;
     let (mut world, ..) = admin_world();
     world.data.pet_data = dist::pets_owned();
     world.data.npc_data = dist::npcs_owned();
@@ -914,7 +914,7 @@ fn mount_food_refills_the_riders_gauge() {
         self_continuous: false,
         id: 9100,
         level: 1,
-        effects: vec![model::skill::SkillEffect::Feed {
+        effects: vec![model::skill::effects::SkillEffect::Feed {
             normal: 100,
             ride: 12,
             wyvern: 99,

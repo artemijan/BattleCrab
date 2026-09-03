@@ -9,7 +9,9 @@ use super::*;
 use crate::game_loop::skills::effects::handle_buff_expire;
 use crate::model::components::{Movement, Position};
 use crate::model::npc::{NpcAi, NpcIntention};
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const CASTER: i32 = 3001;
 const VICTIM: i32 = 3002;
@@ -24,7 +26,7 @@ fn fear_skill(id: i32) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,

@@ -19,7 +19,7 @@ use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
-use crate::model::skill::StatModifierEffect;
+use crate::model::skill::effects::StatModifierEffect;
 use crate::model::stats::StatModifierType;
 
 pub const OPTIONS_DIR: &str = "data/stats/augmentation/options";

@@ -17,8 +17,8 @@ use crate::game_loop::skills::effects::apply_skill_effects;
 use crate::game_loop::space::position;
 use crate::model::Player;
 
-use crate::model::skill::OperateType;
-use crate::model::skill::TargetType;
+use crate::model::skill::target::OperateType;
+use crate::model::skill::target::TargetType;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::world::World;
@@ -46,7 +46,7 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
 pub(crate) fn op_exist_npc_around(
     world: &World,
     caster_oid: i32,
-    cond: &crate::model::skill::OpExistNpcCondition,
+    cond: &crate::model::skill::condition::OpExistNpcCondition,
 ) -> bool {
     let Some(region) = position::region_cell_of(world, caster_oid) else {
         return false;

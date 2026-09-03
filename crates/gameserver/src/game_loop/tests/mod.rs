@@ -38,7 +38,8 @@ use crate::model::inventory::Inventory;
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::model::party::LootRule;
 use crate::model::shortcut::{Macro, MacroCmd, MacroType, Shortcut, ShortcutType};
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 use crate::model::stats::Stat;
 use crate::model::{Player, PlayerData};
 use crate::network::client_packets::{self as cp, opcodes as cop};
@@ -869,7 +870,8 @@ fn sm_id(pkt: &[u8]) -> i16 {
 /// Battle-Heal-like heal (1015, `Target`, power 83), and a Might-like
 /// buff-on-other (1068, `Target`, P.Atk +8%).
 fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
-    use crate::model::skill::{Skill, SkillEffect, StatModifierEffect};
+    use crate::model::skill::Skill;
+    use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
 
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
@@ -915,7 +917,7 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -1239,10 +1241,10 @@ fn requests(rx: &std::sync::mpsc::Receiver<PathRequest>) -> Vec<PathRequest> {
 /// they care about and inherit the rest —
 /// `ActiveBuff { skill_id: FOO, ..test_buff() }`.
 ///
-/// [`model::skill::ActiveBuff::passive_pump`] is the production sibling for the
+/// [`model::skill::active_buff::ActiveBuff::passive_pump`] is the production sibling for the
 /// synthetic stat pumps; this one is the *timed buff* shape that tests hand-roll.
-fn test_buff() -> model::skill::ActiveBuff {
-    model::skill::ActiveBuff {
+fn test_buff() -> model::skill::active_buff::ActiveBuff {
+    model::skill::active_buff::ActiveBuff {
         displayed: true,
         skill_id: 0,
         skill_level: 1,
@@ -1271,7 +1273,7 @@ fn give_flag_buff(world: &mut World, oid: i32, skill_id: i32, flags: u32) {
         .get_component_mut::<Buffs>(&oid)
         .expect("target has a Buffs component")
         .0
-        .push(model::skill::ActiveBuff {
+        .push(model::skill::active_buff::ActiveBuff {
             skill_id,
             effect_flags: flags,
             ..test_buff()
@@ -1280,18 +1282,18 @@ fn give_flag_buff(world: &mut World, oid: i32, skill_id: i32, flags: u32) {
 
 /// The `(trait, value)` pairs a skill's `DefenceTrait` effect carries — the
 /// per-trait resistances — or `None` when the skill has no such effect.
-fn defence_traits(skill: &Skill) -> Option<&[(model::skill::TraitType, f64)]> {
+fn defence_traits(skill: &Skill) -> Option<&[(model::skill::traits::TraitType, f64)]> {
     skill.effects.iter().find_map(|e| match e {
-        model::skill::SkillEffect::DefenceTrait { traits } => Some(traits.as_slice()),
+        model::skill::effects::SkillEffect::DefenceTrait { traits } => Some(traits.as_slice()),
         _ => None,
     })
 }
 
 /// The attacker-side twin of [`defence_traits`]: what an `AttackTrait` effect
 /// declares the wielder is strong against.
-fn attack_traits(skill: &Skill) -> Option<&[(model::skill::TraitType, f64)]> {
+fn attack_traits(skill: &Skill) -> Option<&[(model::skill::traits::TraitType, f64)]> {
     skill.effects.iter().find_map(|e| match e {
-        model::skill::SkillEffect::AttackTrait { traits } => Some(traits.as_slice()),
+        model::skill::effects::SkillEffect::AttackTrait { traits } => Some(traits.as_slice()),
         _ => None,
     })
 }
@@ -1310,8 +1312,8 @@ fn arm_reuse(world: &mut World, oid: i32, key: i32, reuse: model::SkillReuse) {
         .insert(key, reuse);
 }
 
-fn test_stat_modifier_effect() -> model::skill::StatModifierEffect {
-    model::skill::StatModifierEffect {
+fn test_stat_modifier_effect() -> model::skill::effects::StatModifierEffect {
+    model::skill::effects::StatModifierEffect {
         stat: Stat::PhysicalAttack,
         mode: model::stats::StatModifierType::Per,
         amount: 1.2,
@@ -2020,7 +2022,7 @@ fn quest_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>)
 /// a passive with one flat +PAtk stat effect, so applying it both lands a
 /// passive buff and (via the shared pipeline) moves a supported stat.
 fn passive_clan_test_skill(id: i32) -> Skill {
-    use crate::model::skill::{SkillEffect, StatModifierEffect};
+    use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
@@ -2031,7 +2033,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -2106,7 +2108,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
 /// apply. Permanent (`abnormal_time = -1`), one +5% PAtk stat modifier standing
 /// in for the full six-effect aura.
 fn clan_advent_test_skill() -> Skill {
-    use crate::model::skill::{SkillEffect, StatModifierEffect};
+    use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
@@ -2117,7 +2119,7 @@ fn clan_advent_test_skill() -> Skill {
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,

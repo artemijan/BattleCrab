@@ -29,9 +29,10 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use tracing::info;
 
-use crate::model::skill::{
-    CompanionKind, OperateType, ResidenceType, RestorationGroup, Skill, SkillCondition,
-};
+use crate::model::skill::Skill;
+use crate::model::skill::condition::{CompanionKind, ResidenceType, SkillCondition};
+use crate::model::skill::effects::RestorationGroup;
+use crate::model::skill::target::OperateType;
 use crate::model::stats::Stat;
 
 mod build;
@@ -1054,7 +1055,7 @@ pub(crate) fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Opti
         // generic parse like every other condition, so there is one
         // representation instead of two that could drift.
         "OpExistNpc" => Some(SkillCondition::ExistNpc(
-            crate::model::skill::OpExistNpcCondition {
+            crate::model::skill::condition::OpExistNpcCondition {
                 npc_ids: c
                     .lists
                     .get("npcIds")

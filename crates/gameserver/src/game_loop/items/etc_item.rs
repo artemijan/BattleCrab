@@ -403,7 +403,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     use crate::game_loop::skills::effects::apply_skill_effects;
     use crate::model::Player;
     use crate::model::components::{Casting, TargetRef};
-    use crate::model::skill::TargetType;
+    use crate::model::skill::target::TargetType;
 
     let (item_skills, immediate_effect, ex_immediate_effect, default_action) = {
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {

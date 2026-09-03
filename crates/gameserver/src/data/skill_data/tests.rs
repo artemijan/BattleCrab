@@ -72,7 +72,7 @@ fn skill_enchant_sublevels_resolve() {
     let base = sd.get(7, 40).expect("Sonic Storm 40");
     let (p0, c0, d0) = match base.effects.as_slice() {
         [
-            skill::SkillEffect::EnergyAttack {
+            skill::effects::SkillEffect::EnergyAttack {
                 power,
                 critical_chance,
                 p_def_mod,
@@ -89,7 +89,7 @@ fn skill_enchant_sublevels_resolve() {
     assert_eq!(e1.sub_level, 1001);
     match e1.effects.as_slice() {
         [
-            skill::SkillEffect::EnergyAttack {
+            skill::effects::SkillEffect::EnergyAttack {
                 power,
                 critical_chance,
                 p_def_mod,
@@ -106,7 +106,7 @@ fn skill_enchant_sublevels_resolve() {
     }
     let e10 = sd.get_enchanted(7, 40, 1010).expect("+10 power route");
     match e10.effects.as_slice() {
-        [skill::SkillEffect::EnergyAttack { power, .. }] => {
+        [skill::effects::SkillEffect::EnergyAttack { power, .. }] => {
             assert!((power - (20732.0 * 1.10)).abs() < 1e-6, "+10: {power}");
         }
         other => panic!("{other:?}"),
@@ -120,7 +120,7 @@ fn skill_enchant_sublevels_resolve() {
         .as_slice()
     {
         [
-            skill::SkillEffect::EnergyAttack {
+            skill::effects::SkillEffect::EnergyAttack {
                 power,
                 critical_chance,
                 ..
@@ -137,7 +137,7 @@ fn skill_enchant_sublevels_resolve() {
         .effects
         .as_slice()
     {
-        [skill::SkillEffect::EnergyAttack { p_def_mod, .. }] => {
+        [skill::effects::SkillEffect::EnergyAttack { p_def_mod, .. }] => {
             assert!(
                 (p_def_mod - (0.99 - 0.006 * 4.0)).abs() < 1e-6,
                 "{p_def_mod}"
@@ -203,10 +203,10 @@ fn loads_real_dist_files() {
         sd.skills.len()
     );
     let ws = sd.get(1177, 1).expect("Wind Strike lvl 1");
-    assert_eq!(ws.target_type, skill::TargetType::EnemyOnly);
+    assert_eq!(ws.target_type, skill::target::TargetType::EnemyOnly);
     assert_eq!(ws.cast_range, 600);
     assert!(
-        matches!(ws.effects.as_slice(), [skill::SkillEffect::MagicalAttack { power }] if *power == 12.0)
+        matches!(ws.effects.as_slice(), [skill::effects::SkillEffect::MagicalAttack { power }] if *power == 12.0)
     );
     assert_eq!(
         ws.reuse_delay_group, -1,
@@ -222,7 +222,7 @@ fn loads_real_dist_files() {
     let prominence = sd.get(1230, 28).expect("Prominence lvl 28");
     assert!(matches!(
         prominence.effects.as_slice(),
-        [skill::SkillEffect::MagicalAttackRange { power, shield_def_percent }]
+        [skill::effects::SkillEffect::MagicalAttackRange { power, shield_def_percent }]
             if *power == 108.0 && *shield_def_percent == 40.0
     ));
 
@@ -232,7 +232,7 @@ fn loads_real_dist_files() {
     let power_strike = sd.get(3, 1).expect("Power Strike lvl 1");
     assert!(matches!(
         power_strike.effects.as_slice(),
-        [skill::SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, .. }]
+        [skill::effects::SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, .. }]
             if *power == 30.0 && *p_atk_mod == 1.0 && *p_def_mod == 1.0 && *critical_chance == 10.0
     ));
 
@@ -241,7 +241,7 @@ fn loads_real_dist_files() {
     let vampiric = sd.get(1147, 1).expect("Vampiric Touch lvl 1");
     assert!(matches!(
         vampiric.effects.as_slice(),
-        [skill::SkillEffect::HpDrain { power, percentage }] if *power == 18.0 && *percentage == 40.0
+        [skill::effects::SkillEffect::HpDrain { power, percentage }] if *power == 18.0 && *percentage == 40.0
     ));
 
     // Dagger blows: Mortal Blow 16 (FatalBlow, crit-double, no flank),
@@ -249,38 +249,38 @@ fn loads_real_dist_files() {
     let mortal_blow = sd.get(16, 1).expect("Mortal Blow lvl 1");
     assert!(matches!(
         mortal_blow.effects.as_slice(),
-        [skill::SkillEffect::Blow { power, chance_boost, critical_chance: Some(_), backstab: false }]
+        [skill::effects::SkillEffect::Blow { power, chance_boost, critical_chance: Some(_), backstab: false }]
             if *power == 73.0 && *chance_boost == 200.0
     ));
     let backstab = sd.get(30, 1).expect("Backstab lvl 1");
     assert!(matches!(
         backstab.effects.first(),
-        Some(skill::SkillEffect::Blow { power, chance_boost, critical_chance: Some(cc), backstab: true })
+        Some(skill::effects::SkillEffect::Blow { power, chance_boost, critical_chance: Some(cc), backstab: true })
             if *power == 1107.0 && *chance_boost == 400.0 && *cc == 5.0
     ));
     let shining_edge = sd.get(505, 1).expect("Shining Edge lvl 1");
     assert!(matches!(
         shining_edge.effects.first(),
-        Some(skill::SkillEffect::Blow { power, critical_chance: None, backstab: false, .. }) if *power == 1853.0
+        Some(skill::effects::SkillEffect::Blow { power, critical_chance: None, backstab: false, .. }) if *power == 1853.0
     ));
 
     // Decrease Speed 1160: single-target (`affectScope SINGLE`) bad skill
     // with a `Speed` PER -20% debuff, and the landing-rate inputs the
     // caster-feedback + resist roll read (`activateRate` 80, `lvlBonusRate` 30).
     let decrease_speed = sd.get(1160, 1).expect("Decrease Speed lvl 1");
-    assert!(decrease_speed.affect_scope == skill::AffectScope::Single && decrease_speed.is_bad());
+    assert!(decrease_speed.affect_scope == skill::target::AffectScope::Single && decrease_speed.is_bad());
     assert_eq!(decrease_speed.activate_rate, 80);
     assert_eq!(decrease_speed.lvl_bonus_rate, 30);
     // An area skill (`affectScope RANGE`) is not single-target.
     let sonic_storm = sd.get(7, 1).expect("Sonic Storm lvl 1");
-    assert!(sonic_storm.affect_scope != skill::AffectScope::Single);
+    assert!(sonic_storm.affect_scope != skill::target::AffectScope::Single);
 
     // Tempest 1176 — the canonical AoE nuke, and the reference case for the
     // whole affect-scope block: RANGE scope, NOT_FRIEND filter, a 200-unit
     // sweep around the target, and a 5-12 target cap.
     let tempest = sd.get(1176, 1).expect("Tempest lvl 1");
-    assert_eq!(tempest.affect_scope, skill::AffectScope::Range);
-    assert_eq!(tempest.affect_object, skill::AffectObject::NotFriend);
+    assert_eq!(tempest.affect_scope, skill::target::AffectScope::Range);
+    assert_eq!(tempest.affect_object, skill::target::AffectObject::NotFriend);
     assert_eq!(tempest.affect_range, 200);
     assert_eq!(tempest.affect_limit, (5, 12));
     // `getAffectLimit()` is `min + Rnd.get(max)`, so the "5-12" above can
@@ -295,12 +295,12 @@ fn loads_real_dist_files() {
     // the reference FAN: a 180° half-circle of radius 200 —
     // `<fanRange>0;0;200;180</fanRange>` as `unk;startDegree;radius;angle`.
     let sonic_buster = sd.get(9, 1).expect("Sonic Buster lvl 1");
-    assert_eq!(sonic_buster.affect_scope, skill::AffectScope::Fan);
+    assert_eq!(sonic_buster.affect_scope, skill::target::AffectScope::Fan);
     assert_eq!(sonic_buster.fan_range, [0, 0, 200, 180]);
     // Divine Judgment 6314 — RING_RANGE: an annulus of 100..270 around
     // the target; the inner radius rides in `fan_range[2]`.
     let judgment = sd.get(6314, 1).expect("Divine Judgment lvl 1");
-    assert_eq!(judgment.affect_scope, skill::AffectScope::RingRange);
+    assert_eq!(judgment.affect_scope, skill::target::AffectScope::RingRange);
     assert_eq!(judgment.affect_range, 270);
     assert_eq!(judgment.fan_range, [0, 0, 100, 0]);
     // Frintezza Charge 5015 — SQUARE with a **level-valued** fanRange
@@ -350,11 +350,11 @@ fn loads_real_dist_files() {
     assert!(sd.get(1068, 1).expect("Might").abnormal_visuals.is_empty());
     // An unknown enum name resolves to nothing rather than panicking.
     assert_eq!(
-        crate::model::skill::abnormal_visual_client_id("NOT_A_REAL_AVE"),
+        crate::model::skill::abnormal::abnormal_visual_client_id("NOT_A_REAL_AVE"),
         None
     );
     assert_eq!(
-        crate::model::skill::abnormal_visual_client_id("STUN"),
+        crate::model::skill::abnormal::abnormal_visual_client_id("STUN"),
         Some(7)
     );
 
@@ -385,8 +385,8 @@ fn loads_real_dist_files() {
                 .expect("Trick")
                 .effects
                 .iter()
-                .find(|e| matches!(e, skill::SkillEffect::TargetCancel { .. })),
-            Some(skill::SkillEffect::TargetCancel { .. })
+                .find(|e| matches!(e, skill::effects::SkillEffect::TargetCancel { .. })),
+            Some(skill::effects::SkillEffect::TargetCancel { .. })
         ),
         "Trick cancels its target"
     );
@@ -401,7 +401,7 @@ fn loads_real_dist_files() {
     let bless = sd.get(1323, 1).expect("Noblesse Blessing");
     assert!(matches!(
         bless.effects.as_slice(),
-        [skill::SkillEffect::NoblesseBless]
+        [skill::effects::SkillEffect::NoblesseBless]
     ));
     assert_eq!(bless.effect_flags(), effect_flag::NOBLESS_BLESSING);
     assert!(
@@ -423,11 +423,11 @@ fn loads_real_dist_files() {
     // MP-cost twin. Both are toggles, so their upkeep also drives the
     // toggle-off-on-exhaustion path.
     let fury_fists = sd.get(222, 1).expect("Fury Fists lvl 1");
-    assert_eq!(fury_fists.operate_type, skill::OperateType::Toggle);
+    assert_eq!(fury_fists.operate_type, skill::target::OperateType::Toggle);
     assert!(
         matches!(
-            fury_fists.effects.iter().find(|e| matches!(e, skill::SkillEffect::HealOverTime { .. })),
-            Some(skill::SkillEffect::HealOverTime { power, ticks }) if *power == -12.0 && *ticks == 2
+            fury_fists.effects.iter().find(|e| matches!(e, skill::effects::SkillEffect::HealOverTime { .. })),
+            Some(skill::effects::SkillEffect::HealOverTime { power, ticks }) if *power == -12.0 && *ticks == 2
         ),
         "got {:?}",
         fury_fists.effects
@@ -435,8 +435,8 @@ fn loads_real_dist_files() {
     let silent_move = sd.get(221, 1).expect("Silent Move lvl 1");
     assert!(
         matches!(
-            silent_move.effects.iter().find(|e| matches!(e, skill::SkillEffect::ManaDamOverTime { .. })),
-            Some(skill::SkillEffect::ManaDamOverTime { power, ticks }) if *power == 9.0 && *ticks == 5
+            silent_move.effects.iter().find(|e| matches!(e, skill::effects::SkillEffect::ManaDamOverTime { .. })),
+            Some(skill::effects::SkillEffect::ManaDamOverTime { power, ticks }) if *power == 9.0 && *ticks == 5
         ),
         "got {:?}",
         silent_move.effects
@@ -447,15 +447,15 @@ fn loads_real_dist_files() {
     let braveheart = sd.get(440, 1).expect("Braveheart lvl 1");
     assert!(
         matches!(
-            braveheart.effects.iter().find(|e| matches!(e, skill::SkillEffect::Cp { .. })),
-            Some(skill::SkillEffect::Cp { amount, percent: false }) if *amount == 1000.0
+            braveheart.effects.iter().find(|e| matches!(e, skill::effects::SkillEffect::Cp { .. })),
+            Some(skill::effects::SkillEffect::Cp { amount, percent: false }) if *amount == 1000.0
         ),
         "got {:?}",
         braveheart.effects
     );
     assert!(matches!(
-        sd.get(342, 1).expect("Touch of Death").effects.iter().find(|e| matches!(e, skill::SkillEffect::Cp { .. })),
-        Some(skill::SkillEffect::Cp { amount, percent: true }) if *amount == -90.0
+        sd.get(342, 1).expect("Touch of Death").effects.iter().find(|e| matches!(e, skill::effects::SkillEffect::Cp { .. })),
+        Some(skill::effects::SkillEffect::Cp { amount, percent: true }) if *amount == -90.0
     ));
     // Touch of Life 341 raises the healing its target receives (PER → the
     // multiplicative stat); Touch of Death 342 lowers it.
@@ -523,9 +523,9 @@ fn loads_real_dist_files() {
     match bane
         .effects
         .iter()
-        .find(|e| matches!(e, skill::SkillEffect::DispelBySlotProbability { .. }))
+        .find(|e| matches!(e, skill::effects::SkillEffect::DispelBySlotProbability { .. }))
     {
-        Some(skill::SkillEffect::DispelBySlotProbability { dispel, rate }) => {
+        Some(skill::effects::SkillEffect::DispelBySlotProbability { dispel, rate }) => {
             assert_eq!(*rate, 80, "single-target Bane is 80%");
             assert!(dispel.contains(&"SPEED_UP".to_string()), "got {dispel:?}");
         }
@@ -535,7 +535,7 @@ fn loads_real_dist_files() {
     assert!(
         mass_bane.effects.iter().any(|e| matches!(
             e,
-            skill::SkillEffect::DispelBySlotProbability { rate, .. } if *rate == 40
+            skill::effects::SkillEffect::DispelBySlotProbability { rate, .. } if *rate == 40
         )),
         "the mass version trades rate for reach"
     );
@@ -558,9 +558,9 @@ fn loads_real_dist_files() {
     // scope that centres on the *caster* rather than the target, which is
     // why its targetType is SELF even though it is an offensive skill.
     let thunder_storm = sd.get(48, 1).expect("Thunder Storm lvl 1");
-    assert_eq!(thunder_storm.affect_scope, skill::AffectScope::PointBlank);
-    assert_eq!(thunder_storm.target_type, skill::TargetType::Self_);
-    assert_eq!(thunder_storm.affect_object, skill::AffectObject::NotFriend);
+    assert_eq!(thunder_storm.affect_scope, skill::target::AffectScope::PointBlank);
+    assert_eq!(thunder_storm.target_type, skill::target::TargetType::Self_);
+    assert_eq!(thunder_storm.affect_object, skill::target::AffectObject::NotFriend);
     assert_eq!(thunder_storm.affect_range, 150);
     // ...and it is *also* a stun, so it exercises both G19 slices at once:
     // a caster-centred sweep that block-actions everything it catches.
@@ -579,7 +579,7 @@ fn loads_real_dist_files() {
     // must NOT be dropped. Guard that the effect exists with power 0.
     let heal = sd.get(1011, 3).expect("Heal lvl 3");
     assert!(
-        matches!(heal.effects.as_slice(), [skill::SkillEffect::Heal { power }] if *power == 0.0)
+        matches!(heal.effects.as_slice(), [skill::effects::SkillEffect::Heal { power }] if *power == 0.0)
     );
 
     // "Knight - Individual" shares reuse group 10008 with its siblings.
@@ -593,18 +593,18 @@ fn loads_real_dist_files() {
     let escape = sd.get(2099, 1).expect("Escape (5-minute) lvl 1");
     assert_eq!(escape.magic_type, 2, "static skill");
     assert_eq!(escape.hit_time, 300_000);
-    assert_eq!(escape.target_type, skill::TargetType::Self_);
+    assert_eq!(escape.target_type, skill::target::TargetType::Self_);
     assert!(matches!(
         escape.effects.as_slice(),
-        [skill::SkillEffect::Escape {
-            dest: skill::EscapeDest::Town
+        [skill::effects::SkillEffect::Escape {
+            dest: skill::effects::EscapeDest::Town
         }]
     ));
     let gm_escape = sd.get(2100, 1).expect("Escape: 1 Second lvl 1");
     assert!(matches!(
         gm_escape.effects.as_slice(),
-        [skill::SkillEffect::Escape {
-            dest: skill::EscapeDest::Town
+        [skill::effects::SkillEffect::Escape {
+            dest: skill::effects::EscapeDest::Town
         }]
     ));
 
@@ -640,7 +640,7 @@ fn loads_real_dist_files() {
     let blessing = sd.get(5182, 1).expect("Blessing of Protection lvl 1");
     assert!(matches!(
         blessing.effects.as_slice(),
-        [skill::SkillEffect::ProtectionBlessing]
+        [skill::effects::SkillEffect::ProtectionBlessing]
     ));
     assert_eq!(blessing.abnormal_time, 7200);
 
@@ -676,7 +676,7 @@ fn loads_real_dist_files() {
         .expect("Mysterious Spiritshot d 5000 lvl 5");
     assert!(matches!(
         spiritshot_pack.effects.as_slice(),
-        [skill::SkillEffect::GiveItem {
+        [skill::effects::SkillEffect::GiveItem {
             item_id: 21852,
             item_count: 5000,
             item_enchant_level: 0
@@ -687,12 +687,12 @@ fn loads_real_dist_files() {
     // (three weighted groups of Mithril Arrow).
     let quiver = sd.get(323, 1).expect("Quiver of Arrow lvl 1");
     match quiver.effects.as_slice() {
-        [skill::SkillEffect::GiveItemRandom { groups }] => {
+        [skill::effects::SkillEffect::GiveItemRandom { groups }] => {
             assert_eq!(groups.len(), 3);
             assert_eq!(groups[0].chance, 30.0);
             assert_eq!(
                 groups[0].items,
-                vec![skill::RestorationItem {
+                vec![skill::effects::RestorationItem {
                     item_id: 1344,
                     count: 700,
                     min_enchant: 0,
@@ -758,7 +758,7 @@ fn loads_real_dist_files() {
     let curse_poison = sd.get(1168, 1).expect("Curse Poison lvl 1");
     assert!(matches!(
         curse_poison.effects.as_slice(),
-        [skill::SkillEffect::DamOverTime { power, ticks, can_kill: false }] if *power == 11.0 && *ticks == 5
+        [skill::effects::SkillEffect::DamOverTime { power, ticks, can_kill: false }] if *power == 11.0 && *ticks == 5
     ));
     assert_eq!(curse_poison.abnormal_time, 30, "poison lasts 30s");
 
@@ -771,7 +771,7 @@ fn loads_real_dist_files() {
             .get(1012, lvl)
             .unwrap_or_else(|| panic!("Cure Poison lvl {lvl}"));
         assert!(
-            matches!(cure.effects.as_slice(), [skill::SkillEffect::DispelBySlot { dispel }] if dispel.as_slice() == [("POISON".to_string(), want)]),
+            matches!(cure.effects.as_slice(), [skill::effects::SkillEffect::DispelBySlot { dispel }] if dispel.as_slice() == [("POISON".to_string(), want)]),
             "Cure Poison lvl {lvl} dispels POISON,{want}, got {:?}",
             cure.effects,
         );
@@ -780,21 +780,21 @@ fn loads_real_dist_files() {
     // Spoil 254: an `ENEMY_ONLY` debuff carrying the `Spoil` effect and a
     // per-level `magicLevel` (10 at lvl 1) the `calcMagicSuccess` roll reads.
     let spoil = sd.get(254, 1).expect("Spoil lvl 1");
-    assert_eq!(spoil.target_type, skill::TargetType::EnemyOnly);
+    assert_eq!(spoil.target_type, skill::target::TargetType::EnemyOnly);
     assert_eq!(spoil.magic_level, 10);
     assert!(spoil.is_bad(), "Spoil has negative effectPoint");
     assert!(matches!(
         spoil.effects.as_slice(),
-        [skill::SkillEffect::Spoil]
+        [skill::effects::SkillEffect::Spoil]
     ));
 
     // Sweeper 42: an `NPC_BODY` (corpse) skill whose effects are
     // `Sweeper` then `ConsumeBody` (order matters — claim loot, then decay).
     let sweeper = sd.get(42, 1).expect("Sweeper lvl 1");
-    assert_eq!(sweeper.target_type, skill::TargetType::NpcBody);
+    assert_eq!(sweeper.target_type, skill::target::TargetType::NpcBody);
     assert!(matches!(
         sweeper.effects.as_slice(),
-        [skill::SkillEffect::Sweeper, skill::SkillEffect::ConsumeBody]
+        [skill::effects::SkillEffect::Sweeper, skill::effects::SkillEffect::ConsumeBody]
     ));
 
     // Common Craft 1322 / Dwarven Craft 1321: self-target ability skills
@@ -802,15 +802,15 @@ fn loads_real_dist_files() {
     // empty effect list before `OpenCommonRecipeBook`/`OpenDwarfRecipeBook`
     // were registered, so casting them did nothing at all.
     let common_craft = sd.get(1322, 1).expect("Common Craft lvl 1");
-    assert_eq!(common_craft.target_type, skill::TargetType::Self_);
+    assert_eq!(common_craft.target_type, skill::target::TargetType::Self_);
     assert!(matches!(
         common_craft.effects.as_slice(),
-        [skill::SkillEffect::OpenRecipeBook { dwarven: false }]
+        [skill::effects::SkillEffect::OpenRecipeBook { dwarven: false }]
     ));
     let dwarven_craft = sd.get(1321, 1).expect("Dwarven Craft lvl 1");
     assert!(matches!(
         dwarven_craft.effects.as_slice(),
-        [skill::SkillEffect::OpenRecipeBook { dwarven: true }]
+        [skill::effects::SkillEffect::OpenRecipeBook { dwarven: true }]
     ));
 
     // Community-board buffer skills that previously loaded with an empty
@@ -824,13 +824,13 @@ fn loads_real_dist_files() {
     let blessed_shield = sd.get(1243, 1).expect("Blessed Shield lvl 1");
     assert!(matches!(
         blessed_shield.effects.as_slice(),
-        [skill::SkillEffect::StatModifier(m)]
+        [skill::effects::SkillEffect::StatModifier(m)]
             if m.stat == Stat::ShieldDefenceRate && m.mode == StatModifierType::Per && m.amount == 5.0
     ));
     let death_whisper = sd.get(1242, 1).expect("Death Whisper lvl 1");
     assert!(matches!(
         death_whisper.effects.as_slice(),
-        [skill::SkillEffect::StatModifier(m)]
+        [skill::effects::SkillEffect::StatModifier(m)]
             if m.stat == Stat::CriticalDamage && m.mode == StatModifierType::Per && m.amount == 25.0
     ));
 
@@ -841,18 +841,18 @@ fn loads_real_dist_files() {
     let mental_shield = sd.get(1035, 1).expect("Mental Shield lvl 1");
     assert!(matches!(
         mental_shield.effects.as_slice(),
-        [skill::SkillEffect::DefenceTrait { .. }]
+        [skill::effects::SkillEffect::DefenceTrait { .. }]
     ));
     assert_eq!(mental_shield.abnormal_time, 1200);
     let resist_shock = sd.get(1259, 1).expect("Stun Resistance lvl 1");
     assert!(matches!(
         resist_shock.effects.as_slice(),
-        [skill::SkillEffect::DefenceTrait { .. }]
+        [skill::effects::SkillEffect::DefenceTrait { .. }]
     ));
     let vampiric_rage = sd.get(1268, 1).expect("Vampiric Rage lvl 1");
     assert!(matches!(
         vampiric_rage.effects.as_slice(),
-        [skill::SkillEffect::VampiricAttack { amount, chance }] if *amount == 6.0 && *chance == 80.0
+        [skill::effects::SkillEffect::VampiricAttack { amount, chance }] if *amount == 6.0 && *chance == 80.0
     ));
 }
 
@@ -900,7 +900,7 @@ fn parses_wind_strike_shaped_skill() {
     parse_str(xml, &mut out);
 
     let l1 = out.skills.get(&(1177, 1)).expect("level 1 parsed");
-    assert_eq!(l1.target_type, skill::TargetType::EnemyOnly);
+    assert_eq!(l1.target_type, skill::target::TargetType::EnemyOnly);
     assert_eq!(l1.magic_type, 1);
     assert_eq!(l1.effect_point, -92);
     assert!(l1.is_bad());
@@ -911,13 +911,13 @@ fn parses_wind_strike_shaped_skill() {
     assert_eq!(l1.mp_consume, 7);
     assert_eq!(l1.mp_initial_consume, 2);
     assert!(
-        matches!(l1.effects.as_slice(), [skill::SkillEffect::MagicalAttack { power }] if *power == 12.0)
+        matches!(l1.effects.as_slice(), [skill::effects::SkillEffect::MagicalAttack { power }] if *power == 12.0)
     );
 
     let l2 = out.skills.get(&(1177, 2)).expect("level 2 parsed");
-    assert_eq!(l2.target_type, skill::TargetType::Enemy);
+    assert_eq!(l2.target_type, skill::target::TargetType::Enemy);
     assert!(
-        matches!(l2.effects.as_slice(), [skill::SkillEffect::MagicalAttack { power }] if *power == 13.0)
+        matches!(l2.effects.as_slice(), [skill::effects::SkillEffect::MagicalAttack { power }] if *power == 13.0)
     );
 }
 
@@ -949,12 +949,12 @@ fn parses_heal_stat_and_unknown_effects() {
     parse_str(xml, &mut out);
 
     let s = out.skills.get(&(1015, 1)).expect("skill parsed");
-    assert_eq!(s.target_type, skill::TargetType::Target);
+    assert_eq!(s.target_type, skill::target::TargetType::Target);
     assert_eq!(s.effects.len(), 2, "unknown effect dropped");
-    assert!(matches!(s.effects[0], skill::SkillEffect::Heal { power } if power == 83.0));
+    assert!(matches!(s.effects[0], skill::effects::SkillEffect::Heal { power } if power == 83.0));
     assert!(matches!(
         s.effects[1],
-        skill::SkillEffect::StatModifier(skill::StatModifierEffect { stat: Stat::PhysicalAttack, mode: StatModifierType::Per, amount, .. }) if amount == 10.0
+        skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::PhysicalAttack, mode: StatModifierType::Per, amount, .. }) if amount == 10.0
     ));
 }
 
@@ -985,7 +985,7 @@ fn reduce_cancel_parses_to_attack_cancel_stat() {
     assert_eq!(s.effects.len(), 1, "the ReduceCancel effect is not dropped");
     assert!(matches!(
         s.effects[0],
-        skill::SkillEffect::StatModifier(skill::StatModifierEffect { stat: Stat::AttackCancel, mode: StatModifierType::Diff, amount, .. }) if amount == -18.0
+        skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::AttackCancel, mode: StatModifierType::Diff, amount, .. }) if amount == -18.0
     ));
 }
 
@@ -1048,7 +1048,7 @@ fn dance_song_buffs_parse_to_iconless_markers() {
     assert!(
         matches!(
             dol.effects.as_slice(),
-            [skill::SkillEffect::StatModifier(skill::StatModifierEffect { stat: Stat::HolyPower, amount, .. })] if *amount == 20.0
+            [skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::HolyPower, amount, .. })] if *amount == 20.0
         ),
         "Dance of Light grants HolyPower +20: {:?}",
         dol.effects
@@ -1060,11 +1060,11 @@ fn dance_song_buffs_parse_to_iconless_markers() {
         matches!(
             soc.effects.as_slice(),
             [
-                skill::SkillEffect::MagicMpCost {
+                skill::effects::SkillEffect::MagicMpCost {
                     magic_type: 0,
                     amount: a
                 },
-                skill::SkillEffect::Reuse {
+                skill::effects::SkillEffect::Reuse {
                     magic_type: 0,
                     amount: b
                 }
@@ -1075,7 +1075,7 @@ fn dance_song_buffs_parse_to_iconless_markers() {
     );
     let sov = out.skills.get(&(305, 1)).expect("Song of Vengeance parsed");
     assert!(
-        matches!(sov.effects.as_slice(), [skill::SkillEffect::DamageShield { amount }] if *amount == 20.0),
+        matches!(sov.effects.as_slice(), [skill::effects::SkillEffect::DamageShield { amount }] if *amount == 20.0),
         "DamageShield carries its reflect percentage"
     );
 }
@@ -1134,7 +1134,7 @@ fn enlarge_slot_picks_stat_by_type_param() {
 
     let inv = out.skills.get(&(1372, 1)).expect("Expand Inventory parsed");
     assert!(
-        matches!(inv.effects.as_slice(), [skill::SkillEffect::StatModifier(skill::StatModifierEffect { stat: Stat::InventoryNormal, amount, .. })] if *amount == 6.0),
+        matches!(inv.effects.as_slice(), [skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::InventoryNormal, amount, .. })] if *amount == 6.0),
         "no <type> defaults to INVENTORY_NORMAL: {:?}",
         inv.effects
     );
@@ -1143,7 +1143,7 @@ fn enlarge_slot_picks_stat_by_type_param() {
         .get(&(1368, 1))
         .expect("Expand Dwarven Craft parsed");
     assert!(
-        matches!(dwc.effects.as_slice(), [skill::SkillEffect::StatModifier(skill::StatModifierEffect { stat: Stat::RecipeDwarven, amount, .. })] if *amount == 6.0),
+        matches!(dwc.effects.as_slice(), [skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::RecipeDwarven, amount, .. })] if *amount == 6.0),
         "type=RECIPE_DWARVEN picked: {:?}",
         dwc.effects
     );
@@ -1152,11 +1152,11 @@ fn enlarge_slot_picks_stat_by_type_param() {
         matches!(
             trade.effects.as_slice(),
             [
-                skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
                     stat: Stat::TradeBuy,
                     ..
                 }),
-                skill::SkillEffect::StatModifier(skill::StatModifierEffect {
+                skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
                     stat: Stat::TradeSell,
                     ..
                 }),
@@ -1225,14 +1225,14 @@ fn hate_effects_parse_getagro_addhate_deletehate() {
     assert!(
         matches!(
             aggression.effects.as_slice(),
-            [skill::SkillEffect::TargetMe, skill::SkillEffect::GetAgro]
+            [skill::effects::SkillEffect::TargetMe, skill::effects::SkillEffect::GetAgro]
         ),
         "TargetMe + GetAgro, in datapack order: {:?}",
         aggression.effects
     );
     let charm = out.skills.get(&(15, 1)).expect("Charm parsed");
     assert!(
-        matches!(charm.effects.as_slice(), [skill::SkillEffect::AddHate { power }] if *power == 500.0),
+        matches!(charm.effects.as_slice(), [skill::effects::SkillEffect::AddHate { power }] if *power == 500.0),
         "AddHate power=500: {:?}",
         charm.effects
     );
@@ -1240,7 +1240,7 @@ fn hate_effects_parse_getagro_addhate_deletehate() {
     assert!(
         matches!(
             eva.effects.as_slice(),
-            [skill::SkillEffect::DeleteHate { chance: 80 }]
+            [skill::effects::SkillEffect::DeleteHate { chance: 80 }]
         ),
         "DeleteHate chance=80: {:?}",
         eva.effects
@@ -1249,7 +1249,7 @@ fn hate_effects_parse_getagro_addhate_deletehate() {
     assert!(
         matches!(
             forget.effects.as_slice(),
-            [skill::SkillEffect::DeleteHateOfMe { chance: 80 }]
+            [skill::effects::SkillEffect::DeleteHateOfMe { chance: 80 }]
         ),
         "DeleteHateOfMe chance=80: {:?}",
         forget.effects
@@ -1296,8 +1296,8 @@ fn dispel_by_category_parses_slot_rate_max() {
     assert!(
         matches!(
             cancellation.effects.as_slice(),
-            [skill::SkillEffect::DispelByCategory {
-                slot: skill::DispelSlot::Buff,
+            [skill::effects::SkillEffect::DispelByCategory {
+                slot: skill::effects::DispelSlot::Buff,
                 rate: 25,
                 max: 5
             }]
@@ -1309,8 +1309,8 @@ fn dispel_by_category_parses_slot_rate_max() {
     assert!(
         matches!(
             cleanse.effects.as_slice(),
-            [skill::SkillEffect::DispelByCategory {
-                slot: skill::DispelSlot::Debuff,
+            [skill::effects::SkillEffect::DispelByCategory {
+                slot: skill::effects::DispelSlot::Debuff,
                 rate: 100,
                 max: 10
             }]
@@ -1358,7 +1358,7 @@ fn physical_attack_range_parses_diff_and_per_bow_conditioned() {
     assert!(
         matches!(
             archery.effects.as_slice(),
-            [skill::SkillEffect::StatModifier(skill::StatModifierEffect { stat: Stat::PhysicalAttackRange, mode: StatModifierType::Diff, amount, weapon_condition, .. })]
+            [skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::PhysicalAttackRange, mode: StatModifierType::Diff, amount, weapon_condition, .. })]
                 if *amount == 50.0 && *weapon_condition != 0
         ),
         "DIFF +50, bow-conditioned: {:?}",
@@ -1368,7 +1368,7 @@ fn physical_attack_range_parses_diff_and_per_bow_conditioned() {
     assert!(
         matches!(
             rapid_fire.effects.as_slice(),
-            [skill::SkillEffect::StatModifier(skill::StatModifierEffect { stat: Stat::PhysicalAttackRange, mode: StatModifierType::Per, amount, weapon_condition, .. })]
+            [skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect { stat: Stat::PhysicalAttackRange, mode: StatModifierType::Per, amount, weapon_condition, .. })]
                 if *amount == -50.0 && *weapon_condition != 0
         ),
         "PER -50, bow-conditioned: {:?}",
@@ -1451,7 +1451,7 @@ fn skill_duration_list_overrides_abnormal_time() {
 /// enum in full, so every name the dist uses resolves.
 #[test]
 fn every_datapack_abnormal_visual_name_resolves() {
-    use crate::model::skill::abnormal_visual_client_id;
+    use crate::model::skill::abnormal::abnormal_visual_client_id;
     const ROOT: &str = crate::data::DIST_GAME;
     let dir = format!("{ROOT}data/stats/skills");
     let mut names = BTreeSet::new();

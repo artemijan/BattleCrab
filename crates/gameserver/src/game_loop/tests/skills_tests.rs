@@ -39,7 +39,9 @@ fn arm(world: &mut World, object_id: i32, item_id: i32) {
 /// are tested against synthetic `World` state, not real time).
 #[test]
 fn learn_and_cast_buff_skill_applies_and_expires() {
-    use model::skill::{AffectObject, AffectScope, Skill, SkillEffect, StatModifierEffect};
+    use model::skill::Skill;
+    use model::skill::effects::{SkillEffect, StatModifierEffect};
+    use model::skill::target::{AffectObject, AffectScope};
     use model::stats::{Stat, StatModifierType};
 
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
@@ -89,7 +91,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -2732,7 +2734,7 @@ fn single_target_debuff_resisted_leaves_target_and_reports() {
 #[test]
 fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
     use crate::game_loop::skills::effects::merge_defence_traits;
-    use model::skill::TraitType;
+    use model::skill::traits::TraitType;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2788,7 +2790,7 @@ fn a_magic_crit_dot_bursts_only_when_the_debuff_lands() {
         s.id = 9610;
         s.name = "Test Poison".into();
         s.magic_type = 1;
-        s.effects = vec![model::skill::SkillEffect::DamOverTime {
+        s.effects = vec![model::skill::effects::SkillEffect::DamOverTime {
             power: 5.0,
             ticks: 5,
             can_kill: false,
@@ -2907,7 +2909,7 @@ fn resisted_debuff_still_aggros_monster() {
 mod hate_effects {
     use super::*;
     use model::npc::{AggroList, NpcAi, NpcIntention};
-    use model::skill::SkillEffect;
+    use model::skill::effects::SkillEffect;
 
     const DECOY: i32 = 90001;
 
@@ -3263,7 +3265,9 @@ mod hate_effects {
 #[test]
 fn cure_poison_dispels_matching_poison_debuff() {
     use model::components::Buffs;
-    use model::skill::{OperateType, Skill, SkillEffect, TargetType};
+    use model::skill::Skill;
+    use model::skill::effects::SkillEffect;
+    use model::skill::target::{OperateType, TargetType};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -3282,7 +3286,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -3355,7 +3359,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -3469,10 +3473,9 @@ fn cure_poison_dispels_matching_poison_debuff() {
 mod dispel_by_category {
     use super::*;
     use model::components::Buffs;
-    use model::skill::{
-        AffectObject, AffectScope, DispelSlot, OperateType, Skill, SkillEffect, StatModifierEffect,
-        TargetType,
-    };
+    use model::skill::Skill;
+    use model::skill::effects::{DispelSlot, SkillEffect, StatModifierEffect};
+    use model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
     use model::stats::{Stat, StatModifierType};
 
     /// A minimal continuous skill — override `id`/`magic_type`/`effect_point`/
@@ -3487,7 +3490,7 @@ mod dispel_by_category {
             without_action: false,
             is_suicide_attack: false,
             icon: String::from("icon.skill0000"),
-            trait_type: model::skill::TraitType::None,
+            trait_type: model::skill::traits::TraitType::None,
             static_reuse: false,
             item_consume_id: 0,
             item_consume_count: 0,
@@ -4125,7 +4128,8 @@ fn synthetic_buff(
     abnormal_level: i32,
     magic_type: i32,
 ) -> Skill {
-    use model::skill::{Skill, SkillEffect, StatModifierEffect};
+    use model::skill::Skill;
+    use model::skill::effects::{SkillEffect, StatModifierEffect};
     use model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
@@ -4136,7 +4140,7 @@ fn synthetic_buff(
         without_action: false,
         is_suicide_attack: false,
         icon: String::from("icon.skill0000"),
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
@@ -6056,7 +6060,8 @@ fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
 /// nothing existed to make that claim fail.
 #[test]
 fn a_trait_resistance_lowers_the_lethal_chance() {
-    use model::skill::{SkillEffect, TraitType};
+    use model::skill::effects::SkillEffect;
+    use model::skill::traits::TraitType;
 
     let lethal = |resist: bool| {
         let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -6429,7 +6434,9 @@ fn inner_rhythm_discounts_a_real_cast_driven_through_the_admin_command() {
 fn npc_body_spoil_gate_only_for_sweeper() {
     use crate::network::server_packets::sm_ids;
     use model::components::Position;
-    use model::skill::{Skill, SkillEffect, TargetType};
+    use model::skill::Skill;
+    use model::skill::effects::SkillEffect;
+    use model::skill::target::TargetType;
 
     let (mut world, ..) = cast_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -6625,7 +6632,7 @@ fn a_charged_spiritshot_shortens_the_cast() {
     // …and a **channeled** skill ignores both: Java's factor is a flat 1, so
     // its cancel time is not divided by cast speed either.
     let mut channeled = skill.clone();
-    channeled.operate_type = crate::model::skill::OperateType::Channeling;
+    channeled.operate_type = crate::model::skill::target::OperateType::Channeling;
     let p = world
         .objects
         .get_component::<Player>(&3001)
@@ -6684,7 +6691,7 @@ fn a_below_thirty_percent_passive_only_counts_while_wounded() {
         .effects
         .iter()
         .find_map(|e| match e {
-            model::skill::SkillEffect::StatModifier(m)
+            model::skill::effects::SkillEffect::StatModifier(m)
                 if m.stat == Stat::PhysicalAttack && m.hp_percent > 0 =>
             {
                 Some((m.amount, m.hp_percent))

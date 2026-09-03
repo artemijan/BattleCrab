@@ -5,7 +5,9 @@ use super::*;
 
 use crate::data::zone_data::{EffectZoneParams, Zone, ZoneKind};
 use crate::model::components::Vitals;
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const PLAYER: i32 = 2001;
 const CID: u32 = 1;
@@ -16,7 +18,7 @@ fn zone_skill(id: i32, effects: Vec<SkillEffect>, abnormal: &str) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,

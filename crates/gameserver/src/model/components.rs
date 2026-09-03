@@ -963,7 +963,7 @@ pub struct Reuses(pub HashMap<i32, crate::model::SkillReuse>);
 /// Active buffs/debuffs (Java `EffectList`). Expiry is driven by the
 /// `Scheduler` (`ScheduledTask::BuffExpire`), not by anything here.
 #[derive(Component, Debug, Clone, Default)]
-pub struct Buffs(pub Vec<crate::model::skill::ActiveBuff>);
+pub struct Buffs(pub Vec<crate::model::skill::active_buff::ActiveBuff>);
 
 /// Java `CreatureStat`'s two modifier maps — buffs/gear push entries here;
 /// `recalculate_stats` folds them into `CombatStats`/`Speeds`.
@@ -1225,9 +1225,9 @@ pub struct InMovie {
 #[derive(Component, Debug, Clone, Default)]
 pub struct DefenceTraits {
     /// trait → summed resistance (0.30 = 30 % harder to land).
-    pub resist: HashMap<crate::model::skill::TraitType, f64>,
+    pub resist: HashMap<crate::model::skill::traits::TraitType, f64>,
     /// Traits the bearer cannot be affected by at all (Java's XML value ≥ 100).
-    pub invulnerable: std::collections::HashSet<crate::model::skill::TraitType>,
+    pub invulnerable: std::collections::HashSet<crate::model::skill::traits::TraitType>,
 }
 
 /// Java `CreatureStat._attackTraitValues` / `_attackTraits` — the attacker-side
@@ -1241,7 +1241,7 @@ pub struct DefenceTraits {
 #[derive(Component, Debug, Clone, Default)]
 pub struct AttackTraits {
     /// trait → `1.0 + Σ(amount / 100)`.
-    pub values: HashMap<crate::model::skill::TraitType, f64>,
+    pub values: HashMap<crate::model::skill::traits::TraitType, f64>,
 }
 
 /// Java `CreatureStat._mpConsumeStat` / `_reuseStat` — the per-`magicType`

@@ -5,7 +5,7 @@ use crate::game_loop::helpers::stat_add;
 use crate::game_loop::npc::npc_template;
 use crate::model::Player;
 use crate::model::skill::Skill;
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 use crate::world::World;
 /// `Formulas.calcBuffDebuffReflection` — the chance that `target` bounces this
 /// skill back at its caster.

@@ -538,7 +538,7 @@ impl MoveType {
     }
 }
 
-/// A condition narrowing *when* a [`StatModifierEffect`](crate::model::skill::StatModifierEffect)
+/// A condition narrowing *when* a [`StatModifierEffect`](crate::model::skill::effects::StatModifierEffect)
 /// contributes. Java keeps one map per kind on `CreatureStat`, each with its
 /// own merge function and identity — which is why these stay two maps on
 /// [`StatModifiers`](crate::model::components::StatModifiers) rather than one:

@@ -7,7 +7,8 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
 
-use crate::model::skill::{SkillEffect, effect_flag};
+use crate::model::skill::effect_flag;
+use crate::model::skill::effects::SkillEffect;
 use crate::model::stats::Stat;
 
 const CASTER: i32 = 9501;

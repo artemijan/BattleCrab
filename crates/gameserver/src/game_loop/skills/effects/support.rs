@@ -11,7 +11,7 @@ use crate::game_loop::net::broadcast;
 use crate::game_loop::{helpers, npc};
 use crate::model::components::CombatStats;
 use crate::model::formulas;
-use crate::model::skill::RestorationGroup;
+use crate::model::skill::effects::RestorationGroup;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
 use crate::world::World;
@@ -418,10 +418,10 @@ pub(crate) fn focus_momentum(world: &mut World, target_oid: i32, amount: i32, ma
 pub(crate) fn change_appearance(
     world: &mut World,
     target_oid: i32,
-    part: crate::model::skill::AppearancePart,
+    part: crate::model::skill::effects::AppearancePart,
     value: i32,
 ) {
-    use crate::model::skill::AppearancePart;
+    use crate::model::skill::effects::AppearancePart;
     let Some(p) = world
         .objects
         .get_component_mut::<crate::model::Player>(&target_oid)

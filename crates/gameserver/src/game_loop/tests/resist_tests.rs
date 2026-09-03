@@ -4,9 +4,9 @@ use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::helpers::stat_mul;
 use crate::game_loop::skills::effects::handle_buff_expire;
-use crate::model::skill::{
-    AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
-};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 use crate::model::stats::{Stat, StatModifierType};
 
 /// A stand-in attacker with no `AttackTraits` of its own — these tests are
@@ -21,7 +21,7 @@ fn base_skill(id: i32, effects: Vec<SkillEffect>) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -316,7 +316,7 @@ fn stun_resistance_lowers_a_shock_debuffs_land_rate() {
     use crate::game_loop::skills::effects::{
         calc_general_trait_bonus, merge_defence_traits, remove_defence_traits,
     };
-    use crate::model::skill::TraitType;
+    use crate::model::skill::traits::TraitType;
 
     let (mut world, ..) = cast_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -360,7 +360,7 @@ fn defence_traits_stack_and_100_means_invulnerable() {
     use crate::game_loop::skills::effects::{
         calc_general_trait_bonus, merge_defence_traits, remove_defence_traits,
     };
-    use crate::model::skill::TraitType;
+    use crate::model::skill::traits::TraitType;
 
     let (mut world, ..) = cast_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -401,7 +401,7 @@ fn defence_traits_stack_and_100_means_invulnerable() {
 #[test]
 fn only_the_resistable_trait_group_is_scaled() {
     use crate::game_loop::skills::effects::{calc_general_trait_bonus, merge_defence_traits};
-    use crate::model::skill::{TraitType, WeaknessTrait};
+    use crate::model::skill::traits::{TraitType, WeaknessTrait};
 
     let (mut world, ..) = cast_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -458,7 +458,7 @@ fn only_the_resistable_trait_group_is_scaled() {
 /// whose value is the percentage over 100, per level.
 #[test]
 fn stun_resistance_parses_its_per_level_percentages() {
-    use crate::model::skill::TraitType;
+    use crate::model::skill::traits::TraitType;
     let sd = dist::skills();
     for (level, pct) in [(1, 0.15), (2, 0.20), (3, 0.30), (4, 0.40)] {
         let s = sd.get(1259, level).expect("Stun Resistance");
@@ -484,7 +484,7 @@ fn stun_resistance_parses_its_per_level_percentages() {
 #[test]
 fn a_defence_trait_buff_installs_and_removes_its_resistance() {
     use crate::game_loop::skills::effects::calc_general_trait_bonus;
-    use crate::model::skill::TraitType;
+    use crate::model::skill::traits::TraitType;
 
     let (mut world, _db, _l) = cast_test_world();
     let mut buff = base_skill(

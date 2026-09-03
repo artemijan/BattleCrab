@@ -12,7 +12,8 @@
 use super::*;
 
 use crate::model::components::StatModifiers;
-use crate::model::skill::{SkillEffect, effect_flag};
+use crate::model::skill::effect_flag;
+use crate::model::skill::effects::SkillEffect;
 use crate::model::stats::Stat;
 
 use crate::game_loop::skills::effects::recharge_level_penalty;
@@ -35,11 +36,12 @@ fn cast(
     magic_level: i32,
     target: i32,
 ) {
-    use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
+    use crate::model::skill::Skill;
+    use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
     let skill = Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: skill_id,

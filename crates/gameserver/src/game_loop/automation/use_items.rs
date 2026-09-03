@@ -234,7 +234,7 @@ fn toggle(world: &mut World, player_oid: i32, command: &str, id: i32) {
                 .data
                 .skill_data
                 .get(id, known_level(world, player_oid, id).unwrap_or(1))
-                .is_some_and(|sk| sk.target_type == crate::model::skill::TargetType::Self_);
+                .is_some_and(|sk| sk.target_type == crate::model::skill::target::TargetType::Self_);
             let list = if is_buff { &mut s.buffs } else { &mut s.skills };
             if let Some(pos) = list.iter().position(|&x| x == id) {
                 list.remove(pos);

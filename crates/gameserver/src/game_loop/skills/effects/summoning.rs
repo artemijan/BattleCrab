@@ -44,7 +44,7 @@ pub(crate) fn summon_npc(
     // GROUND skills spawn at the stored world position; everything else at
     // the effected creature (`SummonNpc.instant`).
     let fallback = pos_of(world, target_oid).unwrap_or((0, 0, 0));
-    let (x, y, z) = if skill.target_type == crate::model::skill::TargetType::Ground {
+    let (x, y, z) = if skill.target_type == crate::model::skill::target::TargetType::Ground {
         world
             .objects
             .get_component::<crate::model::components::GroundSkillTarget>(&target_oid)

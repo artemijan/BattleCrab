@@ -32,7 +32,7 @@ fn orfen_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         id: PARALYSIS,
         level: 1,
         abnormal_time: 60,
-        effects: vec![model::skill::SkillEffect::BlockActions { conditional: false }],
+        effects: vec![model::skill::effects::SkillEffect::BlockActions { conditional: false }],
         ..Default::default()
     });
     world.data.skill_data.insert_for_test(Skill {
@@ -40,7 +40,7 @@ fn orfen_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         id: ORFEN_HEAL,
         level: 1,
         magic_type: 1,
-        effects: vec![model::skill::SkillEffect::Heal { power: 1000.0 }],
+        effects: vec![model::skill::effects::SkillEffect::Heal { power: 1000.0 }],
         ..Default::default()
     });
     (world, db, l)

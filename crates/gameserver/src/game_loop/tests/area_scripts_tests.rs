@@ -428,7 +428,7 @@ fn hot_springs_disease_escalates_with_the_victims_level() {
     // Victim already carries level 3 → the next proc casts level 4.
     world.objects.remove_component::<Casting>(&NPC_OID);
     let mut buffs = Buffs::default();
-    buffs.0.push(model::skill::ActiveBuff {
+    buffs.0.push(model::skill::active_buff::ActiveBuff {
         skill_id: MALARIA,
         skill_level: 3,
         slot: model::skill::BuffSlot::Uncapped,
@@ -1416,7 +1416,8 @@ fn the_sepulcher_entry_stamps_round_trip_through_global_variables() {
 #[test]
 fn tamed_beast_buffs_its_underbuffed_owner() {
     use crate::model::components::{Buffs, Casting};
-    use crate::model::skill::{ActiveBuff, BuffSlot};
+    use crate::model::skill::BuffSlot;
+    use crate::model::skill::active_buff::ActiveBuff;
 
     let (mut world, _db, _l) = combat_test_world();
     const TAMED: i32 = 16013;

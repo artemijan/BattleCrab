@@ -15,7 +15,7 @@ use crate::data::item_data::{
 };
 use crate::game_loop;
 use crate::model::components::Vitals;
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 
 const CASTER: i32 = 3001;
 const CID: u32 = 1;
@@ -524,7 +524,7 @@ fn the_blow_and_energy_paths_consult_the_shield_switch_too() {
 /// a perfect block caps it at exactly 1.
 #[test]
 fn magical_attack_range_consults_the_shield() {
-    use crate::model::skill::SkillEffect;
+    use crate::model::skill::effects::SkillEffect;
 
     let (mut world, victim) = shield_world();
     equip_shield(&mut world, victim);

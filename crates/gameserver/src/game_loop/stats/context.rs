@@ -17,7 +17,7 @@ use crate::model::Player;
 use crate::model::components;
 
 use crate::model::inventory::Inventory;
-use crate::model::skill::ActiveBuff;
+use crate::model::skill::active_buff::ActiveBuff;
 use crate::world::World;
 
 /// A resolved buff-editing borrow. Obtain one with [`with_stat_ctx`].

@@ -33,8 +33,8 @@ fn baium_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         id: ANTI_STRIDER,
         level: 1,
         abnormal_time: 60,
-        effects: vec![model::skill::SkillEffect::StatModifier(
-            model::skill::StatModifierEffect {
+        effects: vec![model::skill::effects::SkillEffect::StatModifier(
+            model::skill::effects::StatModifierEffect {
                 stat: Stat::RunSpeed,
                 mode: model::stats::StatModifierType::Diff,
                 amount: -50.0,

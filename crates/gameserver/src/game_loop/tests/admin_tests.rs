@@ -3747,7 +3747,7 @@ fn dismount_skill_reverts_gm_ride_transform() {
     assert!(
         dismount.effects.iter().any(|e| matches!(
             e,
-            model::skill::SkillEffect::DispelBySlot { dispel }
+            model::skill::effects::SkillEffect::DispelBySlot { dispel }
                 if dispel.iter().any(|(ty, lvl)| ty == "TRANSFORM" && *lvl < 0)
         )),
         "Dismount carries DispelBySlot TRANSFORM,-1, got {:?}",
@@ -5650,7 +5650,7 @@ fn getbuffs_follows_an_npc_target_and_a_name_argument() {
     on_packet(&mut world, 1, build_admin("buff 1068 1")); // Might, on self
     world.objects.add_components(
         &NPC_OID,
-        Buffs(vec![model::skill::ActiveBuff {
+        Buffs(vec![model::skill::active_buff::ActiveBuff {
             skill_id: 1204, // Wind Walk
             abnormal_type: "WIND_WALK".into(),
             abnormal_level: 1,
@@ -6846,7 +6846,7 @@ fn give_clan_skills_refuses_with_javas_two_distinct_messages() {
 fn stop_all_buffs_clears_timed_buffs_and_keeps_passives() {
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7831, 100);
-    let entry = |skill_id: i32, passive: bool| model::skill::ActiveBuff {
+    let entry = |skill_id: i32, passive: bool| model::skill::active_buff::ActiveBuff {
         displayed: !passive,
         skill_id,
         abnormal_type: format!("T{skill_id}"),

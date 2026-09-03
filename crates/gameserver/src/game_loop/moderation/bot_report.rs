@@ -343,7 +343,7 @@ pub(crate) fn is_action_blocked(world: &World, player_oid: i32, action_id: i32) 
             .get(buff.skill_id, 1)
             .is_some_and(|skill| {
                 skill.effects.iter().any(|e| match e {
-                    crate::model::skill::SkillEffect::BlockAction { blocked_actions } => {
+                    crate::model::skill::effects::SkillEffect::BlockAction { blocked_actions } => {
                         blocked_actions.contains(&action_id)
                     }
                     _ => false,

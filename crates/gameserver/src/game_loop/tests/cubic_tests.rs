@@ -48,7 +48,7 @@ fn register(world: &mut World, t: CubicTemplate) {
         self_continuous: false,
         id: CUBIC_SKILL,
         level: 1,
-        effects: vec![model::skill::SkillEffect::MagicalAttack { power: 50.0 }],
+        effects: vec![model::skill::effects::SkillEffect::MagicalAttack { power: 50.0 }],
         ..Default::default()
     };
     world.data.skill_data.insert_for_test(skill);

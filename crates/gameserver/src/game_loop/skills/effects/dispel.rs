@@ -7,7 +7,7 @@ use super::handle_buff_expire;
 use crate::game_loop::helpers::is_dead;
 use crate::model::components::StatModifiers;
 use crate::model::skill::BuffSlot;
-use crate::model::skill::DispelSlot;
+use crate::model::skill::effects::DispelSlot;
 use crate::model::skill::Skill;
 use crate::world::World;
 /// `DispelBySlotMyself.instant` — same shape as `DispelBySlot` with two

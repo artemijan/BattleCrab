@@ -12,7 +12,7 @@ use super::*;
 use crate::model::components::StatModifiers;
 use crate::model::formulas::{self, CritDamage};
 use crate::model::movement::Position;
-use crate::model::skill::SkillEffect;
+use crate::model::skill::effects::SkillEffect;
 use crate::model::stats::{Stat, StatQualifier};
 
 const DIST: &str = crate::data::DIST_GAME;
@@ -241,7 +241,7 @@ fn position_qualified_stats_multiply_from_one() {
 
     model::apply_modifier(
         &mut mods,
-        &model::skill::StatModifierEffect {
+        &model::skill::effects::StatModifierEffect {
             stat: Stat::CriticalDamage,
             mode: model::stats::StatModifierType::Per,
             amount: 30.0,

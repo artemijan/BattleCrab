@@ -6,7 +6,9 @@ use super::*;
 use crate::data::npc_ai_skills::{AiSkillScope, NpcAiSkillIndex};
 use crate::data::npc_data::AiType;
 use crate::model::components::{Buffs, Casting, Vitals};
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const PLAYER: i32 = 2001;
 const CID: u32 = 1;
@@ -19,7 +21,7 @@ fn npc_skill(id: i32, name: &str, effects: Vec<SkillEffect>) -> Skill {
     Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -408,7 +410,7 @@ fn mob_does_not_recast_a_buff_it_already_has() {
     // Pre-load the abnormal at the same level.
     world.objects.add_components(
         &NPC_OID,
-        Buffs(vec![model::skill::ActiveBuff {
+        Buffs(vec![model::skill::active_buff::ActiveBuff {
             skill_id: SELF_BUFF,
             abnormal_type: "MIGHT".into(),
             abnormal_level: 1,

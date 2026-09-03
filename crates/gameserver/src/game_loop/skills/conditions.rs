@@ -150,14 +150,14 @@ pub(crate) fn passive_stat_gate(
     items: &crate::data::item_data::ItemData,
 ) -> bool {
     skill.passive_conditions.iter().all(|c| match c {
-        skill::SkillCondition::EquipWeapon { mask } => {
+        skill::condition::SkillCondition::EquipWeapon { mask } => {
             weapon_mask_of(inventory, items).is_some_and(|(equipped, _)| equipped & mask != 0)
         }
-        skill::SkillCondition::HandedWeapon { mask, two_handed } => {
+        skill::condition::SkillCondition::HandedWeapon { mask, two_handed } => {
             weapon_mask_of(inventory, items)
                 .is_some_and(|(equipped, lr)| equipped & mask != 0 && lr == *two_handed)
         }
-        skill::SkillCondition::EquipShield => {
+        skill::condition::SkillCondition::EquipShield => {
             inventory.paperdoll_item_id(PaperdollSlot::LHand) != 0
                 && items.armor_type(inventory.paperdoll_item_id(PaperdollSlot::LHand))
                     == crate::data::item_data::ArmorType::Shield
@@ -219,7 +219,7 @@ pub(crate) fn check_for_test(
     world: &World,
     caster: i32,
     target: i32,
-    conds: &[skill::SkillCondition],
+    conds: &[skill::condition::SkillCondition],
 ) -> bool {
     let skill = skill::Skill::default();
     conds
@@ -232,28 +232,28 @@ fn eval(
     caster: i32,
     _skill: &skill::Skill,
     target: i32,
-    cond: &skill::SkillCondition,
+    cond: &skill::condition::SkillCondition,
 ) -> Result<(), Refusal> {
     let ok = |b: bool| if b { Ok(()) } else { Err(Refusal(None)) };
     match cond {
         // ---- equipment ---------------------------------------------------
-        skill::SkillCondition::EquipWeapon { mask } => {
+        skill::condition::SkillCondition::EquipWeapon { mask } => {
             ok(weapon_mask(world, caster).is_some_and(|(equipped, _)| equipped & mask != 0))
         }
-        skill::SkillCondition::EquipShield => ok(has_shield(world, caster)),
+        skill::condition::SkillCondition::EquipShield => ok(has_shield(world, caster)),
         // Java returns on the **first** type match instead of continuing the
         // loop, so a listed weapon held in the wrong number of hands fails
         // rather than falling through to another entry. With a mask the two
         // are equivalent: match the type, then test the hand count.
-        skill::SkillCondition::HandedWeapon { mask, two_handed } => ok(weapon_mask(world, caster)
+        skill::condition::SkillCondition::HandedWeapon { mask, two_handed } => ok(weapon_mask(world, caster)
             .is_some_and(|(equipped, lr_hand)| equipped & mask != 0 && lr_hand == *two_handed)),
         // ---- caster resources --------------------------------------------
-        skill::SkillCondition::Encumbered {
+        skill::condition::SkillCondition::Encumbered {
             weight_percent,
             slots_percent,
         } => ok(free_percent(world, caster)
             .is_some_and(|(slots, weight)| slots >= *slots_percent && weight >= *weight_percent)),
-        skill::SkillCondition::RemainVital {
+        skill::condition::SkillCondition::RemainVital {
             vital,
             amount,
             percent,
@@ -270,9 +270,9 @@ fn eval(
                 vital_percent(world, oid, *vital).is_some_and(|cur| percent.test(cur, *amount))
             }))
         }
-        skill::SkillCondition::EnergySaved { amount } => ok(charges(world, caster) >= *amount),
+        skill::condition::SkillCondition::EnergySaved { amount } => ok(charges(world, caster) >= *amount),
         // The inverse, and the one with its own message: refuse *at* the cap.
-        skill::SkillCondition::EnergyMax { amount } => {
+        skill::condition::SkillCondition::EnergyMax { amount } => {
             if charges(world, caster) >= *amount {
                 Err(Refusal(Some(RefusalLine::Sm(
                     sm_ids::YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY,
@@ -282,20 +282,20 @@ fn eval(
             }
         }
         // ---- caster state -------------------------------------------------
-        skill::SkillCondition::CanEscape => ok(!super::abnormal::cannot_escape(world, caster)),
-        skill::SkillCondition::InsideSiegeZone => ok(in_zone(world, caster, ZoneKind::Siege)),
-        skill::SkillCondition::NotInUnderwater => ok(!in_zone(world, caster, ZoneKind::Water)),
-        skill::SkillCondition::Mounted { kind } => {
+        skill::condition::SkillCondition::CanEscape => ok(!super::abnormal::cannot_escape(world, caster)),
+        skill::condition::SkillCondition::InsideSiegeZone => ok(in_zone(world, caster, ZoneKind::Siege)),
+        skill::condition::SkillCondition::NotInUnderwater => ok(!in_zone(world, caster, ZoneKind::Water)),
+        skill::condition::SkillCondition::Mounted { kind } => {
             let want = match kind {
                 skill::MountKind::Strider => MOUNT_STRIDER,
                 skill::MountKind::Wyvern => MOUNT_WYVERN,
             };
             ok(helpers::player(world, caster).is_some_and(|p| p.mount_type == want))
         }
-        skill::SkillCondition::CheckSex { is_female } => {
+        skill::condition::SkillCondition::CheckSex { is_female } => {
             ok(helpers::player(world, caster).is_some_and(|p| p.is_female == *is_female))
         }
-        skill::SkillCondition::SocialClass { social_class } => {
+        skill::condition::SkillCondition::SocialClass { social_class } => {
             ok(helpers::player(world, caster).is_some_and(|p| {
                 if p.clan_id == 0 {
                     return false;
@@ -305,7 +305,7 @@ fn eval(
                 leader || (*social_class != -1 && p.pledge_type >= *social_class)
             }))
         }
-        skill::SkillCondition::CheckLevel { min, max, affect } => {
+        skill::condition::SkillCondition::CheckLevel { min, max, affect } => {
             let subject = match affect {
                 skill::AffectType::Caster => Some(caster),
                 // Java's TARGET leg requires a **player**, unlike the vital one.
@@ -316,15 +316,15 @@ fn eval(
                 .and_then(|oid| helpers::level_of(world, oid))
                 .is_some_and(|lvl| lvl >= *min && lvl <= *max))
         }
-        skill::SkillCondition::CanTransform => can_transform(world, caster),
-        skill::SkillCondition::CanSummon => ok(can_summon(world, caster)),
-        skill::SkillCondition::CanSummonPet => can_summon_pet(world, caster),
+        skill::condition::SkillCondition::CanTransform => can_transform(world, caster),
+        skill::condition::SkillCondition::CanSummon => ok(can_summon(world, caster)),
+        skill::condition::SkillCondition::CanSummonPet => can_summon_pet(world, caster),
         // `caster.isPlayer() && !isSubClassActive()`.
-        skill::SkillCondition::OpMainjob => {
+        skill::condition::SkillCondition::OpMainjob => {
             ok(helpers::player(world, caster).is_some_and(|p| p.class_index == 0))
         }
         // `transformId > 0 ? getTransformationId() != transformId : !isTransformed()`.
-        skill::SkillCondition::CannotUseInTransform { transform_id } => {
+        skill::condition::SkillCondition::CannotUseInTransform { transform_id } => {
             ok(helpers::player(world, caster).is_some_and(|p| {
                 if *transform_id > 0 {
                     p.transform_id != *transform_id
@@ -333,46 +333,46 @@ fn eval(
                 }
             }))
         }
-        skill::SkillCondition::OpPledge { level } => ok(helpers::player(world, caster)
+        skill::condition::SkillCondition::OpPledge { level } => ok(helpers::player(world, caster)
             .and_then(|p| world.clans.get(&p.clan_id))
             .is_some_and(|c| c.level >= *level)),
-        skill::SkillCondition::OpCheckResidence {
+        skill::condition::SkillCondition::OpCheckResidence {
             residence_ids,
             is_within,
         } => ok(check_residence(world, caster, residence_ids, *is_within)),
         // Java adds `isAlikeDead` and checks `inObserverMode` twice; the
         // duplicate is dropped, the rest is the summon gate minus teleporting.
-        skill::SkillCondition::CanSummonCubic => {
+        skill::condition::SkillCondition::CanSummonCubic => {
             ok(!helpers::is_dead(world, caster) && can_summon(world, caster))
         }
-        skill::SkillCondition::CanSummonSiegeGolem | skill::SkillCondition::BuildCamp => {
+        skill::condition::SkillCondition::CanSummonSiegeGolem | skill::condition::SkillCondition::BuildCamp => {
             ok(siege_deployable(world, caster))
         }
-        skill::SkillCondition::CallPc => call_pc(world, caster),
-        skill::SkillCondition::CanUntransform => can_untransform(world, caster),
+        skill::condition::SkillCondition::CallPc => call_pc(world, caster),
+        skill::condition::SkillCondition::CanUntransform => can_untransform(world, caster),
         // ---- target state --------------------------------------------------
-        skill::SkillCondition::TargetPc => ok(is_player(world, target)),
-        skill::SkillCondition::TargetRace { race } => ok(race_of(world, target) == Some(*race)),
-        skill::SkillCondition::TargetMyParty { include_me } => {
+        skill::condition::SkillCondition::TargetPc => ok(is_player(world, target)),
+        skill::condition::SkillCondition::TargetRace { race } => ok(race_of(world, target) == Some(*race)),
+        skill::condition::SkillCondition::TargetMyParty { include_me } => {
             ok(target_in_my_party(world, caster, target, *include_me))
         }
-        skill::SkillCondition::ConsumeBody => {
+        skill::condition::SkillCondition::ConsumeBody => {
             if is_consumable_corpse(world, target) {
                 Ok(())
             } else {
                 Err(Refusal(Some(RefusalLine::Sm(sm_ids::INVALID_TARGET))))
             }
         }
-        skill::SkillCondition::Unlock => ok(is_door(world, target) || is_chest(world, target)),
-        skill::SkillCondition::Resurrection => resurrection(world, caster, target),
-        skill::SkillCondition::SkillAcquire {
+        skill::condition::SkillCondition::Unlock => ok(is_door(world, target) || is_chest(world, target)),
+        skill::condition::SkillCondition::Resurrection => resurrection(world, caster, target),
+        skill::condition::SkillCondition::SkillAcquire {
             skill_id,
             has_learned,
         } => ok(knows_skill(world, target, *skill_id) == *has_learned),
         // `OpSkill` — the *caster's* own book, and the level must match
         // exactly. The negative form is "not at that level", not "absent", so
         // an Ancient Book stays usable at every level below the one it grants.
-        skill::SkillCondition::SkillKnown {
+        skill::condition::SkillCondition::SkillKnown {
             skill_id,
             skill_level,
             has_learned,
@@ -385,16 +385,16 @@ fn eval(
             ok(at_level == *has_learned)
         }
         // ---- residences ----------------------------------------------------
-        skill::SkillCondition::Home { residence } => ok(owns_residence(world, caster, *residence)),
+        skill::condition::SkillCondition::Home { residence } => ok(owns_residence(world, caster, *residence)),
         // ---- target identity -----------------------------------------------
-        skill::SkillCondition::TargetDoor { door_ids } => {
+        skill::condition::SkillCondition::TargetDoor { door_ids } => {
             ok(is_door(world, target) && door_ids.contains(&template_id_of(world, target)))
         }
         // Java re-reads `caster.getTarget()` here for a player caster rather
         // than trusting the resolved target — for a `SELF` skill like Nectar
         // (2005) those are different objects, and it is the *selection* the
         // condition is about.
-        skill::SkillCondition::TargetNpc { npc_ids } => {
+        skill::condition::SkillCondition::TargetNpc { npc_ids } => {
             let actual = if is_player(world, caster) {
                 world
                     .objects
@@ -408,17 +408,17 @@ fn eval(
                     && npc_ids.contains(&template_id_of(world, t))
             }))
         }
-        skill::SkillCondition::Companion { kind } => ok(match kind {
-            skill::CompanionKind::Pet => is_pet(world, target),
+        skill::condition::SkillCondition::Companion { kind } => ok(match kind {
+            skill::condition::CompanionKind::Pet => is_pet(world, target),
             // `caster.getServitor(target.getObjectId()) != null` — *my*
             // servitor, not merely any summon.
-            skill::CompanionKind::MySummon => {
+            skill::condition::CompanionKind::MySummon => {
                 super::super::servitor::servitor_of(world, caster) == Some(target)
             }
         }),
         // `OpAlignment` — `LAWFUL` is reputation >= 0, `CHAOTIC` below it. The
         // `TARGET` form requires an actual player; a monster fails it.
-        skill::SkillCondition::Alignment { affect, chaotic } => {
+        skill::condition::SkillCondition::Alignment { affect, chaotic } => {
             let test = |oid: i32| {
                 world
                     .objects
@@ -436,7 +436,7 @@ fn eval(
             })
         }
         // ---- the pre-G34 hold-out -------------------------------------------
-        skill::SkillCondition::ExistNpc(c) => {
+        skill::condition::SkillCondition::ExistNpc(c) => {
             let found = super::cast::op_exist_npc_around(world, caster, c);
             ok(if found { c.is_around } else { !c.is_around })
         }
@@ -450,8 +450,8 @@ fn eval(
 /// fallback that `getTeleToLocation` allows, so a defender who owns no castle
 /// is refused the blessed scroll even while standing on the ground it would
 /// have sent them to.
-fn owns_residence(world: &World, caster: i32, residence: skill::ResidenceType) -> bool {
-    use crate::model::skill::ResidenceType;
+fn owns_residence(world: &World, caster: i32, residence: skill::condition::ResidenceType) -> bool {
+    use crate::model::skill::condition::ResidenceType;
     let Some(clan_id) = clans::clan_of(world, caster) else {
         return false;
     };

@@ -44,7 +44,8 @@ use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;
 use crate::model::components::{Position, RegionCell};
-use crate::model::skill::{AffectObject, AffectScope, Skill, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::target::{AffectObject, AffectScope, TargetType};
 use crate::world::{World, regions_adjacent};
 
 /// Resolve the full set of creatures a cast lands on.

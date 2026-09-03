@@ -1,7 +1,7 @@
 use super::*;
 use crate::game_loop::character::inventory;
 use crate::game_loop::client::user_commands;
-use crate::model::skill::{AffectObject, AffectScope};
+use crate::model::skill::target::{AffectObject, AffectScope};
 
 /// `showTeleports` builds the button list: the fee suffix shows only above
 /// the free-teleport level (`shouldPayFee`/`calculateFee`), the button
@@ -211,7 +211,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         without_action: false,
-        trait_type: model::skill::TraitType::None,
+        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 2099,
@@ -248,8 +248,8 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         can_be_dispelled: true,
         is_debuff: false,
         stay_after_death: false,
-        effects: vec![model::skill::SkillEffect::Escape {
-            dest: model::skill::EscapeDest::Town,
+        effects: vec![model::skill::effects::SkillEffect::Escape {
+            dest: model::skill::effects::EscapeDest::Town,
         }],
         ..Default::default()
     });
@@ -346,8 +346,8 @@ fn unstuck_says_nothing_when_the_cast_is_refused() {
         magic_type: 2, // static: the forced hit time is used verbatim
         hit_time: 300_000,
         mp_initial_consume: 50,
-        effects: vec![model::skill::SkillEffect::Escape {
-            dest: model::skill::EscapeDest::Town,
+        effects: vec![model::skill::effects::SkillEffect::Escape {
+            dest: model::skill::effects::EscapeDest::Town,
         }],
         ..Default::default()
     });

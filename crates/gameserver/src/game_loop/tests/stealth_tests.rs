@@ -10,7 +10,8 @@
 
 use super::*;
 
-use crate::model::skill::{SkillEffect, effect_flag};
+use crate::model::skill::effect_flag;
+use crate::model::skill::effects::SkillEffect;
 
 const PLAYER: i32 = 5001;
 const CID: u32 = 1;

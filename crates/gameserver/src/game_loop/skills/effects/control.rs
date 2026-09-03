@@ -998,7 +998,7 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
     {
         return;
     }
-    if skill.target_type != crate::model::skill::TargetType::Enemy {
+    if skill.target_type != crate::model::skill::target::TargetType::Enemy {
         return;
     }
     // `effected.getActingPlayer()` — the branch is player-only; a servitor

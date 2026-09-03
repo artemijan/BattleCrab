@@ -754,7 +754,7 @@ fn the_spawn_path_rolls_the_lottery_and_applies_the_multipliers() {
 /// condition against the template weapon, armor conditions stay false.
 #[test]
 fn npc_weapon_mastery_needs_the_template_weapon() {
-    use crate::model::skill::{SkillEffect, StatModifierEffect};
+    use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
 
     let (mut world, ..) = cast_test_world();

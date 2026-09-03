@@ -6,7 +6,8 @@ use super::*;
 
 use crate::game_loop::skills::affect::targets_affected;
 use crate::model::components::Position;
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
+use crate::model::skill::Skill;
+use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const CASTER: i32 = 2001;
 const CID: u32 = 1;

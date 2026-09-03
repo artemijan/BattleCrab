@@ -18,10 +18,10 @@ use crate::game_loop::{helpers, skills};
 
 use crate::model::components::Buffs;
 use crate::model::formulas;
-use crate::model::skill::ActiveBuff;
+use crate::model::skill::active_buff::ActiveBuff;
 use crate::model::skill::Skill;
-use crate::model::skill::SkillEffect;
-use crate::model::skill::abnormal_type_client_id;
+use crate::model::skill::effects::SkillEffect;
+use crate::model::skill::abnormal::abnormal_type_client_id;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -244,7 +244,7 @@ pub(crate) fn apply_continuous_effects(
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
         // message so the outcome line reflects it and the roll order stays stable.
         let resisted = rate <= world.roll(100) as f64;
-        if skill.affect_scope == crate::model::skill::AffectScope::Single {
+        if skill.affect_scope == crate::model::skill::target::AffectScope::Single {
             // Two of this server's own messages (ids 9000/9001), so the client
             // renders and colours them like any other rather than receiving a
             // sentence we formatted. They only display once the client table
@@ -378,7 +378,7 @@ pub(crate) fn apply_continuous_effects(
     // instant-only debuff does not accrue; `increase_resist_level` filters the
     // `NONE` property and the can't-accrue targets (every player on this dist).
     if skill.is_debuff
-        && (skill.is_continuous || skill.operate_type == crate::model::skill::OperateType::Toggle)
+        && (skill.is_continuous || skill.operate_type == crate::model::skill::target::OperateType::Toggle)
     {
         crate::game_loop::stats::basic_property::increase_resist_level(
             world,

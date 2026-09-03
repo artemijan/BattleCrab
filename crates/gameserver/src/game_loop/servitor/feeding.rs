@@ -205,7 +205,7 @@ fn apply_food_skill(world: &mut World, pet_oid: i32, skill_id: i32, skill_level:
         return;
     };
     for effect in skill.effects.clone() {
-        if let crate::model::skill::SkillEffect::Feed { normal, .. } = effect {
+        if let crate::model::skill::effects::SkillEffect::Feed { normal, .. } = effect {
             apply_feed(world, pet_oid, normal);
         }
     }
