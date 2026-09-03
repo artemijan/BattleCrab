@@ -1,11 +1,12 @@
-# Remaining-work Roadmap (G14 → G33)
+# Roadmap (G14 → G33) — historical
 
-> **Historical.** Every milestone below has since landed, and the ✅/🚧 marks in
+> **Historical, and finished.** The porting phase closed on 2026-09-03: every
+> milestone below has since landed, and the ✅/🚧 marks in
 > this file were not all updated as that happened — several rows still say 🚧
 > about work that is complete. **Do not read status from this file.**
 > [PORTING_STATUS.md](PORTING_STATUS.md) is the status table; the
 > `TODO(<tag>)` markers in the source — enforced by
-> `deferral_markers_match_the_recorded_inventory`, and currently none — are the
+> `deferral_markers_match_the_recorded_inventory`, and currently one — are the
 > enforced list of what is genuinely missing. What keeps its value here is the *decomposition* — how the work was
 > broken up, what each milestone depended on, and above all the **scope gate**
 > that defined what is out of scope.

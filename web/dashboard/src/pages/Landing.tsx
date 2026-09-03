@@ -22,8 +22,8 @@ function ProjectStatus() {
   return (
     <section className="animate-rise">
       <Panel className="p-6 sm:p-7">
-        {/* The next milestone and its date are not repeated here: each phase
-            below already carries its own chip, two lines away. */}
+        {/* The next milestone and its chip are not repeated here: each phase
+            below already carries its own, two lines away. */}
         <h2 className="text-xl font-bold">Where the project is</h2>
 
         <ol className="mt-5 space-y-4">
@@ -62,7 +62,9 @@ function ProjectStatus() {
               </p>
               <p className="mt-1 text-sm/relaxed  text-(--text-muted)">
                 The target is a server steady enough to play properly, with the rest of the
-                Interlude Classic content in place.
+                Interlude Classic content in place. There is no date on it: the content is all
+                ported and what is left is testing, so the beta arrives when the bugs stop turning
+                up rather than on a day we picked in advance.
               </p>
             </div>
           </li>

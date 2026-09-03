@@ -16,6 +16,7 @@ use crate::character::CharData;
 use crate::data::GameData;
 use crate::db;
 use crate::game_loop::combat::pvp;
+use crate::game_loop::net::broadcast;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Position};
@@ -191,7 +192,7 @@ pub fn revalidate_zone(world: &mut World, object_id: i32) {
 }
 
 pub fn broadcast_including_self(world: &World, object_id: i32, packet: &[u8]) {
-    super::helpers::broadcast_including_self(world, object_id, packet);
+    broadcast::broadcast_including_self(world, object_id, packet);
 }
 
 /// A `CharData` with every field a bench player needs and nothing else —
@@ -216,6 +217,7 @@ fn bench_char(object_id: i32, name: &str) -> CharData {
         z: 3,
         exp: 0,
         sp: 0,
+        lost_exp_on_death: 0,
         reputation: 0,
         pk_kills: 0,
         raidboss_points: 0,

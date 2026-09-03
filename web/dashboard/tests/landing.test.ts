@@ -156,8 +156,13 @@ describe("landing page calls to action", () => {
 
     expect(body).toContain(STATUS.phase);
     expect(body).toContain(STATUS.next);
-    // The date has to be here too — "open beta soon" is not a status.
+    // And the chip beside it, whether that is a month or the undated "Soon"
+    // the testing phase currently warrants — a milestone with nothing next to
+    // it reads as a wish rather than a plan. What keeps an undated chip honest
+    // is the sentence under it saying why there is no date, so that is checked
+    // too — "soon" on its own is not a status.
     expect(body).toContain(STATUS.nextWhen);
+    expect(body).toContain("There is no date on it");
     // And that it is playable today, which "alpha" alone does not imply.
     expect(body).toContain("open to everyone");
   });

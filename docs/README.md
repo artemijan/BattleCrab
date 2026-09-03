@@ -1,10 +1,18 @@
 # Documentation
 
+> **Where the project is.** The port is finished — every login milestone
+> (M0–M5) and every game milestone (G0–G34) landed, and the parity sweeps that
+> followed them are closed. The project is now in its **testing phase**: play
+> the server, find where it diverges from Java, fix it with a test that fails
+> without the fix. Nothing in this directory describes work still to be ported;
+> [PORTING_STATUS.md](PORTING_STATUS.md) is the record of what the port did,
+> not a plan.
+
 ## Start here
 
 | Document | What it answers |
 |---|---|
-| [PORTING_STATUS.md](PORTING_STATUS.md) | **What is ported, what is partial, what never will be.** One table for the whole port. |
+| [PORTING_STATUS.md](PORTING_STATUS.md) | **What was ported, what is partial, what never will be.** One table for the whole port, plus the parity sweeps that audited it. |
 | [THREADING_MODEL.md](THREADING_MODEL.md) | How the server is threaded, why it was designed that way, and what it costs. |
 | [PROJECT_LAYOUT.md](PROJECT_LAYOUT.md) | Where code lives and where new code should go. Conventions. |
 | [PROGRESS.md](PROGRESS.md) | The dated journal — what landed, when, and what broke on the way. Long. |
@@ -44,7 +52,7 @@ Prose about what remains has drifted into fiction twice here, both times
 claiming work was outstanding that had already shipped. When a document and the
 code disagree, the code wins. The `TODO(<tag>)` markers in the source are the
 one status artefact enforced by a test
-(`deferral_markers_match_the_recorded_inventory`, currently expecting **none**)
-— prefer them to any sentence written by hand, including the ones in this
-directory. `DEFERRALS.md` used to inventory them and was deleted on 2026-08-07
+(`deferral_markers_match_the_recorded_inventory`, currently expecting exactly
+one: `TODO(antharas-cc)`) — prefer them to any sentence written by hand,
+including the ones in this directory. `DEFERRALS.md` used to inventory them and was deleted on 2026-08-07
 once the inventory emptied; `PORTING_STATUS.md` says how to read it out of git.

@@ -47,17 +47,33 @@ matter.
 
 ## Status
 
+**The port is done. The project is in its testing phase.**
+
 | Component | Status |
 |---|---|
-| Login server | ✅ Feature-complete, interop-verified against the unmodified Java game server |
-| Game server | ✅ All milestones G0–G34 complete — world, combat, skills & effects, quests, clans, sieges, olympiad, grand bosses, instances, pets & summons, fishing, events, mail & community board, and the GM command system |
+| Login server | ✅ **Ported** — feature-complete, interop-verified against the unmodified Java game server |
+| Game server | ✅ **Ported** — all milestones G0–G34 complete: world, combat, skills & effects, quests, clans, sieges, olympiad, grand bosses, instances, pets & summons, fishing, events, mail & community board, and the GM command system |
+| Now | 🧪 **Testing & fixing** — playing the server, finding where it diverges from Java, fixing what turns up |
 
-"Complete" means each milestone's gate was met and verified against the Java
+"Ported" means each milestone's gate was met and verified against the Java
 server on the same database and client. Narrow behaviours deliberately skipped
-inside shipped features are marked in the code and counted — **none remain** as
-of 2026-08-07, and a test fails the build if a new one appears without being
-recorded. Start at **[docs/PORTING_STATUS.md](docs/PORTING_STATUS.md)** for the
-full picture of what is ported, partial, and deliberately out of scope.
+inside shipped features are marked in the code and counted — **one** remains
+(`TODO(antharas-cc)`), and a test fails the build if a new one appears without
+being recorded.
+
+**What the testing phase is.** No further subsystems are planned; the backlog is
+now defects. Work arrives one of three ways — someone plays
+[battlecrab.com](https://battlecrab.com) and reports something, a systematic
+sweep diffs one axis of the port against the Java tree (the formula, effect
+handler, targeting, roll, reward and persistence sweeps in
+[PORTING_STATUS.md](docs/PORTING_STATUS.md) are the pattern), or a
+[GitHub issue](https://github.com/artemijan/BattleCrab/issues) is filed — and
+leaves as a fix with a test that fails without it. Bug reports and reproduction
+steps are the most useful contribution right now.
+
+[docs/PORTING_STATUS.md](docs/PORTING_STATUS.md) is the record of what was
+ported, what is partial, and what is deliberately out of scope; it is a
+reference for the finished port rather than a plan for work ahead.
 
 ## Documentation
 

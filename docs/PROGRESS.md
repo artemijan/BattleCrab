@@ -1,12 +1,20 @@
-# l2r_interlude — Milestone Progress & State
+# l2r_interlude — Progress journal
 
-Living status tracker for the Java→Rust rewrite. Plans:
-`PLAN_LOGIN_SERVER.md` (login, M0–M5) and
-`PLAN_GAME_SERVER.md` (game, G0–G14). Architecture:
-[CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md),
-[JAVA_TO_RUST_CHALLENGES.md](JAVA_TO_RUST_CHALLENGES.md).
+The dated record of what landed and what broke on the way. It began as the
+milestone tracker for the Java→Rust port; **that port is complete, and the
+porting phase was declared closed on 2026-09-03**, so the entries from here on
+are the testing phase — defects found by playing the server or by one more
+parity sweep, and the fixes for them. Status belongs in
+[PORTING_STATUS.md](PORTING_STATUS.md); architecture in
+[CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) and
+[JAVA_TO_RUST_CHALLENGES.md](JAVA_TO_RUST_CHALLENGES.md). The `PLAN_*.md`
+documents this file used to cite are deleted — the
+[retired-plan index](PORTING_STATUS.md#retired-plans) says how to read one out
+of git.
 
-**Legend:** ✅ done · 🚧 in progress · ⏳ not started.
+**Legend:** ✅ done · 🚧 in progress · ⏳ not started. The milestone snapshot
+below is frozen: every row is ✅, and the 🚧/⏳ marks that survive inside a row's
+prose describe the state at the time it was written, not today.
 
 **Porting convention — scoped-out behavior gets a TODO at the site.** When a
 port intentionally skips part of the Java behavior (side effect deferred to a

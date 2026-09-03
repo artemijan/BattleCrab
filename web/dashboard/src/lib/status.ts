@@ -1,10 +1,17 @@
 /**
  * Where the project is, and what comes next.
  *
- * `nextWhen` is an absolute month rather than "in a month" on purpose. A
- * relative phrase keeps reading as true forever and quietly turns into a lie
- * the day nobody updates it; a named month visibly goes stale, which is what
- * prompts someone to fix it. Set 2026-07-21, targeting one month out.
+ * `nextWhen` deliberately carries **no date**. It named a month until
+ * 2026-09-03, on the reasoning that a relative phrase keeps reading as true
+ * forever while a named month visibly goes stale and prompts someone to fix
+ * it. That still holds — but it assumed the date was knowable. The port is
+ * finished and the project is in its testing phase, so what stands between
+ * here and open beta is a bug count nobody has yet: promising a month would be
+ * inventing one. The panel copy on the landing page says as much rather than
+ * leaving "Soon" to stand on its own.
+ *
+ * Put a month back the moment there is a real one — and when that happens the
+ * old reasoning applies again, so name it here rather than saying "soon".
  *
  * # Updating the phase
  *
@@ -23,5 +30,5 @@ export const STATUS = {
   /** Open to anyone — no invite, no key, no application. */
   isOpen: true,
   next: "Open beta",
-  nextWhen: "August 2026",
+  nextWhen: "Soon",
 } as const;

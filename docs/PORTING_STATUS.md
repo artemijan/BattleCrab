@@ -1,4 +1,21 @@
-# Porting status — what is ported, what is partial, what is not
+# Porting status — what was ported, what is partial, what is not
+
+> **The porting phase is closed (2026-09-03).** Every milestone — login M0–M5,
+> game G0–G34 — is ✅, the marker inventory is down to a single recorded entry,
+> the measured-gap table is empty, and every parity axis opened after it
+> (effects, targeting, conditions, formulas, rolls, modifiers, rewards,
+> persistence) has been taken to the end. Nothing below is a plan for work
+> ahead; this file is the **record of the port**, kept because it says what was
+> measured, how, and what was deliberately left out.
+>
+> **The project is now in its testing phase.** The way work arrives has changed:
+> instead of a milestone gate, it is a defect — found by playing
+> [battlecrab.com](https://battlecrab.com), filed as a
+> [GitHub issue](https://github.com/artemijan/BattleCrab/issues), or turned up
+> by one more sweep of the kind this file documents — and it leaves as a fix
+> with a test that fails without it. When a fix changes something this file
+> asserts, correct the assertion here; when it does not, it belongs in
+> [PROGRESS.md](PROGRESS.md) only.
 
 One table for the whole Java→Rust port. It replaces the 172 per-feature
 `PLAN_*.md` documents that used to live in this directory: those were written
@@ -15,7 +32,7 @@ behaviours deliberately skipped and marked at the exact site in the code with a
 
 | State | Meaning |
 |---|---|
-| ✅ **Ported** | Gate met and verified. Any remaining gaps are `TODO(<tag>)` markers in the source — there are currently none. |
+| ✅ **Ported** | Gate met and verified. Any remaining gaps are `TODO(<tag>)` markers in the source — there is currently one, `TODO(antharas-cc)`, and it belongs to no milestone. |
 | ◐ **Partial by design** | Same, but the recorded gaps are numerous or user-visible enough to call out here. **No row is in this state today** — both that were, G24 and G30, turned out to be describing work that had since landed. |
 | ⛔ **Out of scope** | Deliberately not ported. Reasons in [§ Out of scope](#out-of-scope). |
 
@@ -29,7 +46,7 @@ this order:
    `crates/tools/tests/coverage_census.rs` — the marker inventory itself, as an
    assertion rather than a document. Adding a gap without recording it there
    fails the build; closing one without taking it off fails too. Its expected
-   list held exactly one entry as of 2026-08-18: `antharas-cc`.
+   list holds exactly one entry, re-checked 2026-09-03: `antharas-cc`.
 3. **[PROGRESS.md](PROGRESS.md)** — the dated journal of what landed and why.
    Narrative, not enforced.
 
