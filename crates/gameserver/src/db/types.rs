@@ -1,7 +1,7 @@
+use super::CharData;
+use super::ItemRow;
 use super::NpcRespawnRow;
 use super::OfflineTraderRow;
-use crate::character::CharData;
-use crate::character::ItemRow;
 /// A starting item, already slot-resolved by the game thread (see
 /// `game_loop::handle_character_create`) so the DB thread just persists rows.
 #[derive(Debug, Clone)]

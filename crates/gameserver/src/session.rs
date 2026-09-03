@@ -11,7 +11,7 @@
 
 use std::net::SocketAddr;
 
-use crate::character::CharData;
+use crate::db::CharData;
 use crate::game_loop::client::flood::FloodProtectors;
 use crate::network::OutboundTx;
 

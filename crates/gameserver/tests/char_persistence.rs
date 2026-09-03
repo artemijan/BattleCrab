@@ -54,7 +54,7 @@ fn new_char(name: &str) -> NewCharacter {
 /// game thread's `build_save_data` gathers — the memory-first flush unit. Tests
 /// mutate the child vecs, then send one `StorePlayer` to exercise the DB
 /// thread's transactional reconcile (adds, in-place updates, and deletions).
-fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
+fn save_from(c: &gameserver::db::CharData) -> db::PlayerSaveData {
     db::PlayerSaveData {
         store_items: true,
         base: db::PlayerSnapshot {

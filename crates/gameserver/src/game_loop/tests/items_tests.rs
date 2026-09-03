@@ -5322,7 +5322,7 @@ fn the_user_info_stats_block_reports_weapon_attack_range() {
 
     let unarmed = packet(&world);
 
-    let weapon = crate::character::ItemRow {
+    let weapon = crate::db::ItemRow {
         object_id: 8_300_001,
         item_id: 1, // a Short Sword; any right-hand item takes the branch
         count: 1,

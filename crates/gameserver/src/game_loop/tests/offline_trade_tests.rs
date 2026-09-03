@@ -27,8 +27,8 @@ fn enable_offline(world: &mut World) {
 }
 
 /// One inventory row: five D-grade crystals as object id 4242.
-fn crystal_row() -> crate::character::ItemRow {
-    crate::character::ItemRow {
+fn crystal_row() -> crate::db::ItemRow {
+    crate::db::ItemRow {
         object_id: 4242,
         item_id: 1458,
         count: 5,

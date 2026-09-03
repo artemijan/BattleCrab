@@ -37,8 +37,7 @@ crates/gameserver/src/
 ├── store.rs           the ECS: entity ↔ object-id index. `Entity` never leaves this file
 ├── scheduler.rs       one-shot timers, keyed by tick (Java ThreadPool.schedule)
 ├── session.rs         per-connection session state machine
-├── db.rs              the DB thread: DbCommand in, DbEvent out
-├── character.rs       character create/select/delete
+├── db/                the DB thread: DbCommand in, DbEvent out, plus the row structs it returns
 ├── enums.rs           shared enums that are not any one model's
 │
 ├── config/            one module per .ini file — parse only, no behaviour
@@ -85,7 +84,7 @@ Three layers, and the boundaries are strict:
 ```
 crates/models/src/entity/   one module per table, GENERATED from the SQL DDL
 crates/models/src/repo/     table-level queries with more than one consumer
-crates/gameserver/src/db.rs the DB thread + domain aggregates (store_player, …)
+crates/gameserver/src/db/    the DB thread + domain aggregates (store_player, …)
 ```
 
 - **Entities are generated, not written.** They come from the DDL in
@@ -102,11 +101,11 @@ crates/gameserver/src/db.rs the DB thread + domain aggregates (store_player, …
   character-load bundle mix game structs with a Java-parity contract, so they
   live in the crate that owns those structs. `models` must never learn what a
   `Player` is.
-- **Nothing outside `db.rs` performs I/O.** Game code sends a `DbCommand` and
+- **Nothing outside `db/` performs I/O.** Game code sends a `DbCommand` and
   handles a `DbEvent` next tick. See [THREADING_MODEL.md](THREADING_MODEL.md) §4.
 
 A schema change is therefore three coordinated edits: a migration in
-`crates/migration`, a regenerated entity, and the reader/writer in `db.rs`. A
+`crates/migration`, a regenerated entity, and the reader/writer in `db/`. A
 column persists only once **both** ends carry it — a migration alone changes
 nothing observable.
 

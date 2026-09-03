@@ -9,6 +9,8 @@
 //!
 //! - `types` — the [`DbCommand`] / [`DbEvent`] protocol between the two
 //!   threads, plus the plain row structs the queries return.
+//! - `character` — the character-load bundle ([`CharData`] and the rows it
+//!   carries), restored for the selection screen and enter-world.
 //! - `boot` — the schema check and the unprompted boot loads (`ClansLoaded`
 //!   must be sent last; the game loop releases the login link on it).
 //! - `commands` — the thread's main loop: receive a [`DbCommand`], run it,
@@ -19,12 +21,14 @@
 use std::thread::JoinHandle;
 
 mod boot;
+mod character;
 mod commands;
 mod queries;
 mod types;
 
 pub use boot::GroundItemBootConfig;
 pub(crate) use boot::{clean_up_database, send_boot_events, verify_schema};
+pub use character::{CharData, FriendInfo, ItemRow};
 pub(crate) use commands::run;
 pub(crate) use queries::{
     BLOCK_RELATION, clear_ground_items, count_characters, create_character, delete_char,

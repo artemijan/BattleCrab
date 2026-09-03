@@ -2585,7 +2585,7 @@ fn admin_setew_enchants_equipped_weapon() {
     let mut gm_rx = ingame_player_access(&mut world, 1, 8101, 100);
     drain(&mut gm_rx);
     // Equip a weapon (item 1, the starter gloves aside — any weapon id) in RHand.
-    let weapon = crate::character::ItemRow {
+    let weapon = crate::db::ItemRow {
         object_id: 50000,
         item_id: 1,
         count: 1,

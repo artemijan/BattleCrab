@@ -1566,7 +1566,7 @@ pub struct PendingRequest {
 /// Java pulls from `CharInfoTable`), loaded with the character. Online
 /// status is always read live from `World`, never from here.
 #[derive(Component, Debug, Clone, Default)]
-pub struct Friends(pub Vec<crate::character::FriendInfo>);
+pub struct Friends(pub Vec<crate::db::FriendInfo>);
 
 /// Quest progress (Java `Player._quests`), keyed by quest name — the same
 /// key the `character_quests` rows and the `Quest <Name> …` bypasses use.

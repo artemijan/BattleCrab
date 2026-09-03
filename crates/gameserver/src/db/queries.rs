@@ -1,3 +1,4 @@
+use super::CharData;
 use super::ClanHallBidRow;
 use super::ClanHallRow;
 use super::CreateResult;
@@ -5,8 +6,10 @@ use super::CursedWeaponRow;
 use super::DbEvent;
 use super::EventTx;
 use super::FIRST_OID;
+use super::FriendInfo;
 use super::GroundItemRow;
 use super::HeroRow;
+use super::ItemRow;
 use super::ManorProcureRow;
 use super::ManorProductionRow;
 use super::NewCharacter;
@@ -19,8 +22,6 @@ use super::SiegeClanRow;
 use super::SkillBuffRow;
 use super::SkillReuseRow;
 use super::SummonRow;
-use crate::character::CharData;
-use crate::character::ItemRow;
 use commons::util::now_millis;
 use models::entity;
 
@@ -984,7 +985,7 @@ pub(crate) async fn load_all_block_lists(
 /// same table stores the *block* list at `relation = 1`
 /// ([`load_block_list`]); without the filter every blocked character would
 /// come back as a friend.
-async fn load_friends(db: &DatabaseConnection, owner_id: i32) -> Vec<crate::character::FriendInfo> {
+async fn load_friends(db: &DatabaseConnection, owner_id: i32) -> Vec<FriendInfo> {
     // The join is two reads instead of one: `character_friends` declares no
     // foreign key, so there is no relation to traverse — and a friend list is a
     // handful of rows.
@@ -1003,7 +1004,7 @@ async fn load_friends(db: &DatabaseConnection, owner_id: i32) -> Vec<crate::char
     characters_by_id(db, ids)
         .await
         .into_iter()
-        .map(|row| crate::character::FriendInfo {
+        .map(|row| FriendInfo {
             char_id: row.char_id,
             name: row.char_name,
             level: row.level.unwrap_or(0),

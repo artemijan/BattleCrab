@@ -327,12 +327,12 @@ fn human_mystic_lvl1_full_loadout_matches_java_client() {
             inv.equip_item(&data.item_data, oid);
         }
     }
-    let items: Vec<crate::character::ItemRow> = inv
+    let items: Vec<crate::db::ItemRow> = inv
         .items()
         .iter()
         .map(|it| {
             let slot = inv.paperdoll_slot_of(it.object_id);
-            crate::character::ItemRow {
+            crate::db::ItemRow {
                 object_id: it.object_id,
                 item_id: it.item_id,
                 count: it.count,
@@ -421,7 +421,7 @@ fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
     data.skill_data = dist::skills_owned();
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
-    let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
+    let paperdoll = |object_id, item_id, slot| crate::db::ItemRow {
         object_id,
         item_id,
         count: 1,
@@ -505,12 +505,12 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
         inv.add_item(&data.item_data, oid, item_id, 1);
         inv.equip_item(&data.item_data, oid);
     }
-    let items: Vec<crate::character::ItemRow> = inv
+    let items: Vec<crate::db::ItemRow> = inv
         .items()
         .iter()
         .map(|it| {
             let slot = inv.paperdoll_slot_of(it.object_id);
-            crate::character::ItemRow {
+            crate::db::ItemRow {
                 object_id: it.object_id,
                 item_id: it.item_id,
                 count: it.count,
@@ -638,7 +638,7 @@ fn delevel_filter_on_select_keeps_passive_stats() {
     // strict is what gives this test something to refold stats after.
     world.cfg.character.strict_delevel_skill_removal = true;
 
-    let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
+    let paperdoll = |object_id, item_id, slot| crate::db::ItemRow {
         object_id,
         item_id,
         count: 1,
@@ -719,7 +719,7 @@ fn live_delevel_removes_passive_and_recomputes_stats() {
     // See the doc comment — the grace would leave nothing to strip.
     world.cfg.character.strict_delevel_skill_removal = true;
 
-    let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
+    let paperdoll = |object_id, item_id, slot| crate::db::ItemRow {
         object_id,
         item_id,
         count: 1,
@@ -5050,7 +5050,7 @@ fn shield_mastery_passive_raises_shield_block_stats() {
     data.skill_data = dist::skills_owned();
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
-    let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
+    let paperdoll = |object_id, item_id, slot| crate::db::ItemRow {
         object_id,
         item_id,
         count: 1,
@@ -5114,7 +5114,7 @@ fn archery_passive_raises_bow_attack_range() {
     data.skill_data = dist::skills_owned();
     let world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
-    let paperdoll = |object_id, item_id, slot| crate::character::ItemRow {
+    let paperdoll = |object_id, item_id, slot| crate::db::ItemRow {
         object_id,
         item_id,
         count: 1,

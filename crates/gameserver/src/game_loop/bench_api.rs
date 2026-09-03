@@ -12,9 +12,9 @@ use crate::game_loop::helpers::restore_hp_mp;
 use crate::game_loop::space::position::{maybe_position, set_position};
 use std::sync::Arc;
 
-use crate::character::CharData;
 use crate::data::GameData;
 use crate::db;
+use crate::db::CharData;
 use crate::game_loop::combat::pvp;
 use crate::game_loop::net::broadcast;
 use crate::loginlink::LoginLinkCommand;

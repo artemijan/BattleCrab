@@ -3618,7 +3618,7 @@ fn elven_path_quest_pages_exist_in_dist() {
 /// Put `item_id` straight into the RHand paperdoll. Bypasses `equip_item`,
 /// which would need full weapon templates for these quest items.
 fn equip_weapon_row(world: &mut World, player: i32, item_id: i32) {
-    let row = crate::character::ItemRow {
+    let row = crate::db::ItemRow {
         object_id: 90000,
         item_id,
         count: 1,
@@ -20211,8 +20211,8 @@ fn item_row(
     item_id: i32,
     count: i64,
     slot: model::inventory::PaperdollSlot,
-) -> crate::character::ItemRow {
-    crate::character::ItemRow {
+) -> crate::db::ItemRow {
+    crate::db::ItemRow {
         object_id,
         item_id,
         count,

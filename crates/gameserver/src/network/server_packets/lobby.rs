@@ -74,7 +74,7 @@ const CHAR_SELECT_ENCHANT_ORDER: [PaperdollSlot; 5] = [
 /// The lobby slot to highlight: the most-recently-accessed character.
 /// Characters marked for deletion never become active; if every character is
 /// marked (or the list is empty), none is highlighted (-1).
-fn lobby_active_id(chars: &[crate::character::CharData]) -> i32 {
+fn lobby_active_id(chars: &[crate::db::CharData]) -> i32 {
     chars
         .iter()
         .enumerate()
@@ -89,7 +89,7 @@ fn lobby_active_id(chars: &[crate::character::CharData]) -> i32 {
 pub fn char_selection_info(
     login_name: &str,
     session_id: i32,
-    chars: &[crate::character::CharData],
+    chars: &[crate::db::CharData],
     active_id: i32,
     max_characters: i32,
     exp: &crate::data::ExperienceData,
@@ -360,7 +360,7 @@ pub fn leave_world() -> Vec<u8> {
 #[cfg(test)]
 mod tests {
     use super::lobby_active_id;
-    use crate::character::CharData;
+    use crate::db::CharData;
 
     fn chr(last_access: i64, delete_time: i64) -> CharData {
         CharData {

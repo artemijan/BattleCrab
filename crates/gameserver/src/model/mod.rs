@@ -38,10 +38,10 @@ pub mod skill;
 pub mod static_object;
 pub mod stats;
 
-use crate::character::CharData;
 use crate::data::GameData;
 use crate::data::admin_data::AccessLevel;
 use crate::data::player_template::PlayerTemplate;
+use crate::db::CharData;
 
 /// Client-default name/title colors for a normal (level-0) player, matching a
 /// real UserInfo capture. See [`Player::name_color`].

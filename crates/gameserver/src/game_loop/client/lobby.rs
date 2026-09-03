@@ -475,7 +475,7 @@ pub(crate) fn drop_invalid_quest_states(
 /// 3080–3259 are kept, per Java `removeSkill`). Both the skill list and the
 /// shortcut edits are persisted; the caller then builds the `Player` from the
 /// corrected `chr`.
-fn filter_skills_on_select(world: &World, chr: &mut crate::character::CharData) {
+fn filter_skills_on_select(world: &World, chr: &mut crate::db::CharData) {
     use crate::model::shortcut::ShortcutType;
     let subs: std::collections::HashMap<i32, i32> = chr
         .skills

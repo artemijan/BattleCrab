@@ -3,8 +3,8 @@
 //! resolution ordinary gear exercises. Warehouse/trade/pickup/enchant/
 //! augmentation arrive with later milestones.
 
-use crate::character::ItemRow;
 use crate::data::item_data::{self, ItemData, ItemKind};
+use crate::db::ItemRow;
 
 /// Port of the `Inventory.PAPERDOLL_*` constants — the 32 equipment-slot
 /// indices of the paperdoll array. The numeric values are storage/DB indices

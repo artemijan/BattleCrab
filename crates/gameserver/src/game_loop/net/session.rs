@@ -425,7 +425,7 @@ pub(crate) fn on_characters_loaded(
     world: &mut World,
     client_id: u32,
     account: String,
-    chars: Vec<crate::character::CharData>,
+    chars: Vec<crate::db::CharData>,
     send_list: bool,
 ) {
     // Top up the `CharInfoTable` equivalent (G30). This is also the create

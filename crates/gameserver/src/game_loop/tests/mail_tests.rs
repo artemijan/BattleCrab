@@ -306,7 +306,7 @@ fn the_attachable_item_list_returns_unequipped_non_quest_items_in_a_peace_zone()
 #[test]
 fn the_boot_load_installs_messages_attachments_and_the_name_table() {
     let (mut world, ..) = test_world();
-    let rows = vec![crate::character::ItemRow {
+    let rows = vec![crate::db::ItemRow {
         object_id: 7001,
         item_id: 57,
         count: 100,

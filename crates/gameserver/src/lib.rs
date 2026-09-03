@@ -5,7 +5,6 @@
 //! `docs/THREADING_MODEL.md` for the model and its trade-offs, and
 //! `docs/PROJECT_LAYOUT.md` for where things live.
 
-pub mod character;
 pub mod config;
 pub mod data;
 pub mod db;

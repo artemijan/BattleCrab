@@ -15,7 +15,7 @@ use crate::world::World;
 pub(crate) fn on_loaded(
     world: &mut World,
     messages: Vec<Message>,
-    attachments: Vec<(i32, Vec<crate::character::ItemRow>)>,
+    attachments: Vec<(i32, Vec<crate::db::ItemRow>)>,
     char_ids_by_name: Vec<(String, i32)>,
     block_lists: Vec<(i32, std::collections::HashSet<i32>)>,
 ) {

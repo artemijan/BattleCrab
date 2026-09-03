@@ -3,7 +3,7 @@
 //! memos and `RequestExFriendListExtended` are out of scope
 //! (PLAN_G10_SOCIAL.md §4).
 
-use crate::character::FriendInfo;
+use crate::db::FriendInfo;
 use crate::game_loop::helpers::{
     client_for_player, player_name_or_empty, send_message, send_sm_to_player, send_to_player,
 };

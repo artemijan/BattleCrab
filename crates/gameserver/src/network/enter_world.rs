@@ -899,12 +899,8 @@ mod tests {
         (1031, 2031),
     ];
 
-    fn paperdoll_row(
-        paperdoll_slot: i32,
-        object_id: i32,
-        item_id: i32,
-    ) -> crate::character::ItemRow {
-        crate::character::ItemRow {
+    fn paperdoll_row(paperdoll_slot: i32, object_id: i32, item_id: i32) -> crate::db::ItemRow {
+        crate::db::ItemRow {
             object_id,
             item_id,
             count: 1,

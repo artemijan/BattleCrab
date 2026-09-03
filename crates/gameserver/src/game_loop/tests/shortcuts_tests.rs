@@ -308,7 +308,7 @@ fn skill_upgrade_updates_matching_shortcuts() {
 fn from_char_restores_and_prunes_shortcuts() {
     let (world, ..) = test_world();
     let mut chr = dummy_char(3001, "P");
-    chr.items = vec![crate::character::ItemRow {
+    chr.items = vec![crate::db::ItemRow {
         object_id: 500,
         item_id: 57,
         count: 10,

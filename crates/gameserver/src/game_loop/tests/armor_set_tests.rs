@@ -292,7 +292,7 @@ fn set_skills_never_reach_the_persisted_skill_book() {
 /// re-derives them.
 #[test]
 fn a_worn_set_survives_a_relog() {
-    use crate::character::ItemRow;
+    use crate::db::ItemRow;
     use crate::model::inventory::PaperdollSlot;
 
     let (world, _db, _l) = armor_set_world();
