@@ -145,7 +145,7 @@ pub(crate) fn handle_request_oust_party_member(world: &mut World, client_id: u32
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(name) = cp::read_name(body) else {
+    let Some(name) = cp::social::read_name(body) else {
         return;
     };
     let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() else {
@@ -172,7 +172,7 @@ pub(crate) fn handle_request_change_party_leader(world: &mut World, client_id: u
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(name) = cp::read_name(body) else {
+    let Some(name) = cp::social::read_name(body) else {
         return;
     };
     let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() else {

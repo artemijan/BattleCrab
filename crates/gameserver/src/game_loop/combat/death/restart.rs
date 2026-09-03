@@ -19,7 +19,7 @@ use crate::world::World;
 /// dead player is a participant, else the map-region town respawn — and start
 /// the teleport; the revive itself lands on `Appearing`.
 pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestRestartPoint::read(body) else {
+    let Some(pkt) = cp::combat::RequestRestartPoint::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {

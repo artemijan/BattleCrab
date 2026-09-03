@@ -166,7 +166,7 @@ fn build_pages(
 
 /// Port of `clientpackets/MultiSellChoose.runImpl` for the community-board path.
 pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::MultiSellChoose::read(body) else {
+    let Some(pkt) = cp::items::MultiSellChoose::read(body) else {
         return;
     };
     let Some(player) = world.player_oid(client_id) else {

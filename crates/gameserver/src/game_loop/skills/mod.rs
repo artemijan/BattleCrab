@@ -72,7 +72,7 @@ pub(crate) fn remove_player_skill(world: &mut World, object_id: i32, skill_id: i
 /// player (forced removal, reverting its stats and refreshing the icons), gated
 /// exactly as Java gates it.
 pub(crate) fn handle_request_dispel(world: &mut World, client_id: u32, ex_body: &[u8]) {
-    let Some(pkt) = cp::RequestDispel::read(ex_body) else {
+    let Some(pkt) = cp::combat::RequestDispel::read(ex_body) else {
         return;
     };
     // Java: `(_skillId <= 0) || (_skillLevel <= 0)` → return.
@@ -122,15 +122,15 @@ pub(crate) fn handle_request_dispel(world: &mut World, client_id: u32, ex_body: 
 /// only (see the G6 plan's scope notes — every other type is silently
 /// ignored, same as Java ignores an out-of-state/unsupported request).
 pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestAcquireSkill::read(body) else {
+    let Some(pkt) = cp::combat::RequestAcquireSkill::read(body) else {
         return;
     };
-    if pkt.acquire_type == cp::RequestAcquireSkill::PLEDGE {
+    if pkt.acquire_type == cp::combat::RequestAcquireSkill::PLEDGE {
         // The rep-gated clan-skill learn (G18) lives with the clan handlers.
         super::clans::handle_learn_pledge_skill(world, client_id, pkt.skill_id, pkt.skill_level);
         return;
     }
-    if pkt.acquire_type != cp::RequestAcquireSkill::CLASS {
+    if pkt.acquire_type != cp::combat::RequestAcquireSkill::CLASS {
         return;
     }
     let Some(object_id) = world.player_oid(client_id) else {

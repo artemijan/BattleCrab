@@ -26,7 +26,7 @@ use crate::model::Player;
 use crate::model::components;
 
 use crate::game_loop::net::broadcast;
-use crate::network::client_packets::RequestActionUse;
+use crate::network::client_packets::combat::RequestActionUse;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 use tracing::warn;

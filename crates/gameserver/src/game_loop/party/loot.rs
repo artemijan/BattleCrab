@@ -28,7 +28,7 @@ pub(crate) fn handle_request_party_loot_modification(
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(rule) = cp::read_answer(body).and_then(LootRule::from_id) else {
+    let Some(rule) = cp::party::read_answer(body).and_then(LootRule::from_id) else {
         return;
     };
     let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() else {
@@ -72,7 +72,7 @@ pub(crate) fn handle_answer_party_loot_modification(
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let answer = cp::read_answer(body).unwrap_or(0);
+    let answer = cp::party::read_answer(body).unwrap_or(0);
     let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() else {
         return;
     };

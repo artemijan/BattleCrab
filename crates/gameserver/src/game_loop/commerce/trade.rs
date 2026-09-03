@@ -168,7 +168,7 @@ fn open_window(world: &World, viewer: i32, partner: i32) {
 
 /// `AddTradeItem` (0x1B): offer an item into the trade (resets both confirms).
 pub(crate) fn handle_add_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::AddTradeItem::read(body) else {
+    let Some(pkt) = cp::commerce::AddTradeItem::read(body) else {
         return;
     };
     let Some(me) = player_of(world, client_id) else {

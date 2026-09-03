@@ -9,7 +9,8 @@ use tracing::info;
 
 use crate::db::{self, NewCharacter};
 use crate::loginlink::LoginLinkCommand;
-use crate::network::client_packets::{self as cp, AuthLogin, CharacterCreate};
+use crate::network::client_packets as cp;
+use crate::network::client_packets::session::{AuthLogin, CharacterCreate};
 use crate::network::server_packets;
 use crate::session::{ClientSession, SessionKey};
 use crate::world::{WaitingClient, World};
@@ -27,7 +28,7 @@ pub(crate) fn handle_request_character_name_creatable(
     ) {
         return;
     }
-    let Some(name) = cp::read_name_creatable(ex_body) else {
+    let Some(name) = cp::session::read_name_creatable(ex_body) else {
         return;
     };
     // INVALID_NAME=4 (Java `isAlphaNumeric` + template) is decided here; the
@@ -267,7 +268,7 @@ pub(crate) fn resolve_initial_shortcuts(
 
 /// Port of `CharacterDelete.runImpl`: mark the slot's character for deletion.
 pub(crate) fn handle_character_delete(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(slot) = cp::read_char_slot(body) else {
+    let Some(slot) = cp::session::read_char_slot(body) else {
         return;
     };
     let ClientSession::InLobby(s) = (match world.clients.get(&client_id) {
@@ -301,7 +302,7 @@ pub(crate) fn handle_character_delete(world: &mut World, client_id: u32, body: &
 
 /// Port of `CharacterRestore.runImpl`: clear the deletion timer.
 pub(crate) fn handle_character_restore(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(slot) = cp::read_char_slot(body) else {
+    let Some(slot) = cp::session::read_char_slot(body) else {
         return;
     };
     let ClientSession::InLobby(s) = (match world.clients.get(&client_id) {
@@ -323,7 +324,7 @@ pub(crate) fn handle_character_restore(world: &mut World, client_id: u32, body: 
 /// move to the entering state, and send `CharSelected` (starts the loading
 /// screen; the client then sends `EnterWorld`).
 pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(slot) = cp::read_char_slot(body) else {
+    let Some(slot) = cp::session::read_char_slot(body) else {
         return;
     };
     let ClientSession::InLobby(s) = (match world.clients.get(&client_id) {

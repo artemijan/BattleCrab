@@ -189,7 +189,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     let mut w = PacketWriter::new();
     w.write_i32(91);
     w.write_i32(1);
-    w.write_i32(cp::RequestAcquireSkill::CLASS);
+    w.write_i32(cp::combat::RequestAcquireSkill::CLASS);
     handle_request_acquire_skill(&mut world, 1, &w.into_bytes());
 
     assert_eq!(
@@ -3729,7 +3729,7 @@ fn skill_acquire_gates_send_system_messages() {
     handle_request_acquire_skill(
         &mut world,
         1,
-        &acquire_skill_body(1001, 1, cp::RequestAcquireSkill::CLASS),
+        &acquire_skill_body(1001, 1, cp::combat::RequestAcquireSkill::CLASS),
     );
     assert_eq!(
         ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
@@ -3739,7 +3739,7 @@ fn skill_acquire_gates_send_system_messages() {
     handle_request_acquire_skill(
         &mut world,
         1,
-        &acquire_skill_body(1002, 1, cp::RequestAcquireSkill::CLASS),
+        &acquire_skill_body(1002, 1, cp::combat::RequestAcquireSkill::CLASS),
     );
     assert_eq!(
         ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
@@ -3784,7 +3784,7 @@ fn skill_acquire_requires_and_consumes_the_book() {
     handle_request_acquire_skill(
         &mut world,
         1,
-        &acquire_skill_body(1003, 1, cp::RequestAcquireSkill::CLASS),
+        &acquire_skill_body(1003, 1, cp::combat::RequestAcquireSkill::CLASS),
     );
     assert_eq!(
         ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),
@@ -3814,7 +3814,7 @@ fn skill_acquire_requires_and_consumes_the_book() {
     handle_request_acquire_skill(
         &mut world,
         1,
-        &acquire_skill_body(1003, 1, cp::RequestAcquireSkill::CLASS),
+        &acquire_skill_body(1003, 1, cp::combat::RequestAcquireSkill::CLASS),
     );
     assert_eq!(
         world
@@ -3937,7 +3937,7 @@ fn divine_inspiration_book_waiver_also_waives_sp() {
         &acquire_skill_body(
             DIVINE_INSPIRATION_SKILL_ID,
             1,
-            cp::RequestAcquireSkill::CLASS,
+            cp::combat::RequestAcquireSkill::CLASS,
         ),
     );
     assert_eq!(
@@ -3961,7 +3961,7 @@ fn divine_inspiration_book_waiver_also_waives_sp() {
     handle_request_acquire_skill(
         &mut world,
         1,
-        &acquire_skill_body(1003, 1, cp::RequestAcquireSkill::CLASS),
+        &acquire_skill_body(1003, 1, cp::combat::RequestAcquireSkill::CLASS),
     );
     assert_eq!(
         ids_after_opcode(&drain(&mut rx), server_packets::opcodes::SYSTEM_MESSAGE),

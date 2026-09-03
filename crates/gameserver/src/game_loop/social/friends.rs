@@ -106,7 +106,7 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(name) = cp::read_name(body) else {
+    let Some(name) = cp::social::read_name(body) else {
         return;
     };
 
@@ -190,7 +190,7 @@ pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: 
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let response = cp::read_friend_answer(body).unwrap_or(0);
+    let response = cp::social::read_friend_answer(body).unwrap_or(0);
 
     let Some(req) = world
         .objects
@@ -287,7 +287,7 @@ pub(crate) fn handle_request_friend_del(world: &mut World, client_id: u32, body:
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(name) = cp::read_name(body) else {
+    let Some(name) = cp::social::read_name(body) else {
         return;
     };
 
@@ -368,7 +368,7 @@ pub(crate) fn handle_request_send_friend_msg(world: &mut World, client_id: u32, 
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(pkt) = cp::RequestSendFriendMsg::read(body) else {
+    let Some(pkt) = cp::social::RequestSendFriendMsg::read(body) else {
         return;
     };
     if pkt.message.is_empty() || pkt.message.chars().count() > 300 {

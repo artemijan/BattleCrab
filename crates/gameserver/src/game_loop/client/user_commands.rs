@@ -54,7 +54,7 @@ const ESCAPE_SKILL_ID: i32 = 2099;
 const GM_ESCAPE_SKILL_ID: i32 = 2100;
 
 pub(crate) fn handle_bypass_user_cmd(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(command_id) = cp::read_user_command(body) else {
+    let Some(command_id) = cp::social::read_user_command(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {

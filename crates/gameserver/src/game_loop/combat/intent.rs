@@ -29,7 +29,7 @@ use crate::world::World;
 /// starts the attack loop. A click on something that isn't the current
 /// target re-selects instead (Java falls back to `onAction`).
 pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::AttackRequest::read(body) else {
+    let Some(pkt) = cp::combat::AttackRequest::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {

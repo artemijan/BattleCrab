@@ -130,7 +130,7 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
     let Some(requestor) = world.player_oid(client_id) else {
         return;
     };
-    let Some(pkt) = cp::RequestJoinParty::read(body) else {
+    let Some(pkt) = cp::party::RequestJoinParty::read(body) else {
         return;
     };
 
@@ -295,7 +295,7 @@ pub(crate) fn handle_request_answer_join_party(world: &mut World, client_id: u32
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let response = cp::read_answer(body).unwrap_or(0);
+    let response = cp::party::read_answer(body).unwrap_or(0);
 
     let Some(req) = world
         .objects

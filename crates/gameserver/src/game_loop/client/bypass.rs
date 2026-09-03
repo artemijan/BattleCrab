@@ -30,7 +30,7 @@ use crate::world::World;
 use tracing::warn;
 
 pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(command) = cp::read_bypass_command(body) else {
+    let Some(command) = cp::social::read_bypass_command(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {

@@ -60,7 +60,7 @@ pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
 /// toggles equip/unequip; anything else routes through the `EtcItem` handler
 /// dispatch (Java: `ItemHandler.getInstance().getHandler(etcItem)`).
 pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::UseItem::read(body) else {
+    let Some(pkt) = cp::items::UseItem::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
@@ -93,7 +93,7 @@ pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
 /// Port of `clientpackets/RequestUnEquipItem.runImpl` (the mid-attack /
 /// mid-cast guards are still skipped).
 pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(body_part) = cp::read_char_slot(body) else {
+    let Some(body_part) = cp::session::read_char_slot(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
@@ -125,7 +125,7 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
 /// equipped item is unequipped first. The cursed-weapon / hero-item / pet /
 /// enchant-transaction guards are skipped (those subsystems aren't ported).
 pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestDestroyItem::read(body) else {
+    let Some(pkt) = cp::items::RequestDestroyItem::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
@@ -261,7 +261,7 @@ const CRYSTALLIZE_SKILL_ID: i32 = 248;
 /// crystal at 100% — that's what we award. Hero/augment guards skipped; the
 /// shadow-item one is enforced.
 pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestDestroyItem::read(body) else {
+    let Some(pkt) = cp::items::RequestDestroyItem::read(body) else {
         return;
     }; // same layout (objectId, count)
     let Some(player_oid) = world.player_oid(client_id) else {
@@ -374,7 +374,7 @@ pub(crate) fn send_item_message(world: &World, client_id: u32, text: &str) {
 /// to the DB; `load_items` restores `ORDER BY loc_data`, so the arrangement
 /// survives relog. No response packet — Java sends none either.
 pub(crate) fn handle_request_save_inventory_order(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestSaveInventoryOrder::read(body) else {
+    let Some(pkt) = cp::items::RequestSaveInventoryOrder::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {

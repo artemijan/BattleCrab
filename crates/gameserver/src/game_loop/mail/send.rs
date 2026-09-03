@@ -34,7 +34,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     if !world.cfg.general.allow_mail {
         return;
     }
-    let Some(mut pkt) = crate::network::client_packets::RequestSendPost::read(body) else {
+    let Some(mut pkt) = crate::network::client_packets::social::RequestSendPost::read(body) else {
         return;
     };
 
@@ -100,7 +100,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
         );
         return;
     }
-    if pkt.items.len() > crate::network::client_packets::RequestSendPost::MAX_ATTACHMENTS {
+    if pkt.items.len() > crate::network::client_packets::social::RequestSendPost::MAX_ATTACHMENTS {
         send_sm_to_player(
             world,
             player,

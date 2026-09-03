@@ -274,7 +274,7 @@ pub(crate) fn handle_request_gm_list(world: &mut World, client_id: u32) {
 pub(crate) fn handle_dlg_answer(
     world: &mut World,
     client_id: u32,
-    answer: crate::network::client_packets::DlgAnswer,
+    answer: crate::network::client_packets::social::DlgAnswer,
 ) {
     if answer.message_id != server_packets::S1_3_MESSAGE_ID {
         return;

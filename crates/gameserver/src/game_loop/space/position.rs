@@ -27,7 +27,7 @@ use crate::model;
 /// covered by the busy branch overwriting the `QueuedAction` slot — outside
 /// a cast/swing the slot is always empty, so there is nothing to clear.
 pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::MoveBackwardToLocation::read(body) else {
+    let Some(pkt) = cp::movement::MoveBackwardToLocation::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
@@ -339,7 +339,7 @@ pub(crate) fn handle_ex_send_selected_quest_zone_id(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(quest_zone_id) = cp::read_selected_quest_zone_id(ex_body) else {
+    let Some(quest_zone_id) = cp::session::read_selected_quest_zone_id(ex_body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
@@ -654,7 +654,7 @@ pub(crate) fn start_move(
 /// doors). Flying (wyvern) and swimming take Java's trust-the-client-Z branch
 /// below.
 pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::ValidatePosition::read(body) else {
+    let Some(pkt) = cp::movement::ValidatePosition::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {

@@ -132,7 +132,7 @@ fn is_targeting(world: &World, object_id: i32, other_object_id: i32) -> bool {
 }
 
 pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::Action::read(body) else {
+    let Some(pkt) = cp::combat::Action::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
@@ -394,7 +394,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
 /// the *current* target, which `setTarget(null)` just removed — our `Attack`
 /// intent snapshots the target, so drop it explicitly to match.
 pub(crate) fn handle_request_target_canceld(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestTargetCanceld::read(body) else {
+    let Some(pkt) = cp::combat::RequestTargetCanceld::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {

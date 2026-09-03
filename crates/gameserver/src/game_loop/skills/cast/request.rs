@@ -25,7 +25,7 @@ use crate::world::World;
 /// Port of `clientpackets/RequestMagicSkillUse.runImpl`: parse and hand to
 /// `use_magic`.
 pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestMagicSkillUse::read(body) else {
+    let Some(pkt) = cp::combat::RequestMagicSkillUse::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
@@ -76,7 +76,7 @@ pub(crate) fn handle_request_magic_skill_use_ground(
     client_id: u32,
     ex_body: &[u8],
 ) {
-    let Some(pkt) = cp::RequestExMagicSkillUseGround::read(ex_body) else {
+    let Some(pkt) = cp::combat::RequestExMagicSkillUseGround::read(ex_body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {

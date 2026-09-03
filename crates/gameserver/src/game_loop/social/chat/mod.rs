@@ -53,7 +53,7 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(sender_oid) = world.player_oid(client_id) else {
         return;
     };
-    let Some(mut pkt) = cp::Say2::read(body) else {
+    let Some(mut pkt) = cp::social::Say2::read(body) else {
         return;
     };
 

@@ -156,7 +156,7 @@ fn has_forming_right(world: &World, object_id: i32) -> bool {
 }
 
 pub(crate) fn handle_request_ex_ask_join_mpcc(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestExAskJoinMpcc::read(body) else {
+    let Some(pkt) = cp::party::RequestExAskJoinMpcc::read(body) else {
         return;
     };
     let Some(requestor) = world.player_oid(client_id) else {
@@ -329,7 +329,7 @@ pub(crate) fn add_party_to_channel(world: &mut World, cc_id: u32, party_id: u32)
 }
 
 pub(crate) fn handle_request_ex_accept_join_mpcc(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestExAcceptJoinMpcc::read(body) else {
+    let Some(pkt) = cp::party::RequestExAcceptJoinMpcc::read(body) else {
         return;
     };
     let Some(answerer) = world.player_oid(client_id) else {
@@ -455,7 +455,7 @@ pub(crate) fn remove_party_from_channel(world: &mut World, cc_id: u32, party_id:
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_request_ex_oust_from_mpcc(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestExOustFromMpcc::read(body) else {
+    let Some(pkt) = cp::party::RequestExOustFromMpcc::read(body) else {
         return;
     };
     let Some(player) = world.player_oid(client_id) else {
@@ -524,7 +524,7 @@ pub(crate) fn handle_request_ex_mpcc_show_party_members_info(
     client_id: u32,
     body: &[u8],
 ) {
-    let Some(pkt) = cp::RequestExMpccShowPartyMembersInfo::read(body) else {
+    let Some(pkt) = cp::party::RequestExMpccShowPartyMembersInfo::read(body) else {
         return;
     };
     let Some(ClientSession::InGame(_)) = world.clients.get(&client_id) else {
@@ -902,7 +902,7 @@ fn cc_room_of(world: &World, player: i32) -> Option<i32> {
 }
 
 pub(crate) fn handle_request_ex_list_mpcc_waiting(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestExListMpccWaiting::read(body) else {
+    let Some(pkt) = cp::party::RequestExListMpccWaiting::read(body) else {
         return;
     };
     let Some(ClientSession::InGame(_)) = world.clients.get(&client_id) else {
@@ -942,7 +942,7 @@ pub(crate) fn handle_request_ex_list_mpcc_waiting(world: &mut World, client_id: 
 }
 
 pub(crate) fn handle_request_ex_manage_mpcc_room(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestExManageMpccRoom::read(body) else {
+    let Some(pkt) = cp::party::RequestExManageMpccRoom::read(body) else {
         return;
     };
     let Some(player) = world.player_oid(client_id) else {
@@ -981,7 +981,7 @@ pub(crate) fn handle_request_ex_manage_mpcc_room(world: &mut World, client_id: u
 }
 
 pub(crate) fn handle_request_ex_join_mpcc_room(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestExJoinMpccRoom::read(body) else {
+    let Some(pkt) = cp::party::RequestExJoinMpccRoom::read(body) else {
         return;
     };
     let Some(player) = world.player_oid(client_id) else {
@@ -1004,7 +1004,7 @@ pub(crate) fn handle_request_ex_oust_from_mpcc_room(
     client_id: u32,
     body: &[u8],
 ) {
-    let Some(pkt) = cp::RequestExOustFromMpccRoom::read(body) else {
+    let Some(pkt) = cp::party::RequestExOustFromMpccRoom::read(body) else {
         return;
     };
     let Some(player) = world.player_oid(client_id) else {

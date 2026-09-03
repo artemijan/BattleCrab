@@ -167,7 +167,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             // "Confirmed CT2.5" — no Interlude clan can reach it.
             let mut r = commons::network::PacketReader::new(body);
             if let (Some(id), Some(level), Some(kind)) = (r.read_i32(), r.read_i32(), r.read_i32())
-                && kind == crate::network::client_packets::RequestAcquireSkill::PLEDGE
+                && kind == crate::network::client_packets::combat::RequestAcquireSkill::PLEDGE
             {
                 crate::game_loop::clans::handle_request_pledge_skill_info(
                     world, client_id, id, level,
@@ -237,7 +237,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         }
         // RequestBBSwrite (IN_GAME): a board write/submit.
         cop::REQUEST_BBS_WRITE => {
-            if let Some([url, a1, a2, a3, a4, a5]) = cp::read_bbs_write(body) {
+            if let Some([url, a1, a2, a3, a4, a5]) = cp::social::read_bbs_write(body) {
                 crate::game_loop::community_board::handle_write_command(
                     world,
                     client_id,
@@ -249,7 +249,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // SendBypassBuildCmd (IN_GAME): the `//command` GM bar → admin command
         // with the `admin_` prefix Java prepends.
         cop::SEND_BYPASS_BUILD_CMD => {
-            if let Some(cmd) = cp::read_build_command(body)
+            if let Some(cmd) = cp::social::read_build_command(body)
                 && !cmd.is_empty()
             {
                 crate::game_loop::admin::use_admin_command(
@@ -363,17 +363,17 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // client-event echo is dead in this build (its Java handler looks the
         // quest up under a wrong name and always misses) — consumed silently.
         cop::REQUEST_TUTORIAL_LINK_HTML => {
-            if let Some(pkt) = cp::RequestTutorialLinkHtml::read(body) {
+            if let Some(pkt) = cp::quests::RequestTutorialLinkHtml::read(body) {
                 crate::game_loop::quests::handle_tutorial_bypass(world, client_id, &pkt.bypass);
             }
         }
         cop::REQUEST_TUTORIAL_PASS_CMD_TO_SERVER => {
-            if let Some(pkt) = cp::RequestTutorialPassCmd::read(body) {
+            if let Some(pkt) = cp::quests::RequestTutorialPassCmd::read(body) {
                 crate::game_loop::quests::handle_tutorial_bypass(world, client_id, &pkt.bypass);
             }
         }
         cop::REQUEST_TUTORIAL_QUESTION_MARK => {
-            if let Some(pkt) = cp::RequestTutorialQuestionMark::read(body)
+            if let Some(pkt) = cp::quests::RequestTutorialQuestionMark::read(body)
                 && let Some(ClientSession::InGame(s)) = world.clients.get(&client_id)
             {
                 let player = s.player_object_id();
@@ -521,17 +521,17 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             crate::game_loop::commerce::crafting::request_book_open(world, client_id, is_dwarven);
         }
         cop::REQUEST_RECIPE_BOOK_DESTROY => {
-            if let Some(id) = cp::read_recipe_single_int(body) {
+            if let Some(id) = cp::commerce::read_recipe_single_int(body) {
                 crate::game_loop::commerce::crafting::handle_book_destroy(world, client_id, id);
             }
         }
         cop::REQUEST_RECIPE_ITEM_MAKE_INFO => {
-            if let Some(id) = cp::read_recipe_single_int(body) {
+            if let Some(id) = cp::commerce::read_recipe_single_int(body) {
                 crate::game_loop::commerce::crafting::handle_make_info(world, client_id, id);
             }
         }
         cop::REQUEST_RECIPE_ITEM_MAKE_SELF => {
-            if let Some(id) = cp::read_recipe_single_int(body) {
+            if let Some(id) = cp::commerce::read_recipe_single_int(body) {
                 crate::game_loop::commerce::crafting::handle_make_self(world, client_id, id);
             }
         }
@@ -539,12 +539,12 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             crate::game_loop::commerce::crafting::open_manage(world, client_id)
         }
         cop::REQUEST_RECIPE_SHOP_MESSAGE_SET => {
-            if let Some(name) = cp::read_recipe_shop_message_set(body) {
+            if let Some(name) = cp::commerce::read_recipe_shop_message_set(body) {
                 crate::game_loop::commerce::crafting::handle_message_set(world, client_id, name);
             }
         }
         cop::REQUEST_RECIPE_SHOP_LIST_SET => {
-            if let Some(lines) = cp::read_recipe_shop_list_set(body) {
+            if let Some(lines) = cp::commerce::read_recipe_shop_list_set(body) {
                 crate::game_loop::commerce::crafting::handle_list_set(world, client_id, lines);
             }
         }
@@ -552,14 +552,14 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             crate::game_loop::commerce::crafting::handle_manage_quit(world, client_id)
         }
         cop::REQUEST_RECIPE_SHOP_MAKE_INFO => {
-            if let Some((shop, recipe)) = cp::read_recipe_shop_make_info(body) {
+            if let Some((shop, recipe)) = cp::commerce::read_recipe_shop_make_info(body) {
                 crate::game_loop::commerce::crafting::handle_shop_make_info(
                     world, client_id, shop, recipe,
                 );
             }
         }
         cop::REQUEST_RECIPE_SHOP_MAKE_ITEM => {
-            if let Some((manufacturer, recipe)) = cp::read_recipe_shop_make_item(body) {
+            if let Some((manufacturer, recipe)) = cp::commerce::read_recipe_shop_make_item(body) {
                 crate::game_loop::commerce::crafting::handle_shop_make_item(
                     world,
                     client_id,
@@ -576,22 +576,22 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             crate::game_loop::character::henna::handle_remove_list(world, client_id)
         }
         cop::REQUEST_HENNA_ITEM_INFO => {
-            if let Some(id) = cp::read_symbol_id(body) {
+            if let Some(id) = cp::combat::read_symbol_id(body) {
                 crate::game_loop::character::henna::handle_item_info(world, client_id, id);
             }
         }
         cop::REQUEST_HENNA_ITEM_REMOVE_INFO => {
-            if let Some(id) = cp::read_symbol_id(body) {
+            if let Some(id) = cp::combat::read_symbol_id(body) {
                 crate::game_loop::character::henna::handle_item_remove_info(world, client_id, id);
             }
         }
         cop::REQUEST_HENNA_EQUIP => {
-            if let Some(id) = cp::read_symbol_id(body) {
+            if let Some(id) = cp::combat::read_symbol_id(body) {
                 crate::game_loop::character::henna::handle_equip(world, client_id, id);
             }
         }
         cop::REQUEST_HENNA_REMOVE => {
-            if let Some(id) = cp::read_symbol_id(body) {
+            if let Some(id) = cp::combat::read_symbol_id(body) {
                 crate::game_loop::character::henna::handle_remove(world, client_id, id);
             }
         }
@@ -604,7 +604,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
 
 /// Dispatch an extended (`0xD0`) client packet by its 2-byte sub-opcode.
 pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some((sub, ex_body)) = cp::read_ex_opcode(body) else {
+    let Some((sub, ex_body)) = cp::session::read_ex_opcode(body) else {
         return;
     };
     // `DEBUG_EX_CLIENT_PACKETS`, the extended half of the trace above.
@@ -698,7 +698,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // then apply any HWID punishment now known to match (the packet can
         // arrive after enter-world, so re-check here rather than only on login).
         exop::REQUEST_HARDWARE_INFO => {
-            if let Some(hw) = cp::HardwareInfo::read(ex_body) {
+            if let Some(hw) = cp::session::HardwareInfo::read(ex_body) {
                 world.hwids.insert(client_id, hw);
                 crate::game_loop::moderation::punishment::on_hwid_received(world, client_id);
             }
@@ -1083,7 +1083,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
 /// prompts (Summon Friend, `.offline`'s exit confirm) — with the admin
 /// command confirms as the unclaimed fallback.
 fn dispatch_dlg_answer(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(answer) = cp::DlgAnswer::read(body) else {
+    let Some(answer) = cp::social::DlgAnswer::read(body) else {
         return;
     };
     let oid = match world.clients.get(&client_id) {

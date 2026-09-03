@@ -115,7 +115,7 @@ fn store_slot_limit(world: &World, owner: i32, sell: bool) -> usize {
 }
 
 pub(crate) fn handle_set_list(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some((packaged, pkt)) = cp::PrivateStoreItemList::read_set_list(body) else {
+    let Some((packaged, pkt)) = cp::commerce::PrivateStoreItemList::read_set_list(body) else {
         return;
     };
     let Some(owner) = player_of(world, client_id) else {
@@ -247,7 +247,7 @@ pub(crate) fn open_buyer_view(world: &mut World, client_id: u32, buyer: i32, sel
 /// `RequestPrivateStoreBuy` (0x83): a customer buys items from `seller`'s store —
 /// items move seller→buyer, adena buyer→seller. The store closes when emptied.
 pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::PrivateStoreItemList::read_buy(body) else {
+    let Some(pkt) = cp::commerce::PrivateStoreItemList::read_buy(body) else {
         return;
     };
     let Some(buyer) = player_of(world, client_id) else {
@@ -525,7 +525,7 @@ pub(crate) fn handle_set_list_buy(world: &mut World, client_id: u32, body: &[u8]
     let Some(owner) = player_of(world, client_id) else {
         return;
     };
-    let Some(lines) = cp::PrivateStoreItemList::read_set_list_buy(body) else {
+    let Some(lines) = cp::commerce::PrivateStoreItemList::read_set_list_buy(body) else {
         // Java: a malformed list drops the store type back to NONE.
         close_buy_store(world, owner);
         return;
@@ -735,7 +735,7 @@ pub(crate) fn open_seller_view(world: &mut World, client_id: u32, viewer: i32, o
 /// the owner's adena. Items customer → owner, adena owner → customer; the
 /// store closes once every line is filled.
 pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::PrivateStoreItemList::read_store_sell(body) else {
+    let Some(pkt) = cp::commerce::PrivateStoreItemList::read_store_sell(body) else {
         return;
     };
     let Some(seller) = player_of(world, client_id) else {

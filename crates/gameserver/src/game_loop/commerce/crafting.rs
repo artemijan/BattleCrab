@@ -361,7 +361,11 @@ pub(crate) fn handle_message_set(world: &mut World, client_id: u32, name: String
 
 /// `RequestRecipeShopListSet` — activate the manufacture store with the given
 /// recipe/price lines (each validated against the seller's book).
-pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::ManufactureLine>) {
+pub(crate) fn handle_list_set(
+    world: &mut World,
+    client_id: u32,
+    lines: Vec<cp::commerce::ManufactureLine>,
+) {
     let Some(oid) = player_of(world, client_id) else {
         return;
     };

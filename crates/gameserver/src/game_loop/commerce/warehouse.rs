@@ -207,7 +207,7 @@ pub(crate) fn open_freight_withdraw(world: &mut World, client_id: u32) {
 
 /// `SendWareHouseDepositList` (0x3B): move the named items inventory → warehouse.
 pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::WarehouseItemList::read(body) else {
+    let Some(pkt) = cp::commerce::WarehouseItemList::read(body) else {
         return;
     };
     let Some(player_oid) = player_of(world, client_id) else {
@@ -317,7 +317,7 @@ fn warehouse_limit(world: &World, player_oid: i32, tgt: WhTarget) -> i32 {
 
 /// `SendWareHouseWithDrawList` (0x3C): move the named items warehouse → inventory.
 pub(crate) fn handle_withdraw(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::WarehouseItemList::read(body) else {
+    let Some(pkt) = cp::commerce::WarehouseItemList::read(body) else {
         return;
     };
     let Some(player_oid) = player_of(world, client_id) else {
@@ -734,7 +734,7 @@ fn read_package_send(body: &[u8]) -> Option<(i32, Vec<(i32, i64)>)> {
     if !(1..=500).contains(&count) {
         return None;
     }
-    let lines = crate::network::client_packets::read_item_lines(&mut r, count)?;
+    let lines = crate::network::client_packets::items::read_item_lines(&mut r, count)?;
     Some((recipient, lines))
 }
 

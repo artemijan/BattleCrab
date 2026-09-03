@@ -29,7 +29,7 @@ fn ingame_object_id(world: &World, client_id: u32) -> Option<i32> {
 /// `ShortCutRegister` and a `SkillList` re-send — both unconditional in Java,
 /// even when the registry rejected the slot.
 pub(crate) fn handle_request_short_cut_reg(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestShortCutReg::read(body) else {
+    let Some(pkt) = cp::shortcuts::RequestShortCutReg::read(body) else {
         return;
     };
     if !(0..=19).contains(&pkt.page) {
@@ -72,7 +72,7 @@ pub(crate) fn handle_request_short_cut_reg(world: &mut World, client_id: u32, bo
 
 /// Port of `clientpackets/RequestShortCutDel.runImpl`.
 pub(crate) fn handle_request_short_cut_del(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestShortCutDel::read(body) else {
+    let Some(pkt) = cp::shortcuts::RequestShortCutDel::read(body) else {
         return;
     };
     if !(0..=19).contains(&pkt.page) {
@@ -109,7 +109,7 @@ fn delete_shortcut(world: &mut World, client_id: u32, object_id: i32, slot: i32,
 /// holding a macro, possibly its own — and since execution is client-side,
 /// refusing to register it is the only enforcement point. Java accepts them.
 pub(crate) fn handle_request_make_macro(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestMakeMacro::read(body) else {
+    let Some(pkt) = cp::shortcuts::RequestMakeMacro::read(body) else {
         return;
     };
     let Some(object_id) = ingame_object_id(world, client_id) else {
@@ -174,7 +174,7 @@ pub(crate) fn handle_request_make_macro(world: &mut World, client_id: u32, body:
 /// null macro NPEs in Java's `writeImpl`, so no packet reaches the client
 /// there either).
 pub(crate) fn handle_request_delete_macro(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestDeleteMacro::read(body) else {
+    let Some(pkt) = cp::shortcuts::RequestDeleteMacro::read(body) else {
         return;
     };
     let Some(object_id) = ingame_object_id(world, client_id) else {

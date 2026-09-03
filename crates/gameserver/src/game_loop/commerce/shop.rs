@@ -255,7 +255,7 @@ pub(crate) fn show_buy_window_taxed(
 /// treasury; limited stock is gated here and consumed in the delivery loop,
 /// and the weight and slot checks are Java's, quirk included (see below).
 pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestBuyItem::read(body) else {
+    let Some(pkt) = cp::commerce::RequestBuyItem::read(body) else {
         return;
     };
     let Some(player) = world.player_oid(client_id) else {
@@ -511,7 +511,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
 /// are refused. Sold items move to the `Refund` buy-back container (Java
 /// `Config.ALLOW_REFUND`, on for this dist).
 pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestSellItem::read(body) else {
+    let Some(pkt) = cp::commerce::RequestSellItem::read(body) else {
         return;
     };
     let Some(player) = world.player_oid(client_id) else {
@@ -665,7 +665,7 @@ pub(crate) fn refund_items_of(
 /// skipped like the sell path; the weight/slot capacity checks are the same
 /// G5 encumbrance deferral as `RequestBuyItem`.
 pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestRefundItem::read(body) else {
+    let Some(pkt) = cp::commerce::RequestRefundItem::read(body) else {
         return;
     };
     let Some(player) = world.player_oid(client_id) else {

@@ -151,7 +151,7 @@ pub(crate) fn handle_request_party_match_config(world: &mut World, client_id: u3
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(pkt) = cp::RequestPartyMatchConfig::read(body) else {
+    let Some(pkt) = cp::party::RequestPartyMatchConfig::read(body) else {
         return;
     };
 
@@ -259,7 +259,7 @@ pub(crate) fn handle_request_party_match_list(world: &mut World, client_id: u32,
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(pkt) = cp::RequestPartyMatchList::read(body) else {
+    let Some(pkt) = cp::party::RequestPartyMatchList::read(body) else {
         return;
     };
     let existing = world.matching_rooms.room_id_of(player);
@@ -338,7 +338,7 @@ pub(crate) fn handle_list_waiting_room(world: &mut World, client_id: u32, body: 
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(pkt) = cp::RequestListPartyMatchingWaitingRoom::read(body) else {
+    let Some(pkt) = cp::party::RequestListPartyMatchingWaitingRoom::read(body) else {
         return;
     };
 
@@ -556,7 +556,7 @@ pub(crate) fn handle_request_party_match_detail(world: &mut World, client_id: u3
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(pkt) = cp::RequestPartyMatchDetail::read(body) else {
+    let Some(pkt) = cp::party::RequestPartyMatchDetail::read(body) else {
         return;
     };
     if world.matching_rooms.room_id_of(player).is_some() {

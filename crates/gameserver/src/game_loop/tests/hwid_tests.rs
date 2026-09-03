@@ -5,7 +5,7 @@ use super::*;
 
 use crate::game_loop::moderation::punishment;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
-use crate::network::client_packets::HardwareInfo;
+use crate::network::client_packets::session::HardwareInfo;
 
 /// A full 19-field `RequestHardWareInfo` body.
 fn hwinfo_body(mac: &str, cpu: &str, vga: &str) -> Vec<u8> {

@@ -173,7 +173,8 @@ pub(crate) fn are_dueling(world: &World, a: i32, b: i32) -> bool {
 
 /// `RequestDuelStart` — challenge the named player.
 pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some((name, party_duel)) = crate::network::client_packets::read_duel_start(body) else {
+    let Some((name, party_duel)) = crate::network::client_packets::combat::read_duel_start(body)
+    else {
         return;
     };
     let Some(challenger) = world.player_oid(client_id) else {
@@ -260,7 +261,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
 
 /// `RequestDuelAnswerStart` — accept (1) or decline the pending challenge.
 pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(response) = crate::network::client_packets::read_duel_answer(body) else {
+    let Some(response) = crate::network::client_packets::combat::read_duel_answer(body) else {
         return;
     };
     let Some(responder) = world.player_oid(client_id) else {

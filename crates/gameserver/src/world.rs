@@ -124,7 +124,7 @@ pub struct World {
     /// Per-connection hardware fingerprint (Java `GameClient._hardwareInfo`,
     /// G31), keyed by client id — reported by `RequestHardWareInfo`, read by the
     /// HWID punishment matching and `//hwid`. Cleared on disconnect.
-    pub hwids: HashMap<u32, crate::network::client_packets::HardwareInfo>,
+    pub hwids: HashMap<u32, crate::network::client_packets::session::HardwareInfo>,
     /// Per-connection client protocol version (Java
     /// `GameClient._protocolVersion`), keyed by client id. Reported by the
     /// handshake, read only by `//charinfo`. Cleared on disconnect alongside

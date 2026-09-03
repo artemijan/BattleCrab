@@ -122,12 +122,12 @@ pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(player) = player_of(world, client_id) else {
         return;
     };
-    let Some(cp::RefineRequest {
+    let Some(cp::items::RefineRequest {
         target_obj,
         mineral_obj,
         fee_obj,
         fee_count,
-    }) = cp::RefineRequest::read(body)
+    }) = cp::items::RefineRequest::read(body)
     else {
         return;
     };
@@ -295,12 +295,12 @@ pub(crate) fn handle_confirm_gemstone(world: &mut World, client_id: u32, body: &
     let Some(player) = player_of(world, client_id) else {
         return;
     };
-    let Some(cp::RefineRequest {
+    let Some(cp::items::RefineRequest {
         target_obj,
         mineral_obj,
         fee_obj,
         fee_count,
-    }) = cp::RefineRequest::read(body)
+    }) = cp::items::RefineRequest::read(body)
     else {
         return;
     };

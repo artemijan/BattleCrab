@@ -155,7 +155,7 @@ fn handle_delete_post(world: &mut World, client_id: u32, body: &[u8], received: 
     if !world.cfg.general.allow_mail {
         return;
     }
-    let Some(pkt) = crate::network::client_packets::DeletePostList::read(body) else {
+    let Some(pkt) = crate::network::client_packets::social::DeletePostList::read(body) else {
         return;
     };
     if refuse_attachments_outside_peace_zone(world, player) {

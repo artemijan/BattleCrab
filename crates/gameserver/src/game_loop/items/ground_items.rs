@@ -335,7 +335,7 @@ pub(crate) fn pickup_ground_item(
 /// or a closed door onto ground the player couldn't walk to. Standing inside a
 /// `ConditionZone` with `NoItemDrop` (`no_drop_item.xml`) refuses outright.
 pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestDropItem::read(body) else {
+    let Some(pkt) = cp::items::RequestDropItem::read(body) else {
         return;
     };
     let Some(player_oid) = world.player_oid(client_id) else {

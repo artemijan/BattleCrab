@@ -365,7 +365,7 @@ fn manufacture_store_craft_for_customer() {
     crafting::handle_list_set(
         &mut world,
         1,
-        vec![cp::ManufactureLine {
+        vec![cp::commerce::ManufactureLine {
             recipe_id: RECIPE_LIST,
             cost: 1000,
         }],
@@ -665,7 +665,7 @@ fn the_manufacture_browse_back_button_resends_the_list() {
     crafting::handle_list_set(
         &mut world,
         1,
-        vec![cp::ManufactureLine {
+        vec![cp::commerce::ManufactureLine {
             recipe_id: RECIPE_LIST,
             cost: 1000,
         }],

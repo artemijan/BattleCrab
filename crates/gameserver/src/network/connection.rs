@@ -20,7 +20,8 @@ use tracing::{debug, info, warn};
 
 use crate::config::SecurityConfig;
 
-use super::client_packets::{ProtocolVersion, opcodes as cop};
+use super::client_packets::opcodes as cop;
+use super::client_packets::session::ProtocolVersion;
 use super::game_client::GameClient;
 use super::server_packets::key_packet;
 use super::{ConnectionState, NetEvent, NetEventTx};

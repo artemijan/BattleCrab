@@ -659,7 +659,7 @@ pub(crate) fn handle_request_quest_list(world: &World, client_id: u32) {
 }
 
 pub(crate) fn handle_request_quest_abort(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = crate::network::client_packets::RequestQuestAbort::read(body) else {
+    let Some(pkt) = crate::network::client_packets::quests::RequestQuestAbort::read(body) else {
         return;
     };
     let Some(player) = world.player_oid(client_id) else {
