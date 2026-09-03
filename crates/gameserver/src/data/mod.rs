@@ -116,7 +116,13 @@ pub use zone_data::ZoneData;
 /// loader tests need. Integration tests and the `tools` crate spell their own
 /// out: `CARGO_MANIFEST_DIR` is per-crate, so this exact relative path only
 /// means "the repo's datapack" from inside `crates/gameserver`.
-#[cfg(test)]
+///
+/// The `bench-api` arm is not decoration: `game_loop::bench_api::DIST_ROOT` is
+/// this same path, and that module compiles **without** `cfg(test)`. Gated on
+/// `test` alone, the benches stop building — which no ordinary `cargo check`,
+/// `clippy` or `nextest` run notices, because none of them turns the feature
+/// on. Keep the two cfgs in step.
+#[cfg(any(test, feature = "bench-api"))]
 pub(crate) const DIST_GAME: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 
 /// The static game data bundle owned by the game thread (Java: the swarm of
