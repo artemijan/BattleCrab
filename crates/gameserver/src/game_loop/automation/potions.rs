@@ -14,6 +14,7 @@
 //! while a player carrying none is told once a second, forever. Ported
 //! verbatim, because the alternative silently changes what an operator sees.
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::{hp_pair, send_message};
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
@@ -106,9 +107,7 @@ fn run_for_player(world: &mut World, player_oid: i32, cfg: &crate::config::AutoP
         // Java walks the id list and sets `success` on the first one the player
         // *carries*, drinking only if the pool is actually low.
         for &item_id in &pool.item_ids {
-            let Some(item_object_id) =
-                crate::game_loop::helpers::carried_item(world, player_oid, item_id)
-            else {
+            let Some(item_object_id) = inventory::carried_item(world, player_oid, item_id) else {
                 continue;
             };
             carries_any = true;

@@ -9,6 +9,7 @@
 //! walk with its `BOMBER`/invisible-NPC decorations, and the `onSpellFinished`
 //! 1 s `MANAGE_SKILL` re-arm (the port re-casts from the damage hook instead).
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::common::{near_leader, players_in_lair_oids};
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::in_zone;
@@ -384,7 +385,7 @@ pub(crate) fn try_enter_with_occupancy(
         if leader != player_oid {
             return EntryVerdict::NotLeader;
         }
-        if !has_stone(world, player_oid) {
+        if inventory::count_of(world, player_oid, PORTAL_STONE) == 0 {
             return EntryVerdict::NoStone;
         }
         if members.len() > MAX_PEOPLE - inside {
@@ -398,7 +399,7 @@ pub(crate) fn try_enter_with_occupancy(
         return EntryVerdict::Admitted(near);
     }
 
-    if !has_stone(world, player_oid) {
+    if inventory::count_of(world, player_oid, PORTAL_STONE) == 0 {
         return EntryVerdict::NoStone;
     }
     EntryVerdict::Admitted(vec![player_oid])
@@ -416,10 +417,6 @@ pub(crate) fn try_enter_with_occupancy(
 // Antharas entry does consult the CC, so this is a real gap; closing it means
 // deciding what a CC of 200 does to the lair cap, which is more than a
 // deduplication should carry.
-
-fn has_stone(world: &World, oid: i32) -> bool {
-    crate::game_loop::helpers::count_of(world, oid, PORTAL_STONE) > 0
-}
 
 fn players_in_lair(world: &World) -> usize {
     let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else {

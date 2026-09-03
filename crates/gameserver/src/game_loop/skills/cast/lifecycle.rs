@@ -7,11 +7,14 @@ use super::in_cast_range;
 use super::matchup_effects;
 use super::stop_casting;
 use super::target_state;
+use crate::game_loop::character::inventory;
 use crate::game_loop::common::maybe_distance_too_far;
-use crate::game_loop::helpers;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{helpers, npc};
 
 use crate::game_loop::skills::effects::apply_skill_effects;
+use crate::game_loop::space::position;
 use crate::model::Player;
 use crate::model::components::Casting;
 use crate::model::components::Position;
@@ -88,7 +91,7 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
         }
     }
 
-    helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         player_object_id,
         &server_packets::magic_skill_launched(
@@ -197,7 +200,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             stop_casting(world, player_object_id);
             return;
         };
-        crate::game_loop::helpers::send_inventory_update(world, player_object_id, vec![change]);
+        inventory::send_inventory_update(world, player_object_id, vec![change]);
     }
 
     // `Skill.forEachTargetAffected` — expand the primary target through the
@@ -222,7 +225,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // watches) and so looked correct.
     const SKILL_SEE_RANGE: f64 = 1000.0;
     let caster_pos = maybe_position(world, player_object_id);
-    let caster_region = helpers::region_cell_of(world, player_object_id);
+    let caster_region = position::region_cell_of(world, player_object_id);
     let skill_see_witnesses: Vec<i32> = match (caster_pos, caster_region) {
         (Some(pos), Some(region)) => world
             .npcs_visible_from(region)
@@ -281,7 +284,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // `Npc.onSkillSee` for each NPC that saw the cast, plus the support-aggro
     // rule that shares Java's scan.
     for witness in skill_see_witnesses {
-        let npc_id = helpers::npc_id_of(world, witness);
+        let npc_id = npc::npc_id_of(world, witness);
         if let Some(npc_id) = npc_id {
             crate::game_loop::quests::notify_skill_see(
                 world,
@@ -307,7 +310,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
             .objects
             .get_component::<crate::model::npc::NpcAi>(&witness)
             .is_some_and(|ai| ai.intention == crate::model::npc::NpcIntention::Attack)
-            && helpers::npc_template(world, witness).is_some_and(|tpl| tpl.is_auto_attackable());
+            && npc::npc_template(world, witness).is_some_and(|tpl| tpl.is_auto_attackable());
         if skill.effect_point > 0 && fighting {
             let npc_target = world
                 .objects
@@ -317,7 +320,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
                 .iter()
                 .any(|&t| Some(t) == npc_target || t == witness);
             if relevant {
-                let level = helpers::npc_template(world, witness).map_or(1, |tpl| tpl.level);
+                let level = npc::npc_template(world, witness).map_or(1, |tpl| tpl.level);
                 let hate = f64::from(skill.effect_point) * 150.0 / f64::from(level + 7);
                 crate::game_loop::npc::minions::add_hate(world, witness, player_object_id, hate);
             }
@@ -403,7 +406,7 @@ pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq
     resume_action_after_cast(world, player_object_id, target, skill_id, skill_level);
     // `EVT_FINISH_CASTING` → script `onSpellFinished`, for NPC casters a
     // script registered (the Primeval Isle Tyrannosaurus's berserk chains).
-    let npc_id = helpers::npc_id_of(world, player_object_id);
+    let npc_id = npc::npc_id_of(world, player_object_id);
     if let Some(npc_id) = npc_id {
         crate::game_loop::quests::notify_spell_finished(
             world,

@@ -7,6 +7,7 @@
 //! The sibling `BeastFarm.java` (Gracia spice revamp, NPCs 18874+) never
 //! spawns on this dist — dead content, not ported.
 
+use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::game_loop::space::position::pos_of;
@@ -346,6 +347,6 @@ fn broadcast_near(ctx: &mut QuestCtx, npc_oid: i32, pkt: &[u8]) {
         .get_component::<RegionCell>(&npc_oid)
         .map(|r| r.0)
     {
-        crate::game_loop::helpers::broadcast_near_region(ctx.world, region, pkt);
+        broadcast::broadcast_near_region(ctx.world, region, pkt);
     }
 }

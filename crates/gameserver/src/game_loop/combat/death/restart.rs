@@ -1,6 +1,8 @@
 use super::do_revive;
 use crate::game_loop::clans::clan_of;
 use crate::game_loop::helpers;
+use crate::game_loop::net::broadcast;
+use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
 
 use crate::model::Player;
@@ -282,7 +284,7 @@ fn siege_restart_location(
         }
         4 if role == Some(SiegeClanType::Attacker) => {
             let flag_oid = siege.flag_of(clan_id)?;
-            helpers::pos_of(world, flag_oid)
+            position::pos_of(world, flag_oid)
         }
         _ => None,
     }
@@ -385,7 +387,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     else {
         return;
     };
-    helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         player_oid,
         &server_packets::teleport_to_location(player_oid, x, y, z, heading),
@@ -398,7 +400,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     }
     // Java `Player.setTeleporting(true)` arms the watchdog here.
     arm_teleport_watchdog(world, player_oid);
-    helpers::set_position(world, player_oid, (x, y, z));
+    position::set_position(world, player_oid, (x, y, z));
     // Through `World`, not the component directly, so `player_regions` moves
     // with the cell (an untracked teleport would leave the player receiving
     // broadcasts for the region they left).

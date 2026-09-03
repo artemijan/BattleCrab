@@ -10,10 +10,10 @@
 //! `PrivateStoreMsgSell`. Manufacture (workshop) stores belong to `crafting`.
 
 use crate::data::item_data::ADENA_ID;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::{
-    adena, player_of, send_inventory_item_list, send_sm_bare_to_client as send_sm,
-};
+use crate::game_loop::helpers::{player_of, send_sm_bare_to_client};
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::components::{PrivateStore, StoreItem};
 use crate::model::inventory::{Inventory, ItemInstance};
@@ -72,7 +72,13 @@ fn open_manage_kind(world: &mut World, client_id: u32, packaged: bool) {
         })
         .collect();
     let in_store = store_lines(world, owner);
-    let packet = sp::manage_list_sell(owner, adena(world, owner), &sellable, &in_store, packaged);
+    let packet = sp::manage_list_sell(
+        owner,
+        inventory::adena(world, owner),
+        &sellable,
+        &in_store,
+        packaged,
+    );
     send_to_client(world, client_id, packet);
 }
 
@@ -234,7 +240,7 @@ pub(crate) fn open_buyer_view(world: &mut World, client_id: u32, buyer: i32, sel
         .get_component::<PrivateStore>(&seller)
         .is_some_and(|s| s.packaged);
     let lines = store_lines(world, seller);
-    let packet = sp::list_sell(seller, adena(world, buyer), &lines, packaged);
+    let packet = sp::list_sell(seller, inventory::adena(world, buyer), &lines, packaged);
     send_to_client(world, client_id, packet);
 }
 
@@ -309,7 +315,7 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
         total = total.saturating_add(line.price * n);
         buys.push((*obj_id, line.item_id, n, line.enchant));
     }
-    if buys.is_empty() || adena(world, buyer) < total {
+    if buys.is_empty() || inventory::adena(world, buyer) < total {
         send_to_client(
             world,
             client_id,
@@ -320,13 +326,11 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
     // Move the items seller → buyer.
     let mut seller_changes = Vec::new();
     for &(obj_id, item_id, n, enchant) in &buys {
-        if let Some(change) =
-            crate::game_loop::helpers::remove_inventory_item_change(world, seller, obj_id, n)
-        {
+        if let Some(change) = inventory::remove_inventory_item_change(world, seller, obj_id, n) {
             seller_changes.push(change);
         }
         // Buyer gets a fresh instance preserving enchant.
-        crate::game_loop::helpers::give_transferred_item(world, buyer, item_id, n, enchant);
+        inventory::give_transferred_item(world, buyer, item_id, n, enchant);
         // Reduce the store line.
         if let Some(store) = world.objects.get_component_mut::<PrivateStore>(&seller) {
             if let Some(line) = store.items.iter_mut().find(|s| s.object_id == obj_id) {
@@ -342,8 +346,8 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
     crate::game_loop::items::add_inventory_item(world, seller, ADENA_ID, total);
 
     // Refresh both inventories.
-    send_inventory_item_list(world, buyer);
-    send_inventory_item_list(world, seller);
+    inventory::send_inventory_item_list(world, buyer);
+    inventory::send_inventory_item_list(world, seller);
     let _ = seller_changes;
 
     // Close the store if empty, else re-show the buyer view.
@@ -393,7 +397,7 @@ fn broadcast_store(world: &mut World, owner: i32, title: &str, packaged: bool) {
     } else {
         sp::msg_sell(owner, title)
     };
-    crate::game_loop::helpers::broadcast_including_self(world, owner, &packet);
+    broadcast::broadcast_including_self(world, owner, &packet);
     crate::game_loop::character::player_info::broadcast_user_info(world, owner);
 }
 
@@ -422,7 +426,7 @@ fn close_store(world: &mut World, owner: i32) {
     {
         p.store_type = 0;
     }
-    crate::game_loop::helpers::broadcast_including_self(world, owner, &sp::msg_sell(owner, ""));
+    broadcast::broadcast_including_self(world, owner, &sp::msg_sell(owner, ""));
     crate::game_loop::character::player_info::broadcast_user_info(world, owner);
     // Java `Player.setPrivateStoreType(NONE)` → `OFFLINE_DISCONNECT_FINISHED`:
     // an unattended shop that sold out leaves the world.
@@ -509,7 +513,7 @@ fn send_manage_buy_window(world: &mut World, client_id: u32) {
             })
             .collect();
         let wanted = wanted_lines(world, owner);
-        sp::manage_list_buy(owner, adena(world, owner), &inventory, &wanted)
+        sp::manage_list_buy(owner, inventory::adena(world, owner), &inventory, &wanted)
     };
     send_to_client(world, client_id, packet);
 }
@@ -528,7 +532,7 @@ pub(crate) fn handle_set_list_buy(world: &mut World, client_id: u32, body: &[u8]
     };
     // `AttackStanceTaskManager.hasAttackStanceTask(player) || player.isInDuel()`.
     if crate::game_loop::combat::has_attack_stance(world, owner) {
-        send_sm(
+        send_sm_bare_to_client(
             world,
             client_id,
             sp::sm_ids::WHILE_YOU_ARE_ENGAGED_IN_COMBAT_YOU_CANNOT_OPERATE_A_PRIVATE_STORE_OR_PRIVATE_WORKSHOP,
@@ -538,7 +542,7 @@ pub(crate) fn handle_set_list_buy(world: &mut World, client_id: u32, body: &[u8]
     }
     let limit = private_store_limit(world, owner);
     if lines.len() as i32 > limit {
-        send_sm(
+        send_sm_bare_to_client(
             world,
             client_id,
             sp::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
@@ -588,8 +592,8 @@ pub(crate) fn handle_set_list_buy(world: &mut World, client_id: u32, body: &[u8]
         return;
     }
     // "The purchase price is higher than the amount of money that you have."
-    if total > adena(world, owner) {
-        send_sm(
+    if total > inventory::adena(world, owner) {
+        send_sm_bare_to_client(
             world,
             client_id,
             sp::sm_ids::THE_PURCHASE_PRICE_IS_HIGHER_THAN_YOUR_MONEY,
@@ -617,7 +621,7 @@ pub(crate) fn handle_set_list_buy(world: &mut World, client_id: u32, body: &[u8]
         p.store_type = STORE_TYPE_BUY;
     }
     // Java `sitDown()` then broadcasts the type + the title.
-    crate::game_loop::helpers::broadcast_including_self(world, owner, &sp::msg_buy(owner, &title));
+    broadcast::broadcast_including_self(world, owner, &sp::msg_buy(owner, &title));
     crate::game_loop::character::player_info::broadcast_user_info(world, owner);
 }
 
@@ -652,20 +656,12 @@ pub(crate) fn handle_set_msg(world: &mut World, client_id: u32, body: &[u8], buy
         if let Some(store) = world.objects.get_component_mut::<PrivateBuyStore>(&owner) {
             store.title = title.clone();
         }
-        crate::game_loop::helpers::broadcast_including_self(
-            world,
-            owner,
-            &sp::msg_buy(owner, &title),
-        );
+        broadcast::broadcast_including_self(world, owner, &sp::msg_buy(owner, &title));
     } else {
         if let Some(store) = world.objects.get_component_mut::<PrivateStore>(&owner) {
             store.title = title.clone();
         }
-        crate::game_loop::helpers::broadcast_including_self(
-            world,
-            owner,
-            &sp::msg_sell(owner, &title),
-        );
+        broadcast::broadcast_including_self(world, owner, &sp::msg_sell(owner, &title));
     }
 }
 
@@ -731,7 +727,7 @@ pub(crate) fn open_seller_view(world: &mut World, client_id: u32, viewer: i32, o
                 })
         })
         .collect::<Vec<_>>();
-    let packet = sp::list_buy(owner, adena(world, viewer), &lines);
+    let packet = sp::list_buy(owner, inventory::adena(world, viewer), &lines);
     send_to_client(world, client_id, packet);
 }
 
@@ -812,15 +808,13 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
         return;
     }
     // The owner may have spent their adena elsewhere since opening the store.
-    if adena(world, owner) < total {
-        send_sm(world, client_id, sp::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA);
+    if inventory::adena(world, owner) < total {
+        send_sm_bare_to_client(world, client_id, sp::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA);
         return;
     }
 
     for &(obj_id, item_id, n, _price) in &sales {
-        if crate::game_loop::helpers::remove_inventory_item_change(world, seller, obj_id, n)
-            .is_none()
-        {
+        if inventory::remove_inventory_item_change(world, seller, obj_id, n).is_none() {
             continue;
         }
         let enchant = world
@@ -829,7 +823,7 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
             .and_then(|s| s.items.iter().find(|w| w.item_id == item_id))
             .map(|w| w.enchant)
             .unwrap_or(0);
-        crate::game_loop::helpers::give_transferred_item(world, owner, item_id, n, enchant);
+        inventory::give_transferred_item(world, owner, item_id, n, enchant);
         if let Some(store) = world.objects.get_component_mut::<PrivateBuyStore>(&owner) {
             if let Some(w) = store.items.iter_mut().find(|w| w.item_id == item_id) {
                 w.count -= n;
@@ -843,8 +837,8 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
     }
     crate::game_loop::items::add_inventory_item(world, seller, ADENA_ID, total);
 
-    send_inventory_item_list(world, seller);
-    send_inventory_item_list(world, owner);
+    inventory::send_inventory_item_list(world, seller);
+    inventory::send_inventory_item_list(world, owner);
 
     let empty = world
         .objects
@@ -911,7 +905,7 @@ fn close_buy_store(world: &mut World, owner: i32) {
     {
         p.store_type = 0;
     }
-    crate::game_loop::helpers::broadcast_including_self(world, owner, &sp::msg_buy(owner, ""));
+    broadcast::broadcast_including_self(world, owner, &sp::msg_buy(owner, ""));
     crate::game_loop::character::player_info::broadcast_user_info(world, owner);
     super::offline_trade::on_store_type_cleared(world, owner);
 }

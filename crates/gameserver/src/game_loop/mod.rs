@@ -35,7 +35,7 @@ pub(crate) mod items;
 pub(crate) mod mail;
 pub(crate) mod manor;
 pub(crate) mod moderation;
-mod net;
+pub(crate) mod net;
 // The boot-time metric registration is the one thing `main` needs out of `net`;
 // re-exported rather than opening the whole module up.
 pub use net::register_metrics;

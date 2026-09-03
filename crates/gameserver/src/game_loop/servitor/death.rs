@@ -7,7 +7,8 @@ use super::send_pet_info;
 use super::send_pet_item_list;
 use super::set_summon_link;
 use super::sync_pet_row;
-use crate::game_loop::helpers::send_inventory_update;
+use crate::game_loop::character::inventory;
+use crate::model;
 use crate::model::components::ServitorOf;
 use crate::world::World;
 /// Java `Pet.doDie` — the pet-specific half, called from the NPC death path
@@ -158,7 +159,7 @@ pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
             break;
         };
         let World { data, objects, .. } = world;
-        if let Some(inv) = objects.get_component_mut::<crate::model::inventory::Inventory>(&owner) {
+        if let Some(inv) = objects.get_component_mut::<model::inventory::Inventory>(&owner) {
             inv.add_item(&data.item_data, oid, item_id, count);
         }
     }
@@ -166,9 +167,9 @@ pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
     // `destroyControlItem` — the collar is consumed, and with it the pet's
     // identity: the saved row is keyed by that object id.
     let collar = pet.collar_object_id;
-    let removed = crate::game_loop::helpers::remove_inventory_item_change(world, owner, collar, 1);
+    let removed = inventory::remove_inventory_item_change(world, owner, collar, 1);
     if let Some(change) = removed {
-        send_inventory_update(world, owner, vec![change]);
+        inventory::send_inventory_update(world, owner, vec![change]);
     }
     world
         .objects

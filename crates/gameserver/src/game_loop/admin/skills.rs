@@ -3,11 +3,11 @@
 
 use super::guard::{self, Guard, OrReject};
 use crate::game_loop::clans::clan_name_or_empty;
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{nth_arg, send_sm_bare_to_client};
 use crate::game_loop::skills::skill_by_id;
+use crate::game_loop::{clans, helpers};
 use crate::model::Player;
 use crate::model::components::{Buffs, SkillBook};
 use crate::network::server_packets::sm_ids;
@@ -161,8 +161,7 @@ fn give_clan_skills(
 ) -> Guard<()> {
     use crate::network::server_packets::SmParam;
     let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
-    let clan_id =
-        helpers::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
+    let clan_id = clans::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
     let target_name = player_name_or_empty(world, target);
     // Java warns when the target isn't the leader but grants to the clan anyway.
     if world
@@ -178,7 +177,7 @@ fn give_clan_skills(
             &[SmParam::Text(target_name.clone())],
         );
     }
-    let count = crate::game_loop::clans::give_clan_skills(world, clan_id, include_squad);
+    let count = clans::give_clan_skills(world, clan_id, include_squad);
     let clan_name = clan_name_or_empty(world, clan_id);
     send_message(
         world,
@@ -209,7 +208,7 @@ fn remove_all_skills(world: &mut World, client_id: u32, object_id: i32) -> Guard
     // passive buffs it applied — otherwise //remove_all_skills leaves the clan
     // passives on the character. Player-only (like Java): the clan still owns
     // them, so they re-apply on relog.
-    crate::game_loop::clans::remove_clan_skills_from_member(world, target);
+    clans::remove_clan_skills_from_member(world, target);
     refresh_skill_list(world, target);
     let name = player_name_or_empty(world, target);
     send_message(

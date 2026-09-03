@@ -1,9 +1,8 @@
 //! Summon shots: Beast Soulshot/Spiritshot charging and spending.
 
 use super::npc_template_id;
-use crate::game_loop::helpers::send_inventory_update;
-use crate::game_loop::helpers::send_sm_to_player;
-use crate::game_loop::helpers::send_to_player;
+use crate::game_loop::character::inventory;
+use crate::game_loop::helpers::{send_sm_to_player, send_to_player};
 use crate::model::components::ServitorOf;
 use crate::network::server_packets;
 use crate::world::World;
@@ -142,7 +141,7 @@ fn recharge_summon_shot(world: &mut World, summon_oid: i32, kind: SummonShot) ->
             .get_component_mut::<crate::model::inventory::Inventory>(&owner)
             .map(|inv| inv.remove_item(item_id, per_hit))
             .unwrap_or_default();
-        send_inventory_update(world, owner, changes);
+        inventory::send_inventory_update(world, owner, changes);
         if world
             .objects
             .get_component::<ChargedShots>(&summon_oid)

@@ -12,8 +12,9 @@ use super::merge_defence_traits;
 use super::merge_skill_rates;
 use super::recompute_max_vitals;
 use super::schedule_dam_over_time;
-use crate::game_loop::helpers;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{helpers, skills};
 
 use crate::model::components::Buffs;
 use crate::model::formulas;
@@ -521,7 +522,7 @@ pub(crate) fn restore_persisted_buffs(
     rows: &[crate::db::SkillBuffRow],
 ) {
     for row in rows {
-        let Some(skill) = helpers::skill_by_id(world, row.skill_id, row.skill_level) else {
+        let Some(skill) = skills::skill_by_id(world, row.skill_id, row.skill_level) else {
             continue;
         };
         apply_continuous_effects(
@@ -568,7 +569,7 @@ pub(crate) fn broadcast_change_wait_type(world: &mut World, object_id: i32, move
         return;
     };
     let pkt = server_packets::change_wait_type(object_id, move_type, pos.x, pos.y, pos.z);
-    crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
+    broadcast::broadcast_including_self(world, object_id, &pkt);
 }
 
 /// `Creature.stopFakeDeath` — get back up: tell every client to end the pose
@@ -583,5 +584,5 @@ pub(crate) fn broadcast_change_wait_type(world: &mut World, object_id: i32, move
 pub(crate) fn stop_fake_death(world: &mut World, object_id: i32) {
     broadcast_change_wait_type(world, object_id, server_packets::wait_type::STOP_FAKEDEATH);
     let pkt = server_packets::revive(object_id);
-    crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
+    broadcast::broadcast_including_self(world, object_id, &pkt);
 }

@@ -16,13 +16,10 @@
 //! data set), and `item_variations` DB persistence (augments are session-only
 //! for now). The item-list mask display bit is also still 0.
 
-use crate::data::item_data::ADENA_ID;
-use commons::network::PacketReader;
-
 use super::cursed_weapon;
-use crate::game_loop::helpers::item_id_of;
-use crate::game_loop::helpers::{player_of, send_to_client as send};
-use crate::game_loop::helpers::{send_inventory_item_list, send_sm_bare_to_client as send_sm};
+use crate::data::item_data::ADENA_ID;
+use crate::game_loop::character::inventory;
+use crate::game_loop::helpers::{player_of, send_sm_bare_to_client, send_to_client};
 use crate::game_loop::items;
 use crate::game_loop::items::item_mana;
 use crate::game_loop::stats::options;
@@ -30,6 +27,7 @@ use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;
 use crate::world::World;
+use commons::network::PacketReader;
 
 /// `Augment` bypass: `1` opens the make window, `2` the cancel window.
 pub(crate) fn open_window(world: &mut World, client_id: u32, make: bool) {
@@ -38,7 +36,7 @@ pub(crate) fn open_window(world: &mut World, client_id: u32, make: bool) {
     } else {
         sp::ex_show_variation_cancel_window()
     };
-    send(world, client_id, packet);
+    send_to_client(world, client_id, packet);
 }
 
 /// Whether `target_obj` is a valid augment target for life stone `mineral_id`:
@@ -92,7 +90,7 @@ pub(crate) fn handle_confirm_refiner(world: &mut World, client_id: u32, body: &[
     let (Some(target_obj), Some(refiner_obj)) = (r.read_i32(), r.read_i32()) else {
         return;
     };
-    let Some(mineral_id) = item_id_of(world, player, refiner_obj) else {
+    let Some(mineral_id) = inventory::item_id_of(world, player, refiner_obj) else {
         return;
     };
     let Some(fee) = resolve_fee(world, player, target_obj, mineral_id) else {
@@ -105,7 +103,7 @@ pub(crate) fn handle_confirm_refiner(world: &mut World, client_id: u32, body: &[
         fee.item_id,
         fee.item_count,
     );
-    send(world, client_id, packet);
+    send_to_client(world, client_id, packet);
 }
 
 fn refresh_slot_if_equipped(world: &mut World, player: i32, target_obj: i32, client_id: u32) {
@@ -134,7 +132,8 @@ pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     };
 
-    let fail = |world: &mut World| send(world, client_id, sp::ex_variation_result(0, 0, false));
+    let fail =
+        |world: &mut World| send_to_client(world, client_id, sp::ex_variation_result(0, 0, false));
 
     // Java `AbstractRefinePacket.isValid`: no augmenting while cursed.
     if cursed_weapon::is_cursed(world, player) {
@@ -143,8 +142,8 @@ pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
     }
 
     let (Some(mineral_id), Some(fee_item_id)) = (
-        item_id_of(world, player, mineral_obj),
-        item_id_of(world, player, fee_obj),
+        inventory::item_id_of(world, player, mineral_obj),
+        inventory::item_id_of(world, player, fee_obj),
     ) else {
         fail(world);
         return;
@@ -204,12 +203,12 @@ pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
     }
     let _ = target_item_id;
 
-    send(
+    send_to_client(
         world,
         client_id,
         sp::ex_variation_result(option1, option2, true),
     );
-    send_inventory_item_list(world, player);
+    inventory::send_inventory_item_list(world, player);
     // If the weapon is equipped, its equip-slot augment display must refresh.
     refresh_slot_if_equipped(world, player, target_obj, client_id);
 }
@@ -224,10 +223,11 @@ pub(crate) fn handle_refine_cancel(world: &mut World, client_id: u32, body: &[u8
         return;
     };
 
-    let fail = |world: &mut World| send(world, client_id, sp::ex_variation_cancel_result(false));
+    let fail =
+        |world: &mut World| send_to_client(world, client_id, sp::ex_variation_cancel_result(false));
 
     let (Some(target_item_id), Some(mineral_id)) = (
-        item_id_of(world, player, target_obj),
+        inventory::item_id_of(world, player, target_obj),
         world
             .objects
             .get_component::<Inventory>(&player)
@@ -257,8 +257,8 @@ pub(crate) fn handle_refine_cancel(world: &mut World, client_id: u32, body: &[u8
         inv.remove_item(ADENA_ID, price);
         inv.remove_augmentation(target_obj);
     }
-    send(world, client_id, sp::ex_variation_cancel_result(true));
-    send_inventory_item_list(world, player);
+    send_to_client(world, client_id, sp::ex_variation_cancel_result(true));
+    inventory::send_inventory_item_list(world, player);
     refresh_slot_if_equipped(world, player, target_obj, client_id);
 }
 
@@ -273,15 +273,15 @@ pub(crate) fn handle_confirm_target_item(world: &mut World, client_id: u32, body
     let Some(target_obj) = PacketReader::new(body).read_i32() else {
         return;
     };
-    let Some(item_id) = item_id_of(world, player, target_obj) else {
+    let Some(item_id) = inventory::item_id_of(world, player, target_obj) else {
         return;
     };
     // Java `VariationData.hasFeeData(itemId)` — any mineral will do.
     if !world.data.variations.has_fee_data(item_id) {
-        send_sm(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
+        send_sm_bare_to_client(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
         return;
     }
-    send(
+    send_to_client(
         world,
         client_id,
         sp::ex_put_item_result_for_variation_make(target_obj, item_id),
@@ -305,23 +305,23 @@ pub(crate) fn handle_confirm_gemstone(world: &mut World, client_id: u32, body: &
         return;
     };
     let (Some(mineral_id), Some(gemstone_id)) = (
-        item_id_of(world, player, mineral_obj),
-        item_id_of(world, player, fee_obj),
+        inventory::item_id_of(world, player, mineral_obj),
+        inventory::item_id_of(world, player, fee_obj),
     ) else {
         return;
     };
     let Some(fee) = resolve_fee(world, player, target_obj, mineral_id) else {
-        send_sm(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
+        send_sm_bare_to_client(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
         return;
     };
     // The gemstone the client offers must be the one this fee asks for, in the
     // amount it asks for (Java's `gemStoneItem.getId() != fee.getItemId()` and
     // count checks).
     if gemstone_id != fee.item_id || fee_count != fee.item_count {
-        send_sm(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
+        send_sm_bare_to_client(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
         return;
     }
-    send(
+    send_to_client(
         world,
         client_id,
         sp::ex_put_commission_result_for_variation_make(fee_obj, gemstone_id, fee_count),
@@ -339,7 +339,7 @@ pub(crate) fn handle_confirm_cancel_item(world: &mut World, client_id: u32, body
     let Some(target_obj) = PacketReader::new(body).read_i32() else {
         return;
     };
-    let Some(item_id) = item_id_of(world, player, target_obj) else {
+    let Some(item_id) = inventory::item_id_of(world, player, target_obj) else {
         return;
     };
     let Some((option1, option2)) = world
@@ -347,7 +347,7 @@ pub(crate) fn handle_confirm_cancel_item(world: &mut World, client_id: u32, body
         .get_component::<Inventory>(&player)
         .and_then(|inv| inv.augmentation_of(target_obj))
     else {
-        send_sm(
+        send_sm_bare_to_client(
             world,
             client_id,
             sp::sm_ids::AUGMENTATION_REMOVAL_ONLY_ON_AN_AUGMENTED_ITEM,
@@ -360,10 +360,10 @@ pub(crate) fn handle_confirm_cancel_item(world: &mut World, client_id: u32, body
         .and_then(|inv| inv.augment_mineral(target_obj))
         .unwrap_or(0);
     let Some(price) = world.data.variations.cancel_fee(item_id, mineral_id) else {
-        send_sm(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
+        send_sm_bare_to_client(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
         return;
     };
-    send(
+    send_to_client(
         world,
         client_id,
         sp::ex_put_item_result_for_variation_cancel(target_obj, item_id, option1, option2, price),

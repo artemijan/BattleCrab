@@ -5,8 +5,9 @@ use super::set_skill_reuse;
 use super::stop_channelizing;
 use super::target_state;
 use crate::game_loop::combat::run_queued_action;
+use crate::game_loop::net::broadcast;
+use crate::game_loop::space::position;
 use crate::game_loop::{helpers, items};
-
 use crate::model::Player;
 use crate::model::components::Casting;
 use crate::model::components::Position;
@@ -140,7 +141,7 @@ pub(crate) fn start_casting(
     // intentions with idle. (Mainly done for AI_INTENTION_MOVE_TO)"). An
     // attack loop's chase leg is different: the surviving `Intent` component
     // resumes the loop (and its chase) by itself.
-    helpers::stop_movement(world, object_id);
+    position::stop_movement(world, object_id);
 
     // Face the target (Java: `setHeading` + broadcast `ExRotation`).
     if target_oid != object_id {
@@ -156,7 +157,7 @@ pub(crate) fn start_casting(
         if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
             pos.heading = heading;
         }
-        helpers::broadcast_including_self(
+        broadcast::broadcast_including_self(
             world,
             object_id,
             &crate::network::enter_world::ex_rotation(object_id, heading),
@@ -200,7 +201,7 @@ pub(crate) fn start_casting(
         let Some(caster_pos) = world.objects.get_component::<Position>(&object_id) else {
             return;
         };
-        helpers::broadcast_including_self(
+        broadcast::broadcast_including_self(
             world,
             object_id,
             &server_packets::magic_skill_use(

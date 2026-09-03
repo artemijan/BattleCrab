@@ -2,8 +2,10 @@
 //! shot visual broadcast.
 
 use crate::data::item_data::ItemHandler;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets;
@@ -183,7 +185,7 @@ pub(crate) fn charge_shot(
         p.charge_shot(shot_type);
     }
     if !changes.is_empty() {
-        crate::game_loop::helpers::send_inventory_update(world, object_id, changes);
+        inventory::send_inventory_update(world, object_id, changes);
     }
     send(
         world,
@@ -400,7 +402,7 @@ pub(crate) fn charge_fish_shot(world: &mut World, object_id: i32, shot_item_id: 
         p.charge_shot(ShotType::FishSoulshots);
     }
     if !changes.is_empty() {
-        crate::game_loop::helpers::send_inventory_update(world, object_id, changes);
+        inventory::send_inventory_update(world, object_id, changes);
     }
     true
 }
@@ -430,6 +432,6 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
             0,
             0,
         );
-        crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
+        broadcast::broadcast_including_self(world, object_id, &pkt);
     }
 }

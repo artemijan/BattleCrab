@@ -15,6 +15,7 @@ use commons::util::rnd;
 use crate::data::zone_data::ZoneKind;
 use crate::db::DbCommand;
 use crate::enums::ChatType;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
 use crate::model::components::{Position, RaceTicket};
 use crate::model::inventory::{Inventory, ItemChange};
@@ -482,7 +483,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32, npc_oid: i32, comm
                 ],
             ),
         );
-        crate::game_loop::helpers::send_inventory_update(world, player, changes);
+        inventory::send_inventory_update(world, player, changes);
         chat0(world, client_id, npc_oid);
     }
 }
@@ -604,7 +605,7 @@ fn calculate_win(world: &mut World, player: i32, command: &str) {
         return;
     };
     // Destroy the ticket, then pay out.
-    let removed = crate::game_loop::helpers::remove_inventory_item_change(world, player, oid, 1);
+    let removed = inventory::remove_inventory_item_change(world, player, oid, 1);
     if removed.is_none() {
         return;
     }
@@ -623,7 +624,7 @@ fn calculate_win(world: &mut World, player: i32, command: &str) {
     {
         changes.push(ItemChange::Modified(*it));
     }
-    crate::game_loop::helpers::send_inventory_update(world, player, changes);
+    inventory::send_inventory_update(world, player, changes);
 }
 
 /// Java `ViewHistory` (page 9): the last seven finished races.

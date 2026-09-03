@@ -6,10 +6,12 @@ use super::refresh_attack_stance;
 use super::target_is_dead;
 use super::wields_two_handed;
 use crate::game_loop::helpers;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::components;
 
 use crate::game_loop::skills::effects::target_p_def;
+use crate::game_loop::space::position;
 use crate::model::PlayerIntent;
 
 use crate::model::formulas;
@@ -304,7 +306,7 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
         dpos.y,
         dpos.z,
     );
-    helpers::broadcast_including_self(world, attacker_oid, &pkt);
+    broadcast::broadcast_including_self(world, attacker_oid, &pkt);
     refresh_attack_stance(world, attacker_oid);
 }
 
@@ -325,8 +327,8 @@ pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
                 .unwrap_or(1),
         )
     };
-    if let Some(region) = helpers::region_cell_of(world, door_oid) {
-        helpers::broadcast_near_region_in(
+    if let Some(region) = position::region_cell_of(world, door_oid) {
+        broadcast::broadcast_near_region_in(
             world,
             region,
             helpers::instance_of(world, door_oid),
@@ -470,7 +472,7 @@ fn player_attack_think(world: &mut World, object_id: i32) {
         return;
     }
     // In reach: stop the chase and swing.
-    helpers::stop_movement(world, object_id);
+    position::stop_movement(world, object_id);
     // A siege door takes damage through the gate path (no miss/crit/shield/AI);
     // everything else goes through the shared creature swing.
     if world
@@ -840,7 +842,7 @@ fn chase_pawn(
         target.y,
         target.z,
     );
-    helpers::broadcast_including_self(world, object_id, &pkt);
+    broadcast::broadcast_including_self(world, object_id, &pkt);
 }
 
 /// `Creature.moveToLocation`'s offset handling: the point `offset_value − 5`
@@ -938,7 +940,7 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
     world
         .objects
         .remove_component::<components::Intent>(&object_id);
-    helpers::stop_movement(world, object_id);
+    position::stop_movement(world, object_id);
     let Some(client_id) = helpers::client_for_player(world, object_id) else {
         return;
     };
@@ -1016,7 +1018,7 @@ fn player_interact_think(world: &mut World, object_id: i32) {
     world
         .objects
         .remove_component::<components::Intent>(&object_id);
-    helpers::stop_movement(world, object_id);
+    position::stop_movement(world, object_id);
     let Some(client_id) = helpers::client_for_player(world, object_id) else {
         return;
     };
@@ -1121,7 +1123,7 @@ fn player_pickup_think(world: &mut World, object_id: i32) {
     world
         .objects
         .remove_component::<components::Intent>(&object_id);
-    helpers::stop_movement(world, object_id);
+    position::stop_movement(world, object_id);
     let Some(client_id) = helpers::client_for_player(world, object_id) else {
         return;
     };

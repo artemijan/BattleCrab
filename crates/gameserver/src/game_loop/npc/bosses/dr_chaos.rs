@@ -12,6 +12,7 @@
 //! boot. The status field (on the golem's `grand_bosses` record) is DrChaos's
 //! own three-state ladder, distinct from the two-/four-state ones elsewhere.
 
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::{MILLIS_PER_HOUR, TICKS_PER_SECOND};
 use crate::geo::distance::within_2d_xy;
@@ -188,29 +189,17 @@ pub(crate) fn handle_transform(world: &mut World, dr_chaos_oid: i32, step: u8) {
     use crate::network::server_packets::{social_action, special_camera};
     match step {
         1 => {
-            crate::game_loop::helpers::broadcast_from(
-                world,
-                dr_chaos_oid,
-                &social_action(dr_chaos_oid, 2),
-            );
-            crate::game_loop::helpers::broadcast_from(
+            broadcast::broadcast_from(world, dr_chaos_oid, &social_action(dr_chaos_oid, 2));
+            broadcast::broadcast_from(
                 world,
                 dr_chaos_oid,
                 &special_camera(dr_chaos_oid, 1, -200, 15, 5500, 1000, 13500, 0, 0, 0, 0, 0),
             );
         }
-        2 => crate::game_loop::helpers::broadcast_from(
-            world,
-            dr_chaos_oid,
-            &social_action(dr_chaos_oid, 3),
-        ),
-        3 => crate::game_loop::helpers::broadcast_from(
-            world,
-            dr_chaos_oid,
-            &social_action(dr_chaos_oid, 1),
-        ),
+        2 => broadcast::broadcast_from(world, dr_chaos_oid, &social_action(dr_chaos_oid, 3)),
+        3 => broadcast::broadcast_from(world, dr_chaos_oid, &social_action(dr_chaos_oid, 1)),
         4 => {
-            crate::game_loop::helpers::broadcast_from(
+            broadcast::broadcast_from(
                 world,
                 dr_chaos_oid,
                 &special_camera(dr_chaos_oid, 1, -150, 10, 3500, 1000, 5000, 0, 0, 0, 0, 0),
@@ -247,13 +236,13 @@ fn spawn_golem(world: &mut World, x: i32, y: i32, z: i32, restore: bool) -> Opti
         },
     );
     if !restore {
-        crate::game_loop::helpers::broadcast_from(
+        broadcast::broadcast_from(
             world,
             oid,
             &special_camera(oid, 30, 200, 20, 6000, 700, 8000, 0, 0, 0, 0, 0),
         );
-        crate::game_loop::helpers::broadcast_from(world, oid, &social_action(oid, 1));
-        crate::game_loop::helpers::broadcast_from(world, oid, &play_sound("Rm03_A"));
+        broadcast::broadcast_from(world, oid, &social_action(oid, 1));
+        broadcast::broadcast_from(world, oid, &play_sound("Rm03_A"));
     }
     world.scheduler.schedule(
         world.tick + DESPAWN_CHECK_TICKS,

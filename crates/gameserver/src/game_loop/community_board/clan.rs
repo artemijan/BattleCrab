@@ -4,9 +4,11 @@
 use super::first_token;
 use super::read_html;
 use super::send_cb_html;
+use crate::game_loop::clans;
 use crate::game_loop::helpers::send_to_client;
 use crate::world::World;
 use tracing::warn;
+
 /// `RegionBoard`: `_bbsloc` renders the nine regions off the castles — name
 /// fstring, owning clan + alliance, buy-tax. The per-region detail
 /// (`_bbsloc;id`) is left unimplemented in Java itself, so a valid id gets
@@ -61,7 +63,7 @@ pub(super) fn show_region_board(world: &mut World, client_id: u32, object_id: i3
 /// `ClanBoard`: the clan list (7 per page), the clan home page, and the
 /// notice edit/enable/disable flow.
 pub(super) fn show_clan_board(world: &mut World, client_id: u32, object_id: i32, command: &str) {
-    let my_clan = crate::game_loop::helpers::clan_of(world, object_id);
+    let my_clan = clans::clan_of(world, object_id);
     world
         .cb_last_bypass
         .insert(object_id, ("Clan".to_string(), command.to_string()));
@@ -210,7 +212,7 @@ pub(super) fn clan_home(world: &mut World, client_id: u32, object_id: i32, clan_
 /// Java `ClanBoard.clanNotice` — the leader's edit form (with the on/off
 /// toggle and the `Write Notice Set` MultiEdit) or the member's read view.
 pub(super) fn clan_notice_page(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(clan_id) = crate::game_loop::helpers::clan_of(world, object_id) else {
+    let Some(clan_id) = clans::clan_of(world, object_id) else {
         return;
     };
     let is_leader = world

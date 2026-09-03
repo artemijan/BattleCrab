@@ -5,8 +5,8 @@ use super::clear_aggro;
 use super::set_active;
 use super::stop_npc;
 use crate::game_loop::combat;
-use crate::game_loop::helpers::broadcast_near_region_in;
 use crate::game_loop::helpers::instance_of;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::minions;
 use crate::game_loop::npc::walkers::WalkState;
 use crate::game_loop::space::position::maybe_position;
@@ -291,5 +291,5 @@ fn npc_geo_move(world: &mut World, npc_oid: i32, dest: (i32, i32, i32), pawn: Op
         ),
         None => server_packets::move_to_location(npc_oid, x, y, z, start.0, start.1, start.2),
     };
-    broadcast_near_region_in(world, region, instance_of(world, npc_oid), &pkt);
+    broadcast::broadcast_near_region_in(world, region, instance_of(world, npc_oid), &pkt);
 }

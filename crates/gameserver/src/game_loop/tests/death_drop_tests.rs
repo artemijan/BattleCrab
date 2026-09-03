@@ -2,9 +2,9 @@
 //! gentler drop a monster kill can cause.
 
 use super::*;
-use crate::game_loop::helpers::get_inventory_items_oids;
 
 use crate::data::item_data::ItemTemplate;
+use crate::game_loop::character::inventory::get_inventory_items_oids;
 use crate::model::Player;
 use crate::model::inventory::Inventory;
 

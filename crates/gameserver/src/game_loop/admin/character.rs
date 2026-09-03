@@ -4,6 +4,7 @@
 
 use super::guard::{self, Guard, OrReject};
 use crate::game_loop::admin::target_player;
+use crate::game_loop::character::inventory;
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
 use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -441,8 +442,8 @@ pub(super) fn admin_set_enchant(
         helpers::send_message(world, client_id, "No item equipped in that slot.");
         return;
     };
-    let changes = helpers::modified_changes(world, target, &[item_oid]);
-    helpers::send_inventory_update(world, target, changes);
+    let changes = inventory::modified_changes(world, target, &[item_oid]);
+    inventory::send_inventory_update(world, target, changes);
     crate::game_loop::character::player_info::broadcast_user_info(world, target);
     helpers::send_message(world, client_id, &format!("Enchant set to +{value}."));
 }

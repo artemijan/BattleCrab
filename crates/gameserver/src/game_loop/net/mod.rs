@@ -6,6 +6,27 @@ use crate::events::GameEvent;
 
 use crate::world::World;
 
+pub mod broadcast;
+mod db_events;
+mod persistence;
+mod session;
+
+pub(crate) use db_events::handle_db_event;
+
+#[cfg(test)]
+pub(crate) use persistence::build_save_data;
+pub(crate) use persistence::{
+    autosave_tick, save_all_players, store_and_remove_player, store_player_now,
+};
+
+use persistence::{henna_rows, reuses_to_save};
+pub(crate) use session::{
+    handle_login_link_event, handle_logout, handle_net_event, handle_request_restart,
+    on_characters_loaded,
+};
+#[cfg(test)]
+pub(crate) use session::{handle_player_auth_response, on_disconnect};
+
 /// Route one unified-channel event to its service's handler. Called by the
 /// game loop both from the boundary drain and from the between-ticks sleep
 /// (`recv_timeout`), so an event runs the moment it arrives.
@@ -42,24 +63,3 @@ pub fn register_metrics() {
     super::tick_busy_micros().set(0);
     crate::network::register_metrics();
 }
-
-pub mod broadcast;
-mod db_events;
-mod persistence;
-mod session;
-
-pub(crate) use db_events::handle_db_event;
-
-#[cfg(test)]
-pub(crate) use persistence::build_save_data;
-pub(crate) use persistence::{
-    autosave_tick, save_all_players, store_and_remove_player, store_player_now,
-};
-
-use persistence::{henna_rows, reuses_to_save};
-pub(crate) use session::{
-    handle_login_link_event, handle_logout, handle_net_event, handle_request_restart,
-    on_characters_loaded,
-};
-#[cfg(test)]
-pub(crate) use session::{handle_player_auth_response, on_disconnect};

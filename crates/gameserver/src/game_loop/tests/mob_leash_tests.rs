@@ -7,6 +7,7 @@
 //! own code defaults (on, 1500 / 3000), so the numbers below are the 1500 one.
 
 use super::*;
+use crate::game_loop::space::position;
 
 use crate::model::components::Vitals;
 use crate::model::npc::{AggroList, Npc, NpcAi, NpcIntention};
@@ -54,7 +55,7 @@ fn engage(world: &mut World, oid: i32) {
 }
 
 fn pos_of(world: &World, oid: i32) -> (i32, i32, i32) {
-    crate::game_loop::helpers::pos_of(world, oid).expect("spawned mob has a position")
+    position::pos_of(world, oid).expect("spawned mob has a position")
 }
 
 fn hate_count(world: &World, oid: i32) -> usize {

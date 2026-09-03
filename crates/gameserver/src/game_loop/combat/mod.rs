@@ -33,8 +33,6 @@ use crate::network::server_packets;
 
 use crate::world::World;
 
-use super::helpers::broadcast_including_self;
-
 use crate::game_loop::helpers::stat_mul;
 
 mod attack;
@@ -55,6 +53,7 @@ pub(crate) use damage::{
     npc_wake_on_attacked, player_receive_damage_ex,
 };
 
+use crate::game_loop::net::broadcast;
 pub(crate) use intent::{
     apply_door_damage, handle_attack_request, pawn_destination, player_cast_think,
     player_combat_tick, resume_attack_intent, run_queued_action, start_attack_intent,
@@ -467,7 +466,7 @@ pub(crate) fn refresh_attack_stance(world: &mut World, player_object_id: i32) {
     let was_in_stance = st.stance_until_tick > now;
     st.stance_until_tick = now + COMBAT_STANCE_TICKS;
     if !was_in_stance {
-        broadcast_including_self(
+        broadcast::broadcast_including_self(
             world,
             player_object_id,
             &server_packets::auto_attack_start(player_object_id),
@@ -491,7 +490,7 @@ pub(crate) fn stance_tick(world: &mut World) {
         if let Some(st) = world.objects.get_component_mut::<AttackState>(&object_id) {
             st.stance_until_tick = 0;
         }
-        broadcast_including_self(
+        broadcast::broadcast_including_self(
             world,
             object_id,
             &server_packets::auto_attack_stop(object_id),

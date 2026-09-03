@@ -19,10 +19,10 @@
 //! invites someone to "finish" a feature that does not exist.
 
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
-use commons::network::PacketWriter;
-
 use crate::world::World;
+use commons::network::PacketWriter;
 
 use super::{menu, send_message};
 
@@ -422,7 +422,7 @@ pub(super) fn admin_forge_send(world: &mut World, client_id: u32, gm_oid: i32, a
             send_to_client(world, client_id, bytes);
         }
         // `broadcastPacket` — everyone who can see the GM, the GM included.
-        "sb" => crate::game_loop::helpers::broadcast_including_self(world, gm_oid, &bytes),
+        "sb" => broadcast::broadcast_including_self(world, gm_oid, &bytes),
         _ => unreachable!("validate_method"),
     }
     show_values_page(world, client_id, &opcodes, Some(&format));

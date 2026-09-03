@@ -12,6 +12,7 @@ use super::owner_clan_id_opt;
 use super::register;
 use super::remove_registration;
 use crate::db::DbCommand;
+use crate::game_loop::clans;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::send_sm_bare_to_client as send_sm_to;
 use crate::game_loop::helpers::send_sm_to_client;
@@ -118,7 +119,7 @@ pub(crate) fn handle_request_join_siege(world: &mut World, client_id: u32, body:
         return;
     };
 
-    let Some((clan_id, privs)) = crate::game_loop::helpers::clan_and_privs(world, player) else {
+    let Some((clan_id, privs)) = clans::clan_and_privs(world, player) else {
         return;
     };
     if clan_id == 0 {

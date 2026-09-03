@@ -9,9 +9,11 @@ use crate::game_loop::admin::find_online_player;
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
+use crate::game_loop::net::broadcast;
+use crate::game_loop::npc;
 use crate::game_loop::skills::skill_by_id;
+use crate::game_loop::space::position;
 use crate::game_loop::space::position::region_cell_of;
-use crate::game_loop::{helpers, npc};
 use crate::model::Player;
 use crate::model::components::Speeds;
 use crate::model::npc::Npc;
@@ -69,7 +71,7 @@ pub(super) fn admin_gmspeed(world: &mut World, client_id: u32, object_id: i32, a
         crate::game_loop::character::player_info::broadcast_user_info(world, target);
     } else if let Some(pkt) = crate::game_loop::space::visibility::npc_info_bytes(world, target) {
         // Java `broadcastInfo()` for a non-player creature.
-        helpers::broadcast_including_self(world, target, &pkt);
+        broadcast::broadcast_including_self(world, target, &pkt);
     }
     send_message(
         world,
@@ -218,7 +220,7 @@ pub(super) fn admin_teleportto(world: &mut World, client_id: u32, object_id: i32
 /// `AdminTeleport`'s click-to-move latches — the "Move:" row of
 /// `html/admin/move.htm` ("Additional Movement Options"). Java arms
 /// `Player.setTeleMode(...)` and the next `MoveBackwardToLocation` consumes it
-/// (see [`crate::game_loop::space::position::handle_move_backward_to_location`]):
+/// (see [`position::handle_move_backward_to_location`]):
 ///
 /// * `//instant_move` → `DEMONIC` ("Demonic mode")
 /// * `//teleto sayune` → `SAYUNE`
@@ -305,7 +307,7 @@ pub(super) fn admin_go(
     args: &[&str],
 ) {
     let offset = nth_arg::<i32>(args, 0).unwrap_or(150);
-    let Some(mut pos) = helpers::maybe_position(world, object_id) else {
+    let Some(mut pos) = position::maybe_position(world, object_id) else {
         return;
     };
     match dir {
@@ -332,7 +334,7 @@ pub(super) fn admin_go(
 /// `move.htm`. Java sets `AI_INTENTION_MOVE_TO`, i.e. the GM *walks* there
 /// under the ordinary movement pipeline (geodata clamp, pathfinder, arrival
 /// events) rather than teleporting; the pair only makes sense as a pair, so
-/// this routes to the same [`intention_move_to`](crate::game_loop::space::position::intention_move_to)
+/// this routes to the same [`intention_move_to`](position::intention_move_to)
 /// the move packet uses. A malformed coordinate is swallowed silently, as in
 /// Java (`catch (Exception e) {}` with an empty body).
 pub(super) fn admin_walk(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
@@ -343,16 +345,10 @@ pub(super) fn admin_walk(world: &mut World, client_id: u32, object_id: i32, args
     ) else {
         return;
     };
-    let Some(cur) = helpers::maybe_position(world, object_id) else {
+    let Some(cur) = position::maybe_position(world, object_id) else {
         return;
     };
-    crate::game_loop::space::position::intention_move_to(
-        world,
-        client_id,
-        object_id,
-        cur,
-        (x, y, z),
-    );
+    position::intention_move_to(world, client_id, object_id, cur, (x, y, z));
 }
 
 /// `AdminTeleport`'s `//sendhome [name]` — teleport the targeted or named player
@@ -413,18 +409,13 @@ fn recall_npc(world: &mut World, client_id: u32, object_id: i32) -> Guard<()> {
         .get_component::<Npc>(&target)
         .map_or(0, |n| n.npc_id);
     let region = region_cell_of(world, target).or_silent()?;
-    let gm_pos = helpers::maybe_position(world, object_id).or_silent()?;
+    let gm_pos = position::maybe_position(world, object_id).or_silent()?;
     npc::despawn_npc(world, target, region);
-    if let Some(spawned) = crate::game_loop::npc::spawn_npc_at(
-        world,
-        npc_id,
-        gm_pos.x,
-        gm_pos.y,
-        gm_pos.z,
-        gm_pos.heading,
-    ) {
+    if let Some(spawned) =
+        npc::spawn_npc_at(world, npc_id, gm_pos.x, gm_pos.y, gm_pos.z, gm_pos.heading)
+    {
         npc::introduce_npc(world, spawned);
-        let name = helpers::npc_template_name(world, npc_id);
+        let name = npc::npc_template_name(world, npc_id);
         send_message(world, client_id, &format!("Recalled {name}."));
     }
     Ok(())

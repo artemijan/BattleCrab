@@ -318,3 +318,18 @@ pub(crate) fn instance_of(world: &World, object_id: i32) -> i32 {
         .get_component::<model::components::InstanceId>(&object_id)
         .map_or(0, |i| i.0)
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::game_loop::helpers::format_amount;
+
+    #[test]
+    fn formats_thousands() {
+        assert_eq!(format_amount(0), "0");
+        assert_eq!(format_amount(999), "999");
+        assert_eq!(format_amount(1_000), "1,000");
+        assert_eq!(format_amount(200_000), "200,000");
+        assert_eq!(format_amount(1_234_567), "1,234,567");
+        assert_eq!(format_amount(-4_200), "-4,200");
+    }
+}

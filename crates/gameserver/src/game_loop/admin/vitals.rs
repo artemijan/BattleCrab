@@ -5,6 +5,7 @@
 use crate::game_loop::admin::{find_online_player, target_player};
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
@@ -67,7 +68,7 @@ pub(crate) fn heal_creature(world: &mut World, target: i32) {
         super::helpers::send_to_player(world, target, packet);
         super::party::notify_party_vitals(world, target);
     } else {
-        super::helpers::broadcast_from(world, target, &packet);
+        broadcast::broadcast_from(world, target, &packet);
     }
 }
 
@@ -147,8 +148,8 @@ fn res_creature(world: &mut World, target: i32) {
             v.cur_hp = v.max_hp as f64;
             v.max_hp
         };
-        super::helpers::broadcast_near_region(world, region, &server_packets::revive(target));
-        super::helpers::broadcast_near_region(
+        broadcast::broadcast_near_region(world, region, &server_packets::revive(target));
+        broadcast::broadcast_near_region(
             world,
             region,
             &server_packets::status_update(target, &[(sut::MAX_HP, max_hp), (sut::CUR_HP, max_hp)]),

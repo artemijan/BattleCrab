@@ -10,12 +10,10 @@ use super::online_members;
 use super::send_to_member;
 use super::set_clan_level;
 use crate::db::DbCommand;
-use crate::game_loop::helpers::client_for_player;
-use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
-use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::items;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{clans, helpers, items};
 use crate::model::Player;
 use crate::model::clan::ClanMember;
 use crate::network::server_packets;
@@ -53,14 +51,18 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
     let clan_id = p.clan_id;
     let sp = p.sp;
     if clan_id == 0 || !p.clan_leader {
-        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT,
+        );
         return;
     }
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
     if now_millis() < clan.dissolving_expiry_time {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_LEVEL_CANNOT_INCREASE,
@@ -78,7 +80,7 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
         .get_component::<crate::model::inventory::Inventory>(&player_oid)
         .is_some_and(|inv| inv.count_of(item_id) >= item_count);
     if sp < sp_cost || !has_items {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::THE_CONDITIONS_TO_INCREASE_THE_CLAN_S_LEVEL_HAVE_NOT_BEEN_MET,
@@ -86,7 +88,7 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
         return;
     }
     if !items::take_items(world, client_id, player_oid, item_id, item_count) {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::THE_CONDITIONS_TO_INCREASE_THE_CLAN_S_LEVEL_HAVE_NOT_BEEN_MET,
@@ -97,20 +99,20 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
     // (sendMessage=true)`), proof items send the destroy line + `levelUpClan`'s
     // explicit `S1_DISAPPEARED` (Java double-messages here — kept faithful).
     if item_id == ADENA {
-        send_sm_with(
+        helpers::send_sm_to_player(
             world,
             player_oid,
             sm_ids::S1_ADENA_DISAPPEARED,
             &[SmParam::Long(item_count)],
         );
     } else {
-        send_sm_with(
+        helpers::send_sm_to_player(
             world,
             player_oid,
             sm_ids::S2_S1_S_DISAPPEARED,
             &[SmParam::ItemName(item_id), SmParam::Long(item_count)],
         );
-        send_sm_with(
+        helpers::send_sm_to_player(
             world,
             player_oid,
             sm_ids::S1_DISAPPEARED,
@@ -120,7 +122,7 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.sp -= sp_cost;
     }
-    send_sm_with(
+    helpers::send_sm_to_player(
         world,
         player_oid,
         sm_ids::YOUR_SP_HAS_DECREASED_BY_S1,
@@ -143,9 +145,9 @@ pub(crate) fn handle_increase_clan_level(world: &mut World, client_id: u32, play
             1,
             0,
         );
-        crate::game_loop::helpers::broadcast_including_self(world, player_oid, &use_pkt);
+        broadcast::broadcast_including_self(world, player_oid, &use_pkt);
         let launched = server_packets::magic_skill_launched(player_oid, 5103, 1, &[player_oid]);
-        crate::game_loop::helpers::broadcast_including_self(world, player_oid, &launched);
+        broadcast::broadcast_including_self(world, player_oid, &launched);
     }
 }
 
@@ -168,7 +170,7 @@ pub(crate) fn show_pledge_skill_list(world: &World, client_id: u32, player_oid: 
     if available.is_empty() {
         if clan.level < 8 {
             let next = if clan.level < 5 { 5 } else { clan.level + 1 };
-            send_sm_with(
+            helpers::send_sm_to_player(
                 world,
                 player_oid,
                 sm_ids::YOU_DO_NOT_HAVE_ANY_FURTHER_SKILLS_TO_LEARN_COME_BACK_AT_LEVEL_S1,
@@ -274,11 +276,10 @@ pub(crate) fn handle_learn_pledge_skill(
     }
     let rep_cost = learn.level_up_sp as i32;
     if clan.reputation_score < rep_cost {
-        send_sm_with(
+        helpers::send_sm_bare_to_player(
             world,
             player,
             sm_ids::SKILL_ACQUIRE_FAILED_INSUFFICIENT_CLAN_REPUTATION,
-            &[],
         );
         show_pledge_skill_list(world, client_id, player);
         return;
@@ -286,7 +287,7 @@ pub(crate) fn handle_learn_pledge_skill(
     // `takeReputationScore` (negative add: clamp + persist + pledge-window
     // refresh to every online member).
     add_clan_reputation(world, clan_id, -rep_cost);
-    send_sm_with(
+    helpers::send_sm_to_player(
         world,
         player,
         sm_ids::S1_POINTS_HAVE_BEEN_DEDUCTED_FROM_THE_CLAN_S_REPUTATION,
@@ -416,7 +417,7 @@ pub(crate) fn handle_request_pledge_power_grade_list(world: &World, client_id: u
 /// Resolve a named member of the acting player's clan; `None` when the player
 /// is clanless or the name is not in the roster.
 fn clan_member_by_name(world: &World, player: i32, name: &str) -> Option<(i32, ClanMember)> {
-    let clan_id = crate::game_loop::helpers::clan_of(world, player)?;
+    let clan_id = clans::clan_of(world, player)?;
     let clan = world.clans.get(&clan_id)?;
     clan.member_by_name(name).map(|m| (clan_id, m.clone()))
 }
@@ -463,7 +464,7 @@ pub(crate) fn handle_request_pledge_member_list(world: &mut World, client_id: u3
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let Some(clan_id) = crate::game_loop::helpers::clan_of(world, player) else {
+    let Some(clan_id) = clans::clan_of(world, player) else {
         return;
     };
     let Some(clan) = world.clans.get(&clan_id) else {
@@ -549,11 +550,10 @@ pub(crate) fn handle_request_pledge_set_member_power_grade(
     }
     // Java: an academy member cannot be re-ranked out of rank 9.
     if academy::member_is_academy(world, clan_id, member.char_id) {
-        send_sm_with(
+        helpers::send_sm_bare_to_player(
             world,
             player,
             sm_ids::THAT_PRIVILEGE_CANNOT_BE_GRANTED_TO_A_CLAN_ACADEMY_MEMBER,
-            &[],
         );
         return;
     }
@@ -571,7 +571,7 @@ pub(crate) fn handle_request_pledge_set_member_power_grade(
         power_grade: grade,
     });
 
-    let online = client_for_player(world, member.char_id).is_some();
+    let online = helpers::client_for_player(world, member.char_id).is_some();
     let update = {
         let c = world.clans.get(&clan_id).expect("checked above");
         c.member(member.char_id)
@@ -616,7 +616,7 @@ pub(crate) fn handle_request_pledge_reorganize_member(
     if is_selected == 0 {
         return;
     }
-    let Some((clan_id, privs)) = crate::game_loop::helpers::clan_and_privs(world, player) else {
+    let Some((clan_id, privs)) = clans::clan_and_privs(world, player) else {
         return;
     };
     if clan_id == 0 {
@@ -694,7 +694,11 @@ pub(crate) fn handle_change_clan_leader(
     let clan_id = p.clan_id;
     let player_name = p.name.clone();
     if clan_id == 0 || !p.clan_leader {
-        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT,
+        );
         return;
     }
     if player_name.eq_ignore_ascii_case(name) {
@@ -711,8 +715,8 @@ pub(crate) fn handle_change_clan_leader(
         );
         return;
     };
-    if client_for_player(world, member.char_id).is_none() {
-        send_sm(
+    if helpers::client_for_player(world, member.char_id).is_none() {
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::THAT_PLAYER_IS_NOT_CURRENTLY_ONLINE,
@@ -721,11 +725,10 @@ pub(crate) fn handle_change_clan_leader(
     }
     // Java: an academy member cannot be nominated clan leader.
     if academy::member_is_academy(world, clan_id, member.char_id) {
-        send_sm_with(
+        helpers::send_sm_bare_to_player(
             world,
             player_oid,
             sm_ids::THAT_PRIVILEGE_CANNOT_BE_GRANTED_TO_A_CLAN_ACADEMY_MEMBER,
-            &[],
         );
         return;
     }
@@ -756,7 +759,11 @@ pub(crate) fn handle_cancel_clan_leader_change(
     npc_oid: i32,
 ) {
     let Some(clan_id) = clan_leader_of(world, player_oid) else {
-        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT,
+        );
         return;
     };
     let pending = world
@@ -838,14 +845,18 @@ pub(crate) fn handle_request_give_nick_name(world: &mut World, client_id: u32, b
     }
 
     if !has_clan_privilege(world, player, crate::model::clan::CL_GIVE_TITLE) {
-        send_sm(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        helpers::send_sm_bare_to_client(
+            world,
+            client_id,
+            sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT,
+        );
         return;
     }
     // Java reads `getClan().getLevel()` unguarded here; the privilege check
     // above already returned for a clanless player, so it cannot be null.
     let level = world.clans.get(&clan_id).map_or(0, |c| c.level);
     if level < 3 {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::A_PLAYER_CAN_ONLY_BE_GRANTED_A_TITLE_IF_CLAN_LEVEL_3,
@@ -866,11 +877,11 @@ pub(crate) fn handle_request_give_nick_name(world: &mut World, client_id: u32, b
         })
         .map(|m| m.char_id);
     let Some(member_id) = member_id else {
-        send_sm(world, client_id, sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER);
+        helpers::send_sm_bare_to_client(world, client_id, sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER);
         return;
     };
     if !world.objects.has_component::<Player>(&member_id) {
-        send_sm(world, client_id, sm_ids::THAT_PLAYER_IS_NOT_ONLINE);
+        helpers::send_sm_bare_to_client(world, client_id, sm_ids::THAT_PLAYER_IS_NOT_ONLINE);
         return;
     }
     set_title_and_broadcast(world, member_id, title);
@@ -882,16 +893,7 @@ fn set_title_and_broadcast(world: &mut World, oid: i32, title: String) {
     if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
         p.title = title.clone();
     }
-    crate::game_loop::helpers::send_sm_to_player(
-        world,
-        oid,
-        sm_ids::YOUR_TITLE_HAS_BEEN_CHANGED,
-        &[],
-    );
+    helpers::send_sm_bare_to_player(world, oid, sm_ids::YOUR_TITLE_HAS_BEEN_CHANGED);
     crate::game_loop::character::player_info::broadcast_user_info(world, oid);
-    crate::game_loop::helpers::broadcast_including_self(
-        world,
-        oid,
-        &server_packets::nickname_changed(oid, &title),
-    );
+    broadcast::broadcast_including_self(world, oid, &server_packets::nickname_changed(oid, &title));
 }

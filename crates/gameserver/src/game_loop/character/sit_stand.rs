@@ -22,6 +22,7 @@
 
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::network::server_packets;
@@ -258,5 +259,5 @@ fn broadcast_wait_type(world: &World, object_id: i32, wait_type: i32) {
         return;
     };
     let pkt = server_packets::change_wait_type(object_id, wait_type, pos.x, pos.y, pos.z);
-    crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
+    broadcast::broadcast_including_self(world, object_id, &pkt);
 }

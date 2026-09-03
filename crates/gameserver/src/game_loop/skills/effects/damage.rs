@@ -8,7 +8,7 @@ use super::player_or_npc_level;
 use super::pvp_pve_bonus;
 use super::record_overhit;
 use super::skill_power_mul;
-use crate::game_loop::helpers;
+use crate::game_loop::{helpers, npc, skills};
 use crate::model::components;
 
 use crate::model::formulas;
@@ -170,7 +170,7 @@ fn element_stat(
     defence: bool,
 ) -> f64 {
     let stat = element.attribute_stat(defence);
-    let base = helpers::npc_template(world, oid)
+    let base = npc::npc_template(world, oid)
         .map(|t| {
             if defence {
                 t.base_element_res[element.index()] as f64
@@ -293,7 +293,7 @@ pub(crate) fn calc_counter_attack(
     if is_dot {
         return;
     }
-    let Some(skill) = helpers::skill_by_id(world, skill_id, 1) else {
+    let Some(skill) = skills::skill_by_id(world, skill_id, 1) else {
         return;
     };
     if skill.magic_type == 1 || skill.cast_range > MELEE_ATTACK_RANGE {
@@ -441,7 +441,7 @@ pub(crate) fn apply_skill_damage(
         .get_component::<crate::model::Player>(&target_oid)
     {
         SmParam::PlayerName(p.name.clone())
-    } else if let Some(t) = helpers::npc_template(world, target_oid) {
+    } else if let Some(t) = npc::npc_template(world, target_oid) {
         SmParam::NpcName(t.id)
     } else {
         return;
@@ -569,7 +569,7 @@ pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
 /// are disjoint fields, so the template ref and the mutable component borrow
 /// coexist.
 pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
-    let Some(npc_id) = helpers::npc_id_of(world, target_oid) else {
+    let Some(npc_id) = npc::npc_id_of(world, target_oid) else {
         return;
     };
     let Some(t) = world.data.npc_data.get(npc_id) else {

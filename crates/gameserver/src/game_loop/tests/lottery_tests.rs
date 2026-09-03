@@ -5,7 +5,7 @@
 use super::*;
 
 use crate::game_loop::activities::lottery;
-use crate::game_loop::helpers::adena;
+use crate::game_loop::character::inventory::adena;
 use crate::model::inventory::Inventory;
 use crate::model::lottery::{DrawnRound, LotteryRow};
 use crate::scheduler::ScheduledTask;

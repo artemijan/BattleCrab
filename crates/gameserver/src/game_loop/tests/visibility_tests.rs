@@ -1,5 +1,5 @@
 use super::*;
-use crate::game_loop::helpers;
+use crate::game_loop::net::broadcast::broadcast_to_others;
 
 /// Leaving the world (logout here; restart/disconnect share the path)
 /// broadcasts `DeleteObject` to everyone watching and drops their target
@@ -80,7 +80,7 @@ fn a_broadcast_reaches_the_surrounding_block_and_nothing_beyond_it() {
     drain(&mut far_rx);
 
     let packet = server_packets::action_failed();
-    helpers::broadcast_to_others(&world, 6401, &packet);
+    broadcast_to_others(&world, 6401, &packet);
 
     assert_eq!(drain(&mut same_rx).len(), 1, "same cell receives");
     assert_eq!(drain(&mut adjacent_rx).len(), 1, "adjacent cell receives");
@@ -102,7 +102,7 @@ fn crossing_a_region_boundary_moves_who_hears_a_broadcast() {
     drain(&mut mover_rx);
 
     let packet = server_packets::action_failed();
-    helpers::broadcast_to_others(&world, 6411, &packet);
+    broadcast_to_others(&world, 6411, &packet);
     assert!(
         drain(&mut mover_rx).is_empty(),
         "out of range to begin with"
@@ -117,7 +117,7 @@ fn crossing_a_region_boundary_moves_who_hears_a_broadcast() {
     visibility::update_region(&mut world, 6412);
     drain(&mut mover_rx);
 
-    helpers::broadcast_to_others(&world, 6411, &packet);
+    broadcast_to_others(&world, 6411, &packet);
     assert_eq!(
         drain(&mut mover_rx).len(),
         1,

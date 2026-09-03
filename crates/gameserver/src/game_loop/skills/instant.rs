@@ -7,9 +7,10 @@
 //! equivalent because the match was the last statement in the effect loop.
 
 use super::effects;
-use crate::game_loop::helpers;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::is_chest;
-
+use crate::game_loop::space::position;
+use crate::game_loop::{helpers, npc};
 use crate::model::components::{Buffs, CombatStats, Vitals};
 use crate::model::formulas;
 use crate::model::skill::Skill;
@@ -397,7 +398,7 @@ pub(super) fn blow(
                     .get(p.class_id)
                     .map_or(4.0, |t| t.base_crit_rate as f64)
             } else {
-                helpers::npc_template(world, caster_oid).map_or(4.0, |t| t.base_crit_rate)
+                npc::npc_template(world, caster_oid).map_or(4.0, |t| t.base_crit_rate)
             }
         })
     };
@@ -512,7 +513,7 @@ pub(super) fn lethal(
     // constructors, and the `NonLethalableNpcs` script sets it on the siege
     // Headquarters. `is_raid()` matches the `GrandBoss` type name as well as
     // `RaidBoss`, so the grand bosses need no separate test.
-    let is_raid = helpers::is_raid_npc(world, target_oid);
+    let is_raid = npc::is_raid_npc(world, target_oid);
     if is_raid
         || world
             .objects
@@ -892,10 +893,10 @@ fn heal_npc(world: &mut World, target_oid: i32, amount: f64) {
         vitals.cur_hp = (vitals.cur_hp + amount).min(vitals.max_hp as f64);
         (vitals.cur_hp as i32, vitals.max_hp)
     };
-    let Some(region) = helpers::region_cell_of(world, target_oid) else {
+    let Some(region) = position::region_cell_of(world, target_oid) else {
         return;
     };
-    crate::game_loop::helpers::broadcast_near_region(
+    broadcast::broadcast_near_region(
         world,
         region,
         &server_packets::status_update(
@@ -1197,7 +1198,7 @@ pub(super) fn hp(world: &mut World, ctx: &CastCtx, amount: f64, percent: bool) {
     let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else {
         return;
     };
-    let is_raid = helpers::is_raid_npc(world, target_oid);
+    let is_raid = npc::is_raid_npc(world, target_oid);
     if v.dead
         || is_raid
         || world

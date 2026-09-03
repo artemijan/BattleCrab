@@ -4,6 +4,7 @@
 use super::persist::save_after_action;
 use super::reference_price;
 use crate::data::item_data::ADENA_ID;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_sm_to_client;
 use crate::game_loop::helpers::send_to_client;
@@ -316,9 +317,8 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
         // A concurrent overdraw can't happen on the single game thread, but the
         // `decrease_amount` guard mirrors Java's per-line refund-on-failure.
         if world.manor.decrease_seed_amount(manor_id, item_id, cnt)
-            && let Some(changes) = crate::game_loop::helpers::add_inventory_item_changes(
-                world, player_oid, item_id, cnt,
-            )
+            && let Some(changes) =
+                inventory::add_inventory_item_changes(world, player_oid, item_id, cnt)
         {
             added.extend(changes);
         }
@@ -329,7 +329,7 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
     if total_price > 0 {
         crate::game_loop::siege::treasury::add_to_treasury_no_tax(world, manor_id, total_price);
     }
-    crate::game_loop::helpers::send_inventory_update(world, player_oid, added);
+    inventory::send_inventory_update(world, player_oid, added);
     if total_price > 0 {
         send_sm_to_client(
             world,
@@ -465,25 +465,22 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
             items::take_items(world, client_id, player_oid, ADENA_ID, fee);
         }
         if let Some(change) =
-            crate::game_loop::helpers::remove_inventory_item_change(world, player_oid, obj_id, cnt)
+            inventory::remove_inventory_item_change(world, player_oid, obj_id, cnt)
         {
             crop_changes.push(change);
         }
-        if let Some(changes) = crate::game_loop::helpers::add_inventory_item_changes(
-            world,
-            player_oid,
-            reward_id,
-            reward_count,
-        ) {
+        if let Some(changes) =
+            inventory::add_inventory_item_changes(world, player_oid, reward_id, reward_count)
+        {
             reward_changes.extend(changes);
         }
     }
 
     // Reflect the sold crops and the received rewards.
     if !crop_changes.is_empty() {
-        crate::game_loop::helpers::send_inventory_update(world, player_oid, crop_changes);
+        inventory::send_inventory_update(world, player_oid, crop_changes);
     }
     if !reward_changes.is_empty() {
-        crate::game_loop::helpers::send_inventory_update(world, player_oid, reward_changes);
+        inventory::send_inventory_update(world, player_oid, reward_changes);
     }
 }

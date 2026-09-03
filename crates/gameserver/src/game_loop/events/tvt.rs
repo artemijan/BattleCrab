@@ -14,7 +14,7 @@
 //! `SkillsDisabled` like Java's `disableAllSkills`.
 
 use crate::game_loop::space::position::maybe_position;
-use crate::game_loop::{helpers, items};
+use crate::game_loop::{helpers, items, skills};
 
 use crate::game_loop::time::TICKS_PER_SECOND;
 use commons::util::rnd;
@@ -22,6 +22,7 @@ use tracing::warn;
 
 use crate::game_loop::client::user_commands::in_combat;
 use crate::game_loop::combat::death::teleport_player;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::{despawn_npc_by_oid, introduce_npc, spawn_npc_at};
 use crate::game_loop::space::instances;
 use crate::model::Player;
@@ -483,8 +484,8 @@ pub(crate) fn resurrect_player(world: &mut World, player: i32) {
     teleport_player(world, player, spawn.0, spawn.1, spawn.2);
     crate::game_loop::death::do_revive(world, player);
     // Ghost Walking: 30s of DamageBlock (HP/MP) invulnerability + speed.
-    if let Some(skill) = helpers::skill_by_id(world, GHOST_WALKING, 1) {
-        crate::game_loop::skills::effects::apply_skill_effects(world, player, player, &skill);
+    if let Some(skill) = skills::skill_by_id(world, GHOST_WALKING, 1) {
+        skills::effects::apply_skill_effects(world, player, player, &skill);
     }
     // Java resets the clock here too — a player who died *inside* their own
     // headquarters never crosses the zone edge on respawn, so the enter hook
@@ -748,7 +749,7 @@ pub(crate) fn inactivity_tick(world: &mut World, player: i32, warning: bool, seq
 
 /// A screen banner for one player (Java `sendScreenMessage`).
 fn send_screen(world: &World, player: i32, text: &str, secs: i32) {
-    crate::game_loop::helpers::send_to_player(
+    helpers::send_to_player(
         world,
         player,
         sp::ex_show_screen_message(text, TOP_CENTER, secs * 1000),
@@ -757,7 +758,7 @@ fn send_screen(world: &World, player: i32, text: &str, secs: i32) {
 
 /// Java `player.sendMessage(...)` — the plain white chat line.
 fn send_player_message(world: &World, player: i32, text: &str) {
-    crate::game_loop::helpers::send_sm_to_player(
+    helpers::send_sm_to_player(
         world,
         player,
         sp::sm_ids::S1_TEXT,
@@ -856,7 +857,7 @@ fn buff_heal(world: &mut World, player: i32) {
         pv.cur_cp = f64::from(pv.max_cp);
         updates.push((sp::status_update_type::CUR_CP, pv.max_cp));
     }
-    crate::game_loop::helpers::send_to_player(world, player, sp::status_update(player, &updates));
+    helpers::send_to_player(world, player, sp::status_update(player, &updates));
     crate::game_loop::party::notify_party_vitals(world, player);
 }
 
@@ -990,7 +991,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         return false;
     }
     // `isInInstance()` — the overworld is instance 0.
-    if crate::game_loop::helpers::instance_of(world, player) != 0 {
+    if helpers::instance_of(world, player) != 0 {
         helpers::send_message(
             world,
             client_id,
@@ -1132,7 +1133,7 @@ fn set_frozen(world: &mut World, player: i32, frozen: bool) {
 }
 
 fn set_invul(world: &mut World, player: i32, value: bool) {
-    crate::game_loop::helpers::update_admin_flags(world, player, |f| f.invul = value);
+    helpers::update_admin_flags(world, player, |f| f.invul = value);
 }
 
 /// The winner's firework flourish (Java `broadcastPacket(new MagicSkillUse(...))`).
@@ -1142,14 +1143,14 @@ fn firework(world: &World, player: i32) {
     };
     let src = (player, pos.x, pos.y, pos.z);
     let pkt = sp::magic_skill_use_raw(src, src, FIREWORK_SKILL, 1, 500);
-    crate::game_loop::helpers::broadcast_including_self(world, player, &pkt);
+    broadcast::broadcast_including_self(world, player, &pkt);
 }
 
 /// A player's `SocialAction` to everyone who can see them (Java
 /// `broadcastSocialAction`).
 fn broadcast_social(world: &World, player: i32, action: i32) {
     let pkt = sp::social_action(player, action);
-    crate::game_loop::helpers::broadcast_including_self(world, player, &pkt);
+    broadcast::broadcast_including_self(world, player, &pkt);
 }
 
 /// Build the score rows (name, score) sorted by score descending — Java
@@ -1276,7 +1277,7 @@ fn ip_slot_available(world: &World, player: i32) -> bool {
 
 /// A registered player's live client IP, or `None` if they have no session.
 fn player_ip(world: &World, player: i32) -> Option<String> {
-    super::super::helpers::client_for_player(world, player)
+    helpers::client_for_player(world, player)
         .and_then(|cid| world.clients.get(&cid))
         .map(|cs| cs.addr().ip().to_string())
 }

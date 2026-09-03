@@ -9,19 +9,19 @@ use super::clan_name_or_empty;
 use super::online_members;
 use super::send_to_member;
 use crate::db::DbCommand;
+use crate::game_loop::clans;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
+use crate::model::clan::{CL_PLEDGE_WAR, ClanWar, ClanWarState, WAR_TIMEOUT_MS};
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 use commons::network::PacketReader;
 use commons::util::now_millis;
-
-use crate::model::clan::{CL_PLEDGE_WAR, ClanWar, ClanWarState, WAR_TIMEOUT_MS};
 
 /// The war between two clans, either direction (Java `Clan.getWarWith`).
 pub(crate) fn war_between(world: &World, a: i32, b: i32) -> Option<&ClanWar> {
@@ -417,7 +417,7 @@ pub(crate) fn handle_request_surrender_pledge_war(world: &mut World, client_id: 
     let Some(name) = PacketReader::new(body).read_string() else {
         return;
     };
-    let Some((clan_id, privs)) = crate::game_loop::helpers::clan_and_privs(world, player) else {
+    let Some((clan_id, privs)) = clans::clan_and_privs(world, player) else {
         return;
     };
     let player_name = player_name_or_empty(world, player);

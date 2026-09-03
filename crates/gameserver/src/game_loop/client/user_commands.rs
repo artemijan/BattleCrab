@@ -14,8 +14,8 @@
 //! shadowed — the mutual-war list is unreachable in this build. Kept.
 
 use crate::game_loop::clans::clan_of;
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::{send_message, send_sm_to_client as send_sm};
+use crate::game_loop::{helpers, npc, skills};
 
 use crate::model::components::{Casting, Position};
 use crate::network::client_packets as cp;
@@ -155,23 +155,19 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
 
     if is_gm {
         // GM: the stock 1-second escape.
-        if let Some(skill) = helpers::skill_by_id(world, GM_ESCAPE_SKILL_ID, 1) {
-            crate::game_loop::skills::cast::start_casting(
-                world, client_id, object_id, &skill, object_id,
-            );
+        if let Some(skill) = skills::skill_by_id(world, GM_ESCAPE_SKILL_ID, 1) {
+            skills::cast::start_casting(world, client_id, object_id, &skill, object_id);
         } else {
             send_message(world, client_id, "You use Escape: 1 second.");
         }
         return;
     }
-    let Some(mut skill) = helpers::skill_by_id(world, ESCAPE_SKILL_ID, 1) else {
+    let Some(mut skill) = skills::skill_by_id(world, ESCAPE_SKILL_ID, 1) else {
         return;
     };
     if interval == 300 {
         // The stock 5-minute skill matches the config — cast unmodified.
-        crate::game_loop::skills::cast::start_casting(
-            world, client_id, object_id, &skill, object_id,
-        );
+        skills::cast::start_casting(world, client_id, object_id, &skill, object_id);
         return;
     }
     // Custom interval (30 s on this dist): Java forces the cast time via
@@ -186,7 +182,7 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
     // skill 2099; the 5 minutes is a lie, the forced hit time is 30 s) and
     // then "You use Escape: 30 seconds." Sending the chat line first inverts
     // the pair.
-    crate::game_loop::skills::cast::start_casting(world, client_id, object_id, &skill, object_id);
+    skills::cast::start_casting(world, client_id, object_id, &skill, object_id);
     // ...and the chat line is gated on the cast having started: Java answers a
     // null `SkillCaster` with ActionFailed + `setIntention(AI_INTENTION_ACTIVE)`
     // and *no* message, so a refused escape never claims to have worked.
@@ -339,7 +335,7 @@ fn clan_wars_list(world: &World, client_id: u32, object_id: i32, command_id: i32
 fn instance_zone(world: &World, client_id: u32, object_id: i32) {
     // Java `InstanceManager.getPlayerInstance(player, false).getTemplateId()`;
     // -1 when the player is in the overworld.
-    let instance_id = crate::game_loop::helpers::instance_of(world, object_id);
+    let instance_id = helpers::instance_of(world, object_id);
     let template_id = world
         .instances
         .get(instance_id)
@@ -727,7 +723,7 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
     let Some(pet) = crate::game_loop::servitor::pet_of(world, object_id) else {
         return; // Java: no pet → the whole branch is skipped
     };
-    let Some(pet_npc_id) = helpers::npc_id_of(world, pet) else {
+    let Some(pet_npc_id) = npc::npc_id_of(world, pet) else {
         return;
     };
     let Some(mount_type) = mount_type_of(world, pet_npc_id) else {

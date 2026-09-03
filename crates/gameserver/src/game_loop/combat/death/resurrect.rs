@@ -1,6 +1,8 @@
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers;
 
+use crate::game_loop::net::broadcast;
+use crate::game_loop::space::position;
 use crate::model::Player;
 use crate::model::components::BaseStats;
 use crate::model::components::PlayerVitals;
@@ -330,12 +332,12 @@ pub(crate) fn do_revive(world: &mut World, player_oid: i32) {
         p.pending_revive = false;
         restore_pools(&mut vitals, &mut pvitals, hp, mp, cp);
     }
-    helpers::broadcast_including_self(world, player_oid, &server_packets::revive(player_oid));
+    broadcast::broadcast_including_self(world, player_oid, &server_packets::revive(player_oid));
     crate::game_loop::party::notify_party_vitals(world, player_oid);
     let Some((vitals, pvitals)) = helpers::vitals_pair(world, player_oid) else {
         return;
     };
-    helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         player_oid,
         &server_packets::status_update(
@@ -434,8 +436,8 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
 
     // `broadcastPacket(CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL)` — everyone
     // present hears it, not just the earner.
-    if let Some(region) = helpers::region_cell_of(world, npc_oid) {
-        helpers::broadcast_near_region_in(
+    if let Some(region) = position::region_cell_of(world, npc_oid) {
+        broadcast::broadcast_near_region_in(
             world,
             region,
             helpers::instance_of(world, npc_oid),

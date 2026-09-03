@@ -134,6 +134,7 @@ fn seed_instance_template(world: &mut World, template_id: i32, npc_id: i32) {
 }
 
 use crate::data::door_data::{DoorOpenMethod, DoorTemplate};
+use crate::game_loop::net::broadcast::broadcast_to_others;
 use crate::model::components::InstanceDoorOpen;
 
 const TEST_DOOR_ID: i32 = 24190001;
@@ -396,7 +397,7 @@ fn broadcast_is_scoped_to_the_instance() {
     let mut rx_b = ingame_player(&mut world, 2, 200, 1000, 1000, 0);
     world.objects.add_components(&100, InstanceId(7)); // A alone in instance 7
 
-    crate::game_loop::helpers::broadcast_to_others(&world, 100, &[0xAB, 0xCD]);
+    broadcast_to_others(&world, 100, &[0xAB, 0xCD]);
 
     assert!(
         drain(&mut rx_b).is_empty(),

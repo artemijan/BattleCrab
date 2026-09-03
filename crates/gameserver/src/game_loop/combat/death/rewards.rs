@@ -5,6 +5,7 @@ use super::overhit_bonus;
 use crate::data::item_data::ADENA_ID;
 use crate::data::npc_data::DropHolder;
 use crate::data::npc_data::NpcTemplate;
+use crate::game_loop::character::inventory;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::{send_sm_to_client, send_to_client};
@@ -988,8 +989,7 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
     if !world.cfg.character.auto_loot {
         return; // ground-drop path unported (see PROGRESS G9 notes).
     }
-    let Some(changes) =
-        crate::game_loop::helpers::add_inventory_item_changes(world, player_oid, item_id, count)
+    let Some(changes) = inventory::add_inventory_item_changes(world, player_oid, item_id, count)
     else {
         tracing::warn!("give_item: object-id pool exhausted, dropping loot {item_id}×{count}");
         return;
@@ -1017,7 +1017,7 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
     // `sendInventoryUpdate`, so the status-bar adena counter and weight bar
     // refresh with the loot. Sending the bare `InventoryUpdate` left the bar
     // stale until the next relog/item-list.
-    crate::game_loop::helpers::send_inventory_update(world, player_oid, changes);
+    inventory::send_inventory_update(world, player_oid, changes);
 }
 
 // ---------------------------------------------------------------------------

@@ -9,9 +9,11 @@
 //! equipment reward multisell (`showEquipmentReward` →
 //! `multisell::separate_and_send`).
 
+use crate::game_loop::helpers;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
 use crate::model::olympiad::{CompetitionType, OLYMPIAD_MANAGER_NPC};
+use crate::network::server_packets::sm_ids;
 use crate::scripts::quest_common::olympiad_eligible;
 
 pub struct OlyManager;
@@ -114,19 +116,16 @@ fn inventory_under_80(ctx: &QuestCtx) -> bool {
     used as f64 <= limit as f64 * 0.8
 }
 
-fn send_sm(ctx: &QuestCtx, sm_id: i16) {
-    crate::game_loop::helpers::send_sm_bare_to_client(ctx.world, ctx.client_id, sm_id);
-}
-
 /// `calculatePointsDone`: convert the banked points to Marks of Battle
 /// (`AltOlyMarkPerPoint` each) and clear the variable — refused while the
 /// inventory is over 80 % full.
 fn calculate_points_done(ctx: &mut QuestCtx) {
     use crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR;
     if !inventory_under_80(ctx) {
-        send_sm(
-            ctx,
-            crate::network::server_packets::sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT,
+        helpers::send_sm_bare_to_client(
+            ctx.world,
+            ctx.client_id,
+            sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT,
         );
         return;
     }
@@ -193,9 +192,10 @@ fn register_1v1(ctx: &mut QuestCtx) -> Option<String> {
         return Some("OlyManager-noPoints.html".to_string());
     }
     if !inventory_under_80(ctx) {
-        send_sm(
-            ctx,
-            crate::network::server_packets::sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT,
+        helpers::send_sm_bare_to_client(
+            ctx.world,
+            ctx.client_id,
+            sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT,
         );
         return None;
     }

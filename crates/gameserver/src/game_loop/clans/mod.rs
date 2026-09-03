@@ -25,7 +25,7 @@
 //! - `recruit` — the clan-entry board: recruit list, waiting list, draft
 //!   list and applications.
 
-use crate::game_loop::helpers::{send_to_client, send_to_player};
+use crate::game_loop::helpers::{player_name_or_empty, send_to_client, send_to_player};
 use commons::network::PacketReader;
 use tracing::warn;
 
@@ -39,20 +39,16 @@ use super::helpers::client_for_player;
 
 pub(crate) mod academy;
 pub(crate) mod alliance;
+pub mod clan_skills;
 mod crests;
 pub(crate) mod hall_auction;
 pub(crate) mod hall_function;
 mod membership;
 mod ranks;
 mod recruit;
-pub(crate) mod skills;
 mod sub_pledge;
 pub(crate) mod wars;
 
-pub(crate) use crate::game_loop::helpers::player_name_or_empty;
-pub(crate) use crate::game_loop::helpers::{
-    send_sm_bare_to_client as send_sm, send_sm_to_player as send_sm_with,
-};
 pub(crate) use alliance::{
     ally_clan_ids, handle_ally_dismiss, handle_ally_leave, handle_create_ally,
     handle_dissolve_ally, handle_request_ally_info, handle_request_answer_join_ally,
@@ -60,6 +56,15 @@ pub(crate) use alliance::{
 };
 #[cfg(test)]
 pub(crate) use crests::refresh_clan_crest_on_members_for_test;
+
+pub(crate) use clan_skills::{
+    add_clan_skill, apply_clan_advent, apply_clan_advent_on_login, apply_clan_skills_to_member,
+    apply_siege_skills_to_leader, clan_skill_pairs, force_new_leader, give_clan_skills,
+    grant_residential_skills_to_clan, online_members, remove_clan_advent,
+    remove_clan_skills_from_member, strip_residential_skills_from_clan,
+};
+#[cfg(test)]
+pub(crate) use clan_skills::{give_residential_skills, remove_residential_skills};
 pub(crate) use crests::{
     handle_request_ally_crest, handle_request_ex_pledge_crest_large,
     handle_request_ex_set_pledge_crest_large, handle_request_pledge_crest,
@@ -88,14 +93,6 @@ pub(crate) use recruit::{
     handle_request_pledge_waiting_apply, handle_request_pledge_waiting_list,
     handle_request_pledge_waiting_user, handle_request_pledge_waiting_user_accept,
 };
-pub(crate) use skills::{
-    add_clan_skill, apply_clan_advent, apply_clan_advent_on_login, apply_clan_skills_to_member,
-    apply_siege_skills_to_leader, clan_skill_pairs, force_new_leader, give_clan_skills,
-    grant_residential_skills_to_clan, online_members, remove_clan_advent,
-    remove_clan_skills_from_member, strip_residential_skills_from_clan,
-};
-#[cfg(test)]
-pub(crate) use skills::{give_residential_skills, remove_residential_skills};
 pub(crate) use sub_pledge::{
     handle_assign_subpledge_leader, handle_create_academy, handle_create_knight,
     handle_create_royal, handle_rename_pledge,
@@ -109,6 +106,7 @@ pub(crate) use wars::{
     rearm_clan_wars_at_boot, war_relation_bits,
 };
 
+use crate::game_loop::helpers;
 // Every `clans` submodule reaches this through `use super::*`, so it is
 // re-exported here rather than imported once per file.
 pub(crate) use commons::util::now_millis;
@@ -176,7 +174,7 @@ pub(crate) fn handle_create_clan(world: &mut World, client_id: u32, player_oid: 
         // A second token means the typed name had a space — Java folds this
         // into the isValidName reject. (`ClanNameTemplate = .*` on this
         // dist, so the regex itself is not ported.)
-        send_sm(world, client_id, sm_ids::CLAN_NAME_IS_INVALID);
+        helpers::send_sm_bare_to_client(world, client_id, sm_ids::CLAN_NAME_IS_INVALID);
         return;
     }
     create_clan(world, player_oid, &name);
@@ -195,7 +193,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
     // --- ClanTable.createClan guards, in order ---
     let p = world.objects.get_component::<Player>(&leader_oid)?;
     if p.level < 10 {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             leader_client,
             sm_ids::YOU_DO_NOT_MEET_THE_CRITERIA_IN_ORDER_TO_CREATE_A_CLAN,
@@ -203,7 +201,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
         return None;
     }
     if p.clan_id != 0 {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             leader_client,
             sm_ids::YOU_HAVE_FAILED_TO_CREATE_A_CLAN,
@@ -211,7 +209,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
         return None;
     }
     if now_millis() < p.clan_create_expiry_time {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             leader_client,
             sm_ids::YOU_MUST_WAIT_10_DAYS_BEFORE_CREATING_A_NEW_CLAN,
@@ -219,11 +217,11 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
         return None;
     }
     if !name.chars().all(|c| c.is_ascii_alphanumeric()) || name.len() < 2 {
-        send_sm(world, leader_client, sm_ids::CLAN_NAME_IS_INVALID);
+        helpers::send_sm_bare_to_client(world, leader_client, sm_ids::CLAN_NAME_IS_INVALID);
         return None;
     }
     if name.len() > 16 {
-        send_sm(
+        helpers::send_sm_bare_to_client(
             world,
             leader_client,
             sm_ids::CLAN_NAME_S_LENGTH_IS_INCORRECT,
@@ -329,7 +327,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
             server_packets::pledge_show_member_list_update(m, true),
         );
     }
-    send_sm(world, leader_client, sm_ids::YOUR_CLAN_HAS_BEEN_CREATED);
+    helpers::send_sm_bare_to_client(world, leader_client, sm_ids::YOUR_CLAN_HAS_BEEN_CREATED);
     world.clans.insert(clan_id, clan);
     // `broadcastUserInfo(RELATION, CLAN)` — the full re-send stands in
     // (same G10 substitution for RelationChanged).
@@ -383,7 +381,7 @@ pub(crate) fn set_clan_level(world: &mut World, clan_id: i32, level: i32) {
         if level > 4
             && let Some(cid) = client_for_player(world, leader_id)
         {
-            send_sm(
+            helpers::send_sm_bare_to_client(
                 world,
                 cid,
                 sm_ids::NOW_THAT_YOUR_CLAN_LEVEL_IS_ABOVE_LEVEL_5_IT_CAN_ACCUMULATE_CLAN_REPUTATION,
@@ -744,7 +742,7 @@ pub(crate) fn refuse_if_busy(world: &World, player: i32, target_oid: i32) -> boo
             .objects
             .has_component::<crate::model::components::PendingRequest>(&target_oid);
     if busy {
-        send_sm_with(
+        helpers::send_sm_to_player(
             world,
             player,
             sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
@@ -764,11 +762,10 @@ pub(crate) fn refuse_if_clanless(world: &World, player_oid: i32, clan_id: i32) -
     if clan_id != 0 {
         return false;
     }
-    send_sm_with(
+    helpers::send_sm_bare_to_player(
         world,
         player_oid,
         sm_ids::YOU_ARE_NOT_A_CLAN_MEMBER_AND_CANNOT_PERFORM_THIS_ACTION,
-        &[],
     );
     true
 }

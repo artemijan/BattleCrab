@@ -5,7 +5,7 @@ use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::clans::clan_of;
 use crate::game_loop::helpers;
-
+use crate::game_loop::skills::skill_by_id;
 use crate::model::Player;
 use crate::model::components::ClanSkills;
 use crate::model::skill::ActiveBuff;
@@ -36,8 +36,7 @@ pub(crate) fn apply_clan_advent(world: &mut World, object_id: i32) {
     if already {
         return;
     }
-    let Some(skill) = helpers::skill_by_id(world, CLAN_ADVENT_SKILL_ID, CLAN_ADVENT_SKILL_LEVEL)
-    else {
+    let Some(skill) = skill_by_id(world, CLAN_ADVENT_SKILL_ID, CLAN_ADVENT_SKILL_LEVEL) else {
         return;
     };
     crate::game_loop::skills::effects::apply_skill_effects(world, object_id, object_id, &skill);

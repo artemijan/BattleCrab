@@ -9,10 +9,12 @@ use super::set_skill_reuse;
 use super::start_casting;
 use super::target_state;
 use crate::game_loop::helpers;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::components;
 
 use crate::game_loop::skills::effects::apply_skill_effects;
+use crate::game_loop::space::position;
 use crate::model::Player;
 
 use crate::model::skill::OperateType;
@@ -46,7 +48,7 @@ pub(crate) fn op_exist_npc_around(
     caster_oid: i32,
     cond: &crate::model::skill::OpExistNpcCondition,
 ) -> bool {
-    let Some(region) = helpers::region_cell_of(world, caster_oid) else {
+    let Some(region) = position::region_cell_of(world, caster_oid) else {
         return false;
     };
     let Some(origin) = maybe_position(world, caster_oid) else {
@@ -100,7 +102,7 @@ pub(crate) fn handle_request_magic_skill_use_ground(
     if let Some(pos) = maybe_position(world, object_id) {
         // `Broadcast.toKnownPlayers(player, new ValidateLocation(player))` —
         // bystanders only, the caster's own client already turned.
-        crate::game_loop::helpers::broadcast_to_others(
+        broadcast::broadcast_to_others(
             world,
             object_id,
             &server_packets::validate_location(object_id, pos.x, pos.y, pos.z, pos.heading),
@@ -283,7 +285,7 @@ pub(crate) fn use_magic_on(
                 skill.reuse_delay_group,
                 skill.reuse_delay,
             );
-            helpers::broadcast_including_self(world, object_id, &pkt);
+            broadcast::broadcast_including_self(world, object_id, &pkt);
         }
         apply_skill_effects(world, object_id, object_id, &skill);
         set_skill_reuse(world, object_id, &skill);

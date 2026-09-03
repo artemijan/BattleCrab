@@ -21,12 +21,11 @@
 //! in `private_store.rs`/`crafting.rs` — and this module is the router, exactly
 //! as `PlayerActionHandler` is in Java.
 
-use crate::game_loop::helpers::{
-    broadcast_including_self, is_dead, send_action_failed, send_sm_bare_to_client,
-};
+use crate::game_loop::helpers::{is_dead, send_action_failed, send_sm_bare_to_client};
 use crate::model::Player;
 use crate::model::components;
 
+use crate::game_loop::net::broadcast;
 use crate::network::client_packets::RequestActionUse;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
@@ -232,7 +231,7 @@ pub(crate) fn set_running(world: &mut World, object_id: i32, running: bool) {
     let run_spd = speeds.run_spd;
     if run_spd != 0.0 {
         let pkt = server_packets::change_move_type(object_id, running);
-        broadcast_including_self(world, object_id, &pkt);
+        broadcast::broadcast_including_self(world, object_id, &pkt);
     }
     // `if (isPlayer()) getActingPlayer().broadcastUserInfo()`. The summon and
     // NPC legs of Java's method are not reachable from here — this is the
@@ -295,7 +294,7 @@ fn use_social(world: &mut World, client_id: u32, object_id: i32, social_id: i32)
         return false;
     }
     let pkt = server_packets::social_action(object_id, social_id);
-    broadcast_including_self(world, object_id, &pkt);
+    broadcast::broadcast_including_self(world, object_id, &pkt);
     // Java also fires `ON_PLAYER_SOCIAL_ACTION` here. Nothing on this dist
     // listens for it — `SocialAction.java` is the only file in the datapack
     // that names the event — so there is no listener list to notify.

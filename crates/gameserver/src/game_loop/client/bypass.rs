@@ -22,6 +22,7 @@ use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::items::{augment, item_auction};
 use crate::game_loop::npc::npc_template;
 use crate::game_loop::npc::{teleporter, view};
+use crate::game_loop::space::position;
 use crate::model::components::LastFolkNpc;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
@@ -238,7 +239,7 @@ fn handle_player_help(world: &mut World, client_id: u32, command: &str) {
 /// stands in — which is why a fisherman in the middle of a town can answer at
 /// all. `nearest_castle_at` is that lookup.
 fn handle_territory_status(world: &mut World, client_id: u32, npc_object_id: i32) {
-    let Some(pos) = crate::game_loop::helpers::maybe_position(world, npc_object_id) else {
+    let Some(pos) = position::maybe_position(world, npc_object_id) else {
         return;
     };
     let Some(castle_id) = world.data.zone_data.nearest_castle_at(pos.x, pos.y, pos.z) else {

@@ -16,6 +16,7 @@ use crate::world::{World, region_of, regions_adjacent};
 
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::items::ground_items;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::doors;
 use crate::game_loop::space::position::region_cell_of;
 
@@ -794,7 +795,7 @@ pub(crate) fn movement_tick(world: &mut World) {
         let pkt = server_packets::move_to_location(
             id, m.dest_x, m.dest_y, m.dest_z, m.start_x, m.start_y, m.start_z,
         );
-        crate::game_loop::helpers::broadcast_including_self(world, id, &pkt);
+        broadcast::broadcast_including_self(world, id, &pkt);
     }
 }
 

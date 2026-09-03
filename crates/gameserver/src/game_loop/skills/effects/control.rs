@@ -7,11 +7,12 @@ use super::expire_buffs_where;
 use super::max_recoverable;
 use super::player_or_npc_level;
 use crate::game_loop::space::position::maybe_position;
-use crate::game_loop::{helpers, items};
+use crate::game_loop::{helpers, items, npc};
 
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
-
+use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::ai::force_attack_target;
+use crate::game_loop::space::position;
 use crate::model::components::StatModifiers;
 use crate::model::components::Vitals;
 use crate::model::formulas;
@@ -75,7 +76,7 @@ pub(crate) fn random_bystander(
 /// Java `((Attackable) cha).isInMyClan(effectedMob)` — two NPCs sharing a clan
 /// tag. A player is never in an NPC's faction.
 fn same_npc_faction(world: &World, a_oid: i32, b_oid: i32) -> bool {
-    let clan_of = |oid: i32| helpers::npc_template(world, oid).map(|t| t.clans.clone());
+    let clan_of = |oid: i32| npc::npc_template(world, oid).map(|t| t.clans.clone());
     match (clan_of(a_oid), clan_of(b_oid)) {
         (Some(a), Some(b)) => a.iter().any(|c| b.contains(c)),
         _ => false,
@@ -333,7 +334,7 @@ pub(crate) fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &S
     if !mutes {
         return;
     }
-    let is_raid = helpers::is_raid_npc(world, target_oid);
+    let is_raid = npc::is_raid_npc(world, target_oid);
     if is_raid {
         return;
     }
@@ -431,7 +432,7 @@ pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) 
     // `isRaid()` is the RaidBoss/GrandBoss subtree only — a raid *minion* is
     // `isRaidMinion()`, a separate predicate Java does not consult here, so a
     // minion is interrupted like any other monster.
-    if crate::game_loop::helpers::is_raid_npc(world, target_oid) {
+    if npc::is_raid_npc(world, target_oid) {
         return;
     }
     // Order matters: abort the cast *first*. `stop_casting` resumes the move
@@ -451,9 +452,9 @@ pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) 
             .objects
             .remove_component::<crate::model::components::Movement>(&target_oid);
         if let Some(pos) = maybe_position(world, target_oid)
-            && let Some(region) = helpers::region_cell_of(world, target_oid)
+            && let Some(region) = position::region_cell_of(world, target_oid)
         {
-            crate::game_loop::helpers::broadcast_near_region(
+            broadcast::broadcast_near_region(
                 world,
                 region,
                 &server_packets::stop_move(target_oid, pos.x, pos.y, pos.z, pos.heading),
@@ -481,9 +482,7 @@ pub(crate) fn creature_level(world: &World, oid: i32) -> i32 {
             .unwrap_or(1);
     }
     if crate::game_loop::combat::is_npc_oid(oid) {
-        helpers::npc_template(world, oid)
-            .map(|t| t.level)
-            .unwrap_or(1)
+        npc::npc_template(world, oid).map(|t| t.level).unwrap_or(1)
     } else {
         world
             .objects
@@ -628,7 +627,7 @@ pub(crate) fn creature_level_for_test(world: &World, oid: i32) -> i32 {
 /// landed/resisted caster line — an NPC's template name or the player's name.
 pub(crate) fn creature_name(world: &World, oid: i32) -> String {
     if crate::game_loop::combat::is_npc_oid(oid) {
-        helpers::npc_name_or_empty(world, oid)
+        npc::npc_name_or_empty(world, oid)
     } else {
         helpers::player_name_or_empty(world, oid)
     }
@@ -846,7 +845,7 @@ pub(crate) fn call_pc_player(
         );
     }
 
-    let (x, y, z) = helpers::pos_of(world, caster_oid).unwrap_or((0, 0, 0));
+    let (x, y, z) = position::pos_of(world, caster_oid).unwrap_or((0, 0, 0));
     let name = helpers::player_name_or_empty(world, caster_oid);
     if let Some(p) = world
         .objects
@@ -965,7 +964,7 @@ pub(crate) fn teleport_to_target(world: &mut World, caster_oid: i32, target_oid:
 
     // Java broadcasts `FlyToLocation` *before* `setXYZ` and `ValidateLocation`
     // after it: the client animates the slide, then has the landing confirmed.
-    crate::game_loop::helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         caster_oid,
         &server_packets::fly_to_location(
@@ -975,9 +974,9 @@ pub(crate) fn teleport_to_target(world: &mut World, caster_oid: i32, target_oid:
             server_packets::FlyType::Dummy,
         ),
     );
-    helpers::set_position(world, caster_oid, (dest.0, dest.1, dest.2));
+    position::set_position(world, caster_oid, (dest.0, dest.1, dest.2));
     world.set_player_region(caster_oid, crate::world::region_of(dest.0, dest.1));
-    crate::game_loop::helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         caster_oid,
         &server_packets::validate_location(caster_oid, dest.0, dest.1, dest.2, from.heading),
@@ -1038,7 +1037,7 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
     // victim; without the packet every client keeps animating the run toward
     // the old destination, so the drag leaves the character sliding. Java
     // broadcasts it before `setLocation`, i.e. at the old point.
-    crate::game_loop::helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         target_oid,
         &server_packets::stop_move(target_oid, from.x, from.y, from.z, from.heading),
@@ -1059,7 +1058,7 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
     // port broadcasts it so bystanders see the yank rather than a silent
     // teleport — the packet is a pure animation and the client ignores it for
     // objects it can't see.
-    crate::game_loop::helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         target_oid,
         &server_packets::fly_to_location(
@@ -1070,7 +1069,7 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
         ),
     );
 
-    helpers::set_position(world, target_oid, (dest.x, dest.y, dest.z));
+    position::set_position(world, target_oid, (dest.x, dest.y, dest.z));
     // Same reason as the respawn teleport: the region index has to move with
     // the cell. No-op on the index for a non-player target.
     world.set_player_region(target_oid, crate::world::region_of(dest.x, dest.y));
@@ -1129,7 +1128,7 @@ pub(crate) fn bluff(
     skill: &Skill,
     chance: i32,
 ) {
-    let is_raid = helpers::is_raid_npc(world, target_oid)
+    let is_raid = npc::is_raid_npc(world, target_oid)
         // Java's `isRaidMinion()` is `Monster.onSpawn`'s
         // `setIsRaidMinion(_master.isRaid())` — a minion inherits its master's
         // raid immunity. The port tracks the link as `MinionOf`, so ask the
@@ -1150,12 +1149,12 @@ pub(crate) fn bluff(
         .get_component::<crate::model::components::Position>(&target_oid)
         .map(|p| p.heading)
         .unwrap_or(0);
-    if let Some(region) = helpers::region_cell_of(world, target_oid) {
+    if let Some(region) = position::region_cell_of(world, target_oid) {
         for pkt in [
             server_packets::start_rotation(target_oid, target_heading, 1, 65535),
             server_packets::stop_rotation(target_oid, caster_heading, 65535),
         ] {
-            crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
+            broadcast::broadcast_near_region(world, region, &pkt);
         }
     }
     if let Some(p) = world
@@ -1215,7 +1214,7 @@ pub(crate) fn skill_turning(
     chance: i32,
     static_chance: bool,
 ) {
-    let is_raid = helpers::is_raid_npc(world, target_oid);
+    let is_raid = npc::is_raid_npc(world, target_oid);
     if caster_oid == target_oid || is_raid {
         return;
     }

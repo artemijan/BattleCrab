@@ -104,7 +104,7 @@ use world_cmds::*;
 use crate::game_loop::combat::{death, target};
 use crate::game_loop::space::position::region_cell_of;
 use crate::game_loop::space::visibility;
-use crate::game_loop::{helpers, party};
+use crate::game_loop::{clans, helpers, party};
 /// Java `AdminCommandHandler.useAdminCommand`. `full` is the whole command
 /// string *including* the `admin_` prefix, e.g. `"admin_heal 100"`.
 ///
@@ -1164,7 +1164,7 @@ pub(crate) fn handle_request_gm_command(world: &mut World, client_id: u32, body:
         // Player clan.
         2 => {
             let Some(t) = target else { return };
-            let Some(cid) = helpers::clan_of(world, t) else {
+            let Some(cid) = clans::clan_of(world, t) else {
                 return;
             };
             let Some(clan) = world.clans.get(&cid) else {

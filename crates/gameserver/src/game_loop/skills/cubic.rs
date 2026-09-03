@@ -11,6 +11,7 @@
 use crate::data::cubic_data::{CubicSkill, CubicTargetType, CubicTemplate};
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::TICKS_PER_SECOND;
@@ -420,7 +421,7 @@ fn cast(world: &mut World, owner_oid: i32, caster_oid: i32, target: i32, cubic_s
             skill.reuse_delay_group,
             skill.reuse_delay,
         );
-        crate::game_loop::helpers::broadcast_including_self(world, owner_oid, &pkt);
+        broadcast::broadcast_including_self(world, owner_oid, &pkt);
     }
     // The cubic floats with its owner — keep its position current so range and
     // aggro bookkeeping resolve from where the owner actually is.

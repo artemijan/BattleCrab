@@ -1,6 +1,6 @@
 //! NPC chat-say broadcasts (moved from helpers).
 
-use crate::game_loop::helpers::broadcast_from;
+use crate::game_loop::net::broadcast;
 use crate::model::npc::Npc;
 use crate::world::World;
 
@@ -30,7 +30,7 @@ pub(crate) fn npc_say_param(world: &World, npc_oid: i32, npc_string_id: i32, par
         }
         None => crate::network::server_packets::npc_say(npc_oid, npc.npc_id, npc_string_id),
     };
-    broadcast_from(world, npc_oid, &pkt);
+    broadcast::broadcast_from(world, npc_oid, &pkt);
 }
 
 /// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble.
@@ -39,5 +39,5 @@ pub(crate) fn npc_say_text(world: &World, npc_oid: i32, text: &str) {
         return;
     };
     let pkt = crate::network::server_packets::npc_say_text(npc_oid, npc.npc_id, text);
-    broadcast_from(world, npc_oid, &pkt);
+    broadcast::broadcast_from(world, npc_oid, &pkt);
 }

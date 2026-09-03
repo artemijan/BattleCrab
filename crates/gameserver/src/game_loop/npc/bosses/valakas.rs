@@ -14,9 +14,11 @@
 //! the 60 s `regen_task` (escalating self-heal + a 15-min-idle reset) and the
 //! 2 s `skill_task` combat-skill AI (his breath/AoE/utility skills) are ported.
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::common::players_in_lair_oids;
-use crate::game_loop::helpers;
+use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{helpers, skills};
 
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::components::Position;
@@ -135,7 +137,7 @@ pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
 
     // Inactivity: nobody has landed a hit in 15 minutes → reset the encounter.
     if super::combat::idle_ticks(world, valakas_oid) >= INACTIVITY_TICKS {
-        helpers::set_position(
+        position::set_position(
             world,
             valakas_oid,
             (VALAKAS_HOME.0, VALAKAS_HOME.1, VALAKAS_HOME.2),
@@ -152,8 +154,8 @@ pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
     // Otherwise refresh the recovery buff at the level his health calls for.
     if let Some((cur, max)) = helpers::hp_pair(world, valakas_oid) {
         let level = regen_level(cur, max);
-        if let Some(skill) = helpers::skill_by_id(world, VALAKAS_REGENERATION, level) {
-            crate::game_loop::skills::effects::apply_continuous_effects(
+        if let Some(skill) = skills::skill_by_id(world, VALAKAS_REGENERATION, level) {
+            skills::effects::apply_continuous_effects(
                 world,
                 valakas_oid,
                 valakas_oid,
@@ -180,12 +182,10 @@ fn attacker_in_lair(world: &World, attacker_oid: i32) -> bool {
 }
 
 fn cast_debuff(world: &mut World, caster_oid: i32, target_oid: i32) {
-    let Some(skill) = helpers::skill_by_id(world, super::combat::ANTI_STRIDER, 1) else {
+    let Some(skill) = skills::skill_by_id(world, super::combat::ANTI_STRIDER, 1) else {
         return;
     };
-    crate::game_loop::skills::effects::apply_continuous_effects(
-        world, caster_oid, target_oid, &skill, None,
-    );
+    skills::effects::apply_continuous_effects(world, caster_oid, target_oid, &skill, None);
 }
 
 // ---------------------------------------------------------------------------
@@ -391,7 +391,7 @@ const CINEMATIC: [(u64, Option<[i32; 11]>); 10] = [
 /// and 9), and a chain of relative delays would be far easier to get subtly
 /// wrong.
 pub(crate) fn begin_cinematic(world: &mut World, valakas_oid: i32) {
-    helpers::set_position(
+    position::set_position(
         world,
         valakas_oid,
         (VALAKAS_LAIR.0, VALAKAS_LAIR.1, VALAKAS_LAIR.2),
@@ -650,11 +650,11 @@ pub(crate) fn klein_status_html(world: &World) -> &'static str {
 /// teleport, and the `allowEnter` grant. Returns the refusal html, or `None`
 /// when teleported (Java returns `""`, i.e. close the window).
 pub(crate) fn enter_hall_of_flames(world: &mut World, player_oid: i32) -> Option<&'static str> {
-    if crate::game_loop::helpers::count_of(world, player_oid, VACUALITE) < 1 {
+    if inventory::count_of(world, player_oid, VACUALITE) < 1 {
         return Some("31540-06.htm");
     }
     teleport_player_rand(world, player_oid, HALL_OF_FLAMES, 0);
-    crate::game_loop::helpers::set_player_var_int(world, player_oid, ALLOW_ENTER, 1);
+    helpers::set_player_var_int(world, player_oid, ALLOW_ENTER, 1);
     None
 }
 
@@ -671,11 +671,11 @@ pub(crate) fn heart_enter(world: &mut World, player_oid: i32) -> Option<&'static
     if world.valakas_entry_count >= MAX_PEOPLE {
         return Some("31385-03.htm");
     }
-    if crate::game_loop::helpers::player_var_int(world, player_oid, ALLOW_ENTER, 0) != 1 {
+    if helpers::player_var_int(world, player_oid, ALLOW_ENTER, 0) != 1 {
         return Some("31385-04.htm");
     }
     // Admitted: consume the flag, teleport in, and count the entry.
-    crate::game_loop::helpers::unset_player_var(world, player_oid, ALLOW_ENTER);
+    helpers::unset_player_var(world, player_oid, ALLOW_ENTER);
     teleport_player_rand(world, player_oid, LAIR_ENTRY, 600);
     world.valakas_entry_count += 1;
 

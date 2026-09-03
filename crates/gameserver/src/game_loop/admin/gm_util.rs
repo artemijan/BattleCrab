@@ -11,9 +11,11 @@
 
 use crate::game_loop::admin::find_online_player;
 use crate::game_loop::combat::target;
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
+use crate::game_loop::net::broadcast;
+use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{clans, helpers, npc, skills};
 use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef};
 use crate::model::npc::Npc;
@@ -140,7 +142,7 @@ pub(super) fn admin_targetsay(world: &mut World, client_id: u32, object_id: i32,
     };
     let say =
         server_packets::creature_say(target, crate::enums::ChatType::General, &name, &text, None);
-    super::helpers::broadcast_including_self(world, target, &say);
+    broadcast::broadcast_including_self(world, target, &say);
 }
 
 /// `AdminMessages`'s `//msg <id>` — send the raw `SystemMessage(id)` to the GM.
@@ -210,7 +212,7 @@ pub(super) fn admin_html(world: &mut World, client_id: u32, args: &[&str]) {
 
 /// `AdminDebug`'s `//showdoors` — list the doors visible from the GM's region.
 pub(super) fn admin_showdoors(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(region) = helpers::region_cell_of(world, object_id) else {
+    let Some(region) = position::region_cell_of(world, object_id) else {
         return;
     };
     let ids = world.doors_visible_from(region);
@@ -415,7 +417,7 @@ pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i3
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let Some(clan_id) = helpers::clan_of(world, target) else {
+    let Some(clan_id) = clans::clan_of(world, target) else {
         send_message(world, client_id, "Player is not in a clan.");
         recall_all(world, object_id, &[target]);
         return;
@@ -744,7 +746,7 @@ pub(super) fn admin_show_quests(world: &mut World, client_id: u32, object_id: i3
         return;
     };
     // Java's gate is `isCreature()` — an NPC or a player, not a door/item.
-    let npc_id = helpers::npc_id_of(world, target);
+    let npc_id = npc::npc_id_of(world, target);
     if npc_id.is_none() && !world.objects.has_component::<Player>(&target) {
         send_message(world, client_id, "Invalid Target.");
         return;
@@ -850,12 +852,12 @@ pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, 
     match args.get(1).copied() {
         Some("give") => {
             let clan_id =
-                target::current(world, object_id).and_then(|oid| helpers::clan_of(world, oid));
+                target::current(world, object_id).and_then(|oid| clans::clan_of(world, oid));
             let Some(clan_id) = clan_id else {
                 send_message(world, client_id, "Target a member of the receiving clan.");
                 return;
             };
-            crate::game_loop::clans::hall_auction::set_hall_owner(world, hall_id, clan_id);
+            clans::hall_auction::set_hall_owner(world, hall_id, clan_id);
             send_message(
                 world,
                 client_id,
@@ -863,7 +865,7 @@ pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, 
             );
         }
         Some("take") => {
-            crate::game_loop::clans::hall_auction::revoke_hall(world, hall_id);
+            clans::hall_auction::revoke_hall(world, hall_id);
             send_message(
                 world,
                 client_id,
@@ -1056,27 +1058,26 @@ pub(super) fn admin_skill_test(world: &mut World, client_id: u32, object_id: i32
         .objects
         .get_component::<crate::model::components::TargetRef>(&object_id)
         .and_then(|t| t.0);
-    let (Some(skill_id), Some(target_oid)) = (super::helpers::nth_arg::<i32>(args, 0), target)
-    else {
+    let (Some(skill_id), Some(target_oid)) = (helpers::nth_arg::<i32>(args, 0), target) else {
         send_message(world, client_id, usage);
         return;
     };
     // Java's `target.isCreature() ? target : activeChar` — a targeted *item*
     // or door falls back to the GM as the animation's source.
-    let caster_oid = if super::helpers::is_playable(world, target_oid)
+    let caster_oid = if helpers::is_playable(world, target_oid)
         || crate::game_loop::combat::is_npc_oid(target_oid)
     {
         target_oid
     } else {
         object_id
     };
-    let Some(skill) = super::helpers::skill_by_id(world, skill_id, 1) else {
+    let Some(skill) = skills::skill_by_id(world, skill_id, 1) else {
         send_message(world, client_id, usage);
         return;
     };
     let (Some(caster_pos), Some(gm_pos)) = (
-        crate::game_loop::helpers::maybe_position(world, caster_oid),
-        crate::game_loop::helpers::maybe_position(world, object_id),
+        maybe_position(world, caster_oid),
+        maybe_position(world, object_id),
     ) else {
         return;
     };
@@ -1085,7 +1086,7 @@ pub(super) fn admin_skill_test(world: &mut World, client_id: u32, object_id: i32
     // an NPC and the broadcasting override for a player, so the GM-as-caster
     // case goes through the player path.
     if caster_oid == object_id {
-        crate::game_loop::combat::target::set_target(world, client_id, object_id, Some(object_id));
+        target::set_target(world, client_id, object_id, Some(object_id));
     } else {
         world.objects.add_components(
             &caster_oid,
@@ -1099,5 +1100,5 @@ pub(super) fn admin_skill_test(world: &mut World, client_id: u32, object_id: i32
         1,
         skill.hit_time,
     );
-    crate::game_loop::helpers::broadcast_including_self(world, caster_oid, &pkt);
+    broadcast::broadcast_including_self(world, caster_oid, &pkt);
 }

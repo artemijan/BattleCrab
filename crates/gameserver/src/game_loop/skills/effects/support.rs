@@ -3,11 +3,12 @@ use super::caster_display_name;
 use super::creature_level;
 use super::creature_name;
 use super::player_or_npc_level;
-use crate::game_loop::helpers;
-
+use crate::game_loop::character::inventory;
 pub(crate) use crate::game_loop::helpers::{
     send_sm_bare_to_player as send_sm, send_sm_to_player as send_sm_with,
 };
+use crate::game_loop::net::broadcast;
+use crate::game_loop::{helpers, npc};
 use crate::model::components::CombatStats;
 use crate::model::formulas;
 use crate::model::skill::RestorationGroup;
@@ -112,7 +113,7 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
             }
         }
         // Snapshot after the enchant stamp, so the packet carries the `+N`.
-        let changes = crate::game_loop::helpers::added_changes(world, target_oid, &added);
+        let changes = inventory::added_changes(world, target_oid, &added);
         if let Some(client_id) = helpers::client_for_player(world, target_oid) {
             // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
             // single enchanted → "obtained a +S1 S2"; else "obtained S1".
@@ -125,7 +126,7 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
                 server_packets::obtained_item_sm(item_id, amount)
             };
             helpers::send_to_client(world, client_id, sm);
-            crate::game_loop::helpers::send_inventory_update(world, target_oid, changes);
+            inventory::send_inventory_update(world, target_oid, changes);
         }
     }
 }
@@ -135,7 +136,7 @@ pub(crate) fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i3
 /// self-only `sendPacket` variant.
 pub(crate) fn broadcast_social_action(world: &mut World, oid: i32, action_id: i32) {
     let pkt = server_packets::social_action(oid, action_id);
-    crate::game_loop::helpers::broadcast_from(world, oid, &pkt);
+    broadcast::broadcast_from(world, oid, &pkt);
 }
 
 /// Resolve `Formulas.calcMagicSuccess`' inputs for a cast. `penalty` is the
@@ -153,7 +154,7 @@ pub(crate) fn magic_success_input<'a>(
     // `isAutoAttackable` — a peaceful Folk on either side takes the PvP branch.
     let is_attackable = |oid: i32| {
         crate::game_loop::combat::is_npc_oid(oid)
-            && helpers::npc_template(world, oid).is_some_and(|t| t.is_attackable_class())
+            && npc::npc_template(world, oid).is_some_and(|t| t.is_attackable_class())
     };
 
     let caster_player_level = world
@@ -164,11 +165,11 @@ pub(crate) fn magic_success_input<'a>(
     // `target.isRaid() || target.isRaidMinion()` — a minion counts as a raid
     // only when its leader is one (Java sets `_isRaidMinion` from the spawning
     // raid boss, not from the minion's own template).
-    let target_is_raid = helpers::is_raid_npc(world, target_oid)
+    let target_is_raid = npc::is_raid_npc(world, target_oid)
         || world
             .objects
-            .get_component::<crate::game_loop::npc::minions::MinionOf>(&target_oid)
-            .is_some_and(|leader| helpers::is_raid_npc(world, leader.0));
+            .get_component::<npc::minions::MinionOf>(&target_oid)
+            .is_some_and(|leader| npc::is_raid_npc(world, leader.0));
 
     formulas::MagicSuccess {
         pve: is_attackable(caster_oid) || is_attackable(target_oid),

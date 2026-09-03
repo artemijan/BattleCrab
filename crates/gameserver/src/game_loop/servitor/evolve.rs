@@ -32,15 +32,14 @@
 //! pet manager would accept it, and leaving it out would be a silent gap if the
 //! NPC is ever spawned.
 
+use crate::game_loop::character::inventory;
+use crate::game_loop::helpers::{send_sm_bare_to_player, send_sm_to_player, send_to_client};
 use crate::game_loop::space::position::maybe_position;
-use tracing::warn;
-
-use crate::game_loop::helpers::item_id_of;
-use crate::game_loop::helpers::{send_inventory_item_list, send_to_client as send};
 use crate::model::Player;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
+use tracing::warn;
 
 /// `MagicSkillUse(npc, 2046, 1, 1000, 600000)` — the summoning animation Java
 /// plays from the *manager*, not the player.
@@ -78,7 +77,7 @@ fn refuse(world: &mut World, client_id: u32, npc_object_id: i32, file: &str) {
     )
     .map(|c| c.replace("%objectId%", &npc_object_id.to_string()))
     .unwrap_or_default();
-    send(
+    send_to_client(
         world,
         client_id,
         server_packets::npc_html_message(npc_object_id, &html),
@@ -128,7 +127,7 @@ pub(crate) fn handle_exchange(
         inv.remove_item(ticket, 1);
     }
     let _ = crate::game_loop::items::add_inventory_item(world, player_oid, collar, 1);
-    send_inventory_item_list(world, player_oid);
+    inventory::send_inventory_item_list(world, player_oid);
 }
 
 /// `Evolve.doEvolve`: the summoned pet becomes its evolved form.
@@ -297,7 +296,7 @@ fn do_restore(
     let level = enchant.max(min_level);
 
     destroy_collar(world, player_oid, collar_object_id);
-    crate::game_loop::clans::send_sm_with(
+    send_sm_to_player(
         world,
         player_oid,
         sm_ids::S1_DISAPPEARED,
@@ -339,7 +338,7 @@ fn destroy_collar(world: &mut World, player_oid: i32, collar_object_id: i32) {
     let _ = world
         .db
         .send(crate::db::DbCommand::DeletePetRow { collar_object_id });
-    send_inventory_item_list(world, player_oid);
+    inventory::send_inventory_item_list(world, player_oid);
 }
 
 /// The shared tail of both flows: seed the saved row so the normal summon path
@@ -415,10 +414,10 @@ fn summon_evolved(
             1000,
         );
         if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player_oid) {
-            send(world, cid, anim);
+            send_to_client(world, cid, anim);
         }
     }
-    crate::game_loop::clans::send_sm_with(world, player_oid, sm_ids::SUMMONING_YOUR_PET, &[]);
+    send_sm_bare_to_player(world, player_oid, sm_ids::SUMMONING_YOUR_PET);
     true
 }
 
@@ -427,7 +426,7 @@ fn summon_evolved(
 /// would floor the carried exp back down to it, losing the whole point of the
 /// evolution.
 fn level_for_exp(world: &World, player_oid: i32, collar_object_id: i32, exp: i64) -> i32 {
-    let Some(item_id) = item_id_of(world, player_oid, collar_object_id) else {
+    let Some(item_id) = inventory::item_id_of(world, player_oid, collar_object_id) else {
         return 1;
     };
     let Some(t) = world.data.pet_data.by_item_id(item_id) else {

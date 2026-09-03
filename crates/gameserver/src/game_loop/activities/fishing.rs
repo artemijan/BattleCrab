@@ -24,8 +24,8 @@ use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use crate::game_loop::helpers::send_to_player as send;
-use crate::game_loop::helpers::{broadcast_near_region, client_for_player};
+use crate::game_loop::helpers::{client_for_player, send_to_player};
+use crate::game_loop::net::broadcast;
 use crate::scheduler::ms_to_ticks;
 
 // FishingEndReason (Java enum ordinals).
@@ -168,13 +168,13 @@ fn cast_line(world: &mut World, player: i32) {
             .get_component::<FishingSession>(&player)
             .is_some_and(|f| f.is_fishing);
         if !already_fishing {
-            send(
+            send_to_player(
                 world,
                 player,
                 sp::system_message_with(sp::sm_ids::YOU_CAN_T_FISH_HERE, &[]),
             );
         }
-        send(world, player, sp::action_failed());
+        send_to_player(world, player, sp::action_failed());
         stop_fishing(world, player, REASON_STOP);
         return;
     };
@@ -201,9 +201,9 @@ fn cast_line(world: &mut World, player: i32) {
 
     let start = sp::ex_fishing_start(player, (bx, by, bz));
     if let Some(region) = region {
-        broadcast_near_region(world, region, &start);
+        broadcast::broadcast_near_region(world, region, &start);
     }
-    send(
+    send_to_player(
         world,
         player,
         sp::ex_user_info_fishing(player, true, (bx, by, bz)),
@@ -342,7 +342,7 @@ pub(crate) fn stop_fishing(world: &mut World, player: i32, reason: u8) {
     });
     if was_fishing {
         broadcast_end(world, player, reason);
-        send(
+        send_to_player(
             world,
             player,
             sp::ex_user_info_fishing(player, false, (0, 0, 0)),
@@ -354,7 +354,7 @@ pub(crate) fn stop_fishing(world: &mut World, player: i32, reason: u8) {
 
 fn broadcast_end(world: &World, player: i32, reason: u8) {
     let pkt = sp::ex_fishing_end(player, reason);
-    crate::game_loop::helpers::broadcast_from(world, player, &pkt);
+    broadcast::broadcast_from(world, player, &pkt);
 }
 
 /// Java `Fishing.calculateBaitLocation`: the bob lands `baitDistance` ahead of

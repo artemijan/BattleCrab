@@ -2,10 +2,12 @@ use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::character::subclass;
 use crate::game_loop::clans::academy;
+use crate::game_loop::clans::clan_skills::reapply_clan_advent_on_profession_change;
 use crate::game_loop::combat::pvp;
 use crate::game_loop::commerce::warehouse;
 use crate::game_loop::social::chat;
 use crate::game_loop::{clans, helpers};
+
 /// The `create_clan` bypass: Java's guard matrix (SM ids in `ClanTable.
 /// createClan` order), then the success path — clan registered + persisted,
 /// leader flags/privileges set, the pledge-window packet trio + SM 189, and
@@ -838,9 +840,8 @@ fn the_profession_change_listener_honours_javas_leader_gate() {
             .clan_id = clan_id;
     }
     let has_advent = |world: &World, oid: i32| has_buff(world, oid, 19009);
-    let relight = |world: &mut World, oid: i32| {
-        clans::skills::reapply_clan_advent_on_profession_change(world, oid)
-    };
+    let relight =
+        |world: &mut World, oid: i32| reapply_clan_advent_on_profession_change(world, oid);
 
     // Leader online → a member's profession change re-lights the aura.
     assert!(!has_advent(&world, 3002), "starts without it");
@@ -851,7 +852,7 @@ fn the_profession_change_listener_honours_javas_leader_gate() {
     );
 
     // Leader offline → it does not.
-    clans::skills::remove_clan_advent(&mut world, 3002);
+    clans::remove_clan_advent(&mut world, 3002);
     world.clients.remove(&1);
     world.objects.despawn(&3001);
     relight(&mut world, 3002);

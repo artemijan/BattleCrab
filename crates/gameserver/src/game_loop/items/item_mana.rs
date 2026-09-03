@@ -64,7 +64,8 @@
 //! is null, so `run` throws it away — and without it a relog inside the beat
 //! window would leave two beats racing on one item, draining it twice as fast.
 
-use crate::game_loop::helpers::{get_inventory_items_oids, send_sm_to_client, send_to_client};
+use crate::game_loop::character::inventory;
+use crate::game_loop::helpers::{send_sm_to_client, send_to_client};
 use crate::game_loop::{helpers, items};
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
@@ -106,7 +107,7 @@ pub(crate) fn schedule_consume_mana_task(world: &mut World, player_oid: i32, ite
 /// it, exactly as Java's `run` discards an entry whose `Item` has no acting
 /// player.
 pub(crate) fn on_player_leave_world(world: &mut World, player_oid: i32) {
-    let owned: Vec<i32> = get_inventory_items_oids(world, player_oid);
+    let owned: Vec<i32> = inventory::get_inventory_items_oids(world, player_oid);
     for oid in owned {
         world.item_mana_consuming.remove(&oid);
     }
@@ -197,8 +198,8 @@ pub(crate) fn decrease_mana(
         }
         // Java's `_loc != WAREHOUSE` guard: only an inventory item refreshes
         // the client. Ours only ever ticks inventory items.
-        let changes = helpers::modified_changes(world, player_oid, &[item_oid]);
-        helpers::send_inventory_update(world, player_oid, changes);
+        let changes = inventory::modified_changes(world, player_oid, &[item_oid]);
+        inventory::send_inventory_update(world, player_oid, changes);
         return;
     }
 
@@ -216,11 +217,12 @@ pub(crate) fn decrease_mana(
     // `finish_equip_change` inside the helper is that pair plus the stat
     // recompute the paperdoll change owes (see its own doc comment).
     items::unequip_if_worn(world, client_id, player_oid, item_oid);
-    let Some(change) = helpers::remove_inventory_item_change(world, player_oid, item_oid, 1) else {
+    let Some(change) = inventory::remove_inventory_item_change(world, player_oid, item_oid, 1)
+    else {
         warn!("item_mana: {item_oid} vanished before its mana-0 destroy.");
         return;
     };
-    helpers::send_inventory_update(world, player_oid, vec![change]);
+    inventory::send_inventory_update(world, player_oid, vec![change]);
 }
 
 /// Java `Player.useEquipableItem`'s equip branch: "Consume mana - will start a

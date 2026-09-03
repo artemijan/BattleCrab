@@ -33,13 +33,13 @@
 use commons::network::PacketReader;
 
 use crate::data::item_data::EtcItemType;
+use crate::game_loop::character::inventory;
 use crate::model::components::EnchantRequest;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self as sp, enchant_result};
 use crate::world::World;
 
-use crate::game_loop::helpers;
-use crate::game_loop::helpers::{player_of, send_inventory_item_list, send_to_client as send};
+use crate::game_loop::helpers::{player_of, send_to_client as send};
 use crate::game_loop::items::{finish_equip_change, unequip_if_worn};
 use crate::game_loop::moderation::punishment;
 /// Facts about an inventory item the enchant flow needs (item id + current
@@ -475,7 +475,7 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
 
     // Consume one scroll (Java destroyItem). If it's gone, error out — and
     // punish: the client can't press Enchant without the scroll in the bag.
-    let removed = helpers::remove_inventory_item_change(world, player, scroll_oid, 1).is_some();
+    let removed = inventory::remove_inventory_item_change(world, player, scroll_oid, 1).is_some();
     if !removed {
         punishment::illegal_action(
             world,
@@ -488,7 +488,7 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     // Consume the support item too, if present; same reasoning as the scroll.
     if support.is_some() {
         let removed =
-            helpers::remove_inventory_item_change(world, player, support_oid, 1).is_some();
+            inventory::remove_inventory_item_change(world, player, support_oid, 1).is_some();
         if !removed {
             punishment::illegal_action(
                 world,
@@ -586,7 +586,7 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
     if let Some(q) = world.objects.get_component_mut::<EnchantRequest>(&player) {
         q.processing = false;
     }
-    send_inventory_item_list(world, player);
+    inventory::send_inventory_item_list(world, player);
 }
 
 /// Success: raise the enchant by `step` (Java's `Rnd.get(randomMin, randomMax)`,

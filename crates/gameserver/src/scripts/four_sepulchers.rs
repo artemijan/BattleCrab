@@ -362,7 +362,7 @@ pub(crate) fn handle_victim_flee(world: &mut crate::world::World, npc_oid: i32) 
     if let Some(npc_id) = npc_id_of(world, npc_oid) {
         let pkt = crate::network::server_packets::npc_say(npc_oid, npc_id, msg);
         if let Some(region) = region_cell_of(world, npc_oid) {
-            crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
+            crate::game_loop::net::broadcast::broadcast_near_region(world, region, &pkt);
         }
     }
     world.scheduler.schedule(

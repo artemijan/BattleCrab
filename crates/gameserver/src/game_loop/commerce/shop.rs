@@ -16,6 +16,7 @@ use tracing::warn;
 
 use crate::data::buy_list_data::Product;
 use crate::data::item_data::ADENA_ID;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_message;
 use crate::game_loop::{helpers, items};
 use crate::model::components::TargetRef;
@@ -466,7 +467,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             continue;
         }
         if let Some(changes) =
-            helpers::add_inventory_item_changes(world, player, line.item_id, line.count)
+            inventory::add_inventory_item_changes(world, player, line.item_id, line.count)
         {
             added.extend(changes);
         }
@@ -481,7 +482,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     );
 
     let refund_items = refund_items_of(world, player);
-    helpers::send_inventory_update(world, player, added);
+    inventory::send_inventory_update(world, player, added);
     if let Some(inventory) = world.objects.get_component::<Inventory>(&player) {
         helpers::send_to_client(
             world,
@@ -549,7 +550,7 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
         }
         let sell = count.min(inst.count);
         total_price = total_price.saturating_add(unit_price * sell).min(MAX_ADENA);
-        if let Some(change) = helpers::remove_inventory_item_change(world, player, obj_id, sell) {
+        if let Some(change) = inventory::remove_inventory_item_change(world, player, obj_id, sell) {
             // The refund entry is the sold chunk. A full removal keeps the
             // instance's identity; a partial one (stackables) leaves the
             // original in the inventory, so the split gets a fresh object id
@@ -624,7 +625,7 @@ fn send_sell_list_refresh(
 ) {
     let refund_items = refund_items_of(world, player);
     let collar = crate::game_loop::servitor::active_pet_collar(world, player);
-    helpers::send_inventory_update(world, player, changes);
+    inventory::send_inventory_update(world, player, changes);
     if let Some((cs, inv)) = world
         .clients
         .get(&client_id)

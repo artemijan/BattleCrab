@@ -6,15 +6,16 @@
 //! [`pickup_ground_item`]).
 
 use super::cursed_weapon;
-use crate::game_loop::character::sit_stand;
+use crate::game_loop::character::{inventory, sit_stand};
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::moderation::punishment;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::party::command_channel;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
-use crate::game_loop::{helpers, items, quests};
+use crate::game_loop::{items, quests};
 use crate::model::components::{GroundItem, Position, RegionCell};
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
@@ -194,7 +195,7 @@ pub(crate) fn spawn_ground_item(
         ),
     );
     if let Some(view) = ground_item_view(world, object_id) {
-        helpers::broadcast_near_region(
+        broadcast::broadcast_near_region(
             world,
             region,
             &server_packets::drop_item(dropper_oid, &view),
@@ -233,7 +234,7 @@ pub(crate) fn despawn_ground_item(world: &mut World, item_oid: i32, region: (i32
     if let Some(ids) = world.ground_item_regions.get_mut(&region) {
         ids.retain(|&id| id != item_oid);
     }
-    helpers::broadcast_near_region(world, region, &server_packets::delete_object(item_oid));
+    broadcast::broadcast_near_region(world, region, &server_packets::delete_object(item_oid));
 }
 
 /// `Player.doPickupItem`: pick a ground item up into `player_oid`'s inventory —
@@ -307,7 +308,7 @@ pub(crate) fn pickup_ground_item(
         send_to_client(world, client_id, sm);
         return;
     }
-    helpers::broadcast_near_region(
+    broadcast::broadcast_near_region(
         world,
         region,
         &server_packets::get_item(player_oid, item_oid, pos.x, pos.y, pos.z),
@@ -579,11 +580,11 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     items::unequip_if_worn(world, client_id, player_oid, pkt.object_id);
 
     let Some(change) =
-        helpers::remove_inventory_item_change(world, player_oid, pkt.object_id, count)
+        inventory::remove_inventory_item_change(world, player_oid, pkt.object_id, count)
     else {
         return;
     };
-    helpers::send_inventory_update(world, player_oid, vec![change]);
+    inventory::send_inventory_update(world, player_oid, vec![change]);
     // `Item.dropMe` → `GeoEngine.getValidLocation(dropper, x, y, z)`: walk the
     // cell line from the dropper to the requested point and stop at the last
     // walkable cell, so the item lands short of a wall/closed door rather than

@@ -55,7 +55,7 @@ pub(crate) fn is_baby_pet(npc_id: i32) -> bool {
 /// `onSummonSpawn` — arm the repeating heal for a baby pet that has just come
 /// out. A no-op for every other summon.
 pub(crate) fn on_summon_spawn(world: &mut World, pet_oid: i32) {
-    let is_baby = crate::game_loop::helpers::npc_id_of(world, pet_oid).is_some_and(is_baby_pet);
+    let is_baby = crate::game_loop::npc::npc_id_of(world, pet_oid).is_some_and(is_baby_pet);
     if !is_baby {
         return;
     }
@@ -138,7 +138,7 @@ fn cast_heal(
     if crate::game_loop::servitor::is_hungry(world, pet_oid) {
         return;
     }
-    let Some(skill) = crate::game_loop::helpers::skill_by_id(world, skill_id, level) else {
+    let Some(skill) = crate::game_loop::skills::skill_by_id(world, skill_id, level) else {
         return;
     };
     // `SkillCaster.checkUseConditions` + the cast itself, through the same

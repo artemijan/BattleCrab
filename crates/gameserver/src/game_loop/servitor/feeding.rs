@@ -8,8 +8,8 @@ use super::pet_of;
 use super::send_pet_info;
 use super::sync_pet_row;
 use super::unsummon_servitor;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::send_inventory_update;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::items::item_skills;
 use crate::game_loop::npc::npc_id_of;
@@ -277,7 +277,7 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
     if let Some(pi) = objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner) {
         pi.0.add_item(&data.item_data, next_oid, item_id, count);
     }
-    send_inventory_update(world, owner, changes);
+    inventory::send_inventory_update(world, owner, changes);
     send_pet_item_list(world, owner);
 }
 
@@ -332,7 +332,7 @@ pub(crate) fn handle_get_item_from_pet(world: &mut World, client_id: u32, body: 
                 .collect::<Vec<_>>()
         })
         .unwrap_or_default();
-    send_inventory_update(world, owner, changes);
+    inventory::send_inventory_update(world, owner, changes);
     send_pet_item_list(world, owner);
 }
 

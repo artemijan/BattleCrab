@@ -2,20 +2,20 @@ use super::add_clan_member;
 use super::clan_membership;
 use super::send_to_member;
 use crate::db::DbCommand;
+use crate::game_loop::clans;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::Player;
+use crate::model::clan::CL_MANAGE_RANKS;
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 use commons::network::PacketReader;
 use commons::util::now_millis;
-
-use crate::model::clan::CL_MANAGE_RANKS;
 
 use crate::model::clan_entry::{
     LOCK_TIME_TICKS, PledgeApplicantInfo, PledgeRecruitInfo, PledgeWaitingInfo,
@@ -196,7 +196,7 @@ pub(crate) fn handle_request_pledge_recruit_board_access(
         return;
     };
 
-    let Some((clan_id, privs)) = crate::game_loop::helpers::clan_and_privs(world, player) else {
+    let Some((clan_id, privs)) = clans::clan_and_privs(world, player) else {
         return;
     };
     if clan_id == 0 {

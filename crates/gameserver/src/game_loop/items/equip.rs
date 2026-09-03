@@ -2,7 +2,7 @@
 //! refresh and equipped-item destruction.
 
 use super::use_etc_item;
-use crate::game_loop::helpers::item_id_of;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::inventory::Inventory;
 use crate::world::World;
@@ -30,7 +30,7 @@ pub(super) fn cursed_weapon_blocks_equip(
     {
         return false;
     }
-    let Some((item_id, body_part)) = item_id_of(world, object_id, item_object_id)
+    let Some((item_id, body_part)) = inventory::item_id_of(world, object_id, item_object_id)
         .map(|id| (id, world.data.item_data.get(id).map_or(0, |t| t.body_part)))
     else {
         return false;
@@ -153,8 +153,8 @@ pub(crate) fn finish_equip_change(
 
     // …and finally Java's `sendInventoryUpdate` — the `InventoryUpdate` plus the
     // adena counter and weight bar it always drags along.
-    let changes = crate::game_loop::helpers::modified_changes(world, object_id, changed);
-    crate::game_loop::helpers::send_inventory_update(world, object_id, changes);
+    let changes = inventory::modified_changes(world, object_id, changed);
+    inventory::send_inventory_update(world, object_id, changes);
     refresh_after_paperdoll_change(world, object_id);
     // NB: no shadow-item mana is spent here. Java burns a point in
     // `Player.useEquipableItem` alone — for the one item the player clicked —

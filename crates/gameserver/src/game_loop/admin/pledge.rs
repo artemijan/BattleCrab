@@ -1,15 +1,15 @@
 //! `AdminPledge` + `AdminClan`'s `//clan_show_pending` — the Game panel's "Clan
 //! Related" buttons. Clan create/dismiss/level/reputation drive the G11 clan
-//! slice's mutation helpers in [`crate::game_loop::clans`]. The "War Related"
+//! slice's mutation helpers in [`clans`]. The "War Related"
 //! (castle / clan-hall / fort-siege), cursed-weapon, manor, grand-boss, olympiad
 //! and hero buttons on the same panel stay unimplemented until their subsystems
 //! land (G21/G24/G25).
 
 use super::guard::{self, Guard, OrReject, Reject};
 use crate::game_loop::clans::clan_name_or_empty;
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::{clans, helpers};
 use crate::model::Player;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
@@ -53,7 +53,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
         return Err(Reject::Msg("Missing parameters!".to_string()));
     };
 
-    let clan_id = helpers::clan_of(world, target);
+    let clan_id = clans::clan_of(world, target);
     let target_name = helpers::player_name_or_empty(world, target);
 
     match action {
@@ -71,7 +71,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
                 if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
                     p.clan_create_expiry_time = 0;
                 }
-                match crate::game_loop::clans::create_clan(world, target, param) {
+                match clans::create_clan(world, target, param) {
                     Some(_) => send_message(
                         world,
                         client_id,
@@ -102,7 +102,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
                     sm_ids::S1_IS_NOT_A_CLAN_LEADER,
                     vec![SmParam::Text(target_name.clone())],
                 )?;
-            crate::game_loop::clans::destroy_clan(world, cid);
+            clans::destroy_clan(world, cid);
             // Java re-reads targetPlayer.getClan() after destroyClan.
             let still_in_clan = world
                 .objects
@@ -137,7 +137,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
             ))?;
             // Java: valid range is [0, 12).
             if (0..12).contains(&level) {
-                crate::game_loop::clans::set_clan_level(world, cid, level);
+                clans::set_clan_level(world, cid, level);
                 let name = clan_name_or_empty(world, cid);
                 send_message(
                     world,
@@ -157,9 +157,7 @@ fn pledge_action(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&
             }
             match param.parse::<i32>() {
                 Ok(points) => {
-                    if let Some(score) =
-                        crate::game_loop::clans::add_clan_reputation(world, cid, points)
-                    {
+                    if let Some(score) = clans::add_clan_reputation(world, cid, points) {
                         let name = clan_name_or_empty(world, cid);
                         let (verb, dir) = if points > 0 {
                             ("add", "to")
@@ -232,7 +230,7 @@ pub(super) fn admin_clan_force_pending(world: &mut World, client_id: u32, args: 
     else {
         return;
     };
-    super::super::clans::force_new_leader(world, clan_id, new_leader);
+    clans::force_new_leader(world, clan_id, new_leader);
     send_message(world, client_id, "Task have been forcely executed.");
 }
 
@@ -263,9 +261,8 @@ fn clan_changeleader(
         .and_then(|name| super::find_online_player(world, name))
         .or_else(|| target::current_player(world, object_id))
         .or_sm(sm_ids::INVALID_TARGET)?;
-    let clan_id =
-        helpers::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
-    if crate::game_loop::clans::force_new_leader(world, clan_id, target) {
+    let clan_id = clans::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
+    if clans::force_new_leader(world, clan_id, target) {
         send_message(world, client_id, "Clan leader changed.");
     } else {
         send_message(world, client_id, "That player already leads the clan.");
@@ -298,8 +295,7 @@ fn add_clan_skill(world: &mut World, client_id: u32, object_id: i32, args: &[&st
         .get(skill_id, level)
         .or_msg("No such skill/level.")?;
     let target = target::current_player(world, object_id).or_sm(sm_ids::INVALID_TARGET)?;
-    let clan_id =
-        helpers::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
+    let clan_id = clans::clan_of(world, target).or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
     // Java `AdminSkill` sends the same message for "no clan" and "not the
     // leader", so both spellings of the check keep that one id.
     world
@@ -308,7 +304,7 @@ fn add_clan_skill(world: &mut World, client_id: u32, object_id: i32, args: &[&st
         .is_some_and(|c| c.leader_id == target)
         .then_some(())
         .or_sm(sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER)?;
-    crate::game_loop::clans::add_clan_skill(world, clan_id, skill_id, level);
+    clans::add_clan_skill(world, clan_id, skill_id, level);
     send_message(world, client_id, "Clan skill added.");
     Ok(())
 }

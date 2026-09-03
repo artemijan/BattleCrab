@@ -20,7 +20,8 @@
 //! item-stat path has applied to `CombatStats.atk_range` since G14.
 
 use crate::data::item_data::{EtcItemType, WeaponType};
-use crate::game_loop::helpers::{send_action_failed, send_inventory_update, spend_mp};
+use crate::game_loop::character::inventory;
+use crate::game_loop::helpers::{send_action_failed, spend_mp};
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
@@ -255,13 +256,13 @@ fn consume_one(world: &mut World, object_id: i32, ammo_object_id: i32) {
             .get_component_mut::<Inventory>(&object_id)
             .map(|inv| inv.remove_item(item_id, 1))
             .unwrap_or_default();
-        send_inventory_update(world, object_id, changes);
+        inventory::send_inventory_update(world, object_id, changes);
         return;
     }
     // The last arrow: the quiver leaves the left hand, so this takes the
     // destroy protocol (paperdoll, options, stats) like any other worn item.
     let changes = crate::game_loop::items::destroy_item_by_id(world, object_id, item_id, 1);
-    send_inventory_update(world, object_id, changes);
+    inventory::send_inventory_update(world, object_id, changes);
 }
 
 /// The MP a single shot costs — `weapon.getMpConsume()`, with Java's

@@ -10,8 +10,8 @@
 
 use crate::data::henna_data::HennaStatSums;
 use crate::data::item_data::ADENA_ID;
+use crate::game_loop::character::inventory::{adena, send_inventory_item_list};
 use crate::game_loop::helpers::class_level;
-use crate::game_loop::helpers::{adena, send_inventory_item_list};
 use crate::game_loop::helpers::{player_of, send_to_client as send};
 use crate::model::Player;
 use crate::model::components;

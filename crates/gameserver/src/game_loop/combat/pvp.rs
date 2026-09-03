@@ -14,13 +14,13 @@ use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
 
 use crate::game_loop::character::player_info;
-use crate::game_loop::helpers::send_sm_to_player;
-use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::{broadcast_including_self, client_for_player};
+use crate::game_loop::helpers::{client_for_player, send_sm_to_player, send_to_client};
 use crate::game_loop::items::cursed_weapon;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::party::command_channel;
 use crate::game_loop::space::position::region_cell_of;
 use crate::game_loop::{clans, combat, items, siege};
+
 /// `RelationChanged.RELATION_INSIEGE` (0x200) — the "in a siege" bit.
 const RELATION_INSIEGE: i32 = 0x200;
 /// `RelationChanged.RELATION_ENEMY` (0x1000) — the red, attackable siege icon.
@@ -534,7 +534,7 @@ pub(crate) fn update_pvp_flag(world: &mut World, object_id: i32, value: u8) {
         .get_component::<Player>(&object_id)
         .map_or(0, |p| p.reputation);
     // StatusUpdate(PVP_FLAG) → self + everyone nearby.
-    broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         object_id,
         &server_packets::status_update(

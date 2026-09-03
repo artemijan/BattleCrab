@@ -20,7 +20,7 @@
 //! if a second boat ever shares a dock.
 
 use crate::enums::ChatType;
-use crate::game_loop::helpers::send_inventory_update;
+use crate::game_loop::character::inventory::send_inventory_update;
 use crate::game_loop::space::position::{maybe_position, set_position};
 use crate::geo::distance::{dist3d_xyz, distance_2d_xy};
 use crate::model::boat;
@@ -30,8 +30,8 @@ use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
 use crate::world::{World, region_of};
 
-use crate::game_loop::helpers::broadcast_near_region;
 use crate::game_loop::helpers::send_sm_bare_to_player;
+use crate::game_loop::net::broadcast;
 use crate::scheduler::ms_to_ticks;
 
 fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> boat::VehiclePathPoint {
@@ -417,7 +417,7 @@ pub(crate) fn spawn_boat(world: &mut World, route: boat::RouteId) -> i32 {
         ),
     );
     let info = sp::vehicle_info(oid, start.x, start.y, start.z, 0);
-    broadcast_near_region(world, region_of(start.x, start.y), &info);
+    broadcast::broadcast_near_region(world, region_of(start.x, start.y), &info);
     // Anchored at a harbor → dwell (boardable); otherwise set sail at once.
     if start.dock {
         begin_dwell(world, oid);
@@ -485,11 +485,11 @@ pub(crate) fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize
     let there = next_dock(world, boat_oid).map(|(x, y)| region_of(x, y));
     for &mid in &stage.messages {
         let say = sp::creature_say_system(ChatType::Boat, sched.char_id, mid as i32);
-        broadcast_near_region(world, here, &say);
+        broadcast::broadcast_near_region(world, here, &say);
         if let Some(there) = there
             && there != here
         {
-            broadcast_near_region(world, there, &say);
+            broadcast::broadcast_near_region(world, there, &say);
         }
     }
     let then_ms = stage.then_ms;
@@ -600,7 +600,7 @@ fn broadcast_to_route_docks(world: &World, boat_oid: i32, packet: &[u8]) {
         }
     }
     for r in regions {
-        broadcast_near_region(world, r, packet);
+        broadcast::broadcast_near_region(world, r, packet);
     }
 }
 
@@ -651,7 +651,7 @@ fn collect_riders(world: &mut World, boat_oid: i32) -> Vec<i32> {
 fn oust_rider(world: &mut World, player: i32, boat_oid: i32, fare: boat::Fare) {
     world.objects.remove_component::<boat::InVehicle>(&player);
     let off = sp::get_off_vehicle(player, boat_oid, fare.oust_x, fare.oust_y, fare.oust_z);
-    crate::game_loop::helpers::broadcast_including_self(world, player, &off);
+    broadcast::broadcast_including_self(world, player, &off);
     crate::game_loop::death::teleport_player(world, player, fare.oust_x, fare.oust_y, fare.oust_z);
 }
 
@@ -679,7 +679,7 @@ fn move_to_next(world: &mut World, boat_oid: i32) {
         target.y,
         target.z,
     );
-    broadcast_near_region(world, region_of(cur.x, cur.y), &departure);
+    broadcast::broadcast_near_region(world, region_of(cur.x, cur.y), &departure);
 
     // Travel time: distance / speed (units per second → ms).
     let dist = distance_2d_xy(target.x, target.y, cur.x, cur.y);
@@ -709,7 +709,7 @@ pub(crate) fn handle_arrive(world: &mut World, boat_oid: i32) {
         cell.0 = region_of(target.x, target.y);
     }
     let info = sp::vehicle_info(boat_oid, target.x, target.y, target.z, heading);
-    broadcast_near_region(world, region_of(target.x, target.y), &info);
+    broadcast::broadcast_near_region(world, region_of(target.x, target.y), &info);
 
     // Passengers rode along — snap them to the boat's new position (+ their seat).
     move_passengers(world, boat_oid, target.x, target.y, target.z);
@@ -777,7 +777,7 @@ pub(crate) fn board(world: &mut World, player: i32, boat_oid: i32, seat: (i32, i
     );
     set_position(world, player, (bx + seat.0, by + seat.1, bz + seat.2));
     let pkt = sp::get_on_vehicle(player, boat_oid, seat.0, seat.1, seat.2);
-    crate::game_loop::helpers::broadcast_including_self(world, player, &pkt);
+    broadcast::broadcast_including_self(world, player, &pkt);
 }
 
 /// `RequestGetOffVehicle`: step off onto the dock at `(x,y,z)`. Only while the
@@ -799,7 +799,7 @@ pub(crate) fn disembark(world: &mut World, player: i32, boat_oid: i32, exit: (i3
     world.objects.remove_component::<boat::InVehicle>(&player);
     set_position(world, player, (exit.0, exit.1, exit.2));
     let pkt = sp::get_off_vehicle(player, boat_oid, exit.0, exit.1, exit.2);
-    crate::game_loop::helpers::broadcast_including_self(world, player, &pkt);
+    broadcast::broadcast_including_self(world, player, &pkt);
 }
 
 /// `RequestMoveToLocationInVehicle` → `Player.setInVehiclePosition` +
@@ -854,7 +854,7 @@ pub(crate) fn move_in_vehicle(
         p.z = bz + dest.2;
     }
     let mov = sp::move_to_location_in_vehicle(player, boat_oid, dest, origin);
-    crate::game_loop::helpers::broadcast_including_self(world, player, &mov);
+    broadcast::broadcast_including_self(world, player, &mov);
 }
 
 /// A boat's `(x, y, z, moving)`, if the object is a boat.

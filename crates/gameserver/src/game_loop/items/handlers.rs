@@ -6,6 +6,7 @@ use super::cursed_weapon_blocks_equip;
 use super::finish_equip_change;
 use super::unequip_if_worn;
 use super::use_equipable_item;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_to_client;
 use crate::model::inventory::Inventory;
@@ -239,18 +240,15 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         });
     }
 
-    let Some(change) = crate::game_loop::helpers::remove_inventory_item_change(
-        world,
-        object_id,
-        pkt.object_id,
-        count,
-    ) else {
+    let Some(change) =
+        inventory::remove_inventory_item_change(world, object_id, pkt.object_id, count)
+    else {
         return;
     };
     // No explicit audit call here: `remove_by_object_id` noted the loss, and
     // `drain_item_audit` turns it into a record on the next tick. Recording it
     // here as well would double-count exactly the destroys people look at most.
-    crate::game_loop::helpers::send_inventory_update(world, object_id, vec![change]);
+    inventory::send_inventory_update(world, object_id, vec![change]);
 }
 
 /// The `Crystallize` common skill (`CommonSkill.CRYSTALLIZE`).
@@ -342,12 +340,9 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
 
     // Unequip first if worn, then destroy, then award the crystals.
     unequip_if_worn(world, client_id, player_oid, pkt.object_id);
-    let Some(removed) = crate::game_loop::helpers::remove_inventory_item_change(
-        world,
-        player_oid,
-        pkt.object_id,
-        count,
-    ) else {
+    let Some(removed) =
+        inventory::remove_inventory_item_change(world, player_oid, pkt.object_id, count)
+    else {
         return;
     };
     let total = crystal_count as i64 * count;
@@ -359,7 +354,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     {
         changes.push(crate::model::inventory::ItemChange::Modified(*stack));
     }
-    crate::game_loop::helpers::send_inventory_update(world, player_oid, changes);
+    inventory::send_inventory_update(world, player_oid, changes);
 }
 
 /// Send a bare `$s1` system-message line to one client.

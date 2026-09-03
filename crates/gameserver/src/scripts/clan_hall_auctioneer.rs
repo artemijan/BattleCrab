@@ -9,8 +9,8 @@
 //! `%minutes%` come from `World.auction_end_tick` (the weekly-close countdown).
 
 use crate::data::item_data::ADENA_ID;
-use crate::game_loop::clans::clan_name_or_empty;
 use crate::game_loop::clans::hall_auction::{self, BidOutcome, bid_count, highest_bid};
+use crate::game_loop::clans::{clan_name_or_empty, clan_of};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::Player;
 use crate::model::clan_hall::{ClanHallGrade, ClanHallType};
@@ -82,7 +82,7 @@ impl ClanHallAuctioneer {
                 "Only a clan leader whose clan is level 2 or above may bid.",
             ));
         }
-        let Some(clan_id) = clan_of(ctx) else {
+        let Some(clan_id) = clan_of(ctx.world, ctx.player) else {
             return Some(message("You must be in a clan to bid."));
         };
         // No amount yet → the templated bid form (clan adena + current minimum).
@@ -97,7 +97,7 @@ impl ClanHallAuctioneer {
     /// The cancel-confirmation page (`cancelBid` verb): shows the clan's own bid
     /// and the non-refundable tax note.
     fn on_cancel_page(&self, ctx: &mut QuestCtx) -> Option<String> {
-        let Some(clan_id) = clan_of(ctx) else {
+        let Some(clan_id) = clan_of(ctx.world, ctx.player) else {
             return Some(message("You must be in a clan."));
         };
         let Some(hall_id) = hall_auction::clan_bid_hall(ctx.world, clan_id) else {
@@ -124,7 +124,7 @@ impl ClanHallAuctioneer {
     }
 
     fn on_cancel(&self, ctx: &mut QuestCtx) -> Option<String> {
-        let Some(clan_id) = clan_of(ctx) else {
+        let Some(clan_id) = clan_of(ctx.world, ctx.player) else {
             return Some(message("You must be in a clan."));
         };
         match hall_auction::clan_bid_hall(ctx.world, clan_id) {
@@ -258,10 +258,6 @@ fn owner_names(world: &World, owner_id: i32) -> (String, String) {
         .map(|p| p.name.clone())
         .unwrap_or_default();
     (name, leader)
-}
-
-fn clan_of(ctx: &QuestCtx) -> Option<i32> {
-    crate::game_loop::helpers::clan_of(ctx.world, ctx.player)
 }
 
 /// The value after `key` (e.g. `id=`), tolerating the dist templates' quotes and

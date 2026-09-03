@@ -36,6 +36,7 @@
 //! which is the same set for every `affect_range` the dist actually uses (the
 //! largest is 2000, comfortably inside a region block).
 
+use crate::game_loop::clans;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::npc::npc_template;
@@ -861,7 +862,7 @@ fn not_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
         return true;
     }
     let ally_of = |oid: i32| {
-        crate::game_loop::helpers::clan_of(world, oid)
+        clans::clan_of(world, oid)
             .and_then(|cid| world.clans.get(&cid))
             .map(|c| c.ally_id)
             .unwrap_or(0)
@@ -910,13 +911,10 @@ fn same_command_channel(world: &World, a: i32, b: i32) -> bool {
 /// `Clan.isAtWarWith(other) && other.isAtWarWith(clan)` — Java requires the war
 /// to be **mutual**, so a one-sided declaration does not open an AoE.
 fn mutual_clan_war(world: &World, a: i32, b: i32) -> bool {
-    let (Some(x), Some(y)) = (
-        crate::game_loop::helpers::clan_of(world, a),
-        crate::game_loop::helpers::clan_of(world, b),
-    ) else {
+    let (Some(x), Some(y)) = (clans::clan_of(world, a), clans::clan_of(world, b)) else {
         return false;
     };
-    crate::game_loop::clans::wars::at_war_between(world, x, y)
+    clans::wars::at_war_between(world, x, y)
 }
 
 /// `Player.isSiegeFriend(target)` — same side of the siege the target stands in.

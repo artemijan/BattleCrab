@@ -9,8 +9,10 @@ use super::refresh_attack_stance;
 use super::shots_bonus_of;
 use super::vitals_of;
 use super::wields_two_handed;
-use crate::game_loop::helpers;
+use crate::game_loop::net::broadcast;
+use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{helpers, npc};
 
 use crate::model::components::AttackState;
 use crate::model::components::Intent;
@@ -360,17 +362,17 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         target.z,
     );
     if is_npc_oid(attacker_oid) {
-        let Some(region) = helpers::region_cell_of(world, attacker_oid) else {
+        let Some(region) = position::region_cell_of(world, attacker_oid) else {
             return;
         };
-        helpers::broadcast_near_region_in(
+        broadcast::broadcast_near_region_in(
             world,
             region,
             helpers::instance_of(world, attacker_oid),
             &pkt,
         );
     } else {
-        helpers::broadcast_including_self(world, attacker_oid, &pkt);
+        broadcast::broadcast_including_self(world, attacker_oid, &pkt);
     }
 
     // `Creature.doAttack` tail: outside a PVP zone, and not self-targeting, the
@@ -442,7 +444,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
     let Some(origin) = maybe_position(world, attacker_oid) else {
         return Vec::new();
     };
-    let Some(region) = helpers::region_cell_of(world, attacker_oid) else {
+    let Some(region) = position::region_cell_of(world, attacker_oid) else {
         return Vec::new();
     };
     let heading_deg = origin.heading as f64 * 360.0 / 65536.0;
@@ -461,7 +463,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
         }
         // Only auto-attackable creatures are swept up (Java `isAutoAttackable`).
         let attackable =
-            helpers::npc_template(world, candidate).is_some_and(|t| t.is_auto_attackable());
+            npc::npc_template(world, candidate).is_some_and(|t| t.is_auto_attackable());
         if !attackable {
             continue;
         }
@@ -662,7 +664,7 @@ pub(crate) fn attacker_display_name(world: &World, attacker: i32) -> SmParam {
         .get_component::<crate::model::Player>(&attacker)
     {
         SmParam::PlayerName(p.name.clone())
-    } else if let Some(t) = helpers::npc_template(world, attacker) {
+    } else if let Some(t) = npc::npc_template(world, attacker) {
         SmParam::NpcName(t.id)
     } else {
         SmParam::Text(String::new())

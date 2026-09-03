@@ -12,6 +12,7 @@
 use crate::data::npc_data::NpcTemplate;
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
+use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, items, npc};
 use crate::model::components::Position;
@@ -55,7 +56,7 @@ pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, arg
         send_message(world, client_id, &format!("NPC {token} doesnt exist"));
         return;
     };
-    let template_name = helpers::npc_template_name(world, npc_id);
+    let template_name = npc::npc_template_name(world, npc_id);
     let count = helpers::nth_arg::<i32>(args, 1).unwrap_or(1);
     // Anchor object = current target (any object) or the GM (Java
     // `target == null ? activeChar : target`); the message reports its id.
@@ -74,9 +75,7 @@ pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, arg
         .get_component::<Position>(&object_id)
         .map_or(0, |p| p.heading);
     for _ in 0..count.max(0) {
-        if let Some(spawned) =
-            crate::game_loop::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, heading)
-        {
+        if let Some(spawned) = npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, heading) {
             npc::introduce_npc(world, spawned);
         }
     }
@@ -117,7 +116,7 @@ pub(super) fn admin_spawnat(world: &mut World, client_id: u32, object_id: i32, a
             .get_component::<Position>(&object_id)
             .map_or(0, |p| p.heading)
     });
-    if let Some(spawned) = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, heading) {
+    if let Some(spawned) = npc::spawn_npc_at(world, npc_id, x, y, z, heading) {
         npc::introduce_npc(world, spawned);
         send_message(
             world,
@@ -301,7 +300,7 @@ pub(super) fn admin_list_spawns(
                 .map(|npc| npc.spawn_loc)?;
             // `showposition && (npc != null)` — the live position; otherwise the
             // spawn's own point.
-            if show_position && let Some(now) = helpers::pos_of(world, oid) {
+            if show_position && let Some(now) = position::pos_of(world, oid) {
                 return Some(now);
             }
             Some(spawn_loc)
@@ -328,7 +327,7 @@ pub(super) fn admin_list_spawns(
         send_message(world, client_id, "AdminSpawn: No current spawns found.");
         return;
     }
-    let name = helpers::npc_template_name(world, npc_id);
+    let name = npc::npc_template_name(world, npc_id);
     for (i, &(x, y, z)) in entries.iter().enumerate() {
         // Java line: `index + " - " + name + " (" + spawn + "): " + x + " " + y + " " + z`.
         // The `spawn` token is the Java `Spawn.toString()` (an internal handle),
@@ -355,7 +354,7 @@ pub(super) fn admin_top_spawn_count(world: &mut World, client_id: u32, args: &[&
     sorted.sort_by_key(|b| std::cmp::Reverse(b.1));
     send_message(world, client_id, &format!("=== Top {top} spawns ==="));
     for (npc_id, count) in sorted.into_iter().take(top) {
-        let name = helpers::npc_template_name(world, npc_id);
+        let name = npc::npc_template_name(world, npc_id);
         send_message(world, client_id, &format!("  {count} x {name} ({npc_id})"));
     }
 }
@@ -377,7 +376,7 @@ pub(super) fn admin_spawn_debug_print(world: &mut World, client_id: u32, object_
         .objects
         .get_component::<Npc>(&target)
         .map_or(0, |n| n.npc_id);
-    let name = helpers::npc_template_name(world, npc_id);
+    let name = npc::npc_template_name(world, npc_id);
     let pos = maybe_position(world, target).unwrap_or(Position {
         x: 0,
         y: 0,
@@ -431,12 +430,12 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
         .max(0);
 
     let (Some(region), Some(gm_pos)) = (
-        helpers::region_cell_of(world, object_id),
+        position::region_cell_of(world, object_id),
         maybe_position(world, object_id),
     ) else {
         return;
     };
-    let gm_instance = crate::game_loop::helpers::instance_of(world, object_id);
+    let gm_instance = helpers::instance_of(world, object_id);
 
     struct Row {
         oid: i32,
@@ -456,7 +455,7 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
             continue;
         };
         let npc_id = npc.npc_id;
-        if crate::game_loop::helpers::instance_of(world, oid) != gm_instance {
+        if helpers::instance_of(world, oid) != gm_instance {
             continue;
         }
         if crate::geo::distance::dist3d_xyz(pos.x, pos.y, pos.z, gm_pos.x, gm_pos.y, gm_pos.z)
@@ -464,7 +463,7 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
         {
             continue;
         }
-        let tname = helpers::npc_template_name(world, npc_id);
+        let tname = npc::npc_template_name(world, npc_id);
         // `processBypass`'s condition: id beats name beats everything.
         if id > 0 {
             if npc_id != id {
@@ -672,7 +671,7 @@ pub(super) fn admin_delete_npc_by_object_id(
         // not-an-NPC branch below (findObject(0) == null).
         send_message(world, client_id, "objectId is not set!");
     }
-    let Some(region) = helpers::region_cell_of(world, target_oid)
+    let Some(region) = position::region_cell_of(world, target_oid)
         .filter(|_| world.objects.has_component::<Npc>(&target_oid))
     else {
         send_message(
@@ -686,7 +685,7 @@ pub(super) fn admin_delete_npc_by_object_id(
         .objects
         .get_component::<Npc>(&target_oid)
         .map_or(0, |n| n.npc_id);
-    let name = helpers::npc_template_name(world, npc_id);
+    let name = npc::npc_template_name(world, npc_id);
     npc::despawn_npc(world, target_oid, region);
     send_message(world, client_id, &format!("{name} have been deleted."));
     // Java `processBypass` re-renders the scan list with the same parser —
@@ -775,7 +774,7 @@ pub(super) fn admin_unspawnall(world: &mut World, client_id: u32) {
 /// out of the region and back, which is what re-runs the visibility pass.
 pub(super) fn admin_respawnall(world: &mut World, client_id: u32) {
     admin_unspawnall(world, client_id);
-    let spawned = crate::game_loop::npc::spawn_all(world);
+    let spawned = npc::spawn_all(world);
     // Java's `//respawnall` ends with `SpawnData.init()` **and**
     // `DBSpawnManager.load()`: the db-driven spawns come back too. The static
     // pass above deliberately defers those — raid bosses to
@@ -816,7 +815,7 @@ fn npc_object_ids(world: &mut World) -> Vec<i32> {
 /// which is what makes this a "show me the other set" button rather than a
 /// mode.
 pub(super) fn admin_spawn_phase(world: &mut World, client_id: u32, night: bool) {
-    crate::game_loop::npc::spawn_scripts::on_day_night_change(world, night);
+    npc::spawn_scripts::on_day_night_change(world, night);
     send_message(
         world,
         client_id,
@@ -871,19 +870,19 @@ pub(super) fn admin_instance_spawns(world: &mut World, client_id: u32, args: &[&
     let mut rows = String::new();
     let (mut shown, mut skipped) = (0, 0);
     for npc_oid in npcs {
-        if crate::game_loop::helpers::is_dead(world, npc_oid) {
+        if helpers::is_dead(world, npc_oid) {
             continue;
         }
         if shown >= 50 {
             skipped += 1;
             continue;
         }
-        let Some(pos) = helpers::maybe_position(world, npc_oid) else {
+        let Some(pos) = maybe_position(world, npc_oid) else {
             continue;
         };
         rows.push_str(&format!(
             "<tr><td>{}</td><td><a action=\"bypass -h admin_move_to {} {} {}\">Go</a></td></tr>",
-            helpers::npc_name_or_empty(world, npc_oid),
+            npc::npc_name_or_empty(world, npc_oid),
             pos.x,
             pos.y,
             pos.z

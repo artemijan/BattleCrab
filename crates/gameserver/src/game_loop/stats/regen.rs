@@ -4,6 +4,7 @@
 use crate::data::GameData;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;
 use crate::model::components::{BaseStats, PlayerVitals, StatModifiers, Vitals};
@@ -451,7 +452,7 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
         // `broadcastStatusUpdate` — refresh the HP bar for anyone targeting it.
         // Only on an actual HP change, so a full-HP/low-MP mob doesn't spam.
         if changed && let Some(region) = region_cell_of(world, oid) {
-            crate::game_loop::helpers::broadcast_near_region(
+            broadcast::broadcast_near_region(
                 world,
                 region,
                 &server_packets::status_update(

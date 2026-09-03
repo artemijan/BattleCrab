@@ -12,9 +12,8 @@ use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::world::World;
 
-use crate::game_loop::helpers::{broadcast_including_self, broadcast_to_others};
+use crate::game_loop::net::broadcast;
 use crate::model;
-use crate::model::components::{Movement, RegionCell};
 
 /// Port of `clientpackets/MoveBackwardToLocation.runImpl` +
 /// `Creature.moveToLocation`'s geodata movement checks: the requested
@@ -62,7 +61,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // origin==target stop check, before `setIntention`).
     let collision_height = world
         .objects
-        .get_component::<crate::model::components::Collision>(&object_id)
+        .get_component::<components::Collision>(&object_id)
         .map_or(0.0, |c| c.height);
     let target_z = (pkt.target_z as f64 + collision_height) as i32;
 
@@ -240,14 +239,14 @@ fn take_admin_tele_mode(
             slide_to(world, object_id, dest, server_packets::FlyType::Charge);
             // The two skill packets bracket the fly in Java; the fly itself is
             // sent by `slide_to`, which also moves the server position.
-            broadcast_including_self(world, object_id, &skill_use);
+            broadcast::broadcast_including_self(world, object_id, &skill_use);
             let launched = server_packets::magic_skill_launched(
                 object_id,
                 CHARGE_SKILL_ID,
                 CHARGE_SKILL_LEVEL,
                 &[object_id],
             );
-            broadcast_including_self(world, object_id, &launched);
+            broadcast::broadcast_including_self(world, object_id, &launched);
             helpers::send_action_failed(world, client_id);
         }
     }
@@ -281,7 +280,7 @@ fn slide_to(
         return;
     };
     let (x, y, z) = dest;
-    helpers::set_position(world, object_id, (x, y, z));
+    set_position(world, object_id, (x, y, z));
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.blink_active = true;
     }
@@ -293,7 +292,7 @@ fn slide_to(
     world
         .objects
         .remove_component::<components::PathWait>(&object_id);
-    broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         object_id,
         &server_packets::fly_to_location(object_id, (from.x, from.y, from.z), dest, fly_type),
@@ -326,7 +325,7 @@ pub(crate) fn handle_request_stop_move(world: &mut World, client_id: u32) {
         .objects
         .remove_component::<components::PathWait>(&object_id);
 
-    broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         object_id,
         &server_packets::stop_move(object_id, cur.x, cur.y, cur.z, cur.heading),
@@ -602,7 +601,7 @@ pub(crate) fn start_move(
         distance = (distance * distance + dz * dz).sqrt();
     }
     let (start_x, start_y, start_z) = (cur.x, cur.y, cur.z);
-    let heading = crate::model::movement::calculate_heading(dx, dy);
+    let heading = model::movement::calculate_heading(dx, dy);
     let Some(speed) = world
         .objects
         .get_component::<components::Speeds>(&object_id)
@@ -625,7 +624,7 @@ pub(crate) fn start_move(
     }
     world.objects.add_components(
         &object_id,
-        components::Movement(crate::model::movement::MoveData {
+        components::Movement(model::movement::MoveData {
             start_x,
             start_y,
             start_z,
@@ -646,7 +645,7 @@ pub(crate) fn start_move(
     if world.objects.has_component::<Player>(&object_id) {
         helpers::send_to_client(world, client_id, move_pkt.clone());
     }
-    broadcast_to_others(world, object_id, &move_pkt);
+    broadcast::broadcast_to_others(world, object_id, &move_pkt);
 }
 
 /// Port of `clientpackets/ValidatePosition.runImpl` — reconcile the client's
@@ -672,7 +671,7 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
         .has_component::<components::Casting>(&object_id)
         || world
             .objects
-            .has_component::<crate::model::components::Observing>(&object_id)
+            .has_component::<components::Observing>(&object_id)
         || world
             .objects
             .get_component::<Player>(&object_id)
@@ -839,9 +838,9 @@ pub(crate) fn handle_cannot_move_anymore(world: &mut World, client_id: u32, body
     }
 
     // `clientStopMoving(location)`: land where the client says it stopped.
-    helpers::set_position_heading(world, object_id, (x, y, z), heading);
+    set_position_heading(world, object_id, (x, y, z), heading);
     super::zones::revalidate_zone(world, object_id, true);
-    broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         object_id,
         &server_packets::stop_move(object_id, x, y, z, heading),
@@ -868,7 +867,7 @@ pub(crate) fn handle_start_rotating(world: &mut World, client_id: u32, body: &[u
     };
     // `broadcastPacket` — onlookers only; the turning client is already
     // drawing its own rotation.
-    broadcast_to_others(
+    broadcast::broadcast_to_others(
         world,
         object_id,
         &server_packets::start_rotation(object_id, degree, side, 0),
@@ -896,7 +895,7 @@ pub(crate) fn handle_finish_rotating(world: &mut World, client_id: u32, body: &[
     {
         pos.heading = degree;
     }
-    broadcast_to_others(
+    broadcast::broadcast_to_others(
         world,
         object_id,
         &server_packets::stop_rotation(object_id, degree, 0),
@@ -945,7 +944,7 @@ pub(crate) fn handle_cannot_move_anymore_in_vehicle(
     {
         pos.heading = heading;
     }
-    broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         object_id,
         &server_packets::stop_move_in_vehicle(object_id, boat_id, x, y, z, heading),
@@ -978,7 +977,7 @@ pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
 pub(crate) fn set_position(world: &mut World, object_id: i32, (x, y, z): (i32, i32, i32)) {
     if let Some(p) = world
         .objects
-        .get_component_mut::<model::components::Position>(&object_id)
+        .get_component_mut::<components::Position>(&object_id)
     {
         p.x = x;
         p.y = y;
@@ -997,7 +996,7 @@ pub(crate) fn set_position_heading(
 ) {
     if let Some(p) = world
         .objects
-        .get_component_mut::<model::components::Position>(&object_id)
+        .get_component_mut::<components::Position>(&object_id)
     {
         p.x = x;
         p.y = y;
@@ -1012,12 +1011,17 @@ pub(crate) fn set_position_heading(
 /// A no-op for anything that isn't currently moving. Every intent that
 /// interrupts a walk (attack, cast, sit, target change) opens with this.
 pub(crate) fn stop_movement(world: &mut World, object_id: i32) {
-    if !world.objects.has_component::<Movement>(&object_id) {
+    if !world
+        .objects
+        .has_component::<components::Movement>(&object_id)
+    {
         return;
     }
-    world.objects.remove_component::<Movement>(&object_id);
+    world
+        .objects
+        .remove_component::<components::Movement>(&object_id);
     if let Some(pos) = maybe_position(world, object_id) {
-        broadcast_including_self(
+        broadcast::broadcast_including_self(
             world,
             object_id,
             &server_packets::stop_move(object_id, pos.x, pos.y, pos.z, pos.heading),
@@ -1036,7 +1040,7 @@ pub(crate) fn stop_movement(world: &mut World, object_id: i32) {
 pub(crate) fn region_cell_of(world: &World, object_id: i32) -> Option<(i32, i32)> {
     world
         .objects
-        .get_component::<RegionCell>(&object_id)
+        .get_component::<components::RegionCell>(&object_id)
         .map(|r| r.0)
 }
 
@@ -1045,17 +1049,17 @@ pub(crate) fn region_cell_of(world: &World, object_id: i32) -> Option<(i32, i32)
 ///
 /// [`pos_of`] is the same read narrowed to `(x, y, z)`; take this one where the
 /// heading matters or the whole struct gets passed on.
-pub(crate) fn maybe_position(world: &World, object_id: i32) -> Option<model::components::Position> {
+pub(crate) fn maybe_position(world: &World, object_id: i32) -> Option<components::Position> {
     world
         .objects
-        .get_component::<model::components::Position>(&object_id)
+        .get_component::<components::Position>(&object_id)
         .copied()
 }
 
 /// [`maybe_position`] for the call sites that hold something which cannot be
 /// anywhere but in the world — panics rather than inventing an origin, because
 /// a missing position there is a bug in the caller, not a despawn.
-pub(crate) fn position(world: &World, object_id: i32) -> model::components::Position {
+pub(crate) fn position(world: &World, object_id: i32) -> components::Position {
     maybe_position(world, object_id)
         .unwrap_or_else(|| panic!("object {} must have position", object_id))
 }

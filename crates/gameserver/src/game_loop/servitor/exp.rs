@@ -9,6 +9,7 @@ use super::pet_of;
 use super::recalculate_pet_stats;
 use super::send_pet_info;
 use crate::game_loop::helpers::is_dead;
+use crate::game_loop::net::broadcast;
 use crate::network::server_packets;
 use crate::world::World;
 /// Java `Config.ALT_PARTY_RANGE` — the pet only earns while it is near enough
@@ -164,7 +165,7 @@ fn level_up_pet(world: &mut World, owner_oid: i32, pet_oid: i32, max_level: i32)
     if levelled {
         // Java sends no system message for a pet level — just the animation.
         let pkt = server_packets::social_action(pet_oid, SOCIAL_LEVEL_UP);
-        crate::game_loop::helpers::broadcast_including_self(world, owner_oid, &pkt);
+        broadcast::broadcast_including_self(world, owner_oid, &pkt);
         sync_collar_enchant(world, owner_oid, pet_oid);
     }
 }

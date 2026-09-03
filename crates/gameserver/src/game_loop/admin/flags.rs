@@ -6,6 +6,7 @@ use crate::game_loop::combat::target;
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{nth_arg, send_sm_bare_to_client};
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::model::components::AdminFlags;
@@ -30,7 +31,7 @@ impl GmFlag {
 /// Flip a GM flag on `target`, returning its new state.
 fn set_flag(world: &mut World, target: i32, flag: GmFlag) -> bool {
     let mut now = false;
-    crate::game_loop::helpers::update_admin_flags(world, target, |flags| {
+    helpers::update_admin_flags(world, target, |flags| {
         let bit = match flag {
             GmFlag::Invul => &mut flags.invul,
             GmFlag::Undying => &mut flags.undying,
@@ -126,12 +127,8 @@ pub(super) fn set_hidden(world: &mut World, client_id: u32, object_id: i32, hidd
     world.objects.add_components(&object_id, flags);
     if hidden {
         // Everyone with the GM selected loses the selection first.
-        crate::game_loop::combat::target::release_target_holders(world, object_id);
-        super::helpers::broadcast_to_others(
-            world,
-            object_id,
-            &server_packets::delete_object(object_id),
-        );
+        target::release_target_holders(world, object_id);
+        broadcast::broadcast_to_others(world, object_id, &server_packets::delete_object(object_id));
         helpers::send_message(world, client_id, "Now, you cannot be seen.");
     } else {
         super::visibility::on_enter_world(world, client_id, object_id);
@@ -162,7 +159,7 @@ pub(super) fn admin_silence(world: &mut World, client_id: u32, object_id: i32) {
         },
     );
     // Java `setSilenceMode` → `EtcStatusUpdate`: redraw the chat-block icon.
-    super::helpers::send_etc_status_update(world, client_id, object_id);
+    helpers::send_etc_status_update(world, client_id, object_id);
     // Java re-shows the GM menu after toggling.
     super::menu::show_admin_html(world, client_id, "gm_menu.htm");
 }
@@ -237,7 +234,7 @@ pub(crate) fn apply_gm_startup(world: &mut World, client_id: u32, object_id: i32
     }
     if flags.silence {
         // Redraw the chat-block icon for a GM that logs in silenced.
-        super::helpers::send_etc_status_update(world, client_id, object_id);
+        helpers::send_etc_status_update(world, client_id, object_id);
     }
     register_gm(world, object_id, access_level);
     grant_special_skills(world, client_id, object_id);
@@ -398,7 +395,7 @@ fn show_ave_menu(world: &World, client_id: u32, page: i32) {
 /// (GitHub #10).
 pub(super) fn push_admin_visuals(world: &mut World, target: i32) {
     crate::game_loop::character::player_info::broadcast_user_info(world, target);
-    let Some(cid) = crate::game_loop::helpers::client_for_player(world, target) else {
+    let Some(cid) = helpers::client_for_player(world, target) else {
         return;
     };
     let visuals = crate::game_loop::abnormal::visual_effects(world, target);

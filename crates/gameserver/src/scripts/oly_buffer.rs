@@ -10,6 +10,7 @@
 //! The counter is `Npc.getScriptValue()`, incremented on each granted buff.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::game_loop::skills;
 
 pub struct OlyBuffer;
 
@@ -92,10 +93,8 @@ impl QuestScript for OlyBuffer {
         // through a real cast, so there is no cast time and nothing to
         // interrupt.
         ctx.cast_visual_at(npc_oid, player_oid, skill_id, level, 0);
-        if let Some(skill) = crate::game_loop::helpers::skill_by_id(ctx.world, skill_id, level) {
-            crate::game_loop::skills::effects::apply_skill_effects(
-                ctx.world, npc_oid, player_oid, &skill,
-            );
+        if let Some(skill) = skills::skill_by_id(ctx.world, skill_id, level) {
+            skills::effects::apply_skill_effects(ctx.world, npc_oid, player_oid, &skill);
         }
 
         let mut page = "OlyBuffer-afterBuff.html";

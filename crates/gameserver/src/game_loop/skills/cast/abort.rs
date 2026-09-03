@@ -1,9 +1,9 @@
 //! Cast aborts: the manual/forced abort family and the packet emit.
 
 use super::stop_casting;
-use crate::game_loop::helpers::broadcast_including_self;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_player;
+use crate::game_loop::net::broadcast;
 use crate::model::components::Casting;
 use crate::network::server_packets;
 use crate::world::World;
@@ -42,7 +42,7 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
 /// which is why it isn't gated on the victim being a player), then the stop
 /// itself. The gates differ; this tail never does.
 fn emit_cast_abort(world: &mut World, object_id: i32) {
-    broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         object_id,
         &server_packets::magic_skill_canceld(object_id),

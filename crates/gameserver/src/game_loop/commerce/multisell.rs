@@ -28,6 +28,7 @@ use crate::game_loop::helpers::send_to_client;
 use tracing::warn;
 
 use crate::data::multisell_data::{MultisellEntry, MultisellList, PAGE_SIZE};
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_sm_to_client as send_sm;
 use crate::model::components::{ActiveMultisell, PreparedRow};
 use crate::model::inventory::{Inventory, ItemChange};
@@ -536,7 +537,7 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
     }
 
     // One InventoryUpdate + adena/weight refresh for the whole exchange.
-    crate::game_loop::helpers::send_inventory_update(world, player, changes);
+    inventory::send_inventory_update(world, player, changes);
 
     // "Finally, give the tax to the castle": the tax slice of every adena
     // ingredient, times the amount exchanged. Only the *tax* part is paid —

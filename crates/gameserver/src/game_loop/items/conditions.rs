@@ -42,6 +42,7 @@ use crate::data::item_cond::{Cond, CondMessage};
 use crate::data::item_data::ItemTemplate;
 use crate::game_loop::helpers::{instance_of, level_of, player_race, send_sm_to_player};
 use crate::game_loop::npc::npc_id_of;
+use crate::game_loop::space::position;
 use crate::model::Player;
 use crate::model::castle::CastleSide;
 use crate::model::components::ServitorOf;
@@ -397,7 +398,7 @@ fn in_vehicle(world: &World, player_oid: i32) -> bool {
 }
 
 fn in_any_zone(world: &World, object_id: i32, zone_ids: &[i32]) -> bool {
-    let Some(pos) = crate::game_loop::helpers::maybe_position(world, object_id) else {
+    let Some(pos) = position::maybe_position(world, object_id) else {
         return false;
     };
     world

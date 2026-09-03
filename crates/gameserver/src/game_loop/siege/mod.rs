@@ -32,7 +32,7 @@ mod schedule;
 pub(crate) mod treasury;
 
 use crate::game_loop::combat::pvp;
-use crate::game_loop::helpers::is_dead;
+use crate::game_loop::helpers::{is_dead, send_sm_to_player};
 use crate::model::Player;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
@@ -211,7 +211,7 @@ pub(crate) fn handle_siege_fame(world: &mut World, player_oid: i32) {
     if paid {
         let amount = world.cfg.character.castle_zone_fame_acquire_points;
         set_fame_clamped(world, player_oid, |cur| cur + amount);
-        crate::game_loop::clans::send_sm_with(
+        send_sm_to_player(
             world,
             player_oid,
             sm_ids::YOU_HAVE_ACQUIRED_S1_FAME,

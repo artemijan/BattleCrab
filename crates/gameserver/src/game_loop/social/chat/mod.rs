@@ -15,6 +15,7 @@
 //! `game_loop::block_list` for why `isBlocked` must never be read in halves.
 
 use crate::enums::ChatType;
+use crate::game_loop::character::inventory;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::{helpers, items};
 use crate::model::Player;
@@ -1087,7 +1088,7 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
             helpers::send_message(world, client_id, &text);
         }
         "deposit" => {
-            if helpers::count_of(world, player_oid, ADENA_ITEM_ID) < adena {
+            if inventory::count_of(world, player_oid, ADENA_ITEM_ID) < adena {
                 let text = format!(
                     "You do not have enough Adena to convert to Goldbar(s), \
                      you need {adena} Adena."
@@ -1102,7 +1103,7 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
             helpers::send_message(world, client_id, &text);
         }
         "withdraw" => {
-            if helpers::count_of(world, player_oid, GOLDBAR_ITEM_ID) < goldbars {
+            if inventory::count_of(world, player_oid, GOLDBAR_ITEM_ID) < goldbars {
                 let text = format!("You do not have any Goldbars to turn into {adena} Adena.");
                 helpers::send_message(world, client_id, &text);
                 return;

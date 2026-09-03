@@ -19,6 +19,7 @@ use super::remove_clan_skills_from_member;
 use super::send_to_member;
 use super::sync_clan_insignia;
 use crate::db::DbCommand;
+use crate::game_loop::clans;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::class_level;
 use crate::game_loop::helpers::client_for_player;
@@ -602,7 +603,7 @@ pub(crate) fn handle_request_oust_pledge_member(world: &mut World, client_id: u3
     let Some(target_name) = PacketReader::new(body).read_string() else {
         return;
     };
-    let Some((clan_id, privs)) = crate::game_loop::helpers::clan_and_privs(world, player) else {
+    let Some((clan_id, privs)) = clans::clan_and_privs(world, player) else {
         return;
     };
     if refuse_if_clanless(world, player, clan_id) {

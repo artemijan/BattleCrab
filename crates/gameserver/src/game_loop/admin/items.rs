@@ -2,6 +2,7 @@
 //! `//give_item_to_all`, `//create_coin`, the `//itemcreate`/`//enchant` HTML
 //! menus, and `AdminDestroyItems`' inventory-wipe commands.
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
@@ -209,7 +210,7 @@ pub(super) fn admin_destroy_items(
         return;
     }
     let changes_cnt = changes.len();
-    super::helpers::send_inventory_update(world, object_id, changes);
+    inventory::send_inventory_update(world, object_id, changes);
     // Equipment/appearance may have changed (equipped gear destroyed). The
     // GM's own paperdoll comes from `ExUserInfoEquipSlot`, which neither the
     // `InventoryUpdate` above nor `broadcastUserInfo` carries.
@@ -263,14 +264,14 @@ pub(super) fn admin_delete_item(world: &mut World, client_id: u32, args: &[&str]
     } else {
         requested.min(stack_count)
     };
-    let Some(change) = super::helpers::remove_inventory_item_change(world, owner, item_oid, count)
+    let Some(change) = inventory::remove_inventory_item_change(world, owner, item_oid, count)
     else {
         send_message(world, client_id, "Item could not be destroyed.");
         return;
     };
     // The owner's own client needs the InventoryUpdate; the GM gets the same
     // refreshed item list Java answers with.
-    super::helpers::send_inventory_update(world, owner, vec![change]);
+    inventory::send_inventory_update(world, owner, vec![change]);
     let limit = crate::game_loop::stats::weight::inventory_limit(world, owner);
     if let Some(inv) = world.objects.get_component::<Inventory>(&owner) {
         let name = player_name_or_empty(world, owner);
@@ -357,7 +358,7 @@ pub(super) fn admin_delete_quest_item(
         send_message(world, client_id, "Item could not be destroyed.");
         return;
     }
-    super::helpers::send_inventory_update(world, target, changes);
+    inventory::send_inventory_update(world, target, changes);
     let limit = crate::game_loop::stats::weight::inventory_limit(world, target);
     if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
         let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data, limit);

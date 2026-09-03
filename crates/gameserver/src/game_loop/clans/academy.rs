@@ -33,6 +33,7 @@ use crate::game_loop::clans::clan_of;
 use tracing::info;
 
 use crate::db::DbCommand;
+use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::model::Player;
 use crate::model::clan::SUBUNIT_ACADEMY;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -155,11 +156,10 @@ pub(crate) fn graduate(world: &mut World, player_oid: i32) -> bool {
     // clan immediately, which is the reward's other half.
     crate::game_loop::clans::remove_clan_member_for_academy(world, clan_id, player_oid);
 
-    crate::game_loop::clans::send_sm_with(
+    send_sm_bare_to_player(
         world,
         player_oid,
         sm_ids::CONGRATULATIONS_YOU_WILL_NOW_GRADUATE_FROM_THE_CLAN_ACADEMY,
-        &[],
     );
     // The graduation gift.
     let _ = crate::game_loop::items::add_inventory_item(world, player_oid, ACADEMY_CIRCLET, 1);
@@ -231,11 +231,10 @@ pub(crate) fn handle_set_academy_master(world: &mut World, client_id: u32, body:
         player_oid,
         crate::model::clan::CL_APPRENTICE,
     ) {
-        crate::game_loop::clans::send_sm_with(
+        send_sm_bare_to_player(
             world,
             player_oid,
             sm_ids::YOU_DO_NOT_HAVE_THE_RIGHT_TO_DISMISS_AN_APPRENTICE,
-            &[],
         );
         return;
     }

@@ -12,7 +12,7 @@ use tracing::info;
 
 use crate::db::DbCommand;
 use crate::game_loop::helpers::{player_of, send_sm_bare_to_client as send_sm};
-use crate::game_loop::items;
+use crate::game_loop::{items, npc};
 use crate::model::inventory::Inventory;
 use crate::model::item_auction::{AuctionState, ExtendState, ItemAuction};
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};
@@ -675,7 +675,7 @@ pub(crate) fn link_bypass(
     command: &str,
 ) {
     // No npc there ⇒ id 0, which never matches an auction instance below.
-    let instance_id = crate::game_loop::helpers::npc_id_of(world, npc_oid).unwrap_or(0);
+    let instance_id = npc::npc_id_of(world, npc_oid).unwrap_or(0);
     if !world.item_auctions.instances.contains_key(&instance_id) {
         return;
     }

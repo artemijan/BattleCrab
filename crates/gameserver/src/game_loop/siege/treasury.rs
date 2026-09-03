@@ -21,6 +21,7 @@
 //! holds simply vanishes (and the tax cascade skips a liege with no owner).
 
 use crate::db::DbCommand;
+use crate::game_loop::character::inventory;
 pub(crate) use crate::model::castle::{CastleSide, TaxType};
 use crate::world::World;
 
@@ -227,7 +228,7 @@ pub(crate) fn remove_circlet(world: &mut World, member_oid: i32, castle_id: i32)
     if changes.is_empty() {
         return;
     }
-    crate::game_loop::helpers::send_inventory_update(world, member_oid, changes);
+    inventory::send_inventory_update(world, member_oid, changes);
     // Java's `broadcastUserInfo()` after removal — the circlet is a
     // head-slot item, so onlookers must stop drawing it.
     crate::game_loop::character::player_info::broadcast_user_info(world, member_oid);

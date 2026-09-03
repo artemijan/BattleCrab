@@ -4,8 +4,8 @@ use super::on_die_drop_item;
 use super::set_level;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::clans::clan_of_or_zero;
-use crate::game_loop::helpers::broadcast_including_self;
 use crate::game_loop::helpers::send_sm_to_player;
+use crate::game_loop::net::broadcast;
 use crate::model::Player;
 use crate::model::components::Intent;
 use crate::model::components::Movement;
@@ -125,8 +125,8 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     }
 
     let opts = die_options(world, player_oid);
-    broadcast_including_self(world, player_oid, &server_packets::die(player_oid, opts));
-    broadcast_including_self(
+    broadcast::broadcast_including_self(world, player_oid, &server_packets::die(player_oid, opts));
+    broadcast::broadcast_including_self(
         world,
         player_oid,
         &server_packets::status_update(

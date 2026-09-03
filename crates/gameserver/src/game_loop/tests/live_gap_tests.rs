@@ -9,7 +9,7 @@
 
 use super::*;
 use crate::game_loop;
-
+use crate::game_loop::space::position;
 use crate::model::components::{Buffs, Position, SkillBook, Vitals};
 use crate::model::skill::{
     AffectObject, AffectScope, CompanionKind, EscapeDest, OperateType, ResidenceType, Skill,
@@ -90,7 +90,7 @@ fn clan_owning(id: i32, castle_id: i32) -> Clan {
 }
 
 fn pos_of(world: &World, oid: i32) -> (i32, i32) {
-    let (x, y, _) = crate::game_loop::helpers::pos_of(world, oid).expect("object has a position");
+    let (x, y, _) = position::pos_of(world, oid).expect("object has a position");
     (x, y)
 }
 

@@ -20,6 +20,7 @@
 use crate::game_loop::combat::duel;
 use crate::game_loop::helpers::{is_dead, nth_arg, player_name_or_empty, send_message};
 use crate::game_loop::items;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::skills::skill_by_id;
 use crate::model::Player;
 use crate::network::server_packets as sp;
@@ -123,7 +124,7 @@ fn start(world: &mut World, client_id: u32, player_oid: i32, args: &[&str]) {
     }
     crate::game_loop::character::player_info::broadcast_user_info(world, player_oid);
     let packet = sp::ex_private_store_whole_msg(player_oid, &title);
-    crate::game_loop::helpers::broadcast_including_self(world, player_oid, &packet);
+    broadcast::broadcast_including_self(world, player_oid, &packet);
     send_sell_menu(world, client_id, player_oid);
 }
 

@@ -15,6 +15,7 @@
 
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::Player;
@@ -342,7 +343,7 @@ fn broadcast_ride(world: &World, target: i32, mounted: bool) {
         pos.y,
         pos.z,
     );
-    super::helpers::broadcast_including_self(world, target, &packet);
+    broadcast::broadcast_including_self(world, target, &packet);
 }
 
 /// Java `isInsideZone(ZoneId.SIEGE)` for a player — the zone flag the

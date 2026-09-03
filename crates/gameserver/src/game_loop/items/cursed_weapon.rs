@@ -15,7 +15,6 @@
 //! `activate` gives the new wielder.
 
 use crate::game_loop::combat::pvp;
-use crate::game_loop::helpers::send_inventory_item_list;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::MILLIS_PER_MINUTE;
@@ -27,7 +26,9 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use crate::game_loop::admin::cursed_weapons::{activate, end_of_life, idx_by_item, now_millis};
+use crate::game_loop::character::inventory;
 use crate::game_loop::items::ground_items::{DropSource, despawn_ground_item, spawn_ground_item};
+use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::npc_template;
 use crate::game_loop::space::position::region_cell_of;
 
@@ -148,7 +149,7 @@ pub(crate) fn try_pickup(
     };
 
     // Pickup animation to nearby, then remove the ground item.
-    crate::game_loop::helpers::broadcast_near_region(
+    broadcast::broadcast_near_region(
         world,
         region,
         &server_packets::get_item(player_oid, item_oid, pos.x, pos.y, pos.z),
@@ -324,7 +325,7 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
     crate::game_loop::admin::transforms::remove_transform(world, victim_oid);
     crate::game_loop::admin::refresh_skill_list(world, victim_oid);
     if let Some(cid) = crate::game_loop::helpers::client_for_player(world, victim_oid) {
-        send_inventory_item_list(world, victim_oid);
+        inventory::send_inventory_item_list(world, victim_oid);
         // The bag list alone leaves the *model* holding the sword: the client
         // reads its own paperdoll from `ExUserInfoEquipSlot`, which Java emits
         // from `setPaperdollItem` inside the `dropItem` → `removeItem` →

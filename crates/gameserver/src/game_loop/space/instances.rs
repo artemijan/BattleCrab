@@ -5,6 +5,7 @@
 
 use crate::data::instance_data::ExitType;
 use crate::game_loop::helpers::instance_of;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::pos_of;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::components::{InstanceDoorOpen, InstanceId, Position, RegionCell};
@@ -123,13 +124,13 @@ fn broadcast_instance_door(world: &World, instance_id: i32, door_oid: i32) {
         return;
     };
     let open = crate::game_loop::npc::doors::door_open_state(world, door_oid, door.door_id);
-    crate::game_loop::helpers::broadcast_near_region_in(
+    broadcast::broadcast_near_region_in(
         world,
         region,
         instance_id,
         &server_packets::static_object_info_door(door, t, open),
     );
-    crate::game_loop::helpers::broadcast_near_region_in(
+    broadcast::broadcast_near_region_in(
         world,
         region,
         instance_id,
@@ -324,7 +325,7 @@ pub(crate) fn destroy(world: &mut World, instance_id: i32) {
 /// region index, and despawn the entity.
 fn despawn_instance_door(world: &mut World, instance_id: i32, door_oid: i32) {
     let region = region_cell_of(world, door_oid).unwrap_or((0, 0));
-    crate::game_loop::helpers::broadcast_near_region_in(
+    broadcast::broadcast_near_region_in(
         world,
         region,
         instance_id,

@@ -16,14 +16,14 @@
 //!   unported). The remaining buffs and the animation land normally.
 
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::net::broadcast;
+use crate::game_loop::skills::effects::apply_skill_effects;
 use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
-use tracing::warn;
-
-use crate::game_loop::skills::effects::apply_skill_effects;
 use crate::model::Player;
 use crate::network::server_packets;
 use crate::world::World;
+use tracing::warn;
 
 // --- SupportMagic buff sets (Java `SkillHolder` tables). ---
 const HASTE_1: (i32, i32) = (4327, 1); // Haste
@@ -191,7 +191,7 @@ pub(crate) fn cast_from_npc(
             skill_level,
             skill.hit_time,
         );
-        crate::game_loop::helpers::broadcast_including_self(world, target_oid, &pkt);
+        broadcast::broadcast_including_self(world, target_oid, &pkt);
     }
     apply_skill_effects(world, npc_object_id, target_oid, &skill);
 }

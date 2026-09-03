@@ -12,6 +12,7 @@ use crate::game_loop::admin::find_online_player;
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers::{nth_arg, object_name};
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client, send_to_client};
+use crate::game_loop::net::broadcast;
 use crate::game_loop::npc;
 use crate::game_loop::npc::is_creature;
 use crate::game_loop::space::position::maybe_position;
@@ -45,7 +46,7 @@ fn perform_social(world: &World, action: i32, target: i32, gm_client_id: u32) ->
         return false;
     }
     let packet = server_packets::social_action(target, action);
-    super::helpers::broadcast_including_self(world, target, &packet);
+    broadcast::broadcast_including_self(world, target, &packet);
     true
 }
 
@@ -174,7 +175,7 @@ pub(super) fn admin_effect(world: &mut World, client_id: u32, object_id: i32, ar
         level,
         hit_time,
     );
-    super::helpers::broadcast_including_self(world, source, &packet);
+    broadcast::broadcast_including_self(world, source, &packet);
     let name = object_name(world, source);
     send_message(
         world,
@@ -199,7 +200,7 @@ pub(super) fn admin_earthquake(world: &mut World, client_id: u32, object_id: i32
         return;
     };
     let packet = server_packets::earthquake(pos.x, pos.y, pos.z, intensity, duration);
-    super::helpers::broadcast_including_self(world, object_id, &packet);
+    broadcast::broadcast_including_self(world, object_id, &packet);
 }
 
 /// `AdminEffects`' `//atmosphere <type> <state> <duration>` — port of
@@ -242,7 +243,7 @@ pub(super) fn admin_play_sound(world: &mut World, client_id: u32, object_id: i32
         return;
     };
     let packet = server_packets::play_sound(sound);
-    super::helpers::broadcast_including_self(world, object_id, &packet);
+    broadcast::broadcast_including_self(world, object_id, &packet);
     send_message(world, client_id, &format!("Playing {sound}."));
 }
 
@@ -652,7 +653,7 @@ pub(super) fn admin_event_trigger(
         return;
     };
     let pkt = crate::network::enter_world::event_trigger(id, enabled);
-    super::helpers::broadcast_including_self(world, object_id, &pkt);
+    broadcast::broadcast_including_self(world, object_id, &pkt);
 }
 
 /// `//set_displayeffect <state>` — an NPC target's display-effect state. Java
@@ -687,5 +688,5 @@ pub(super) fn admin_set_displayeffect(
         n.display_effect = state;
     }
     let pkt = crate::network::enter_world::ex_change_npc_state(target, state);
-    super::helpers::broadcast_including_self(world, object_id, &pkt);
+    broadcast::broadcast_including_self(world, object_id, &pkt);
 }

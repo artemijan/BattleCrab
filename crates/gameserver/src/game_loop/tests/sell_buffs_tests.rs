@@ -2,7 +2,7 @@
 //! price/count gates, the transaction, and who pays what.
 
 use super::*;
-use crate::game_loop::helpers::count_of;
+use crate::game_loop::character::inventory::count_of;
 
 use crate::model::components::{SkillBook, Vitals};
 use crate::model::inventory::Inventory;

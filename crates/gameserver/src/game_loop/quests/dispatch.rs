@@ -6,7 +6,7 @@ use super::QuestScript;
 use super::no_quest_html;
 use super::send_no_quest_html;
 use super::show_result;
-use crate::game_loop::helpers;
+use crate::game_loop::{helpers, npc};
 
 use crate::model::components::LastFolkNpc;
 use crate::model::components::QuestTimerSeqs;
@@ -47,7 +47,7 @@ pub(crate) fn quest_link(
 /// message are dropped first, exactly as Java does — see
 /// [`talk_shows_no_quest`].
 fn show_quest_window_all(world: &mut World, client_id: u32, player: i32, npc_oid: i32) {
-    let npc_id = helpers::npc_id_of(world, npc_oid).unwrap_or(0);
+    let npc_id = npc::npc_id_of(world, npc_oid).unwrap_or(0);
     let registry = world.quests.clone();
     // Opted-in utility scripts (`bare_talk`, e.g. TeleportWithCharm) run
     // their `on_talk` from the bare quest-window route; a returned html
@@ -147,7 +147,7 @@ fn show_quest_choose_window(
     npc_oid: i32,
     quests: &[Arc<dyn QuestScript>],
 ) {
-    let npc_id = helpers::npc_id_of(world, npc_oid).unwrap_or(0);
+    let npc_id = npc::npc_id_of(world, npc_oid).unwrap_or(0);
     let registry = world.quests.clone();
     let mut started = String::new();
     let mut can_start = String::new();
@@ -248,7 +248,7 @@ fn show_quest_window(
         return;
     };
     world.objects.add_components(&player, LastFolkNpc(npc_oid));
-    let npc_id = helpers::npc_id_of(world, npc_oid).unwrap_or(0);
+    let npc_id = npc::npc_id_of(world, npc_oid).unwrap_or(0);
     let res = {
         let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
         let gate = if registry.is_start_npc(quest_name, npc_id) && ctx.is_created() {

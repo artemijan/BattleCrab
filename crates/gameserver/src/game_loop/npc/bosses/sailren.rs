@@ -14,6 +14,7 @@
 //! time-out/decay and the respawn lock remain a later slice.
 //!
 //! [`SailrenWaveMob`]: SailrenWaveMob
+use crate::game_loop::character::inventory;
 use crate::game_loop::common::near_leader;
 use crate::model::components::{AdminFlags, Immobilized, SailrenWaveMob, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -63,7 +64,7 @@ pub(crate) fn entry_refusal(world: &mut World, leader_oid: i32) -> Option<&'stat
     if leader != leader_oid {
         return Some("32109-03.html"); // only the leader may enter
     }
-    if gazkh_count(world, leader_oid) == 0 {
+    if inventory::count_of(world, leader_oid, GAZKH) == 0 {
         return Some("32109-02.html"); // no Gazkh
     }
     None
@@ -108,10 +109,6 @@ fn fight_active(world: &mut World) -> bool {
             }
         });
     active
-}
-
-fn gazkh_count(world: &World, oid: i32) -> i64 {
-    crate::game_loop::helpers::count_of(world, oid, GAZKH)
 }
 
 /// Begin the encounter: the first three Velociraptors enter the nest.

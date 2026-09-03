@@ -1,6 +1,7 @@
 use crate::data::npc_data::NpcTemplate;
 use crate::game_loop::admin::refresh_skill_list;
-use crate::game_loop::helpers;
+use crate::game_loop::net::broadcast;
+use crate::game_loop::{clans, helpers};
 use crate::model::components;
 
 use crate::model::Player;
@@ -316,7 +317,7 @@ const LAST_PLEDGE_REPUTATION_LEVEL: &str = "LAST_PLEDGE_REPUTATION_LEVEL";
 /// goes out either. It is implemented rather than stubbed because the config
 /// is the only thing making it inert.
 fn add_reputation_to_clan_for_levels(world: &mut World, player_oid: i32, new_level: i32) {
-    let Some(clan_id) = crate::game_loop::helpers::clan_of(world, player_oid) else {
+    let Some(clan_id) = clans::clan_of(world, player_oid) else {
         return;
     };
     // "When a character from clan level 3 or above increases its level, CRP
@@ -443,7 +444,7 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     check_player_skills(world, player_oid);
 
     if leveled_up {
-        helpers::broadcast_including_self(
+        broadcast::broadcast_including_self(
             world,
             player_oid,
             &server_packets::social_action(player_oid, server_packets::SOCIAL_ACTION_LEVEL_UP),
@@ -454,7 +455,7 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     let Some((vitals, pvitals)) = helpers::vitals_pair(world, player_oid) else {
         return;
     };
-    helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         player_oid,
         &server_packets::status_update(

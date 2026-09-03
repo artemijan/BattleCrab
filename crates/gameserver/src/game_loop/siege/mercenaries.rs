@@ -21,7 +21,9 @@
 //! unaffected.
 
 use crate::db::DbCommand;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::{send_sm_and_action_failed, send_to_client};
+use crate::game_loop::space::position;
 use crate::model::Player;
 use crate::model::siege::Mercenary;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -45,7 +47,7 @@ pub(crate) fn use_ticket(
     item_object_id: i32,
     item_id: i32,
 ) {
-    let Some(pos) = crate::game_loop::helpers::maybe_position(world, object_id) else {
+    let Some(pos) = position::maybe_position(world, object_id) else {
         return;
     };
     // `CastleManager.getCastle(player)` — which castle's grounds is this?
@@ -152,7 +154,7 @@ pub(crate) fn handle_confirm(world: &mut World, object_id: i32, accepted: bool) 
     if !accepted {
         return true;
     }
-    let Some(pos) = crate::game_loop::helpers::maybe_position(world, object_id) else {
+    let Some(pos) = position::maybe_position(world, object_id) else {
         return true;
     };
     // Java re-checks the spacing on the *answer* as well as the use: 15 s is
@@ -168,8 +170,7 @@ pub(crate) fn handle_confirm(world: &mut World, object_id: i32, accepted: bool) 
         }
         return true;
     }
-    let Some(item_id) = crate::game_loop::helpers::item_id_of(world, object_id, item_object_id)
-    else {
+    let Some(item_id) = inventory::item_id_of(world, object_id, item_object_id) else {
         return true;
     };
     let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else {
@@ -193,7 +194,7 @@ pub(crate) fn handle_confirm(world: &mut World, object_id: i32, accepted: bool) 
     // `player.destroyItem("Consume", item.getObjectId(), 1, null, false)`.
     let changes = crate::game_loop::items::destroy_item_by_id(world, object_id, item_id, 1);
     if !changes.is_empty() {
-        crate::game_loop::helpers::send_inventory_update(world, object_id, changes);
+        inventory::send_inventory_update(world, object_id, changes);
     }
     true
 }
@@ -307,7 +308,7 @@ pub(crate) fn clear_castle(world: &mut World, castle_id: i32) {
     }
     for m in &list {
         if m.ticket_oid != 0
-            && let Some(region) = crate::game_loop::helpers::region_cell_of(world, m.ticket_oid)
+            && let Some(region) = position::region_cell_of(world, m.ticket_oid)
         {
             crate::game_loop::items::ground_items::despawn_ground_item(world, m.ticket_oid, region);
         }

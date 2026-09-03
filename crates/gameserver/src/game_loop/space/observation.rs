@@ -88,7 +88,7 @@ pub(crate) fn handle_bypass(
 ) {
     // `if (!(target instanceof BroadcastingTower)) return false` — the seats
     // are the tower's, and a bypass forged at another NPC buys nothing.
-    let is_tower = crate::game_loop::helpers::npc_id_of(world, npc_object_id)
+    let is_tower = crate::game_loop::npc::npc_id_of(world, npc_object_id)
         .and_then(|id| world.data.npc_data.get(id))
         .is_some_and(|t| t.type_name == "BroadcastingTower");
     if !is_tower {

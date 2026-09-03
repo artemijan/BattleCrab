@@ -11,10 +11,9 @@
 //! change.
 
 use crate::data::item_data::ADENA_ID;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::{
-    adena, player_of, send_inventory_item_list, send_sm_bare_to_client as send_sm,
-};
+use crate::game_loop::helpers::{player_of, send_sm_bare_to_client};
 use crate::model::Player;
 use crate::model::components::ActiveWarehouse;
 use crate::model::inventory::{Freight, Inventory, ItemInstance, Warehouse};
@@ -150,8 +149,12 @@ pub(crate) fn open_deposit_window(world: &mut World, client_id: u32) {
     let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = inv
         .unequipped_with_templates(&world.data.item_data)
         .collect();
-    let packet =
-        sp::warehouse_deposit_list(wh_type(tgt), adena(world, player_oid), wh_size, &items);
+    let packet = sp::warehouse_deposit_list(
+        wh_type(tgt),
+        inventory::adena(world, player_oid),
+        wh_size,
+        &items,
+    );
     send_to_client(world, client_id, packet);
 }
 
@@ -180,8 +183,12 @@ pub(crate) fn open_withdraw_window(world: &mut World, client_id: u32) {
         .iter()
         .filter_map(|it| world.data.item_data.get(it.item_id).map(|t| (it, t)))
         .collect();
-    let packet =
-        sp::warehouse_withdrawal_list(wh_type(tgt), adena(world, player_oid), inv_size, &items);
+    let packet = sp::warehouse_withdrawal_list(
+        wh_type(tgt),
+        inventory::adena(world, player_oid),
+        inv_size,
+        &items,
+    );
     send_to_client(world, client_id, packet);
 }
 
@@ -270,7 +277,7 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
     if moved {
         persist_target(world, player_oid);
     }
-    send_inventory_item_list(world, player_oid);
+    inventory::send_inventory_item_list(world, player_oid);
     open_deposit_window(world, client_id);
 }
 
@@ -341,7 +348,7 @@ pub(crate) fn handle_withdraw(world: &mut World, client_id: u32, body: &[u8]) {
     if moved {
         persist_target(world, player_oid);
     }
-    send_inventory_item_list(world, player_oid);
+    inventory::send_inventory_item_list(world, player_oid);
     open_withdraw_window(world, client_id);
 }
 
@@ -648,7 +655,7 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
     // Slot check against the destination freight, then the fee.
     let slots = destination_slots(world, recipient, &moving);
     if slots > world.cfg.character.freight_slots {
-        send_sm(
+        send_sm_bare_to_client(
             world,
             client_id,
             sp::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
@@ -666,7 +673,7 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
             .map(|(_, _, count, _)| *count)
             .sum::<i64>();
     if adena_after_send < fee {
-        send_sm(world, client_id, sp::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA);
+        send_sm_bare_to_client(world, client_id, sp::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA);
         return;
     }
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player_oid) {
@@ -676,11 +683,7 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
     // Move the items out of the sender…
     let mut rows = Vec::new();
     for &(object_id, item_id, count, enchant) in &moving {
-        if crate::game_loop::helpers::remove_inventory_item_change(
-            world, player_oid, object_id, count,
-        )
-        .is_none()
-        {
+        if inventory::remove_inventory_item_change(world, player_oid, object_id, count).is_none() {
             continue;
         }
         rows.push((item_id, count, enchant));
@@ -719,7 +722,7 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
             items,
         });
     }
-    send_inventory_item_list(world, player_oid);
+    inventory::send_inventory_item_list(world, player_oid);
 }
 
 /// `RequestPackageSend`'s body: the recipient's object id, then `(objectId,

@@ -4,7 +4,8 @@
 //! `party.rs`, whose 30+ external callers only ever wanted these.
 
 use crate::game_loop::combat::pvp;
-use crate::game_loop::helpers::{broadcast_to_others, is_dead, send_to_player};
+use crate::game_loop::helpers::{is_dead, send_to_player};
+use crate::game_loop::net::broadcast;
 use crate::model::Player;
 use crate::model::components::PartyRef;
 use crate::network::server_packets;
@@ -204,7 +205,7 @@ pub(crate) fn broadcast_char_info_now(world: &mut World, object_id: i32) {
         &cubics,
         &char_info_state(world, object_id),
     );
-    broadcast_to_others(world, object_id, &char_info);
+    broadcast::broadcast_to_others(world, object_id, &char_info);
 }
 
 /// Gather the manager-sourced `CharInfo` fields Java reads inside the packet

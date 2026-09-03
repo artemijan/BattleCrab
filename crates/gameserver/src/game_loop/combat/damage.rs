@@ -2,17 +2,18 @@ use super::attacker_display_name;
 use super::is_npc_oid;
 use super::refresh_attack_stance;
 use crate::game_loop::common::maybe_distance_too_far;
-use crate::game_loop::helpers;
-
+use crate::game_loop::net::broadcast;
 use crate::game_loop::skills::cast::break_cast;
+use crate::game_loop::space::position;
+use crate::game_loop::{helpers, npc};
 use crate::model::components::Casting;
 use crate::model::components::PlayerVitals;
 use crate::model::components::Speeds;
 use crate::model::components::Vitals;
 use crate::model::formulas;
-use crate::model::npc::AggroList;
 use crate::model::npc::NpcAi;
 use crate::model::npc::NpcIntention;
+use crate::model::npc::{AggroList, Npc};
 use crate::model::stats::BaseStat;
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
@@ -394,10 +395,7 @@ pub(crate) fn npc_receive_damage(
     } else {
         damage
     };
-    let level = match world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-    {
+    let level = match world.objects.get_component::<Npc>(&npc_oid) {
         Some(npc) => npc.template(world).map(|t| t.level).unwrap_or(1),
         None => return,
     };
@@ -409,7 +407,7 @@ pub(crate) fn npc_receive_damage(
         let is_champion = cfg.enable
             && world
                 .objects
-                .get_component::<crate::model::npc::Npc>(&npc_oid)
+                .get_component::<Npc>(&npc_oid)
                 .is_some_and(|n| n.champion);
         if is_champion && cfg.hp != 0 {
             cfg.hp as f64
@@ -496,12 +494,12 @@ pub(crate) fn npc_receive_damage(
     // Orfen's `onAttack`: the half-HP relocation and the mid-range drag. Both
     // react to a hit that has already landed, so they sit alongside the raid
     // curse below. No-op for every other NPC.
-    if let Some(npc_id) = helpers::npc_id_of(world, npc_oid) {
+    if let Some(npc_id) = npc::npc_id_of(world, npc_oid) {
         if npc_id == crate::game_loop::core_boss::CORE {
             crate::game_loop::core_boss::on_core_attacked(world, npc_oid);
         }
         if npc_id == crate::game_loop::baium::BAIUM {
-            crate::game_loop::npc::bosses::combat::anti_strider(world, npc_oid, attacker_oid);
+            npc::bosses::combat::anti_strider(world, npc_oid, attacker_oid);
             // A physical swing is Java's `skill == null` branch — the ×1000
             // melee weighting.
             crate::game_loop::baium::on_baium_damage(
@@ -566,18 +564,18 @@ pub(crate) fn npc_receive_damage(
             .map(|s| (s.owner_object_id, true))
     };
     if let Some((player_oid, is_summon)) = quest_attacker {
-        let npc_id = helpers::npc_id_of(world, npc_oid).unwrap_or(0);
+        let npc_id = npc::npc_id_of(world, npc_oid).unwrap_or(0);
         let skill_id = world.quest_attack_skill;
         crate::game_loop::quests::notify_attack(
             world, player_oid, npc_oid, npc_id, skill_id, is_summon,
         );
     }
-    let Some(region) = helpers::region_cell_of(world, npc_oid) else {
+    let Some(region) = position::region_cell_of(world, npc_oid) else {
         return;
     };
 
     if became_running {
-        helpers::broadcast_near_region_in(
+        broadcast::broadcast_near_region_in(
             world,
             region,
             helpers::instance_of(world, npc_oid),
@@ -585,11 +583,11 @@ pub(crate) fn npc_receive_damage(
         );
     }
     if died {
-        crate::game_loop::npc::npc_do_die(world, npc_oid, attacker_oid);
+        npc::npc_do_die(world, npc_oid, attacker_oid);
         return;
     }
     // `broadcastStatusUpdate` — the HP bar for everyone targeting it.
-    helpers::broadcast_near_region_in(
+    broadcast::broadcast_near_region_in(
         world,
         region,
         helpers::instance_of(world, npc_oid),
@@ -618,7 +616,7 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
     }
     // `Attackable.addDamageHate` → `MinionList.onAssist`: hitting one member of
     // a pack pulls in the leader and the rest of the escort.
-    crate::game_loop::npc::minions::on_assist(world, npc_oid, attacker_oid);
+    npc::minions::on_assist(world, npc_oid, attacker_oid);
     let now = world.tick;
     let became_running = {
         let Some((mut aggro, mut ai, mut speeds)) =
@@ -638,8 +636,8 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
         speeds.running = true;
         !was_running
     };
-    if became_running && let Some(region) = helpers::region_cell_of(world, npc_oid) {
-        helpers::broadcast_near_region_in(
+    if became_running && let Some(region) = position::region_cell_of(world, npc_oid) {
+        broadcast::broadcast_near_region_in(
             world,
             region,
             helpers::instance_of(world, npc_oid),
@@ -839,7 +837,7 @@ pub(crate) fn player_receive_damage_ex(
         refresh_attack_stance(world, player_oid);
     }
 
-    helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         player_oid,
         &server_packets::status_update(

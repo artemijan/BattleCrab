@@ -6,6 +6,7 @@
 //! Group/child cascades are not ported (this dist declares none).
 
 use crate::data::door_data::DoorOpenMethod;
+use crate::game_loop::net::broadcast;
 use crate::model::components::RegionCell;
 use crate::model::door::Door;
 use crate::network::server_packets;
@@ -13,7 +14,6 @@ use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
 
-use crate::game_loop::helpers::broadcast_near_region;
 use crate::scheduler::ms_to_ticks;
 
 /// `Door.sendInfo(player)`: `StaticObjectInfo` + `DoorStatusUpdate` for one
@@ -53,12 +53,12 @@ pub(crate) fn broadcast_status(world: &World, door_oid: i32) {
         return;
     };
     let open = world.geo.doors.is_open(door.door_id);
-    broadcast_near_region(
+    broadcast::broadcast_near_region(
         world,
         region.0,
         &server_packets::static_object_info_door(door, t, open),
     );
-    broadcast_near_region(
+    broadcast::broadcast_near_region(
         world,
         region.0,
         &server_packets::door_status_update(door, t, open),

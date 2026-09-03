@@ -2,16 +2,16 @@
 //! items and presses OK → when both confirm, the items swap. One active trade
 //! per player; items stay in the owner's inventory until the swap.
 
+use crate::game_loop::character::inventory;
+use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
-use crate::game_loop::helpers::{player_name_or_empty, send_inventory_item_list};
-use commons::network::PacketReader;
-
 use crate::game_loop::helpers::{player_of, send_to_player as send};
 use crate::model::components::{PendingTrade, StoreItem, Trade};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;
 use crate::world::World;
+use commons::network::PacketReader;
 
 fn busy(world: &World, oid: i32) -> bool {
     world.objects.has_component::<Trade>(&oid)
@@ -307,7 +307,7 @@ fn execute(world: &mut World, a: i32, b: i32) {
     for oid in [a, b] {
         world.objects.remove_component::<Trade>(&oid);
         send(world, oid, sp::trade_done(true));
-        send_inventory_item_list(world, oid);
+        inventory::send_inventory_item_list(world, oid);
     }
 }
 
@@ -332,6 +332,6 @@ fn transfer_side(world: &mut World, from: i32, to: i32) {
         if let Some(inv) = world.objects.get_component_mut::<Inventory>(&from) {
             inv.remove_by_object_id(line.object_id, n);
         }
-        crate::game_loop::helpers::give_transferred_item(world, to, line.item_id, n, line.enchant);
+        inventory::give_transferred_item(world, to, line.item_id, n, line.enchant);
     }
 }

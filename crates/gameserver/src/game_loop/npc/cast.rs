@@ -17,15 +17,16 @@
 //! ported, but no NPC on this dist carries a resurrect skill in its
 //! `<skillList>`.
 
-use crate::game_loop::helpers;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::zones::in_zone;
+use crate::game_loop::{helpers, npc, skills};
 
 use commons::util::rnd;
 
 use crate::data::npc_ai_skills::AiSkillScope;
 use crate::data::npc_data::AiType;
 use crate::data::zone_data::ZoneKind;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::{abnormal, combat, servitor};
 use crate::geo::distance::{distance_2d, distance_2d_xy, distance_3d, position_of};
 use crate::model::components::{Casting, Position, Vitals};
@@ -35,6 +36,7 @@ use crate::network::server_packets;
 use crate::world::World;
 
 use crate::game_loop::skills::cast::set_skill_reuse;
+use crate::game_loop::space::position;
 
 /// Java's literal cut between the SHORT_RANGE and LONG_RANGE buckets.
 const SHORT_RANGE: f64 = 150.0;
@@ -47,7 +49,7 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
         return false;
     }
 
-    let Some(npc_id) = helpers::npc_id_of(world, npc_oid) else {
+    let Some(npc_id) = npc::npc_id_of(world, npc_oid) else {
         return false;
     };
     let Some(template) = world.data.npc_data.get(npc_id) else {
@@ -250,7 +252,7 @@ pub(crate) fn cast_skill(
     skill_id: i32,
     level: i32,
 ) -> bool {
-    let Some(skill) = crate::game_loop::helpers::skill_by_id(world, skill_id, level) else {
+    let Some(skill) = skills::skill_by_id(world, skill_id, level) else {
         return false;
     };
     cast_checked(world, npc_oid, target_oid, &skill)
@@ -551,7 +553,7 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     if world
         .objects
         .has_component::<crate::model::components::Movement>(&npc_oid)
-        && helpers::npc_template(world, npc_oid).is_some_and(|t| t.is_attackable_class())
+        && npc::npc_template(world, npc_oid).is_some_and(|t| t.is_attackable_class())
     {
         return;
     }
@@ -623,8 +625,8 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
 
     set_skill_reuse(world, npc_oid, skill);
 
-    if let Some(region) = helpers::region_cell_of(world, npc_oid) {
-        helpers::broadcast_near_region_in(
+    if let Some(region) = position::region_cell_of(world, npc_oid) {
+        broadcast::broadcast_near_region_in(
             world,
             region,
             helpers::instance_of(world, npc_oid),
@@ -779,13 +781,13 @@ fn pick_random(_world: &World, candidates: &[i32]) -> Option<i32> {
 /// Living NPCs within `range` that share a faction with this one (the same
 /// `shares_clan_with` test the help-call uses), excluding the caller.
 fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
-    let Some(npc_id) = helpers::npc_id_of(world, npc_oid) else {
+    let Some(npc_id) = npc::npc_id_of(world, npc_oid) else {
         return Vec::new();
     };
     let (Some(mine), Some(pos), Some(region)) = (
         world.data.npc_data.get(npc_id),
         maybe_position(world, npc_oid),
-        helpers::region_cell_of(world, npc_oid),
+        position::region_cell_of(world, npc_oid),
     ) else {
         return Vec::new();
     };

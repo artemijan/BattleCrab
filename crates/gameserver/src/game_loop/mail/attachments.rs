@@ -17,7 +17,7 @@ use super::send_unread_count;
 /// Shared guard chain for the three attachment flows. `peace_sm` differs per
 /// packet in Java, so the caller supplies its trio of messages.
 use crate::data::item_data::ADENA_ID;
-use crate::game_loop::helpers::send_inventory_item_list;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_sm_to_player as send_sm;
 use crate::game_loop::helpers::send_to_player;
 use crate::model::Player;
@@ -113,7 +113,7 @@ fn grant_attachments(world: &mut World, player: i32, message_id: i32) {
     }
     persist_flags(world, message_id);
     persist_attachments(world, message_id);
-    send_inventory_item_list(world, player);
+    inventory::send_inventory_item_list(world, player);
 }
 
 /// ex 0x67 `RequestPostAttachment` — take the items, paying any COD price.
@@ -222,7 +222,7 @@ pub(crate) fn handle_post_attachment(world: &mut World, client_id: u32, body: &[
 fn pay_sender(world: &mut World, sender_id: i32, adena: i64) {
     if world.objects.has_component::<Inventory>(&sender_id) {
         crate::game_loop::items::add_inventory_item(world, sender_id, ADENA_ID, adena);
-        send_inventory_item_list(world, sender_id);
+        inventory::send_inventory_item_list(world, sender_id);
         return;
     }
     let Some(message_id) = world.alloc_object_id() else {

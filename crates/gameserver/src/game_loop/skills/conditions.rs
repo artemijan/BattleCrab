@@ -35,8 +35,8 @@
 
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::abnormal::flags_of;
-use crate::game_loop::helpers;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{clans, helpers};
 use crate::model::components;
 use crate::model::skill;
 
@@ -379,7 +379,7 @@ fn eval(
         } => {
             let at_level = world
                 .objects
-                .get_component::<crate::model::components::SkillBook>(&caster)
+                .get_component::<components::SkillBook>(&caster)
                 .and_then(|b| b.0.get(skill_id).copied())
                 == Some(*skill_level);
             ok(at_level == *has_learned)
@@ -398,7 +398,7 @@ fn eval(
             let actual = if is_player(world, caster) {
                 world
                     .objects
-                    .get_component::<crate::model::components::TargetRef>(&caster)
+                    .get_component::<components::TargetRef>(&caster)
                     .and_then(|t| t.0)
             } else {
                 Some(target)
@@ -409,10 +409,10 @@ fn eval(
             }))
         }
         skill::SkillCondition::Companion { kind } => ok(match kind {
-            crate::model::skill::CompanionKind::Pet => is_pet(world, target),
+            skill::CompanionKind::Pet => is_pet(world, target),
             // `caster.getServitor(target.getObjectId()) != null` — *my*
             // servitor, not merely any summon.
-            crate::model::skill::CompanionKind::MySummon => {
+            skill::CompanionKind::MySummon => {
                 super::super::servitor::servitor_of(world, caster) == Some(target)
             }
         }),
@@ -450,13 +450,9 @@ fn eval(
 /// fallback that `getTeleToLocation` allows, so a defender who owns no castle
 /// is refused the blessed scroll even while standing on the ground it would
 /// have sent them to.
-fn owns_residence(
-    world: &World,
-    caster: i32,
-    residence: crate::model::skill::ResidenceType,
-) -> bool {
+fn owns_residence(world: &World, caster: i32, residence: skill::ResidenceType) -> bool {
     use crate::model::skill::ResidenceType;
-    let Some(clan_id) = crate::game_loop::helpers::clan_of(world, caster) else {
+    let Some(clan_id) = clans::clan_of(world, caster) else {
         return false;
     };
     match residence {
@@ -492,9 +488,7 @@ fn is_npc(world: &World, object_id: i32) -> bool {
 
 /// `WorldObject.isPet()` — a collar pet, as opposed to a summoner's servitor.
 fn is_pet(world: &World, object_id: i32) -> bool {
-    world
-        .objects
-        .has_component::<crate::model::components::PetOf>(&object_id)
+    world.objects.has_component::<components::PetOf>(&object_id)
 }
 
 // ---------------------------------------------------------------------------
@@ -581,7 +575,7 @@ fn vital_percent(world: &World, object_id: i32, vital: skill::Vital) -> Option<i
         skill::Vital::Cp => {
             let cp = world
                 .objects
-                .get_component::<crate::model::components::PlayerVitals>(&object_id)?;
+                .get_component::<components::PlayerVitals>(&object_id)?;
             (cp.cur_cp, cp.max_cp as f64)
         }
     };
@@ -608,7 +602,7 @@ fn race_of(world: &World, object_id: i32) -> Option<crate::enums::Race> {
             .and_then(|t| t.race)
             .and_then(crate::enums::Race::from_ordinal);
     }
-    crate::game_loop::helpers::player_race(world, object_id)
+    helpers::player_race(world, object_id)
 }
 
 fn target_in_my_party(world: &World, caster: i32, target: i32, include_me: bool) -> bool {
@@ -673,7 +667,7 @@ fn is_chest(world: &World, target: i32) -> bool {
 fn knows_skill(world: &World, target: i32, skill_id: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&target)
+        .get_component::<components::SkillBook>(&target)
         .is_some_and(|b| b.0.contains_key(&skill_id))
 }
 
@@ -708,7 +702,7 @@ fn can_transform(world: &World, caster: i32) -> Result<(), Refusal> {
     }
     if world
         .objects
-        .get_component::<crate::model::components::Speeds>(&caster)
+        .get_component::<components::Speeds>(&caster)
         .is_some_and(|s| s.swimming)
     {
         return Err(Refusal(Some(RefusalLine::Sm(
@@ -826,7 +820,7 @@ fn can_untransform(world: &World, caster: i32) -> Result<(), Refusal> {
     };
     // `isAlikeDead() || isCursedWeaponEquipped()`.
     if helpers::is_dead(world, caster)
-        || flags_of(world, caster) & crate::model::skill::effect_flag::FAKE_DEATH != 0
+        || flags_of(world, caster) & skill::effect_flag::FAKE_DEATH != 0
         || p.cursed_weapon_equipped_id != 0
     {
         return Err(Refusal(None));

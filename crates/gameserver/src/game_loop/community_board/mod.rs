@@ -158,7 +158,7 @@ pub(crate) fn handle_write_command(
         let Some(object_id) = world.player_oid(client_id) else {
             return;
         };
-        let Some(clan_id) = super::helpers::clan_of(world, object_id) else {
+        let Some(clan_id) = clans::clan_of(world, object_id) else {
             return;
         };
         let is_leader = world
@@ -198,6 +198,7 @@ mod merchant;
 mod scheme;
 mod util;
 
+use crate::game_loop::clans;
 use actions::{do_buff, do_delevel, do_heal, do_premium, do_teleport};
 use clan::{show_clan_board, show_region_board};
 use drop_search::do_drop_search;
@@ -212,6 +213,7 @@ use util::{
     account_of, charge, charge_item, finalize_custom, first_token, is_busy, is_custom_action,
     read_html, reputation, serve_page,
 };
+
 /// Port of `Util.sendCBHtml`: split the html into ≤3 chunks tagged 101/102/103
 /// and send each as a `ShowBoard`. Split by char boundaries (htmls are ASCII,
 /// so this matches Java's UTF-16-length branches for the content we serve).

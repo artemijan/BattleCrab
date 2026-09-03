@@ -8,8 +8,8 @@ use super::pet_of;
 use super::servitor_of;
 use super::sync_pet_row;
 use super::unsummon_servitor;
-use crate::game_loop::helpers;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{helpers, skills};
 
 use crate::game_loop::npc::ai::force_attack_target;
 use crate::model::components::Position;
@@ -491,7 +491,7 @@ fn use_pet_skill(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32
         .map(|t| t.available_level(skill_id, pet_level, max_skill_level))
         .unwrap_or(0);
     if level > 0
-        && let Some(skill) = helpers::skill_by_id(world, skill_id, level)
+        && let Some(skill) = skills::skill_by_id(world, skill_id, level)
     {
         // `pet.setTarget(player.getTarget())` then `useMagic` — a self-targeted
         // skill still resolves onto the pet, exactly as the servitor path does.
@@ -544,7 +544,7 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
         // cast. Silent, as it is: the client only shows buttons the summon has.
         return;
     };
-    let Some(skill) = helpers::skill_by_id(world, skill_id, level) else {
+    let Some(skill) = skills::skill_by_id(world, skill_id, level) else {
         return;
     };
 

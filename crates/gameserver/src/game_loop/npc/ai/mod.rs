@@ -36,7 +36,7 @@ use crate::model::npc::{NpcAi, NpcIntention};
 use crate::network::server_packets;
 use crate::world::World;
 
-use crate::game_loop::helpers::{broadcast_near_region_in, instance_of};
+use crate::game_loop::helpers::instance_of;
 use crate::game_loop::npc::spawn_scripts;
 use crate::game_loop::space::position::region_cell_of;
 
@@ -299,6 +299,7 @@ pub(crate) mod perception;
 mod tactics;
 mod think;
 
+use crate::game_loop::net::broadcast::broadcast_near_region_in;
 use faction::faction_call;
 pub(crate) use faction::faction_call_on_kill;
 #[cfg(test)]
@@ -320,6 +321,7 @@ use tactics::{
 };
 pub(crate) use think::seed_attack;
 use think::think;
+
 /// faction call (`AttackableAI.onEvtAggression`, which calls `setRunning` in as
 /// many words) and the minion assist (whose recruits reach `setRunning` via
 /// their next `thinkActive`) — set the intention directly and skipped it. A

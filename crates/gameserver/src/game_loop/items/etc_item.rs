@@ -6,15 +6,18 @@ use super::charge_shot;
 use super::destroy_item_by_id;
 use super::item_skills;
 use crate::data::item_data::ItemHandler;
-use crate::game_loop::helpers;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{helpers, npc, skills};
 
+use crate::game_loop::character::inventory;
+use crate::game_loop::net::broadcast;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 use tracing::warn;
+
 /// The `EtcItem` branch of `UseItem.runImpl` (Java:
 /// `ItemHandler.getInstance().getHandler(etcItem)`). Dispatches on
 /// `ItemTemplate.handler`; only `ExtractableItems` (pack/box items) is
@@ -40,7 +43,7 @@ pub(super) fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, it
         ItemHandler::ItemSkills => use_item_skills(world, client_id, object_id, item_object_id),
         ItemHandler::Seed => use_seed_item(world, client_id, object_id, item_object_id),
         ItemHandler::SoulShots | ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot => {
-            let item_id = helpers::item_id_of(world, object_id, item_object_id);
+            let item_id = inventory::item_id_of(world, object_id, item_object_id);
             if let Some(item_id) = item_id {
                 charge_shot(world, object_id, item_id, handler, false);
             }
@@ -61,7 +64,7 @@ pub(super) fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, it
         // A fishing shot used by hand charges immediately (the fishing engine
         // otherwise charges it on cast via `rechargeShots(fish=true)`).
         ItemHandler::FishShots => {
-            let item_id = helpers::item_id_of(world, object_id, item_object_id);
+            let item_id = inventory::item_id_of(world, object_id, item_object_id);
             if let Some(item_id) = item_id {
                 charge_fish_shot(world, object_id, item_id);
             }
@@ -79,7 +82,7 @@ pub(super) fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, it
         ItemHandler::RollingDice => roll_dice(world, client_id, object_id, item_object_id),
         ItemHandler::PetFood => feed_mount(world, client_id, object_id, item_object_id),
         ItemHandler::MercTicket => {
-            if let Some(item_id) = helpers::item_id_of(world, object_id, item_object_id) {
+            if let Some(item_id) = inventory::item_id_of(world, object_id, item_object_id) {
                 crate::game_loop::siege::use_mercenary_ticket(
                     world,
                     client_id,
@@ -115,7 +118,7 @@ fn summon_item_allowed(world: &mut World, client_id: u32, object_id: i32) -> boo
         return false;
     }
     if crate::game_loop::character::sit_stand::is_sitting(world, object_id) {
-        crate::game_loop::helpers::send_sm_bare_to_client(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::YOU_CANNOT_USE_ACTIONS_AND_SKILLS_WHILE_THE_CHARACTER_IS_SITTING,
@@ -129,11 +132,7 @@ fn summon_item_allowed(world: &mut World, client_id: u32, object_id: i32) -> boo
         .get_component::<crate::model::Player>(&object_id)
         .is_some_and(crate::model::Player::is_mounted);
     if mounted || crate::game_loop::servitor::pet_of(world, object_id).is_some() {
-        crate::game_loop::helpers::send_sm_bare_to_client(
-            world,
-            client_id,
-            sm_ids::YOU_ALREADY_HAVE_A_PET,
-        );
+        helpers::send_sm_bare_to_client(world, client_id, sm_ids::YOU_ALREADY_HAVE_A_PET);
         return false;
     }
     if world
@@ -141,11 +140,7 @@ fn summon_item_allowed(world: &mut World, client_id: u32, object_id: i32) -> boo
         .get_component::<crate::model::components::AttackState>(&object_id)
         .is_some_and(|st| st.attack_end_tick > world.tick)
     {
-        crate::game_loop::helpers::send_sm_bare_to_client(
-            world,
-            client_id,
-            sm_ids::YOU_CANNOT_SUMMON_DURING_COMBAT,
-        );
+        helpers::send_sm_bare_to_client(world, client_id, sm_ids::YOU_CANNOT_SUMMON_DURING_COMBAT);
         return false;
     }
     true
@@ -156,7 +151,7 @@ fn summon_item_allowed(world: &mut World, client_id: u32, object_id: i32) -> boo
 /// The book is **not** consumed, and Java answers with `ActionFailed` after the
 /// page so the client stops waiting on the use.
 fn read_book(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
-    let Some(item_id) = helpers::item_id_of(world, object_id, item_object_id) else {
+    let Some(item_id) = inventory::item_id_of(world, object_id, item_object_id) else {
         return;
     };
     let path = format!("{}data/html/help/{item_id}.htm", world.data.root);
@@ -177,7 +172,7 @@ fn read_book(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
 /// the roller.
 fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     use crate::network::server_packets::sm_ids;
-    let Some(item_id) = helpers::item_id_of(world, object_id, item_object_id) else {
+    let Some(item_id) = inventory::item_id_of(world, object_id, item_object_id) else {
         return;
     };
     // Java's `rollDice` returns 0 when the flood protector refuses, and the
@@ -187,7 +182,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
         client_id,
         crate::config::flood_protector::FloodAction::RollDice,
     ) {
-        crate::game_loop::helpers::send_sm_bare_to_client(
+        helpers::send_sm_bare_to_client(
             world,
             client_id,
             sm_ids::YOU_MAY_NOT_THROW_THE_DICE_AT_THIS_TIME_TRY_AGAIN_LATER,
@@ -210,7 +205,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
         .geo
         .get_valid_location(pos.x, pos.y, pos.z, x, y, pos.z);
 
-    crate::game_loop::helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         object_id,
         &server_packets::dice(object_id, item_id, number, dx, dy, dz),
@@ -218,7 +213,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
 
     // The result line: always to the roller; also to everyone nearby in a peace
     // zone, or to the party outside one (Java's own `TODO: Verify this!`).
-    let name = crate::game_loop::helpers::player_name(world, object_id).unwrap_or_default();
+    let name = helpers::player_name(world, object_id).unwrap_or_default();
     let sm = server_packets::system_message_with(
         sm_ids::C1_HAS_ROLLED_A_S2,
         &[SmParam::Text(name), SmParam::Int(number)],
@@ -229,7 +224,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
         .get_component::<crate::model::components::ZoneFlags>(&object_id)
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
     if in_peace {
-        crate::game_loop::helpers::broadcast_from(world, object_id, &sm);
+        broadcast::broadcast_from(world, object_id, &sm);
     } else if let Some(party) =
         crate::game_loop::party::command_channel::party_id_of(world, object_id)
     {
@@ -245,7 +240,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
 /// with G29; only this half was missing.
 fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id: i32) {
     use crate::network::server_packets::sm_ids;
-    let Some(item_id) = helpers::item_id_of(world, object_id, item_object_id) else {
+    let Some(item_id) = inventory::item_id_of(world, object_id, item_object_id) else {
         return;
     };
     let mount_npc_id = world
@@ -262,7 +257,7 @@ fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id
             .is_some_and(|t| t.food_item_id == item_id);
     if !eats {
         // Java's fall-through for every other case, mount or not.
-        crate::game_loop::helpers::send_sm_to_player(
+        helpers::send_sm_to_player(
             world,
             object_id,
             sm_ids::S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS,
@@ -275,12 +270,10 @@ fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id
     if changes.is_empty() {
         return;
     }
-    crate::game_loop::helpers::send_inventory_update(world, object_id, changes);
+    inventory::send_inventory_update(world, object_id, changes);
     for (skill_id, skill_level) in item_skills(world, item_id) {
-        if let Some(skill) = helpers::skill_by_id(world, skill_id, skill_level) {
-            crate::game_loop::skills::effects::apply_skill_effects(
-                world, object_id, object_id, &skill,
-            );
+        if let Some(skill) = skills::skill_by_id(world, skill_id, skill_level) {
+            skills::effects::apply_skill_effects(world, object_id, object_id, &skill);
         }
     }
 }
@@ -316,7 +309,7 @@ fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id
 /// Port of `handlers/itemhandlers/Seed.useItem` — sow a manor seed on the
 /// player's targeted monster: validate the target, flag the mob with the seed
 /// (`Attackable.setSeeded(seed, player)`), then cast the item's Sow skill (which
-/// runs [`crate::game_loop::skills::effects`]'s `Sow`). The item is consumed by
+/// runs [`skills::effects`]'s `Sow`). The item is consumed by
 /// the skill cast, as with any `<skills>` item.
 ///
 /// The sow-location gate (`seed.getCastleId() == target.getTaxCastle()`) is
@@ -329,7 +322,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
     if !world.cfg.general.allow_manor {
         return;
     }
-    let item_id = helpers::item_id_of(world, object_id, item_object_id);
+    let item_id = inventory::item_id_of(world, object_id, item_object_id);
     let Some(item_id) = item_id else {
         return;
     };
@@ -352,7 +345,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
         return;
     };
     // Must be a live, `canBeSown` monster that isn't already seeded.
-    let can_be_sown = helpers::npc_template(world, target_oid).is_some_and(|t| t.can_be_sown);
+    let can_be_sown = npc::npc_template(world, target_oid).is_some_and(|t| t.can_be_sown);
     let dead = world
         .objects
         .get_component::<crate::model::components::Vitals>(&target_oid)
@@ -397,7 +390,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
 /// the auto-potion loop's entry into the ordinary item-skill path, so the cast,
 /// the cooldown and the consumption are identical to using it by hand.
 pub(crate) fn use_item_by_object_id(world: &mut World, player_oid: i32, item_object_id: i32) {
-    let Some(client_id) = crate::game_loop::helpers::client_for_player(world, player_oid) else {
+    let Some(client_id) = helpers::client_for_player(world, player_oid) else {
         return;
     };
     use_item_skills(world, client_id, player_oid, item_object_id);
@@ -437,7 +430,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     // Park the collar's object id the same way; the effect *takes* it, so an
     // unused one cannot linger into an unrelated cast.
     {
-        let is_collar = helpers::item_id_of(world, object_id, item_object_id)
+        let is_collar = inventory::item_id_of(world, object_id, item_object_id)
             .is_some_and(|item_id| world.data.pet_data.is_pet_collar(item_id));
         if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
             p.pending_pet_collar = if is_collar {
@@ -453,7 +446,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     // the per-skill `continue`s, so a skill that never fires still counts.
     let mut has_consume_skill = false;
     for (skill_id, skill_level) in item_skills {
-        let Some(skill) = helpers::skill_by_id(world, skill_id, skill_level) else {
+        let Some(skill) = skills::skill_by_id(world, skill_id, skill_level) else {
             continue;
         };
         if skill.item_consume_id > 0 {
@@ -504,11 +497,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
             // `SKILL_REDUCE_ON_SKILL_SUCCESS` item rides the cast and is spent
             // by `finishSkill` only if it lands.
             if default_action == crate::data::item_data::ActionType::SkillReduceOnSkillSuccess {
-                crate::game_loop::skills::cast::set_cast_trigger_item(
-                    world,
-                    object_id,
-                    item_object_id,
-                );
+                skills::cast::set_cast_trigger_item(world, object_id, item_object_id);
             }
         }
         used = true;
@@ -557,7 +546,7 @@ fn destroy_used_item(world: &mut World, object_id: i32, item_object_id: i32) {
     };
     // Memory-first: the count decrement / removal already applied to the
     // `Inventory` component; it persists on the next flush.
-    crate::game_loop::helpers::send_inventory_update(world, object_id, vec![destroyed]);
+    inventory::send_inventory_update(world, object_id, vec![destroyed]);
 }
 
 /// Port of `handlers/itemhandlers/ExtractableItems.useItem`: destroys the
@@ -643,9 +632,9 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     }
 
     for (item_id, amount) in granted {
-        let Some(changes) = crate::game_loop::helpers::add_inventory_item_changes(
-            world, object_id, item_id, amount,
-        ) else {
+        let Some(changes) =
+            inventory::add_inventory_item_changes(world, object_id, item_id, amount)
+        else {
             warn!("ExtractableItems: object-id pool exhausted, dropping {item_id}x{amount}");
             continue;
         };
@@ -654,6 +643,6 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
             client_id,
             server_packets::obtained_item_sm(item_id, amount),
         );
-        crate::game_loop::helpers::send_inventory_update(world, object_id, changes);
+        inventory::send_inventory_update(world, object_id, changes);
     }
 }

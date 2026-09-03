@@ -6,7 +6,9 @@ use super::LIFE_TICK_SECS;
 use super::sync_pet_row;
 use super::sync_summon_row;
 use super::unsummon_servitor;
-use crate::game_loop::helpers;
+use crate::game_loop::character::inventory;
+use crate::game_loop::space::position;
+use crate::game_loop::{helpers, npc};
 use crate::model::components;
 
 use crate::game_loop::time::TICKS_PER_SECOND;
@@ -24,7 +26,7 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
     else {
         return;
     };
-    let Some(region) = helpers::region_cell_of(world, servitor_oid) else {
+    let Some(region) = position::region_cell_of(world, servitor_oid) else {
         return;
     };
     let Some(npc) = world
@@ -120,10 +122,8 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
 
     // 2. Upkeep item. The period is the template's, not a constant: a siege
     // weapon pays every 60 s where every other servitor pays every 240 s.
-    let interval = super::consume_interval_secs(
-        world,
-        crate::game_loop::helpers::npc_id_of(world, servitor_oid).unwrap_or(0),
-    );
+    let interval =
+        super::consume_interval_secs(world, npc::npc_id_of(world, servitor_oid).unwrap_or(0));
     if link.consume_item_id > 0 && world.tick >= link.next_consume_tick {
         // `destroyItemByItemId` — take the upkeep item, or fail.
         use crate::model::inventory::Inventory;
@@ -139,7 +139,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
                 .get_component_mut::<Inventory>(&owner)
                 .map(|inv| inv.remove_item(link.consume_item_id, link.consume_item_count))
                 .unwrap_or_default();
-            helpers::send_inventory_update(world, owner, changes);
+            inventory::send_inventory_update(world, owner, changes);
             notify_owner(
                 world,
                 owner,

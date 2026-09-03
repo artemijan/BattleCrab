@@ -24,12 +24,13 @@ use super::stop_npc;
 use super::target_reconsider;
 use crate::data::npc_data::AiType;
 use crate::game_loop;
-use crate::game_loop::helpers;
+use crate::game_loop::{helpers, npc};
 use crate::model::components;
 
 use crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
 
-use crate::game_loop::helpers::position;
+use crate::game_loop::net::broadcast;
+use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
 
 use crate::model::npc::AggroList;
@@ -38,10 +39,7 @@ use crate::model::npc::NpcIntention;
 use crate::network::server_packets;
 use crate::world::World;
 pub(super) fn think(world: &mut World, npc_oid: i32) {
-    let Some(npc) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-    else {
+    let Some(npc) = world.objects.get_component::<npc::Npc>(&npc_oid) else {
         return;
     };
     if helpers::is_dead(world, npc_oid) {
@@ -82,7 +80,7 @@ pub(super) fn think(world: &mut World, npc_oid: i32) {
     // most-hated" is the right behaviour once the order has seeded the list.
     if world
         .objects
-        .has_component::<crate::model::components::ServitorOf>(&npc_oid)
+        .has_component::<components::ServitorOf>(&npc_oid)
     {
         // A fetch errand outranks trailing the owner, so it thinks first and
         // suppresses the follow while it is running.
@@ -154,7 +152,7 @@ pub(super) fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32)
             }
         }
         MobGroupState::Follow(commander) => {
-            let Some((cx, cy, cz)) = helpers::pos_of(world, commander) else {
+            let Some((cx, cy, cz)) = position::pos_of(world, commander) else {
                 return;
             };
             let dist = distance_2d(world, npc_oid, cx, cy);
@@ -170,7 +168,7 @@ pub(super) fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32)
             }
         }
         MobGroupState::Return(commander) => {
-            if let Some((cx, cy, cz)) = helpers::pos_of(world, commander)
+            if let Some((cx, cy, cz)) = position::pos_of(world, commander)
                 && world
                     .objects
                     .get_component::<components::Movement>(&npc_oid)
@@ -205,7 +203,7 @@ pub(crate) fn seed_attack(world: &mut World, npc_oid: i32, target: i32) {
 
 /// The nearest live member of `group_id` to `npc_oid` (for `//mobgroup_attackgrp`).
 fn nearest_group_member(world: &World, npc_oid: i32, group_id: i32) -> Option<i32> {
-    let (nx, ny, _) = helpers::pos_of(world, npc_oid)?;
+    let (nx, ny, _) = position::pos_of(world, npc_oid)?;
     world.mob_groups.get(&group_id).and_then(|g| {
         g.members
             .iter()
@@ -216,7 +214,7 @@ fn nearest_group_member(world: &World, npc_oid: i32, group_id: i32) -> Option<i3
                     .is_some_and(|v| !v.dead)
             })
             .min_by_key(|&&m| {
-                helpers::pos_of(world, m)
+                position::pos_of(world, m)
                     .map(|(x, y, _)| ((x - nx) as i64).pow(2) + ((y - ny) as i64).pow(2))
                     .unwrap_or(i64::MAX)
             })
@@ -238,7 +236,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
     let (aggressive, aggro_range) = {
         let npc_id = world
             .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .get_component::<npc::Npc>(&npc_oid)
             .expect("caller checked")
             .npc_id;
         let ai = world
@@ -273,7 +271,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
             && world.cfg.champion.passive
             && world
                 .objects
-                .get_component::<crate::model::npc::Npc>(&npc_oid)
+                .get_component::<npc::Npc>(&npc_oid)
                 .is_some_and(|n| n.champion);
         (
             t.map(|t| t.is_monster() && t.is_aggressive && t.aggro_range > 0)
@@ -286,7 +284,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
             t.map(|t| t.aggro_range).unwrap_or(0),
         )
     };
-    let Some(region) = helpers::region_cell_of(world, npc_oid) else {
+    let Some(region) = position::region_cell_of(world, npc_oid) else {
         return;
     };
 
@@ -310,7 +308,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
     // geodata-visible; invisibility/silent-move/GM states don't exist).
     if aggressive && global_aggro >= 0 {
         let (nx, ny, nz) = {
-            let pos = position(world, npc_oid);
+            let pos = position::position(world, npc_oid);
             (pos.x, pos.y, pos.z)
         };
         let mut in_range = players_in_range_los(world, region, nx, ny, nz, aggro_range as f64);
@@ -330,11 +328,9 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
         // `onAggroRangeEnter` for the scripts that registered this monster
         // (the Primeval Isle Tyrannosaurus's curiosity pause).
         if !newly_seen.is_empty() {
-            let npc_id = helpers::npc_id_of(world, npc_oid).unwrap_or(0);
+            let npc_id = npc::npc_id_of(world, npc_oid).unwrap_or(0);
             for player_oid in newly_seen {
-                crate::game_loop::quests::notify_aggro_range_enter(
-                    world, npc_oid, npc_id, player_oid,
-                );
+                game_loop::quests::notify_aggro_range_enter(world, npc_oid, npc_id, player_oid);
             }
         }
     }
@@ -349,7 +345,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
     // monster-only (see the `is_monster()` note there).
     if world
         .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .get_component::<npc::Npc>(&npc_oid)
         .is_some_and(|n| n.is_guard(world))
     {
         guard_aggro_scan(world, npc_oid, region);
@@ -365,7 +361,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
         && let Some(_castle) = game_loop::siege::active_siege_guard_castle(world, npc_oid)
     {
         let (nx, ny, nz) = {
-            let pos = position(world, npc_oid);
+            let pos = position::position(world, npc_oid);
             (pos.x, pos.y, pos.z)
         };
         let mut in_range = players_in_range_los(world, region, nx, ny, nz, aggro_range as f64);
@@ -407,7 +403,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
                     flip
                 };
                 if became_running {
-                    helpers::broadcast_near_region_in(
+                    broadcast::broadcast_near_region_in(
                         world,
                         region,
                         helpers::instance_of(world, npc_oid),
@@ -426,7 +422,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
     let (x, y, z, spawn, moving, can_move, random_walk) = {
         let npc = &world
             .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .get_component::<npc::Npc>(&npc_oid)
             .expect("npc");
         let pos = world
             .objects
@@ -438,8 +434,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
         // route targets that clear it at runtime aren't in the monster slice).
         let random_walk = t.map(|t| t.random_walk).unwrap_or(false);
         // `ai/others/Spawns/NoRandomActivity` can clear it per NPC.
-        let random_walk =
-            game_loop::npc::spawn_scripts::random_walk_enabled(world, npc_oid, random_walk);
+        let random_walk = npc::spawn_scripts::random_walk_enabled(world, npc_oid, random_walk);
         (
             pos.x,
             pos.y,
@@ -550,10 +545,7 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
         .is_some_and(|ai| ai.attack_timeout_tick < now)
     {
         set_active(world, npc_oid);
-        let Some(npc) = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
-        else {
+        let Some(npc) = world.objects.get_component::<npc::Npc>(&npc_oid) else {
             return;
         };
         let spawn = npc.spawn_loc;
@@ -563,7 +555,7 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
         // the mob's own recent swings can still hold the stance.
         let in_combat = game_loop::combat::has_attack_stance(world, npc_oid);
         let players_visible = {
-            let Some(region) = helpers::region_cell_of(world, npc_oid) else {
+            let Some(region) = position::region_cell_of(world, npc_oid) else {
                 return;
             };
             // Index-derived (≤9 cells); like the sweep it replaced, unattended
@@ -579,7 +571,7 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
                 .get_component::<components::Position>(&npc_oid)
                 .map(|p| p.heading)
                 .unwrap_or(0);
-            game_loop::npc::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
+            npc::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
         }
         return;
     }
@@ -623,7 +615,7 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
             .geo
             .can_see_target(npos.x, npos.y, npos.z, tpos.x, tpos.y, tpos.z)
         {
-            let can_move = helpers::npc_template(world, npc_oid).is_some_and(|t| t.can_move);
+            let can_move = npc::npc_template(world, npc_oid).is_some_and(|t| t.can_move);
             if can_move {
                 move_npc_to(world, npc_oid, tpos.x, tpos.y, tpos.z);
             }
@@ -652,7 +644,7 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
     // Cast before closing distance — Java's "Cast skills" block sits between
     // the target checks and the range/move tail, so a caster that launched a
     // spell this think neither chases nor swings.
-    if crate::game_loop::npc::cast::try_cast(world, npc_oid, target_oid) {
+    if npc::cast::try_cast(world, npc_oid, target_oid) {
         return;
     }
 
@@ -678,7 +670,7 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
 
     let can_move = world
         .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .get_component::<npc::Npc>(&npc_oid)
         .expect("npc")
         .template(world)
         .map(|t| t.can_move)
@@ -720,11 +712,11 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
             .remove_component::<components::Movement>(&npc_oid);
         let (Some(pos), Some(region)) = (
             maybe_position(world, npc_oid),
-            helpers::region_cell_of(world, npc_oid),
+            position::region_cell_of(world, npc_oid),
         ) else {
             return;
         };
-        helpers::broadcast_near_region_in(
+        broadcast::broadcast_near_region_in(
             world,
             region,
             helpers::instance_of(world, npc_oid),

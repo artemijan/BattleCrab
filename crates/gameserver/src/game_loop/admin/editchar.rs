@@ -12,9 +12,9 @@
 //! since G31.
 
 use crate::game_loop::admin::find_online_player;
-use crate::game_loop::helpers;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{helpers, npc};
 use crate::model::components;
 
 use crate::model::Player;
@@ -789,7 +789,7 @@ pub(super) fn admin_summon_setlvl(
         send_message(world, client_id, "Usable only with Pets");
         return;
     };
-    let npc_id = helpers::npc_id_of(world, pet_oid).unwrap_or(0);
+    let npc_id = npc::npc_id_of(world, pet_oid).unwrap_or(0);
     let Some((exp, max_fed)) = world.data.pet_data.get(npc_id).and_then(|t| {
         t.level_row(level)
             .map(|_| (t.exp_for_level(level), t.max_meal(level)))
@@ -827,7 +827,7 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
         send_message(world, client_id, "Usable only with Pets");
         return;
     };
-    let name = helpers::npc_name_or_empty(world, pet_oid);
+    let name = npc::npc_name_or_empty(world, pet_oid);
     // Java's `GMViewItemList(Pet)` ctor: `cha.getInventoryLimit()`, which for a
     // pet is `Config.INVENTORY_MAXIMUM_PET`.
     let limit = world.cfg.npc.inventory_maximum_pet as i32;

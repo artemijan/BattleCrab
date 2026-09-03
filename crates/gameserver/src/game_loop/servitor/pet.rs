@@ -10,8 +10,10 @@ use super::send_pet_info;
 use super::send_pet_item_list;
 use super::set_summon_link;
 use super::start_feed;
-use crate::game_loop::helpers;
+use crate::game_loop::character::inventory;
+use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{helpers, npc};
 
 use crate::model::components::ServitorOf;
 use crate::model::components::Vitals;
@@ -66,7 +68,7 @@ pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
         .map(|v| (v.cur_hp, v.cur_mp))
         .unwrap_or((0.0, 0.0));
     // Java stores `getName()`, which for an unnamed pet is the template name.
-    let name = helpers::npc_name_or_empty(world, pet_oid);
+    let name = npc::npc_name_or_empty(world, pet_oid);
     let row = crate::db::PetRow {
         collar_object_id: pet.collar_object_id,
         name,
@@ -126,7 +128,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
         .and_then(|p| p.pending_pet_collar.take())?;
 
     // The collar must still be in the owner's inventory (Java re-checks).
-    let collar_item_id = helpers::item_id_of(world, owner_oid, collar_object_id)?;
+    let collar_item_id = inventory::item_id_of(world, owner_oid, collar_object_id)?;
 
     let npc_id = world.data.pet_data.by_item_id(collar_item_id)?.npc_id;
 
@@ -477,7 +479,7 @@ fn pet_pickup_item(world: &mut World, pet_oid: i32, item_oid: i32) {
         );
         return;
     }
-    let Some(region) = helpers::region_cell_of(world, item_oid) else {
+    let Some(region) = position::region_cell_of(world, item_oid) else {
         return;
     };
     crate::game_loop::items::ground_items::despawn_ground_item(world, item_oid, region);

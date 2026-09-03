@@ -14,6 +14,7 @@
 //! or the skill unknown, so the panel self-cleans rather than accumulating
 //! dead entries.
 
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::hp_pair;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_to_client;
@@ -82,9 +83,7 @@ fn run_for_player(world: &mut World, player_oid: i32) {
 fn use_supply_items(world: &mut World, player_oid: i32) {
     let ids = setting_list(world, player_oid, |s| &s.supply_items);
     for item_id in ids {
-        let Some(item_object_id) =
-            crate::game_loop::helpers::carried_item(world, player_oid, item_id)
-        else {
+        let Some(item_object_id) = inventory::carried_item(world, player_oid, item_id) else {
             forget_item(world, player_oid, item_id);
             continue;
         };
@@ -121,8 +120,7 @@ fn use_potion(world: &mut World, player_oid: i32) {
     if item_id <= 0 {
         return;
     }
-    let Some(item_object_id) = crate::game_loop::helpers::carried_item(world, player_oid, item_id)
-    else {
+    let Some(item_object_id) = inventory::carried_item(world, player_oid, item_id) else {
         // `setAutoPotionItem(0)` — the slot empties itself.
         let mut s = settings(world, player_oid);
         s.potion_item = 0;

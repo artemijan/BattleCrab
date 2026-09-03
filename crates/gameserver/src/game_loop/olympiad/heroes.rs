@@ -6,6 +6,7 @@ use super::HERO_SOCIAL_ACTION;
 use crate::db::DbCommand;
 use crate::db::HeroRow;
 use crate::game_loop::helpers::send_to_client;
+use crate::game_loop::net::broadcast;
 use crate::model::Player;
 use crate::network::server_packets as sp;
 use crate::network::server_packets::SmParam;
@@ -97,7 +98,7 @@ pub(crate) fn claim_hero(world: &mut World, object_id: i32) {
 
     crate::game_loop::admin::hero::set_hero(world, object_id, true);
     // `broadcastPacket(new SocialAction(objectId, 20016))` — the hero animation.
-    crate::game_loop::helpers::broadcast_including_self(
+    broadcast::broadcast_including_self(
         world,
         object_id,
         &sp::social_action(object_id, HERO_SOCIAL_ACTION),

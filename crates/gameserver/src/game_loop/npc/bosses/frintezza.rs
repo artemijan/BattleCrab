@@ -14,10 +14,10 @@
 //! left is cosmetic: the exhaustive dummy-anchored `SpecialCamera` choreography
 //! is abbreviated throughout.
 
-use crate::game_loop::helpers;
 use crate::game_loop::space::position::maybe_position;
+use crate::game_loop::{helpers, skills};
 
-use crate::game_loop::space::instances;
+use crate::game_loop::space::{instances, position};
 use crate::model::components::{AdminFlags, Movement, Position};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -814,14 +814,14 @@ fn camera_packet(
 /// standing on.
 fn send_packet_x(world: &World, instance_id: i32, left: &[u8], right: &[u8], x: i32) {
     for member in instance_members(world, instance_id) {
-        let Some(client_id) = crate::game_loop::helpers::client_for_player(world, member) else {
+        let Some(client_id) = helpers::client_for_player(world, member) else {
             continue;
         };
         let west = world
             .objects
             .get_component::<Position>(&member)
             .is_some_and(|p| p.x < x);
-        crate::game_loop::helpers::send_to_client(
+        helpers::send_to_client(
             world,
             client_id,
             if west { left.to_vec() } else { right.to_vec() },
@@ -1114,7 +1114,7 @@ fn handle_fight_step_inner(world: &mut World, instance_id: i32, step: u8) {
                 .map(|p| (p.x, p.y, p.z, p.heading))
                 .unwrap_or(SCARLET_POS);
             if scarlet1 != 0 {
-                let region = helpers::region_cell_of(world, scarlet1).unwrap_or((0, 0));
+                let region = position::region_cell_of(world, scarlet1).unwrap_or((0, 0));
                 crate::game_loop::npc::despawn_npc(world, scarlet1, region);
             }
             if let Some(scarlet2) = spawn_frozen(world, instance_id, SCARLET2, x, y, z, h, true) {
@@ -1244,11 +1244,9 @@ fn play_song(world: &mut World, instance_id: i32) {
         // — the song's matching debuff lands on everyone (the animation above is
         // the 5007 half). Applied directly, since the cast is one-per-target.
         let level = n as i32 + 1;
-        if let Some(skill) = helpers::skill_by_id(world, SONG_EFFECT_SKILL, level) {
+        if let Some(skill) = skills::skill_by_id(world, SONG_EFFECT_SKILL, level) {
             for player in instance_members(world, instance_id) {
-                crate::game_loop::skills::effects::apply_skill_effects(
-                    world, frintezza, player, &skill,
-                );
+                skills::effects::apply_skill_effects(world, frintezza, player, &skill);
             }
         }
     }
@@ -1391,7 +1389,7 @@ pub(crate) fn handle_scarlet_skill(world: &mut World, instance_id: i32) {
     let (skill_id, level) = pick_daemon_skill(world, instance_id, npc_id);
     let range = skill_range(skill_id);
     if let Some(target) = pick_target_in_range(world, instance_id, scarlet, range)
-        && let Some(skill) = helpers::skill_by_id(world, skill_id, level)
+        && let Some(skill) = skills::skill_by_id(world, skill_id, level)
     {
         crate::game_loop::npc::cast::start_cast(world, scarlet, target, &skill);
     }

@@ -13,9 +13,8 @@ use super::schedule_expiry;
 use super::send_unread_count;
 /// Java's field caps (`RequestSendPost`).
 use crate::data::item_data::ADENA_ID;
-use crate::game_loop::helpers::send_inventory_item_list;
-use crate::game_loop::helpers::send_sm_to_player as send_sm;
-use crate::game_loop::helpers::send_to_player;
+use crate::game_loop::character::inventory;
+use crate::game_loop::helpers::{send_sm_to_player, send_to_player};
 use crate::model::Player;
 use crate::model::components::Trade;
 use crate::model::inventory::Inventory;
@@ -49,7 +48,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
 
     // --- guard chain, in Java's order ------------------------------------
     if !pkt.items.is_empty() && !in_peace_zone(world, player) {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::YOU_CANNOT_FORWARD_IN_A_NON_PEACE_ZONE_LOCATION,
@@ -58,7 +57,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
     if world.objects.has_component::<Trade>(&player) {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::YOU_CANNOT_FORWARD_DURING_AN_EXCHANGE,
@@ -71,7 +70,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
         .get_component::<Player>(&player)
         .is_some_and(|p| p.store_type != 0)
     {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::YOU_CANNOT_FORWARD_BECAUSE_THE_PRIVATE_STORE_OR_WORKSHOP_IS_IN_PROGRESS,
@@ -80,7 +79,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
     if pkt.receiver.chars().count() > MAX_RECEIVER_LENGTH {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::THE_ALLOWED_LENGTH_FOR_RECIPIENT_EXCEEDED,
@@ -93,7 +92,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     if pkt.subject.chars().count() > MAX_SUBJECT_LENGTH
         || pkt.text.chars().count() > MAX_TEXT_LENGTH
     {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::THE_ALLOWED_LENGTH_FOR_A_TITLE_EXCEEDED,
@@ -102,7 +101,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
     if pkt.items.len() > crate::network::client_packets::RequestSendPost::MAX_ATTACHMENTS {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::ITEM_SELECTION_IS_POSSIBLE_UP_TO_8,
@@ -115,7 +114,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     }
     if pkt.is_cod {
         if pkt.req_adena == 0 {
-            send_sm(
+            send_sm_to_player(
                 world,
                 player,
                 sm_ids::WHEN_NOT_ENTERING_THE_AMOUNT_FOR_THE_PAYMENT_REQUEST_YOU_CANNOT_SEND_ANY_MAIL,
@@ -124,7 +123,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
             return;
         }
         if pkt.items.is_empty() {
-            send_sm(
+            send_sm_to_player(
                 world,
                 player,
                 sm_ids::IT_S_A_PAYMENT_REQUEST_TRANSACTION_PLEASE_ATTACH_THE_ITEM,
@@ -135,7 +134,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     }
 
     let Some(receiver_id) = char_id_by_name(world, &pkt.receiver) else {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::WHEN_THE_RECIPIENT_DOESN_T_EXIST_SENDING_MAIL_IS_NOT_POSSIBLE,
@@ -144,7 +143,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     };
     if receiver_id == player {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::YOU_CANNOT_SEND_A_MAIL_TO_YOURSELF,
@@ -162,7 +161,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
         .get_component::<Player>(&receiver_id)
         .is_some_and(|p| p.is_gm(&world.data));
     if receiver_is_gm && !sender_is_gm {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::YOU_CANNOT_SEND_MAIL_TO_THE_GM_STAFF,
@@ -179,7 +178,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     // `isInBlockList` is what Java reaches for here precisely because the
     // receiver may be offline, where no such flag exists to read.
     if crate::game_loop::social::chat::block_list::is_in_block_list(world, receiver_id, player) {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::C1_HAS_BLOCKED_YOU_YOU_CANNOT_SEND_MAIL_TO_C1,
@@ -190,7 +189,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     if world.mail.outbox_size(player) >= crate::model::mail::MAILBOX_LIMIT
         || world.mail.inbox_size(receiver_id) >= crate::model::mail::MAILBOX_LIMIT
     {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::THE_MAIL_LIMIT_240_HAS_BEEN_EXCEEDED_AND_THIS_CANNOT_BE_FORWARDED,
@@ -242,7 +241,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
                         })
             });
         if !ok {
-            send_sm(
+            send_sm_to_player(
                 world,
                 player,
                 sm_ids::THE_ITEM_THAT_YOU_RE_TRYING_TO_SEND_CANNOT_BE_FORWARDED,
@@ -257,7 +256,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
         .get_component::<Inventory>(&player)
         .map_or(0, |inv| inv.adena());
     if adena - attached_adena < fee {
-        send_sm(
+        send_sm_to_player(
             world,
             player,
             sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA,
@@ -294,9 +293,9 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     schedule_expiry(world, message_id);
     // Re-send the full item list rather than a delta — a partial-stack move
     // creates a new object id, which an InventoryUpdate cannot express.
-    send_inventory_item_list(world, player);
+    inventory::send_inventory_item_list(world, player);
     send_to_player(world, player, server_packets::ex_notice_post_sent(true));
-    send_sm(world, player, sm_ids::MAIL_SUCCESSFULLY_SENT, &[]);
+    send_sm_to_player(world, player, sm_ids::MAIL_SUCCESSFULLY_SENT, &[]);
     // The recipient, if online, gets the chime and a fresh badge.
     send_to_player(
         world,

@@ -8,6 +8,7 @@
 //! `ON_CREATURE_DEATH` / `onSummonTalk`; this port has no summon-event
 //! registry, so each site calls in directly.
 
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::npc::Npc;
 use crate::network::server_packets;
@@ -114,5 +115,5 @@ fn say(world: &World, pet_oid: i32, npc_string_id: i32) {
         return;
     };
     let pkt = server_packets::npc_say(pet_oid, SIN_EATER, npc_string_id);
-    crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
+    broadcast::broadcast_near_region(world, region, &pkt);
 }

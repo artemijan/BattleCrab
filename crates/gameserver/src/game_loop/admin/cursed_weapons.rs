@@ -16,7 +16,7 @@
 //! cursed weapon at all — its only HP touch is the full heal on pickup.
 
 use crate::db::DbCommand;
-use crate::game_loop::helpers::{send_inventory_item_list, send_message, send_to_client};
+use crate::game_loop::helpers::{send_message, send_to_client};
 use crate::model::Player;
 use crate::model::components::Position;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -26,6 +26,7 @@ use crate::game_loop::combat::pvp::get_killer_rep_and_pk;
 use crate::game_loop::combat::target;
 // Re-exported rather than redefined: `cursed_weapon.rs` imports `now_millis`
 // from here alongside the rest of this module's surface.
+use crate::game_loop::character::inventory::send_inventory_item_list;
 pub(crate) use commons::util::now_millis;
 
 /// `CursedWeapon.saveData` — upsert this weapon's wielder row. Java calls it

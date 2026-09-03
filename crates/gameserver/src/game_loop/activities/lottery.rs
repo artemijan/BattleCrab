@@ -11,6 +11,7 @@ use commons::util::rnd;
 use tracing::info;
 
 use crate::db::DbCommand;
+use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::announce_to_all_online;
 use crate::game_loop::helpers::send_sm_bare_to_client as send_sm;
 use crate::game_loop::npc::npc_id_of;
@@ -511,7 +512,7 @@ fn buy_ticket(world: &mut World, client_id: u32, player: i32) -> Option<()> {
             &[SmParam::ItemName(TICKET_ITEM)],
         ),
     );
-    crate::game_loop::helpers::send_inventory_update(world, player, changes);
+    inventory::send_inventory_update(world, player, changes);
     Some(())
 }
 
@@ -591,7 +592,7 @@ fn claim_ticket(world: &mut World, client_id: u32, player: i32, item_oid: i32) {
     );
 
     let mut changes: Vec<ItemChange> =
-        crate::game_loop::helpers::remove_inventory_item_change(world, player, item_oid, 1)
+        inventory::remove_inventory_item_change(world, player, item_oid, 1)
             .into_iter()
             .collect();
     if prize > 0
@@ -602,7 +603,7 @@ fn claim_ticket(world: &mut World, client_id: u32, player: i32, item_oid: i32) {
     {
         changes.push(ItemChange::Modified(*it));
     }
-    crate::game_loop::helpers::send_inventory_update(world, player, changes);
+    inventory::send_inventory_update(world, player, changes);
 }
 
 fn picks(world: &World, player: i32) -> [i32; 5] {

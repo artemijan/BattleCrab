@@ -5,6 +5,7 @@ use super::QuestCtx;
 use super::load_quest_html;
 use crate::game_loop::helpers::client_for_player;
 use crate::game_loop::helpers::hp_fraction;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::cast;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::pos_of;
@@ -370,7 +371,7 @@ impl<'w> QuestCtx<'w> {
             return;
         };
         let pkt = server_packets::magic_skill_use_raw(caster, target, skill_id, level, hit_time);
-        crate::game_loop::helpers::broadcast_near_region(self.world, region, &pkt);
+        broadcast::broadcast_near_region(self.world, region, &pkt);
     }
 
     /// L2J's `Cast(npc, player, skillId, level)` — a purely visual self-cast
@@ -396,7 +397,7 @@ impl<'w> QuestCtx<'w> {
                     level,
                     6000,
                 );
-                crate::game_loop::helpers::broadcast_near_region(self.world, region, &pkt);
+                broadcast::broadcast_near_region(self.world, region, &pkt);
             }
         }
     }

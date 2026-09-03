@@ -20,8 +20,8 @@ use super::set_collision_grown;
 use super::stop_bot_report_punishment;
 use super::stop_fake_death;
 use crate::game_loop::abnormal::has_buff;
-use crate::game_loop::helpers;
 use crate::game_loop::moderation::bot_report;
+use crate::game_loop::{helpers, skills};
 
 use crate::model::components::Buffs;
 use crate::model::components::StatModifiers;
@@ -59,7 +59,7 @@ pub(crate) fn handle_dam_over_time_tick(
     if helpers::is_dead(world, target_oid) {
         return;
     }
-    let Some(skill) = helpers::skill_by_id(world, skill_id, skill_level) else {
+    let Some(skill) = skills::skill_by_id(world, skill_id, skill_level) else {
         return;
     };
     // Effector name for the damage message (`Player.sendDamageMessage`); empty
@@ -395,7 +395,7 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         let called = Skill {
             self_continuous: false,
             effects: end_effects,
-            ..helpers::skill_by_id(world, skill_id, 1).unwrap_or_default()
+            ..skills::skill_by_id(world, skill_id, 1).unwrap_or_default()
         };
         apply_skill_effects(world, player_object_id, player_object_id, &called);
     }
@@ -557,7 +557,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
         }
     }
     // `MagicMpCost.onExit` / `Reuse.onExit`.
-    if let Some(skill) = helpers::skill_by_id(
+    if let Some(skill) = skills::skill_by_id(
         world,
         skill_id,
         buff_level(world, player_object_id, skill_id),

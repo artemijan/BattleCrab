@@ -5,8 +5,9 @@ use crate::game_loop::combat::death::calculate_rewards;
 use crate::game_loop::combat::{pvp, target};
 use crate::game_loop::core_boss::CORE;
 use crate::game_loop::dr_chaos::CHAOS_GOLEM;
-use crate::game_loop::helpers::{broadcast_near_region_in, instance_of};
+use crate::game_loop::helpers::instance_of;
 use crate::game_loop::items::cursed_weapon;
+use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::{maybe_position, region_cell_of, set_position_heading};
 use crate::game_loop::space::visibility;
 use crate::game_loop::valakas::VALAKAS;
@@ -317,9 +318,9 @@ pub(crate) fn spawn_one(
     // which deliberately doesn't run this.
     // `SpawnTemplate.notifySpawnNpc` — the template's own `ai=` script
     // (`NoRandomActivity` pins its NPCs down).
-    self::spawn_scripts::apply_spawn_ai(world, oid, spawn_idx);
+    spawn_scripts::apply_spawn_ai(world, oid, spawn_idx);
     // `WalkingManager.onSpawn` — attach a walking route if this id has one.
-    crate::game_loop::npc::walkers::on_npc_spawn(world, oid, npc_id);
+    walkers::on_npc_spawn(world, oid, npc_id);
     // The escort lands in `world.minions_placed` inside `spawn_minion_group`
     // (the script-chosen named groups count themselves the same way).
     minions::spawn_minions(world, oid);
@@ -510,8 +511,8 @@ fn spawn_npc_entity(
         (
             npc,
             crate::model::components::Position { x, y, z, heading },
-            crate::model::components::RegionCell(region),
-            crate::model::components::Vitals {
+            RegionCell(region),
+            Vitals {
                 max_hp: max_hp as i32,
                 cur_hp: max_hp,
                 max_mp: max_mp as i32,
@@ -537,7 +538,7 @@ fn spawn_npc_entity(
     );
     // `onSpawn` hook (Java `Quest.notifySpawn` via `addSpawnId`) — fires for
     // the boot pass and every respawn alike.
-    crate::game_loop::quests::notify_spawn(world, object_id, npc_id);
+    quests::notify_spawn(world, object_id, npc_id);
     world.npcs_by_id.entry(npc_id).or_default().push(object_id);
     Some(object_id)
 }
@@ -704,14 +705,9 @@ fn announce_boss_spawn(world: &World, object_id: i32) {
         return; // Java: `if (name != null)`.
     }
     let text = format!("{} has spawned!", t.name);
-    let say = crate::network::server_packets::creature_say(
-        0,
-        crate::enums::ChatType::Announcement,
-        "",
-        &text,
-        None,
-    );
-    let screen = crate::network::server_packets::ex_show_screen_message(&text, 2, 5000);
+    let say =
+        server_packets::creature_say(0, crate::enums::ChatType::Announcement, "", &text, None);
+    let screen = server_packets::ex_show_screen_message(&text, 2, 5000);
     world.broadcast_to_all_online(&say);
     world.broadcast_to_all_online(&screen);
 }
@@ -722,7 +718,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     let (corpse_secs, max_hp) = {
         let Some((npc, mut vitals)) = world
             .objects
-            .get_many_mut::<(&mut crate::model::npc::Npc, &mut Vitals)>(&npc_oid)
+            .get_many_mut::<(&mut Npc, &mut Vitals)>(&npc_oid)
         else {
             return;
         };
@@ -757,10 +753,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
 
     // A grand boss dying: mark it dead, roll and persist its respawn window,
     // arm the timer. No-op for every other NPC.
-    if let Some(npc) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-    {
+    if let Some(npc) = world.objects.get_component::<Npc>(&npc_oid) {
         let npc_id = npc.npc_id;
         grand_boss::on_grand_boss_killed(world, npc_id);
         // Core's script-spawned minions: respawn one, or clear them all when
@@ -836,7 +829,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         if let Some(npc_id) = npc_id {
             // Quest kill credit also follows the acting player: a pet's kill
             // has to advance its owner's quest.
-            let quest_killer = crate::game_loop::combat::pvp::acting_player(world, killer_oid);
+            let quest_killer = pvp::acting_player(world, killer_oid);
             // Java's `isSummon`: the blow came from a pet/servitor, not the
             // player themselves.
             let is_summon = quest_killer != killer_oid;
@@ -850,7 +843,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // sliding toward its last `MoveToPawn` destination client-side, since the
     // client never learns the movement ended.
     if let Some(pos) = maybe_position(world, npc_oid) {
-        broadcast_near_region_in(
+        broadcast::broadcast_near_region_in(
             world,
             region,
             instance,
@@ -860,7 +853,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
 
     // `setCurrentHp(0)` broadcasts the final StatusUpdate before `Die` —
     // without it the target window keeps the last non-zero HP.
-    broadcast_near_region_in(
+    broadcast::broadcast_near_region_in(
         world,
         region,
         instance,
@@ -876,9 +869,9 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // tells the client its loot can still be swept.
     let sweepable = world
         .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .get_component::<Npc>(&npc_oid)
         .is_some_and(|n| n.spoiler_object_id != 0);
-    broadcast_near_region_in(
+    broadcast::broadcast_near_region_in(
         world,
         region,
         instance,
@@ -895,10 +888,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // target so corpse actions (sweep/spoil, looting) can act on it. The
     // selection is dropped only when the corpse decays; see `handle_npc_decay`.
     let decay_at = world.tick + corpse_secs.max(0) as u64 * 10;
-    if let Some(npc) = world
-        .objects
-        .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
-    {
+    if let Some(npc) = world.objects.get_component_mut::<Npc>(&npc_oid) {
         npc.decay_at_tick = decay_at;
     }
     world.scheduler.schedule(
@@ -937,11 +927,7 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     };
     // Gather the respawn bookkeeping before despawn (components drop with
     // the entity).
-    let Some(npc) = world
-        .objects
-        .get_component::<crate::model::npc::Npc>(&npc_oid)
-        .cloned()
-    else {
+    let Some(npc) = world.objects.get_component::<Npc>(&npc_oid).cloned() else {
         return;
     };
     // A `dbSave` boss's row is written from its *spawn* position, which the
@@ -1009,7 +995,7 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
         ids.retain(|&id| id != npc_oid);
     }
     target::release_target_holders(world, npc_oid);
-    broadcast_near_region_in(
+    broadcast::broadcast_near_region_in(
         world,
         region,
         instance,
@@ -1069,12 +1055,12 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
     let Some(old_region) = region_cell_of(world, npc_oid) else {
         return;
     };
-    let new_region = crate::world::region_of(x, y);
+    let new_region = region_of(x, y);
     // `decayMe()`: release every holder's selection, then un-spawn the NPC for
     // the players around its old position. NPCs hold no `TargetRef` here (an
     // NPC's "target" is its aggro list), so only players need the packet.
     target::release_target_holders(world, npc_oid);
-    broadcast_near_region_in(
+    broadcast::broadcast_near_region_in(
         world,
         old_region,
         instance_of(world, npc_oid),
@@ -1110,7 +1096,7 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
     let visuals = abnormal::visual_effects(world, object_id);
     let clan = visibility::npc_clan_block(world, object_id);
     let pkt = server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &visuals, clan);
-    broadcast_near_region_in(world, region, instance_of(world, object_id), &pkt);
+    broadcast::broadcast_near_region_in(world, region, instance_of(world, object_id), &pkt);
 }
 
 pub(crate) fn set_npc_title(world: &mut World, npc_oid: i32, name: String) {
@@ -1130,10 +1116,7 @@ pub(crate) fn set_npc_title(world: &mut World, npc_oid: i32, name: String) {
 /// The template is borrowed out of `world.data`, which is immutable after boot,
 /// so the returned reference lives as long as the `&World` rather than as long
 /// as the component lookup.
-pub(crate) fn npc_template(
-    world: &World,
-    object_id: i32,
-) -> Option<&crate::data::npc_data::NpcTemplate> {
+pub(crate) fn npc_template(world: &World, object_id: i32) -> Option<&NpcTemplate> {
     world
         .objects
         .get_component::<Npc>(&object_id)
@@ -1143,7 +1126,7 @@ pub(crate) fn npc_template(
 /// Java `Creature.isRaid()` — true only for a `RaidBoss`/`GrandBoss` NPC. A
 /// player, a door, or a plain monster is false, and so is a raid *minion*: Java
 /// tracks that separately as `isRaidMinion()`, which the port answers with
-/// [`crate::game_loop::npc::minions::is_raid_minion`]. Callers that gate on either
+/// [`minions::is_raid_minion`]. Callers that gate on either
 /// (most of the boss-immunity checks) have to ask both.
 pub(crate) fn is_raid_npc(world: &World, object_id: i32) -> bool {
     npc_template(world, object_id).is_some_and(|t| t.is_raid())

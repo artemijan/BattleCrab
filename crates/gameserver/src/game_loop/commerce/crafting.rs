@@ -16,10 +16,11 @@
 
 use crate::data::item_data::ADENA_ID;
 use crate::data::recipe_data::RecipeList;
-use crate::game_loop::helpers::is_dead;
-use crate::game_loop::helpers::player_name_or_empty;
-use crate::game_loop::helpers::{adena, player_of, send_inventory_item_list};
-use crate::game_loop::helpers::{send_to_client, send_to_player};
+use crate::game_loop::character::inventory;
+use crate::game_loop::helpers::{
+    is_dead, player_name_or_empty, player_of, send_to_client, send_to_player,
+};
+use crate::game_loop::net::broadcast;
 use crate::model::components;
 
 use crate::model::inventory::Inventory;
@@ -256,9 +257,9 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
 
     // Consume the recipe item + notify.
     if let Some(destroyed) =
-        crate::game_loop::helpers::remove_inventory_item_change(world, object_id, item_object_id, 1)
+        inventory::remove_inventory_item_change(world, object_id, item_object_id, 1)
     {
-        crate::game_loop::helpers::send_inventory_update(world, object_id, vec![destroyed]);
+        inventory::send_inventory_update(world, object_id, vec![destroyed]);
     }
     send(
         world,
@@ -322,7 +323,13 @@ pub(crate) fn open_manage(world: &mut World, client_id: u32) {
     send_to_client(
         world,
         client_id,
-        sp::recipe_shop_manage_list(oid, adena(world, oid) as i32, is_dwarven, &recipes, &store),
+        sp::recipe_shop_manage_list(
+            oid,
+            inventory::adena(world, oid) as i32,
+            is_dwarven,
+            &recipes,
+            &store,
+        ),
     );
 }
 
@@ -427,11 +434,7 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
     // wares, and `standUp` refuses while the store is open, so they stay put
     // until they close it.
     crate::game_loop::character::sit_stand::sit_down(world, oid);
-    crate::game_loop::helpers::broadcast_including_self(
-        world,
-        oid,
-        &sp::recipe_shop_msg(oid, &title),
-    );
+    broadcast::broadcast_including_self(world, oid, &sp::recipe_shop_msg(oid, &title));
     crate::game_loop::character::player_info::broadcast_user_info(world, oid);
 }
 
@@ -441,7 +444,7 @@ pub(crate) fn handle_manage_quit(world: &mut World, client_id: u32) {
         return;
     };
     set_store_type(world, oid, 0);
-    crate::game_loop::helpers::broadcast_including_self(world, oid, &sp::recipe_shop_msg(oid, ""));
+    broadcast::broadcast_including_self(world, oid, &sp::recipe_shop_msg(oid, ""));
     crate::game_loop::character::player_info::broadcast_user_info(world, oid);
     crate::game_loop::commerce::offline_trade::on_store_type_cleared(world, oid);
 }
@@ -456,7 +459,13 @@ pub(crate) fn open_sell_list(world: &mut World, client_id: u32, buyer: i32, manu
     send_to_client(
         world,
         client_id,
-        sp::recipe_shop_sell_list(manufacturer, cur_mp, max_mp, adena(world, buyer), &store),
+        sp::recipe_shop_sell_list(
+            manufacturer,
+            cur_mp,
+            max_mp,
+            inventory::adena(world, buyer),
+            &store,
+        ),
     );
 }
 
@@ -586,7 +595,7 @@ fn do_craft(
         return;
     }
     // Customer can afford the manufacture fee.
-    if crafter != customer && price > 0 && adena(world, customer) < price {
+    if crafter != customer && price > 0 && inventory::adena(world, customer) < price {
         sm_customer(world, sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]);
         abort(world);
         return;
@@ -849,7 +858,7 @@ pub(crate) fn handle_craft_pass(world: &mut World, crafter: i32) {
             .map(|p| (crafter, p.x, p.y, p.z))
             .unwrap_or((crafter, 0, 0, 0));
         let msu = sp::magic_skill_use_raw(pos, pos, skill_id, skill_level, delay_ms);
-        crate::game_loop::helpers::broadcast_including_self(world, crafter, &msu);
+        broadcast::broadcast_including_self(world, crafter, &msu);
         send_to_player(world, crafter, sp::setup_gauge(crafter, 0, delay_ms));
         world.scheduler.schedule(
             world.tick + 1 + crate::scheduler::ms_to_ticks(delay_ms),
@@ -996,9 +1005,9 @@ fn settle_and_reward(
         recipe.is_dwarven,
         success,
     );
-    send_inventory_item_list(world, customer);
+    inventory::send_inventory_item_list(world, customer);
     if crafter != customer && price > 0 {
-        send_inventory_item_list(world, crafter);
+        inventory::send_inventory_item_list(world, crafter);
     }
 }
 
