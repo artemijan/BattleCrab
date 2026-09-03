@@ -315,7 +315,7 @@ pub fn user_info(
     w.write_i16(UserInfoType::InventoryLimit.block_length() as i16);
     w.write_i16(0);
     w.write_i16(0);
-    w.write_i16(crate::model::finalize(
+    w.write_i16(crate::model::stat_finalize::finalize(
         v.mods,
         crate::model::stats::Stat::InventoryNormal,
         cfg.inventory_limit_for(p.race, p.is_gm(data)) as f64,

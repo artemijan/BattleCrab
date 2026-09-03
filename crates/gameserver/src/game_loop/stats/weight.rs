@@ -338,7 +338,7 @@ pub(crate) fn inventory_limit(world: &World, object_id: i32) -> i32 {
     else {
         return base;
     };
-    crate::model::finalize(
+    crate::model::stat_finalize::finalize(
         mods,
         crate::model::stats::Stat::InventoryNormal,
         base as f64,

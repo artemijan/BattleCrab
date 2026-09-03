@@ -294,6 +294,10 @@ fn consume_rate(world: &World, object_id: i32) -> f64 {
         .objects
         .get_component::<crate::model::components::StatModifiers>(&object_id)
         .map_or(1.0, |mods| {
-            crate::model::finalize(mods, crate::model::stats::Stat::VitalityConsumeRate, 1.0)
+            crate::model::stat_finalize::finalize(
+                mods,
+                crate::model::stats::Stat::VitalityConsumeRate,
+                1.0,
+            )
         })
 }

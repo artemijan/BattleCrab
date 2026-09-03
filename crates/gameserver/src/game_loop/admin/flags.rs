@@ -441,7 +441,8 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
         return;
     }
     let name = first.unwrap_or_default();
-    let Some(ave) = crate::model::skill::abnormal::abnormal_visual_client_id(&name.to_uppercase()) else {
+    let Some(ave) = crate::model::skill::abnormal::abnormal_visual_client_id(&name.to_uppercase())
+    else {
         helpers::send_message(
             world,
             client_id,

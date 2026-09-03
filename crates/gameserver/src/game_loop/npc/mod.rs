@@ -47,7 +47,7 @@ pub const FIRST_NPC_OBJECT_ID: i32 = 0x4000_0000;
 const RANDOM_HEADING_BOUND: i32 = 61794;
 
 /// `NpcStat`'s finalizer outputs for a template — the finalizer *bases* that
-/// [`crate::model::npc_finalized_stats`] then folds passive template skills and
+/// [`crate::model::npc_stats::npc_finalized_stats`] then folds passive template skills and
 /// buffs into (via `Stat.defaultValue`'s mul/add). Ports each Java finalizer:
 /// - `p_atk`: `PAttackFinalizer` — base × STR bonus × level mod (linear).
 /// - `m_atk`: `MAttackFinalizer` — base × (INT bonus × level mod)^2.2072 (a
@@ -438,11 +438,11 @@ fn spawn_npc_entity(
     // Finalize combat/speed/vitals from template base + passive template skills
     // (Java's `Creature` ctor copies `template.getSkills()` — HP Increase, Strong
     // P.Atk, …). Spawns at full HP/MP. No player buffs yet, so pass empty.
-    let (combat, speeds, max_hp, max_mp) = crate::model::npc_finalized_stats(
+    let (combat, speeds, max_hp, max_mp) = crate::model::npc_stats::npc_finalized_stats(
         &world.data,
         t,
         &crate::model::components::Buffs::default(),
-        crate::model::NpcStatMods::of(&world.cfg, champion, t.is_raid()),
+        crate::model::npc_stats::NpcStatMods::of(&world.cfg, champion, t.is_raid()),
     );
 
     // `Npc.onSpawn`: an NPC standing in a castle's TAX zone wears the owner

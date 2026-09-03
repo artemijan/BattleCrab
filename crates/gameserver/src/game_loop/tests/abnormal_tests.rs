@@ -9,9 +9,9 @@ use crate::game_loop::space::position::pos_of;
 use crate::game_loop::abnormal;
 use crate::game_loop::helpers::stat_add;
 use crate::model::components::{Buffs, Casting, Movement};
-use crate::model::skill::{Skill, effect_flag};
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
+use crate::model::skill::{Skill, effect_flag};
 
 const CASTER: i32 = 2001;
 const VICTIM: i32 = 2002;
@@ -3460,7 +3460,7 @@ fn focus_attack_grants_the_single_target_stat_and_gives_it_back() {
         world
             .objects
             .get_component::<model::components::StatModifiers>(&CASTER)
-            .map(|m| model::finalize(m, Stat::PhysicalPolearmTargetSingle, 0.0))
+            .map(|m| model::stat_finalize::finalize(m, Stat::PhysicalPolearmTargetSingle, 0.0))
             .unwrap_or(0.0)
     };
     assert_eq!(stat(&world), 0.0, "nothing before the toggle");

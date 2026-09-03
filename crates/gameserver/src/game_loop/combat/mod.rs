@@ -409,8 +409,8 @@ pub(crate) fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
     // happens after, in `calcShldUse` itself — not baked into the stat.
     let (def, rate) = match world.objects.get_component::<StatModifiers>(&object_id) {
         Some(mods) => (
-            crate::model::finalize(mods, Stat::ShieldDefence, def),
-            crate::model::finalize(mods, Stat::ShieldDefenceRate, rate),
+            crate::model::stat_finalize::finalize(mods, Stat::ShieldDefence, def),
+            crate::model::stat_finalize::finalize(mods, Stat::ShieldDefenceRate, rate),
         ),
         None => (def, rate),
     };

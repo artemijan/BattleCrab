@@ -451,7 +451,7 @@ fn a_physical_skill_casts_at_the_weapons_attack_speed() {
             .get_component::<crate::model::inventory::Inventory>(&oid)
             .expect("inventory");
         assert_eq!(
-            crate::model::weapon_base_stat(
+            crate::model::stat_finalize::weapon_base_stat(
                 inv,
                 &world.data,
                 crate::model::stats::Stat::PhysicalAttackSpeed
@@ -474,7 +474,7 @@ fn a_physical_skill_casts_at_the_weapons_attack_speed() {
             .objects
             .get_component::<crate::model::inventory::Inventory>(&oid)
             .expect("inventory");
-        crate::model::weapon_base_stat(
+        crate::model::stat_finalize::weapon_base_stat(
             inv,
             &world.data,
             crate::model::stats::Stat::PhysicalAttackSpeed,

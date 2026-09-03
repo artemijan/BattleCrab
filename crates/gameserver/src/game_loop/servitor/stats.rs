@@ -72,11 +72,11 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
     let (mut combat, mut speeds, max_hp, max_mp) =
         // A pet is a `Summon`, not an `Attackable`, so it can never be a
         // champion — neutral mods.
-        crate::model::npc_finalized_stats(
+        crate::model::npc_stats::npc_finalized_stats(
             &world.data,
             &petted,
             &buffs,
-            crate::model::NpcStatMods::default(),
+            crate::model::npc_stats::NpcStatMods::default(),
         );
 
     // A pet's worn armour adds to its defences. Java runs pets through the same

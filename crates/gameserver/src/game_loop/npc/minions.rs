@@ -232,7 +232,7 @@ fn clear_champion_for_raid_minion(world: &mut World, master_oid: i32, minion_oid
     // `setIsRaidMinion(true)` writes Java's `_isRaid`, the same field
     // `isRaid()` reads — so the escort keeps the raid stat multipliers even
     // though the spawn (which only saw the template) gave it none.
-    let mods = crate::model::NpcStatMods::of(&world.cfg, false, true);
+    let mods = crate::model::npc_stats::NpcStatMods::of(&world.cfg, false, true);
     if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
         &crate::model::components::Buffs,
         &mut crate::model::components::CombatStats,
@@ -240,7 +240,7 @@ fn clear_champion_for_raid_minion(world: &mut World, master_oid: i32, minion_oid
         &mut Vitals,
     )>(&minion_oid)
     {
-        crate::model::recompute_npc_stats_from_buffs(
+        crate::model::npc_stats::recompute_npc_stats_from_buffs(
             &world.data,
             &t,
             buffs,

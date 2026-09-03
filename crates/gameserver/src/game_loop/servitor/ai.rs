@@ -497,7 +497,8 @@ fn use_pet_skill(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32
         // skill still resolves onto the pet, exactly as the servitor path does.
         let target_oid = if matches!(
             skill.target_type,
-            crate::model::skill::target::TargetType::Self_ | crate::model::skill::target::TargetType::None_
+            crate::model::skill::target::TargetType::Self_
+                | crate::model::skill::target::TargetType::None_
         ) {
             pet_oid
         } else if skill.target_type == crate::model::skill::target::TargetType::OwnerPet {
@@ -559,7 +560,8 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
     // with "invalid target" when they had clicked nothing at all.
     let target_oid = if matches!(
         skill.target_type,
-        crate::model::skill::target::TargetType::Self_ | crate::model::skill::target::TargetType::None_
+        crate::model::skill::target::TargetType::Self_
+            | crate::model::skill::target::TargetType::None_
     ) {
         servitor_oid
     } else if skill.target_type == crate::model::skill::target::TargetType::OwnerPet {

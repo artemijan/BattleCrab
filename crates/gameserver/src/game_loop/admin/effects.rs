@@ -365,7 +365,8 @@ pub(super) fn admin_para(
     } else {
         "FLESH_STONE"
     };
-    let ave = crate::model::skill::abnormal::abnormal_visual_client_id(ave_name).expect("known AVE");
+    let ave =
+        crate::model::skill::abnormal::abnormal_visual_client_id(ave_name).expect("known AVE");
     let targets: Vec<i32> = if all {
         let Some(origin) = maybe_position(world, object_id) else {
             return;
@@ -402,7 +403,8 @@ pub(super) fn admin_para(
 
 /// `//bighead` / `//shrinkhead` — the BIG_HEAD abnormal visual on the target.
 pub(super) fn admin_bighead(world: &mut World, client_id: u32, object_id: i32, on: bool) {
-    let ave = crate::model::skill::abnormal::abnormal_visual_client_id("BIG_HEAD").expect("known AVE");
+    let ave =
+        crate::model::skill::abnormal::abnormal_visual_client_id("BIG_HEAD").expect("known AVE");
     let target = target::current(world, object_id).unwrap_or(object_id);
     set_admin_visual(world, target, ave, on);
     super::flags::push_admin_visuals(world, target);

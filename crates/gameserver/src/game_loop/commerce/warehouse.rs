@@ -305,7 +305,7 @@ fn warehouse_limit(world: &World, player_oid: i32, tgt: WhTarget) -> i32 {
                 world.cfg.character.warehouse_slots_no_dwarf
             };
             mods.map_or(base, |m| {
-                crate::model::finalize(
+                crate::model::stat_finalize::finalize(
                     m,
                     crate::model::stats::Stat::StoragePrivate,
                     f64::from(base),

@@ -489,11 +489,11 @@ mod tests {
             .npc_data
             .get(22109)
             .expect("22109 Male Spiked Stakato in datapack");
-        let (combat, _speeds, max_hp, max_mp) = crate::model::npc_finalized_stats(
+        let (combat, _speeds, max_hp, max_mp) = crate::model::npc_stats::npc_finalized_stats(
             &data,
             t,
             &crate::model::components::Buffs::default(),
-            crate::model::NpcStatMods::default(),
+            crate::model::npc_stats::NpcStatMods::default(),
         );
         // HP: 4× (skill 4408) × (2632 base × 1.58 CON bonus).
         assert_eq!(max_hp as i32, 16635, "max HP");

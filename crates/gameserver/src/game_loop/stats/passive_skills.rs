@@ -9,7 +9,7 @@
 //! non-robe armor).
 //!
 //! Enter-world folds these in up front (`Player::from_char` →
-//! [`crate::model::conditioned_passive_buffs`], so the first `UserInfo` already
+//! [`crate::model::equip_conditions::conditioned_passive_buffs`], so the first `UserInfo` already
 //! carries them). This runs afterward, on every equip/unequip, to re-evaluate
 //! the conditions as a robe is worn or removed — mirroring [`expertise`].
 //! No-op when the applicable set is unchanged; resends `UserInfo` when it flips.
@@ -86,9 +86,14 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
     let hp_percent = world
         .objects
         .get_component::<crate::model::components::Vitals>(&object_id)
-        .map(|v| crate::model::hp_percent_of(v.cur_hp, v.max_hp))
+        .map(|v| crate::model::max_vitals::hp_percent_of(v.cur_hp, v.max_hp))
         .unwrap_or(100);
-    let desired = crate::model::conditioned_passive_buffs(&world.data, book, inventory, hp_percent);
+    let desired = crate::model::equip_conditions::conditioned_passive_buffs(
+        &world.data,
+        book,
+        inventory,
+        hp_percent,
+    );
     let desired_pairs: Vec<(i32, Vec<StatModifierEffect>)> = desired
         .iter()
         .map(|b| (b.skill_id, b.effects.clone()))

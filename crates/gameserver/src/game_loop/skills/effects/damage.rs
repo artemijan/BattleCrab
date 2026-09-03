@@ -12,8 +12,8 @@ use crate::game_loop::{helpers, npc, skills};
 use crate::model::components;
 
 use crate::model::formulas;
-use crate::model::skill::active_buff::ActiveBuff;
 use crate::model::skill::Skill;
+use crate::model::skill::active_buff::ActiveBuff;
 use crate::model::skill::effects::SkillEffect;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -565,7 +565,7 @@ pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
 }
 
 /// Rebuild an NPC's combat stats from its template + current buffs (see
-/// `model::recompute_npc_stats_from_buffs`). `world.data` and `world.objects`
+/// `model::npc_stats::recompute_npc_stats_from_buffs`). `world.data` and `world.objects`
 /// are disjoint fields, so the template ref and the mutable component borrow
 /// coexist.
 pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
@@ -580,7 +580,7 @@ pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
     // one would quietly strip them back to the ordinary template values.
     // Same for the raid flag: a raid boss (or a raid boss's minion) recomputing
     // after a buff must keep its raid multipliers.
-    let champion_mods = crate::model::NpcStatMods::of(
+    let champion_mods = crate::model::npc_stats::NpcStatMods::of(
         &world.cfg,
         world
             .objects
@@ -595,7 +595,7 @@ pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
         &mut components::Vitals,
     )>(&target_oid)
     {
-        crate::model::recompute_npc_stats_from_buffs(
+        crate::model::npc_stats::recompute_npc_stats_from_buffs(
             &world.data,
             t,
             buffs,
@@ -633,9 +633,9 @@ pub(crate) fn recompute_max_vitals(world: &mut World, oid: i32) {
         };
         let inv = world.objects.get_component::<Inventory>(&oid);
         (
-            crate::model::calc_max_hp(&world.data, &t, level, inv, mods),
-            crate::model::calc_max_mp(&world.data, &t, level, inv, mods),
-            crate::model::calc_max_cp(&world.data, &t, level, mods),
+            crate::model::max_vitals::calc_max_hp(&world.data, &t, level, inv, mods),
+            crate::model::max_vitals::calc_max_mp(&world.data, &t, level, inv, mods),
+            crate::model::max_vitals::calc_max_cp(&world.data, &t, level, mods),
         )
     };
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {

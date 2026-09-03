@@ -11,8 +11,8 @@ use crate::game_loop::net::broadcast;
 use crate::game_loop::{helpers, npc};
 use crate::model::components::CombatStats;
 use crate::model::formulas;
-use crate::model::skill::effects::RestorationGroup;
 use crate::model::skill::Skill;
+use crate::model::skill::effects::RestorationGroup;
 use crate::network::server_packets;
 use crate::world::World;
 

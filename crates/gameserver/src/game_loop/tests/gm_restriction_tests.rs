@@ -10,8 +10,8 @@
 
 use super::*;
 use crate::game_loop::skills::conditions;
-use crate::model::skill::{AffectType, Skill};
 use crate::model::skill::condition::SkillCondition;
+use crate::model::skill::{AffectType, Skill};
 
 /// A GM access level from the real table.
 const GM_LEVEL: i32 = 100;

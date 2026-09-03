@@ -241,11 +241,11 @@ fn raid_multipliers_scale_only_raids_and_are_neutral_at_the_shipped_value() {
     t.base_hp_max = 10_000.0;
 
     let finalize = |cfg: &crate::config::CombatConfig, is_raid: bool| {
-        model::npc_finalized_stats(
+        model::npc_stats::npc_finalized_stats(
             &world.data,
             &t,
             &Buffs::default(),
-            model::NpcStatMods::of(cfg, false, is_raid),
+            model::npc_stats::NpcStatMods::of(cfg, false, is_raid),
         )
         .0
     };
@@ -287,13 +287,13 @@ fn champion_and_raid_multipliers_compose() {
     world.cfg.champion.enable = true;
     world.cfg.champion.atk = 3.0;
     world.cfg.npc.raid_p_atk_multiplier = 5.0;
-    let mods = model::NpcStatMods::of(&world.cfg, true, true);
+    let mods = model::npc_stats::NpcStatMods::of(&world.cfg, true, true);
     assert_eq!(mods.atk, 3.0);
     assert_eq!(mods.raid_p_atk, 5.0);
     // …and neither leaks into the other's case.
-    let champ_only = model::NpcStatMods::of(&world.cfg, true, false);
+    let champ_only = model::npc_stats::NpcStatMods::of(&world.cfg, true, false);
     assert_eq!(champ_only.raid_p_atk, 1.0);
-    let raid_only = model::NpcStatMods::of(&world.cfg, false, true);
+    let raid_only = model::npc_stats::NpcStatMods::of(&world.cfg, false, true);
     assert_eq!(raid_only.atk, 1.0);
 }
 

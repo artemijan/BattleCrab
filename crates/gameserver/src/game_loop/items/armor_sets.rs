@@ -10,7 +10,7 @@
 //!    the `SkillBook` is the right home and why the filter is unambiguous.
 //! 2. **Base stats.** `<stats>` adds flat STR/DEX/CON/INT/WIT/MEN, exactly as a
 //!    henna does, so [`set_stat_sums`] joins the henna sums wherever `BaseStats`
-//!    is composed ([`crate::model::compose_base_stats`]).
+//!    is composed ([`crate::model::stat_finalize::compose_base_stats`]).
 //! 3. **The min-enchant byte** in `UserInfo`/`CharInfo` ([`max_set_enchant`]),
 //!    which is what makes a +6 set glow.
 //!
@@ -214,10 +214,12 @@ fn stamp_equip_reuse(world: &mut World, oid: i32, granted: &[(i32, i32)]) {
             // Java: `!isBad() && !isTransformation()`. A passive can pass this
             // test in Java too — the stamp is simply never consulted for one.
             if skill.is_bad()
-                || skill
-                    .effects
-                    .iter()
-                    .any(|e| matches!(e, crate::model::skill::effects::SkillEffect::Transform { .. }))
+                || skill.effects.iter().any(|e| {
+                    matches!(
+                        e,
+                        crate::model::skill::effects::SkillEffect::Transform { .. }
+                    )
+                })
             {
                 return None;
             }
@@ -350,7 +352,7 @@ pub(crate) fn refresh_armor_sets(world: &mut World, oid: i32) {
 /// Returns whether the value actually moved, so the caller can skip a redundant
 /// stat recompute and `UserInfo`.
 fn refresh_set_base_stats(world: &mut World, oid: i32) -> bool {
-    let Some(new_base) = crate::model::compose_base_stats(world, oid) else {
+    let Some(new_base) = crate::model::stat_finalize::compose_base_stats(world, oid) else {
         return false;
     };
     let changed = world

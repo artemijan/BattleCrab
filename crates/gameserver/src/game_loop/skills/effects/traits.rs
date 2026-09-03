@@ -128,7 +128,11 @@ pub(crate) fn calc_general_trait_bonus(
 /// Java `getAttackTrait` — **1.0** for anyone without a matching `AttackTrait`
 /// buff (the table's identity), which is what makes the group-3 case read as
 /// the plain `1 − defence`.
-fn attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::traits::TraitType) -> f64 {
+fn attack_trait(
+    world: &World,
+    oid: i32,
+    trait_type: crate::model::skill::traits::TraitType,
+) -> f64 {
     world
         .objects
         .get_component::<crate::model::components::AttackTraits>(&oid)
@@ -139,7 +143,11 @@ fn attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::traits
 /// Java `hasAttackTrait` — membership, which is a *different* question from the
 /// value: an unbuffed attacker's value is 1.0 but `hasAttackTrait` is false, and
 /// the group-2 branch gates on the latter.
-fn has_attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::traits::TraitType) -> bool {
+fn has_attack_trait(
+    world: &World,
+    oid: i32,
+    trait_type: crate::model::skill::traits::TraitType,
+) -> bool {
     world
         .objects
         .get_component::<crate::model::components::AttackTraits>(&oid)
@@ -234,7 +242,7 @@ pub(crate) fn pvp_pve_bonus(
         world
             .objects
             .get_component::<StatModifiers>(&oid)
-            .map(|m| crate::model::finalize(m, stat, 1.0))
+            .map(|m| crate::model::stat_finalize::finalize(m, stat, 1.0))
             .unwrap_or(1.0)
     };
 

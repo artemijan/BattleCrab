@@ -142,17 +142,17 @@ fn champion_stat_multipliers_scale_attack_but_not_max_hp() {
     t.base_hp_max = 1000.0;
     world.data.npc_data.insert_for_test(t.clone());
 
-    let plain = model::npc_finalized_stats(
+    let plain = model::npc_stats::npc_finalized_stats(
         &world.data,
         &t,
         &Buffs::default(),
-        model::NpcStatMods::default(),
+        model::npc_stats::NpcStatMods::default(),
     );
-    let champ = model::npc_finalized_stats(
+    let champ = model::npc_stats::npc_finalized_stats(
         &world.data,
         &t,
         &Buffs::default(),
-        model::NpcStatMods::of(&world.cfg, true, false),
+        model::npc_stats::NpcStatMods::of(&world.cfg, true, false),
     );
 
     assert!(
@@ -189,8 +189,8 @@ fn a_stat_recompute_keeps_the_champion_multipliers() {
     t.base_p_atk = 100.0;
     world.data.npc_data.insert_for_test(t.clone());
 
-    let mods = model::NpcStatMods::of(&world.cfg, true, false);
-    let before = model::npc_finalized_stats(&world.data, &t, &Buffs::default(), mods);
+    let mods = model::npc_stats::NpcStatMods::of(&world.cfg, true, false);
+    let before = model::npc_stats::npc_finalized_stats(&world.data, &t, &Buffs::default(), mods);
 
     let mut combat = before.0;
     let mut speeds = before.1;
@@ -201,7 +201,7 @@ fn a_stat_recompute_keeps_the_champion_multipliers() {
         cur_mp: before.3,
         dead: false,
     };
-    model::recompute_npc_stats_from_buffs(
+    model::npc_stats::recompute_npc_stats_from_buffs(
         &world.data,
         &t,
         &Buffs::default(),
@@ -719,11 +719,11 @@ fn the_spawn_path_rolls_the_lottery_and_applies_the_multipliers() {
         .get_component::<CombatStats>(&oid)
         .expect("its stats")
         .p_atk;
-    let plain = model::npc_finalized_stats(
+    let plain = model::npc_stats::npc_finalized_stats(
         &world.data,
         &t,
         &Buffs::default(),
-        model::NpcStatMods::default(),
+        model::npc_stats::NpcStatMods::default(),
     )
     .0
     .p_atk;
@@ -783,19 +783,19 @@ fn npc_weapon_mastery_needs_the_template_weapon() {
     let mut bare = armed.clone();
     bare.rhand = 0;
 
-    let with_sword = model::npc_finalized_stats(
+    let with_sword = model::npc_stats::npc_finalized_stats(
         &world.data,
         &armed,
         &Buffs::default(),
-        model::NpcStatMods::default(),
+        model::npc_stats::NpcStatMods::default(),
     )
     .0
     .p_atk;
-    let barehanded = model::npc_finalized_stats(
+    let barehanded = model::npc_stats::npc_finalized_stats(
         &world.data,
         &bare,
         &Buffs::default(),
-        model::NpcStatMods::default(),
+        model::npc_stats::NpcStatMods::default(),
     )
     .0
     .p_atk;

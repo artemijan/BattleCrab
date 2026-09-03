@@ -658,14 +658,14 @@ async fn full_login_to_character_create() {
             .map(|(_, v)| *v)
             .sum()
     };
-    let expected_hp = (gameserver::model::calc_max_hp(
+    let expected_hp = (gameserver::model::max_vitals::calc_max_hp(
         &data,
         mystic,
         1,
         None,
         &gameserver::model::components::StatModifiers::default(),
     ) + gear_bonus(gameserver::model::stats::Stat::MaxHp)) as i32;
-    let expected_mp = (gameserver::model::calc_max_mp(
+    let expected_mp = (gameserver::model::max_vitals::calc_max_mp(
         &data,
         mystic,
         1,
@@ -686,7 +686,7 @@ async fn full_login_to_character_create() {
     );
     assert!(
         expected_mp
-            > gameserver::model::calc_max_mp(
+            > gameserver::model::max_vitals::calc_max_mp(
                 &data,
                 mystic,
                 1,

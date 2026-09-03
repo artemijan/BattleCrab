@@ -268,7 +268,10 @@ fn loads_real_dist_files() {
     // with a `Speed` PER -20% debuff, and the landing-rate inputs the
     // caster-feedback + resist roll read (`activateRate` 80, `lvlBonusRate` 30).
     let decrease_speed = sd.get(1160, 1).expect("Decrease Speed lvl 1");
-    assert!(decrease_speed.affect_scope == skill::target::AffectScope::Single && decrease_speed.is_bad());
+    assert!(
+        decrease_speed.affect_scope == skill::target::AffectScope::Single
+            && decrease_speed.is_bad()
+    );
     assert_eq!(decrease_speed.activate_rate, 80);
     assert_eq!(decrease_speed.lvl_bonus_rate, 30);
     // An area skill (`affectScope RANGE`) is not single-target.
@@ -280,7 +283,10 @@ fn loads_real_dist_files() {
     // sweep around the target, and a 5-12 target cap.
     let tempest = sd.get(1176, 1).expect("Tempest lvl 1");
     assert_eq!(tempest.affect_scope, skill::target::AffectScope::Range);
-    assert_eq!(tempest.affect_object, skill::target::AffectObject::NotFriend);
+    assert_eq!(
+        tempest.affect_object,
+        skill::target::AffectObject::NotFriend
+    );
     assert_eq!(tempest.affect_range, 200);
     assert_eq!(tempest.affect_limit, (5, 12));
     // `getAffectLimit()` is `min + Rnd.get(max)`, so the "5-12" above can
@@ -520,11 +526,12 @@ fn loads_real_dist_files() {
 
     // Warrior Bane 1350 / Mass Warrior Bane 1344 — probabilistic dispel.
     let bane = sd.get(1350, 1).expect("Warrior Bane lvl 1");
-    match bane
-        .effects
-        .iter()
-        .find(|e| matches!(e, skill::effects::SkillEffect::DispelBySlotProbability { .. }))
-    {
+    match bane.effects.iter().find(|e| {
+        matches!(
+            e,
+            skill::effects::SkillEffect::DispelBySlotProbability { .. }
+        )
+    }) {
         Some(skill::effects::SkillEffect::DispelBySlotProbability { dispel, rate }) => {
             assert_eq!(*rate, 80, "single-target Bane is 80%");
             assert!(dispel.contains(&"SPEED_UP".to_string()), "got {dispel:?}");
@@ -558,9 +565,15 @@ fn loads_real_dist_files() {
     // scope that centres on the *caster* rather than the target, which is
     // why its targetType is SELF even though it is an offensive skill.
     let thunder_storm = sd.get(48, 1).expect("Thunder Storm lvl 1");
-    assert_eq!(thunder_storm.affect_scope, skill::target::AffectScope::PointBlank);
+    assert_eq!(
+        thunder_storm.affect_scope,
+        skill::target::AffectScope::PointBlank
+    );
     assert_eq!(thunder_storm.target_type, skill::target::TargetType::Self_);
-    assert_eq!(thunder_storm.affect_object, skill::target::AffectObject::NotFriend);
+    assert_eq!(
+        thunder_storm.affect_object,
+        skill::target::AffectObject::NotFriend
+    );
     assert_eq!(thunder_storm.affect_range, 150);
     // ...and it is *also* a stun, so it exercises both G19 slices at once:
     // a caster-centred sweep that block-actions everything it catches.
@@ -794,7 +807,10 @@ fn loads_real_dist_files() {
     assert_eq!(sweeper.target_type, skill::target::TargetType::NpcBody);
     assert!(matches!(
         sweeper.effects.as_slice(),
-        [skill::effects::SkillEffect::Sweeper, skill::effects::SkillEffect::ConsumeBody]
+        [
+            skill::effects::SkillEffect::Sweeper,
+            skill::effects::SkillEffect::ConsumeBody
+        ]
     ));
 
     // Common Craft 1322 / Dwarven Craft 1321: self-target ability skills
@@ -1225,7 +1241,10 @@ fn hate_effects_parse_getagro_addhate_deletehate() {
     assert!(
         matches!(
             aggression.effects.as_slice(),
-            [skill::effects::SkillEffect::TargetMe, skill::effects::SkillEffect::GetAgro]
+            [
+                skill::effects::SkillEffect::TargetMe,
+                skill::effects::SkillEffect::GetAgro
+            ]
         ),
         "TargetMe + GetAgro, in datapack order: {:?}",
         aggression.effects

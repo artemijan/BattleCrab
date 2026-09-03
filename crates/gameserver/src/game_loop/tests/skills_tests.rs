@@ -5229,7 +5229,7 @@ fn enlarge_slot_expand_inventory_raises_reported_cap() {
     bare.race = 0; // human, not a dwarf
     let bare_bundle = Player::from_char(&world.data, &bare);
     let bare_view = bare_bundle.view();
-    let bare_limit = model::finalize(
+    let bare_limit = model::stat_finalize::finalize(
         bare_view.mods,
         Stat::InventoryNormal,
         cfg.inventory_limit(0) as f64,
@@ -5245,7 +5245,7 @@ fn enlarge_slot_expand_inventory_raises_reported_cap() {
     expanded.skills = vec![(1372, 3, 0)]; // Expand Inventory lvl3, real dist: +18
     let expanded_bundle = Player::from_char(&world.data, &expanded);
     let expanded_view = expanded_bundle.view();
-    let expanded_limit = model::finalize(
+    let expanded_limit = model::stat_finalize::finalize(
         expanded_view.mods,
         Stat::InventoryNormal,
         cfg.inventory_limit(0) as f64,

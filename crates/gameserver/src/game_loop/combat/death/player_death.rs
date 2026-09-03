@@ -233,7 +233,7 @@ fn reduce_exp_lost_mul(world: &World, player_oid: i32, killer_oid: Option<i32>) 
     world
         .objects
         .get_component::<StatModifiers>(&player_oid)
-        .map(|m| crate::model::finalize(m, stat, 1.0))
+        .map(|m| crate::model::stat_finalize::finalize(m, stat, 1.0))
         .unwrap_or(1.0)
 }
 

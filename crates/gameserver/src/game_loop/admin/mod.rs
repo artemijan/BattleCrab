@@ -1268,17 +1268,16 @@ fn send_skill_info(world: &mut World, client_id: u32, target: i32, name: &str) {
         .get_component::<ClanSkills>(&target)
         .map(|c| c.0.keys().copied().collect())
         .unwrap_or_default();
-    let rows: Vec<(i32, i32, bool, bool)> =
-        book.0
-            .iter()
-            .map(|(&id, &level)| {
-                let passive =
-                    world.data.skill_data.get(id, level).is_some_and(|s| {
-                        s.operate_type == crate::model::skill::target::OperateType::Passive
-                    });
-                (id, level, passive, clan_ids.contains(&id))
-            })
-            .collect();
+    let rows: Vec<(i32, i32, bool, bool)> = book
+        .0
+        .iter()
+        .map(|(&id, &level)| {
+            let passive = world.data.skill_data.get(id, level).is_some_and(|s| {
+                s.operate_type == crate::model::skill::target::OperateType::Passive
+            });
+            (id, level, passive, clan_ids.contains(&id))
+        })
+        .collect();
     // `clan != null && clan.getReputationScore() < 0` — a clan in reputation
     // debt has its granted skills greyed out in the GM's view.
     let clan_disabled = world

@@ -418,10 +418,20 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
             .get_or_base(player.class_id, player.base_class_id)
             .cloned()
             .unwrap_or_default();
-        vitals.max_hp =
-            crate::model::calc_max_hp(&world.data, &t, player.level, Some(inventory), mods) as i32;
-        vitals.max_mp =
-            crate::model::calc_max_mp(&world.data, &t, player.level, Some(inventory), mods) as i32;
+        vitals.max_hp = crate::model::max_vitals::calc_max_hp(
+            &world.data,
+            &t,
+            player.level,
+            Some(inventory),
+            mods,
+        ) as i32;
+        vitals.max_mp = crate::model::max_vitals::calc_max_mp(
+            &world.data,
+            &t,
+            player.level,
+            Some(inventory),
+            mods,
+        ) as i32;
         vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
     }

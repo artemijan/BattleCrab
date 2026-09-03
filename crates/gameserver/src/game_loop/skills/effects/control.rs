@@ -105,7 +105,7 @@ pub(crate) fn retarget_onto(world: &mut World, victim_oid: i32, new_target_oid: 
 /// Higher Mana Gain 285 (`mode=DIFF`, +22..81 by level) is a flat addition.
 ///
 /// The order was already right here; routing it through
-/// [`crate::model::finalize`] (which *is* `Stat.defaultValue`) rather than
+/// [`crate::model::stat_finalize::finalize`] (which *is* `Stat.defaultValue`) rather than
 /// respelling it also picks up the `//setparam` fixed-value short-circuit that
 /// `getValue` checks first and this function did not.
 pub(crate) fn mana_charge_of(world: &World, target_oid: i32, amount: f64) -> f64 {
@@ -113,7 +113,7 @@ pub(crate) fn mana_charge_of(world: &World, target_oid: i32, amount: f64) -> f64
     let Some(mods) = world.objects.get_component::<StatModifiers>(&target_oid) else {
         return amount;
     };
-    crate::model::finalize(mods, Stat::ManaCharge, amount)
+    crate::model::stat_finalize::finalize(mods, Stat::ManaCharge, amount)
 }
 
 /// `ManaHealByLevel`'s recharge penalty: a target more than 5 levels above the

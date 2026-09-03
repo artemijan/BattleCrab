@@ -526,7 +526,9 @@ pub(super) fn admin_viewblockedeffects(world: &mut World, client_id: u32, object
         for b in buffs.0.iter() {
             if let Some(skill) = world.data.skill_data.get(b.skill_id, b.skill_level) {
                 for eff in &skill.effects {
-                    if let crate::model::skill::effects::SkillEffect::BlockAbnormalSlot { slots } = eff {
+                    if let crate::model::skill::effects::SkillEffect::BlockAbnormalSlot { slots } =
+                        eff
+                    {
                         blocked.extend(slots.iter().cloned());
                     }
                 }

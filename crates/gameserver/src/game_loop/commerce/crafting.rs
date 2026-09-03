@@ -203,7 +203,7 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
             .objects
             .get_component::<components::StatModifiers>(&object_id)
         {
-            Some(mods) => crate::model::finalize(mods, stat, base as f64) as i32,
+            Some(mods) => crate::model::stat_finalize::finalize(mods, stat, base as f64) as i32,
             None => base,
         };
         (limit, len)

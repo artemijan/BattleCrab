@@ -58,7 +58,7 @@ pub(crate) const BREATH_BASE_MS: u64 = 60_000;
 /// computes exactly that, so it is ported as written
 /// ([[l2r-port-behaviour-not-intent]]) rather than "corrected" into seconds.
 ///
-/// Now routed through [`crate::model::finalize`], which *is*
+/// Now routed through [`crate::model::stat_finalize::finalize`], which *is*
 /// `Stat.defaultValue` and was sitting there the whole time — including the
 /// `//setparam` fixed-value short-circuit this function never honoured.
 pub(crate) fn breath_ms(world: &World, object_id: i32) -> u64 {
@@ -69,7 +69,7 @@ pub(crate) fn breath_ms(world: &World, object_id: i32) -> u64 {
     else {
         return BREATH_BASE_MS;
     };
-    crate::model::finalize(mods, Stat::Breath, BREATH_BASE_MS as f64).max(0.0) as u64
+    crate::model::stat_finalize::finalize(mods, Stat::Breath, BREATH_BASE_MS as f64).max(0.0) as u64
 }
 
 /// The 1 s period of `scheduleAtFixedRate(…, timeinwater, 1000)`, in game ticks.

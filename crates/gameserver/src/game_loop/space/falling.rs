@@ -66,7 +66,7 @@ const DAMAGE_DELAY_TICKS: u64 = 15;
 /// `DIFF -60` / `-100`, so it lands entirely in `add` and takes a flat 60 or
 /// 100 off the damage.
 ///
-/// [`crate::model::finalize`] **is** `Stat.defaultValue` — the same arithmetic
+/// [`crate::model::stat_finalize::finalize`] **is** `Stat.defaultValue` — the same arithmetic
 /// plus the `//setparam` fixed-value short-circuit — so this defers to it
 /// rather than spelling the maths out a second time.
 ///
@@ -88,7 +88,7 @@ pub(crate) fn calc_fall_dam(world: &World, object_id: i32, fall_height: i32) -> 
         .objects
         .get_component::<crate::model::components::StatModifiers>(&object_id)
     {
-        Some(mods) => crate::model::finalize(mods, Stat::Fall, base),
+        Some(mods) => crate::model::stat_finalize::finalize(mods, Stat::Fall, base),
         None => base,
     }
 }

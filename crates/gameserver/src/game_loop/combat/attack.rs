@@ -423,7 +423,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
         .objects
         .get_component::<crate::model::components::StatModifiers>(&attacker_oid)
         .map(|m| {
-            crate::model::finalize(
+            crate::model::stat_finalize::finalize(
                 m,
                 crate::model::stats::Stat::PhysicalPolearmTargetSingle,
                 0.0,

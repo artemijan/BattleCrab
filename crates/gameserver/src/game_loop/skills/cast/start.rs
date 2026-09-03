@@ -15,8 +15,8 @@ use crate::model::components::Position;
 use crate::model::components::QueuedAction;
 use crate::model::components::Vitals;
 use crate::model::formulas;
-use crate::model::skill::target::OperateType;
 use crate::model::skill::Skill;
+use crate::model::skill::target::OperateType;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::scheduler::ms_to_ticks;
@@ -69,7 +69,7 @@ pub(crate) fn start_casting(
         .objects
         .get_component::<crate::model::inventory::Inventory>(&object_id)
         .and_then(|inv| {
-            crate::model::weapon_base_stat(
+            crate::model::stat_finalize::weapon_base_stat(
                 inv,
                 &world.data,
                 crate::model::stats::Stat::PhysicalAttackSpeed,

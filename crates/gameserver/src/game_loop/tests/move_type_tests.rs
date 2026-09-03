@@ -261,7 +261,7 @@ fn move_type_effects_route_to_their_own_map() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
 
     let mut mods = StatModifiers::default();
-    model::apply_modifier(
+    model::stat_finalize::apply_modifier(
         &mut mods,
         &StatModifierEffect {
             stat: Stat::RegenerateHpRate,

@@ -110,7 +110,7 @@ pub(crate) fn refresh_one(world: &mut World, object_id: i32, night: bool) -> boo
         mods.by_position.clear();
         for b in &buffs.0 {
             for effect in &b.effects {
-                crate::model::apply_modifier(&mut mods, effect);
+                crate::model::stat_finalize::apply_modifier(&mut mods, effect);
             }
         }
         player.recalculate_stats(

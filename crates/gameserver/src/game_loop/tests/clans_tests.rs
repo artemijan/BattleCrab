@@ -1195,9 +1195,9 @@ fn max_vitals_finalizers_apply_buff_modifiers() {
     let mp_base = t.base_mp_max(80) * world.data.stat_bonus.men_bonus(t.base_men);
     let cp_base = t.base_cp_max(80) * world.data.stat_bonus.con_bonus(t.base_con);
 
-    let hp = model::calc_max_hp(&world.data, &t, 80, None, &mods);
-    let mp = model::calc_max_mp(&world.data, &t, 80, None, &mods);
-    let cp = model::calc_max_cp(&world.data, &t, 80, &mods);
+    let hp = model::max_vitals::calc_max_hp(&world.data, &t, 80, None, &mods);
+    let mp = model::max_vitals::calc_max_mp(&world.data, &t, 80, None, &mods);
+    let cp = model::max_vitals::calc_max_cp(&world.data, &t, 80, &mods);
     assert!(
         (hp - (1.5 * hp_base + 100.0)).abs() < 1e-6,
         "MaxHp = mul*base + add"
@@ -1206,7 +1206,9 @@ fn max_vitals_finalizers_apply_buff_modifiers() {
     assert!((cp - (1.2 * cp_base)).abs() < 1e-6, "MaxCp = mul*base");
     // Empty mods leave the base untouched (mul=1, add=0).
     let none = StatModifiers::default();
-    assert!((model::calc_max_hp(&world.data, &t, 80, None, &none) - hp_base).abs() < 1e-6);
+    assert!(
+        (model::max_vitals::calc_max_hp(&world.data, &t, 80, None, &none) - hp_base).abs() < 1e-6
+    );
 }
 
 /// The admin `//superhaste 4` case (Super Haste 7029 L4, a toggle): its
@@ -1267,7 +1269,8 @@ fn passive_max_mp_skill_boosts_mp_at_login() {
     world.data.skill_data.insert_for_test(s);
 
     let t = world.data.player_templates.get(0).cloned().unwrap();
-    let base_mp = model::calc_max_mp(&world.data, &t, 1, None, &StatModifiers::default());
+    let base_mp =
+        model::max_vitals::calc_max_mp(&world.data, &t, 1, None, &StatModifiers::default());
 
     let mut chr = dummy_char(7001, "Mage");
     chr.skills = vec![(9001, 1, 0)];
@@ -1357,9 +1360,9 @@ fn clan_skills_move_max_hp_mp_cp() {
         let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
         let none = StatModifiers::default();
         (
-            model::calc_max_hp(&world.data, &t, p.level, Some(inv), &none),
-            model::calc_max_mp(&world.data, &t, p.level, Some(inv), &none),
-            model::calc_max_cp(&world.data, &t, p.level, &none),
+            model::max_vitals::calc_max_hp(&world.data, &t, p.level, Some(inv), &none),
+            model::max_vitals::calc_max_mp(&world.data, &t, p.level, Some(inv), &none),
+            model::max_vitals::calc_max_cp(&world.data, &t, p.level, &none),
         )
     };
 

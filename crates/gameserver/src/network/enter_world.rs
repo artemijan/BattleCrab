@@ -187,8 +187,8 @@ pub fn skill_list(
     w.write_i32(merged.len() as i32);
     for (&skill_id, &level) in &merged {
         let skill = data.skill_data.get(skill_id, level);
-        let passive =
-            skill.is_some_and(|s| s.operate_type == crate::model::skill::target::OperateType::Passive);
+        let passive = skill
+            .is_some_and(|s| s.operate_type == crate::model::skill::target::OperateType::Passive);
         w.write_i32(passive as i32);
         w.write_i16(level as i16);
         // The enchant sub-level (1001–3020) — how the client shows the +N.
@@ -662,7 +662,9 @@ pub fn ex_storage_max_count(
 ) -> Vec<u8> {
     use crate::model::stats::Stat;
     let is_dwarf = race == crate::enums::Race::Dwarf as i32;
-    let f = |stat: Stat, base: i32| crate::model::finalize(mods, stat, base as f64) as i32;
+    let f = |stat: Stat, base: i32| {
+        crate::model::stat_finalize::finalize(mods, stat, base as f64) as i32
+    };
     let mut w = ex(0x2F);
     w.write_i32(f(
         Stat::InventoryNormal,

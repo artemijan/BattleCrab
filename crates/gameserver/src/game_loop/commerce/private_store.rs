@@ -109,7 +109,7 @@ fn store_slot_limit(world: &World, owner: i32, sell: bool) -> usize {
         .objects
         .get_component::<crate::model::components::StatModifiers>(&owner)
         .map_or(base, |m| {
-            crate::model::finalize(m, stat, f64::from(base)) as i32
+            crate::model::stat_finalize::finalize(m, stat, f64::from(base)) as i32
         })
         .max(0) as usize
 }

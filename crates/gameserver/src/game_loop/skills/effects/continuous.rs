@@ -18,10 +18,10 @@ use crate::game_loop::{helpers, skills};
 
 use crate::model::components::Buffs;
 use crate::model::formulas;
-use crate::model::skill::active_buff::ActiveBuff;
 use crate::model::skill::Skill;
-use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::abnormal::abnormal_type_client_id;
+use crate::model::skill::active_buff::ActiveBuff;
+use crate::model::skill::effects::SkillEffect;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -378,7 +378,8 @@ pub(crate) fn apply_continuous_effects(
     // instant-only debuff does not accrue; `increase_resist_level` filters the
     // `NONE` property and the can't-accrue targets (every player on this dist).
     if skill.is_debuff
-        && (skill.is_continuous || skill.operate_type == crate::model::skill::target::OperateType::Toggle)
+        && (skill.is_continuous
+            || skill.operate_type == crate::model::skill::target::OperateType::Toggle)
     {
         crate::game_loop::stats::basic_property::increase_resist_level(
             world,

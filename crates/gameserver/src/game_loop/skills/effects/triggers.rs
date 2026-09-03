@@ -296,7 +296,7 @@ fn attacker_weapon_allowed(world: &World, attacker_oid: i32, mask: u32) -> bool 
     else {
         return false;
     };
-    crate::model::weapon_condition_passes(mask, inv, &world.data.item_data)
+    crate::model::equip_conditions::weapon_condition_passes(mask, inv, &world.data.item_data)
 }
 
 /// The augment **activation** skills — Java's `_triggerSkills` map, checked at

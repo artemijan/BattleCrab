@@ -7,8 +7,8 @@ use super::handle_buff_expire;
 use crate::game_loop::helpers::is_dead;
 use crate::model::components::StatModifiers;
 use crate::model::skill::BuffSlot;
-use crate::model::skill::effects::DispelSlot;
 use crate::model::skill::Skill;
+use crate::model::skill::effects::DispelSlot;
 use crate::world::World;
 /// `DispelBySlotMyself.instant` — same shape as `DispelBySlot` with two
 /// differences that both matter: the list carries **no levels** (every level
@@ -100,7 +100,11 @@ pub(crate) fn dispel_by_category(
                 .objects
                 .get_component::<StatModifiers>(&target_oid)
                 .map(|m| {
-                    crate::model::finalize(m, crate::model::stats::Stat::ResistDispelBuff, 1.0)
+                    crate::model::stat_finalize::finalize(
+                        m,
+                        crate::model::stats::Stat::ResistDispelBuff,
+                        1.0,
+                    )
                 })
                 .unwrap_or(1.0);
             for want in [BuffSlot::Dance, BuffSlot::Buff] {

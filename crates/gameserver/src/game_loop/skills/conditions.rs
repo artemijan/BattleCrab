@@ -123,7 +123,7 @@ pub(crate) fn check_cast(
 /// count right now.
 ///
 /// The passive scope is evaluated from the **stat pipeline**, not the cast
-/// path, and that pipeline (`model::conditioned_passive_buffs`) runs on
+/// path, and that pipeline (`model::equip_conditions::conditioned_passive_buffs`) runs on
 /// `GameData` + the player's `Inventory` alone, with no `World` in reach: it is
 /// called from `Player::from_char` at enter-world, before the object exists.
 /// So the passive gate answers only the equipment conditions, which is all the
@@ -245,8 +245,10 @@ fn eval(
         // loop, so a listed weapon held in the wrong number of hands fails
         // rather than falling through to another entry. With a mask the two
         // are equivalent: match the type, then test the hand count.
-        skill::condition::SkillCondition::HandedWeapon { mask, two_handed } => ok(weapon_mask(world, caster)
-            .is_some_and(|(equipped, lr_hand)| equipped & mask != 0 && lr_hand == *two_handed)),
+        skill::condition::SkillCondition::HandedWeapon { mask, two_handed } => {
+            ok(weapon_mask(world, caster)
+                .is_some_and(|(equipped, lr_hand)| equipped & mask != 0 && lr_hand == *two_handed))
+        }
         // ---- caster resources --------------------------------------------
         skill::condition::SkillCondition::Encumbered {
             weight_percent,
@@ -270,7 +272,9 @@ fn eval(
                 vital_percent(world, oid, *vital).is_some_and(|cur| percent.test(cur, *amount))
             }))
         }
-        skill::condition::SkillCondition::EnergySaved { amount } => ok(charges(world, caster) >= *amount),
+        skill::condition::SkillCondition::EnergySaved { amount } => {
+            ok(charges(world, caster) >= *amount)
+        }
         // The inverse, and the one with its own message: refuse *at* the cap.
         skill::condition::SkillCondition::EnergyMax { amount } => {
             if charges(world, caster) >= *amount {
@@ -282,9 +286,15 @@ fn eval(
             }
         }
         // ---- caster state -------------------------------------------------
-        skill::condition::SkillCondition::CanEscape => ok(!super::abnormal::cannot_escape(world, caster)),
-        skill::condition::SkillCondition::InsideSiegeZone => ok(in_zone(world, caster, ZoneKind::Siege)),
-        skill::condition::SkillCondition::NotInUnderwater => ok(!in_zone(world, caster, ZoneKind::Water)),
+        skill::condition::SkillCondition::CanEscape => {
+            ok(!super::abnormal::cannot_escape(world, caster))
+        }
+        skill::condition::SkillCondition::InsideSiegeZone => {
+            ok(in_zone(world, caster, ZoneKind::Siege))
+        }
+        skill::condition::SkillCondition::NotInUnderwater => {
+            ok(!in_zone(world, caster, ZoneKind::Water))
+        }
         skill::condition::SkillCondition::Mounted { kind } => {
             let want = match kind {
                 skill::MountKind::Strider => MOUNT_STRIDER,
@@ -345,14 +355,15 @@ fn eval(
         skill::condition::SkillCondition::CanSummonCubic => {
             ok(!helpers::is_dead(world, caster) && can_summon(world, caster))
         }
-        skill::condition::SkillCondition::CanSummonSiegeGolem | skill::condition::SkillCondition::BuildCamp => {
-            ok(siege_deployable(world, caster))
-        }
+        skill::condition::SkillCondition::CanSummonSiegeGolem
+        | skill::condition::SkillCondition::BuildCamp => ok(siege_deployable(world, caster)),
         skill::condition::SkillCondition::CallPc => call_pc(world, caster),
         skill::condition::SkillCondition::CanUntransform => can_untransform(world, caster),
         // ---- target state --------------------------------------------------
         skill::condition::SkillCondition::TargetPc => ok(is_player(world, target)),
-        skill::condition::SkillCondition::TargetRace { race } => ok(race_of(world, target) == Some(*race)),
+        skill::condition::SkillCondition::TargetRace { race } => {
+            ok(race_of(world, target) == Some(*race))
+        }
         skill::condition::SkillCondition::TargetMyParty { include_me } => {
             ok(target_in_my_party(world, caster, target, *include_me))
         }
@@ -363,7 +374,9 @@ fn eval(
                 Err(Refusal(Some(RefusalLine::Sm(sm_ids::INVALID_TARGET))))
             }
         }
-        skill::condition::SkillCondition::Unlock => ok(is_door(world, target) || is_chest(world, target)),
+        skill::condition::SkillCondition::Unlock => {
+            ok(is_door(world, target) || is_chest(world, target))
+        }
         skill::condition::SkillCondition::Resurrection => resurrection(world, caster, target),
         skill::condition::SkillCondition::SkillAcquire {
             skill_id,
@@ -385,7 +398,9 @@ fn eval(
             ok(at_level == *has_learned)
         }
         // ---- residences ----------------------------------------------------
-        skill::condition::SkillCondition::Home { residence } => ok(owns_residence(world, caster, *residence)),
+        skill::condition::SkillCondition::Home { residence } => {
+            ok(owns_residence(world, caster, *residence))
+        }
         // ---- target identity -----------------------------------------------
         skill::condition::SkillCondition::TargetDoor { door_ids } => {
             ok(is_door(world, target) && door_ids.contains(&template_id_of(world, target)))

@@ -110,11 +110,12 @@ fn absorb_damage_to_hp(
     let Some(mods) = world.objects.get_component::<StatModifiers>(&attacker) else {
         return;
     };
-    let absorb_percent = crate::model::finalize(mods, Stat::AbsorbDamagePercent, 0.0);
+    let absorb_percent =
+        crate::model::stat_finalize::finalize(mods, Stat::AbsorbDamagePercent, 0.0);
     if absorb_percent <= 0.0 {
         return;
     }
-    let vampiric_sum = crate::model::finalize(mods, Stat::VampiricSum, 0.0);
+    let vampiric_sum = crate::model::stat_finalize::finalize(mods, Stat::VampiricSum, 0.0);
     // `VampiricChanceFinalizer`: `min(1, vampiricSum / (absorbPercent·100) / 100)`.
     let chance = (vampiric_sum / (absorb_percent * 100.0) / 100.0).min(1.0);
     if world.roll_f64() >= chance {
@@ -151,7 +152,7 @@ fn absorb_damage_to_hp(
     // spawned (Queen Shyeed, Plague Golem, Flamestone Giant, Uruka). See
     // [`Stat::AbsorbDamageDefence`] for why a "resistance" makes the target
     // *better* to drain — that direction is Java's, not a porting slip.
-    absorbed *= crate::model::finalize(
+    absorbed *= crate::model::stat_finalize::finalize(
         world
             .objects
             .get_component::<StatModifiers>(&target)
@@ -202,11 +203,12 @@ fn absorb_damage_to_mp(
     let Some(mods) = world.objects.get_component::<StatModifiers>(&attacker) else {
         return;
     };
-    let absorb_percent = crate::model::finalize(mods, Stat::AbsorbManaDamagePercent, 0.0);
+    let absorb_percent =
+        crate::model::stat_finalize::finalize(mods, Stat::AbsorbManaDamagePercent, 0.0);
     if absorb_percent <= 0.0 {
         return;
     }
-    let vampiric_sum = crate::model::finalize(mods, Stat::MpVampiricSum, 0.0);
+    let vampiric_sum = crate::model::stat_finalize::finalize(mods, Stat::MpVampiricSum, 0.0);
     // `MpVampiricChanceFinalizer`: `min(1, sum / (percent·100) / 100)`.
     let chance = (vampiric_sum / (absorb_percent * 100.0) / 100.0).min(1.0);
     if world.roll_f64() >= chance {
@@ -270,7 +272,7 @@ fn reflect_damage(
     let Some(mods) = world.objects.get_component::<StatModifiers>(&target) else {
         return;
     };
-    let percent = crate::model::finalize(mods, Stat::ReflectDamagePercent, 0.0);
+    let percent = crate::model::stat_finalize::finalize(mods, Stat::ReflectDamagePercent, 0.0);
     // Java subtracts the *attacker's* `REFLECT_DAMAGE_PERCENT_DEFENSE` before
     // the clamp; no skill on this dist grants it, so it is the 0 default.
     let percent = percent.min(limit);

@@ -239,7 +239,7 @@ fn position_qualified_stats_multiply_from_one() {
         "absent reads as 1.0, not 0.0"
     );
 
-    model::apply_modifier(
+    model::stat_finalize::apply_modifier(
         &mut mods,
         &model::skill::effects::StatModifierEffect {
             stat: Stat::CriticalDamage,
@@ -336,7 +336,7 @@ fn focus_death_penalises_frontal_crits_and_rewards_backstabs() {
     let mut mods = StatModifiers::default();
     for e in &skills.get(355, 1).unwrap().effects {
         if let SkillEffect::StatModifier(m) = e {
-            model::apply_modifier(&mut mods, m);
+            model::stat_finalize::apply_modifier(&mut mods, m);
         }
     }
     assert!(

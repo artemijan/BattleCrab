@@ -268,7 +268,7 @@ pub(crate) fn max_recoverable(
     world
         .objects
         .get_component::<StatModifiers>(&object_id)
-        .map(|m| crate::model::finalize(m, stat, base))
+        .map(|m| crate::model::stat_finalize::finalize(m, stat, base))
         .unwrap_or(base)
 }
 

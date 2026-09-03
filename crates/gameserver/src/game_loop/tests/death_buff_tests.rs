@@ -5,9 +5,9 @@ use super::*;
 use crate::game_loop::abnormal;
 use crate::game_loop::combat::death;
 use crate::model::components::Vitals;
-use crate::model::skill::{Skill, effect_flag};
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
+use crate::model::skill::{Skill, effect_flag};
 use crate::model::stats::{Stat, StatModifierType};
 
 const VICTIM: i32 = 2001;
