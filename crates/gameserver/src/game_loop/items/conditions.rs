@@ -40,6 +40,7 @@
 
 use crate::data::item_cond::{Cond, CondMessage};
 use crate::data::item_data::ItemTemplate;
+use crate::game_loop::clans;
 use crate::game_loop::helpers::{instance_of, level_of, player_race, send_sm_to_player};
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::space::position;
@@ -200,7 +201,7 @@ fn eval(world: &World, who: &Effector, node: &Cond) -> bool {
             who.player.map(|p| is_clan_leader(world, p)) == Some(*required)
         }
         Cond::PledgeClass(min) => pledge_class(world, who, *min),
-        Cond::HasClanHall(halls) => match clan_of(world, who) {
+        Cond::HasClanHall(halls) => match acting_clan_of(world, who) {
             // No clan: Java's answer is "the list is exactly [0]".
             None => halls.len() == 1 && halls[0] == 0,
             Some(clan_id) => {
@@ -214,11 +215,11 @@ fn eval(world: &World, who: &Effector, node: &Cond) -> bool {
         },
         // No fortresses on this chronicle, so `getFortId()` is 0 for every
         // clan — see the module header of `data::item_cond`.
-        Cond::HasFort(fort) => match clan_of(world, who) {
+        Cond::HasFort(fort) => match acting_clan_of(world, who) {
             None => *fort == 0,
             Some(_) => *fort != -1 && *fort == 0,
         },
-        Cond::HasCastle(castle) => match clan_of(world, who) {
+        Cond::HasCastle(castle) => match acting_clan_of(world, who) {
             None => *castle == 0,
             Some(clan_id) => {
                 let owned = castle_of(world, clan_id);
@@ -313,7 +314,7 @@ fn siege_zone(world: &World, who: &Effector, value: i32) -> bool {
         .get_component::<Player>(&player_oid)
         .map(|p| p.siege_state)
         .unwrap_or(0);
-    let registered = clan_of(world, who).is_some_and(|clan_id| {
+    let registered = acting_clan_of(world, who).is_some_and(|clan_id| {
         world
             .sieges
             .get(&castle_id)
@@ -334,7 +335,7 @@ fn pledge_class(world: &World, who: &Effector, min: i32) -> bool {
     let Some(player_oid) = who.player else {
         return false;
     };
-    if clan_of(world, who).is_none() {
+    if acting_clan_of(world, who).is_none() {
         return false;
     }
     let leader = is_clan_leader(world, player_oid);
@@ -348,10 +349,16 @@ fn pledge_class(world: &World, who: &Effector, min: i32) -> bool {
             .is_some_and(|p| i32::from(p.pledge_class) >= min)
 }
 
-/// The acting player's clan id, or `None` when there is no player or no clan.
-fn clan_of(world: &World, who: &Effector) -> Option<i32> {
-    who.with_player(world, |p| p.clan_id)
-        .filter(|id| *id != 0)
+/// The acting player's clan id, or `None` when there is no player, no clan, or
+/// no clan carrying that id.
+///
+/// [`clans::clan_of`] stops at the `0` sentinel; this adds the existence check
+/// on top, because Java's `getActingPlayer().getClan()` hands back the `Clan`
+/// object itself, so every condition here reading it as non-null has already
+/// been told the clan is real.
+fn acting_clan_of(world: &World, who: &Effector) -> Option<i32> {
+    who.player
+        .and_then(|oid| clans::clan_of(world, oid))
         .filter(|id| world.clans.contains_key(id))
 }
 
@@ -379,7 +386,7 @@ fn castle_of(world: &World, clan_id: i32) -> i32 {
 
 /// `Player.getPlayerSide()` — the side of the castle the clan owns.
 fn side_of(world: &World, who: &Effector) -> CastleSide {
-    let Some(clan_id) = clan_of(world, who) else {
+    let Some(clan_id) = acting_clan_of(world, who) else {
         return CastleSide::Neutral;
     };
     let castle_id = castle_of(world, clan_id);

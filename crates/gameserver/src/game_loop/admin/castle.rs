@@ -234,8 +234,10 @@ fn take_castle(world: &mut World, client_id: u32, idx: usize) {
     show_castle_menu(world, client_id, idx);
 }
 
-/// `(player object id, clan id)` of the GM behind `client_id`.
-fn clan_of_client(world: &World, client_id: u32) -> (i32, i32) {
+/// `(player object id, clan id)` of the GM behind `client_id` — the pair the
+/// siege windows want together, since a registration is keyed by clan but
+/// addressed to the player asking. `(0, 0)` when the client is not in game.
+fn player_and_clan_of_client(world: &World, client_id: u32) -> (i32, i32) {
     match world.clients.get(&client_id) {
         Some(crate::session::ClientSession::InGame(s)) => {
             let oid = s.player_object_id();
@@ -251,7 +253,7 @@ fn clan_of_client(world: &World, client_id: u32) -> (i32, i32) {
 /// and owner, not who is registered.
 fn show_reg_window(world: &mut World, client_id: u32, idx: usize) {
     let castle_id = world.castles[idx].id;
-    let gm = clan_of_client(world, client_id);
+    let gm = player_and_clan_of_client(world, client_id);
     super::super::siege::send_siege_info(
         world,
         client_id,

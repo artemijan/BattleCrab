@@ -11,7 +11,7 @@ use crate::game_loop::{clans, helpers};
 /// The `create_clan` bypass: Java's guard matrix (SM ids in `ClanTable.
 /// createClan` order), then the success path — clan registered + persisted,
 /// leader flags/privileges set, the pledge-window packet trio + SM 189, and
-/// duplicate-name/already-in-clan rejects afterwards.
+/// duplicate-name/already-in-clan rejects afterward.
 #[test]
 fn clan_create_guards_and_success() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
