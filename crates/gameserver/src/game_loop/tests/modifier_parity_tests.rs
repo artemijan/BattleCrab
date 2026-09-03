@@ -197,30 +197,34 @@ fn world_with_two_actors() -> (World, i32, i32) {
     (world, attacker, target)
 }
 
+/// Rebuilds both tables from scratch. The entries are the *table* values, so a
+/// `None` is "not in that side's set" rather than a zero, and `invulnerable`
+/// names the trait the target is immune to — which Java keys independently of
+/// the resist entry, and which the weakness sweep needs to point at a trait the
+/// tables don't otherwise carry. An empty table is left as an absent component,
+/// which is the state most targets are in and which no formula here treats as a
+/// short circuit.
 fn set_tables(
     world: &mut World,
     attacker: i32,
     target: i32,
-    trait_type: TraitType,
-    attack: Option<f64>,
-    defence: Option<f64>,
-    invulnerable: bool,
+    attack: &[(TraitType, Option<f64>)],
+    resist: &[(TraitType, Option<f64>)],
+    invulnerable: Option<TraitType>,
 ) {
     world.objects.remove_component::<AttackTraits>(&attacker);
     world.objects.remove_component::<DefenceTraits>(&target);
-    if let Some(value) = attack {
-        let mut at = AttackTraits::default();
-        at.values.insert(trait_type, value);
+    let mut at = AttackTraits::default();
+    at.values
+        .extend(attack.iter().filter_map(|&(t, v)| Some((t, v?))));
+    if !at.values.is_empty() {
         world.objects.add_components(&attacker, at);
     }
-    if defence.is_some() || invulnerable {
-        let mut dt = DefenceTraits::default();
-        if let Some(value) = defence {
-            dt.resist.insert(trait_type, value);
-        }
-        if invulnerable {
-            dt.invulnerable.insert(trait_type);
-        }
+    let mut dt = DefenceTraits::default();
+    dt.resist
+        .extend(resist.iter().filter_map(|&(t, v)| Some((t, v?))));
+    dt.invulnerable.extend(invulnerable);
+    if !dt.resist.is_empty() || !dt.invulnerable.is_empty() {
         world.objects.add_components(&target, dt);
     }
 }
@@ -247,10 +251,9 @@ fn general_trait_bonus_matches_java_across_the_grid() {
                             &mut world,
                             attacker,
                             target,
-                            trait_type,
-                            attack,
-                            defence,
-                            invulnerable,
+                            &[(trait_type, attack)],
+                            &[(trait_type, defence)],
+                            invulnerable.then_some(trait_type),
                         );
                         let ours = port::calc_general_trait_bonus(
                             &world,
@@ -325,23 +328,14 @@ fn weakness_bonus_matches_java_across_the_grid() {
                 for skill_trait in [dragon, giant, TraitType::Shock] {
                     // The tables carry DRAGON only, so a skill whose own trait
                     // is DRAGON must skip it and one that isn't must count it.
-                    world.objects.remove_component::<AttackTraits>(&attacker);
-                    world.objects.remove_component::<DefenceTraits>(&target);
-                    if let Some(value) = attack {
-                        let mut at = AttackTraits::default();
-                        at.values.insert(dragon, value);
-                        world.objects.add_components(&attacker, at);
-                    }
-                    if defence.is_some() || invulnerable {
-                        let mut dt = DefenceTraits::default();
-                        if let Some(value) = defence {
-                            dt.resist.insert(dragon, value);
-                        }
-                        if invulnerable {
-                            dt.invulnerable.insert(skill_trait);
-                        }
-                        world.objects.add_components(&target, dt);
-                    }
+                    set_tables(
+                        &mut world,
+                        attacker,
+                        target,
+                        &[(dragon, attack)],
+                        &[(dragon, defence)],
+                        invulnerable.then_some(skill_trait),
+                    );
                     let ours = port::calc_weakness_bonus(&world, attacker, target, skill_trait);
                     let theirs = java::weakness_bonus(
                         skill_trait,
@@ -376,27 +370,17 @@ fn weapon_and_attack_trait_bonuses_match_java_across_the_grid() {
         for &weakness_attack in ATTACK_VALUES {
             for &weakness_defence in DEFENCE_VALUES {
                 for invulnerable in [false, true] {
-                    world.objects.remove_component::<AttackTraits>(&attacker);
-                    world.objects.remove_component::<DefenceTraits>(&target);
-                    if let Some(value) = weakness_attack {
-                        let mut at = AttackTraits::default();
-                        at.values.insert(dragon, value);
-                        world.objects.add_components(&attacker, at);
-                    }
-                    let mut dt = DefenceTraits::default();
                     // Bare-handed here, so the weapon trait the port looks up
                     // is `TraitType::None` — the table entry that answers it is
                     // keyed the same way on both sides.
-                    if let Some(value) = defence {
-                        dt.resist.insert(TraitType::None, value);
-                    }
-                    if let Some(value) = weakness_defence {
-                        dt.resist.insert(dragon, value);
-                    }
-                    if invulnerable {
-                        dt.invulnerable.insert(dragon);
-                    }
-                    world.objects.add_components(&target, dt);
+                    set_tables(
+                        &mut world,
+                        attacker,
+                        target,
+                        &[(dragon, weakness_attack)],
+                        &[(TraitType::None, defence), (dragon, weakness_defence)],
+                        invulnerable.then_some(dragon),
+                    );
 
                     let ours = port::calc_weapon_trait_bonus(&world, attacker, target);
                     let theirs = java::weapon_trait_bonus(defence);
