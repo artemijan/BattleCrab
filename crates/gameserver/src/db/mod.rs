@@ -8,7 +8,8 @@
 //! and never name a submodule:
 //!
 //! - `types` — the [`DbCommand`] / [`DbEvent`] protocol between the two
-//!   threads, plus the plain row structs the queries return.
+//!   threads, plus the payloads each half carries and the plain row structs
+//!   the queries return.
 //! - `character` — the character-load bundle ([`CharData`] and the rows it
 //!   carries), restored for the selection screen and enter-world.
 //! - `boot` — the schema check and the unprompted boot loads (`ClansLoaded`
@@ -60,13 +61,16 @@ pub(crate) use queries::world::{
     load_next_id, load_npc_respawns, store_ground_items,
 };
 pub(crate) use queries::{item_row_model, warn_err};
-pub use types::{
-    BirthdayDay, BirthdayMatch, ClanHallBidRow, ClanHallRow, CmdTx, CreateResult, CursedWeaponRow,
-    CustomMailRow, DbCommand, DbEvent, FreightItemRow, GroundItemRow, HeroRow, MailRow,
-    ManorProcureRow, ManorProductionRow, NewCharacter, NewItem, NewShortcut, OlympiadEomRow,
-    OlympiadNobleRow, PetRow, PlayerSaveData, PlayerSnapshot, ResidenceFunctionRow, SiegeClanRow,
-    SkillBuffRow, SkillReuseRow, SummonRow,
+pub use types::command::DbCommand;
+pub use types::event::DbEvent;
+pub use types::rows::{
+    BirthdayDay, BirthdayMatch, ClanHallBidRow, ClanHallRow, CursedWeaponRow, CustomMailRow,
+    FreightItemRow, GroundItemRow, HeroRow, MailRow, ManorProcureRow, ManorProductionRow,
+    OlympiadEomRow, OlympiadNobleRow, PetRow, ResidenceFunctionRow, SiegeClanRow, SkillBuffRow,
+    SkillReuseRow, SummonRow,
 };
+pub use types::save::{NewCharacter, NewItem, NewShortcut, PlayerSaveData, PlayerSnapshot};
+pub use types::{CmdTx, CreateResult};
 
 /// First object id handed out by `IdManager` (Java `FIRST_OID`). Shared by
 /// every world-object type (characters, items, …) — Java's `IdManager` is a
