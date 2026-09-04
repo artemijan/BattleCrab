@@ -25,7 +25,7 @@ use crate::game_loop::space::position::{maybe_position, set_position};
 use crate::geo::distance::{dist3d_xyz, distance_2d_xy};
 use crate::model::boat;
 
-use crate::model::components::{Position, RegionCell};
+use crate::model::components::space::{Position, RegionCell};
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
 use crate::world::{World, region_of};

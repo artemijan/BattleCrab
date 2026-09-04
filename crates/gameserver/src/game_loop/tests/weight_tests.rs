@@ -4,7 +4,8 @@
 use super::*;
 
 use crate::game_loop::stats::weight;
-use crate::model::components::{BaseStats, Buffs};
+use crate::model::components::skills::Buffs;
+use crate::model::components::stats::BaseStats;
 use crate::model::inventory::Inventory;
 
 const PLAYER: i32 = 4400;
@@ -292,7 +293,7 @@ fn the_weight_stats_scale_the_cap_and_discount_the_load() {
     // `WeightLimit` is `PER` on every source: Weight Limit 3 is +300 %, i.e. ×4.
     let mut mods = world
         .objects
-        .get_component::<model::components::StatModifiers>(&oid)
+        .get_component::<model::components::stats::StatModifiers>(&oid)
         .cloned()
         .expect("stat modifiers");
     mods.mul.insert(Stat::WeightLimit, 4.0);

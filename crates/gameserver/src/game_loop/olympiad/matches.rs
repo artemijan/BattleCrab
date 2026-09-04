@@ -10,7 +10,7 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_sm_bare_to_player as send_sm;
 use crate::game_loop::space::position::pos_of;
 use crate::model::Player;
-use crate::model::components::OlympiadObserver;
+use crate::model::components::player::OlympiadObserver;
 use crate::model::olympiad::NobleStats;
 use crate::model::olympiad::OlympiadMatch;
 use crate::network::server_packets::sm_ids;
@@ -155,9 +155,10 @@ pub(crate) fn start_match(world: &mut World, arena: usize, player_a: i32, player
             }
         });
     for oid in watching {
-        world
-            .objects
-            .add_components(&oid, crate::model::components::InstanceId(instance_id));
+        world.objects.add_components(
+            &oid,
+            crate::model::components::space::InstanceId(instance_id),
+        );
     }
     world.olympiad.matches.push(OlympiadMatch {
         arena,
@@ -199,9 +200,10 @@ pub(crate) fn handle_countdown(world: &mut World, arena: usize, step: usize) {
         }
         Enter => {
             for (oid, spawn) in [(m.player_a, ARENA_SPAWN_A), (m.player_b, ARENA_SPAWN_B)] {
-                world
-                    .objects
-                    .add_components(&oid, crate::model::components::InstanceId(m.instance_id));
+                world.objects.add_components(
+                    &oid,
+                    crate::model::components::space::InstanceId(m.instance_id),
+                );
                 crate::game_loop::death::teleport_player(world, oid, spawn.0, spawn.1, spawn.2);
                 strip_buffs(world, oid);
             }
@@ -340,7 +342,7 @@ fn resolve_match(world: &mut World, m: &OlympiadMatch, result: &MatchResult) {
         world.olympiad.in_competition.remove(&oid);
         world
             .objects
-            .remove_component::<crate::model::components::InstanceId>(&oid);
+            .remove_component::<crate::model::components::space::InstanceId>(&oid);
         if is_online(world, oid) {
             crate::game_loop::death::teleport_player(world, oid, ret.0, ret.1, ret.2);
         }

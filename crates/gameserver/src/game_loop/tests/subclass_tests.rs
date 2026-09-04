@@ -196,7 +196,7 @@ fn adding_a_subclass_is_persisted() {
 // ---------------------------------------------------------------------------
 // Per-class-index skill books (slice 3).
 
-use crate::model::components::SkillBook;
+use crate::model::components::skills::SkillBook;
 
 /// Put a skill in the book that the class tree would never grant, standing in
 /// for one learned by hand from a trainer.
@@ -282,7 +282,8 @@ fn the_save_carries_every_slots_book() {
 // ---------------------------------------------------------------------------
 // Per-class-index hennas and shortcuts (slice 4).
 
-use crate::model::components::{HennaSlots, Shortcuts};
+use crate::model::components::player::Shortcuts;
+use crate::model::components::skills::HennaSlots;
 
 fn set_henna(world: &mut World, slot: usize, dye: i32) {
     world

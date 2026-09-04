@@ -7,7 +7,8 @@
 use super::*;
 
 use crate::data::enchant_skill_groups::EnchantSkillCost;
-use crate::model::components::{SkillEnchants, Vitals};
+use crate::model::components::skills::SkillEnchants;
+use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::{OperateType, TargetType};
@@ -316,8 +317,8 @@ fn enchants_survive_the_load_path() {
     let pkt = crate::network::enter_world::skill_list(
         &player.skills,
         &player.skill_enchants,
-        &model::components::ClanSkills::default(),
-        &model::components::OptionSkills::default(),
+        &model::components::skills::ClanSkills::default(),
+        &model::components::skills::OptionSkills::default(),
         &world.data,
     );
     // Entry layout: d passive, h level, h sub, d id, … — find our skill's id
@@ -379,7 +380,7 @@ fn enchant_refused_while_busy() {
 /// cooldown.
 #[test]
 fn enchant_rekeys_the_running_cooldown() {
-    use crate::model::components::Reuses;
+    use crate::model::components::skills::Reuses;
 
     let (mut world, _db, _l) = cast_test_world();
     let _out = enchanter(&mut world);

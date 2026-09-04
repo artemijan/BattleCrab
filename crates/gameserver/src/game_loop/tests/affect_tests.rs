@@ -225,7 +225,7 @@ fn dead_creatures_are_skipped() {
 /// Drop two players into one party directly — the invite/accept packet dance
 /// is exercised in `social_tests`; here only the resulting state matters.
 fn put_in_party(world: &mut World, leader: i32, member: i32) {
-    use crate::model::components::PartyRef;
+    use crate::model::components::social::PartyRef;
     use crate::model::party::{LootRule, Party};
 
     let party_id = world.next_party_id;
@@ -530,7 +530,7 @@ fn dead_party_scope_respects_the_affect_limit() {
     // calling it twice would split them.
     put_in_party(&mut world, CASTER, a);
     {
-        use crate::model::components::PartyRef;
+        use crate::model::components::social::PartyRef;
         let pid = world
             .objects
             .get_component::<PartyRef>(&CASTER)

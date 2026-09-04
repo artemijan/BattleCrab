@@ -19,7 +19,7 @@ use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
 use crate::game_loop::space::zones::in_zone;
 use crate::model::Player;
-use crate::model::components::FishingSession;
+use crate::model::components::player::FishingSession;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;

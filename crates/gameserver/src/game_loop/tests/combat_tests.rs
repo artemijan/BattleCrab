@@ -60,7 +60,7 @@ fn action_on_monster_colors_target_and_never_talks() {
 #[test]
 fn pvp_flag_starts_blinks_and_expires() {
     use crate::game_loop::combat::pvp;
-    use model::components::PvpState;
+    use model::components::combat::PvpState;
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let start = world.tick;
@@ -107,7 +107,7 @@ fn pvp_flag_starts_blinks_and_expires() {
 #[test]
 fn pvp_flag_duration_depends_on_target_state() {
     use crate::game_loop::combat::pvp;
-    use model::components::PvpState;
+    use model::components::combat::PvpState;
     let (mut world, ..) = test_world();
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 50, 0, 0);
@@ -183,7 +183,7 @@ fn flagged_or_pk_player_is_auto_attackable() {
 
     world
         .objects
-        .get_component_mut::<model::components::PvpState>(&5002)
+        .get_component_mut::<model::components::combat::PvpState>(&5002)
         .unwrap()
         .flag = 0;
     world
@@ -202,7 +202,8 @@ fn flagged_or_pk_player_is_auto_attackable() {
 #[test]
 fn arena_players_attackable_without_flagging() {
     use crate::game_loop::combat::pvp;
-    use model::components::{PvpState, ZoneFlags};
+    use model::components::combat::PvpState;
+    use model::components::space::ZoneFlags;
     let (mut world, ..) = test_world();
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
@@ -2014,7 +2015,7 @@ fn siege_door_can_be_targeted_and_breached_by_attack() {
 #[test]
 fn siege_door_out_of_reach_chases_and_breaches() {
     use crate::data::door_data::DoorOpenMethod;
-    use model::components::{Movement, Position};
+    use model::components::space::{Movement, Position};
     use model::door::Door;
     use model::siege::Siege;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -3161,7 +3162,8 @@ fn siege_capture_evicts_the_new_attackers_and_rebuilds_the_towers() {
 /// behaviour so a future "fix toward Java" has to argue with it.
 #[test]
 fn an_advanced_headquarters_takes_half_damage() {
-    use model::components::{AdvancedHeadquarter, Vitals};
+    use model::components::player::AdvancedHeadquarter;
+    use model::components::stats::Vitals;
 
     let hp_after_hit = |advanced: bool| -> f64 {
         let (mut world, ..) = test_world();

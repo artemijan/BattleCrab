@@ -13,7 +13,8 @@ use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::{Position, RegionCell, Vitals};
+use crate::model::components::space::{Position, RegionCell};
+use crate::model::components::stats::Vitals;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -222,7 +223,7 @@ pub(crate) fn try_enter(world: &mut World, manager_oid: i32, player: i32) -> Ent
     }
     let party = world
         .objects
-        .get_component::<crate::model::components::PartyRef>(&player)
+        .get_component::<crate::model::components::social::PartyRef>(&player)
         .map(|r| r.0)
         .and_then(|pid| world.parties.get(&pid));
     let Some(party) = party else {
@@ -595,7 +596,7 @@ fn give_item(world: &mut World, player: i32, item_id: i32, count: i64) {
 pub(crate) fn quest_started_or_completed(world: &World, player: i32, quest: &str) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::Quests>(&player)
+        .get_component::<crate::model::components::social::Quests>(&player)
         .and_then(|q| q.0.get(quest))
         .is_some_and(|qs| {
             qs.state == crate::model::quest::state::STARTED

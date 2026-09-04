@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 
 use enum_ordinalize::Ordinalize;
 
-use super::components::{Macros, Shortcuts};
+use super::components::player::{Macros, Shortcuts};
 
 /// `ShortCuts.MAX_SHORTCUTS_PER_BAR` — the slot/page → storage-key factor and
 /// the client wire encoding (`slot + page * 12`).

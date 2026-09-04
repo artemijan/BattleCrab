@@ -14,9 +14,9 @@ use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, npc};
 
-use crate::model::components::AttackState;
-use crate::model::components::Intent;
-use crate::model::components::Position;
+use crate::model::components::combat::AttackState;
+use crate::model::components::combat::Intent;
+use crate::model::components::space::Position;
 use crate::model::formulas;
 use crate::model::movement;
 use crate::model::movement::get_position;
@@ -426,7 +426,7 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
     // Focus Attack: give up the sweep entirely.
     if world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&attacker_oid)
+        .get_component::<crate::model::components::stats::StatModifiers>(&attacker_oid)
         .map(|m| {
             crate::model::stat_finalize::finalize(
                 m,
@@ -615,7 +615,7 @@ pub(crate) fn handle_attack_hit(
         // `C1_HAS_INFLICTED` line.
         let target_blocked = world
             .objects
-            .get_component::<crate::model::components::AdminFlags>(&target)
+            .get_component::<crate::model::components::player::AdminFlags>(&target)
             .is_some_and(|f| f.invul);
         if crit {
             helpers::send_sm_to_client(

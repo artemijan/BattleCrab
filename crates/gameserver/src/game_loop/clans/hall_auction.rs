@@ -136,7 +136,7 @@ pub(crate) fn banish_others(world: &mut World, hall_id: i32) {
     for oid in player_oids {
         let Some(pos) = world
             .objects
-            .get_component::<crate::model::components::Position>(&oid)
+            .get_component::<crate::model::components::space::Position>(&oid)
         else {
             continue;
         };

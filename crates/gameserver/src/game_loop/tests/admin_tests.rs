@@ -1289,7 +1289,7 @@ fn gospawn_teleports_to_the_listed_spawn() {
 
     let pos = *world
         .objects
-        .get_component::<crate::model::components::Position>(&7206)
+        .get_component::<crate::model::components::space::Position>(&7206)
         .expect("gm position");
     assert_eq!(
         (pos.x, pos.y),
@@ -1398,7 +1398,7 @@ fn respawnall_shows_the_new_npcs_to_a_player_standing_there() {
 
     let gm_pos = *world
         .objects
-        .get_component::<crate::model::components::Position>(&7203)
+        .get_component::<crate::model::components::space::Position>(&7203)
         .expect("gm position");
     let npc_id = 90201;
     let mut template = crate::data::npc_data::default_template(npc_id);
@@ -1494,7 +1494,7 @@ fn admin_kill_on_a_monster_awards_its_drops() {
     // `RewardRange` of the corpse, so the fixture has to stand next to it.
     let gm_pos = *world
         .objects
-        .get_component::<crate::model::components::Position>(&7103)
+        .get_component::<crate::model::components::space::Position>(&7103)
         .expect("gm position");
     add_test_npc(
         &mut world, npc_oid, npc_id, "Monster", 1, gm_pos.x, gm_pos.y, gm_pos.z,
@@ -1714,7 +1714,7 @@ fn admin_recall_brings_player_to_gm() {
 /// demand a live target, which is what the `//teleto` alias used to do.
 #[test]
 fn admin_goto_char_menu_uses_the_named_character_not_the_target() {
-    use model::components::Position;
+    use model::components::space::Position;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7305, 100);
     let mut other_rx = ingame_player_access(&mut world, 2, 7306, 0);
@@ -2649,7 +2649,8 @@ fn admin_buff_applies_skill_to_self() {
 /// schedules its stop) — it previously expired the same tick it landed.
 #[test]
 fn admin_superhaste_applies_and_persists() {
-    use model::components::{Buffs, Speeds};
+    use model::components::skills::Buffs;
+    use model::components::stats::Speeds;
     let (mut world, ..) = admin_world();
     // Full datapack, not just `skill_data`: Super Haste also carries
     // `MpConsumePerLevel` (G19) — Java's `AdminSuperHaste` casts it through
@@ -2726,7 +2727,7 @@ fn admin_superhaste_applies_and_persists() {
 /// because it scales through `move_multiplier`, which folds in via `move_speed`.
 #[test]
 fn client_move_multiplier_tracks_speed_buffs() {
-    use model::components::Speeds;
+    use model::components::stats::Speeds;
     // base template run 132, +35 RunSpeedBoost folded into run_spd → 167 at rest.
     let mut s = Speeds {
         run_spd: 167.0,
@@ -2763,7 +2764,7 @@ fn client_move_multiplier_tracks_speed_buffs() {
 /// base cadence.
 #[test]
 fn client_atk_speed_multiplier_tracks_haste() {
-    use model::components::CombatStats;
+    use model::components::stats::CombatStats;
     let mut c = CombatStats {
         p_atk_spd: 300,
         ..Default::default()
@@ -3387,7 +3388,8 @@ fn bare_teleto_still_teleports_to_the_target() {
 /// it onto the coordinate teleport, which made the two buttons identical.
 #[test]
 fn admin_walk_walks_instead_of_teleporting() {
-    use model::components::{Movement, Speeds};
+    use model::components::space::Movement;
+    use model::components::stats::Speeds;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 8924, 100);
     {
@@ -3937,7 +3939,7 @@ fn admin_setparam_fixes_and_clears_a_stat() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::StatModifiers>(&8951)
+            .get_component::<model::components::stats::StatModifiers>(&8951)
             .unwrap()
             .fixed
             .get(&Stat::PhysicalAttack),
@@ -3960,7 +3962,7 @@ fn admin_setparam_fixes_and_clears_a_stat() {
     assert!(
         world
             .objects
-            .get_component::<model::components::StatModifiers>(&8951)
+            .get_component::<model::components::stats::StatModifiers>(&8951)
             .unwrap()
             .fixed
             .is_empty()
@@ -4437,7 +4439,8 @@ fn admin_castlemanage_siege_registration_and_state() {
 fn admin_give_clan_skills_command_grants_targeted_clan() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
     use model::clan::{Clan, ClanMember};
-    use model::components::{ClanSkills, TargetRef};
+    use model::components::combat::TargetRef;
+    use model::components::skills::ClanSkills;
 
     let (mut world, _tx, mut db_rx, _link) = admin_world();
     world
@@ -4705,7 +4708,7 @@ fn admin_para_blocks_actions_until_unpara() {
 /// longer sets their target; toggling back restores it.
 #[test]
 fn admin_settargetable_blocks_selection() {
-    use model::components::TargetRef;
+    use model::components::combat::TargetRef;
 
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
@@ -5050,7 +5053,8 @@ fn oversized_html_is_clipped_to_java_limit() {
 /// re-describe the GM on the second press.
 #[test]
 fn admin_invis_menu_hides_and_reserves_panel() {
-    use model::components::{AdminFlags, TargetRef};
+    use model::components::combat::TargetRef;
+    use model::components::player::AdminFlags;
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7101, 100);
@@ -5117,7 +5121,7 @@ fn admin_invis_menu_hides_and_reserves_panel() {
 /// `//invis` is likewise an idempotent set.
 #[test]
 fn vis_and_invis_are_sets_not_toggles() {
-    use model::components::AdminFlags;
+    use model::components::player::AdminFlags;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7111, 100);
     drain(&mut gm_rx);
@@ -5144,7 +5148,8 @@ fn vis_and_invis_are_sets_not_toggles() {
 /// GM themself.
 #[test]
 fn setinvis_toggles_the_targeted_player() {
-    use model::components::{AdminFlags, TargetRef};
+    use model::components::combat::TargetRef;
+    use model::components::player::AdminFlags;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7121, 100);
     let mut victim_rx = ingame_player_access(&mut world, 2, 7122, 0);
@@ -5173,7 +5178,7 @@ fn setinvis_toggles_the_targeted_player() {
 /// targets; the aggro scan must skip them, with no raid exemption).
 #[test]
 fn npc_aggro_ignores_hidden_gm() {
-    use model::components::AdminFlags;
+    use model::components::player::AdminFlags;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7131, 100);
     drain(&mut gm_rx);
@@ -5336,7 +5341,7 @@ fn punishment_console_add_info_remove() {
 /// both players' leader flags/privileges, and the clan-wide SM.
 #[test]
 fn clan_changeleader_swaps_leader() {
-    use model::components::TargetRef;
+    use model::components::combat::TargetRef;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7601, 100);
     let mut old_rx = ingame_player_access(&mut world, 2, 7602, 0);
@@ -5556,7 +5561,7 @@ fn setcharquest_and_menu_roundtrip() {
     {
         let q = world
             .objects
-            .get_component::<model::components::Quests>(&7822)
+            .get_component::<model::components::social::Quests>(&7822)
             .unwrap();
         let st = q.0.get("Q00101_SwordOfSolidarity").expect("state created");
         assert_eq!(st.vars.get("cond").map(String::as_str), Some("3"));
@@ -5621,7 +5626,7 @@ fn setcharquest_and_menu_roundtrip() {
     assert!(
         !world
             .objects
-            .get_component::<model::components::Quests>(&7822)
+            .get_component::<model::components::social::Quests>(&7822)
             .unwrap()
             .0
             .contains_key("Q00101_SwordOfSolidarity"),
@@ -5764,7 +5769,7 @@ fn show_quests_lists_the_target_npcs_scripts() {
 /// `getTradeRefusal` in `TradeRequest`).
 #[test]
 fn tradeoff_refuses_trade_requests() {
-    use model::components::TargetRef;
+    use model::components::combat::TargetRef;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7901, 100);
     let mut other_rx = ingame_player_access(&mut world, 2, 7902, 0);
@@ -5788,7 +5793,7 @@ fn tradeoff_refuses_trade_requests() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::PendingTrade>(&7901),
+            .has_component::<model::components::commerce::PendingTrade>(&7901),
         "no trade request while refusing"
     );
     assert!(
@@ -6541,7 +6546,7 @@ fn forge_send_cs_refuses_like_java() {
 /// outright (Java's `findByClientId` → catch → usage).
 #[test]
 fn playmovie_movie_holder_bookkeeping() {
-    use model::components::InMovie;
+    use model::components::space::InMovie;
 
     let (mut world, ..) = admin_world();
     let mut rx = ingame_player_access(&mut world, 1, 6496, 100);
@@ -6717,7 +6722,7 @@ fn has_admin_html(pkts: &[Vec<u8>]) -> bool {
 /// quietly collapsing the two exits into one.
 #[test]
 fn pledge_setlevel_reopens_the_panel_except_when_the_parse_throws() {
-    use model::components::TargetRef;
+    use model::components::combat::TargetRef;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7801, 100);
     let _member_rx = ingame_player_access(&mut world, 2, 7802, 0);
@@ -6760,7 +6765,7 @@ fn pledge_setlevel_reopens_the_panel_except_when_the_parse_throws() {
 /// the counterexample that stops the tail from being read as "on success only".
 #[test]
 fn goto_char_reopens_the_page_except_on_an_unresolved_target() {
-    use model::components::TargetRef;
+    use model::components::combat::TargetRef;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7811, 100);
     drain(&mut gm_rx);
@@ -6797,7 +6802,7 @@ fn goto_char_reopens_the_page_except_on_an_unresolved_target() {
 /// guard — the refusal paths had no cover before, so a swapped id was silent.
 #[test]
 fn give_clan_skills_refuses_with_javas_two_distinct_messages() {
-    use model::components::TargetRef;
+    use model::components::combat::TargetRef;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7821, 100);
     let _clanless_rx = ingame_player_access(&mut world, 2, 7822, 0);
@@ -6899,7 +6904,7 @@ fn stop_all_buffs_clears_timed_buffs_and_keeps_passives() {
 /// command has no other test and the branch order is easy to flatten.
 #[test]
 fn cw_goto_falls_through_from_the_holder_to_the_dropped_item() {
-    use model::components::Position;
+    use model::components::space::Position;
     const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
     world.data.root = ROOT.to_string();
@@ -7142,7 +7147,8 @@ fn transform_base_replaces_the_weapon_only_for_non_combat_forms() {
 /// can be sped up too, and it gets `broadcastInfo()` rather than `UserInfo`.
 #[test]
 fn admin_gmspeed_scales_a_targeted_npc() {
-    use model::components::{Speeds, TargetRef};
+    use model::components::combat::TargetRef;
+    use model::components::stats::Speeds;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7110, 100);
     scan_npc(&mut world, NPC_OID, 7110, 50, 0, 0);
@@ -7177,7 +7183,7 @@ fn admin_gmspeed_scales_a_targeted_npc() {
 /// `YOU_CANNOT_USE_THIS_ON_YOURSELF` — neither moves anybody.
 #[test]
 fn admin_teleportto_moves_the_gm_to_a_named_player() {
-    use model::components::Position;
+    use model::components::space::Position;
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7120, 100);
     let _target_rx = ingame_player(&mut world, 2, 7121, 50_000, 60_000, -3000);
@@ -7236,7 +7242,8 @@ fn admin_teleportto_moves_the_gm_to_a_named_player() {
 /// from which a GM could not pick anything.
 #[test]
 fn admin_remove_skills_generates_the_targets_own_skill_list() {
-    use model::components::{SkillBook, TargetRef};
+    use model::components::combat::TargetRef;
+    use model::components::skills::SkillBook;
     let (mut world, ..) = admin_world();
     world.data.skill_data = dist::skills_owned();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7130, 100);
@@ -7268,7 +7275,7 @@ fn admin_remove_skills_generates_the_targets_own_skill_list() {
 /// with no refund, because the character never asked to remove them.
 #[test]
 fn setclass_drops_a_dye_the_new_class_cannot_wear() {
-    use model::components::HennaSlots;
+    use model::components::skills::HennaSlots;
     let (mut world, ..) = admin_world();
     world.data.hennas = crate::data::HennaData::load_from(crate::data::DIST_GAME);
     world.data.player_templates = dist::player_templates_owned();
@@ -7359,7 +7366,7 @@ fn zone_visual_outlines_the_zone_and_clears_it_again() {
     assert!(
         world
             .objects
-            .has_component::<model::components::GroundItem>(&sample),
+            .has_component::<model::components::commerce::GroundItem>(&sample),
         "the markers are real ground items"
     );
 
@@ -7369,7 +7376,7 @@ fn zone_visual_outlines_the_zone_and_clears_it_again() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&sample),
+            .has_component::<model::components::commerce::GroundItem>(&sample),
         "and the markers are gone from the world"
     );
 }

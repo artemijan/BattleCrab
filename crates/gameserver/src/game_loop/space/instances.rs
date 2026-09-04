@@ -8,7 +8,7 @@ use crate::game_loop::helpers::instance_of;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::pos_of;
 use crate::game_loop::space::position::region_cell_of;
-use crate::model::components::{InstanceDoorOpen, InstanceId, Position, RegionCell};
+use crate::model::components::space::{InstanceDoorOpen, InstanceId, Position, RegionCell};
 use crate::model::door::Door;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -411,7 +411,7 @@ pub(crate) fn on_player_logout(world: &mut World, player: i32) {
     if world.cfg.general.restore_player_instance {
         if let Some(vars) = world
             .objects
-            .get_component_mut::<crate::model::components::PlayerVariables>(&player)
+            .get_component_mut::<crate::model::components::player::PlayerVariables>(&player)
         {
             vars.0
                 .insert(INSTANCE_RESTORE_VAR.to_string(), instance_id.to_string());
@@ -424,7 +424,7 @@ pub(crate) fn on_player_logout(world: &mut World, player: i32) {
     if let Some((x, y, z)) = dest
         && let Some(pos) = world
             .objects
-            .get_component_mut::<crate::model::components::Position>(&player)
+            .get_component_mut::<crate::model::components::space::Position>(&player)
     {
         pos.x = x;
         pos.y = y;
@@ -441,13 +441,13 @@ pub(crate) fn on_player_logout(world: &mut World, player: i32) {
 pub(crate) fn restore_on_login(world: &mut World, player: i32) {
     let stored = world
         .objects
-        .get_component::<crate::model::components::PlayerVariables>(&player)
+        .get_component::<crate::model::components::player::PlayerVariables>(&player)
         .and_then(|v| v.0.get(INSTANCE_RESTORE_VAR).cloned());
     let Some(raw) = stored else { return };
     // Consumed whatever happens, matching Java's unconditional `vars.remove`.
     if let Some(vars) = world
         .objects
-        .get_component_mut::<crate::model::components::PlayerVariables>(&player)
+        .get_component_mut::<crate::model::components::player::PlayerVariables>(&player)
     {
         vars.0.remove(INSTANCE_RESTORE_VAR);
     }

@@ -43,7 +43,7 @@ fn plays_stock_roars(boss_id: i32) -> bool {
 /// `npc.broadcastPacket(new PlaySound(1, sound, 1, oid, x, y, z))` — the roar,
 /// anchored to the boss and sent to everyone near its region.
 fn roar(world: &World, boss_oid: i32, sound: &str) {
-    use crate::model::components::Position;
+    use crate::model::components::space::Position;
     let Some(pos) = world.objects.get_component::<Position>(&boss_oid) else {
         return;
     };
@@ -96,7 +96,7 @@ pub(crate) fn find_alive(world: &World, npc_id: i32) -> Option<i32> {
     world.npcs_with_id(npc_id).iter().copied().find(|oid| {
         world
             .objects
-            .get_component::<crate::model::components::Vitals>(oid)
+            .get_component::<crate::model::components::stats::Vitals>(oid)
             .is_some_and(|v| !v.dead)
     })
 }
@@ -122,7 +122,8 @@ pub(crate) fn leash_to_home(
     home: (i32, i32, i32),
     leash: f64,
 ) -> bool {
-    use crate::model::components::{Position, Vitals};
+    use crate::model::components::space::Position;
+    use crate::model::components::stats::Vitals;
 
     let alive = world
         .objects
@@ -290,7 +291,7 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     if b.current_hp > 0.0
         && let Some(v) = world
             .objects
-            .get_component_mut::<crate::model::components::Vitals>(&oid)
+            .get_component_mut::<crate::model::components::stats::Vitals>(&oid)
     {
         v.cur_hp = b.current_hp.min(v.max_hp as f64);
         v.cur_mp = b.current_mp.min(v.max_mp as f64);

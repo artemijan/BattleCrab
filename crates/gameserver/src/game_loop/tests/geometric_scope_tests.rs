@@ -5,7 +5,7 @@
 use super::*;
 
 use crate::game_loop::skills::affect::targets_affected;
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 use crate::model::skill::Skill;
 use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 

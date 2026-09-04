@@ -11,7 +11,8 @@ use super::*;
 use crate::db::GroundItemRow;
 use crate::game_loop::character::inventory;
 use crate::game_loop::items::ground_items;
-use crate::model::components::{GroundItem, Position};
+use crate::model::components::commerce::GroundItem;
+use crate::model::components::space::Position;
 
 /// `Adena` — stackable, and in the real item table.
 const STACKABLE: i32 = 57;

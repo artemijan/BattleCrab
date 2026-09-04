@@ -8,7 +8,7 @@ use crate::game_loop::combat::death;
 /// `onEvtFinishCasting`.
 #[test]
 fn move_click_during_cast_is_queued_and_replayed_when_cast_stops() {
-    use crate::model::components::QueuedAction;
+    use crate::model::components::combat::QueuedAction;
 
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -83,7 +83,7 @@ fn move_click_during_cast_is_queued_and_replayed_when_cast_stops() {
 #[test]
 fn move_click_mid_swing_defers_to_swing_end() {
     use crate::game_loop;
-    use crate::model::components::QueuedAction;
+    use crate::model::components::combat::QueuedAction;
 
     let (mut world, ..) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -107,7 +107,7 @@ fn move_click_mid_swing_defers_to_swing_end() {
     drain(&mut a_rx);
     let swing_end = world
         .objects
-        .get_component::<model::components::AttackState>(&3001)
+        .get_component::<model::components::combat::AttackState>(&3001)
         .unwrap()
         .attack_end_tick;
 
@@ -253,7 +253,7 @@ fn move_blocked_by_wall_defers_to_path_worker() {
     assert!(
         world
             .objects
-            .has_component::<model::components::PathWait>(&4001)
+            .has_component::<model::components::space::PathWait>(&4001)
     );
     assert!(
         mover_rx.try_recv().is_err(),
@@ -307,7 +307,7 @@ fn move_destination_is_clamped_by_geodata() {
 fn path_worker_round_trip_walks_around_wall() {
     use crate::geo::path::PathConfig;
     use crate::geo::{synthetic_region, wall_column_with_gap};
-    use crate::model::components::PathWait;
+    use crate::model::components::space::PathWait;
 
     let (mut world, ..) = test_world();
     // Mid-region wall at cell x == 10 with a gap at y ∈ [1010, 1014) — far
@@ -1135,7 +1135,8 @@ fn a_shopkeeper_cannot_stand_while_the_store_is_open() {
 #[test]
 fn a_seated_player_cannot_cast_attack_or_move_once_the_animation_lapses() {
     use crate::game_loop;
-    use crate::model::components::{Intent, Movement};
+    use crate::model::components::combat::Intent;
+    use crate::model::components::space::Movement;
 
     let (mut world, ..) = combat_test_world();
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -1263,7 +1264,7 @@ fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
     world.objects.remove_component::<Casting>(&3001);
     if let Some(st) = world
         .objects
-        .get_component_mut::<model::components::AttackState>(&3001)
+        .get_component_mut::<model::components::combat::AttackState>(&3001)
     {
         st.attack_end_tick = 0; // let the sit request past `isAttackingNow()`
     }

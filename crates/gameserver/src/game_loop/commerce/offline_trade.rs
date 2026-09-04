@@ -34,7 +34,8 @@ use tracing::info;
 
 use crate::db;
 use crate::model::Player;
-use crate::model::components::{ManufactureStore, PrivateBuyStore, PrivateStore, ZoneFlags};
+use crate::model::components::commerce::{ManufactureStore, PrivateBuyStore, PrivateStore};
+use crate::model::components::space::ZoneFlags;
 use crate::network::server_packets as sp;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -179,7 +180,7 @@ pub(crate) fn enter_offline_mode(world: &mut World, client_id: u32) -> bool {
         let pick = world.cfg.offline_trade.abnormal_effects[idx];
         let mut visuals = world
             .objects
-            .get_component::<crate::model::components::AdminVisuals>(&object_id)
+            .get_component::<crate::model::components::player::AdminVisuals>(&object_id)
             .cloned()
             .unwrap_or_default();
         visuals.0.push(pick);
@@ -500,7 +501,7 @@ pub(crate) fn restore_offline_traders(world: &mut World, traders: Vec<db::Offlin
 /// be rebuilt (Java logs and disconnects the half-loaded player).
 fn restore_one(world: &mut World, row: db::OfflineTraderRow, store_type: u8) -> bool {
     use crate::game_loop::skills::expertise;
-    use crate::model::components::StoreItem;
+    use crate::model::components::commerce::StoreItem;
     use crate::model::inventory::Inventory;
 
     let object_id = row.char.object_id;
@@ -564,7 +565,7 @@ fn restore_one(world: &mut World, row: db::OfflineTraderRow, store_type: u8) -> 
                 .items
                 .iter()
                 .map(
-                    |&(item_id, count, price)| crate::model::components::WantedItem {
+                    |&(item_id, count, price)| crate::model::components::commerce::WantedItem {
                         item_id,
                         count,
                         price,

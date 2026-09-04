@@ -4,7 +4,7 @@ use super::*;
 
 use crate::game_loop::dr_chaos::{self, CHAOS_GOLEM, CRAZY, DEAD, DOCTOR_CHAOS, NORMAL};
 use crate::game_loop::grand_boss::find_spawned;
-use crate::model::components::{DrChaosGolem, DrChaosState};
+use crate::model::components::summons::{DrChaosGolem, DrChaosState};
 
 const CID: u32 = 1;
 const PLAYER: i32 = 9970;

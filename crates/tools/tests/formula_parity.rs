@@ -1519,7 +1519,7 @@ fn timing_formulas_match_java_across_the_grid() {
     for &skill_time in &[0.0, 500.0, 1_333.0, 15_000.0] {
         for &spd in &[1, 33, 300, 1_500, 9_999] {
             for &magic in &[false, true] {
-                let combat = gameserver::model::components::CombatStats {
+                let combat = gameserver::model::components::stats::CombatStats {
                     p_atk_spd: spd,
                     m_atk_spd: spd,
                     ..Default::default()

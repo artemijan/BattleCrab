@@ -189,7 +189,7 @@ fn do_evolve(
     // with `DEFAULT_PUNISH`.
     if world
         .objects
-        .get_component::<crate::model::components::Vitals>(&pet_oid)
+        .get_component::<crate::model::components::stats::Vitals>(&pet_oid)
         .is_some_and(|v| v.dead)
     {
         crate::game_loop::moderation::punishment::illegal_action(
@@ -203,7 +203,7 @@ fn do_evolve(
     let (old_npc_id, old_level, old_exp, collar_object_id) = {
         let Some(pet) = world
             .objects
-            .get_component::<crate::model::components::PetOf>(&pet_oid)
+            .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
         else {
             return false;
         };
@@ -229,7 +229,7 @@ fn do_evolve(
     // Java keeps the pet's *name* across the evolution (the html says so).
     let old_name = world
         .objects
-        .get_component::<crate::model::components::PlayerPets>(&player_oid)
+        .get_component::<crate::model::components::summons::PlayerPets>(&player_oid)
         .and_then(|p| p.0.get(&collar_object_id).map(|r| r.name.clone()))
         .unwrap_or_default();
     let old_pos = maybe_position(world, pet_oid);
@@ -333,7 +333,7 @@ fn destroy_collar(world: &mut World, player_oid: i32, collar_object_id: i32) {
     }
     world
         .objects
-        .get_component_mut::<crate::model::components::PlayerPets>(&player_oid)
+        .get_component_mut::<crate::model::components::summons::PlayerPets>(&player_oid)
         .map(|p| p.0.remove(&collar_object_id));
     let _ = world
         .db
@@ -356,12 +356,12 @@ fn summon_evolved(
     collar_object_id: i32,
     exp: i64,
     name: Option<String>,
-    at: Option<crate::model::components::Position>,
+    at: Option<crate::model::components::space::Position>,
 ) -> bool {
     let level = level_for_exp(world, player_oid, collar_object_id, exp);
     if let Some(pets) = world
         .objects
-        .get_component_mut::<crate::model::components::PlayerPets>(&player_oid)
+        .get_component_mut::<crate::model::components::summons::PlayerPets>(&player_oid)
     {
         pets.0.insert(
             collar_object_id,
@@ -393,7 +393,7 @@ fn summon_evolved(
     if let Some(pos) = at {
         if let Some(p) = world
             .objects
-            .get_component_mut::<crate::model::components::Position>(&pet_oid)
+            .get_component_mut::<crate::model::components::space::Position>(&pet_oid)
         {
             *p = pos;
         }

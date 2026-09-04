@@ -17,7 +17,7 @@ fn write_shortcut_item_tail(w: &mut PacketWriter) {
 /// Port of `serverpackets/ShortCutInit` — the full panel, sent on enter
 /// world and after every deletion (there's no per-slot delete packet; Java
 /// re-sends the whole panel).
-pub fn shortcut_init(shortcuts: &crate::model::components::Shortcuts) -> Vec<u8> {
+pub fn shortcut_init(shortcuts: &crate::model::components::player::Shortcuts) -> Vec<u8> {
     use crate::model::shortcut::ShortcutType;
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::SHORT_CUT_INIT);
@@ -139,7 +139,7 @@ pub fn send_macro_list(
 /// `MacroList.sendAllMacros` — the enter-world macro burst: one packet per
 /// macro carrying the total count, or a single empty LIST packet when the
 /// player has none.
-pub fn send_all_macros(macros: &crate::model::components::Macros) -> Vec<Vec<u8>> {
+pub fn send_all_macros(macros: &crate::model::components::player::Macros) -> Vec<Vec<u8>> {
     use crate::model::shortcut::MacroUpdateType;
     if macros.entries.is_empty() {
         vec![send_macro_list(0, None, MacroUpdateType::List)]
@@ -161,7 +161,7 @@ mod tests {
 
     use commons::network::PacketWriter;
 
-    use crate::model::components::{Macros, Shortcuts};
+    use crate::model::components::player::{Macros, Shortcuts};
     use crate::model::shortcut::{
         Macro, MacroCmd, MacroType, MacroUpdateType, Shortcut, ShortcutType,
     };

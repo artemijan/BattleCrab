@@ -7,7 +7,7 @@
 use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::set_position;
-use crate::model::components::AdminFlags;
+use crate::model::components::player::AdminFlags;
 use crate::model::mob_group::{Controllable, MobGroup, MobGroupState};
 use crate::model::npc::Npc;
 use crate::world::World;
@@ -183,7 +183,7 @@ pub(super) fn admin_mobgroup_kill(
     for oid in members(world, group_id) {
         if world
             .objects
-            .get_component::<crate::model::components::Vitals>(&oid)
+            .get_component::<crate::model::components::stats::Vitals>(&oid)
             .is_some_and(|v| !v.dead)
         {
             npc::npc_do_die(world, oid, object_id);
@@ -208,7 +208,7 @@ pub(super) fn admin_mobgroup_teleport(
     for oid in members(world, group_id) {
         world
             .objects
-            .remove_component::<crate::model::components::Movement>(&oid);
+            .remove_component::<crate::model::components::space::Movement>(&oid);
         set_position(world, oid, (gm.x, gm.y, gm.z));
         super::visibility::update_npc_region(world, oid);
     }
@@ -354,7 +354,7 @@ fn alive(world: &World, group: &MobGroup) -> usize {
         .filter(|&&m| {
             world
                 .objects
-                .get_component::<crate::model::components::Vitals>(&m)
+                .get_component::<crate::model::components::stats::Vitals>(&m)
                 .is_some_and(|v| !v.dead)
         })
         .count()

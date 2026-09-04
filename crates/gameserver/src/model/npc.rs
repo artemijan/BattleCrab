@@ -228,18 +228,18 @@ impl AggroList {
 /// counterpart of `PlayerView`).
 pub struct NpcView<'a> {
     pub npc: &'a Npc,
-    pub pos: &'a crate::model::components::Position,
-    pub vitals: &'a crate::model::components::Vitals,
-    pub speeds: &'a crate::model::components::Speeds,
+    pub pos: &'a crate::model::components::space::Position,
+    pub vitals: &'a crate::model::components::stats::Vitals,
+    pub speeds: &'a crate::model::components::stats::Speeds,
 }
 
 impl<'a> NpcView<'a> {
     pub fn of(objects: &'a crate::store::EntityStore, object_id: i32) -> Option<Self> {
         Some(Self {
             npc: objects.get_component::<Npc>(&object_id)?,
-            pos: objects.get_component::<crate::model::components::Position>(&object_id)?,
-            vitals: objects.get_component::<crate::model::components::Vitals>(&object_id)?,
-            speeds: objects.get_component::<crate::model::components::Speeds>(&object_id)?,
+            pos: objects.get_component::<crate::model::components::space::Position>(&object_id)?,
+            vitals: objects.get_component::<crate::model::components::stats::Vitals>(&object_id)?,
+            speeds: objects.get_component::<crate::model::components::stats::Speeds>(&object_id)?,
         })
     }
 }
@@ -247,15 +247,15 @@ impl<'a> NpcView<'a> {
 /// The extracted-component tuple `for_test` builds (spawn via
 /// `npcs.insert_with(id, npc, extra)`).
 pub type NpcExtra = (
-    crate::model::components::Position,
-    crate::model::components::RegionCell,
-    crate::model::components::Vitals,
-    crate::model::components::Speeds,
-    crate::model::components::Collision,
-    crate::model::components::AttackState,
+    crate::model::components::space::Position,
+    crate::model::components::space::RegionCell,
+    crate::model::components::stats::Vitals,
+    crate::model::components::stats::Speeds,
+    crate::model::components::space::Collision,
+    crate::model::components::combat::AttackState,
     NpcAi,
     AggroList,
-    crate::model::components::Buffs,
+    crate::model::components::skills::Buffs,
 );
 
 impl Npc {
@@ -331,9 +331,9 @@ impl Npc {
         max_hp: i32,
         max_mp: i32,
     ) -> (Self, NpcExtra) {
-        use crate::model::components::{
-            AttackState, Collision, Position, RegionCell, Speeds, Vitals,
-        };
+        use crate::model::components::combat::AttackState;
+        use crate::model::components::space::{Collision, Position, RegionCell};
+        use crate::model::components::stats::{Speeds, Vitals};
         let npc = Self {
             object_id,
             npc_id,
@@ -399,7 +399,7 @@ impl Npc {
             AttackState::default(),
             NpcAi::default(),
             AggroList::default(),
-            crate::model::components::Buffs::default(),
+            crate::model::components::skills::Buffs::default(),
         );
         (npc, extra)
     }
@@ -437,18 +437,18 @@ mod tests {
             .find(|oid| {
                 world
                     .objects
-                    .get_component::<crate::model::components::Position>(oid)
+                    .get_component::<crate::model::components::space::Position>(oid)
                     .is_some_and(|p| p.x == 47984)
             })
             .expect("Giran npc 30878 at retail coords");
         let pos = world
             .objects
-            .get_component::<crate::model::components::Position>(&giran_guide_id)
+            .get_component::<crate::model::components::space::Position>(&giran_guide_id)
             .unwrap();
         assert_eq!((pos.y, pos.z, pos.heading), (186832, -3445, 42000));
         let region = world
             .objects
-            .get_component::<crate::model::components::RegionCell>(&giran_guide_id)
+            .get_component::<crate::model::components::space::RegionCell>(&giran_guide_id)
             .unwrap();
         assert_eq!(region.0, region_of(47984, 186832));
 
@@ -459,7 +459,7 @@ mod tests {
             for id in ids {
                 let cell = world
                     .objects
-                    .get_component::<crate::model::components::RegionCell>(id)
+                    .get_component::<crate::model::components::space::RegionCell>(id)
                     .unwrap();
                 assert_eq!(cell.0, *region);
             }
@@ -492,7 +492,7 @@ mod tests {
         let (combat, _speeds, max_hp, max_mp) = crate::model::npc_stats::npc_finalized_stats(
             &data,
             t,
-            &crate::model::components::Buffs::default(),
+            &crate::model::components::skills::Buffs::default(),
             crate::model::npc_stats::NpcStatMods::default(),
         );
         // HP: 4× (skill 4408) × (2632 base × 1.58 CON bonus).

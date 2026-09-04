@@ -89,7 +89,7 @@ fn reset_world_chat_points(world: &mut World) {
         crate::game_loop::helpers::set_player_var_int(
             world,
             oid,
-            crate::model::components::WORLD_CHAT_USED,
+            crate::model::components::player::WORLD_CHAT_USED,
             0,
         );
         let left = crate::game_loop::social::chat::world_chat_points_left(world, oid);

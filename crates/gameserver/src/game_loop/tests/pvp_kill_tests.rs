@@ -4,7 +4,8 @@ use super::*;
 
 use crate::game_loop::combat::pvp;
 use crate::model::Player;
-use crate::model::components::{PvpState, ZoneFlags};
+use crate::model::components::combat::PvpState;
+use crate::model::components::space::ZoneFlags;
 
 const KILLER: i32 = 2001;
 const VICTIM: i32 = 2002;
@@ -236,7 +237,7 @@ fn check_if_pvp_classifies_targets() {
 /// engages normally, and a PVP zone suspends the protection.
 #[test]
 fn blessing_of_protection_blocks_the_pk_both_ways() {
-    use crate::model::components::Intent;
+    use crate::model::components::combat::Intent;
     use crate::model::skill::BuffSlot;
     use crate::model::skill::active_buff::ActiveBuff;
 

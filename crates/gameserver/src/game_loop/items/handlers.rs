@@ -221,7 +221,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         if let Some(pet_oid) = crate::game_loop::servitor::pet_of(world, object_id) {
             let bound = world
                 .objects
-                .get_component::<crate::model::components::PetOf>(&pet_oid)
+                .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
                 .map(|p| p.collar_object_id);
             if bound == Some(pkt.object_id) {
                 // Capture the pet's state first (Java `unSummon` → `storeMe`);
@@ -233,7 +233,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         }
         world
             .objects
-            .get_component_mut::<crate::model::components::PlayerPets>(&object_id)
+            .get_component_mut::<crate::model::components::summons::PlayerPets>(&object_id)
             .map(|p| p.0.remove(&pkt.object_id));
         let _ = world.db.send(crate::db::DbCommand::DeletePetRow {
             collar_object_id: pkt.object_id,
@@ -322,7 +322,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     let required = t.crystal_type.required_crystallize_level();
     let skill_level = world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&player_oid)
+        .get_component::<crate::model::components::skills::SkillBook>(&player_oid)
         .and_then(|b| b.0.get(&CRYSTALLIZE_SKILL_ID).copied())
         .unwrap_or(0);
     if skill_level < required {

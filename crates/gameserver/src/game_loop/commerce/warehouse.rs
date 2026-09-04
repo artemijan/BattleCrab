@@ -15,7 +15,7 @@ use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{player_of, send_sm_bare_to_client};
 use crate::model::Player;
-use crate::model::components::ActiveWarehouse;
+use crate::model::components::commerce::ActiveWarehouse;
 use crate::model::inventory::{Freight, Inventory, ItemInstance, Warehouse};
 use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;
@@ -223,7 +223,7 @@ pub(crate) fn handle_deposit(world: &mut World, client_id: u32, body: &[u8]) {
     // open is the classic scroll-duplication exploit and punishes.
     if world
         .objects
-        .has_component::<crate::model::components::EnchantRequest>(&player_oid)
+        .has_component::<crate::model::components::commerce::EnchantRequest>(&player_oid)
     {
         crate::game_loop::moderation::punishment::illegal_action(
             world,
@@ -303,7 +303,7 @@ fn warehouse_limit(world: &World, player_oid: i32, tgt: WhTarget) -> i32 {
                     .map_or(0, |p| p.race),
                 world
                     .objects
-                    .get_component::<crate::model::components::StatModifiers>(&player_oid),
+                    .get_component::<crate::model::components::stats::StatModifiers>(&player_oid),
             );
             let base = if race == crate::enums::Race::Dwarf as i32 {
                 world.cfg.character.warehouse_slots_dwarf
@@ -602,7 +602,7 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
     // open punishes (the same scroll-duplication exploit as the deposit).
     if world
         .objects
-        .has_component::<crate::model::components::EnchantRequest>(&player_oid)
+        .has_component::<crate::model::components::commerce::EnchantRequest>(&player_oid)
     {
         crate::game_loop::moderation::punishment::illegal_action(
             world,
@@ -620,8 +620,8 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
     // Java: the freight manager must be the last folk NPC and in talk range.
     let manager_in_range = world
         .objects
-        .get_component::<crate::model::components::LastFolkNpc>(&player_oid)
-        .is_some_and(|&crate::model::components::LastFolkNpc(npc)| {
+        .get_component::<crate::model::components::player::LastFolkNpc>(&player_oid)
+        .is_some_and(|&crate::model::components::player::LastFolkNpc(npc)| {
             crate::game_loop::combat::target::can_interact(world, player_oid, npc)
         });
     if !manager_in_range {

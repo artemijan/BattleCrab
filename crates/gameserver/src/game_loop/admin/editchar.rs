@@ -40,12 +40,15 @@ fn online_players(world: &World) -> Vec<i32> {
 /// HP/MP and CP for an admin read-out, zeroed when the object carries neither
 /// component. A panel renders what it can rather than bailing, so both
 /// fallbacks are display defaults — never write them back onto a character.
-fn panel_vitals(world: &World, target: i32) -> (components::Vitals, components::PlayerVitals) {
+fn panel_vitals(
+    world: &World,
+    target: i32,
+) -> (components::stats::Vitals, components::stats::PlayerVitals) {
     let vit = world
         .objects
-        .get_component::<components::Vitals>(&target)
+        .get_component::<components::stats::Vitals>(&target)
         .copied()
-        .unwrap_or(components::Vitals {
+        .unwrap_or(components::stats::Vitals {
             max_hp: 0,
             cur_hp: 0.0,
             max_mp: 0,
@@ -54,9 +57,9 @@ fn panel_vitals(world: &World, target: i32) -> (components::Vitals, components::
         });
     let cp = world
         .objects
-        .get_component::<components::PlayerVitals>(&target)
+        .get_component::<components::stats::PlayerVitals>(&target)
         .copied()
-        .unwrap_or(components::PlayerVitals {
+        .unwrap_or(components::stats::PlayerVitals {
             max_cp: 0,
             cur_cp: 0.0,
         });
@@ -71,8 +74,11 @@ fn panel_vitals(world: &World, target: i32) -> (components::Vitals, components::
 /// carries its remaining lifetime instead), so targeting one is `INVALID_TARGET`
 /// exactly like targeting a player.
 pub(super) fn admin_fullfood(world: &mut World, client_id: u32, gm_object_id: i32) {
-    let pet = target::current(world, gm_object_id)
-        .filter(|oid| world.objects.has_component::<components::PetOf>(oid));
+    let pet = target::current(world, gm_object_id).filter(|oid| {
+        world
+            .objects
+            .has_component::<components::summons::PetOf>(oid)
+    });
     let Some(pet_oid) = pet else {
         send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
         return;
@@ -82,7 +88,7 @@ pub(super) fn admin_fullfood(world: &mut World, client_id: u32, gm_object_id: i3
     let owner = {
         let Some(p) = world
             .objects
-            .get_component_mut::<components::PetOf>(&pet_oid)
+            .get_component_mut::<components::summons::PetOf>(&pet_oid)
         else {
             send_sm_bare_to_client(world, client_id, sm_ids::INVALID_TARGET);
             return;
@@ -90,7 +96,7 @@ pub(super) fn admin_fullfood(world: &mut World, client_id: u32, gm_object_id: i3
         p.fed = p.max_fed;
         world
             .objects
-            .get_component::<components::ServitorOf>(&pet_oid)
+            .get_component::<components::summons::ServitorOf>(&pet_oid)
             .map(|s| s.owner_object_id)
     };
 
@@ -146,7 +152,7 @@ pub(super) fn admin_character_info(
     let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
         return;
     };
-    let pos = maybe_position(world, target).unwrap_or(components::Position {
+    let pos = maybe_position(world, target).unwrap_or(components::space::Position {
         x: 0,
         y: 0,
         z: 0,
@@ -155,17 +161,17 @@ pub(super) fn admin_character_info(
     let (vit, cp) = panel_vitals(world, target);
     let cs = world
         .objects
-        .get_component::<components::CombatStats>(&target)
+        .get_component::<components::stats::CombatStats>(&target)
         .copied()
         .unwrap_or_default();
     let spd = world
         .objects
-        .get_component::<components::Speeds>(&target)
+        .get_component::<components::stats::Speeds>(&target)
         .map(|s| s.run_spd)
         .unwrap_or(0.0);
     let pvp_flag = world
         .objects
-        .get_component::<components::PvpState>(&target)
+        .get_component::<components::combat::PvpState>(&target)
         .map(|s| s.flag)
         .unwrap_or(0);
     let clan = if p.clan_id == 0 {
@@ -460,7 +466,7 @@ pub(super) fn admin_set_pvp_flag(world: &mut World, client_id: u32, object_id: i
     };
     let cur = world
         .objects
-        .get_component::<components::PvpState>(&target)
+        .get_component::<components::combat::PvpState>(&target)
         .map_or(0, |s| s.flag);
     let next = (cur as i32 - 1).unsigned_abs() as u8;
     crate::game_loop::combat::pvp::update_pvp_flag(world, target, next);
@@ -480,9 +486,9 @@ pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32,
         },
     };
     let target_name = helpers::player_name_or_empty(world, target);
-    let Some(components::PartyRef(pid)) = world
+    let Some(components::social::PartyRef(pid)) = world
         .objects
-        .get_component::<components::PartyRef>(&target)
+        .get_component::<components::social::PartyRef>(&target)
         .copied()
     else {
         // Java: not-in-party still opens the window (empty party table).
@@ -548,7 +554,7 @@ pub(super) fn admin_setparam(
         .filter(|oid| {
             world
                 .objects
-                .has_component::<components::StatModifiers>(oid)
+                .has_component::<components::stats::StatModifiers>(oid)
         })
         .unwrap_or(object_id);
     if set {
@@ -558,7 +564,7 @@ pub(super) fn admin_setparam(
         };
         if let Some(m) = world
             .objects
-            .get_component_mut::<components::StatModifiers>(&target)
+            .get_component_mut::<components::stats::StatModifiers>(&target)
         {
             m.fixed.insert(stat, value);
         }
@@ -570,7 +576,7 @@ pub(super) fn admin_setparam(
     } else {
         if let Some(m) = world
             .objects
-            .get_component_mut::<components::StatModifiers>(&target)
+            .get_component_mut::<components::stats::StatModifiers>(&target)
         {
             m.fixed.remove(&stat);
         }
@@ -689,7 +695,7 @@ fn targeted_summon(world: &World, object_id: i32) -> Option<(i32, i32)> {
     let target = target::current(world, object_id)?;
     let owner = world
         .objects
-        .get_component::<components::ServitorOf>(&target)?
+        .get_component::<components::summons::ServitorOf>(&target)?
         .owner_object_id;
     Some((target, owner))
 }
@@ -723,11 +729,11 @@ pub(super) fn admin_summon_info(world: &mut World, client_id: u32, object_id: i3
         .unwrap_or_default();
     let pet = world
         .objects
-        .get_component::<components::PetOf>(&summon_oid)
+        .get_component::<components::summons::PetOf>(&summon_oid)
         .copied();
     let (cur_hp, max_hp, cur_mp, max_mp) = world
         .objects
-        .get_component::<components::Vitals>(&summon_oid)
+        .get_component::<components::stats::Vitals>(&summon_oid)
         .map_or((0, 0, 0, 0), |v| {
             (v.cur_hp as i32, v.max_hp, v.cur_mp as i32, v.max_mp)
         });
@@ -783,9 +789,11 @@ pub(super) fn admin_summon_setlvl(
         send_message(world, client_id, "Usage: //summon_setlvl level");
         return;
     };
-    let Some((pet_oid, owner)) = targeted_summon(world, object_id)
-        .filter(|(oid, _)| world.objects.has_component::<components::PetOf>(oid))
-    else {
+    let Some((pet_oid, owner)) = targeted_summon(world, object_id).filter(|(oid, _)| {
+        world
+            .objects
+            .has_component::<components::summons::PetOf>(oid)
+    }) else {
         send_message(world, client_id, "Usable only with Pets");
         return;
     };
@@ -799,7 +807,7 @@ pub(super) fn admin_summon_setlvl(
     };
     if let Some(p) = world
         .objects
-        .get_component_mut::<components::PetOf>(&pet_oid)
+        .get_component_mut::<components::summons::PetOf>(&pet_oid)
     {
         p.level = level;
         p.exp = exp;
@@ -817,11 +825,19 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
     // Java's argument is the *owner's* object id (`World.getPet(ownerId)`).
     let pet_oid = helpers::nth_arg::<i32>(args, 0)
         .and_then(|owner| crate::game_loop::servitor::servitor_of(world, owner))
-        .filter(|oid| world.objects.has_component::<components::PetOf>(oid))
+        .filter(|oid| {
+            world
+                .objects
+                .has_component::<components::summons::PetOf>(oid)
+        })
         .or_else(|| {
             targeted_summon(world, object_id)
                 .map(|(oid, _)| oid)
-                .filter(|oid| world.objects.has_component::<components::PetOf>(oid))
+                .filter(|oid| {
+                    world
+                        .objects
+                        .has_component::<components::summons::PetOf>(oid)
+                })
         });
     let Some(pet_oid) = pet_oid else {
         send_message(world, client_id, "Usable only with Pets");
@@ -955,7 +971,10 @@ fn quest_first_menu(name: &str, target: i32) -> String {
 /// them, each linking to its editor.
 fn quest_state_list(world: &World, target: i32, name: &str, state: Option<u8>) -> String {
     let mut rows = String::new();
-    if let Some(q) = world.objects.get_component::<components::Quests>(&target) {
+    if let Some(q) = world
+        .objects
+        .get_component::<components::social::Quests>(&target)
+    {
         let mut entries: Vec<_> =
             q.0.iter()
                 .filter(|(_, st)| state.is_none_or(|want| st.state == want))
@@ -985,7 +1004,7 @@ fn quest_state_list(world: &World, target: i32, name: &str, state: Option<u8>) -
 fn quest_editor(world: &World, target: i32, name: &str, quest: &str) -> String {
     let st = world
         .objects
-        .get_component::<components::Quests>(&target)
+        .get_component::<components::social::Quests>(&target)
         .and_then(|q| q.0.get(quest).cloned());
     let state = st.as_ref().map_or("CREATED".to_string(), |s| {
         crate::model::quest::state::name(s.state).to_uppercase()
@@ -1046,7 +1065,7 @@ pub(super) fn admin_setcharquest(world: &mut World, client_id: u32, args: &[&str
     };
     let Some(quests) = world
         .objects
-        .get_component_mut::<components::Quests>(&target)
+        .get_component_mut::<components::social::Quests>(&target)
     else {
         return;
     };
@@ -1091,7 +1110,10 @@ fn refresh_quest_journal(world: &mut World, target: i32, quest: &str) {
     let Some(target_cid) = helpers::client_for_player(world, target) else {
         return;
     };
-    let Some(quests) = world.objects.get_component::<components::Quests>(&target) else {
+    let Some(quests) = world
+        .objects
+        .get_component::<components::social::Quests>(&target)
+    else {
         return;
     };
     let list = crate::network::enter_world::quest_list(quests, &world.quests);

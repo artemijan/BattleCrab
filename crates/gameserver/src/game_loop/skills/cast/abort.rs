@@ -4,7 +4,7 @@ use super::stop_casting;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::net::broadcast;
-use crate::model::components::Casting;
+use crate::model::components::combat::Casting;
 use crate::network::server_packets;
 use crate::world::World;
 /// Java `SkillCaster._item`: mark the running cast as started by this item
@@ -89,7 +89,7 @@ pub(crate) fn abort_cast_when_untargeted(world: &mut World, object_id: i32) {
     }
     let has_target = world
         .objects
-        .get_component::<crate::model::components::TargetRef>(&object_id)
+        .get_component::<crate::model::components::combat::TargetRef>(&object_id)
         .is_some_and(|t| t.0.is_some());
     if has_target {
         return;
@@ -128,13 +128,13 @@ pub(crate) fn break_cast(world: &mut World, object_id: i32) {
 pub(crate) fn known_skill_level(world: &World, object_id: i32, skill_id: i32) -> Option<i32> {
     if let Some(level) = world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&object_id)
+        .get_component::<crate::model::components::skills::SkillBook>(&object_id)
         .and_then(|book| book.0.get(&skill_id).copied())
     {
         return Some(level);
     }
     world
         .objects
-        .get_component::<crate::model::components::OptionSkills>(&object_id)
+        .get_component::<crate::model::components::skills::OptionSkills>(&object_id)
         .and_then(|opts| opts.0.get(&skill_id).copied())
 }

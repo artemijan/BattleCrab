@@ -14,7 +14,7 @@ use crate::game_loop::clans::hall_function;
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::clan::{CH_DISMISS, CH_OPEN_DOOR, CH_OTHER_RIGHTS, CH_SET_FUNCTIONS};
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 
 /// `CLANHALL_MANAGERS` — every clan-hall manager NPC.
 const MANAGERS: &[i32] = &[

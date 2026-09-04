@@ -223,7 +223,7 @@ fn the_exp_award_is_dead_while_retail_like_is_on() {
 #[test]
 fn the_exp_award_is_refused_in_the_guarded_states() {
     use crate::data::zone_data::ZoneKind;
-    use crate::model::components::ZoneFlags;
+    use crate::model::components::space::ZoneFlags;
 
     for kind in [ZoneKind::Peace, ZoneKind::Pvp, ZoneKind::Siege] {
         let (mut world, _db, _l) = cast_test_world();

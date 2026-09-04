@@ -57,7 +57,7 @@ const DESPAWN_DELAY_SECS: u64 = 20;
 pub(crate) fn on_core_spawned(world: &mut World, core_oid: i32) {
     world
         .objects
-        .add_components(&core_oid, crate::model::components::Immobilized);
+        .add_components(&core_oid, crate::model::components::combat::Immobilized);
     // Java's spawn path restores `_firstAttacked` from `Core_Attacked`, so a
     // restart between the intro and the kill does not replay the intro lines.
     let first_attacked =

@@ -34,7 +34,7 @@ use commons::network::PacketReader;
 
 use crate::data::item_data::kinds::EtcItemType;
 use crate::game_loop::character::inventory;
-use crate::model::components::EnchantRequest;
+use crate::model::components::commerce::EnchantRequest;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self as sp, enchant_result};
 use crate::world::World;

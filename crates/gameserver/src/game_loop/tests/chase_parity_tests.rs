@@ -22,7 +22,8 @@
 
 use super::*;
 use crate::game_loop;
-use crate::model::components::{Following, Immobilized, Intent, Movement};
+use crate::model::components::combat::{Immobilized, Intent};
+use crate::model::components::space::{Following, Movement};
 
 /// The gremlin from `combat_test_world`, spawned at (x, 0) with combat stats.
 fn spawn_gremlin(world: &mut World, npc_oid: i32, x: i32) {

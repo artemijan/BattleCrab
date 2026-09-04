@@ -10,7 +10,7 @@ use super::*;
 
 use crate::data::zone_data::{MotherTreeParams, Zone, ZoneKind};
 use crate::model::Player;
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 
 const PLAYER: i32 = 9701;
 const CID: u32 = 1;

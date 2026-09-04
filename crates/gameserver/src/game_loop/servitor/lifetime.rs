@@ -18,10 +18,10 @@ use crate::world::World;
 /// `SummonInfo` to every nearby player except the owner (who has the
 /// `PetInfo` view). Used when the servitor first appears.
 pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summoned: bool) {
-    use crate::model::components::RegionCell;
+    use crate::model::components::space::RegionCell;
     let Some(link) = world
         .objects
-        .get_component::<components::ServitorOf>(&servitor_oid)
+        .get_component::<components::summons::ServitorOf>(&servitor_oid)
         .copied()
     else {
         return;
@@ -39,16 +39,16 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
     let (Some(pos), Some(vitals), Some(speeds), Some(combat)) = (
         world
             .objects
-            .get_component::<components::Position>(&servitor_oid),
+            .get_component::<components::space::Position>(&servitor_oid),
         world
             .objects
-            .get_component::<components::Vitals>(&servitor_oid),
+            .get_component::<components::stats::Vitals>(&servitor_oid),
         world
             .objects
-            .get_component::<components::Speeds>(&servitor_oid),
+            .get_component::<components::stats::Speeds>(&servitor_oid),
         world
             .objects
-            .get_component::<components::CombatStats>(&servitor_oid),
+            .get_component::<components::stats::CombatStats>(&servitor_oid),
     ) else {
         return;
     };
@@ -102,7 +102,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     use crate::network::server_packets::{SmParam, sm_ids};
     let Some(link) = world
         .objects
-        .get_component::<components::ServitorOf>(&servitor_oid)
+        .get_component::<components::summons::ServitorOf>(&servitor_oid)
         .copied()
     else {
         return;
@@ -148,7 +148,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
             );
             if let Some(l) = world
                 .objects
-                .get_component_mut::<components::ServitorOf>(&servitor_oid)
+                .get_component_mut::<components::summons::ServitorOf>(&servitor_oid)
             {
                 l.next_consume_tick = world.tick + interval * TICKS_PER_SECOND;
             }
@@ -182,7 +182,7 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     {
         if let Some(l) = world
             .objects
-            .get_component_mut::<components::ServitorOf>(&servitor_oid)
+            .get_component_mut::<components::summons::ServitorOf>(&servitor_oid)
         {
             l.following = true;
         }

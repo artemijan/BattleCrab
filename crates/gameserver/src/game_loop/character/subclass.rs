@@ -26,7 +26,7 @@ use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
-use crate::model::components::SkillBook;
+use crate::model::components::skills::SkillBook;
 use crate::model::{Player, SubClass};
 use crate::world::World;
 
@@ -192,7 +192,7 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
     //    played before, and let `set_level` below add the auto-granted tree.
     let outgoing_enchants = world
         .objects
-        .get_component::<crate::model::components::SkillEnchants>(&player_oid)
+        .get_component::<crate::model::components::skills::SkillEnchants>(&player_oid)
         .map(|e| e.0.clone())
         .unwrap_or_default();
     let outgoing: Vec<(i32, i32, i32)> = world
@@ -223,7 +223,7 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
     // Enchant sub-levels ride the same banked rows.
     if let Some(ench) = world
         .objects
-        .get_component_mut::<crate::model::components::SkillEnchants>(&player_oid)
+        .get_component_mut::<crate::model::components::skills::SkillEnchants>(&player_oid)
     {
         ench.0.clear();
         for &(id, _, sub) in &incoming {
@@ -238,7 +238,7 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
     //     switch). Bank the outgoing set, take the incoming one.
     let outgoing_henna: Vec<(i32, i32)> = world
         .objects
-        .get_component::<crate::model::components::HennaSlots>(&player_oid)
+        .get_component::<crate::model::components::skills::HennaSlots>(&player_oid)
         .map(|h| {
             h.0.iter()
                 .enumerate()
@@ -248,7 +248,7 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
         .unwrap_or_default();
     let outgoing_shortcuts: Vec<crate::model::shortcut::Shortcut> = world
         .objects
-        .get_component::<crate::model::components::Shortcuts>(&player_oid)
+        .get_component::<crate::model::components::player::Shortcuts>(&player_oid)
         .map(|s| s.0.values().cloned().collect())
         .unwrap_or_default();
     let (incoming_henna, incoming_shortcuts) = {
@@ -276,13 +276,13 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
     }
     if let Some(h) = world
         .objects
-        .get_component_mut::<crate::model::components::HennaSlots>(&player_oid)
+        .get_component_mut::<crate::model::components::skills::HennaSlots>(&player_oid)
     {
         h.0 = slots;
     }
     if let Some(sc) = world
         .objects
-        .get_component_mut::<crate::model::components::Shortcuts>(&player_oid)
+        .get_component_mut::<crate::model::components::player::Shortcuts>(&player_oid)
     {
         sc.0.clear();
         for s in incoming_shortcuts {
@@ -301,7 +301,7 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
     //     used to sit out a long reuse on the class that started it.
     if let Some(reuses) = world
         .objects
-        .get_component_mut::<crate::model::components::Reuses>(&player_oid)
+        .get_component_mut::<crate::model::components::skills::Reuses>(&player_oid)
     {
         reuses.0.clear();
     }
@@ -444,7 +444,7 @@ fn add_quests_ok(world: &World, player_oid: i32) -> bool {
     let completed = |name: &str| {
         world
             .objects
-            .get_component::<crate::model::components::Quests>(&player_oid)
+            .get_component::<crate::model::components::social::Quests>(&player_oid)
             .and_then(|q| q.0.get(name))
             .is_some_and(|qs| qs.state == crate::model::quest::state::COMPLETED)
     };

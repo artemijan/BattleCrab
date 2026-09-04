@@ -8,9 +8,9 @@ use super::send_no_quest_html;
 use super::show_result;
 use crate::game_loop::{helpers, npc};
 
-use crate::model::components::LastFolkNpc;
-use crate::model::components::QuestTimerSeqs;
-use crate::model::components::Quests;
+use crate::model::components::player::LastFolkNpc;
+use crate::model::components::social::QuestTimerSeqs;
+use crate::model::components::social::Quests;
 use crate::model::quest::state;
 use crate::network::enter_world as ew;
 use crate::network::server_packets;
@@ -509,12 +509,17 @@ pub(crate) fn handle_tutorial_bypass(world: &mut World, client_id: u32, bypass: 
 /// spawn starts blank), exactly like Java's per-creature `_seenCreatures`.
 pub(crate) fn handle_creature_see_sweep(world: &mut World) {
     let registry = world.quests.clone();
-    let mut watchers: Vec<(i32, i32, (i32, i32), crate::model::components::Position)> = Vec::new();
+    let mut watchers: Vec<(
+        i32,
+        i32,
+        (i32, i32),
+        crate::model::components::space::Position,
+    )> = Vec::new();
     world.objects.for_each_mut::<(
         &crate::model::npc::Npc,
-        &crate::model::components::Position,
-        &crate::model::components::Vitals,
-        &crate::model::components::RegionCell,
+        &crate::model::components::space::Position,
+        &crate::model::components::stats::Vitals,
+        &crate::model::components::space::RegionCell,
     )>(|(n, p, v, r)| {
         if !v.dead && registry.has_creature_see(n.npc_id) {
             watchers.push((n.object_id, n.npc_id, r.0, *p));
@@ -544,7 +549,7 @@ pub(crate) fn handle_creature_see_sweep(world: &mut World) {
         for pid in world.players_visible_from(region).collect::<Vec<_>>() {
             let hidden = world
                 .objects
-                .get_component::<crate::model::components::AdminFlags>(&pid)
+                .get_component::<crate::model::components::player::AdminFlags>(&pid)
                 .is_some_and(|f| f.hidden);
             if !hidden && in_sight(world, pid) {
                 fresh.push(pid);
@@ -564,17 +569,18 @@ pub(crate) fn handle_creature_see_sweep(world: &mut World) {
         }
         if world
             .objects
-            .get_component::<crate::model::components::SeenCreatures>(&npc_oid)
+            .get_component::<crate::model::components::space::SeenCreatures>(&npc_oid)
             .is_none()
         {
-            world
-                .objects
-                .add_components(&npc_oid, crate::model::components::SeenCreatures::default());
+            world.objects.add_components(
+                &npc_oid,
+                crate::model::components::space::SeenCreatures::default(),
+            );
         }
         let newly: Vec<i32> = {
             let Some(seen) = world
                 .objects
-                .get_component_mut::<crate::model::components::SeenCreatures>(&npc_oid)
+                .get_component_mut::<crate::model::components::space::SeenCreatures>(&npc_oid)
             else {
                 continue;
             };

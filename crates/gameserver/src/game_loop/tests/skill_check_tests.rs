@@ -9,7 +9,7 @@
 
 use super::*;
 use crate::data::SkillCheckSettings;
-use crate::model::components::SkillBook;
+use crate::model::components::skills::SkillBook;
 
 /// A skill id no tree on this dist grants at any level.
 const ILLEGAL_SKILL: i32 = 999_001;

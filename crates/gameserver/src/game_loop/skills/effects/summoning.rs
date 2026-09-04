@@ -3,7 +3,7 @@
 
 use super::servitor_owner_of;
 use crate::game_loop::space::position::pos_of;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
 use crate::world::World;
 /// `SummonNpc.instant` — the `EffectPoint` branch drops the symbol totems
@@ -47,7 +47,7 @@ pub(crate) fn summon_npc(
     let (x, y, z) = if skill.target_type == crate::model::skill::target::TargetType::Ground {
         world
             .objects
-            .get_component::<crate::model::components::GroundSkillTarget>(&target_oid)
+            .get_component::<crate::model::components::space::GroundSkillTarget>(&target_oid)
             .map(|g| (g.x, g.y, g.z))
             .unwrap_or(fallback)
     } else {

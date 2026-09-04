@@ -8,7 +8,8 @@ use super::*;
 use crate::game_loop::character::inventory;
 
 use crate::game_loop::space::observation;
-use crate::model::components::{Observing, Position};
+use crate::model::components::player::Observing;
+use crate::model::components::space::Position;
 
 const TOWER_ID: i32 = 31031;
 const TOWER_OID: i32 = 5301;

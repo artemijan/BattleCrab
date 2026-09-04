@@ -85,15 +85,14 @@ pub(crate) fn find_toma(world: &mut World) -> Option<i32> {
 
 pub fn find_by_npc_id(world: &mut World, npc_id: i32) -> Option<i32> {
     let mut found = None;
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &crate::model::components::Position)>(
-            |(n, _)| {
-                if n.npc_id == npc_id {
-                    found = Some(n.object_id);
-                }
-            },
-        );
+    world.objects.for_each_mut::<(
+        &crate::model::npc::Npc,
+        &crate::model::components::space::Position,
+    )>(|(n, _)| {
+        if n.npc_id == npc_id {
+            found = Some(n.object_id);
+        }
+    });
     found
 }
 
@@ -258,7 +257,7 @@ pub(crate) fn handle_castle_mass_teleport(world: &mut World, npc_oid: i32) {
         };
         let other_pos = world
             .objects
-            .get_component::<crate::model::components::Position>(&s.player_object_id());
+            .get_component::<crate::model::components::space::Position>(&s.player_object_id());
         let Some(p) = other_pos else { continue };
         let other_region = world
             .data
@@ -326,7 +325,7 @@ pub(crate) fn eilhalder_on_day_night_change(world: &mut World, night: bool) {
     let alive = find_by_npc_id(world, EILHALDER).and_then(|oid| {
         world
             .objects
-            .get_component::<crate::model::components::Vitals>(&oid)
+            .get_component::<crate::model::components::stats::Vitals>(&oid)
             .map(|v| (oid, !v.dead))
     });
     match alive {
@@ -402,7 +401,7 @@ pub(crate) fn handle_guard_random_walk(world: &mut World, npc_oid: i32) {
     };
     let alive = world
         .objects
-        .get_component::<crate::model::components::Vitals>(&npc_oid)
+        .get_component::<crate::model::components::stats::Vitals>(&npc_oid)
         .is_some_and(|v| !v.dead);
     if alive && !npc_in_combat(world, npc_oid) {
         // `Util.getRandomPosition(spawnLoc, 0, MAX_DRIFT_RANGE)`: an

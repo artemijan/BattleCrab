@@ -323,7 +323,7 @@ fn the_heal_beat_stops_when_the_queen_dies() {
 /// rotation.
 #[test]
 fn nurse_faction_call_heals_the_hurt_caller() {
-    use crate::model::components::Casting;
+    use crate::model::components::combat::Casting;
 
     let (mut world, _db, _l) = queen_world();
     let queen = NPC_OID;

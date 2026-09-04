@@ -15,7 +15,7 @@ use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;
-use crate::model::components::Speeds;
+use crate::model::components::stats::Speeds;
 use crate::model::npc::Npc;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;

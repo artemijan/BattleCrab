@@ -4,7 +4,8 @@ use crate::data::henna_data::Henna;
 use crate::data::item_data::kinds::{CrystalType, EtcItemType, ItemHandler, ItemKind};
 use crate::data::item_data::template::ItemTemplate;
 use crate::game_loop::character::henna;
-use crate::model::components::{BaseStats, HennaSlots};
+use crate::model::components::skills::HennaSlots;
+use crate::model::components::stats::BaseStats;
 use crate::model::inventory::Inventory;
 
 const DYE_ITEM: i32 = 4445;

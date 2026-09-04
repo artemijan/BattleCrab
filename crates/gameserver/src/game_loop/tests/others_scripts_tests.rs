@@ -8,7 +8,7 @@ use crate::data::zone_data::ZoneData;
 use crate::game_loop::npc::area::{
     self, BLACKSMITH_OF_MAMMON, MERCHANT_OF_MAMMON, PRIEST_OF_MAMMON,
 };
-use crate::model::components::ActiveMultisell;
+use crate::model::components::commerce::ActiveMultisell;
 
 const DIST: &str = crate::data::DIST_GAME;
 
@@ -967,7 +967,7 @@ fn the_siege_headquarters_ignores_a_lethal_blow() {
     assert!(
         world
             .objects
-            .has_component::<model::components::NotLethalable>(&oid),
+            .has_component::<model::components::combat::NotLethalable>(&oid),
         "the spawn hook marks it non-lethalable"
     );
 }
@@ -1488,7 +1488,7 @@ fn mammon_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     (world, rx)
 }
 
-fn rows_of(world: &World, player: i32) -> Vec<model::components::PreparedRow> {
+fn rows_of(world: &World, player: i32) -> Vec<model::components::commerce::PreparedRow> {
     world
         .objects
         .get_component::<ActiveMultisell>(&player)
@@ -1704,7 +1704,7 @@ fn maintain_enchantment_carries_the_enchant_over() {
 #[test]
 fn mercenary_ticket_pickup_needs_the_privilege() {
     use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
-    use crate::model::components::Intent;
+    use crate::model::components::combat::Intent;
 
     let (mut world, _db, _l, _link) = test_world();
     insert_siege_zone(&mut world, GLUDIO, -500, 500, -500, 500);

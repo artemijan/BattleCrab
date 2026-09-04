@@ -1,4 +1,4 @@
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 use crate::world::World;
 
 pub fn position_of(world: &World, oid: i32) -> Option<(i32, i32, i32)> {
@@ -76,7 +76,7 @@ pub fn distance_2d_xy(tx: i32, ty: i32, cx: i32, cy: i32) -> f64 {
 /// target.collisionRadius`). A plain [`within_3d`] under-reaches for fat
 /// NPCs.
 pub fn within_3d_collision(world: &World, a: i32, b: i32, range: f64) -> bool {
-    use crate::model::components::Collision;
+    use crate::model::components::space::Collision;
     let radius = |oid: &i32| {
         world
             .objects

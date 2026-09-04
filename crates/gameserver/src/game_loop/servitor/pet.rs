@@ -15,8 +15,8 @@ use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, npc};
 
-use crate::model::components::ServitorOf;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
+use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets;
 use crate::world::World;
 /// The object id of the collar that summoned the player's currently-out pet.
@@ -29,7 +29,7 @@ pub(crate) fn active_pet_collar(world: &World, owner_oid: i32) -> Option<i32> {
     let pet = pet_of(world, owner_oid)?;
     world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet)
+        .get_component::<crate::model::components::summons::PetOf>(&pet)
         .map(|p| p.collar_object_id)
 }
 
@@ -37,7 +37,7 @@ pub(crate) fn active_pet_collar(world: &World, owner_oid: i32) -> Option<i32> {
 pub(crate) fn pet_of(world: &World, owner_oid: i32) -> Option<i32> {
     let oid = world
         .objects
-        .get_component::<crate::model::components::SummonRef>(&owner_oid)?
+        .get_component::<crate::model::components::summons::SummonRef>(&owner_oid)?
         .pet?;
     world
         .objects
@@ -57,7 +57,7 @@ pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
     };
     let Some(pet) = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
         .copied()
     else {
         return;
@@ -85,7 +85,7 @@ pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
     };
     if let Some(pets) = world
         .objects
-        .get_component_mut::<crate::model::components::PlayerPets>(&owner_oid)
+        .get_component_mut::<crate::model::components::summons::PlayerPets>(&owner_oid)
     {
         pets.0.insert(row.collar_object_id, row);
     }
@@ -104,7 +104,7 @@ pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
 /// same relationship whether it came from a skill or a collar. Its own state
 /// (collar, food bar) lives in `PetOf`.
 pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
-    use crate::model::components::PetOf;
+    use crate::model::components::summons::PetOf;
     use crate::network::server_packets::sm_ids;
 
     world
@@ -136,7 +136,7 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
     // Here the row is already in memory (`PlayerPets`, loaded at login).
     let saved = world
         .objects
-        .get_component::<crate::model::components::PlayerPets>(&owner_oid)
+        .get_component::<crate::model::components::summons::PlayerPets>(&owner_oid)
         .and_then(|p| p.0.get(&collar_object_id).cloned());
 
     let owner_level = world
@@ -322,7 +322,7 @@ pub(crate) fn handle_request_pet_get_item(world: &mut World, client_id: u32, bod
     };
     let Some(ground) = world
         .objects
-        .get_component::<crate::model::components::GroundItem>(&item_oid)
+        .get_component::<crate::model::components::commerce::GroundItem>(&item_oid)
         .cloned()
     else {
         crate::game_loop::helpers::send_action_failed(world, client_id);
@@ -367,7 +367,7 @@ pub(crate) fn handle_request_pet_get_item(world: &mut World, client_id: u32, bod
     }
     world.objects.add_components(
         &pet_oid,
-        crate::model::components::SummonPickup {
+        crate::model::components::summons::SummonPickup {
             item_object_id: item_oid,
         },
     );
@@ -383,7 +383,7 @@ pub(crate) fn handle_request_pet_get_item(world: &mut World, client_id: u32, bod
 pub(crate) fn pet_pickup_think(world: &mut World, pet_oid: i32) -> bool {
     let Some(order) = world
         .objects
-        .get_component::<crate::model::components::SummonPickup>(&pet_oid)
+        .get_component::<crate::model::components::summons::SummonPickup>(&pet_oid)
         .copied()
     else {
         return false;
@@ -392,7 +392,7 @@ pub(crate) fn pet_pickup_think(world: &mut World, pet_oid: i32) -> bool {
     // `checkTargetLost` — someone else lifted it, or it decayed.
     let gone = !world
         .objects
-        .has_component::<crate::model::components::GroundItem>(&item_oid);
+        .has_component::<crate::model::components::commerce::GroundItem>(&item_oid);
     if gone || helpers::is_dead(world, pet_oid) {
         end_pickup(world, pet_oid);
         return false;
@@ -420,7 +420,7 @@ pub(crate) fn pet_pickup_think(world: &mut World, pet_oid: i32) -> bool {
 fn end_pickup(world: &mut World, pet_oid: i32) {
     world
         .objects
-        .remove_component::<crate::model::components::SummonPickup>(&pet_oid);
+        .remove_component::<crate::model::components::summons::SummonPickup>(&pet_oid);
     if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&pet_oid) {
         l.following = true;
     }
@@ -433,7 +433,7 @@ fn end_pickup(world: &mut World, pet_oid: i32) {
 /// pet has no party of its own. What differs from the player path is only
 /// where the item lands (`PetInventory`) and the one message that says so.
 fn pet_pickup_item(world: &mut World, pet_oid: i32, item_oid: i32) {
-    use crate::model::components::GroundItem;
+    use crate::model::components::commerce::GroundItem;
     let Some(owner_oid) = world
         .objects
         .get_component::<ServitorOf>(&pet_oid)

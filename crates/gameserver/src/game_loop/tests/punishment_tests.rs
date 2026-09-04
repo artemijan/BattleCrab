@@ -8,7 +8,7 @@ use crate::data::spawn_data::{Territory, ZoneForm};
 use crate::data::zone_data::{Zone, ZoneKind};
 use crate::db::DbCommand;
 use crate::game_loop::moderation::punishment;
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 use crate::model::punishment as punishment_models;
 use crate::scheduler::ScheduledTask;
 
@@ -263,7 +263,7 @@ fn on_enter_world_reapplies_jail_to_a_returning_inmate() {
 }
 
 // --- Slice 2: ban / chat-ban / party-ban -----------------------------------
-use crate::model::components::PendingRequest;
+use crate::model::components::social::PendingRequest;
 
 fn ban(
     world: &mut World,

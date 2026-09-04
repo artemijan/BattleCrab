@@ -6,7 +6,7 @@ use crate::game_loop::skills::skill_by_id;
 
 use crate::game_loop::character::sit_stand;
 use crate::game_loop::helpers::stat_mul;
-use crate::model::components::PlayerVitals;
+use crate::model::components::stats::PlayerVitals;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
 use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};

@@ -4,7 +4,8 @@
 use crate::data::GameData;
 
 use super::Player;
-use super::components::{BaseStats, Buffs, CombatStats, Speeds, StatModifiers};
+use super::components::skills::Buffs;
+use super::components::stats::{BaseStats, CombatStats, Speeds, StatModifiers};
 use super::inventory::Inventory;
 use super::skill::BuffSlot;
 use super::skill::active_buff::ActiveBuff;

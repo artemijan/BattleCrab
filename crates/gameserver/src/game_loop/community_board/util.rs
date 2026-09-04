@@ -8,7 +8,7 @@ use crate::game_loop::client::user_commands::in_combat;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_message;
 use crate::model::Player;
-use crate::model::components::Casting;
+use crate::model::components::combat::Casting;
 use crate::model::inventory::Inventory;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -94,7 +94,7 @@ pub(super) fn is_busy(world: &World, object_id: i32) -> bool {
     let casting = world.objects.has_component::<Casting>(&object_id);
     let pvp = world
         .objects
-        .get_component::<crate::model::components::PvpState>(&object_id)
+        .get_component::<crate::model::components::combat::PvpState>(&object_id)
         .is_some_and(|s| s.flag > 0);
     let dead = is_dead(world, object_id);
     // `isInCombat()` — the 15 s attack stance, not merely mid-swing.
@@ -120,7 +120,7 @@ pub(super) fn in_zone(
 ) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&object_id)
+        .get_component::<crate::model::components::space::ZoneFlags>(&object_id)
         .is_some_and(|f| f.contains(kind))
 }
 

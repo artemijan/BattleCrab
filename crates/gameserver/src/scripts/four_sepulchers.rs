@@ -10,7 +10,9 @@ use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
-use crate::model::components::{AdminFlags, Position, Vitals};
+use crate::model::components::player::AdminFlags;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 
 const ROOM_3_VICTIM: i32 = 18150;
 const ROOM_3_CHEST_REWARDER: i32 = 18158;

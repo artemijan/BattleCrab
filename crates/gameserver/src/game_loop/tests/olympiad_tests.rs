@@ -539,7 +539,8 @@ fn stage_match(
 
 #[test]
 fn pre_fight_countdown_announces_then_teleports_then_fights() {
-    use crate::model::components::{Position, Vitals};
+    use crate::model::components::space::Position;
+    use crate::model::components::stats::Vitals;
     use crate::model::olympiad::NobleStats;
     let (mut world, _tx, _db, _l) = test_world();
     world.olympiad.in_comp_period = true;
@@ -618,7 +619,7 @@ fn pre_fight_countdown_announces_then_teleports_then_fights() {
 
 #[test]
 fn a_match_resolves_on_death_with_scoring() {
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
     let (mut world, _tx, _db, _l) = test_world();
     let mut rx = stage_match(&mut world, 100, 200, 30, 20);
 
@@ -680,7 +681,7 @@ fn a_timed_out_match_is_a_draw() {
 
 #[test]
 fn point_transfer_is_clamped() {
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
     let (mut world, _tx, _db, _l) = test_world();
     // Both nearly broke → min/5 rounds to 0, clamped up to 1.
     stage_match(&mut world, 100, 200, 3, 3);
@@ -825,7 +826,7 @@ fn heroes_persist_and_apply_on_login() {
 
 #[test]
 fn round_end_banks_trade_points() {
-    use crate::model::components::PlayerVariables;
+    use crate::model::components::player::PlayerVariables;
     let (mut world, _tx, _db, _l) = test_world();
     world
         .data
@@ -877,7 +878,7 @@ fn round_end_banks_offline_nobles_to_the_db() {
 
 #[test]
 fn point_mark_exchange_gives_marks_of_battle() {
-    use crate::model::components::PlayerVariables;
+    use crate::model::components::player::PlayerVariables;
     use crate::model::inventory::Inventory;
     let (mut world, _db_rx, _link) = quest_test_world();
     add_test_npc(&mut world, 700, 31688, "Folk", 70, 0, 0, 0);
@@ -917,7 +918,7 @@ fn point_mark_exchange_gives_marks_of_battle() {
 
 #[test]
 fn match_start_strips_active_buffs() {
-    use crate::model::components::Buffs;
+    use crate::model::components::skills::Buffs;
     use crate::model::skill::active_buff::ActiveBuff;
     let (mut world, _tx, _db, _l) = test_world();
     let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
@@ -1000,7 +1001,7 @@ fn round_end_announces_to_online_players() {
 
 #[test]
 fn point_exchange_refused_when_inventory_over_80_percent() {
-    use crate::model::components::PlayerVariables;
+    use crate::model::components::player::PlayerVariables;
     use crate::model::inventory::Inventory;
     let (mut world, _db_rx, _link) = quest_test_world();
     add_test_npc(&mut world, 700, 31688, "Folk", 70, 0, 0, 0);
@@ -1178,7 +1179,8 @@ fn monument_non_hero_is_refused() {
 /// back, `ExOlympiadMode(0)`, observer state dropped).
 #[test]
 fn olympiad_observer_round_trip() {
-    use crate::model::components::{InstanceId, OlympiadObserver, Position};
+    use crate::model::components::player::OlympiadObserver;
+    use crate::model::components::space::{InstanceId, Position};
     let (mut world, _tx, _db, _l) = test_world();
     world.olympiad.in_comp_period = true;
     let _fighters = stage_match(&mut world, 100, 200, 10, 10);
@@ -1497,7 +1499,8 @@ fn the_round_end_snapshots_the_class_leaderboard() {
 /// watching a destroyed instance.
 #[test]
 fn an_observer_follows_the_arena_into_the_next_match() {
-    use crate::model::components::{OlympiadObserver, Vitals};
+    use crate::model::components::player::OlympiadObserver;
+    use crate::model::components::stats::Vitals;
     use crate::model::olympiad::NobleStats;
     let (mut world, _tx, _db, _l) = test_world();
     world.olympiad.in_comp_period = true;

@@ -46,7 +46,7 @@ use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::space::position;
 use crate::model::Player;
 use crate::model::castle::CastleSide;
-use crate::model::components::ServitorOf;
+use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets::{SmParam, sm_ids};
 use crate::world::World;
 

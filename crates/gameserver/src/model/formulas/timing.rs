@@ -13,8 +13,8 @@ const SKILL_LAUNCH_TIME_MS: f64 = 500.0;
 /// speed for an unarmed player is the class template's `basePAtkSpd`.
 pub fn calc_atk_spd_multiplier(
     p: &Player,
-    base: &crate::model::components::BaseStats,
-    mods: &crate::model::components::StatModifiers,
+    base: &crate::model::components::stats::BaseStats,
+    mods: &crate::model::components::stats::StatModifiers,
     data: &GameData,
     // `Stat.weaponBaseValue(creature, PHYSICAL_ATTACK_SPEED)` — the **equipped
     // weapon's** declared attack speed, which replaces the class base for a
@@ -44,8 +44,8 @@ pub fn calc_atk_spd_multiplier(
 
 /// `Formulas.calcMAtkSpdMultiplier` (armorBonus = 1).
 pub fn calc_m_atk_spd_multiplier(
-    base: &crate::model::components::BaseStats,
-    mods: &crate::model::components::StatModifiers,
+    base: &crate::model::components::stats::BaseStats,
+    mods: &crate::model::components::stats::StatModifiers,
     data: &GameData,
 ) -> f64 {
     let wit_bonus = data.stat_bonus.bonus(BaseStat::Wit, base.wit);
@@ -67,8 +67,8 @@ pub fn calc_m_atk_spd_multiplier(
 /// the spiritshot hit-time term is 0.
 pub fn calc_skill_time_factor(
     p: &Player,
-    base: &crate::model::components::BaseStats,
-    mods: &crate::model::components::StatModifiers,
+    base: &crate::model::components::stats::BaseStats,
+    mods: &crate::model::components::stats::StatModifiers,
     data: &GameData,
     skill: &Skill,
     // `creature.isChargedShot(SPIRITSHOTS) || isChargedShot(BLESSED_SPIRITSHOTS)`
@@ -102,8 +102,8 @@ pub fn calc_skill_time_factor(
 /// `Formulas.calcSkillCancelTime` — the launch→finish phase length in ms.
 pub fn calc_skill_cancel_time(
     p: &Player,
-    base: &crate::model::components::BaseStats,
-    mods: &crate::model::components::StatModifiers,
+    base: &crate::model::components::stats::BaseStats,
+    mods: &crate::model::components::stats::StatModifiers,
     data: &GameData,
     skill: &Skill,
     spiritshot_charged: bool,
@@ -125,7 +125,7 @@ pub fn calc_skill_cancel_time(
 /// `Formulas.calcAtkSpd` — the post-finish cool phase in ms (magic scales by
 /// casting speed against the 333 base, physical by attack speed against 300).
 pub fn calc_atk_spd(
-    combat: &crate::model::components::CombatStats,
+    combat: &crate::model::components::stats::CombatStats,
     skill: &Skill,
     skill_time: f64,
 ) -> i32 {
@@ -144,9 +144,9 @@ pub fn calc_atk_spd(
 /// `SetupGauge`) is `hit + cancel`.
 pub fn calc_cast_times(
     p: &Player,
-    base: &crate::model::components::BaseStats,
-    mods: &crate::model::components::StatModifiers,
-    combat: &crate::model::components::CombatStats,
+    base: &crate::model::components::stats::BaseStats,
+    mods: &crate::model::components::stats::StatModifiers,
+    combat: &crate::model::components::stats::CombatStats,
     data: &GameData,
     skill: &Skill,
     spiritshot_charged: bool,

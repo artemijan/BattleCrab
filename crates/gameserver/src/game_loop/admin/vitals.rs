@@ -8,7 +8,7 @@ use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;
-use crate::model::components::{PlayerVitals, Vitals};
+use crate::model::components::stats::{PlayerVitals, Vitals};
 use crate::model::npc::Npc;
 use crate::network::server_packets::{self, status_update_type as sut};
 use crate::world::World;

@@ -8,7 +8,7 @@
 
 use crate::game_loop::helpers::{send_message, send_to_client as send};
 use crate::game_loop::space::position::{pos_of, region_cell_of};
-use crate::model::components::DebugDraw;
+use crate::model::components::space::DebugDraw;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -258,7 +258,7 @@ fn draw_move_line(world: &mut World, client_id: u32, object_id: i32) {
     };
     let mv = world
         .objects
-        .get_component::<crate::model::components::Movement>(&object_id)
+        .get_component::<crate::model::components::space::Movement>(&object_id)
         .map(|m| {
             (
                 (m.0.dest_x, m.0.dest_y, m.0.dest_z),

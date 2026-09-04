@@ -12,7 +12,8 @@
 
 use super::*;
 
-use crate::model::components::{AttackState, Casting, Movement};
+use crate::model::components::combat::{AttackState, Casting};
+use crate::model::components::space::Movement;
 use crate::model::npc::{NpcAi, NpcIntention};
 
 const PLAYER: i32 = 3001;

@@ -22,7 +22,8 @@ use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::moderation::bot_report;
 use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::{BaseStats, Buffs, CombatStats, StatModifiers, Vitals};
+use crate::model::components::skills::Buffs;
+use crate::model::components::stats::{BaseStats, CombatStats, StatModifiers, Vitals};
 use crate::model::formulas;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
 use crate::model::skill::Skill;
@@ -334,7 +335,7 @@ pub(crate) fn reset_charges(world: &mut World, player_oid: i32, seq: u64) {
 pub(crate) fn servitor_owner_of(world: &World, servitor_oid: i32) -> Option<i32> {
     world
         .objects
-        .get_component::<crate::model::components::ServitorOf>(&servitor_oid)
+        .get_component::<crate::model::components::summons::ServitorOf>(&servitor_oid)
         .map(|s| s.owner_object_id)
         .filter(|&owner| owner != 0)
 }
@@ -388,7 +389,7 @@ pub(crate) fn apply_skill_effects(
             Some(_) => HealCaster::PlayerFighter,
             None if world
                 .objects
-                .get_component::<crate::model::components::ServitorOf>(&caster_oid)
+                .get_component::<crate::model::components::summons::ServitorOf>(&caster_oid)
                 .is_some() =>
             {
                 HealCaster::Summon
@@ -1060,7 +1061,7 @@ fn set_skill(world: &mut World, player_oid: i32, skill_id: i32, skill_level: i32
     }
     let Some(book) = world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&player_oid)
+        .get_component_mut::<crate::model::components::skills::SkillBook>(&player_oid)
     else {
         // Not a player — Java's `if (!effected.isPlayer()) return`.
         return;
@@ -1162,7 +1163,7 @@ fn castle_escape(world: &mut World, player_oid: i32) -> Option<(i32, i32, i32)> 
             // a live siege qualifies.
             let pos = world
                 .objects
-                .get_component::<crate::model::components::Position>(&player_oid)?;
+                .get_component::<crate::model::components::space::Position>(&player_oid)?;
             let id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
             let siege = world.sieges.get(&id)?;
             let defending = siege.in_progress

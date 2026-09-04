@@ -61,7 +61,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // origin==target stop check, before `setIntention`).
     let collision_height = world
         .objects
-        .get_component::<components::Collision>(&object_id)
+        .get_component::<components::space::Collision>(&object_id)
         .map_or(0.0, |c| c.height);
     let target_z = (pkt.target_z as f64 + collision_height) as i32;
 
@@ -115,19 +115,19 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // swings.
     let mid_swing = world
         .objects
-        .get_component::<components::AttackState>(&object_id)
+        .get_component::<components::combat::AttackState>(&object_id)
         .is_some_and(|st| st.attack_end_tick > world.tick);
     if mid_swing
         || world
             .objects
-            .has_component::<components::Casting>(&object_id)
+            .has_component::<components::combat::Casting>(&object_id)
     {
         world
             .objects
-            .remove_component::<components::Intent>(&object_id);
+            .remove_component::<components::combat::Intent>(&object_id);
         world.objects.add_components(
             &object_id,
-            components::QueuedAction::Move {
+            components::combat::QueuedAction::Move {
                 x: pkt.target_x,
                 y: pkt.target_y,
                 z: target_z,
@@ -139,11 +139,11 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // A manual move click replaces an attack loop (MOVE_TO intention).
     if world
         .objects
-        .has_component::<components::Intent>(&object_id)
+        .has_component::<components::combat::Intent>(&object_id)
     {
         world
             .objects
-            .remove_component::<components::Intent>(&object_id);
+            .remove_component::<components::combat::Intent>(&object_id);
     }
 
     intention_move_to(
@@ -288,10 +288,10 @@ fn slide_to(
     // keeps interpolating from the new point toward the old destination.
     world
         .objects
-        .remove_component::<components::Movement>(&object_id);
+        .remove_component::<components::space::Movement>(&object_id);
     world
         .objects
-        .remove_component::<components::PathWait>(&object_id);
+        .remove_component::<components::space::PathWait>(&object_id);
     broadcast::broadcast_including_self(
         world,
         object_id,
@@ -320,10 +320,10 @@ pub(crate) fn handle_request_stop_move(world: &mut World, client_id: u32) {
 
     world
         .objects
-        .remove_component::<components::Movement>(&object_id);
+        .remove_component::<components::space::Movement>(&object_id);
     world
         .objects
-        .remove_component::<components::PathWait>(&object_id);
+        .remove_component::<components::space::PathWait>(&object_id);
 
     broadcast::broadcast_including_self(
         world,
@@ -359,14 +359,14 @@ pub(crate) fn handle_ex_send_selected_quest_zone_id(
 pub(crate) fn is_in_water(world: &World, object_id: i32) -> bool {
     if !world
         .objects
-        .get_component::<components::Speeds>(&object_id)
+        .get_component::<components::stats::Speeds>(&object_id)
         .is_some_and(|s| s.swimming)
     {
         return false;
     }
     let Some(pos) = world
         .objects
-        .get_component::<components::Position>(&object_id)
+        .get_component::<components::space::Position>(&object_id)
     else {
         return false;
     };
@@ -381,7 +381,7 @@ pub(crate) fn intention_move_to(
     world: &mut World,
     client_id: u32,
     object_id: i32,
-    cur: components::Position,
+    cur: components::space::Position,
     target: (i32, i32, i32),
 ) {
     let (mut target_x, mut target_y, mut target_z) = target;
@@ -433,7 +433,7 @@ pub(crate) fn intention_move_to(
         let gty = world.geo.get_geo_y(original_y);
         if let Some(mv) = world
             .objects
-            .get_component_mut::<components::Movement>(&object_id)
+            .get_component_mut::<components::space::Movement>(&object_id)
             && let Some(gp) = &mv.0.geo_path
             && gp.has_next()
         {
@@ -470,7 +470,7 @@ pub(crate) fn intention_move_to(
         let seq = world.next_path_seq();
         world
             .objects
-            .add_components(&object_id, components::PathWait { seq });
+            .add_components(&object_id, components::space::PathWait { seq });
         let _ = world.path.send(PathRequest {
             seq,
             client_id,
@@ -517,14 +517,14 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
     // Stale reply: the player left, or clicked again (newer seq) — drop it.
     match world
         .objects
-        .get_component::<components::PathWait>(&object_id)
+        .get_component::<components::space::PathWait>(&object_id)
     {
         Some(w) if w.seq == seq => {}
         _ => return,
     }
     world
         .objects
-        .remove_component::<components::PathWait>(&object_id);
+        .remove_component::<components::space::PathWait>(&object_id);
 
     // Java `found = (geoPath != null) && (geoPath.size() > 1)`; a player
     // with no path gets ActionFailed (any in-flight move keeps running).
@@ -546,7 +546,7 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
     let is_dead = helpers::is_dead(world, object_id);
     if world
         .objects
-        .has_component::<components::Casting>(&object_id)
+        .has_component::<components::combat::Casting>(&object_id)
         || is_dead
     {
         if is_player {
@@ -579,7 +579,7 @@ pub(crate) fn start_move(
     world: &mut World,
     client_id: u32,
     object_id: i32,
-    cur: components::Position,
+    cur: components::space::Position,
     dest: (i32, i32, i32),
     geo_path: Option<GeoPath>,
 ) {
@@ -604,8 +604,8 @@ pub(crate) fn start_move(
     let heading = model::movement::calculate_heading(dx, dy);
     let Some(speed) = world
         .objects
-        .get_component::<components::Speeds>(&object_id)
-        .map(components::Speeds::move_speed)
+        .get_component::<components::stats::Speeds>(&object_id)
+        .map(components::stats::Speeds::move_speed)
     else {
         return;
     };
@@ -618,13 +618,13 @@ pub(crate) fn start_move(
 
     if let Some(pos) = world
         .objects
-        .get_component_mut::<components::Position>(&object_id)
+        .get_component_mut::<components::space::Position>(&object_id)
     {
         pos.heading = heading;
     }
     world.objects.add_components(
         &object_id,
-        components::Movement(model::movement::MoveData {
+        components::space::Movement(model::movement::MoveData {
             start_x,
             start_y,
             start_z,
@@ -668,10 +668,10 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     // hangs on the black loading screen.
     if world
         .objects
-        .has_component::<components::Casting>(&object_id)
+        .has_component::<components::combat::Casting>(&object_id)
         || world
             .objects
-            .has_component::<components::Observing>(&object_id)
+            .has_component::<components::player::Observing>(&object_id)
         || world
             .objects
             .get_component::<Player>(&object_id)
@@ -684,7 +684,7 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
         && pkt.y == 0
         && world
             .objects
-            .get_component::<components::Position>(&object_id)
+            .get_component::<components::space::Position>(&object_id)
             .is_some_and(|p| p.x != 0)
     {
         return;
@@ -707,9 +707,9 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     } = world;
     let Some((mut player, mut pos, speeds, mut client)) = objects.get_many_mut::<(
         &mut Player,
-        &mut components::Position,
-        &components::Speeds,
-        &mut components::ClientPos,
+        &mut components::space::Position,
+        &components::stats::Speeds,
+        &mut components::space::ClientPos,
     )>(&object_id) else {
         return;
     };
@@ -817,24 +817,24 @@ pub(crate) fn handle_cannot_move_anymore(world: &mut World, client_id: u32, body
 
     world
         .objects
-        .remove_component::<components::Movement>(&object_id);
+        .remove_component::<components::space::Movement>(&object_id);
     world
         .objects
-        .remove_component::<components::PathWait>(&object_id);
+        .remove_component::<components::space::PathWait>(&object_id);
     // `if (getIntention() == MOVE_TO || getIntention() == CAST) setIntention(ACTIVE)`
     // — an attack or interact intention survives, and its own think re-issues
     // the walk.
     let clear = matches!(
         world
             .objects
-            .get_component::<components::Intent>(&object_id)
+            .get_component::<components::combat::Intent>(&object_id)
             .map(|i| i.0),
         Some(crate::model::PlayerIntent::Cast { .. })
     );
     if clear {
         world
             .objects
-            .remove_component::<components::Intent>(&object_id);
+            .remove_component::<components::combat::Intent>(&object_id);
     }
 
     // `clientStopMoving(location)`: land where the client says it stopped.
@@ -891,7 +891,7 @@ pub(crate) fn handle_finish_rotating(world: &mut World, client_id: u32, body: &[
     };
     if let Some(pos) = world
         .objects
-        .get_component_mut::<components::Position>(&object_id)
+        .get_component_mut::<components::space::Position>(&object_id)
     {
         pos.heading = degree;
     }
@@ -940,7 +940,7 @@ pub(crate) fn handle_cannot_move_anymore_in_vehicle(
     }
     if let Some(pos) = world
         .objects
-        .get_component_mut::<components::Position>(&object_id)
+        .get_component_mut::<components::space::Position>(&object_id)
     {
         pos.heading = heading;
     }
@@ -977,7 +977,7 @@ pub(crate) fn pos_of(world: &World, object_id: i32) -> Option<(i32, i32, i32)> {
 pub(crate) fn set_position(world: &mut World, object_id: i32, (x, y, z): (i32, i32, i32)) {
     if let Some(p) = world
         .objects
-        .get_component_mut::<components::Position>(&object_id)
+        .get_component_mut::<components::space::Position>(&object_id)
     {
         p.x = x;
         p.y = y;
@@ -996,7 +996,7 @@ pub(crate) fn set_position_heading(
 ) {
     if let Some(p) = world
         .objects
-        .get_component_mut::<components::Position>(&object_id)
+        .get_component_mut::<components::space::Position>(&object_id)
     {
         p.x = x;
         p.y = y;
@@ -1013,13 +1013,13 @@ pub(crate) fn set_position_heading(
 pub(crate) fn stop_movement(world: &mut World, object_id: i32) {
     if !world
         .objects
-        .has_component::<components::Movement>(&object_id)
+        .has_component::<components::space::Movement>(&object_id)
     {
         return;
     }
     world
         .objects
-        .remove_component::<components::Movement>(&object_id);
+        .remove_component::<components::space::Movement>(&object_id);
     if let Some(pos) = maybe_position(world, object_id) {
         broadcast::broadcast_including_self(
             world,
@@ -1040,7 +1040,7 @@ pub(crate) fn stop_movement(world: &mut World, object_id: i32) {
 pub(crate) fn region_cell_of(world: &World, object_id: i32) -> Option<(i32, i32)> {
     world
         .objects
-        .get_component::<components::RegionCell>(&object_id)
+        .get_component::<components::space::RegionCell>(&object_id)
         .map(|r| r.0)
 }
 
@@ -1049,17 +1049,17 @@ pub(crate) fn region_cell_of(world: &World, object_id: i32) -> Option<(i32, i32)
 ///
 /// [`pos_of`] is the same read narrowed to `(x, y, z)`; take this one where the
 /// heading matters or the whole struct gets passed on.
-pub(crate) fn maybe_position(world: &World, object_id: i32) -> Option<components::Position> {
+pub(crate) fn maybe_position(world: &World, object_id: i32) -> Option<components::space::Position> {
     world
         .objects
-        .get_component::<components::Position>(&object_id)
+        .get_component::<components::space::Position>(&object_id)
         .copied()
 }
 
 /// [`maybe_position`] for the call sites that hold something which cannot be
 /// anywhere but in the world — panics rather than inventing an origin, because
 /// a missing position there is a bug in the caller, not a despawn.
-pub(crate) fn position(world: &World, object_id: i32) -> components::Position {
+pub(crate) fn position(world: &World, object_id: i32) -> components::space::Position {
     maybe_position(world, object_id)
         .unwrap_or_else(|| panic!("object {} must have position", object_id))
 }

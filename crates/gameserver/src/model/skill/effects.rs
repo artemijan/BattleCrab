@@ -39,7 +39,7 @@ pub struct StatModifierEffect {
     /// struct keeps the whole buff pipeline (landing, stacking, removal,
     /// passive folding) unchanged; the split happens in `apply_modifier`, which
     /// routes a qualified effect into the matching
-    /// [`crate::model::components::StatModifiers`] map instead of `add`/`mul`.
+    /// [`crate::model::components::stats::StatModifiers`] map instead of `add`/`mul`.
     ///
     /// Each kind carries its own merge semantics — additive for move type,
     /// multiplicative for position — so `mode` is not consulted on either path.
@@ -1168,7 +1168,7 @@ pub enum SkillEffect {
     /// resistance to a set of `TraitType`s (Mental Shield's HOLD/SLEEP/
     /// DERANGEMENT, Stun Resistance's SHOCK, …) via `mergeDefenceTrait`. The
     /// per-trait resistances are not a single `Stat`, so they live in their own
-    /// [`DefenceTraits`](crate::model::components::DefenceTraits) component,
+    /// [`DefenceTraits`](crate::model::components::stats::DefenceTraits) component,
     /// merged on buff start and unmerged on expiry, and are read by
     /// `calc_general_trait_bonus` in the debuff-landing roll.
     DefenceTrait {

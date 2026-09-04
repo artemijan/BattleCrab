@@ -20,7 +20,9 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::skills::item_skills;
 use crate::model::Player;
-use crate::model::components::{AutoPlaySettings, AutoUseSettings, SkillBook, ZoneFlags};
+use crate::model::components::player::{AutoPlaySettings, AutoUseSettings};
+use crate::model::components::skills::SkillBook;
+use crate::model::components::space::ZoneFlags;
 use crate::model::inventory::Inventory;
 use crate::world::World;
 
@@ -159,7 +161,7 @@ fn cast_attack_skills(world: &mut World, player_oid: i32) {
     }
     let Some(target) = world
         .objects
-        .get_component::<crate::model::components::TargetRef>(&player_oid)
+        .get_component::<crate::model::components::combat::TargetRef>(&player_oid)
         .and_then(|t| t.0)
     else {
         return;
@@ -427,7 +429,7 @@ fn known_level(world: &World, player_oid: i32, skill_id: i32) -> Option<i32> {
 fn busy_casting(world: &World, player_oid: i32) -> bool {
     world
         .objects
-        .has_component::<crate::model::components::Casting>(&player_oid)
+        .has_component::<crate::model::components::combat::Casting>(&player_oid)
 }
 
 fn cast(world: &mut World, player_oid: i32, skill_id: i32) {

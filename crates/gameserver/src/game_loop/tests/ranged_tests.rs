@@ -4,7 +4,7 @@ use super::*;
 
 use crate::data::item_data::kinds::{CrystalType, EtcItemType, ItemKind, WeaponType};
 use crate::data::item_data::template::ItemTemplate;
-use crate::model::components::RangedReload;
+use crate::model::components::combat::RangedReload;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 
 const ARCHER: i32 = 2001;

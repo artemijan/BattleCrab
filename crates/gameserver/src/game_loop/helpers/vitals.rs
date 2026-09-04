@@ -2,8 +2,8 @@
 
 use crate::model;
 use crate::model::Player;
-use crate::model::components::StatModifiers;
-use crate::model::components::Vitals;
+use crate::model::components::stats::StatModifiers;
+use crate::model::components::stats::Vitals;
 use crate::model::inventory::Inventory;
 use crate::model::stats::Stat;
 use crate::world::World;
@@ -25,7 +25,7 @@ use crate::world::World;
 pub(crate) fn in_zone(world: &World, object_id: i32, zone: &crate::data::zone_data::Zone) -> bool {
     world
         .objects
-        .get_component::<model::components::Position>(&object_id)
+        .get_component::<model::components::space::Position>(&object_id)
         .is_some_and(|p| zone.contains(p.x, p.y, p.z))
 }
 
@@ -80,7 +80,7 @@ pub(crate) fn is_dead(world: &World, object_id: i32) -> bool {
 pub(crate) fn is_friend(world: &World, owner_oid: i32, target_oid: i32) -> bool {
     world
         .objects
-        .get_component::<model::components::Friends>(&owner_oid)
+        .get_component::<model::components::social::Friends>(&owner_oid)
         .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == target_oid))
 }
 
@@ -116,7 +116,7 @@ pub(crate) fn restore_hp_mp(world: &mut World, object_id: i32) {
 /// do that in their own borrow *before* calling this; the recompute reads them
 /// back through a fresh lookup.
 pub(crate) fn recalculate_player_stats(world: &mut World, object_id: i32) {
-    use crate::model::components::{BaseStats, CombatStats, Speeds};
+    use crate::model::components::stats::{BaseStats, CombatStats, Speeds};
     if let Some((p, base, mods, inventory, mut speeds, mut combat)) = world.objects.get_many_mut::<(
         &Player,
         &BaseStats,
@@ -152,7 +152,7 @@ pub(crate) fn recalculate_player_stats_and_vitals(world: &mut World, object_id: 
 pub(crate) fn vitals_pair(
     world: &World,
     player_oid: i32,
-) -> Option<(Vitals, model::components::PlayerVitals)> {
+) -> Option<(Vitals, model::components::stats::PlayerVitals)> {
     Some((
         world
             .objects
@@ -160,7 +160,7 @@ pub(crate) fn vitals_pair(
             .copied()?,
         world
             .objects
-            .get_component::<model::components::PlayerVitals>(&player_oid)
+            .get_component::<model::components::stats::PlayerVitals>(&player_oid)
             .copied()?,
     ))
 }

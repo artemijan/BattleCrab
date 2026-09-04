@@ -165,10 +165,10 @@ pub fn inventory_update_changes(
 /// group (`Skill.reuseDelayGroup`, -1 when ungrouped), disabled (clan
 /// reputation gate — always false, no clans yet), enchanted (always false).
 pub fn skill_list(
-    skills: &crate::model::components::SkillBook,
-    enchants: &crate::model::components::SkillEnchants,
-    clan_skills: &crate::model::components::ClanSkills,
-    option_skills: &crate::model::components::OptionSkills,
+    skills: &crate::model::components::skills::SkillBook,
+    enchants: &crate::model::components::skills::SkillEnchants,
+    clan_skills: &crate::model::components::skills::ClanSkills,
+    option_skills: &crate::model::components::skills::OptionSkills,
     data: &GameData,
 ) -> Vec<u8> {
     // Java `sendSkillList` writes the player's own skills *and* everything it
@@ -315,7 +315,7 @@ pub fn ex_enchant_skill_result(success: bool) -> Vec<u8> {
 /// Ancient Books are the only `<item>` children in these trees).
 pub fn acquire_skill_list(
     p: &Player,
-    skills: &crate::model::components::SkillBook,
+    skills: &crate::model::components::skills::SkillBook,
     data: &GameData,
 ) -> Vec<u8> {
     let learnable = data
@@ -375,7 +375,7 @@ pub fn etc_status_update(
 /// it, skipping the 256..10255 and >11023 id ranges that don't fit the
 /// client's table).
 pub fn quest_list(
-    quests: &crate::model::components::Quests,
+    quests: &crate::model::components::social::Quests,
     registry: &crate::game_loop::quests::QuestRegistry,
 ) -> Vec<u8> {
     let mut active: Vec<(i32, i32)> = Vec::new();
@@ -408,7 +408,10 @@ pub fn quest_list(
 /// `BuffInfo` list) — display id/level/sub-level, `AbnormalType` client id,
 /// remaining seconds. `now_tick` is `world.tick` (10 ticks/s) so the
 /// remaining time can be derived from each buff's `expires_at_tick`.
-pub fn abnormal_status_update(buffs: &crate::model::components::Buffs, now_tick: u64) -> Vec<u8> {
+pub fn abnormal_status_update(
+    buffs: &crate::model::components::skills::Buffs,
+    now_tick: u64,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x85);
     // Passive stand-ins (grade penalties) drive stats but never show as an
@@ -442,7 +445,7 @@ pub fn abnormal_status_update(buffs: &crate::model::components::Buffs, now_tick:
 /// feeds the "cast by" tooltip.
 pub fn ex_abnormal_status_update_from_target(
     object_id: i32,
-    buffs: &crate::model::components::Buffs,
+    buffs: &crate::model::components::skills::Buffs,
     now_tick: u64,
 ) -> Vec<u8> {
     let mut w = ex(0xE6);
@@ -478,7 +481,10 @@ fn write_optional_int(w: &mut PacketWriter, value: i32) {
 
 /// `MoveToLocation` (0x2F): destination == current position (Java sends this on
 /// enter so the client fixes the character's position).
-pub fn move_to_location(object_id: i32, pos: &crate::model::components::Position) -> Vec<u8> {
+pub fn move_to_location(
+    object_id: i32,
+    pos: &crate::model::components::space::Position,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0x2F);
     w.write_i32(object_id);
@@ -658,7 +664,7 @@ pub fn ex_storage_max_count(
     race: i32,
     is_gm: bool,
     cfg: &crate::config::CharacterConfig,
-    mods: &crate::model::components::StatModifiers,
+    mods: &crate::model::components::stats::StatModifiers,
 ) -> Vec<u8> {
     use crate::model::stats::Stat;
     let is_dwarf = race == crate::enums::Race::Dwarf as i32;

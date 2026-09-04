@@ -204,7 +204,7 @@ fn transform_allows(world: &World, object_id: i32, action_id: i32) -> bool {
 pub(crate) fn run_walk(world: &mut World, object_id: i32) {
     let running = world
         .objects
-        .get_component::<components::Speeds>(&object_id)
+        .get_component::<components::stats::Speeds>(&object_id)
         .is_some_and(|s| s.running);
     set_running(world, object_id, !running);
 }
@@ -220,7 +220,7 @@ pub(crate) fn run_walk(world: &mut World, object_id: i32) {
 pub(crate) fn set_running(world: &mut World, object_id: i32, running: bool) {
     let Some(speeds) = world
         .objects
-        .get_component_mut::<components::Speeds>(&object_id)
+        .get_component_mut::<components::stats::Speeds>(&object_id)
     else {
         return;
     };
@@ -284,7 +284,7 @@ fn social_action(world: &mut World, client_id: u32, object_id: i32, option: i32)
 fn use_social(world: &mut World, client_id: u32, object_id: i32, social_id: i32) -> bool {
     if world
         .objects
-        .get_component::<components::FishingSession>(&object_id)
+        .get_component::<components::player::FishingSession>(&object_id)
         .is_some_and(|f| f.is_fishing)
     {
         send_sm_bare_to_client(world, client_id, sm_ids::YOU_CANNOT_DO_THAT_WHILE_FISHING_3);
@@ -320,18 +320,18 @@ fn can_make_social_action(world: &World, object_id: i32) -> bool {
     store_none
         && !world
             .objects
-            .has_component::<components::PendingTrade>(&object_id)
+            .has_component::<components::commerce::PendingTrade>(&object_id)
         && !is_alike_dead(world, object_id)
         && !crate::game_loop::abnormal::all_skills_disabled(world, object_id)
         && !world
             .objects
-            .has_component::<components::Casting>(&object_id)
+            .has_component::<components::combat::Casting>(&object_id)
         && !world
             .objects
-            .has_component::<components::Intent>(&object_id)
+            .has_component::<components::combat::Intent>(&object_id)
         && !world
             .objects
-            .has_component::<components::Movement>(&object_id)
+            .has_component::<components::space::Movement>(&object_id)
         && !crate::game_loop::character::sit_stand::is_resting(world, object_id)
 }
 
@@ -400,7 +400,7 @@ fn ride(world: &mut World, client_id: u32, object_id: i32) {
     const MOUNT_WYVERN: u8 = 2;
     let over_no_landing = world
         .objects
-        .get_component::<crate::model::components::Position>(&object_id)
+        .get_component::<crate::model::components::space::Position>(&object_id)
         .is_some_and(|p| world.data.zone_data.in_no_landing_zone(p.x, p.y, p.z));
     if over_no_landing
         && world

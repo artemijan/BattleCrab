@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::model::components::InstanceId;
+use crate::model::components::space::InstanceId;
 use crate::network::server_packets::opcodes;
 
 #[test]
@@ -135,7 +135,7 @@ fn seed_instance_template(world: &mut World, template_id: i32, npc_id: i32) {
 
 use crate::data::door_data::{DoorOpenMethod, DoorTemplate};
 use crate::game_loop::net::broadcast::broadcast_to_others;
-use crate::model::components::InstanceDoorOpen;
+use crate::model::components::space::InstanceDoorOpen;
 
 const TEST_DOOR_ID: i32 = 24190001;
 
@@ -354,7 +354,7 @@ fn instanced_npc_despawn_reaches_only_the_instance() {
 
     let region = world
         .objects
-        .get_component::<model::components::RegionCell>(&800)
+        .get_component::<model::components::space::RegionCell>(&800)
         .expect("npc region")
         .0;
     crate::game_loop::npc::despawn_npc(&mut world, 800, region);

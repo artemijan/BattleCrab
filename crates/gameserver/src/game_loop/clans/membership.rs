@@ -195,7 +195,7 @@ pub(crate) fn handle_request_join_pledge(world: &mut World, client_id: u32, body
         world,
         player,
         target_oid,
-        crate::model::components::RequestKind::ClanInvite {
+        crate::model::components::social::RequestKind::ClanInvite {
             clan_id,
             pledge_type,
         },
@@ -225,12 +225,12 @@ pub(crate) fn handle_request_answer_join_pledge(world: &mut World, client_id: u3
 
     let Some(req) = world
         .objects
-        .get_component::<crate::model::components::PendingRequest>(&player)
+        .get_component::<crate::model::components::social::PendingRequest>(&player)
         .copied()
     else {
         return;
     };
-    let crate::model::components::RequestKind::ClanInvite {
+    let crate::model::components::social::RequestKind::ClanInvite {
         clan_id,
         pledge_type,
     } = req.kind

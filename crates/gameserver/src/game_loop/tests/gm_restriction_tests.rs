@@ -176,7 +176,7 @@ fn gm_trade_restricted_items_gates_dropping_bound_and_quest_items() {
 
         let pos = *world
             .objects
-            .get_component::<crate::model::components::Position>(&7306)
+            .get_component::<crate::model::components::space::Position>(&7306)
             .unwrap();
         on_packet(&mut world, 1, drop_packet(bound, 1, pos.x, pos.y, pos.z));
         let dropped = world
@@ -234,7 +234,7 @@ fn use_super_haste_as_gm_speed_redirects_the_command() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Speeds>(&7309)
+            .get_component::<crate::model::components::stats::Speeds>(&7309)
             .map(|s| s.move_multiplier),
         Some(3.0),
         "the speed multiplier is what //gmspeed changes"
@@ -248,7 +248,7 @@ fn use_super_haste_as_gm_speed_redirects_the_command() {
     assert_eq!(
         world
             .objects
-            .get_component::<crate::model::components::Speeds>(&7310)
+            .get_component::<crate::model::components::stats::Speeds>(&7310)
             .map(|s| s.move_multiplier),
         Some(1.0),
         "forwarded — the multiplier never moves"

@@ -9,7 +9,7 @@
 use super::*;
 use crate::game_loop::space::position;
 
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 use crate::model::npc::{AggroList, Npc, NpcAi, NpcIntention};
 
 const PLAYER: i32 = 3001;

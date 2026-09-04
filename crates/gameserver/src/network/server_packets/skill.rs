@@ -15,7 +15,7 @@ use crate::model::Player;
 /// default is -1).
 pub fn magic_skill_use(
     caster: &Player,
-    caster_pos: &crate::model::components::Position,
+    caster_pos: &crate::model::components::space::Position,
     target: (i32, i32, i32, i32), // (object_id, x, y, z) — player or NPC
     skill_id: i32,
     skill_level: i32,
@@ -100,7 +100,10 @@ pub fn setup_gauge_range(object_id: i32, color: i32, current_ms: i32, max_ms: i3
 /// the skill has one, else the skill id (Java writes
 /// `sharedReuseGroup > 0 ? group : skillId`). Sent on enter-world and on
 /// `RequestSkillCoolTime`.
-pub fn skill_cool_time(reuses: &crate::model::components::Reuses, now_tick: u64) -> Vec<u8> {
+pub fn skill_cool_time(
+    reuses: &crate::model::components::skills::Reuses,
+    now_tick: u64,
+) -> Vec<u8> {
     let entries: Vec<(i32, i32, i32, i32)> = reuses
         .0
         .iter()

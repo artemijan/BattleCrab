@@ -346,8 +346,7 @@ pub(crate) fn build_skill(
             // XML values are seconds; Java stores ms (`getFloat × 1000`).
             channeling_tick_ms: (get_f("channelingTickInterval", 0.0) * 1000.0) as i32,
             channeling_start_ms: (get_f("channelingStart", 0.0) * 1000.0) as i32,
-            // `<attributeType>FIRE</attributeType>` + `<attributeValue>20`
-            // — the skill's element for `calcAttributeBonus`. `NONE` and
+            // `<attributeType>FIRE</attributeType>` + `<attributeValue>20` — the skill's element for `calcAttributeBonus`. `NONE` and
             // unknown names read as no element, like Java's enum default.
             attribute_type: value_at(values, "attributeType", level)
                 .and_then(crate::model::stats::Element::from_xml),

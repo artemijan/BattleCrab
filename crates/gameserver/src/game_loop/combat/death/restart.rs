@@ -6,10 +6,10 @@ use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
 
 use crate::model::Player;
-use crate::model::components::Intent;
-use crate::model::components::Movement;
-use crate::model::components::Position;
-use crate::model::components::Vitals;
+use crate::model::components::combat::Intent;
+use crate::model::components::space::Movement;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::world::World;
@@ -370,7 +370,7 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     world.objects.remove_component::<Intent>(&player_oid);
     world
         .objects
-        .remove_component::<crate::model::components::QueuedAction>(&player_oid);
+        .remove_component::<crate::model::components::combat::QueuedAction>(&player_oid);
     // The rest of `teleToLocation`'s prologue, in Java's order: cancel the
     // client's pending action, `abortCast()`, then `setTarget(null)` — all
     // before `decayMe`. The abort is what tells the client to stop drawing

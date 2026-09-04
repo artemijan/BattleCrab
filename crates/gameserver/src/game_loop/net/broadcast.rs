@@ -17,7 +17,7 @@ pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[
 /// `broadcast_including_self` shares one buffer between the self-send and the
 /// onlookers instead of copying the packet twice.
 fn broadcast_to_others_shared(world: &World, from_object_id: i32, shared: bytes::Bytes) {
-    use crate::model::components::RegionCell;
+    use crate::model::components::space::RegionCell;
     let Some(from) = world.objects.get_component::<RegionCell>(&from_object_id) else {
         return;
     };

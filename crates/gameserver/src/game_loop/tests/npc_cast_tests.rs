@@ -5,7 +5,9 @@ use super::*;
 
 use crate::data::npc_ai_skills::{AiSkillScope, NpcAiSkillIndex};
 use crate::data::npc_data::AiType;
-use crate::model::components::{Buffs, Casting, Vitals};
+use crate::model::components::combat::Casting;
+use crate::model::components::skills::Buffs;
+use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
@@ -733,7 +735,7 @@ fn a_mob_mid_swing_still_casts() {
     // Swing in flight, ending well past the next think.
     world.objects.add_components(
         &NPC_OID,
-        model::components::AttackState {
+        model::components::combat::AttackState {
             attack_end_tick: world.tick + 100,
             stance_until_tick: world.tick + 200,
             swing_seq: 0,
@@ -762,7 +764,7 @@ fn a_mob_mid_swing_does_not_start_a_second_swing() {
     let end = world.tick + 100;
     world.objects.add_components(
         &NPC_OID,
-        model::components::AttackState {
+        model::components::combat::AttackState {
             attack_end_tick: end,
             stance_until_tick: world.tick + 200,
             swing_seq: 0,
@@ -774,7 +776,7 @@ fn a_mob_mid_swing_does_not_start_a_second_swing() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::AttackState>(&NPC_OID)
+            .get_component::<model::components::combat::AttackState>(&NPC_OID)
             .map(|st| st.attack_end_tick),
         Some(end),
         "`doAutoAttack` refuses while `isAttackingNow()`, so the in-flight \
@@ -797,7 +799,7 @@ fn a_casting_mob_does_not_swing() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::AttackState>(&NPC_OID)
+            .get_component::<model::components::combat::AttackState>(&NPC_OID)
             .map(|st| st.attack_end_tick),
         Some(0),
         "a mob mid-cast neither swings nor moves until the cast resolves"

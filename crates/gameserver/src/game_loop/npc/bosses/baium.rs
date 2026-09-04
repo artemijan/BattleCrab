@@ -22,7 +22,9 @@
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::pos_of;
 use crate::game_loop::time::TICKS_PER_SECOND;
-use crate::model::components::{Immobilized, Position, Vitals};
+use crate::model::components::combat::Immobilized;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::model::grand_boss::GrandBoss;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -579,7 +581,7 @@ pub(crate) fn manage_skills(world: &mut World, baium_oid: i32) -> Option<(i32, i
 pub(crate) fn manage_and_cast(world: &mut World, baium_oid: i32) {
     if world
         .objects
-        .has_component::<crate::model::components::Casting>(&baium_oid)
+        .has_component::<crate::model::components::combat::Casting>(&baium_oid)
     {
         return;
     }

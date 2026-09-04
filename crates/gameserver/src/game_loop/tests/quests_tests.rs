@@ -105,7 +105,7 @@ fn request_skill_list_resends_skill_list() {
 /// the mover (Player `broadcastPacket` includes self) at the current spot.
 #[test]
 fn request_stop_move_clears_movement_and_pending_path() {
-    use crate::model::components::PathWait;
+    use crate::model::components::space::PathWait;
     use crate::model::movement::MoveData;
 
     let (mut world, ..) = test_world();
@@ -212,7 +212,7 @@ fn quest_q00258_accept_collect_turn_in() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         let qs = &quests.0["Q00258_BringWolfPelts"];
         assert_eq!(qs.state, model::quest::state::STARTED);
@@ -237,7 +237,7 @@ fn quest_q00258_accept_collect_turn_in() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         let qs = &quests.0["Q00258_BringWolfPelts"];
         assert_eq!(qs.cond(), 1, "cond set in memory");
@@ -305,7 +305,7 @@ fn quest_q00258_accept_collect_turn_in() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert_eq!(quests.0["Q00258_BringWolfPelts"].cond(), 2);
     }
@@ -358,7 +358,7 @@ fn quest_q00258_accept_collect_turn_in() {
     assert!(
         !world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap()
             .0
             .contains_key("Q00258_BringWolfPelts"),
@@ -444,7 +444,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert_eq!(quests.0["Q00320_BonesTellTheFuture"].cond(), 2);
     }
@@ -469,7 +469,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     assert!(
         !world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap()
             .0
             .contains_key("Q00320_BonesTellTheFuture")
@@ -513,7 +513,7 @@ fn quest_abort_wipes_state_and_items() {
     assert!(
         !world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap()
             .0
             .contains_key("Q00258_BringWolfPelts"),
@@ -1130,7 +1130,7 @@ fn quest_q00109_multi_cond_one_time() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
     }
@@ -1343,7 +1343,7 @@ fn teleport_to_race_track_round_trips_via_monster_return() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::PlayerVariables>(&3001)
+            .get_component::<model::components::player::PlayerVariables>(&3001)
             .unwrap()
             .get_int("MONSTER_RETURN", -1),
         30059,
@@ -1374,7 +1374,7 @@ fn teleport_to_race_track_round_trips_via_monster_return() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::PlayerVariables>(&3001)
+            .get_component::<model::components::player::PlayerVariables>(&3001)
             .unwrap()
             .get_int("MONSTER_RETURN", -1),
         -1,
@@ -3442,7 +3442,7 @@ fn quest_q00406_full_chain_awards_the_brooch() {
         // rather than being deleted (that would let it be repeated).
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(
             quests.0["Q00406_PathOfTheElvenKnight"].is_completed(),
@@ -4050,7 +4050,7 @@ fn quest_q00402_three_coins_needs_the_confirm_button() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(
             quests.0[Q402].is_completed(),
@@ -4087,7 +4087,7 @@ fn quest_q00402_six_coins_completes_on_talk_without_a_confirm() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q402].is_completed());
     }
@@ -4302,7 +4302,7 @@ fn quest_window_drops_a_finished_quest_with_nothing_to_say() {
     {
         let quests = world
             .objects
-            .get_component_mut::<model::components::Quests>(&3001)
+            .get_component_mut::<model::components::social::Quests>(&3001)
             .unwrap();
         quests.0.entry(Q404.to_string()).or_default().state = model::quest::state::COMPLETED;
     }
@@ -4354,7 +4354,7 @@ fn quest_window_probe_does_not_consume_the_turn_in_items() {
     }
     let state = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .and_then(|q| q.0.get(Q404).map(|qs| qs.state));
     assert_eq!(
         state,
@@ -4675,7 +4675,7 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q405].is_completed());
     }
@@ -4901,7 +4901,7 @@ fn quest_q00409_memo_state_rewinds_independently_of_cond() {
 fn quest_memo(world: &World, player: i32, quest: &str) -> i32 {
     world
         .objects
-        .get_component::<model::components::Quests>(&player)
+        .get_component::<model::components::social::Quests>(&player)
         .and_then(|q| q.0.get(quest))
         .and_then(|qs| qs.vars.get("memoState"))
         .and_then(|v| v.parse::<i32>().ok())
@@ -5079,7 +5079,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q408].is_completed());
     }
@@ -5272,7 +5272,7 @@ fn quest_q00410_full_chain_awards_the_gaze_of_abyss() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q410].is_completed());
     }
@@ -5390,7 +5390,7 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q411].is_completed());
     }
@@ -5655,7 +5655,7 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q412].is_completed());
     }
@@ -5807,7 +5807,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q413].is_completed());
     }
@@ -5967,7 +5967,7 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q414].is_completed());
     }
@@ -6444,7 +6444,7 @@ fn quest_q00416_finish_awards_the_mask_of_medium() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q416].is_completed());
     }
@@ -6524,7 +6524,7 @@ fn orc_shaman_quest_pages_exist_in_dist() {
 fn set_quest_cond(world: &mut World, player: i32, quest: &str, cond: i32) {
     if let Some(q) = world
         .objects
-        .get_component_mut::<model::components::Quests>(&player)
+        .get_component_mut::<model::components::social::Quests>(&player)
         && let Some(qs) = q.0.get_mut(quest)
     {
         qs.vars.insert("cond".to_string(), cond.to_string());
@@ -6698,7 +6698,7 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q418].is_completed());
     }
@@ -6945,7 +6945,7 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
     {
         let quests = world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap();
         assert!(quests.0[Q417].is_completed());
     }
@@ -6959,7 +6959,7 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
 fn quest_memo_ex(world: &World, player: i32, quest: &str, slot: i32) -> i32 {
     world
         .objects
-        .get_component::<model::components::Quests>(&player)
+        .get_component::<model::components::social::Quests>(&player)
         .and_then(|q| q.0.get(quest))
         .and_then(|qs| qs.vars.get(&format!("memoStateEx{slot}")))
         .and_then(|v| v.parse::<i32>().ok())
@@ -7048,7 +7048,7 @@ fn quest_q00210_wolf_pet_chain() {
     assert_eq!(item_count(&world, 3001, 2375), 1, "Wolf Collar rewarded");
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
 }
@@ -7099,7 +7099,7 @@ fn quest_q00210_refused_below_level_15() {
     // the gate keeps it un-started (cond 0, never `startQuest`).
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(!quests.0[q].is_started(), "the quest never started");
 }
@@ -7178,7 +7178,7 @@ fn quest_q00261_collectors_dream_loop() {
     // it persists, so the credit survives until the newbie-guide UI lands.
     let guide_var = |w: &World| {
         w.objects
-            .get_component::<model::components::PlayerVariables>(&3001)
+            .get_component::<model::components::player::PlayerVariables>(&3001)
             .and_then(|v| v.0.get("GUIDE_MISSION").cloned())
     };
     assert_eq!(
@@ -12515,7 +12515,7 @@ fn quest_q00225_test_of_the_searcher() {
     }
     let conjured = world
         .objects
-        .get_component::<model::components::SummonedNpcs>(&tree)
+        .get_component::<model::components::summons::SummonedNpcs>(&tree)
         .map(|l| l.0.len())
         .unwrap_or(0);
     assert_eq!(
@@ -15670,7 +15670,7 @@ fn quest_q00230_test_of_the_summoner() {
     );
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
 }
@@ -15968,7 +15968,7 @@ fn quest_q00234_fates_whisper() {
     );
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "quest completes on the upgrade");
 }
@@ -16139,7 +16139,7 @@ fn run_help_quest(p: HelpQuest) {
     );
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "{q}: completed on reward");
 }
@@ -16213,7 +16213,7 @@ fn quest_q00044_help_the_son() {
 fn seed_formal_wear(world: &mut World, player: i32, cond: i32) {
     let q = world
         .objects
-        .get_component_mut::<model::components::Quests>(&player)
+        .get_component_mut::<model::components::social::Quests>(&player)
         .unwrap();
     let qs = q.0.entry("Q00037_MakeFormalWear".to_string()).or_default();
     qs.state = model::quest::state::STARTED;
@@ -16349,7 +16349,7 @@ fn quest_q00037_make_formal_wear() {
     );
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(
         quests.0[q].is_completed(),
@@ -16471,7 +16471,7 @@ fn quest_q00036_make_a_sewing_kit() {
     );
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed());
 }
@@ -16547,7 +16547,7 @@ fn quest_q00035_find_glittering_jewelry() {
     assert_eq!(item_count(&world, 3001, THONS), 0, "thons consumed");
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed());
 }
@@ -16642,7 +16642,7 @@ fn quest_q00034_in_search_of_cloth() {
     );
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed());
 }
@@ -16722,7 +16722,7 @@ fn quest_q00033_make_a_pair_of_dress_shoes() {
     assert_eq!(item_count(&world, 3001, ADENA), 0, "200k paid to Woodley");
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed());
 }
@@ -16773,7 +16773,7 @@ fn quest_q00642_a_powerful_primeval_creature() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap()
             .0[q]
             .state,
@@ -16885,7 +16885,7 @@ fn quest_q00641_attack_sailren() {
     {
         let quests = world
             .objects
-            .get_component_mut::<model::components::Quests>(&3001)
+            .get_component_mut::<model::components::social::Quests>(&3001)
             .unwrap();
         let qs = quests
             .0
@@ -17000,7 +17000,7 @@ fn quest_q00125_the_name_of_evil_1() {
     {
         let quests = world
             .objects
-            .get_component_mut::<model::components::Quests>(&3001)
+            .get_component_mut::<model::components::social::Quests>(&3001)
             .unwrap();
         quests
             .0
@@ -17043,7 +17043,7 @@ fn quest_q00125_the_name_of_evil_1() {
     // The puzzle sets the "Memo" quest var only on the full correct word.
     let memo = |w: &World| -> i32 {
         w.objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap()
             .0[q]
             .get_int("Memo")
@@ -17093,7 +17093,7 @@ fn quest_q00125_the_name_of_evil_1() {
     talk(&mut world, mushika);
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "completed at Mushika");
 }
@@ -17161,7 +17161,7 @@ fn quest_q00126_the_name_of_evil_2() {
     {
         let quests = world
             .objects
-            .get_component_mut::<model::components::Quests>(&3001)
+            .get_component_mut::<model::components::social::Quests>(&3001)
             .unwrap();
         quests
             .0
@@ -17251,7 +17251,7 @@ fn quest_q00126_the_name_of_evil_2() {
     );
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "The Name of Evil - 2 complete");
 }
@@ -17434,7 +17434,7 @@ fn quest_q00420_little_wing() {
     {
         let quests = w2
             .objects
-            .get_component_mut::<model::components::Quests>(&3001)
+            .get_component_mut::<model::components::social::Quests>(&3001)
             .unwrap();
         let qs = quests.0.entry(q.to_string()).or_default();
         qs.state = model::quest::state::STARTED;
@@ -17704,7 +17704,7 @@ fn quest_q00032_an_obvious_lie() {
     assert_eq!(item_count(&world, 3001, THREAD), 0, "thread consumed");
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "one-time quest completes");
 }
@@ -17900,7 +17900,7 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
     );
     let quests = world
         .objects
-        .get_component::<model::components::Quests>(&3001)
+        .get_component::<model::components::social::Quests>(&3001)
         .unwrap();
     assert!(quests.0[q].is_completed(), "Saga completes on the transfer");
 }
@@ -18417,7 +18417,7 @@ fn saga_finale_boss_retreats_after_15_hits() {
     {
         let quests = world
             .objects
-            .get_component_mut::<model::components::Quests>(&3001)
+            .get_component_mut::<model::components::social::Quests>(&3001)
             .unwrap();
         let qs = quests.0.entry(q.to_string()).or_default();
         qs.state = model::quest::state::STARTED;
@@ -18511,7 +18511,7 @@ fn saga_progression_casts_visual_fx() {
     {
         let quests = world
             .objects
-            .get_component_mut::<model::components::Quests>(&3001)
+            .get_component_mut::<model::components::social::Quests>(&3001)
             .unwrap();
         let qs = quests.0.entry(q.to_string()).or_default();
         qs.state = model::quest::state::STARTED;
@@ -18571,7 +18571,7 @@ fn saga_finale_companion_taunt_cadence() {
     let q = "Q00070_SagaOfThePhoenixKnight";
     let set_var = |w: &mut World, key: &str, val: &str| {
         w.objects
-            .get_component_mut::<model::components::Quests>(&3001)
+            .get_component_mut::<model::components::social::Quests>(&3001)
             .unwrap()
             .0
             .entry(q.to_string())
@@ -18582,7 +18582,7 @@ fn saga_finale_companion_taunt_cadence() {
     set_var(&mut world, "cond", "17");
     world
         .objects
-        .get_component_mut::<model::components::Quests>(&3001)
+        .get_component_mut::<model::components::social::Quests>(&3001)
         .unwrap()
         .0
         .get_mut(q)
@@ -18659,7 +18659,8 @@ fn saga_finale_companion_taunt_cadence() {
 /// the Dragon Bugle once all four essences (`memoState == 15`) are drunk.
 #[test]
 fn quest_q00421_little_wings_big_adventure() {
-    use crate::model::components::{PetOf, Quests, SummonRef};
+    use crate::model::components::social::Quests;
+    use crate::model::components::summons::{PetOf, SummonRef};
     use crate::model::inventory::Inventory;
 
     const CRONOS: i32 = 30610;
@@ -18889,7 +18890,7 @@ fn quest_q00421_little_wings_big_adventure() {
 /// 20-strong Guardian Ghost ambush that despawns after five minutes.
 #[test]
 fn quest_q00421_guardian_ambush_despawns() {
-    use crate::model::components::Quests;
+    use crate::model::components::social::Quests;
 
     const TREE: i32 = 27185; // Tree of Wind
     const GUARDIAN: i32 = 27189;
@@ -18966,7 +18967,7 @@ fn quest_q00421_guardian_ambush_despawns() {
 /// cap), and the first turn-in climbing from cond 1 to Mark of Alliance Lv1.
 #[test]
 fn quest_q00605_alliance_with_ketra_orcs() {
-    use crate::model::components::Quests;
+    use crate::model::components::social::Quests;
 
     const WAHKAN: i32 = 31371;
     const SOLDIER: i32 = 7216; // Varka Badge - Soldier
@@ -19071,7 +19072,7 @@ fn quest_q00605_alliance_with_ketra_orcs() {
 /// player still holds a Ketra alliance mark.
 #[test]
 fn quest_q00611_varka_mirror_and_exclusion() {
-    use crate::model::components::Quests;
+    use crate::model::components::social::Quests;
 
     const NARAN: i32 = 31378;
     const KETRA_BADGE_SOLDIER: i32 = 7226;
@@ -19156,7 +19157,7 @@ fn quest_q00611_varka_mirror_and_exclusion() {
 #[test]
 fn quest_q00350_enhance_your_weapon() {
     use crate::data::soul_crystal_data::{AbsorbType, LevelingInfo};
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
 
     const ROLENTO: i32 = 30115;
     const RED0: i32 = 4629; // Red Soul Crystal - stage 0
@@ -19331,7 +19332,7 @@ fn quest_q00350_enhance_your_weapon() {
 /// fixed lots for crafting materials.
 #[test]
 fn quest_q00640_the_zero_hour() {
-    use crate::model::components::Quests;
+    use crate::model::components::social::Quests;
 
     const KAHMAN: i32 = 31554;
     const FANG: i32 = 8085;
@@ -19511,7 +19512,7 @@ fn quest_q00370_an_elder_sows_seeds() {
     assert!(
         world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .and_then(|qc| qc.0.get(q))
             .is_some_and(|qs| qs.state == model::quest::state::STARTED),
         "started"
@@ -19607,7 +19608,7 @@ fn quest_q00327_recover_the_farmland() {
     assert!(
         world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .and_then(|qc| qc.0.get(q))
             .is_some_and(|qs| qs.state == model::quest::state::STARTED),
         "started"
@@ -19676,7 +19677,7 @@ fn quest_q00327_recover_the_farmland() {
 /// Fabric.
 #[test]
 fn quest_q00348_an_arrogant_search() {
-    use crate::model::components::Quests;
+    use crate::model::components::social::Quests;
 
     const HANELLIN: i32 = 30864;
     const TABLE_OF_VISION: i32 = 31646;
@@ -19844,7 +19845,7 @@ fn quest_q00348_an_arrogant_search() {
 /// flipping all five cards, and scoring a pair for its prize.
 #[test]
 fn quest_q00662_a_game_of_cards() {
-    use crate::model::components::Quests;
+    use crate::model::components::social::Quests;
 
     const KLUMP: i32 = 30845;
     const RED_GEM: i32 = 8765;
@@ -19950,7 +19951,7 @@ fn quest_q00662_a_game_of_cards() {
 /// assemble a Statue of Shilen, and complete with a Black Lion Mark.
 #[test]
 fn quest_q00333_hunt_of_the_black_lion() {
-    use crate::model::components::Quests;
+    use crate::model::components::social::Quests;
 
     const SOPHYA: i32 = 30735;
     const UNDRIAS: i32 = 30130;
@@ -20236,7 +20237,7 @@ fn fishing_premium_and_underwater_gates() {
     use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
     use crate::data::item_data::kinds::WeaponType;
     use crate::data::zone_data::ZoneKind;
-    use crate::model::components::Position;
+    use crate::model::components::space::Position;
     use crate::model::inventory::{Inventory, PaperdollSlot};
 
     const ROD: i32 = 45492;
@@ -20442,7 +20443,7 @@ fn fishing_zone_toggles_auto_fish_available() {
     use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
     use crate::data::item_data::kinds::WeaponType;
     use crate::data::zone_data::ZoneKind;
-    use crate::model::components::{Position, ZoneFlags};
+    use crate::model::components::space::{Position, ZoneFlags};
     use crate::model::inventory::{Inventory, PaperdollSlot};
 
     const ROD: i32 = 45492;
@@ -20537,7 +20538,7 @@ fn fishing_zone_toggles_auto_fish_available() {
 #[test]
 fn ferry_ride_board_travel_disembark() {
     use crate::model::boat::{InVehicle, RouteDef, VehiclePathPoint};
-    use crate::model::components::Position;
+    use crate::model::components::space::Position;
 
     // A there-and-back route with docks at both ends; the ferry spawns docked
     // at the last waypoint (dock A, 1000,1000). Docks carry no schedule, so
@@ -20605,7 +20606,7 @@ fn request_quest_list_resends_the_journal() {
     let mut rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     world
         .objects
-        .add_components(&5001, model::components::Quests(Default::default()));
+        .add_components(&5001, model::components::social::Quests(Default::default()));
     drain(&mut rx);
 
     on_packet(&mut world, 1, vec![cop::REQUEST_QUEST_LIST]);
@@ -20628,7 +20629,7 @@ const BLUE_GEM: i32 = 6353;
 fn tutorial_memo(world: &World, player: i32) -> i32 {
     world
         .objects
-        .get_component::<model::components::Quests>(&player)
+        .get_component::<model::components::social::Quests>(&player)
         .and_then(|q| q.0.get(TUTORIAL))
         .map(|qs| qs.get_int("memoState"))
         .unwrap_or(-1)
@@ -20801,7 +20802,7 @@ fn tutorial_gremlin_gem_drop_and_pickup() {
         .find(|oid| {
             world
                 .objects
-                .get_component::<model::components::GroundItem>(oid)
+                .get_component::<model::components::commerce::GroundItem>(oid)
                 .is_some_and(|g| g.item_id == BLUE_GEM)
         })
         .expect("gem dropped");
@@ -20830,7 +20831,7 @@ fn tutorial_gremlin_gem_drop_and_pickup() {
 #[test]
 fn quest_kill_credit_reaches_a_party_member() {
     use crate::game_loop::npc;
-    use crate::model::components::PartyRef;
+    use crate::model::components::social::PartyRef;
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(&mut world, &[(963, "Orcish Arrowhead", true)]);
@@ -20956,7 +20957,7 @@ fn quest_q10866_punitive_operation_on_the_devil_isle() {
     assert!(
         world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap()
             .0[q]
             .is_completed(),
@@ -21093,7 +21094,7 @@ fn quest_q11001_tombs_of_ancestors() {
     assert!(
         world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap()
             .0[q]
             .is_completed(),
@@ -21234,7 +21235,7 @@ fn quest_q11006_future_people_class_paths() {
     // The prerequisite quest, marked complete.
     world
         .objects
-        .get_component_mut::<model::components::Quests>(&3001)
+        .get_component_mut::<model::components::social::Quests>(&3001)
         .unwrap()
         .0
         .entry("Q11005_PerfectLeatherArmor3".to_string())
@@ -21263,7 +21264,7 @@ fn quest_q11006_future_people_class_paths() {
     assert!(
         world
             .objects
-            .get_component::<model::components::Quests>(&3001)
+            .get_component::<model::components::social::Quests>(&3001)
             .unwrap()
             .0[q]
             .is_completed(),

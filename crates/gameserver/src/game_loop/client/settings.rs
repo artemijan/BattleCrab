@@ -6,7 +6,7 @@
 //! (**on** for this dist) and replays it verbatim; the port does the same, so
 //! the layout survives a relogin with the character's other variables.
 
-use crate::model::components::UI_KEY_MAPPING;
+use crate::model::components::player::UI_KEY_MAPPING;
 use crate::session::ClientSession;
 use crate::world::World;
 

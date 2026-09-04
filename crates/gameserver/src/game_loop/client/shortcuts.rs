@@ -7,7 +7,7 @@
 
 use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::helpers::send_to_client as send;
-use crate::model::components::{Macros, Shortcuts};
+use crate::model::components::player::{Macros, Shortcuts};
 use crate::model::shortcut::{MacroType, MacroUpdateType, Shortcut, ShortcutType};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, sm_ids, system_message_with};

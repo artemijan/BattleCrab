@@ -22,7 +22,7 @@
 //! source; death and teleport are already gated separately at every call site
 //! here, so only the two effect-driven terms are folded in.
 
-use crate::model::components::Buffs;
+use crate::model::components::skills::Buffs;
 use crate::model::skill::effect_flag;
 use crate::world::World;
 
@@ -44,7 +44,7 @@ pub(crate) fn is_blocked_from_actions(world: &World, object_id: i32) -> bool {
         // animation — so a character mid-sit is action-blocked here too.
         || world
             .objects
-            .has_component::<crate::model::components::SitBlock>(&object_id)
+            .has_component::<crate::model::components::combat::SitBlock>(&object_id)
         || flags_of(world, object_id) & effect_flag::BLOCK_ACTIONS != 0
 }
 
@@ -117,7 +117,7 @@ pub(crate) fn visual_effects(world: &World, object_id: i32) -> Vec<i16> {
     // creature.
     if let Some(admin) = world
         .objects
-        .get_component::<crate::model::components::AdminVisuals>(&object_id)
+        .get_component::<crate::model::components::player::AdminVisuals>(&object_id)
     {
         out.extend(admin.0.iter().copied());
     }
@@ -156,7 +156,7 @@ pub(crate) fn refresh_visuals(world: &mut World, object_id: i32) {
         .map_or(0, |p| p.transform_display_id);
     let hidden = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .get_component::<crate::model::components::player::AdminFlags>(&object_id)
         .is_some_and(|f| f.hidden);
     crate::game_loop::helpers::send_to_player(
         world,
@@ -237,7 +237,7 @@ pub(crate) fn is_hp_blocked(world: &World, object_id: i32) -> bool {
 fn admin_paralyzed(world: &World, object_id: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .get_component::<crate::model::components::player::AdminFlags>(&object_id)
         .is_some_and(|f| f.paralyzed)
 }
 
@@ -247,7 +247,7 @@ fn admin_paralyzed(world: &World, object_id: i32) -> bool {
 pub(crate) fn all_skills_disabled(world: &World, object_id: i32) -> bool {
     world
         .objects
-        .has_component::<crate::model::components::SkillsDisabled>(&object_id)
+        .has_component::<crate::model::components::combat::SkillsDisabled>(&object_id)
         || is_blocked_from_actions(world, object_id)
 }
 
@@ -255,7 +255,7 @@ pub(crate) fn is_movement_disabled(world: &World, object_id: i32) -> bool {
     admin_paralyzed(world, object_id)
         || world
             .objects
-            .has_component::<crate::model::components::Immobilized>(&object_id)
+            .has_component::<crate::model::components::combat::Immobilized>(&object_id)
         // Java `Creature.isMovementDisabled()` ORs `_isOverloaded` in with the
         // crowd-control flags: carrying past your limit roots you where you
         // stand until you drop something. This is the enforcement half of the

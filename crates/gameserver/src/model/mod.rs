@@ -52,10 +52,10 @@ pub const DEFAULT_TITLE_COLOR: i32 = 0x00FF_FF77;
 /// them.
 pub const MAX_VITALITY_POINTS: i32 = 140_000;
 pub const MIN_VITALITY_POINTS: i32 = 0;
-use components::{
-    BaseStats, Buffs, Collision, CombatStats, Macros, PlayerVitals, Position, RegionCell, Reuses,
-    Shortcuts, SkillBook, Speeds, StatModifiers, Vitals,
-};
+use components::player::{Macros, Shortcuts};
+use components::skills::{Buffs, Reuses, SkillBook};
+use components::space::{Collision, Position, RegionCell};
+use components::stats::{BaseStats, CombatStats, PlayerVitals, Speeds, StatModifiers, Vitals};
 use inventory::Inventory;
 
 pub mod equip_conditions;
@@ -710,24 +710,24 @@ pub struct PlayerData {
     pub freight: inventory::Freight,
     pub skills: SkillBook,
     /// Enchant sub-levels per skill id (`character_skills.skill_sub_level`).
-    pub skill_enchants: components::SkillEnchants,
+    pub skill_enchants: components::skills::SkillEnchants,
     /// Worn henna dyes (`character_hennas`); their stat bonus is already folded
     /// into `base_stats`.
-    pub henna: components::HennaSlots,
+    pub henna: components::skills::HennaSlots,
     /// Registered crafting recipes (`character_recipebook`), split by book.
-    pub recipe_book: components::RecipeBook,
+    pub recipe_book: components::commerce::RecipeBook,
     /// `character_variables` key/value store (Java `PlayerVariables`).
-    pub variables: components::PlayerVariables,
+    pub variables: components::player::PlayerVariables,
     /// Saved pet rows, keyed by collar object id (Java's `pets` table).
-    pub pets: components::PlayerPets,
+    pub pets: components::summons::PlayerPets,
     /// The servitor that was out at logout (`character_summons`).
-    pub summons: components::PlayerSummons,
+    pub summons: components::summons::PlayerSummons,
     /// Items held by the player's pet (Java `PetInventory`, `loc="PET"`).
     pub pet_inventory: inventory::PetInventory,
     pub shortcuts: Shortcuts,
     pub macros: Macros,
-    pub friends: components::Friends,
-    pub quests: components::Quests,
+    pub friends: components::social::Friends,
+    pub quests: components::social::Quests,
     /// Live skill-reuse cooldowns. Empty out of `from_char`; the real select
     /// path fills it from the DB via [`PlayerData::restore_reuses`].
     pub reuses: Reuses,
@@ -806,9 +806,10 @@ impl<'a> PlayerView<'a> {
             combat: objects.get_component::<CombatStats>(&object_id)?,
             inventory: objects.get_component::<Inventory>(&object_id)?,
             pvp_flag: objects
-                .get_component::<components::PvpState>(&object_id)
+                .get_component::<components::combat::PvpState>(&object_id)
                 .map_or(0, |s| s.flag),
-            in_matching_room: objects.has_component::<components::InMatchingRoom>(&object_id),
+            in_matching_room: objects
+                .has_component::<components::social::InMatchingRoom>(&object_id),
             // Zones live on `World`; `of_world` fills this in.
             in_water: false,
             mods: objects.get_component::<StatModifiers>(&object_id)?,

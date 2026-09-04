@@ -127,7 +127,7 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 let now = world.tick;
                 let elapsed = world
                     .objects
-                    .get_component::<crate::model::components::Buffs>(&player_object_id)
+                    .get_component::<crate::model::components::skills::Buffs>(&player_object_id)
                     .and_then(|b| b.0.iter().find(|b| b.skill_id == skill_id))
                     .is_some_and(|b| b.expires_at_tick <= now);
                 if elapsed {
@@ -189,7 +189,9 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
             ScheduledTask::SkillsReenable { object_id } => {
                 world
                     .objects
-                    .remove_component::<crate::model::components::SkillsDisabled>(&object_id);
+                    .remove_component::<crate::model::components::combat::SkillsDisabled>(
+                        &object_id,
+                    );
             }
             ScheduledTask::TamedBeastBuffCheck { beast_oid } => {
                 tamed_beast::handle_buff_check(world, beast_oid);

@@ -49,7 +49,7 @@ fn craft_skill_level(world: &World, oid: i32, is_dwarven: bool) -> i32 {
     };
     world
         .objects
-        .get_component::<components::SkillBook>(&oid)
+        .get_component::<components::skills::SkillBook>(&oid)
         .and_then(|b| b.0.get(&skill_id).copied())
         .unwrap_or(0)
 }
@@ -74,7 +74,7 @@ fn set_store_type(world: &mut World, oid: i32, ty: u8) {
 fn vitals(world: &World, oid: i32) -> Option<(f64, i32, f64)> {
     world
         .objects
-        .get_component::<components::Vitals>(&oid)
+        .get_component::<components::stats::Vitals>(&oid)
         .map(|v| (v.cur_mp, v.max_mp, v.cur_hp))
 }
 
@@ -96,7 +96,7 @@ pub(crate) fn request_book_open(world: &mut World, client_id: u32, is_dwarven: b
 fn send_recipe_book(world: &mut World, client_id: u32, oid: i32, is_dwarven: bool) {
     let max_mp = world
         .objects
-        .get_component::<components::Vitals>(&oid)
+        .get_component::<components::stats::Vitals>(&oid)
         .map(|v| v.max_mp)
         .unwrap_or(0);
     let recipes = book_ids(world, oid, is_dwarven);
@@ -120,7 +120,7 @@ pub(crate) fn handle_book_destroy(world: &mut World, client_id: u32, recipe_id: 
     };
     if let Some(book) = world
         .objects
-        .get_component_mut::<components::RecipeBook>(&oid)
+        .get_component_mut::<components::commerce::RecipeBook>(&oid)
     {
         book.dwarven.retain(|&id| id != recipe_id);
         book.common.retain(|&id| id != recipe_id);
@@ -131,7 +131,7 @@ pub(crate) fn handle_book_destroy(world: &mut World, client_id: u32, recipe_id: 
 fn book_ids(world: &World, oid: i32, is_dwarven: bool) -> Vec<i32> {
     world
         .objects
-        .get_component::<components::RecipeBook>(&oid)
+        .get_component::<components::commerce::RecipeBook>(&oid)
         .map(|b| {
             if is_dwarven {
                 b.dwarven.clone()
@@ -172,7 +172,7 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
     // Already registered?
     if world
         .objects
-        .get_component::<components::RecipeBook>(&object_id)
+        .get_component::<components::commerce::RecipeBook>(&object_id)
         .is_some_and(|b| b.contains(recipe.id))
     {
         send(world, sm_ids::THAT_RECIPE_IS_ALREADY_REGISTERED, &[]);
@@ -183,7 +183,7 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
     let (limit, book_len) = {
         let book = world
             .objects
-            .get_component::<components::RecipeBook>(&object_id);
+            .get_component::<components::commerce::RecipeBook>(&object_id);
         let (stat, base, len) = if recipe.is_dwarven {
             (
                 Stat::RecipeDwarven,
@@ -201,7 +201,7 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
         // config limit plus whatever the learned passive raises it to.
         let limit = match world
             .objects
-            .get_component::<components::StatModifiers>(&object_id)
+            .get_component::<components::stats::StatModifiers>(&object_id)
         {
             Some(mods) => crate::model::stat_finalize::finalize(mods, stat, base as f64) as i32,
             None => base,
@@ -238,7 +238,7 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
     // Register (memory-first; persists on the next flush).
     if let Some(book) = world
         .objects
-        .get_component_mut::<components::RecipeBook>(&object_id)
+        .get_component_mut::<components::commerce::RecipeBook>(&object_id)
     {
         if recipe.is_dwarven {
             book.dwarven.push(recipe.id);
@@ -246,7 +246,7 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
             book.common.push(recipe.id);
         }
     } else {
-        let mut book = components::RecipeBook::default();
+        let mut book = components::commerce::RecipeBook::default();
         if recipe.is_dwarven {
             book.dwarven.push(recipe.id);
         } else {
@@ -345,13 +345,13 @@ pub(crate) fn handle_message_set(world: &mut World, client_id: u32, name: String
     }
     if let Some(store) = world
         .objects
-        .get_component_mut::<components::ManufactureStore>(&oid)
+        .get_component_mut::<components::commerce::ManufactureStore>(&oid)
     {
         store.title = name;
     } else {
         world.objects.add_components(
             &oid,
-            components::ManufactureStore {
+            components::commerce::ManufactureStore {
                 items: Vec::new(),
                 title: name,
             },
@@ -373,7 +373,7 @@ pub(crate) fn handle_list_set(
     // attack-stance check maps to a live attack window.
     let in_combat = world
         .objects
-        .get_component::<crate::model::components::AttackState>(&oid)
+        .get_component::<crate::model::components::combat::AttackState>(&oid)
         .is_some_and(|st| st.attack_end_tick > world.tick);
     if in_combat {
         send_to_client(world, client_id, sp::system_message_with(sm_ids::WHILE_YOU_ARE_ENGAGED_IN_COMBAT_YOU_CANNOT_OPERATE_A_PRIVATE_STORE_OR_PRIVATE_WORKSHOP, &[]));
@@ -395,7 +395,7 @@ pub(crate) fn handle_list_set(
     for line in &lines {
         let known = world
             .objects
-            .get_component::<components::RecipeBook>(&oid)
+            .get_component::<components::commerce::RecipeBook>(&oid)
             .is_some_and(|b| b.contains(line.recipe_id));
         if !known {
             crate::game_loop::moderation::punishment::illegal_action(
@@ -418,14 +418,14 @@ pub(crate) fn handle_list_set(
     let title = {
         if let Some(store) = world
             .objects
-            .get_component_mut::<components::ManufactureStore>(&oid)
+            .get_component_mut::<components::commerce::ManufactureStore>(&oid)
         {
             store.items = items;
             store.title.clone()
         } else {
             world.objects.add_components(
                 &oid,
-                components::ManufactureStore {
+                components::commerce::ManufactureStore {
                     items,
                     title: String::new(),
                 },
@@ -485,7 +485,7 @@ pub(crate) fn open_sell_list(world: &mut World, client_id: u32, buyer: i32, manu
 fn mp_gauge(world: &World, oid: i32) -> (i32, i32) {
     world
         .objects
-        .get_component::<components::Vitals>(&oid)
+        .get_component::<components::stats::Vitals>(&oid)
         .map(|v| (v.cur_mp as i32, v.max_mp))
         .unwrap_or((0, 0))
 }
@@ -529,7 +529,7 @@ pub(crate) fn handle_shop_make_item(
     // whatever they set for it.
     let Some(price) = world
         .objects
-        .get_component::<components::ManufactureStore>(&manufacturer)
+        .get_component::<components::commerce::ManufactureStore>(&manufacturer)
         .and_then(|s| {
             s.items
                 .iter()
@@ -581,7 +581,7 @@ fn do_craft(
     // in the book punishes the requester (Java `RecipeManager`).
     if !world
         .objects
-        .get_component::<components::RecipeBook>(&crafter)
+        .get_component::<components::commerce::RecipeBook>(&crafter)
         .is_some_and(|b| b.contains(recipe.id))
     {
         crate::game_loop::moderation::punishment::illegal_action(
@@ -660,7 +660,7 @@ fn do_craft(
     if recipe.mp_use > 0 || recipe.hp_use > 0 {
         if let Some(v) = world
             .objects
-            .get_component_mut::<components::Vitals>(&crafter)
+            .get_component_mut::<components::stats::Vitals>(&crafter)
         {
             v.cur_mp = (v.cur_mp - recipe.mp_use as f64).max(0.0);
             v.cur_hp = (v.cur_hp - recipe.hp_use as f64).max(1.0);
@@ -803,7 +803,7 @@ pub(crate) fn handle_craft_pass(world: &mut World, crafter: i32) {
     }
     if let Some(v) = world
         .objects
-        .get_component_mut::<components::Vitals>(&crafter)
+        .get_component_mut::<components::stats::Vitals>(&crafter)
     {
         v.cur_mp = (v.cur_mp - mp_share).max(0.0);
         v.cur_hp = (v.cur_hp - hp_share).max(1.0);
@@ -858,7 +858,7 @@ pub(crate) fn handle_craft_pass(world: &mut World, crafter: i32) {
         // The crafting animation + gauge, then the next pass.
         let pos = world
             .objects
-            .get_component::<crate::model::components::Position>(&crafter)
+            .get_component::<crate::model::components::space::Position>(&crafter)
             .map(|p| (crafter, p.x, p.y, p.z))
             .unwrap_or((crafter, 0, 0, 0));
         let msu = sp::magic_skill_use_raw(pos, pos, skill_id, skill_level, delay_ms);
@@ -1183,7 +1183,10 @@ fn update_make_info(
 
 /// The crafter's `StatusUpdate(CUR_MP/CUR_HP)` after a craft consumed vitals.
 fn send_crafter_mp(world: &World, crafter: i32) {
-    let Some(v) = world.objects.get_component::<components::Vitals>(&crafter) else {
+    let Some(v) = world
+        .objects
+        .get_component::<components::stats::Vitals>(&crafter)
+    else {
         return;
     };
     send_to_player(
@@ -1204,7 +1207,7 @@ fn send_crafter_mp(world: &World, crafter: i32) {
 fn active_store_items(world: &World, oid: i32, is_dwarven: bool) -> Vec<(i32, i64)> {
     let Some(store) = world
         .objects
-        .get_component::<components::ManufactureStore>(&oid)
+        .get_component::<components::commerce::ManufactureStore>(&oid)
     else {
         return Vec::new();
     };
@@ -1218,7 +1221,7 @@ fn active_store_items(world: &World, oid: i32, is_dwarven: bool) -> Vec<(i32, i6
             world.data.recipes.get(*id).map(|r| r.is_dwarven) == Some(is_dwarven)
                 && world
                     .objects
-                    .get_component::<components::RecipeBook>(&oid)
+                    .get_component::<components::commerce::RecipeBook>(&oid)
                     .is_some_and(|b| b.contains(*id))
         })
         .copied()
@@ -1229,7 +1232,7 @@ fn active_store_items(world: &World, oid: i32, is_dwarven: bool) -> Vec<(i32, i6
 fn current_store_items(world: &World, oid: i32) -> Vec<(i32, i64)> {
     world
         .objects
-        .get_component::<components::ManufactureStore>(&oid)
+        .get_component::<components::commerce::ManufactureStore>(&oid)
         .map(|s| s.items.clone())
         .unwrap_or_default()
 }
@@ -1254,7 +1257,7 @@ pub(crate) fn handle_request_recipe_shop_manage_prev(world: &mut World, client_i
     };
     let target = world
         .objects
-        .get_component::<crate::model::components::TargetRef>(&player)
+        .get_component::<crate::model::components::combat::TargetRef>(&player)
         .copied()
         .unwrap_or_default()
         .0;

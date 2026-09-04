@@ -427,7 +427,7 @@ fn close_door_by_id(world: &mut crate::world::World, door_id: i32) {
     let oid = world.door_regions.values().flatten().copied().find(|oid| {
         world
             .objects
-            .get_component::<crate::model::components::InstanceDoorOpen>(oid)
+            .get_component::<crate::model::components::space::InstanceDoorOpen>(oid)
             .is_none()
             && world
                 .objects
@@ -875,7 +875,7 @@ fn cast_buff<'a>(ctx: &mut QuestCtx, tokens: &mut impl Iterator<Item = &'a str>)
 fn npc_mp(ctx: &QuestCtx) -> f64 {
     ctx.world
         .objects
-        .get_component::<crate::model::components::Vitals>(&ctx.npc)
+        .get_component::<crate::model::components::stats::Vitals>(&ctx.npc)
         .map(|v| v.cur_mp)
         .unwrap_or(0.0)
 }

@@ -38,7 +38,7 @@ use crate::world::World;
 pub(crate) fn location_of(world: &World, object_id: i32) -> i32 {
     world
         .objects
-        .get_component::<components::Position>(&object_id)
+        .get_component::<components::space::Position>(&object_id)
         .map_or(0, |p| world.data.map_region.bbs_at(p.x, p.y))
 }
 
@@ -61,8 +61,8 @@ fn member_type(world: &World, room_id: i32, object_id: i32) -> MatchingMemberTyp
     let party_of = |oid: i32| {
         world
             .objects
-            .get_component::<components::PartyRef>(&oid)
-            .map(|components::PartyRef(id)| *id)
+            .get_component::<components::social::PartyRef>(&oid)
+            .map(|components::social::PartyRef(id)| *id)
     };
     match (party_of(room.leader), party_of(object_id)) {
         (Some(a), Some(b)) if a == b => MatchingMemberType::PartyMember,
@@ -135,11 +135,11 @@ pub(crate) fn set_in_room_flag(world: &mut World, object_id: i32, in_room: bool)
     if in_room {
         world
             .objects
-            .add_components(&object_id, components::InMatchingRoom);
+            .add_components(&object_id, components::social::InMatchingRoom);
     } else {
         world
             .objects
-            .remove_component::<components::InMatchingRoom>(&object_id);
+            .remove_component::<components::social::InMatchingRoom>(&object_id);
     }
 }
 
@@ -160,7 +160,7 @@ pub(crate) fn handle_request_party_match_config(world: &mut World, client_id: u3
     // other member of a channelled party is refused the screen.
     if let Some(party_id) = world
         .objects
-        .get_component::<components::PartyRef>(&player)
+        .get_component::<components::social::PartyRef>(&player)
         .map(|r| r.0)
         && let Some(cc_id) =
             crate::game_loop::party::command_channel::cc_id_of_party(world, party_id)
@@ -188,8 +188,8 @@ pub(crate) fn handle_request_party_match_config(world: &mut World, client_id: u3
     // party leader.
     let in_party_but_not_leader = world
         .objects
-        .get_component::<components::PartyRef>(&player)
-        .and_then(|components::PartyRef(id)| world.parties.get(id))
+        .get_component::<components::social::PartyRef>(&player)
+        .and_then(|components::social::PartyRef(id)| world.parties.get(id))
         .is_some_and(|p| !p.is_leader(player));
     if in_party_but_not_leader {
         send_sm(
@@ -610,8 +610,8 @@ pub(crate) fn handle_oust_from_party_room(world: &mut World, client_id: u32, bod
     // UI. (Java reads `player.getParty()` twice here, so the rule never fires.)
     let party_of = |w: &World, oid: i32| {
         w.objects
-            .get_component::<components::PartyRef>(&oid)
-            .map(|components::PartyRef(id)| *id)
+            .get_component::<components::social::PartyRef>(&oid)
+            .map(|components::social::PartyRef(id)| *id)
     };
     if let (Some(a), Some(b)) = (party_of(world, player), party_of(world, target))
         && a == b
@@ -699,7 +699,7 @@ pub(crate) fn handle_ask_join_party_room(world: &mut World, client_id: u32, body
     }
     if world
         .objects
-        .has_component::<components::PendingRequest>(&target)
+        .has_component::<components::social::PendingRequest>(&target)
     {
         send_sm(
             world,
@@ -714,7 +714,7 @@ pub(crate) fn handle_ask_join_party_room(world: &mut World, client_id: u32, body
         world,
         player,
         target,
-        components::RequestKind::PartyRoomInvite { room_id },
+        components::social::RequestKind::PartyRoomInvite { room_id },
         crate::game_loop::party::REQUEST_TIMEOUT_TICKS,
     );
     let inviter = player_name_or_empty(world, player);
@@ -743,7 +743,7 @@ pub(crate) fn handle_answer_join_party_room(world: &mut World, client_id: u32, b
         send_sm(world, player, sm_ids::THAT_PLAYER_IS_NOT_ONLINE, &[]);
         return;
     };
-    let components::RequestKind::PartyRoomInvite { room_id } = req.kind else {
+    let components::social::RequestKind::PartyRoomInvite { room_id } = req.kind else {
         return;
     };
     if answer != 1 {

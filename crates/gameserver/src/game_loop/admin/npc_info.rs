@@ -23,7 +23,8 @@
 //! `AggroList` bypass into [`npc_view`](crate::game_loop::npc::view).
 
 use crate::data::npc_data::{AiType, NpcTemplate};
-use crate::model::components::{CombatStats, Position, Speeds, Vitals};
+use crate::model::components::space::Position;
+use crate::model::components::stats::{CombatStats, Speeds, Vitals};
 use crate::model::npc::{Npc, NpcAi, NpcIntention};
 use crate::world::World;
 

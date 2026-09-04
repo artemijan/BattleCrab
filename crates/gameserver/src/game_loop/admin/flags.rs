@@ -9,7 +9,7 @@ use crate::game_loop::helpers::{nth_arg, send_sm_bare_to_client};
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
-use crate::model::components::AdminFlags;
+use crate::model::components::player::AdminFlags;
 use crate::network::server_packets;
 use crate::world::World;
 /// The GM flags togglable via `AdminFlags`.
@@ -265,7 +265,7 @@ fn grant_special_skills(world: &mut World, client_id: u32, object_id: i32) {
         }
         if let Some(book) = world
             .objects
-            .get_component_mut::<crate::model::components::SkillBook>(&object_id)
+            .get_component_mut::<crate::model::components::skills::SkillBook>(&object_id)
         {
             for (id, level) in skills {
                 book.0.insert(id, level);
@@ -425,7 +425,7 @@ pub(super) fn push_admin_visuals(world: &mut World, target: i32) {
 /// Now that the visual runtime exists (G19), this is just a pinned entry in
 /// `AdminVisuals` folded alongside the buff-derived ones.
 pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    use crate::model::components::AdminVisuals;
+    use crate::model::components::player::AdminVisuals;
 
     // Java: `if ((param1 != null) && !Util.isDigit(param1))` applies the
     // effect; anything else — no argument at all, or a page number from the

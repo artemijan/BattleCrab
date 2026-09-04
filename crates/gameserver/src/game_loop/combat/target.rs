@@ -59,10 +59,10 @@ pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i
         // `Npc.isAutoAttackable` lets summons attack NPCs outright.
         && !world
             .objects
-            .has_component::<components::ServitorOf>(&attacker_oid)
+            .has_component::<components::summons::ServitorOf>(&attacker_oid)
         && !world
             .objects
-            .has_component::<components::PetOf>(&attacker_oid);
+            .has_component::<components::summons::PetOf>(&attacker_oid);
 
     (!attacker_is_wild_monster
         && npc_template(world, target_oid).is_some_and(|t| t.is_auto_attackable()))
@@ -124,7 +124,7 @@ fn cursed_weapon_blocks_attack(world: &World, attacker: i32, target: i32) -> boo
 fn is_targeting(world: &World, object_id: i32, other_object_id: i32) -> bool {
     world
         .objects
-        .get_component::<components::TargetRef>(&object_id)
+        .get_component::<components::combat::TargetRef>(&object_id)
         .copied()
         .unwrap_or_default()
         .0
@@ -155,7 +155,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     // and items (G34 S4).
     if let Some(locked) = world
         .objects
-        .get_component::<components::LockedTarget>(&object_id)
+        .get_component::<components::combat::LockedTarget>(&object_id)
         .map(|l| l.0)
         && locked != pkt.object_id
         && world.objects.has_component::<npc::Npc>(&pkt.object_id)
@@ -170,7 +170,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     }
     if world
         .objects
-        .has_component::<components::GroundItem>(&pkt.object_id)
+        .has_component::<components::commerce::GroundItem>(&pkt.object_id)
     {
         // `handlers.actionhandlers.ItemAction`: `if (!player.isFlying())
         // player.getAI().setIntention(AI_INTENTION_PICK_UP, target)`. The click
@@ -187,11 +187,11 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         let ticket_refused = (|| {
             let pos = world
                 .objects
-                .get_component::<components::Position>(&pkt.object_id)?;
+                .get_component::<components::space::Position>(&pkt.object_id)?;
             let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
             let item_id = world
                 .objects
-                .get_component::<components::GroundItem>(&pkt.object_id)
+                .get_component::<components::commerce::GroundItem>(&pkt.object_id)
                 .map(|g| g.item_id)?;
             if !world
                 .data
@@ -234,7 +234,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         }
     } else if world
         .objects
-        .get_component::<components::AdminFlags>(&pkt.object_id)
+        .get_component::<components::player::AdminFlags>(&pkt.object_id)
         .is_some_and(|f| f.untargetable)
         // Java `Action`: `if ((!obj.isTargetable() || player.isTargetingDisabled())
         // && !canOverrideCond(TARGET_ALL))` — the two effect-driven halves of the
@@ -305,7 +305,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             // player's last folk NPC (bare-bypass origin resolution).
             world
                 .objects
-                .add_components(&object_id, components::LastFolkNpc(pkt.object_id));
+                .add_components(&object_id, components::player::LastFolkNpc(pkt.object_id));
             // `Action` case 1 → `Npc.onActionShift` → `NpcActionShift`: a GM
             // always gets the admin `npcinfo.htm` window (whatever
             // `AltGameViewNpc` says), everyone else only the player-facing
@@ -353,8 +353,8 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         let already_targeted = is_targeting(world, object_id, pkt.object_id);
         let z_ok = matches!(
             (
-                world.objects.get_component::<components::Position>(&object_id),
-                world.objects.get_component::<components::Position>(&pkt.object_id),
+                world.objects.get_component::<components::space::Position>(&object_id),
+                world.objects.get_component::<components::space::Position>(&pkt.object_id),
             ),
             (Some(a), Some(d)) if (a.z - d.z).abs() < 400
         );
@@ -403,12 +403,12 @@ pub(crate) fn handle_request_target_canceld(world: &mut World, client_id: u32, b
     if matches!(
         world
             .objects
-            .get_component::<components::QueuedAction>(&object_id),
-        Some(components::QueuedAction::Skill { .. })
+            .get_component::<components::combat::QueuedAction>(&object_id),
+        Some(components::combat::QueuedAction::Skill { .. })
     ) {
         world
             .objects
-            .remove_component::<components::QueuedAction>(&object_id);
+            .remove_component::<components::combat::QueuedAction>(&object_id);
     }
     abort_cast(world, object_id);
     if !pkt.target_lost {
@@ -417,14 +417,14 @@ pub(crate) fn handle_request_target_canceld(world: &mut World, client_id: u32, b
     if matches!(
         world
             .objects
-            .get_component::<components::Intent>(&object_id),
-        Some(components::Intent(
+            .get_component::<components::combat::Intent>(&object_id),
+        Some(components::combat::Intent(
             crate::model::PlayerIntent::Attack { .. }
         ))
     ) {
         world
             .objects
-            .remove_component::<components::Intent>(&object_id);
+            .remove_component::<components::combat::Intent>(&object_id);
     }
     set_target(world, client_id, object_id, None);
 }
@@ -451,10 +451,10 @@ fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<Targe
     {
         let pos = world
             .objects
-            .get_component::<components::Position>(&target_id)?;
+            .get_component::<components::space::Position>(&target_id)?;
         let vitals = world
             .objects
-            .get_component::<components::Vitals>(&target_id)?;
+            .get_component::<components::stats::Vitals>(&target_id)?;
         return Some(TargetInfo {
             z: pos.z,
             max_hp: vitals.max_hp,
@@ -471,7 +471,7 @@ fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<Targe
         // gate lives in the attack path, not here).
         let pos = world
             .objects
-            .get_component::<components::Position>(&target_id)?;
+            .get_component::<components::space::Position>(&target_id)?;
         let max_hp = world
             .data
             .door_data
@@ -492,10 +492,10 @@ fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<Targe
     let npc = world.objects.get_component::<npc::Npc>(&target_id)?;
     let pos = world
         .objects
-        .get_component::<components::Position>(&target_id)?;
+        .get_component::<components::space::Position>(&target_id)?;
     let vitals = world
         .objects
-        .get_component::<components::Vitals>(&target_id)?;
+        .get_component::<components::stats::Vitals>(&target_id)?;
     let t = npc.template(world)?;
     Some(TargetInfo {
         z: pos.z,
@@ -528,7 +528,7 @@ pub(crate) fn set_target(
     };
     let current = world
         .objects
-        .get_component::<components::TargetRef>(&object_id)
+        .get_component::<components::combat::TargetRef>(&object_id)
         .copied()
         .unwrap_or_default()
         .0;
@@ -585,7 +585,7 @@ pub(crate) fn set_target(
         // carries (non-passive) buffs — Java sends this on the next
         // `updateEffectIcons`; we send it up front on select.
         let now = world.tick;
-        if let Some(buffs) = world.objects.get_component::<components::Buffs>(&t)
+        if let Some(buffs) = world.objects.get_component::<components::skills::Buffs>(&t)
             && buffs.0.iter().any(|b| !b.passive)
         {
             helpers::send_to_client(
@@ -610,7 +610,7 @@ pub(crate) fn set_target(
 
     if let Some(t) = world
         .objects
-        .get_component_mut::<components::TargetRef>(&object_id)
+        .get_component_mut::<components::combat::TargetRef>(&object_id)
     {
         t.0 = new_target;
     }
@@ -627,7 +627,7 @@ pub(crate) fn set_target(
 pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
     if !world
         .objects
-        .get_component::<components::TargetRef>(&holder_object_id)
+        .get_component::<components::combat::TargetRef>(&holder_object_id)
         .copied()
         .is_some_and(|t| t.0.is_some())
     {
@@ -635,7 +635,7 @@ pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
     }
     if let Some(t) = world
         .objects
-        .get_component_mut::<components::TargetRef>(&holder_object_id)
+        .get_component_mut::<components::combat::TargetRef>(&holder_object_id)
     {
         t.0 = None;
     }
@@ -661,7 +661,7 @@ pub(crate) fn release_target_holders(world: &mut World, object_id: i32) {
     let mut holders: Vec<i32> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&model::Player, &components::TargetRef)>(|(p, t)| {
+        .for_each_mut::<(&model::Player, &components::combat::TargetRef)>(|(p, t)| {
             if t.0 == Some(object_id) && p.object_id != object_id {
                 holders.push(p.object_id);
             }
@@ -696,7 +696,7 @@ pub(crate) fn interact_with_npc(
     // dist is the Sin Eater's grumbling.
     if world
         .objects
-        .get_component::<components::ServitorOf>(&npc_object_id)
+        .get_component::<components::summons::ServitorOf>(&npc_object_id)
         .is_some_and(|s| s.owner_object_id == object_id)
     {
         crate::scripts::sin_eater::on_summon_talk(world, npc_object_id);
@@ -879,7 +879,7 @@ fn load_chat_window_html(
 pub(crate) fn current(world: &World, object_id: i32) -> Option<i32> {
     world
         .objects
-        .get_component::<components::TargetRef>(&object_id)
+        .get_component::<components::combat::TargetRef>(&object_id)
         .and_then(|t| t.0)
 }
 

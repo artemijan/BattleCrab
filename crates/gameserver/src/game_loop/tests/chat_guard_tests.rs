@@ -30,7 +30,7 @@ fn two_players(
             .level = 40;
         world
             .objects
-            .add_components(&oid, model::components::PlayerVariables::default());
+            .add_components(&oid, model::components::player::PlayerVariables::default());
     }
     (speaker, listener)
 }

@@ -16,7 +16,7 @@
 
 use crate::data::route_data::RepeatStyle;
 use crate::game_loop::helpers::is_dead;
-use crate::model::components::Movement;
+use crate::model::components::space::Movement;
 use crate::world::World;
 use commons::util::rnd;
 

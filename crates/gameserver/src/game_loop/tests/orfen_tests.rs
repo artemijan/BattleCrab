@@ -291,7 +291,8 @@ fn the_leash_resets_a_dragged_orfen() {
 /// her; a healthy caller is ignored, and the roll can miss.
 #[test]
 fn riba_faction_call_heals_half_dead_orfen() {
-    use crate::model::components::{Casting, Vitals};
+    use crate::model::components::combat::Casting;
+    use crate::model::components::stats::Vitals;
 
     let (mut world, _db, _l) = orfen_world();
     add_test_npc(&mut world, ORFEN_OID, ORFEN, "RaidBoss", 50, 0, 0, 0);

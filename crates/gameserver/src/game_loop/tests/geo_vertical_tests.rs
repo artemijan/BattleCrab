@@ -12,7 +12,9 @@ use super::*;
 use crate::data::npc_data::AiType;
 
 use crate::geo::worker::PathRequest;
-use crate::model::components::{AttackState, Movement, PathWait, Position, Vitals};
+use crate::model::components::combat::AttackState;
+use crate::model::components::space::{Movement, PathWait, Position};
+use crate::model::components::stats::Vitals;
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 
 const MOB_ID: i32 = 46000;

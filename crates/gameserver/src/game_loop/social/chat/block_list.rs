@@ -28,7 +28,7 @@ use crate::game_loop::helpers::{
     is_friend, is_gm, send_message, send_sm_bare_to_client as send_sm, send_to_client,
 };
 use crate::game_loop::mail;
-use crate::model::components::AdminFlags;
+use crate::model::components::player::AdminFlags;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 

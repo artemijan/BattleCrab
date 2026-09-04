@@ -2,7 +2,7 @@
 //! ferry players across the Elroki chasm, but refuse anyone in combat.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::components::AttackState;
+use crate::model::components::combat::AttackState;
 
 const ORAHOCHIN: i32 = 32111;
 const GARIACHIN: i32 = 32112;

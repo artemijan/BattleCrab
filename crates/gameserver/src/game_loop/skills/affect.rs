@@ -43,7 +43,7 @@ use crate::game_loop::npc::npc_template;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;
-use crate::model::components::{Position, RegionCell};
+use crate::model::components::space::{Position, RegionCell};
 use crate::model::skill::Skill;
 use crate::model::skill::target::{AffectObject, AffectScope, TargetType};
 use crate::world::{World, regions_adjacent};
@@ -390,7 +390,7 @@ fn sweep_dead_group(
 fn sweep_ground(world: &World, caster_oid: i32, skill: &Skill, limit: i32) -> Vec<i32> {
     let Some(gp) = world
         .objects
-        .get_component::<crate::model::components::GroundSkillTarget>(&caster_oid)
+        .get_component::<crate::model::components::space::GroundSkillTarget>(&caster_oid)
         .copied()
     else {
         return Vec::new();
@@ -827,7 +827,7 @@ fn not_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
     }
     if world
         .objects
-        .has_component::<crate::model::components::OlympiadObserver>(&target)
+        .has_component::<crate::model::components::player::OlympiadObserver>(&target)
     {
         return false;
     }
@@ -845,7 +845,7 @@ fn not_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
     let duel_of = |oid: i32| {
         world
             .objects
-            .get_component::<crate::model::components::DuelRef>(&oid)
+            .get_component::<crate::model::components::social::DuelRef>(&oid)
             .map(|d| d.0)
     };
     if matches!((duel_of(caster), duel_of(target)), (Some(a), Some(b)) if a == b) {
@@ -875,7 +875,7 @@ fn not_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
     // The fallthrough: only a flagged player or a PK is fair game.
     let flagged = world
         .objects
-        .get_component::<crate::model::components::PvpState>(&target)
+        .get_component::<crate::model::components::combat::PvpState>(&target)
         .is_some_and(|s| s.flag > 0);
     let pk = world
         .objects
@@ -888,7 +888,7 @@ fn not_friend(world: &World, caster_oid: i32, candidate: i32) -> bool {
 fn party_of(world: &World, object_id: i32) -> Option<u32> {
     world
         .objects
-        .get_component::<crate::model::components::PartyRef>(&object_id)
+        .get_component::<crate::model::components::social::PartyRef>(&object_id)
         .map(|r| r.0)
 }
 
@@ -970,6 +970,6 @@ fn protected_by_peace(world: &World, caster_oid: i32, candidate: i32) -> bool {
     }
     world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&candidate)
+        .get_component::<crate::model::components::space::ZoneFlags>(&candidate)
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace))
 }

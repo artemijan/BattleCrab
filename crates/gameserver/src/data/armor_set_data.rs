@@ -26,7 +26,7 @@
 //!
 //! Java grants them with `addSkill(skill, false)` — the `false` is *store*, so
 //! they never reach `character_skills`. Here they go into the ordinary
-//! [`SkillBook`](crate::model::components::SkillBook) and are filtered out of
+//! [`SkillBook`](crate::model::components::skills::SkillBook) and are filtered out of
 //! every flush by [`ArmorSetData::is_armor_set_skill`], exactly as transform
 //! skills are. The payoff is that `conditioned_passive_buffs` already turns
 //! any passive in the book into its stat modifiers, so a set's passives apply

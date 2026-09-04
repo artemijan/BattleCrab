@@ -5,7 +5,7 @@
 use super::buffs_snapshot;
 use super::handle_buff_expire;
 use crate::game_loop::helpers::is_dead;
-use crate::model::components::StatModifiers;
+use crate::model::components::stats::StatModifiers;
 use crate::model::skill::BuffSlot;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::DispelSlot;

@@ -76,7 +76,7 @@ pub(super) fn do_teleport(world: &mut World, client_id: u32, object_id: i32, com
     send_to_client(world, client_id, sp::show_board_hide());
     world
         .objects
-        .add_components(&object_id, crate::model::components::SkillsDisabled);
+        .add_components(&object_id, crate::model::components::combat::SkillsDisabled);
     world.scheduler.schedule(
         world.tick + 30,
         crate::scheduler::ScheduledTask::SkillsReenable { object_id },
@@ -217,13 +217,13 @@ pub(super) fn cast_animation(
     };
     let Some(caster_pos) = world
         .objects
-        .get_component::<crate::model::components::Position>(&caster_oid)
+        .get_component::<crate::model::components::space::Position>(&caster_oid)
     else {
         return;
     };
     let Some(target_pos) = world
         .objects
-        .get_component::<crate::model::components::Position>(&target_oid)
+        .get_component::<crate::model::components::space::Position>(&target_oid)
     else {
         return;
     };

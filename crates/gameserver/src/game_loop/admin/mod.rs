@@ -1079,7 +1079,7 @@ pub(super) fn creatures_in_range(
     include_players: bool,
     include_npcs: bool,
 ) -> Vec<i32> {
-    use crate::model::components::Position;
+    use crate::model::components::space::Position;
     let Some(&center) = world.objects.get_component::<Position>(&center_oid) else {
         return Vec::new();
     };
@@ -1237,7 +1237,7 @@ fn send_character_info(world: &mut World, client_id: u32, target: i32) {
 fn send_henna_info(world: &mut World, client_id: u32, target: i32) {
     let Some(slots) = world
         .objects
-        .get_component::<crate::model::components::HennaSlots>(&target)
+        .get_component::<crate::model::components::skills::HennaSlots>(&target)
         .cloned()
     else {
         return;
@@ -1259,7 +1259,7 @@ fn send_henna_info(world: &mut World, client_id: u32, target: i32) {
 }
 
 fn send_skill_info(world: &mut World, client_id: u32, target: i32, name: &str) {
-    use crate::model::components::{ClanSkills, SkillBook};
+    use crate::model::components::skills::{ClanSkills, SkillBook};
     let Some(book) = world.objects.get_component::<SkillBook>(&target) else {
         return;
     };
@@ -1292,7 +1292,7 @@ fn send_skill_info(world: &mut World, client_id: u32, target: i32, name: &str) {
 fn send_quest_info(world: &mut World, client_id: u32, target: i32, name: &str) {
     let Some(quests) = world
         .objects
-        .get_component::<crate::model::components::Quests>(&target)
+        .get_component::<crate::model::components::social::Quests>(&target)
         .cloned()
     else {
         return;

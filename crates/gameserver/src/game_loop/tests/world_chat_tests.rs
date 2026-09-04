@@ -6,7 +6,7 @@ use crate::db::DbCommand;
 use crate::enums::ChatType;
 use crate::game_loop::social::chat;
 use crate::model::Player;
-use crate::model::components::{PlayerVariables, WORLD_CHAT_USED};
+use crate::model::components::player::{PlayerVariables, WORLD_CHAT_USED};
 use crate::network::server_packets::{opcodes, sm_ids};
 
 fn world_body(text: &str) -> Vec<u8> {

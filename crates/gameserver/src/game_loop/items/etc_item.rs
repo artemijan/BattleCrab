@@ -113,7 +113,7 @@ fn summon_item_allowed(world: &mut World, client_id: u32, object_id: i32) -> boo
     if crate::game_loop::abnormal::all_skills_disabled(world, object_id)
         || world
             .objects
-            .has_component::<crate::model::components::Casting>(&object_id)
+            .has_component::<crate::model::components::combat::Casting>(&object_id)
     {
         return false;
     }
@@ -137,7 +137,7 @@ fn summon_item_allowed(world: &mut World, client_id: u32, object_id: i32) -> boo
     }
     if world
         .objects
-        .get_component::<crate::model::components::AttackState>(&object_id)
+        .get_component::<crate::model::components::combat::AttackState>(&object_id)
         .is_some_and(|st| st.attack_end_tick > world.tick)
     {
         helpers::send_sm_bare_to_client(world, client_id, sm_ids::YOU_CANNOT_SUMMON_DURING_COMBAT);
@@ -221,7 +221,7 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
     helpers::send_to_client(world, client_id, sm.clone());
     let in_peace = world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&object_id)
+        .get_component::<crate::model::components::space::ZoneFlags>(&object_id)
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
     if in_peace {
         broadcast::broadcast_from(world, object_id, &sm);
@@ -315,7 +315,7 @@ fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id
 /// The sow-location gate (`seed.getCastleId() == target.getTaxCastle()`) is
 /// honored, `THIS_SEED_MAY_NOT_BE_SOWN_HERE` included.
 fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
-    use crate::model::components::TargetRef;
+    use crate::model::components::combat::TargetRef;
     use crate::model::npc::Npc;
     use crate::network::server_packets::sm_ids;
 
@@ -348,7 +348,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
     let can_be_sown = npc::npc_template(world, target_oid).is_some_and(|t| t.can_be_sown);
     let dead = world
         .objects
-        .get_component::<crate::model::components::Vitals>(&target_oid)
+        .get_component::<crate::model::components::stats::Vitals>(&target_oid)
         .map(|v| v.dead)
         .unwrap_or(true);
     let already_seeded = world
@@ -402,7 +402,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     };
     use crate::game_loop::skills::effects::apply_skill_effects;
     use crate::model::Player;
-    use crate::model::components::{Casting, TargetRef};
+    use crate::model::components::combat::{Casting, TargetRef};
     use crate::model::skill::target::TargetType;
 
     let (item_skills, immediate_effect, ex_immediate_effect, default_action) = {
@@ -487,7 +487,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
                 // and the consume happens on the replay's own branch.
                 world.objects.add_components(
                     &object_id,
-                    crate::model::components::QueuedAction::UseItem { item_object_id },
+                    crate::model::components::combat::QueuedAction::UseItem { item_object_id },
                 );
                 continue;
             }

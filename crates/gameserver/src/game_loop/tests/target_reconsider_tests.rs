@@ -4,7 +4,8 @@
 use super::*;
 
 use crate::data::npc_data::{AiType, MinionHolder};
-use crate::model::components::{Casting, Vitals};
+use crate::model::components::combat::Casting;
+use crate::model::components::stats::Vitals;
 use crate::model::npc::NpcIntention;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;

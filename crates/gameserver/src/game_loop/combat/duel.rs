@@ -26,7 +26,9 @@ use crate::game_loop::space::instances;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{combat, helpers, party};
 use crate::model::Player;
-use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};
+use crate::model::components::social::DuelRef;
+use crate::model::components::space::Position;
+use crate::model::components::stats::{PlayerVitals, Vitals};
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -238,7 +240,7 @@ pub(crate) fn handle_request_duel_start(world: &mut World, client_id: u32, body:
     // Park the pending challenge on the target and ask them.
     world.objects.add_components(
         &target,
-        crate::model::components::PendingDuel {
+        crate::model::components::social::PendingDuel {
             challenger,
             party: false,
         },
@@ -269,14 +271,14 @@ pub(crate) fn handle_request_duel_answer(world: &mut World, client_id: u32, body
     };
     let Some(pending) = world
         .objects
-        .get_component::<crate::model::components::PendingDuel>(&responder)
+        .get_component::<crate::model::components::social::PendingDuel>(&responder)
         .copied()
     else {
         return;
     };
     world
         .objects
-        .remove_component::<crate::model::components::PendingDuel>(&responder);
+        .remove_component::<crate::model::components::social::PendingDuel>(&responder);
     let challenger = pending.challenger;
     let party = pending.party;
 
@@ -375,7 +377,7 @@ fn handle_party_duel_start(world: &mut World, client_id: u32, challenger: i32, n
     let leader_b = team_b[0];
     world.objects.add_components(
         &leader_b,
-        crate::model::components::PendingDuel {
+        crate::model::components::social::PendingDuel {
             challenger,
             party: true,
         },
@@ -583,9 +585,10 @@ fn teleport_party_duel(world: &mut World, duel_id: u32) {
     }
     for (team, spawn) in [(team_a, DUEL_SPAWN_A), (team_b, DUEL_SPAWN_B)] {
         for oid in team {
-            world
-                .objects
-                .add_components(&oid, crate::model::components::InstanceId(instance_id));
+            world.objects.add_components(
+                &oid,
+                crate::model::components::space::InstanceId(instance_id),
+            );
             crate::game_loop::death::teleport_player(world, oid, spawn.0, spawn.1, spawn.2);
         }
     }
@@ -761,7 +764,7 @@ pub(crate) fn end_duel(world: &mut World, duel_id: u32, result: DuelResult) {
             restore_condition(world, oid, (hp, mp, cp));
             world
                 .objects
-                .remove_component::<crate::model::components::InstanceId>(&oid);
+                .remove_component::<crate::model::components::space::InstanceId>(&oid);
             crate::game_loop::death::teleport_player(world, oid, x, y, z);
             player_info::broadcast_user_info(world, oid);
         }

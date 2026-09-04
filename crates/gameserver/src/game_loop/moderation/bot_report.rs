@@ -25,7 +25,7 @@ use std::collections::HashMap;
 use crate::config::bot_report::BotReportConfig;
 use crate::game_loop::clans;
 use crate::model::Player;
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 use crate::network::server_packets::{SmParam, sm_ids};
 use crate::scheduler::ms_to_ticks;
 use crate::world::World;
@@ -128,7 +128,7 @@ pub(crate) fn handle_bot_report_action(world: &mut World, client_id: u32, player
 pub(crate) fn report_bot(world: &mut World, client_id: u32, reporter_oid: i32) -> bool {
     let target_oid = match world
         .objects
-        .get_component::<crate::model::components::TargetRef>(&reporter_oid)
+        .get_component::<crate::model::components::combat::TargetRef>(&reporter_oid)
     {
         Some(t) => match t.0 {
             Some(oid) => oid,
@@ -332,7 +332,7 @@ fn player_ip(world: &World, object_id: i32) -> String {
 pub(crate) fn is_action_blocked(world: &World, player_oid: i32, action_id: i32) -> bool {
     let Some(buffs) = world
         .objects
-        .get_component::<crate::model::components::Buffs>(&player_oid)
+        .get_component::<crate::model::components::skills::Buffs>(&player_oid)
     else {
         return false;
     };

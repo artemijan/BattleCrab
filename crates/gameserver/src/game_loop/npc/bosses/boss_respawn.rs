@@ -20,7 +20,8 @@ use crate::data::spawn_data;
 use crate::db::{DbCommand, NpcRespawnRow};
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::{Position, Vitals};
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 

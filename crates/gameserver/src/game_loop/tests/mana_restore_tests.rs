@@ -11,7 +11,7 @@
 
 use super::*;
 
-use crate::model::components::StatModifiers;
+use crate::model::components::stats::StatModifiers;
 use crate::model::skill::effect_flag;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::stats::Stat;

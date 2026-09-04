@@ -9,7 +9,7 @@ use crate::game_loop::helpers::{
 };
 use crate::game_loop::social::chat::block_list;
 use crate::model::Player;
-use crate::model::components::{Friends, PendingRequest, RequestKind};
+use crate::model::components::social::{Friends, PendingRequest, RequestKind};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, FriendEntry, SmParam, friend_status_mode, sm_ids};
 use crate::world::World;

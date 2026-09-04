@@ -3,7 +3,7 @@
 
 use super::QuestCtx;
 use super::load_quest_html;
-use crate::model::components::Quests;
+use crate::model::components::social::Quests;
 use crate::model::quest;
 use crate::network::server_packets;
 impl<'w> QuestCtx<'w> {
@@ -75,7 +75,7 @@ impl<'w> QuestCtx<'w> {
         let Some(pos) = self
             .world
             .objects
-            .get_component::<crate::model::components::Position>(&self.player)
+            .get_component::<crate::model::components::space::Position>(&self.player)
             .copied()
         else {
             return;
@@ -97,7 +97,7 @@ impl<'w> QuestCtx<'w> {
     pub fn player_target_npc_id(&self) -> i32 {
         self.world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&self.player)
+            .get_component::<crate::model::components::combat::TargetRef>(&self.player)
             .and_then(|t| t.0)
             .and_then(|oid| {
                 self.world
@@ -114,7 +114,7 @@ impl<'w> QuestCtx<'w> {
         let Some(pos) = self
             .world
             .objects
-            .get_component::<crate::model::components::Position>(&self.npc)
+            .get_component::<crate::model::components::space::Position>(&self.npc)
             .copied()
         else {
             return;
@@ -139,7 +139,7 @@ impl<'w> QuestCtx<'w> {
         let Some(npos) = self
             .world
             .objects
-            .get_component::<crate::model::components::Position>(&self.npc)
+            .get_component::<crate::model::components::space::Position>(&self.npc)
         else {
             return 0;
         };
@@ -150,12 +150,12 @@ impl<'w> QuestCtx<'w> {
             .filter(|oid| {
                 self.world
                     .objects
-                    .get_component::<crate::model::components::GroundItem>(oid)
+                    .get_component::<crate::model::components::commerce::GroundItem>(oid)
                     .is_some_and(|g| g.item_id == item_id)
                     && self
                         .world
                         .objects
-                        .get_component::<crate::model::components::Position>(oid)
+                        .get_component::<crate::model::components::space::Position>(oid)
                         .is_some_and(|p| npos.distance_2d(p) <= radius)
             })
             .count()

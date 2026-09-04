@@ -95,7 +95,7 @@ pub(crate) fn is_gm(world: &World, object_id: i32) -> bool {
         .is_some_and(|p| p.is_gm(&world.data))
 }
 
-/// Read-modify-write one object's [`AdminFlags`](model::components::AdminFlags),
+/// Read-modify-write one object's [`AdminFlags`](model::components::player::AdminFlags),
 /// creating the component from its all-false default when absent.
 ///
 /// The systems' half of the GM flags: olympiad observer mode, TvT's freeze and
@@ -109,18 +109,18 @@ pub(crate) fn is_gm(world: &World, object_id: i32) -> bool {
 pub(crate) fn update_admin_flags(
     world: &mut World,
     object_id: i32,
-    edit: impl FnOnce(&mut model::components::AdminFlags),
+    edit: impl FnOnce(&mut model::components::player::AdminFlags),
 ) {
     let mut flags = world
         .objects
-        .get_component::<model::components::AdminFlags>(&object_id)
+        .get_component::<model::components::player::AdminFlags>(&object_id)
         .copied()
         .unwrap_or_default();
     edit(&mut flags);
     world.objects.add_components(&object_id, flags);
 }
 
-/// One object's [`Reuses`](model::components::Reuses) for writing,
+/// One object's [`Reuses`](model::components::skills::Reuses) for writing,
 /// attaching an empty map first when the object has none. `None` only for an
 /// id that has left the world, like `add_components` itself.
 ///
@@ -134,22 +134,22 @@ pub(crate) fn update_admin_flags(
 pub(crate) fn reuses_mut(
     world: &mut World,
     object_id: i32,
-) -> Option<&mut model::components::Reuses> {
+) -> Option<&mut model::components::skills::Reuses> {
     if world
         .objects
-        .get_component::<model::components::Reuses>(&object_id)
+        .get_component::<model::components::skills::Reuses>(&object_id)
         .is_none()
     {
         world
             .objects
-            .add_components(&object_id, model::components::Reuses::default());
+            .add_components(&object_id, model::components::skills::Reuses::default());
     }
     world
         .objects
-        .get_component_mut::<model::components::Reuses>(&object_id)
+        .get_component_mut::<model::components::skills::Reuses>(&object_id)
 }
 
-/// One entry of a character's [`PlayerVariables`](model::components::PlayerVariables)
+/// One entry of a character's [`PlayerVariables`](model::components::player::PlayerVariables)
 /// store — Java `player.getVariables().getString(key, null)`.
 ///
 /// The raw string, so a caller can tell **absent** from a stored `"0"`;
@@ -158,7 +158,7 @@ pub(crate) fn reuses_mut(
 pub(crate) fn player_var<'a>(world: &'a World, object_id: i32, key: &str) -> Option<&'a str> {
     world
         .objects
-        .get_component::<model::components::PlayerVariables>(&object_id)
+        .get_component::<model::components::player::PlayerVariables>(&object_id)
         .and_then(|v| v.0.get(key))
         .map(String::as_str)
 }
@@ -168,7 +168,7 @@ pub(crate) fn player_var<'a>(world: &'a World, object_id: i32, key: &str) -> Opt
 pub(crate) fn player_var_int(world: &World, object_id: i32, key: &str, default: i32) -> i32 {
     world
         .objects
-        .get_component::<model::components::PlayerVariables>(&object_id)
+        .get_component::<model::components::player::PlayerVariables>(&object_id)
         .map_or(default, |v| v.get_int(key, default))
 }
 
@@ -187,7 +187,7 @@ pub(crate) fn set_player_var(
 ) -> bool {
     match world
         .objects
-        .get_component_mut::<model::components::PlayerVariables>(&object_id)
+        .get_component_mut::<model::components::player::PlayerVariables>(&object_id)
     {
         Some(v) => {
             v.0.insert(key.to_string(), value.into());
@@ -208,7 +208,7 @@ pub(crate) fn set_player_var_int(world: &mut World, object_id: i32, key: &str, v
 pub(crate) fn unset_player_var(world: &mut World, object_id: i32, key: &str) {
     if let Some(v) = world
         .objects
-        .get_component_mut::<model::components::PlayerVariables>(&object_id)
+        .get_component_mut::<model::components::player::PlayerVariables>(&object_id)
     {
         v.0.remove(key);
     }
@@ -225,10 +225,10 @@ pub(crate) fn is_playable(world: &World, object_id: i32) -> bool {
     world.objects.has_component::<Player>(&object_id)
         || world
             .objects
-            .has_component::<model::components::PetOf>(&object_id)
+            .has_component::<model::components::summons::PetOf>(&object_id)
         || world
             .objects
-            .has_component::<model::components::ServitorOf>(&object_id)
+            .has_component::<model::components::summons::ServitorOf>(&object_id)
 }
 
 /// A player's character name, or `None` once the object has left the world.
@@ -315,7 +315,7 @@ pub(crate) fn get_others_in_matching_room(
 pub(crate) fn instance_of(world: &World, object_id: i32) -> i32 {
     world
         .objects
-        .get_component::<model::components::InstanceId>(&object_id)
+        .get_component::<model::components::space::InstanceId>(&object_id)
         .map_or(0, |i| i.0)
 }
 

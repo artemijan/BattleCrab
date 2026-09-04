@@ -37,7 +37,7 @@ use schedule::{ModeTimes, boot_mode, next_mode_change_millis};
 
 use tracing::warn;
 
-use crate::model::components::LastFolkNpc;
+use crate::model::components::player::LastFolkNpc;
 
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;

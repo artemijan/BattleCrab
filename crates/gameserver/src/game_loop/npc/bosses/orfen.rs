@@ -13,7 +13,8 @@
 use crate::game_loop::npc::cast;
 use crate::game_loop::space::position::pos_of;
 use crate::game_loop::space::position::set_position;
-use crate::model::components::{Position, Vitals};
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 

@@ -12,7 +12,7 @@ use commons::network::PacketReader;
 
 use crate::game_loop::helpers::send_sm_to_player as send_sm;
 use crate::model::Player;
-use crate::model::components::TargetRef;
+use crate::model::components::combat::TargetRef;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;

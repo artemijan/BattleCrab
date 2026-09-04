@@ -137,7 +137,8 @@ pub struct TickOutcome {
 /// final segment aims at the accurate requested destination. Plain arrivals
 /// need no broadcast — the client self-predicts.
 pub fn tick(world: &mut crate::world::World) -> TickOutcome {
-    use crate::model::components::{Movement, Position, Speeds};
+    use crate::model::components::space::{Movement, Position};
+    use crate::model::components::stats::Speeds;
     let now = world.tick;
     let mut out = TickOutcome::default();
     let mut arrived: Vec<i32> = Vec::new();
@@ -183,7 +184,7 @@ pub fn tick(world: &mut crate::world::World) -> TickOutcome {
 /// can no longer move (speed ≤ 0).
 fn advance_route(
     m: &mut MoveData,
-    pos: &mut crate::model::components::Position,
+    pos: &mut crate::model::components::space::Position,
     speed: f64,
     now: u64,
 ) -> bool {

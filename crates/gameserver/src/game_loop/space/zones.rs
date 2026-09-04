@@ -12,7 +12,8 @@
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::combat::pvp;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::{Speeds, ZoneFlags};
+use crate::model::components::space::ZoneFlags;
+use crate::model::components::stats::Speeds;
 use crate::network::server_packets::{self, compass_zone};
 use crate::world::World;
 

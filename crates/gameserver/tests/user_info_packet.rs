@@ -2,8 +2,9 @@ use gameserver::config::CharacterConfig;
 use gameserver::data::GameData;
 use gameserver::model::Player;
 use gameserver::model::PlayerView;
-use gameserver::model::components::{
-    BaseStats, Collision, CombatStats, PlayerVitals, Position, Speeds, StatModifiers, Vitals,
+use gameserver::model::components::space::{Collision, Position};
+use gameserver::model::components::stats::{
+    BaseStats, CombatStats, PlayerVitals, Speeds, StatModifiers, Vitals,
 };
 use gameserver::network::user_info::user_info;
 
@@ -178,7 +179,7 @@ async fn user_info_test() {
     };
     let inventory = gameserver::model::inventory::Inventory::default();
     let mods = StatModifiers::default();
-    let skills = gameserver::model::components::SkillBook::default();
+    let skills = gameserver::model::components::skills::SkillBook::default();
     let view = PlayerView {
         p: &player,
         pos: &position,

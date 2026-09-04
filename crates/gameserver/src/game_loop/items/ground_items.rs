@@ -16,7 +16,8 @@ use crate::game_loop::party::command_channel;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
 use crate::game_loop::{items, quests};
-use crate::model::components::{GroundItem, Position, RegionCell};
+use crate::model::components::commerce::GroundItem;
+use crate::model::components::space::{Position, RegionCell};
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, GroundItemView};
@@ -474,7 +475,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     // `player.isFishing()` — "You cannot do that while fishing."
     if world
         .objects
-        .get_component::<crate::model::components::FishingSession>(&player_oid)
+        .get_component::<crate::model::components::player::FishingSession>(&player_oid)
         .is_some_and(|f| f.is_fishing)
     {
         send_to_client(
@@ -499,7 +500,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     // is pinned until it resolves.
     if world
         .objects
-        .has_component::<crate::model::components::EnchantRequest>(&player_oid)
+        .has_component::<crate::model::components::commerce::EnchantRequest>(&player_oid)
     {
         send_to_client(world, client_id, server_packets::system_message_with( server_packets::sm_ids::YOU_CANNOT_DESTROY_OR_CRYSTALLIZE_ITEMS_WHILE_ENCHANTING_ATTRIBUTES, &[], ));
         return;
@@ -557,10 +558,10 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     // `"You cannot drop an item while casting " + skill.getName() + "."`.
     if let Some(casting) = world
         .objects
-        .get_component::<crate::model::components::Casting>(&player_oid)
+        .get_component::<crate::model::components::combat::Casting>(&player_oid)
         && world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&player_oid)
+            .get_component::<crate::model::components::skills::SkillBook>(&player_oid)
             .is_some_and(|book| book.0.contains_key(&casting.0.skill_id))
     {
         // The fallback covers the 15 dist skills that declare `name=""` (and

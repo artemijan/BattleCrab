@@ -19,7 +19,7 @@ use crate::data::item_data::ADENA_ID;
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::send_message;
-use crate::model::components::TargetRef;
+use crate::model::components::combat::TargetRef;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::sm_ids;

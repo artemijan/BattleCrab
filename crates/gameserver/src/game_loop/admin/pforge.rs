@@ -191,7 +191,7 @@ fn substitute(world: &World, gm_oid: i32, token: &str) -> Option<String> {
     let target = || -> Option<i32> {
         world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&gm_oid)
+            .get_component::<crate::model::components::combat::TargetRef>(&gm_oid)
             .and_then(|t| t.0)
             .filter(|&t| t != 0)
     };

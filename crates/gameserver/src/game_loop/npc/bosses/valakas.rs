@@ -21,7 +21,7 @@ use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, skills};
 
 use crate::game_loop::time::TICKS_PER_SECOND;
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -211,7 +211,7 @@ fn call_skill_ai(world: &mut World, valakas_oid: i32) {
     // Don't stomp on an in-progress cast (Java `npc.isCastingNow()`).
     if world
         .objects
-        .has_component::<crate::model::components::Casting>(&valakas_oid)
+        .has_component::<crate::model::components::combat::Casting>(&valakas_oid)
     {
         return;
     }

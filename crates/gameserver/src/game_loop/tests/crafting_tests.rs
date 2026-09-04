@@ -5,7 +5,8 @@ use crate::data::item_data::kinds::{CrystalType, EtcItemType, ItemHandler, ItemK
 use crate::data::item_data::template::ItemTemplate;
 use crate::data::recipe_data::{RareProduction, RecipeList};
 use crate::game_loop::commerce::crafting;
-use crate::model::components::{RecipeBook, SkillBook};
+use crate::model::components::commerce::RecipeBook;
+use crate::model::components::skills::SkillBook;
 use crate::model::inventory::Inventory;
 
 const MATERIAL: i32 = 1869; // Iron Ore (stackable)

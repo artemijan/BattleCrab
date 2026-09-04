@@ -7,7 +7,8 @@ use crate::game_loop::character::inventory;
 
 use crate::config::community_board::{CommunityBoardConfig, scan_available_teleports};
 use crate::game_loop::community_board::handle_parse_command;
-use crate::model::components::{Position, Vitals};
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 
 const DIST: &str = crate::data::DIST_GAME;
 
@@ -176,14 +177,14 @@ fn teleport_action_moves_player_and_hides_board() {
     assert!(
         world
             .objects
-            .has_component::<model::components::SkillsDisabled>(&7004),
+            .has_component::<model::components::combat::SkillsDisabled>(&7004),
         "skills are locked around the teleport"
     );
     advance_ticks(&mut world, 31);
     assert!(
         !world
             .objects
-            .has_component::<model::components::SkillsDisabled>(&7004),
+            .has_component::<model::components::combat::SkillsDisabled>(&7004),
         "the 3 s window re-enables them"
     );
 }
@@ -604,7 +605,7 @@ use crate::game_loop::commerce::multisell;
 use crate::game_loop::commerce::multisell::handle_multi_sell_choose;
 use crate::game_loop::community_board;
 use crate::game_loop::siege::treasury;
-use crate::model::components::ActiveMultisell;
+use crate::model::components::commerce::ActiveMultisell;
 use crate::model::inventory::Inventory;
 
 #[test]
@@ -837,7 +838,7 @@ fn npc_trace_without_a_spawn_messages_the_player() {
 /// player. The leg was deferred while summons didn't exist; it is live now.
 #[test]
 fn heal_action_also_restores_the_pet() {
-    use crate::model::components::SummonRef;
+    use crate::model::components::summons::SummonRef;
     let (mut world, ..) = test_world();
     enable_board(&mut world);
     let _rx = ingame_player(&mut world, 1, 7003, 0, 0, 0);
@@ -902,7 +903,7 @@ fn the_combat_check_refuses_a_custom_action_in_a_duel() {
     // path attaches.
     world
         .objects
-        .add_components(&7101, model::components::DuelRef(1));
+        .add_components(&7101, model::components::social::DuelRef(1));
 
     handle_parse_command(&mut world, 1, "_bbsheal;");
     assert_eq!(
@@ -925,7 +926,7 @@ fn the_combat_check_refuses_a_custom_action_in_a_siege_zone() {
     }
     world
         .objects
-        .get_component_mut::<model::components::ZoneFlags>(&7103)
+        .get_component_mut::<model::components::space::ZoneFlags>(&7103)
         .unwrap()
         .mask |= crate::data::zone_data::ZoneKind::Siege.bit();
     drain(&mut rx);

@@ -9,7 +9,7 @@
 use super::*;
 use crate::game_loop;
 
-use crate::model::components::{StatModifiers, Vitals};
+use crate::model::components::stats::{StatModifiers, Vitals};
 use crate::model::skill::effects::SkillEffect;
 use crate::model::stats::Stat;
 
@@ -149,7 +149,7 @@ fn the_vampiric_cap_is_recoverable_hp_and_the_victim_scales_it() {
     // only 10 of the 20 can come back.
     if let Some(m) = world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&ATTACKER)
+        .get_component_mut::<crate::model::components::stats::StatModifiers>(&ATTACKER)
     {
         m.mul.insert(Stat::MaxRecoverableHp, 0.7);
     }
@@ -157,7 +157,7 @@ fn the_vampiric_cap_is_recoverable_hp_and_the_victim_scales_it() {
     // assertion stays about the *ceiling* and not about a magic number.
     let max_hp = world
         .objects
-        .get_component::<crate::model::components::Vitals>(&ATTACKER)
+        .get_component::<crate::model::components::stats::Vitals>(&ATTACKER)
         .map(|v| v.max_hp as f64)
         .expect("attacker");
     let ceiling = (max_hp * 0.7).floor();
@@ -173,13 +173,13 @@ fn the_vampiric_cap_is_recoverable_hp_and_the_victim_scales_it() {
     // The victim's `ABSORB_DAMAGE_DEFENCE` scales the result — ×1.5 here.
     if let Some(m) = world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&ATTACKER)
+        .get_component_mut::<crate::model::components::stats::StatModifiers>(&ATTACKER)
     {
         m.mul.remove(&Stat::MaxRecoverableHp);
     }
     if let Some(m) = world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&mob)
+        .get_component_mut::<crate::model::components::stats::StatModifiers>(&mob)
     {
         m.mul.insert(Stat::AbsorbDamageDefence, 1.5);
     }
@@ -356,7 +356,7 @@ fn a_dead_target_and_a_dot_reflect_nothing() {
 /// physical-skill hit, `mDef · 1.5` for a magic one.
 #[test]
 fn the_reflected_amount_is_capped_by_the_reflectors_defence() {
-    use crate::model::components::CombatStats;
+    use crate::model::components::stats::CombatStats;
 
     let (mut world, mob) = onhit_world();
     add_stat(&mut world, mob, Stat::ReflectDamagePercent, 100.0);

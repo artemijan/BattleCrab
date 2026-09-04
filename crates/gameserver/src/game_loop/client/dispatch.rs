@@ -75,7 +75,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         {
             world
                 .objects
-                .remove_component::<crate::model::components::ActiveMultisell>(&player);
+                .remove_component::<crate::model::components::commerce::ActiveMultisell>(&player);
         }
         return;
     }
@@ -119,7 +119,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id)
                 && let Some(reuses) = world
                     .objects
-                    .get_component::<crate::model::components::Reuses>(&session.player_object_id())
+                    .get_component::<crate::model::components::skills::Reuses>(
+                        &session.player_object_id(),
+                    )
             {
                 cs.send(server_packets::skill_cool_time(reuses, world.tick));
             }
@@ -779,7 +781,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
                 cs.send(server_packets::ex_show_castle_info(world));
                 let player_id = session.player_object_id();
-                if let Some(&crate::model::components::PartyRef(party_id)) =
+                if let Some(&crate::model::components::social::PartyRef(party_id)) =
                     world.objects.get_component(&player_id)
                     && let Some(party) = world.parties.get(&party_id)
                 {
@@ -789,7 +791,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                         .filter_map(|&m| {
                             world
                                 .objects
-                                .get_component::<crate::model::components::Position>(&m)
+                                .get_component::<crate::model::components::space::Position>(&m)
                                 .map(|p| (m, p.x, p.y, p.z))
                         })
                         .collect();

@@ -19,7 +19,8 @@ use super::mounts::ride_target;
 use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::helpers::{nth_arg, send_message, send_sm_bare_to_client};
 use crate::model::Player;
-use crate::model::components::{Collision, SkillBook};
+use crate::model::components::skills::SkillBook;
+use crate::model::components::space::Collision;
 use crate::world::World;
 
 /// `//transform <id>` — transform the ride target (target player or GM) into the
@@ -326,7 +327,7 @@ pub(crate) fn refresh_transform_visuals(world: &World, target: i32) {
         .map_or(0, |p| p.transform_display_id);
     let hidden = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&target)
+        .get_component::<crate::model::components::player::AdminFlags>(&target)
         .is_some_and(|f| f.hidden);
     if let Some(cid) = super::helpers::client_for_player(world, target) {
         let visuals = crate::game_loop::abnormal::visual_effects(world, target);

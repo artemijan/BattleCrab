@@ -23,7 +23,7 @@ use crate::game_loop::items::{augment, item_auction};
 use crate::game_loop::npc::npc_template;
 use crate::game_loop::npc::{teleporter, view};
 use crate::game_loop::space::position;
-use crate::model::components::LastFolkNpc;
+use crate::model::components::player::LastFolkNpc;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::world::World;
@@ -516,7 +516,7 @@ fn npc_bypass(
             crate::game_loop::commerce::warehouse::set_active(
                 world,
                 object_id,
-                crate::model::components::ActiveWarehouse::Private,
+                crate::model::components::commerce::ActiveWarehouse::Private,
             );
             crate::game_loop::commerce::warehouse::open_withdraw_window(world, client_id);
         }
@@ -524,7 +524,7 @@ fn npc_bypass(
             crate::game_loop::commerce::warehouse::set_active(
                 world,
                 object_id,
-                crate::model::components::ActiveWarehouse::Private,
+                crate::model::components::commerce::ActiveWarehouse::Private,
             );
             crate::game_loop::commerce::warehouse::open_deposit_window(world, client_id);
         }

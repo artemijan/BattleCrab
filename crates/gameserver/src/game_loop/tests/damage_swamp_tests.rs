@@ -4,7 +4,7 @@
 use super::*;
 
 use crate::data::zone_data::{DamageZoneParams, SwampZoneParams, Zone, ZoneKind};
-use crate::model::components::{Speeds, Vitals};
+use crate::model::components::stats::{Speeds, Vitals};
 
 const PLAYER: i32 = 2001;
 const CID: u32 = 1;
@@ -350,7 +350,7 @@ fn the_area_damage_stat_scales_zone_ticks() {
         if let Some(v) = vuln {
             let mut mods = world
                 .objects
-                .get_component::<model::components::StatModifiers>(&PLAYER)
+                .get_component::<model::components::stats::StatModifiers>(&PLAYER)
                 .cloned()
                 .unwrap_or_default();
             mods.add.insert(Stat::DamageZoneVuln, v);

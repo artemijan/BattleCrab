@@ -6,10 +6,10 @@ use crate::game_loop::net::broadcast;
 use crate::game_loop::skills::cast::break_cast;
 use crate::game_loop::space::position;
 use crate::game_loop::{helpers, npc};
-use crate::model::components::Casting;
-use crate::model::components::PlayerVitals;
-use crate::model::components::Speeds;
-use crate::model::components::Vitals;
+use crate::model::components::combat::Casting;
+use crate::model::components::stats::PlayerVitals;
+use crate::model::components::stats::Speeds;
+use crate::model::components::stats::Vitals;
 use crate::model::formulas;
 use crate::model::npc::NpcAi;
 use crate::model::npc::NpcIntention;
@@ -87,7 +87,7 @@ fn absorb_damage_to_hp(
     is_dot: bool,
     skill_magic: Option<bool>,
 ) {
-    use crate::model::components::{StatModifiers, Vitals};
+    use crate::model::components::stats::{StatModifiers, Vitals};
     use crate::model::stats::Stat;
     if is_dot || damage <= 0.0 {
         return;
@@ -188,7 +188,7 @@ fn absorb_damage_to_mp(
     is_dot: bool,
     skill_magic: Option<bool>,
 ) {
-    use crate::model::components::{StatModifiers, Vitals};
+    use crate::model::components::stats::{StatModifiers, Vitals};
     use crate::model::stats::Stat;
     if is_dot || damage <= 0.0 {
         return;
@@ -255,7 +255,7 @@ fn reflect_damage(
     is_dot: bool,
     skill_magic: Option<bool>,
 ) {
-    use crate::model::components::{CombatStats, StatModifiers, Vitals};
+    use crate::model::components::stats::{CombatStats, StatModifiers, Vitals};
     use crate::model::stats::Stat;
     if is_dot || damage <= 0.0 {
         return;
@@ -377,7 +377,7 @@ pub(crate) fn npc_receive_damage(
     // predicate.
     if world
         .objects
-        .get_component::<crate::model::components::ServitorOf>(&npc_oid)
+        .get_component::<crate::model::components::summons::ServitorOf>(&npc_oid)
         .is_some_and(|s| super::spawn_protection::is_protected(world, s.owner_object_id))
     {
         return;
@@ -391,7 +391,7 @@ pub(crate) fn npc_receive_damage(
     // docs/CUSTOM_DIST_DEVIATIONS.md.
     let damage = if world
         .objects
-        .has_component::<crate::model::components::AdvancedHeadquarter>(&npc_oid)
+        .has_component::<crate::model::components::player::AdvancedHeadquarter>(&npc_oid)
     {
         damage / 2.0
     } else {
@@ -439,7 +439,7 @@ pub(crate) fn npc_receive_damage(
     // a stray AoE from its own master cannot turn a summon on them.
     let summon_retaliates = match world
         .objects
-        .get_component::<crate::model::components::ServitorOf>(&npc_oid)
+        .get_component::<crate::model::components::summons::ServitorOf>(&npc_oid)
     {
         Some(link) => link.defending && link.owner_object_id != attacker_oid,
         None => true,
@@ -562,7 +562,7 @@ pub(crate) fn npc_receive_damage(
     } else {
         world
             .objects
-            .get_component::<crate::model::components::ServitorOf>(&attacker_oid)
+            .get_component::<crate::model::components::summons::ServitorOf>(&attacker_oid)
             .map(|s| (s.owner_object_id, true))
     };
     if let Some((player_oid, is_summon)) = quest_attacker {
@@ -762,7 +762,7 @@ pub(crate) fn player_receive_damage_ex(
     // hit entirely; undying lets damage apply but floors HP at 1.
     let flags = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&player_oid)
+        .get_component::<crate::model::components::player::AdminFlags>(&player_oid)
         .copied()
         .unwrap_or_default();
     if flags.invul {
@@ -867,7 +867,7 @@ pub(crate) fn player_receive_damage_ex(
         let men_bonus = {
             let men = world
                 .objects
-                .get_component::<crate::model::components::BaseStats>(&player_oid)
+                .get_component::<crate::model::components::stats::BaseStats>(&player_oid)
                 .map(|b| b.men)
                 .unwrap_or(0);
             world.data.stat_bonus.bonus(BaseStat::Men, men)
@@ -875,7 +875,7 @@ pub(crate) fn player_receive_damage_ex(
         // `Stat.ATTACK_CANCEL` modifiers (Concentration etc.) lower the rate.
         let (cancel_add, cancel_mul) = world
             .objects
-            .get_component::<crate::model::components::StatModifiers>(&player_oid)
+            .get_component::<crate::model::components::stats::StatModifiers>(&player_oid)
             .map(|m| {
                 use crate::model::stats::Stat::AttackCancel;
                 (

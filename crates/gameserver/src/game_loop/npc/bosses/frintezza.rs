@@ -18,7 +18,8 @@ use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, skills};
 
 use crate::game_loop::space::{instances, position};
-use crate::model::components::{AdminFlags, Movement, Position};
+use crate::model::components::player::AdminFlags;
+use crate::model::components::space::{Movement, Position};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::scheduler::ms_to_ticks;
@@ -283,7 +284,7 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
             if overhead != 0 {
                 if let Some(c) = world
                     .objects
-                    .get_component_mut::<crate::model::components::Collision>(&overhead)
+                    .get_component_mut::<crate::model::components::space::Collision>(&overhead)
                 {
                     c.height = 600.0;
                 }
@@ -1372,7 +1373,7 @@ pub(crate) fn handle_scarlet_skill(world: &mut World, instance_id: i32) {
     // Skip while casting or (still) invulnerable, but keep the timer alive.
     let casting = world
         .objects
-        .has_component::<crate::model::components::Casting>(&scarlet);
+        .has_component::<crate::model::components::combat::Casting>(&scarlet);
     let invul = world
         .objects
         .get_component::<AdminFlags>(&scarlet)
@@ -1461,7 +1462,7 @@ fn pick_target_in_range(
         .filter(|&m| {
             let alive = world
                 .objects
-                .get_component::<crate::model::components::Vitals>(&m)
+                .get_component::<crate::model::components::stats::Vitals>(&m)
                 .is_some_and(|v| !v.dead);
             let in_range = world
                 .objects

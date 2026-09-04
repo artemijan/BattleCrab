@@ -173,7 +173,7 @@ fn can_start(world: &World, client_id: u32, player_oid: i32) -> bool {
     }
     if world
         .objects
-        .get_component::<crate::model::components::FishingSession>(&player_oid)
+        .get_component::<crate::model::components::player::FishingSession>(&player_oid)
         .is_some_and(|f| f.is_fishing)
     {
         return refuse("You can't sell buffs while fishing.");
@@ -189,7 +189,7 @@ fn can_start(world: &World, client_id: u32, player_oid: i32) -> bool {
     let no_store = crate::game_loop::commerce::private_store::in_no_store_zone(world, player_oid);
     let in_peace = world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&player_oid)
+        .get_component::<crate::model::components::space::ZoneFlags>(&player_oid)
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
     let jailed = world
         .objects
@@ -438,7 +438,7 @@ fn buy_skill(world: &mut World, client_id: u32, buyer_oid: i32, args: &[&str]) {
     let mp_cost = (skill.mp_consume * world.cfg.sell_buffs.mp_multiplier) as f64;
     let seller_mp = world
         .objects
-        .get_component::<crate::model::components::Vitals>(&seller_oid)
+        .get_component::<crate::model::components::stats::Vitals>(&seller_oid)
         .map_or(0.0, |v| v.cur_mp);
     if seller_mp < mp_cost {
         let seller_name = player_name_or_empty(world, seller_oid);
@@ -504,7 +504,7 @@ fn addable_skills(world: &World, player_oid: i32) -> Vec<(i32, i32)> {
     let listed = sell_list(world, player_oid);
     let Some(book) = world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&player_oid)
+        .get_component::<crate::model::components::skills::SkillBook>(&player_oid)
     else {
         return Vec::new();
     };
@@ -523,7 +523,7 @@ fn addable_skills(world: &World, player_oid: i32) -> Vec<(i32, i32)> {
 fn known_level(world: &World, player_oid: i32, skill_id: i32) -> Option<i32> {
     world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&player_oid)
+        .get_component::<crate::model::components::skills::SkillBook>(&player_oid)
         .and_then(|b| b.0.get(&skill_id).copied())
 }
 

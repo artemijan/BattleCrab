@@ -22,7 +22,8 @@ use commons::util::rnd;
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::helpers::spend_mp;
 use crate::game_loop::helpers::stat_add;
-use crate::model::components::{Position, Vitals, ZoneFlags};
+use crate::model::components::space::{Position, ZoneFlags};
+use crate::model::components::stats::Vitals;
 use crate::scheduler::ms_to_ticks;
 use crate::world::World;
 
@@ -121,7 +122,7 @@ fn zone_occupants(world: &mut World, kind: ZoneKind) -> Vec<(usize, Vec<i32>)> {
 fn already_affected_at_least(world: &World, oid: i32, skill_id: i32, level: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::Buffs>(&oid)
+        .get_component::<crate::model::components::skills::Buffs>(&oid)
         .is_some_and(|b| {
             b.0.iter()
                 .any(|e| e.skill_id == skill_id && e.skill_level >= level)

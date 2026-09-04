@@ -1363,7 +1363,7 @@ fn death_drop_takes_the_cursed_cp_back() {
 /// sweep now scrubs the skills too.
 #[test]
 fn enter_world_scrubs_a_cursed_skill_with_no_curse_behind_it() {
-    use crate::model::components::SkillBook;
+    use crate::model::components::skills::SkillBook;
 
     let (mut world, _db, _db_rx, _l) = test_world();
     load_curse_data(&mut world);

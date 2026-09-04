@@ -19,7 +19,7 @@ use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::model::Player;
-use crate::model::components::Collision;
+use crate::model::components::space::Collision;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::skill::target::OperateType;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -136,7 +136,7 @@ pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_ty
         .and_then(|pet| {
             world
                 .objects
-                .get_component::<crate::model::components::PetOf>(&pet)
+                .get_component::<crate::model::components::summons::PetOf>(&pet)
         })
         .map(|p| p.fed);
     start_feed(world, target, inherited);
@@ -294,7 +294,7 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
     if collar != 0
         && let Some(pets) = world
             .objects
-            .get_component_mut::<crate::model::components::PlayerPets>(&target)
+            .get_component_mut::<crate::model::components::summons::PlayerPets>(&target)
         && let Some(row) = pets.0.get_mut(&collar)
     {
         row.fed = feed;
@@ -353,7 +353,7 @@ fn broadcast_ride(world: &World, target: i32, mounted: bool) {
 pub(crate) fn in_active_siege(world: &World, object_id: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&object_id)
+        .get_component::<crate::model::components::space::ZoneFlags>(&object_id)
         .is_some_and(|f| f.in_active_siege)
 }
 
@@ -466,7 +466,7 @@ pub(crate) fn handle_mount_feed_tick(world: &mut World, target: i32) {
 fn feed_consume(world: &World, target: i32) -> i32 {
     let attacking = world
         .objects
-        .get_component::<crate::model::components::AttackState>(&target)
+        .get_component::<crate::model::components::combat::AttackState>(&target)
         .is_some_and(|a| a.attack_end_tick > world.tick);
     mount_level_row(world, target).map_or(1, |row| {
         if attacking {

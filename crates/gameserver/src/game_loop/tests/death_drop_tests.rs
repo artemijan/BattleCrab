@@ -333,7 +333,7 @@ fn pvp_zone_death_drops_nothing() {
     pk_victim(&mut world, 1);
     world
         .objects
-        .get_component_mut::<model::components::ZoneFlags>(&VICTIM)
+        .get_component_mut::<model::components::space::ZoneFlags>(&VICTIM)
         .unwrap()
         .mask = crate::data::zone_data::ZoneKind::Pvp.bit();
 

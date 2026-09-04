@@ -27,7 +27,7 @@ use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::{despawn_npc_by_oid, introduce_npc, spawn_npc_at};
 use crate::game_loop::space::instances;
 use crate::model::Player;
-use crate::model::components::FishingSession;
+use crate::model::components::player::FishingSession;
 use crate::model::event::TvtPhase;
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
@@ -216,7 +216,7 @@ pub(crate) fn teleport_to_arena(world: &mut World) {
         // `PartyMessageType.DISCONNECTED`, before the arena teleport.
         if let Some(pid) = world
             .objects
-            .get_component::<crate::model::components::PartyRef>(&player)
+            .get_component::<crate::model::components::social::PartyRef>(&player)
             .map(|r| r.0)
         {
             crate::game_loop::party::remove_party_member(
@@ -844,7 +844,7 @@ fn buff_heal(world: &mut World, player: i32) {
     let mut updates = Vec::new();
     if let Some(vitals) = world
         .objects
-        .get_component_mut::<crate::model::components::Vitals>(&player)
+        .get_component_mut::<crate::model::components::stats::Vitals>(&player)
     {
         vitals.cur_hp = f64::from(vitals.max_hp);
         vitals.cur_mp = f64::from(vitals.max_mp);
@@ -853,7 +853,7 @@ fn buff_heal(world: &mut World, player: i32) {
     }
     if let Some(pv) = world
         .objects
-        .get_component_mut::<crate::model::components::PlayerVitals>(&player)
+        .get_component_mut::<crate::model::components::stats::PlayerVitals>(&player)
     {
         pv.cur_cp = f64::from(pv.max_cp);
         updates.push((sp::status_update_type::CUR_CP, pv.max_cp));
@@ -867,8 +867,8 @@ fn buff_heal(world: &mut World, player: i32) {
 fn arena_manager_near(world: &World, player: i32) -> Option<i32> {
     world
         .objects
-        .get_component::<crate::model::components::LastFolkNpc>(&player)
-        .map(|&crate::model::components::LastFolkNpc(npc)| npc)
+        .get_component::<crate::model::components::player::LastFolkNpc>(&player)
+        .map(|&crate::model::components::player::LastFolkNpc(npc)| npc)
 }
 
 /// Java's `FIGHTER_BUFFS` / `MAGE_BUFFS` (the event manager's service set).
@@ -1005,7 +1005,7 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
     // second is "I am standing on castle ground" even in peacetime.
     let in_siege_zone = world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&player)
+        .get_component::<crate::model::components::space::ZoneFlags>(&player)
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Siege));
     if crate::game_loop::combat::pvp::is_in_siege(world, player) || in_siege_zone {
         helpers::send_message(world, client_id, "You cannot register while on a siege.");
@@ -1058,9 +1058,10 @@ fn group_team(world: &mut World, team: &[i32]) {
                     seq,
                 ),
             );
-            world
-                .objects
-                .add_components(&member, crate::model::components::PartyRef(party_id));
+            world.objects.add_components(
+                &member,
+                crate::model::components::social::PartyRef(party_id),
+            );
             current_party = Some(party_id);
             if team.len() > PARTY_MEMBER_COUNT {
                 match cc_id {
@@ -1117,7 +1118,7 @@ fn set_team(world: &mut World, player: i32, team: u8) {
 /// unable to move or cast for the rest of the session. Recorded in
 /// `docs/CUSTOM_DIST_DEVIATIONS.md`.
 fn set_frozen(world: &mut World, player: i32, frozen: bool) {
-    use crate::model::components::{Immobilized, SkillsDisabled};
+    use crate::model::components::combat::{Immobilized, SkillsDisabled};
 
     let mut targets = vec![player];
     targets.extend(crate::game_loop::servitor::servitor_of(world, player));

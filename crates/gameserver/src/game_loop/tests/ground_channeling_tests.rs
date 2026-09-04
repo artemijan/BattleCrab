@@ -5,7 +5,9 @@
 
 use super::*;
 
-use crate::model::components::{Casting, GroundSkillTarget, Vitals};
+use crate::model::components::combat::Casting;
+use crate::model::components::space::GroundSkillTarget;
+use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
@@ -367,11 +369,11 @@ fn channeling_cast_time_is_static() {
         let p = world.objects.get_component::<Player>(&CASTER).unwrap();
         let base = world
             .objects
-            .get_component::<model::components::BaseStats>(&CASTER)
+            .get_component::<model::components::stats::BaseStats>(&CASTER)
             .unwrap();
         let mods = world
             .objects
-            .get_component::<model::components::StatModifiers>(&CASTER)
+            .get_component::<model::components::stats::StatModifiers>(&CASTER)
             .unwrap();
         let combat = world.objects.get_component::<CombatStats>(&CASTER).unwrap();
         formulas::timing::calc_cast_times(p, base, mods, combat, &world.data, skill, false, None)
@@ -388,7 +390,7 @@ fn channeling_cast_time_is_static() {
     // `StatModifiers.mul[MagicAttackSpeed]`).
     world
         .objects
-        .get_component_mut::<model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<model::components::stats::StatModifiers>(&CASTER)
         .unwrap()
         .mul
         .insert(Stat::MagicAttackSpeed, 2.0);

@@ -7,7 +7,7 @@
 
 use crate::data::door_data::DoorOpenMethod;
 use crate::game_loop::net::broadcast;
-use crate::model::components::RegionCell;
+use crate::model::components::space::RegionCell;
 use crate::model::door::Door;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -35,7 +35,7 @@ pub(crate) fn send_door_info(world: &World, session: &ClientSession, door_oid: i
 pub(crate) fn door_open_state(world: &World, door_oid: i32, door_id: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::InstanceDoorOpen>(&door_oid)
+        .get_component::<crate::model::components::space::InstanceDoorOpen>(&door_oid)
         .map(|s| s.0)
         .unwrap_or_else(|| world.geo.doors.is_open(door_id))
 }
@@ -72,14 +72,14 @@ pub(crate) fn broadcast_status(world: &World, door_oid: i32) {
 ///
 /// Door object ids are allocated dynamically, so this scans the door regions.
 /// Instance door copies are skipped: they carry their own
-/// [`InstanceDoorOpen`](crate::model::components::InstanceDoorOpen) state and
+/// [`InstanceDoorOpen`](crate::model::components::space::InstanceDoorOpen) state and
 /// are driven through [`crate::game_loop::space::instances::open_close_door`], so a
 /// global open/close must not pick one up.
 pub(crate) fn find_shared_door(world: &World, door_id: i32) -> Option<i32> {
     world.door_regions.values().flatten().copied().find(|&oid| {
         world
             .objects
-            .get_component::<crate::model::components::InstanceDoorOpen>(&oid)
+            .get_component::<crate::model::components::space::InstanceDoorOpen>(&oid)
             .is_none()
             && world
                 .objects

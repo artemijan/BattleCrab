@@ -144,7 +144,7 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
     // Created character starts at full HP/MP (Java: setCurrentHp(getMaxHp())).
     // No equipped gear yet (initial items are added below, then equipped at
     // enter-world where `from_char` recomputes max with the paperdoll).
-    let no_mods = crate::model::components::StatModifiers::default();
+    let no_mods = crate::model::components::stats::StatModifiers::default();
     let max_hp =
         crate::model::max_vitals::calc_max_hp(&world.data, template, 1, None, &no_mods) as i32;
     let max_mp =
@@ -625,7 +625,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         };
         let items_used = bundle
             .variables
-            .get_int(crate::model::components::VITALITY_ITEMS_USED, 0);
+            .get_int(crate::model::components::player::VITALITY_ITEMS_USED, 0);
         session.send(ew::ex_vitality_effect_info(
             player,
             bonus,
@@ -639,7 +639,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         bundle
             .variables
             .0
-            .get(crate::model::components::UI_KEY_MAPPING)
+            .get(crate::model::components::player::UI_KEY_MAPPING)
             .map(String::as_str),
     );
     session.send(server_packets::ex_ui_setting(&key_mapping));
@@ -668,8 +668,8 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(ew::skill_list(
         &bundle.skills,
         &bundle.skill_enchants,
-        &crate::model::components::ClanSkills::default(),
-        &crate::model::components::OptionSkills::default(),
+        &crate::model::components::skills::ClanSkills::default(),
+        &crate::model::components::skills::OptionSkills::default(),
         data,
     ));
     session.send(ew::acquire_skill_list(player, &bundle.skills, data));
@@ -727,7 +727,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         session.send(ew::ex_auto_soul_shot(0, true, kind));
     }
     session.send(ew::abnormal_status_update(
-        &crate::model::components::Buffs::default(),
+        &crate::model::components::skills::Buffs::default(),
         world.tick,
     ));
     session.send(ew::system_message(ew::SM_WELCOME));

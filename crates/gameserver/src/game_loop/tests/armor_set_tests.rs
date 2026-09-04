@@ -12,7 +12,8 @@
 
 use super::*;
 
-use crate::model::components::{BaseStats, SkillBook};
+use crate::model::components::skills::SkillBook;
+use crate::model::components::stats::BaseStats;
 use crate::model::inventory::Inventory;
 
 const PLAYER: i32 = 8001;

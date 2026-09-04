@@ -14,7 +14,7 @@ use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::skills::item_skills;
 use crate::game_loop::time::TICKS_PER_SECOND;
-use crate::model::components::ServitorOf;
+use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets;
 use crate::world::World;
 /// Java `Pet.FeedTask`'s fixed period: `scheduleAtFixedRate(..., 10000, 10000)`.
@@ -34,7 +34,7 @@ pub(crate) fn start_feed(world: &mut World, pet_oid: i32) {
 pub(crate) fn is_hungry(world: &World, pet_oid: i32) -> bool {
     let Some(pet) = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
     else {
         return false;
     };
@@ -49,7 +49,7 @@ pub(crate) fn is_hungry(world: &World, pet_oid: i32) -> bool {
 pub(crate) fn is_uncontrollable(world: &World, pet_oid: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
         .is_some_and(|p| p.fed <= 0)
 }
 
@@ -66,7 +66,7 @@ pub(crate) fn apply_feed(world: &mut World, pet_oid: i32, normal: i32) {
     let rate = world.cfg.rates.pet_food_rate;
     if let Some(pet) = world
         .objects
-        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+        .get_component_mut::<crate::model::components::summons::PetOf>(&pet_oid)
     {
         pet.fed = (pet.fed + normal * rate).min(pet.max_fed);
     }
@@ -80,7 +80,7 @@ pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
     // "dead or gone → the chain ends", the same contract the life tick uses.
     let Some(pet) = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
         .copied()
     else {
         return;
@@ -106,12 +106,12 @@ pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
     // Java's `isAttackingNow()` — the battle rate applies mid-swing.
     let attacking = world
         .objects
-        .get_component::<crate::model::components::AttackState>(&pet_oid)
+        .get_component::<crate::model::components::combat::AttackState>(&pet_oid)
         .is_some_and(|a| world.tick < a.attack_end_tick);
     let cost = if attacking { battle_cost } else { normal_cost };
     if let Some(p) = world
         .objects
-        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+        .get_component_mut::<crate::model::components::summons::PetOf>(&pet_oid)
     {
         p.fed = if p.fed > cost { p.fed - cost } else { 0 };
     }

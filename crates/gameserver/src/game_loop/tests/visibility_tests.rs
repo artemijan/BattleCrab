@@ -166,7 +166,7 @@ fn party_slot_bits_match_javas_switch_table() {
 #[test]
 fn party_bits_reach_only_the_players_own_party() {
     use crate::game_loop::character::player_info::relation_to;
-    use crate::model::components::PartyRef;
+    use crate::model::components::social::PartyRef;
     use crate::model::party::{LootRule, Party};
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();

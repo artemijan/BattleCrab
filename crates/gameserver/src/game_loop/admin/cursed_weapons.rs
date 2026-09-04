@@ -19,7 +19,7 @@ use crate::db::DbCommand;
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::{send_message, send_to_client};
 use crate::model::Player;
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
@@ -340,9 +340,9 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
     // Java `activate`: `if (_player.isInParty()) getParty().removePartyMember(
     // _player, PartyMessageType.EXPELLED)` — the curse is a solo affair, so the
     // new wielder is thrown out of their group the moment they pick it up.
-    if let Some(crate::model::components::PartyRef(party_id)) = world
+    if let Some(crate::model::components::social::PartyRef(party_id)) = world
         .objects
-        .get_component::<crate::model::components::PartyRef>(&target)
+        .get_component::<crate::model::components::social::PartyRef>(&target)
         .copied()
     {
         crate::game_loop::party::remove_party_member(

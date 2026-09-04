@@ -6,7 +6,8 @@ use crate::game_loop::npc::ai;
 use crate::game_loop::npc::say::npc_say_param;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::{Position, Vitals};
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::model::npc::AggroList;
 
 const DELU_LIZARDMEN: [i32; 3] = [

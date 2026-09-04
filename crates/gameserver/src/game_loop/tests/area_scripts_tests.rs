@@ -49,7 +49,7 @@ fn elroki_teleporter_refuses_combat_then_ferries() {
     // In combat: no teleport.
     world.objects.add_components(
         &5001,
-        model::components::AttackState {
+        model::components::combat::AttackState {
             attack_end_tick: 0,
             stance_until_tick: world.tick + 150,
             swing_seq: 0,
@@ -66,7 +66,7 @@ fn elroki_teleporter_refuses_combat_then_ferries() {
     // Stance over: ferried to the island.
     world
         .objects
-        .get_component_mut::<model::components::AttackState>(&5001)
+        .get_component_mut::<model::components::combat::AttackState>(&5001)
         .unwrap()
         .stance_until_tick = 0;
     handle_request_bypass_to_server(
@@ -300,7 +300,7 @@ fn pagan_keys_honor_auto_loot() {
     let mut ground = None;
     world
         .objects
-        .for_each_mut::<&model::components::GroundItem>(|g| {
+        .for_each_mut::<&model::components::commerce::GroundItem>(|g| {
             if g.item_id == ANTEROOM_KEY {
                 ground = Some((g.owner_id, g.count));
             }
@@ -520,7 +520,7 @@ fn frightened_orc_bribe_pays_out_and_he_vanishes() {
     let mut total = 0i64;
     world
         .objects
-        .for_each_mut::<&model::components::GroundItem>(|g| {
+        .for_each_mut::<&model::components::commerce::GroundItem>(|g| {
             if g.item_id == 57 && g.owner_id == 5001 {
                 stacks += 1;
                 total += g.count;
@@ -689,7 +689,7 @@ fn forge_kill_streak_erupts_a_lavasaurus_and_refresh_cools_it() {
 /// corpse instead of blinking out in front of whoever was fighting it.
 #[test]
 fn an_expiring_lavasaurus_dies_rather_than_vanishing() {
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
 
     let (mut world, _db, _l) = combat_test_world();
     const WORKER: i32 = 22634;
@@ -823,11 +823,13 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
         let mut found = None;
         world
             .objects
-            .for_each_mut::<(&model::npc::Npc, &model::components::TamedBeastOf)>(|(n, t)| {
-                if n.npc_id == TAMED_FIGHTER {
-                    found = Some((n.object_id, t.owner, t.food_skill));
-                }
-            });
+            .for_each_mut::<(&model::npc::Npc, &model::components::summons::TamedBeastOf)>(
+                |(n, t)| {
+                    if n.npc_id == TAMED_FIGHTER {
+                        found = Some((n.object_id, t.owner, t.food_skill));
+                    }
+                },
+            );
         found
     };
     let (beast_oid, owner, food) = beast.expect("a tamed beast spawned");
@@ -840,7 +842,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
     // Feeding the tamed beast extends its stay (capped at 20 min).
     world
         .objects
-        .get_component_mut::<model::components::TamedBeastOf>(&beast_oid)
+        .get_component_mut::<model::components::summons::TamedBeastOf>(&beast_oid)
         .unwrap()
         .remaining_ticks = 5000;
     world.force_roll(7); // bark pick (2031, no $s1)
@@ -848,7 +850,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::TamedBeastOf>(&beast_oid)
+            .get_component::<model::components::summons::TamedBeastOf>(&beast_oid)
             .unwrap()
             .remaining_ticks,
         5200,
@@ -862,7 +864,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::TamedBeastOf>(&beast_oid)
+            .get_component::<model::components::summons::TamedBeastOf>(&beast_oid)
             .unwrap()
             .remaining_ticks,
         5000 - 600 + 200 + 200,
@@ -1107,7 +1109,7 @@ fn fs_party(world: &mut World, oids: [i32; 4]) -> Vec<UnboundedReceiver<bytes::B
             0,
             0,
         ));
-        let mut quests = model::components::Quests::default();
+        let mut quests = model::components::social::Quests::default();
         quests.0.insert(
             "Q00620_FourGoblets".into(),
             model::quest::QuestState {
@@ -1306,7 +1308,7 @@ fn a_summons_kill_points_the_avenger_at_the_summon() {
     let servitor = NPC_OID + 5;
     world.objects.add_components(
         &5001,
-        model::components::SummonRef {
+        model::components::summons::SummonRef {
             servitor: Some(servitor),
             pet: None,
         },
@@ -1415,7 +1417,8 @@ fn the_sepulcher_entry_stamps_round_trip_through_global_variables() {
 /// has neither".)
 #[test]
 fn tamed_beast_buffs_its_underbuffed_owner() {
-    use crate::model::components::{Buffs, Casting};
+    use crate::model::components::combat::Casting;
+    use crate::model::components::skills::Buffs;
     use crate::model::skill::BuffSlot;
     use crate::model::skill::active_buff::ActiveBuff;
 

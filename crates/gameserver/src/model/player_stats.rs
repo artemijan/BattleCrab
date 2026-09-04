@@ -6,7 +6,7 @@ use crate::data::GameData;
 use crate::data::player_template::PlayerTemplate;
 
 use super::Player;
-use super::components::{BaseStats, CombatStats, Speeds, StatModifiers};
+use super::components::stats::{BaseStats, CombatStats, Speeds, StatModifiers};
 use super::inventory::Inventory;
 use super::stat_finalize::{finalize, finalize_def, finalize_speed};
 use super::stats::{BaseStat, Stat};

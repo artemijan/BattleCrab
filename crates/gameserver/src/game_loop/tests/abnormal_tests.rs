@@ -8,7 +8,9 @@ use crate::game_loop::space::position::pos_of;
 
 use crate::game_loop::abnormal;
 use crate::game_loop::helpers::stat_add;
-use crate::model::components::{Buffs, Casting, Movement};
+use crate::model::components::combat::Casting;
+use crate::model::components::skills::Buffs;
+use crate::model::components::space::Movement;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 use crate::model::skill::{Skill, effect_flag};
@@ -287,7 +289,7 @@ fn stun_interrupts_an_in_flight_cast_and_movement() {
 #[test]
 fn a_stun_mid_swing_drops_the_hit_that_was_already_in_flight() {
     use crate::game_loop::combat::{abort_attack, do_auto_attack, handle_attack_hit};
-    use crate::model::components::AttackState;
+    use crate::model::components::combat::AttackState;
     use crate::network::server_packets::sm_ids;
 
     let (mut world, _db, _l) = cc_world();
@@ -611,7 +613,7 @@ fn raid_bosses_ignore_the_mute_interrupt() {
 /// by stun uptime.
 #[test]
 fn raid_bosses_ignore_the_stun_interrupt() {
-    use crate::model::components::Movement;
+    use crate::model::components::space::Movement;
 
     let (mut world, _db, _l) = cc2_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
@@ -1041,7 +1043,7 @@ fn an_element_resistance_lowers_the_target_cancel_chance() {
             // A heavy fire resistance drags `calcAttributeBonus` below 1.
             let mods = world
                 .objects
-                .get_component_mut::<model::components::StatModifiers>(&VICTIM)
+                .get_component_mut::<model::components::stats::StatModifiers>(&VICTIM)
                 .unwrap();
             *mods.add.entry(Stat::FireRes).or_insert(0.0) += 300.0;
         }
@@ -1547,7 +1549,7 @@ fn target_me_locks_a_playable_and_ignores_a_monster() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::LockedTarget>(&NPC_OID),
+            .has_component::<model::components::combat::LockedTarget>(&NPC_OID),
         "Java's isPlayable() guard means a mob is never locked by TargetMe"
     );
 
@@ -1564,7 +1566,7 @@ fn target_me_locks_a_playable_and_ignores_a_monster() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::LockedTarget>(&victim)
+            .get_component::<model::components::combat::LockedTarget>(&victim)
             .map(|l| l.0),
         Some(CASTER),
         "…and locked"
@@ -1575,7 +1577,7 @@ fn target_me_locks_a_playable_and_ignores_a_monster() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::LockedTarget>(&victim),
+            .has_component::<model::components::combat::LockedTarget>(&victim),
         "the lock must not outlive the taunt"
     );
 }
@@ -1599,7 +1601,7 @@ fn a_locked_target_cannot_click_a_different_npc() {
     // Lock the caster onto the first mob, then try to click the second.
     world
         .objects
-        .add_components(&CASTER, model::components::LockedTarget(NPC_OID));
+        .add_components(&CASTER, model::components::combat::LockedTarget(NPC_OID));
     drain(&mut out);
     handle_action(&mut world, CID, &action_body(other_npc, 0));
     let pkts = drain(&mut out);
@@ -1656,7 +1658,7 @@ fn hate_attack_scales_auto_attack_hate_only() {
 
     let mut mods = world
         .objects
-        .get_component::<model::components::StatModifiers>(&CASTER)
+        .get_component::<model::components::stats::StatModifiers>(&CASTER)
         .cloned()
         .expect("modifiers");
     mods.mul.insert(Stat::HateAttack, 3.0);
@@ -1704,7 +1706,7 @@ fn skill_evasion_dodges_only_its_own_magic_type() {
     let evasion = |world: &World, bucket: i32| {
         world
             .objects
-            .get_component::<model::components::StatModifiers>(&NPC_OID)
+            .get_component::<model::components::stats::StatModifiers>(&NPC_OID)
             .and_then(|m| m.skill_evasion.get(&bucket).copied())
             .unwrap_or(0.0)
     };
@@ -1818,7 +1820,7 @@ fn counter_physical_skill_answers_melee_skills_only() {
     // 100 % counter on the mob, and enough P.Atk for the counter to bite.
     let mut mods = world
         .objects
-        .get_component::<model::components::StatModifiers>(&NPC_OID)
+        .get_component::<model::components::stats::StatModifiers>(&NPC_OID)
         .cloned()
         .unwrap_or_default();
     mods.add.insert(Stat::VengeanceSkillPhysicalDamage, 100.0);
@@ -2025,7 +2027,7 @@ fn dispel_by_slot_myself_spares_irreplacable_buffs() {
 /// of INT. Asserted by driving both stats.
 #[test]
 fn skill_mastery_collapses_the_cooldown_and_reads_the_right_base_stat() {
-    use crate::model::components::{BaseStats, StatModifiers};
+    use crate::model::components::stats::{BaseStats, StatModifiers};
     use crate::model::stats::{BaseStat, Stat};
     let (mut world, _db, _l) = cc2_world();
     // The **real** `statBonus` table: `GameData::for_test`'s stub returns 1.0
@@ -2260,7 +2262,7 @@ fn only_a_mage_class_gets_the_spiritshot_heal_bonus() {
 /// disagree about.
 #[test]
 fn skill_mastery_draws_a_continuous_chance_not_a_whole_percent() {
-    use crate::model::components::StatModifiers;
+    use crate::model::components::stats::StatModifiers;
     use crate::model::stats::{BaseStat, Stat};
 
     let (mut world, _db, _l) = cc2_world();
@@ -2312,7 +2314,7 @@ fn skill_mastery_draws_a_continuous_chance_not_a_whole_percent() {
 /// on each buff they land and sometimes gets twice the duration.
 #[test]
 fn skill_mastery_doubles_a_buffs_duration() {
-    use crate::model::components::StatModifiers;
+    use crate::model::components::stats::StatModifiers;
     use crate::model::skill::effects::StatModifierEffect;
     use crate::model::stats::{BaseStat, Stat, StatModifierType};
 
@@ -2470,7 +2472,7 @@ fn mp_vampiric_drains_on_skills_not_melee() {
     // draft of this test fail 70 % of the time.)
     let mut mods = world
         .objects
-        .get_component::<model::components::StatModifiers>(&CASTER)
+        .get_component::<model::components::stats::StatModifiers>(&CASTER)
         .cloned()
         .unwrap_or_default();
     mods.add.insert(Stat::AbsorbManaDamagePercent, 0.1);
@@ -2529,7 +2531,7 @@ fn mp_vampiric_drains_on_skills_not_melee() {
 /// the two halves of the same skill disagreeing about the same number.
 #[test]
 fn a_regeneration_stops_at_the_recoverable_ceiling_too() {
-    use crate::model::components::StatModifiers;
+    use crate::model::components::stats::StatModifiers;
     use crate::model::stats::Stat;
 
     const HOT: i32 = 9394;
@@ -2597,7 +2599,7 @@ fn a_regeneration_stops_at_the_recoverable_ceiling_too() {
 /// at 60 % — which the *percent* variant already did and the flat one did not.
 #[test]
 fn a_flat_cp_restore_stops_at_the_recoverable_ceiling() {
-    use crate::model::components::{PlayerVitals, StatModifiers};
+    use crate::model::components::stats::{PlayerVitals, StatModifiers};
     use crate::model::stats::Stat;
 
     let (mut world, _db, _l) = cc2_world();
@@ -2699,7 +2701,7 @@ fn limit_hp_caps_how_far_a_heal_can_restore() {
     // Noblesse Harmony's `PER −30` → `mul` 0.7 on MAX_RECOVERABLE_HP.
     let mut mods = world
         .objects
-        .get_component::<model::components::StatModifiers>(&CASTER)
+        .get_component::<model::components::stats::StatModifiers>(&CASTER)
         .cloned()
         .unwrap_or_default();
     mods.mul.insert(Stat::MaxRecoverableHp, 0.7);
@@ -3175,7 +3177,7 @@ fn balance_life_without_a_party_does_nothing() {
     add_test_npc(&mut world, pet, 20001, "Monster", 20, 60, 0, 0);
     world.objects.add_components(
         &CASTER,
-        model::components::SummonRef {
+        model::components::summons::SummonRef {
             servitor: None,
             pet: Some(pet),
         },
@@ -3232,7 +3234,7 @@ fn pvp_damage_bonus_is_a_difference_of_multipliers_not_a_product() {
     // Attacker +50 % PvP auto-attack damage.
     if let Some(m) = world
         .objects
-        .get_component_mut::<model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<model::components::stats::StatModifiers>(&CASTER)
     {
         *m.mul.entry(Stat::PvpPhysicalAttackDamage).or_insert(1.0) *= 1.5;
     }
@@ -3241,7 +3243,7 @@ fn pvp_damage_bonus_is_a_difference_of_multipliers_not_a_product() {
     // Victim +50 % PvP auto-attack *defence* — the two cancel exactly.
     if let Some(m) = world
         .objects
-        .get_component_mut::<model::components::StatModifiers>(&victim)
+        .get_component_mut::<model::components::stats::StatModifiers>(&victim)
     {
         *m.mul.entry(Stat::PvpPhysicalAttackDefence).or_insert(1.0) *= 1.5;
     }
@@ -3272,7 +3274,7 @@ fn the_pvp_bonus_reads_a_different_stat_pair_per_delivery() {
     // Only the *magical skill* stat is granted.
     if let Some(m) = world
         .objects
-        .get_component_mut::<model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<model::components::stats::StatModifiers>(&CASTER)
     {
         *m.mul.entry(Stat::PvpMagicalSkillDamage).or_insert(1.0) *= 1.5;
     }
@@ -3368,7 +3370,7 @@ fn the_pvp_bonus_actually_reaches_a_nukes_damage() {
     // The *victim* takes a magical-skill PvP defence buff.
     if let Some(m) = world
         .objects
-        .get_component_mut::<model::components::StatModifiers>(&victim)
+        .get_component_mut::<model::components::stats::StatModifiers>(&victim)
     {
         *m.mul.entry(Stat::PvpMagicalSkillDefence).or_insert(1.0) *= 1.5;
     }
@@ -3459,7 +3461,7 @@ fn focus_attack_grants_the_single_target_stat_and_gives_it_back() {
     let stat = |world: &World| {
         world
             .objects
-            .get_component::<model::components::StatModifiers>(&CASTER)
+            .get_component::<model::components::stats::StatModifiers>(&CASTER)
             .map(|m| model::stat_finalize::finalize(m, Stat::PhysicalPolearmTargetSingle, 0.0))
             .unwrap_or(0.0)
     };
@@ -3671,7 +3673,7 @@ fn residence_death_fortune_softens_a_mob_death_but_not_a_pvp_one() {
     // Grant the *mob* reduction only.
     if let Some(m) = world
         .objects
-        .get_component_mut::<model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<model::components::stats::StatModifiers>(&CASTER)
     {
         *m.mul.entry(Stat::ReduceExpLostByMob).or_insert(1.0) *= 0.88;
     }
@@ -3946,7 +3948,7 @@ fn an_elixir_honours_the_recoverable_ceiling() {
     // Noblesse Harmony's shape: heals may only reach 70 % of the pool.
     if let Some(m) = world
         .objects
-        .get_component_mut::<model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<model::components::stats::StatModifiers>(&CASTER)
     {
         *m.mul.entry(Stat::MaxRecoverableHp).or_insert(1.0) *= 0.7;
     }
@@ -4193,7 +4195,7 @@ fn a_self_continuous_skills_debuff_shows_no_icon_to_its_victim() {
 /// `isDisplayedForEffected()`: the icon row and the abnormal-visual fold.
 #[test]
 fn a_hidden_buff_is_absent_from_the_icon_row_and_the_visuals() {
-    use crate::model::components::Buffs;
+    use crate::model::components::skills::Buffs;
     use crate::model::skill::BuffSlot;
     use crate::model::skill::active_buff::ActiveBuff;
 

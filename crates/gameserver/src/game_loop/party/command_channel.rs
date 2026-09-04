@@ -19,7 +19,7 @@ use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::helpers::{get_others_in_matching_room, send_to_client};
 use crate::model::Player;
 use crate::model::command_channel::CommandChannel;
-use crate::model::components::{PartyRef, PendingRequest, RequestKind};
+use crate::model::components::social::{PartyRef, PendingRequest, RequestKind};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, PartyMemberInfoView, SmParam, sm_ids};
 use crate::session::ClientSession;
@@ -139,7 +139,7 @@ fn has_forming_right(world: &World, object_id: i32) -> bool {
         if clan.pledge_class_of(object_id) >= FORMING_PLEDGE_CLASS
             && world
                 .objects
-                .get_component::<crate::model::components::SkillBook>(&object_id)
+                .get_component::<crate::model::components::skills::SkillBook>(&object_id)
                 .is_some_and(|book| book.0.contains_key(&CLAN_IMPERIUM_SKILL_ID))
         {
             return true;
@@ -1093,7 +1093,7 @@ pub(crate) fn handle_request_ex_mpcc_partymaster_list(world: &mut World, client_
 // ---------------------------------------------------------------------------
 
 use crate::game_loop::helpers::send_sm_to_player as send_sm;
-use crate::model::components::RaidLootRights;
+use crate::model::components::commerce::RaidLootRights;
 
 /// `Attackable.reduceCurrentHp`'s loot-privilege block: the first command
 /// channel of `RaidLootRightsCCSize`+ members to strike a raid boss (never a
@@ -1114,7 +1114,7 @@ pub(crate) fn on_raid_attacked_loot_rights(world: &mut World, npc_oid: i32, atta
         attacker_oid
     } else if let Some(s) = world
         .objects
-        .get_component::<crate::model::components::ServitorOf>(&attacker_oid)
+        .get_component::<crate::model::components::summons::ServitorOf>(&attacker_oid)
     {
         s.owner_object_id
     } else {

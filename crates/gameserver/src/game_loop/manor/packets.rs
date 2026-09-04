@@ -16,7 +16,7 @@ use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::npc::npc_template;
 use crate::model::Player;
 use crate::model::clan::CS_MANOR_ADMIN;
-use crate::model::components::LastFolkNpc;
+use crate::model::components::player::LastFolkNpc;
 use crate::model::manor::CropProcure;
 use crate::model::manor::SeedProduction;
 use crate::network::server_packets;

@@ -9,7 +9,8 @@
 use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::{Movement, Position, RegionCell, TargetRef};
+use crate::model::components::combat::TargetRef;
+use crate::model::components::space::{Movement, Position, RegionCell};
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::{World, region_of, regions_adjacent};
@@ -42,7 +43,7 @@ fn describe_state(
 /// Used when a field that only `CharInfo` carries changes — the cubic id list
 /// has no incremental packet on this chronicle, so the whole record goes again.
 pub(crate) fn refresh_char_info(world: &World, player_id: i32) {
-    use crate::model::components::RegionCell;
+    use crate::model::components::space::RegionCell;
     let Some(from) = world
         .objects
         .get_component::<RegionCell>(&player_id)
@@ -109,7 +110,7 @@ fn send_char_info_with(
 ) {
     if world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&player_id)
+        .get_component::<crate::model::components::player::AdminFlags>(&player_id)
         .is_some_and(|f| f.hidden)
     {
         // `isVisibleFor`: a hidden player is still described to observers
@@ -164,7 +165,9 @@ fn send_summon_info(
     servitor_oid: i32,
     viewer_oid: i32,
 ) -> bool {
-    use crate::model::components::{CombatStats, Position, ServitorOf, Speeds, Vitals};
+    use crate::model::components::space::Position;
+    use crate::model::components::stats::{CombatStats, Speeds, Vitals};
+    use crate::model::components::summons::ServitorOf;
     let Some(link) = world
         .objects
         .get_component::<ServitorOf>(&servitor_oid)
@@ -830,7 +833,7 @@ fn drop_target_if_pointing_at(world: &mut World, viewer: i32, object_id: i32) {
 /// NPCs, so a mob could never be pointed at a *player* it wasn't already
 /// fighting.
 pub(crate) fn visible_creatures(world: &mut World, origin_object_id: i32) -> Vec<i32> {
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
     let Some(origin) = region_cell_of(world, origin_object_id) else {
         return Vec::new();
     };

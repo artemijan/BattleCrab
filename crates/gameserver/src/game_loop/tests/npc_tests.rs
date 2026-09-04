@@ -8,7 +8,7 @@ use crate::game_loop;
 /// request").
 #[test]
 fn queued_action_slot_is_last_click_wins() {
-    use model::components::QueuedAction;
+    use model::components::combat::QueuedAction;
 
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);

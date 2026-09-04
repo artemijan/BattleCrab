@@ -9,8 +9,8 @@ use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::cast;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::pos_of;
-use crate::model::components::QuestTimerSeqs;
-use crate::model::components::Quests;
+use crate::model::components::social::QuestTimerSeqs;
+use crate::model::components::social::Quests;
 use crate::model::inventory::Inventory;
 use crate::model::quest::state;
 use crate::network::server_packets;
@@ -45,7 +45,7 @@ impl<'w> QuestCtx<'w> {
         let Some(region) = self
             .world
             .objects
-            .get_component::<crate::model::components::RegionCell>(&self.npc)
+            .get_component::<crate::model::components::space::RegionCell>(&self.npc)
             .map(|r| r.0)
         else {
             return;
@@ -97,7 +97,7 @@ impl<'w> QuestCtx<'w> {
         let pet = crate::game_loop::servitor::pet_of(self.world, self.player)?;
         self.world
             .objects
-            .get_component::<crate::model::components::PetOf>(&pet)
+            .get_component::<crate::model::components::summons::PetOf>(&pet)
             .map(|p| p.collar_object_id)
     }
 
@@ -160,7 +160,7 @@ impl<'w> QuestCtx<'w> {
         let pos = |oid: i32| {
             self.world
                 .objects
-                .get_component::<crate::model::components::Position>(&oid)
+                .get_component::<crate::model::components::space::Position>(&oid)
                 .map(|p| (p.x as f64, p.y as f64, p.z as f64))
         };
         let (Some(a), Some(b)) = (pos(self.npc), pos(other_oid)) else {
@@ -203,7 +203,7 @@ impl<'w> QuestCtx<'w> {
         let Some(hp) = self
             .world
             .objects
-            .get_component::<crate::model::components::Vitals>(&self.npc)
+            .get_component::<crate::model::components::stats::Vitals>(&self.npc)
             .map(|v| v.cur_hp)
         else {
             return;
@@ -229,7 +229,7 @@ impl<'w> QuestCtx<'w> {
         let Some(max_hp) = self
             .world
             .objects
-            .get_component::<crate::model::components::Vitals>(&self.npc)
+            .get_component::<crate::model::components::stats::Vitals>(&self.npc)
             .map(|v| v.max_hp)
         else {
             return false;
@@ -356,7 +356,7 @@ impl<'w> QuestCtx<'w> {
         let at = |oid: i32| {
             self.world
                 .objects
-                .get_component::<crate::model::components::Position>(&oid)
+                .get_component::<crate::model::components::space::Position>(&oid)
                 .map(|p| (oid, p.x, p.y, p.z))
         };
         let (Some(caster), Some(target)) = (at(caster_oid), at(target_oid)) else {
@@ -365,7 +365,7 @@ impl<'w> QuestCtx<'w> {
         let Some(region) = self
             .world
             .objects
-            .get_component::<crate::model::components::RegionCell>(&caster_oid)
+            .get_component::<crate::model::components::space::RegionCell>(&caster_oid)
             .map(|r| r.0)
         else {
             return;
@@ -387,7 +387,7 @@ impl<'w> QuestCtx<'w> {
             let region = self
                 .world
                 .objects
-                .get_component::<crate::model::components::RegionCell>(&oid)
+                .get_component::<crate::model::components::space::RegionCell>(&oid)
                 .map(|r| r.0);
             if let (Some(pos), Some(region)) = (pos, region) {
                 let pkt = server_packets::magic_skill_use_raw(
@@ -407,7 +407,7 @@ impl<'w> QuestCtx<'w> {
     pub fn is_oid_dead(&self, oid: i32) -> bool {
         self.world
             .objects
-            .get_component::<crate::model::components::Vitals>(&oid)
+            .get_component::<crate::model::components::stats::Vitals>(&oid)
             .is_none_or(|v| v.dead)
     }
 
@@ -536,7 +536,7 @@ impl<'w> QuestCtx<'w> {
     ///
     /// [`Self::summoned_npc_count`]: Self::summoned_npc_count
     fn link_summoned(&mut self, spawned: i32) {
-        use crate::model::components::SummonedNpcs;
+        use crate::model::components::summons::SummonedNpcs;
         let npc = self.npc;
         match self.world.objects.get_component_mut::<SummonedNpcs>(&npc) {
             Some(list) => list.0.push(spawned),
@@ -554,7 +554,7 @@ impl<'w> QuestCtx<'w> {
     /// Dead-but-undecayed children still count: Java unlinks at `onDecay`, and
     /// a corpse is still an object here too.
     pub fn summoned_npc_count(&self) -> usize {
-        use crate::model::components::SummonedNpcs;
+        use crate::model::components::summons::SummonedNpcs;
         self.world
             .objects
             .get_component::<SummonedNpcs>(&self.npc)

@@ -1,9 +1,9 @@
 use super::creature_level;
 use crate::game_loop::npc::npc_name_or_empty;
 use crate::game_loop::npc::npc_template;
-use crate::model::components::BaseStats;
-use crate::model::components::Buffs;
-use crate::model::components::StatModifiers;
+use crate::model::components::skills::Buffs;
+use crate::model::components::stats::BaseStats;
+use crate::model::components::stats::StatModifiers;
 use crate::model::formulas;
 use crate::model::skill::BuffSlot;
 use crate::model::skill::Skill;
@@ -87,7 +87,7 @@ pub(crate) fn calc_general_trait_bonus(
     trait_type: crate::model::skill::traits::TraitType,
     ignore_resistance: bool,
 ) -> f64 {
-    use crate::model::components::DefenceTraits;
+    use crate::model::components::stats::DefenceTraits;
     use crate::model::skill::traits::TraitType;
     if trait_type == TraitType::None {
         return 1.0;
@@ -135,7 +135,7 @@ fn attack_trait(
 ) -> f64 {
     world
         .objects
-        .get_component::<crate::model::components::AttackTraits>(&oid)
+        .get_component::<crate::model::components::stats::AttackTraits>(&oid)
         .and_then(|at| at.values.get(&trait_type).copied())
         .unwrap_or(1.0)
 }
@@ -150,7 +150,7 @@ fn has_attack_trait(
 ) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::AttackTraits>(&oid)
+        .get_component::<crate::model::components::stats::AttackTraits>(&oid)
         .is_some_and(|at| at.values.contains_key(&trait_type))
 }
 
@@ -168,7 +168,7 @@ pub(crate) fn calc_weapon_trait_bonus(world: &World, attacker_oid: i32, target_o
     );
     let defence = world
         .objects
-        .get_component::<crate::model::components::DefenceTraits>(&target_oid)
+        .get_component::<crate::model::components::stats::DefenceTraits>(&target_oid)
         .and_then(|d| d.resist.get(&weapon_trait).copied())
         .unwrap_or(0.0);
     (1.0 - defence).max(0.22)
@@ -187,7 +187,7 @@ pub(crate) fn calc_weakness_bonus(
     target_oid: i32,
     skill_trait: crate::model::skill::traits::TraitType,
 ) -> f64 {
-    use crate::model::components::DefenceTraits;
+    use crate::model::components::stats::DefenceTraits;
     let Some(defence) = world.objects.get_component::<DefenceTraits>(&target_oid) else {
         return 1.0;
     };
@@ -351,7 +351,7 @@ pub(crate) fn merge_defence_traits(
     target_oid: i32,
     traits: &[(crate::model::skill::traits::TraitType, f64)],
 ) {
-    use crate::model::components::DefenceTraits;
+    use crate::model::components::stats::DefenceTraits;
     if traits.is_empty() {
         return;
     }
@@ -388,7 +388,7 @@ pub(crate) fn merge_attack_traits(
     target_oid: i32,
     traits: &[(crate::model::skill::traits::TraitType, f64)],
 ) {
-    use crate::model::components::AttackTraits;
+    use crate::model::components::stats::AttackTraits;
     if traits.is_empty() {
         return;
     }
@@ -416,7 +416,7 @@ pub(crate) fn remove_attack_traits(
     target_oid: i32,
     traits: &[(crate::model::skill::traits::TraitType, f64)],
 ) {
-    use crate::model::components::AttackTraits;
+    use crate::model::components::stats::AttackTraits;
     let Some(at) = world.objects.get_component_mut::<AttackTraits>(&target_oid) else {
         return;
     };
@@ -436,7 +436,7 @@ pub(crate) fn remove_defence_traits(
     target_oid: i32,
     traits: &[(crate::model::skill::traits::TraitType, f64)],
 ) {
-    use crate::model::components::DefenceTraits;
+    use crate::model::components::stats::DefenceTraits;
     let Some(dt) = world
         .objects
         .get_component_mut::<DefenceTraits>(&target_oid)
@@ -463,7 +463,7 @@ pub(crate) fn remove_defence_traits(
 /// bearer's per-`magicType` tables. Java merges with `mul`, so overlapping
 /// songs compound rather than add.
 pub(crate) fn merge_skill_rates(world: &mut World, target_oid: i32, skill: &Skill) {
-    use crate::model::components::SkillRateStats;
+    use crate::model::components::stats::SkillRateStats;
     let rates = skill_rate_factors(skill);
     if rates.is_empty() {
         return;
@@ -507,7 +507,8 @@ pub(crate) fn merge_skill_rates(world: &mut World, target_oid: i32, skill: &Skil
 /// `SkillRateStats::passive_mp_consume` for why passives cannot share the
 /// buff tables' merge/un-merge discipline.
 pub(crate) fn refresh_passive_skill_rates(world: &mut World, object_id: i32) {
-    use crate::model::components::{SkillBook, SkillRateStats};
+    use crate::model::components::skills::SkillBook;
+    use crate::model::components::stats::SkillRateStats;
     use crate::model::skill::target::OperateType;
 
     let Some(book) = world.objects.get_component::<SkillBook>(&object_id) else {
@@ -574,7 +575,7 @@ pub(crate) fn refresh_passive_skill_rates(world: &mut World, object_id: i32) {
 /// `MagicMpCost.onExit` / `Reuse.onExit` — Java's `div`, the exact inverse of
 /// the `mul` above, so unmerging out of order still lands back on 1.
 pub(crate) fn remove_skill_rates(world: &mut World, target_oid: i32, skill: &Skill) {
-    use crate::model::components::SkillRateStats;
+    use crate::model::components::stats::SkillRateStats;
     let rates = skill_rate_factors(skill);
     if rates.is_empty() {
         return;
@@ -668,7 +669,7 @@ pub(crate) fn reuse_time_for(world: &World, caster_oid: i32, skill: &Skill) -> i
 fn skill_rate(world: &World, caster_oid: i32, skill: &Skill, kind: RateKind) -> f64 {
     world
         .objects
-        .get_component::<crate::model::components::SkillRateStats>(&caster_oid)
+        .get_component::<crate::model::components::stats::SkillRateStats>(&caster_oid)
         .map(|rs| {
             let (buffs, passives) = match kind {
                 RateKind::MpConsume => (&rs.mp_consume, &rs.passive_mp_consume),

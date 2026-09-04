@@ -144,7 +144,7 @@ fn in_pvp_zone(ctx: &QuestCtx) -> bool {
     let Some(pos) = ctx
         .world
         .objects
-        .get_component::<crate::model::components::Position>(&ctx.player)
+        .get_component::<crate::model::components::space::Position>(&ctx.player)
     else {
         return false;
     };

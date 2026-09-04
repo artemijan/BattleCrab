@@ -4,7 +4,7 @@
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::space::position::pos_of;
-use crate::model::components::OlympiadObserver;
+use crate::model::components::player::OlympiadObserver;
 use crate::model::olympiad::OlympiadMatch;
 use crate::network::server_packets as sp;
 use crate::world::World;
@@ -70,7 +70,7 @@ pub(crate) fn enter_observer(world: &mut World, client_id: u32, player_oid: i32,
     // Scope the viewer to the match's instance so they see only that fight.
     world.objects.add_components(
         &player_oid,
-        crate::model::components::InstanceId(instance_id),
+        crate::model::components::space::InstanceId(instance_id),
     );
     crate::game_loop::death::teleport_player(
         world,
@@ -112,7 +112,7 @@ pub(crate) fn leave_observer(world: &mut World, client_id: u32, player_oid: i32)
         .remove_component::<OlympiadObserver>(&player_oid);
     world
         .objects
-        .remove_component::<crate::model::components::InstanceId>(&player_oid);
+        .remove_component::<crate::model::components::space::InstanceId>(&player_oid);
     // Clear the spectator's invul + invisible (Java restores the normal state).
     set_observer_flags(world, player_oid, false);
     send_to_client(world, client_id, sp::ex_olympiad_mode(0));

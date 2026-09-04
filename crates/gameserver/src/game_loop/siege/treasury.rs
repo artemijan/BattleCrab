@@ -60,7 +60,7 @@ pub(crate) fn npc_tax_castle(world: &World, npc_oid: i32) -> Option<i32> {
     }
     let pos = world
         .objects
-        .get_component::<crate::model::components::Position>(&npc_oid)?;
+        .get_component::<crate::model::components::space::Position>(&npc_oid)?;
     world
         .data
         .zone_data
@@ -517,7 +517,7 @@ pub(crate) fn banish_foreigners(world: &mut World, castle_id: i32) {
                 .is_some_and(|p| p.clan_id == 0 || p.clan_id != owner)
                 && world
                     .objects
-                    .get_component::<crate::model::components::Position>(oid)
+                    .get_component::<crate::model::components::space::Position>(oid)
                     .is_some_and(|p| {
                         p.z >= min_z
                             && p.z <= max_z

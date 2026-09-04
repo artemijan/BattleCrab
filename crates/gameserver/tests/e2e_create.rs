@@ -663,14 +663,14 @@ async fn full_login_to_character_create() {
         mystic,
         1,
         None,
-        &gameserver::model::components::StatModifiers::default(),
+        &gameserver::model::components::stats::StatModifiers::default(),
     ) + gear_bonus(gameserver::model::stats::Stat::MaxHp)) as i32;
     let expected_mp = (gameserver::model::max_vitals::calc_max_mp(
         &data,
         mystic,
         1,
         None,
-        &gameserver::model::components::StatModifiers::default(),
+        &gameserver::model::components::stats::StatModifiers::default(),
     ) + gear_bonus(gameserver::model::stats::Stat::MaxMp)) as i32;
     assert_eq!(
         max_hp, expected_hp,
@@ -691,7 +691,7 @@ async fn full_login_to_character_create() {
                 mystic,
                 1,
                 None,
-                &gameserver::model::components::StatModifiers::default()
+                &gameserver::model::components::stats::StatModifiers::default()
             ) as i32,
         "equipped gear raised Max MP above the naked value"
     );

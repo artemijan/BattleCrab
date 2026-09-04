@@ -53,7 +53,7 @@ pub(crate) fn total_load(inventory: &Inventory, data: &crate::data::GameData) ->
 pub(crate) fn max_load(world: &World, object_id: i32) -> i32 {
     let Some(base) = world
         .objects
-        .get_component::<components::BaseStats>(&object_id)
+        .get_component::<components::stats::BaseStats>(&object_id)
     else {
         return 0;
     };
@@ -77,7 +77,7 @@ pub(crate) fn max_load(world: &World, object_id: i32) -> i32 {
 fn stat_value(world: &World, object_id: i32, stat: crate::model::stats::Stat, base: f64) -> f64 {
     let Some(mods) = world
         .objects
-        .get_component::<components::StatModifiers>(&object_id)
+        .get_component::<components::stats::StatModifiers>(&object_id)
     else {
         return base;
     };
@@ -168,7 +168,7 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
     };
     let diet = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .get_component::<crate::model::components::player::AdminFlags>(&object_id)
         .is_some_and(|f| f.diet);
     // `refreshOverloaded` weighs `getCurrentLoad() - getBonusWeightPenalty()`,
     // so the bonus comes off the load *before* the band lookup.
@@ -181,7 +181,7 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
 
     let current = world
         .objects
-        .get_component::<components::WeightPenalty>(&object_id)
+        .get_component::<components::stats::WeightPenalty>(&object_id)
         .copied()
         .unwrap_or_default();
     if current.level == level && current.overloaded == overloaded {
@@ -193,12 +193,12 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
         let Some((player, base, mut mods, inv, mut buffs, mut speeds, mut combat)) =
             world.objects.get_many_mut::<(
                 &Player,
-                &components::BaseStats,
-                &mut components::StatModifiers,
+                &components::stats::BaseStats,
+                &mut components::stats::StatModifiers,
                 &Inventory,
-                &mut components::Buffs,
-                &mut components::Speeds,
-                &mut components::CombatStats,
+                &mut components::skills::Buffs,
+                &mut components::stats::Speeds,
+                &mut components::stats::CombatStats,
             )>(&object_id)
         else {
             return;
@@ -229,9 +229,10 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
         }
     }
 
-    world
-        .objects
-        .add_components(&object_id, components::WeightPenalty { level, overloaded });
+    world.objects.add_components(
+        &object_id,
+        components::stats::WeightPenalty { level, overloaded },
+    );
 
     // Java: `sendPacket(new EtcStatusUpdate(this)); broadcastUserInfo();`
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id)
@@ -239,12 +240,12 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
     {
         let flags = world
             .objects
-            .get_component::<crate::model::components::AdminFlags>(&object_id)
+            .get_component::<crate::model::components::player::AdminFlags>(&object_id)
             .copied()
             .unwrap_or_default();
         let ep = world
             .objects
-            .get_component::<crate::model::components::ExpertisePenalty>(&object_id)
+            .get_component::<crate::model::components::stats::ExpertisePenalty>(&object_id)
             .copied()
             .unwrap_or_default();
         let charges = view.p.charges;
@@ -278,7 +279,7 @@ pub(crate) fn is_overloaded(world: &World, object_id: i32) -> bool {
     }
     if world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .get_component::<crate::model::components::player::AdminFlags>(&object_id)
         .is_some_and(|f| f.diet)
     {
         return false; // `//diet` — the GM immunity
@@ -319,7 +320,7 @@ pub(crate) fn current_penalty(world: &World, object_id: i32) -> i32 {
     };
     let diet = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .get_component::<crate::model::components::player::AdminFlags>(&object_id)
         .is_some_and(|f| f.diet);
     penalty_level(total_load(inv, &world.data), max, diet)
 }
@@ -334,7 +335,7 @@ pub(crate) fn inventory_limit(world: &World, object_id: i32) -> i32 {
     let base = cfg.inventory_limit_for(player.race, player.is_gm(&world.data));
     let Some(mods) = world
         .objects
-        .get_component::<components::StatModifiers>(&object_id)
+        .get_component::<components::stats::StatModifiers>(&object_id)
     else {
         return base;
     };
@@ -383,7 +384,7 @@ pub(crate) fn validate_weight(world: &World, object_id: i32, added: i64) -> bool
     };
     let diet = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .get_component::<crate::model::components::player::AdminFlags>(&object_id)
         .is_some_and(|f| f.diet);
     if player.is_gm(&world.data) && diet {
         return true;

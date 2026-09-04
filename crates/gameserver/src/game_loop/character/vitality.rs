@@ -25,7 +25,7 @@
 //! vitality no longer only ever drains.
 
 use crate::game_loop::helpers::send_to_player;
-use crate::model::components::PartyRef;
+use crate::model::components::social::PartyRef;
 use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
@@ -292,7 +292,7 @@ pub(crate) fn reset_vitality(world: &mut World, weekly: bool) {
 fn consume_rate(world: &World, object_id: i32) -> f64 {
     world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&object_id)
+        .get_component::<crate::model::components::stats::StatModifiers>(&object_id)
         .map_or(1.0, |mods| {
             crate::model::stat_finalize::finalize(
                 mods,

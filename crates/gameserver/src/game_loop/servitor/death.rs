@@ -9,7 +9,7 @@ use super::set_summon_link;
 use super::sync_pet_row;
 use crate::game_loop::character::inventory;
 use crate::model;
-use crate::model::components::ServitorOf;
+use crate::model::components::summons::ServitorOf;
 use crate::world::World;
 /// Java `Pet.doDie` — the pet-specific half, called from the NPC death path
 /// once a dying NPC turns out to be a pet.
@@ -23,7 +23,7 @@ pub(crate) fn pet_do_die(world: &mut World, pet_oid: i32) -> Option<i32> {
         .owner_object_id;
     world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)?;
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)?;
 
     // `if (owner != null && !owner.isInDuel() && (!isInsideZone(PVP) || isInsideZone(SIEGE)))`
     // — no exp is lost to a duel or an arena death.
@@ -52,7 +52,7 @@ pub(crate) fn pet_do_die(world: &mut World, pet_oid: i32) -> Option<i32> {
 fn pet_death_penalty(world: &mut World, pet_oid: i32) {
     let Some(pet) = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
         .copied()
     else {
         return;
@@ -72,7 +72,7 @@ fn pet_death_penalty(world: &mut World, pet_oid: i32) {
 
     if let Some(p) = world
         .objects
-        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+        .get_component_mut::<crate::model::components::summons::PetOf>(&pet_oid)
     {
         // Captured *before* the penalty — `restoreExp` gives back a share of
         // the gap between this and the post-penalty total.
@@ -87,7 +87,7 @@ fn pet_death_penalty(world: &mut World, pet_oid: i32) {
 pub(crate) fn pet_restore_exp(world: &mut World, pet_oid: i32, restore_percent: f64) {
     let Some(pet) = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
         .copied()
     else {
         return;
@@ -99,7 +99,7 @@ pub(crate) fn pet_restore_exp(world: &mut World, pet_oid: i32, restore_percent: 
         (((pet.exp_before_death - pet.exp) as f64 * restore_percent) / 100.0).round() as i64;
     if let Some(p) = world
         .objects
-        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+        .get_component_mut::<crate::model::components::summons::PetOf>(&pet_oid)
     {
         p.exp += regained.max(0);
         // One resurrection consumes the record — a second revive restores
@@ -135,7 +135,7 @@ pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
     };
     let Some(pet) = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
         .copied()
     else {
         return;
@@ -173,7 +173,7 @@ pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
     }
     world
         .objects
-        .get_component_mut::<crate::model::components::PlayerPets>(&owner)
+        .get_component_mut::<crate::model::components::summons::PlayerPets>(&owner)
         .map(|p| p.0.remove(&collar));
     let _ = world.db.send(crate::db::DbCommand::DeletePetRow {
         collar_object_id: collar,

@@ -137,7 +137,7 @@ pub(super) fn apply_cast_consequences(
         // self-flags the caster (`updatePvPStatus()`).
         let target_is_flagged = world
             .objects
-            .get_component::<crate::model::components::PvpState>(&target_oid)
+            .get_component::<crate::model::components::combat::PvpState>(&target_oid)
             .is_some_and(|s| s.flag > 0)
             || world
                 .objects

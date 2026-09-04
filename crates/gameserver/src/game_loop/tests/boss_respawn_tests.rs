@@ -4,7 +4,7 @@ use super::*;
 
 use crate::db::NpcRespawnRow;
 use crate::game_loop;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 
 const BOSS_ID: i32 = 25999;
 

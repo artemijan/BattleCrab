@@ -6,7 +6,7 @@ use crate::config::bot_report::{BotReportConfig, BotReportPunishment};
 use crate::config::chat_filter::ChatFilterConfig;
 use crate::game_loop::moderation::bot_report::{self, DAILY_POINTS};
 use crate::game_loop::space::position::set_position;
-use crate::model::components::TargetRef;
+use crate::model::components::combat::TargetRef;
 use commons::config::PropertiesParser;
 
 /// A world with bot reporting on, two players out in the open, and the

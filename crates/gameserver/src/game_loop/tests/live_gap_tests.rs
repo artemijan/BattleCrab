@@ -10,7 +10,9 @@
 use super::*;
 use crate::game_loop;
 use crate::game_loop::space::position;
-use crate::model::components::{Buffs, Position, SkillBook, Vitals};
+use crate::model::components::skills::{Buffs, SkillBook};
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
 use crate::model::skill::condition::{CompanionKind, ResidenceType, SkillCondition};
 use crate::model::skill::effects::{EscapeDest, SkillEffect};
@@ -458,7 +460,7 @@ fn op_companion_pet_requires_a_pet_target() {
 #[test]
 fn grow_swaps_the_npc_collision_cylinder_and_restores_it() {
     use crate::game_loop;
-    use crate::model::components::Collision;
+    use crate::model::components::space::Collision;
 
     let (mut world, ..) = cast_test_world();
     // A template with both cylinders, shaped like Timak Orc Prefect (20588),
@@ -655,7 +657,7 @@ fn the_vitality_consume_rate_scales_only_the_loss() {
     // -50 %: half of it.
     world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<crate::model::components::stats::StatModifiers>(&CASTER)
         .expect("mods")
         .mul
         .insert(Stat::VitalityConsumeRate, 0.5);
@@ -675,7 +677,7 @@ fn the_vitality_consume_rate_scales_only_the_loss() {
     // A rate of 0 bails out before anything is spent.
     world
         .objects
-        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+        .get_component_mut::<crate::model::components::stats::StatModifiers>(&CASTER)
         .expect("mods")
         .mul
         .insert(Stat::VitalityConsumeRate, 0.0);

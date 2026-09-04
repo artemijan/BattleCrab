@@ -33,7 +33,7 @@
 
 use crate::data::armor_set_data::{ArmorSetData, ArmorSetStats};
 use crate::game_loop::admin::refresh_skill_list;
-use crate::model::components::SkillBook;
+use crate::model::components::skills::SkillBook;
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::world::World;
 
@@ -357,7 +357,7 @@ fn refresh_set_base_stats(world: &mut World, oid: i32) -> bool {
     };
     let changed = world
         .objects
-        .get_component::<crate::model::components::BaseStats>(&oid)
+        .get_component::<crate::model::components::stats::BaseStats>(&oid)
         .is_some_and(|b| *b != new_base);
     if changed {
         world.objects.add_components(&oid, new_base);

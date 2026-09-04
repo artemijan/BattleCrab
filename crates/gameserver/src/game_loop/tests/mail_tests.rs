@@ -286,7 +286,7 @@ fn the_attachable_item_list_returns_unequipped_non_quest_items_in_a_peace_zone()
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
         .objects
-        .get_component_mut::<model::components::ZoneFlags>(&3001)
+        .get_component_mut::<model::components::space::ZoneFlags>(&3001)
         .unwrap()
         .mask = crate::data::zone_data::ZoneKind::Peace.bit();
     world.id_pool = 0x5000_0000..0x5000_0100;
@@ -372,7 +372,7 @@ fn mail_world() -> (
     for oid in [3001, 3002] {
         world
             .objects
-            .get_component_mut::<model::components::ZoneFlags>(&oid)
+            .get_component_mut::<model::components::space::ZoneFlags>(&oid)
             .unwrap()
             .mask = crate::data::zone_data::ZoneKind::Peace.bit();
         crate::game_loop::mail::on_character_created(&mut world, &format!("P{oid}"), oid);
@@ -1061,7 +1061,7 @@ fn attachment_actions_need_a_peace_zone() {
     mail_with_item(&mut world, 77, 3001, 3002, 1060, 1, 0);
     world
         .objects
-        .get_component_mut::<model::components::ZoneFlags>(&3002)
+        .get_component_mut::<model::components::space::ZoneFlags>(&3002)
         .unwrap()
         .mask = 0;
     drain(&mut b_rx);

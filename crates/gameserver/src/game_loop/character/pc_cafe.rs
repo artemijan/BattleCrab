@@ -203,7 +203,7 @@ pub(crate) fn give_point(world: &mut World, player_object_id: i32, exp: f64) {
     let in_zone = |kind: ZoneKind| {
         world
             .objects
-            .get_component::<crate::model::components::ZoneFlags>(&player_object_id)
+            .get_component::<crate::model::components::space::ZoneFlags>(&player_object_id)
             .is_some_and(|f| f.contains(kind))
     };
     use crate::data::zone_data::ZoneKind;

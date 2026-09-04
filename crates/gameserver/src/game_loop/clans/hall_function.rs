@@ -14,7 +14,8 @@ use crate::data::item_data::ADENA_ID;
 use crate::db::DbCommand;
 use crate::game_loop::skills::skill_by_id;
 use crate::model::clan_hall::ActiveFunction;
-use crate::model::components::{Reuses, Vitals};
+use crate::model::components::skills::Reuses;
+use crate::model::components::stats::Vitals;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 

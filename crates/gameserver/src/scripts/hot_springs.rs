@@ -28,7 +28,7 @@ fn infect(ctx: &mut QuestCtx, disease_id: i32) {
     let current = ctx
         .world
         .objects
-        .get_component::<crate::model::components::Buffs>(&ctx.player)
+        .get_component::<crate::model::components::skills::Buffs>(&ctx.player)
         .and_then(|b| {
             b.0.iter()
                 .find(|x| x.skill_id == disease_id)

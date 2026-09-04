@@ -7,7 +7,7 @@ use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;
-use crate::model::components::{BaseStats, PlayerVitals, StatModifiers, Vitals};
+use crate::model::components::stats::{BaseStats, PlayerVitals, StatModifiers, Vitals};
 use crate::model::stats::{BaseStat, MoveType, Stat};
 use crate::network::server_packets;
 use crate::world::World;
@@ -110,7 +110,7 @@ pub(crate) fn run_regen_tick(world: &mut World) {
 pub(crate) fn mother_tree_regen_bonus(world: &World, object_id: i32) -> (f64, f64) {
     let Some(pos) = world
         .objects
-        .get_component::<crate::model::components::Position>(&object_id)
+        .get_component::<crate::model::components::space::Position>(&object_id)
     else {
         return (0.0, 0.0);
     };
@@ -128,7 +128,7 @@ pub(crate) fn mother_tree_regen_bonus(world: &World, object_id: i32) -> (f64, f6
 pub(crate) fn clan_hall_regen_mult(world: &World, object_id: i32) -> (f64, f64) {
     let Some(pos) = world
         .objects
-        .get_component::<crate::model::components::Position>(&object_id)
+        .get_component::<crate::model::components::space::Position>(&object_id)
     else {
         return (1.0, 1.0);
     };
@@ -162,7 +162,7 @@ pub(crate) fn clan_hall_regen_mult(world: &World, object_id: i32) -> (f64, f64) 
 pub(crate) fn castle_regen_mult(world: &World, object_id: i32) -> (f64, f64) {
     let Some(pos) = world
         .objects
-        .get_component::<crate::model::components::Position>(&object_id)
+        .get_component::<crate::model::components::space::Position>(&object_id)
     else {
         return (1.0, 1.0);
     };
@@ -229,13 +229,13 @@ pub(crate) fn move_type_of(world: &World, object_id: i32) -> MoveType {
     }
     let moving = world
         .objects
-        .has_component::<crate::model::components::Movement>(&object_id);
+        .has_component::<crate::model::components::space::Movement>(&object_id);
     if !moving {
         return MoveType::Standing;
     }
     let running = world
         .objects
-        .get_component::<crate::model::components::Speeds>(&object_id)
+        .get_component::<crate::model::components::stats::Speeds>(&object_id)
         .is_some_and(|s| s.running);
     if running {
         MoveType::Running
@@ -421,7 +421,7 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
         // each tick rather than caching onto a component.
         let pet_row = world
             .objects
-            .get_component::<crate::model::components::PetOf>(&oid)
+            .get_component::<crate::model::components::summons::PetOf>(&oid)
             .and_then(|p| {
                 world
                     .data

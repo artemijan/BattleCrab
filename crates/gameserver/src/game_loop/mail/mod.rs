@@ -7,7 +7,7 @@
 //! each change is followed by its `DbCommand` (the clan-warehouse discipline).
 
 use crate::game_loop::helpers::{send_sm_to_player as send_sm, send_to_player};
-use crate::model::components::ZoneFlags;
+use crate::model::components::space::ZoneFlags;
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::model::mail::MailListRow;
 use crate::network::server_packets::{self, MailListView, sm_ids};

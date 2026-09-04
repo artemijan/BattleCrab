@@ -19,7 +19,7 @@ use crate::game_loop::character::inventory;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers;
 use crate::model::Player;
-use crate::model::components::{Position, RegionCell};
+use crate::model::components::space::{Position, RegionCell};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::model::skill::effect_flag;
 use crate::network::client_packets as cp;
@@ -768,7 +768,7 @@ fn world_chat(world: &mut World, client_id: u32, sender_oid: i32, sender_name: &
     helpers::set_player_var_int(
         world,
         sender_oid,
-        crate::model::components::WORLD_CHAT_USED,
+        crate::model::components::player::WORLD_CHAT_USED,
         used + 1,
     );
     let left = world_chat_points_left(world, sender_oid);
@@ -1154,7 +1154,7 @@ fn get_used_world_chat(world: &World, player_oid: i32) -> i32 {
     helpers::player_var_int(
         world,
         player_oid,
-        crate::model::components::WORLD_CHAT_USED,
+        crate::model::components::player::WORLD_CHAT_USED,
         0,
     )
 }

@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::model::components::InMatchingRoom;
+use crate::model::components::social::InMatchingRoom;
 use crate::model::matching_room::MatchingMemberType;
 use crate::network::server_packets::opcodes;
 use crate::network::server_packets::sm_ids;

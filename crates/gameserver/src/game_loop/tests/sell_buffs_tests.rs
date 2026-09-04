@@ -4,7 +4,8 @@
 use super::*;
 use crate::game_loop::character::inventory::count_of;
 
-use crate::model::components::{SkillBook, Vitals};
+use crate::model::components::skills::SkillBook;
+use crate::model::components::stats::Vitals;
 use crate::model::inventory::Inventory;
 
 const SELLER: i32 = 3001;
@@ -58,7 +59,7 @@ fn sell_world() -> (
     for oid in [SELLER, BUYER] {
         world
             .objects
-            .get_component_mut::<model::components::ZoneFlags>(&oid)
+            .get_component_mut::<model::components::space::ZoneFlags>(&oid)
             .unwrap()
             .mask |= crate::data::zone_data::ZoneKind::Peace.bit();
     }

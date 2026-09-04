@@ -7,7 +7,7 @@
 use crate::game_loop::combat::target;
 use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
 use crate::model::Player;
-use crate::model::components::SkillBook;
+use crate::model::components::skills::SkillBook;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 

@@ -16,7 +16,8 @@ use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::{MILLIS_PER_HOUR, TICKS_PER_SECOND};
 use crate::geo::distance::within_2d_xy;
-use crate::model::components::{DrChaosGolem, DrChaosState, Vitals};
+use crate::model::components::stats::Vitals;
+use crate::model::components::summons::{DrChaosGolem, DrChaosState};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 

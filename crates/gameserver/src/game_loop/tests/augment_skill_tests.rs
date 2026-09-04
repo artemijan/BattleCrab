@@ -11,7 +11,7 @@ use super::*;
 use crate::data::option_data::{OptionEntry, OptionSkillType, OptionTrigger};
 use crate::game_loop::character::inventory::item_id_of;
 use crate::game_loop::commerce::multisell;
-use crate::model::components::{Buffs, OptionSkills, OptionTriggers, SkillBook};
+use crate::model::components::skills::{Buffs, OptionSkills, OptionTriggers, SkillBook};
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
@@ -489,7 +489,7 @@ fn admin_destroy_takes_the_options_off_a_worn_item() {
 #[test]
 fn a_multisell_consuming_a_worn_ingredient_takes_its_option_back() {
     use crate::data::multisell_data::{Ingredient, MultisellEntry, MultisellList, Product};
-    use crate::model::components::{ActiveMultisell, PreparedRow};
+    use crate::model::components::commerce::{ActiveMultisell, PreparedRow};
     use crate::model::inventory::Inventory;
 
     let (mut world, ..) = augment_world();

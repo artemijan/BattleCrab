@@ -18,7 +18,8 @@
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::helpers::is_dead;
 use crate::model::Player;
-use crate::model::components::{Vitals, WaterTask};
+use crate::model::components::space::WaterTask;
+use crate::model::components::stats::Vitals;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
@@ -65,7 +66,7 @@ pub(crate) fn breath_ms(world: &World, object_id: i32) -> u64 {
     use crate::model::stats::Stat;
     let Some(mods) = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&object_id)
+        .get_component::<crate::model::components::stats::StatModifiers>(&object_id)
     else {
         return BREATH_BASE_MS;
     };
@@ -90,7 +91,7 @@ pub(crate) fn check_water_state(world: &mut World, object_id: i32) {
     // instead of walking the zone grid a second time.
     let in_water_zone = world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&object_id)
+        .get_component::<crate::model::components::space::ZoneFlags>(&object_id)
         .is_some_and(|f| f.mask & ZoneKind::Water.bit() != 0);
     if in_water_zone {
         start_water_task(world, object_id);

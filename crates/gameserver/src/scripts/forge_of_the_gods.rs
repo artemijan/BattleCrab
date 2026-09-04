@@ -74,7 +74,7 @@ impl QuestScript for ForgeOfTheGods {
         let z = ctx
             .world
             .objects
-            .get_component::<crate::model::components::Position>(&ctx.npc)
+            .get_component::<crate::model::components::space::Position>(&ctx.npc)
             .map(|p| p.z)
             .unwrap_or(0);
 

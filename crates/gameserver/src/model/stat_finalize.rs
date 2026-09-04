@@ -6,7 +6,8 @@ use crate::data::GameData;
 use crate::game_loop;
 
 use super::Player;
-use super::components::{self, BaseStats, StatModifiers};
+use super::components;
+use super::components::stats::{BaseStats, StatModifiers};
 use super::inventory::Inventory;
 use super::skill::effects::StatModifierEffect;
 use super::stats::{Stat, StatModifierType};
@@ -96,7 +97,7 @@ pub(crate) fn compose_base_stats(world: &crate::world::World, oid: i32) -> Optio
         .unwrap_or_default();
     let slots = world
         .objects
-        .get_component::<components::HennaSlots>(&oid)
+        .get_component::<components::skills::HennaSlots>(&oid)
         .map(|h| h.0)
         .unwrap_or_default();
     let hs = world.data.hennas.stat_sums(&slots);

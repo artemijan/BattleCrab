@@ -7,7 +7,7 @@ use crate::game_loop::space::boats;
 use crate::model::boat::{
     Boat, DockSchedule, DwellStage, Fare, InVehicle, RouteDef, RouteId, VehiclePathPoint,
 };
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 
 /// Scan `packets` for a ferry `CreatureSay` (SAY2, `ChatType::Boat`) carrying
 /// `msg_id` in its message-id slot (opcode, i32 objId=0, i32 chatType,

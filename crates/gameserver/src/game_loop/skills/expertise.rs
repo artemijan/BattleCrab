@@ -9,7 +9,8 @@
 //! to the client in `EtcStatusUpdate` so it can draw the penalty icons.
 
 use crate::data::item_data::kinds::ItemKind;
-use crate::model::components::{ExpertisePenalty, SkillBook};
+use crate::model::components::skills::SkillBook;
+use crate::model::components::stats::ExpertisePenalty;
 use crate::model::inventory::Inventory;
 use crate::model::skill::active_buff::ActiveBuff;
 use crate::model::skill::effects::StatModifierEffect;
@@ -112,13 +113,13 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
     {
         let silence = world
             .objects
-            .get_component::<crate::model::components::AdminFlags>(&object_id)
+            .get_component::<crate::model::components::player::AdminFlags>(&object_id)
             .is_some_and(|f| f.silence);
         // The packet carries all three penalties at once, so the sibling's
         // current value has to ride along or it would be cleared on the client.
         let weight_penalty = world
             .objects
-            .get_component::<crate::model::components::WeightPenalty>(&object_id)
+            .get_component::<crate::model::components::stats::WeightPenalty>(&object_id)
             .map_or(0, |w| w.level);
         let charges = view.p.charges;
         crate::game_loop::helpers::send_to_client(

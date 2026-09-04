@@ -7,7 +7,7 @@ use crate::enums::ChatType;
 use crate::game_loop::social::chat;
 use crate::game_loop::social::chat::block_list;
 use crate::model::Player;
-use crate::model::components::AdminFlags;
+use crate::model::components::player::AdminFlags;
 use crate::network::server_packets::{opcodes, sm_ids};
 
 const BLOCK: i32 = 0;
@@ -43,7 +43,7 @@ fn two_players(
             .level = 40;
         world
             .objects
-            .add_components(&oid, model::components::PlayerVariables::default());
+            .add_components(&oid, model::components::player::PlayerVariables::default());
         world.char_ids_by_name.insert(format!("p{oid}"), oid);
     }
     (a, b)

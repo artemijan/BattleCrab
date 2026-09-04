@@ -132,9 +132,9 @@ pub struct PlayerSnapshot {
 impl PlayerSnapshot {
     pub fn of(
         p: &crate::model::Player,
-        pos: &crate::model::components::Position,
-        vitals: &crate::model::components::Vitals,
-        pvitals: &crate::model::components::PlayerVitals,
+        pos: &crate::model::components::space::Position,
+        vitals: &crate::model::components::stats::Vitals,
+        pvitals: &crate::model::components::stats::PlayerVitals,
     ) -> Self {
         Self {
             object_id: p.object_id,

@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::model::components::{PlayerVitals, Vitals};
+use crate::model::components::stats::{PlayerVitals, Vitals};
 use crate::model::inventory::Inventory;
 
 const PLAYER: i32 = 3001;

@@ -9,8 +9,8 @@ use crate::game_loop::npc::is_raid_npc;
 use crate::game_loop::npc::npc_template;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
-use crate::model::components::Position;
-use crate::model::components::Vitals;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::model::npc::AggroList;
 use crate::world::World;
 /// `AttackableAI.checkTarget` — is this still something worth walking to?
@@ -151,7 +151,7 @@ pub(crate) fn notices_target(world: &World, npc_oid: i32, target_oid: i32) -> bo
     // (no raid exemption, unlike SILENT_MOVE below).
     if world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&target_oid)
+        .get_component::<crate::model::components::player::AdminFlags>(&target_oid)
         .is_some_and(|f| f.hidden)
     {
         return false;

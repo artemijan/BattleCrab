@@ -12,7 +12,7 @@ use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::skills::effects::{
     merge_skill_rates, mp_consume_for, remove_skill_rates, reuse_time_for,
 };
-use crate::model::components::SkillRateStats;
+use crate::model::components::stats::SkillRateStats;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::TargetType;
@@ -396,7 +396,8 @@ fn static_reuse_is_read_from_the_dist() {
 /// `handle_skill_finish`'s consume, and `set_skill_reuse`.
 #[test]
 fn a_cast_spends_the_discounted_mp_and_arms_the_shortened_cooldown() {
-    use crate::model::components::{SkillBook, Vitals};
+    use crate::model::components::skills::SkillBook;
+    use crate::model::components::stats::Vitals;
 
     let (mut world, _db, _l) = cast_test_world();
     let mut nuke = cost_skill(9520, 1, 40, 20_000);
@@ -457,7 +458,9 @@ fn a_cast_spends_the_discounted_mp_and_arms_the_shortened_cooldown() {
 /// just refund MP after the fact — it makes an unaffordable skill castable.
 #[test]
 fn the_discount_makes_an_unaffordable_skill_castable() {
-    use crate::model::components::{Casting, SkillBook, Vitals};
+    use crate::model::components::combat::Casting;
+    use crate::model::components::skills::SkillBook;
+    use crate::model::components::stats::Vitals;
 
     let (mut world, _db, _l) = cast_test_world();
     let mut nuke = cost_skill(9522, 1, 60, 0);

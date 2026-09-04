@@ -30,7 +30,7 @@ use tracing::warn;
 use crate::data::multisell_data::{MultisellEntry, MultisellList, PAGE_SIZE};
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_sm_to_client as send_sm;
-use crate::model::components::{ActiveMultisell, PreparedRow};
+use crate::model::components::commerce::{ActiveMultisell, PreparedRow};
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self as sp, SmParam, sm_ids};

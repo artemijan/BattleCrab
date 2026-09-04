@@ -29,7 +29,9 @@ use crate::data::zone_data::ZoneKind;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::{abnormal, combat, servitor};
 use crate::geo::distance::{distance_2d, distance_2d_xy, distance_3d, position_of};
-use crate::model::components::{Casting, Position, Vitals};
+use crate::model::components::combat::Casting;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::model::npc::AggroList;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
@@ -83,7 +85,7 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
     // NPCs on this dist are MAGE.
     let moving = world
         .objects
-        .has_component::<crate::model::components::Movement>(&npc_oid);
+        .has_component::<crate::model::components::space::Movement>(&npc_oid);
     let mage = ai_type == AiType::Mage;
     if !mage && (moving || !has_skill_chance(min_chance, max_chance)) {
         return false;
@@ -117,7 +119,7 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
     // 3. Immobilize a target that's running (kiting or fleeing).
     let target_moving = world
         .objects
-        .has_component::<crate::model::components::Movement>(&target_oid);
+        .has_component::<crate::model::components::space::Movement>(&target_oid);
     if target_moving
         && let Some(skill) = pick(world, &ai_skills, AiSkillScope::Immobilize, npc_oid)
         && cast_at(world, npc_oid, target_oid, &skill)
@@ -288,7 +290,7 @@ fn check_use_conditions(world: &World, npc_oid: i32, skill: &Skill) -> bool {
     }
     if let Some(reuses) = world
         .objects
-        .get_component::<crate::model::components::Reuses>(&npc_oid)
+        .get_component::<crate::model::components::skills::Reuses>(&npc_oid)
         && let Some(r) = reuses.0.get(&skill.reuse_key())
         && r.until_tick > world.tick
     {
@@ -503,7 +505,7 @@ pub(crate) fn resolve_npc_cast_target(
         TargetType::OwnerPet => {
             world
                 .objects
-                .get_component::<crate::model::components::ServitorOf>(&npc_oid)?
+                .get_component::<crate::model::components::summons::ServitorOf>(&npc_oid)?
                 .owner_object_id
         }
         // The handlers this port still collapses into `Other` (`OTHERS`,
@@ -552,7 +554,7 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     // time it has arrived and dropped `Movement` — casts for real.
     if world
         .objects
-        .has_component::<crate::model::components::Movement>(&npc_oid)
+        .has_component::<crate::model::components::space::Movement>(&npc_oid)
         && npc::npc_template(world, npc_oid).is_some_and(|t| t.is_attackable_class())
     {
         return;
@@ -593,7 +595,7 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     // is Java's plain `getMAtkSpd() / 333` (or `getPAtkSpd() / 300`).
     let Some(combat) = world
         .objects
-        .get_component::<crate::model::components::CombatStats>(&npc_oid)
+        .get_component::<crate::model::components::stats::CombatStats>(&npc_oid)
     else {
         return;
     };
@@ -684,7 +686,7 @@ fn has_abnormal_at_least(world: &World, oid: i32, abnormal_type: &str, level: i3
     }
     world
         .objects
-        .get_component::<crate::model::components::Buffs>(&oid)
+        .get_component::<crate::model::components::skills::Buffs>(&oid)
         .is_some_and(|b| {
             b.0.iter()
                 .any(|e| e.abnormal_type == abnormal_type && e.abnormal_level >= level)

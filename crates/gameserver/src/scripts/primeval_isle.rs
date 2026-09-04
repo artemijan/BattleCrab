@@ -14,7 +14,8 @@ use crate::game_loop::npc::ai;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::{Position, Vitals};
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::model::npc::AggroList;
 
 const EGG: i32 = 18344;
@@ -398,7 +399,7 @@ fn set_running(ctx: &mut QuestCtx, npc: i32) {
     if let Some(sp) = ctx
         .world
         .objects
-        .get_component_mut::<crate::model::components::Speeds>(&npc)
+        .get_component_mut::<crate::model::components::stats::Speeds>(&npc)
     {
         sp.running = true;
     }

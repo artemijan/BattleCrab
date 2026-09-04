@@ -7,7 +7,8 @@ use crate::game_loop::npc::doors;
 /// zone message (`Creature.onForcedAttack`), and no attack intent is set.
 #[test]
 fn melee_player_in_peace_zone_is_refused() {
-    use crate::model::components::{Intent, ZoneFlags};
+    use crate::model::components::combat::Intent;
+    use crate::model::components::space::ZoneFlags;
     let (mut world, ..) = test_world();
     let mut a_rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
@@ -44,7 +45,7 @@ fn melee_player_in_peace_zone_is_refused() {
 #[test]
 fn melee_player_outside_peace_zone_starts_attack() {
     use crate::model::PlayerIntent;
-    use crate::model::components::Intent;
+    use crate::model::components::combat::Intent;
     let (mut world, ..) = test_world();
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
@@ -236,7 +237,8 @@ fn water_zone_flips_swim_state_and_speeds() {
 /// and raises the PvP flag, which then blinks out.
 #[test]
 fn siege_zone_combat_messages_and_leave_flag() {
-    use crate::model::components::{Position, PvpState, ZoneFlags};
+    use crate::model::components::combat::PvpState;
+    use crate::model::components::space::{Position, ZoneFlags};
     use crate::model::siege::Siege;
     let (mut world, ..) = cast_test_world();
     insert_siege_zone(&mut world, 3, 5000, 6000, -500, 500);
@@ -313,7 +315,7 @@ fn siege_zone_combat_messages_and_leave_flag() {
 /// the icon from the zone.
 #[test]
 fn siege_zone_broadcasts_attackable_relation_on_enter() {
-    use crate::model::components::Position;
+    use crate::model::components::space::Position;
     use crate::model::siege::Siege;
     let (mut world, ..) = cast_test_world();
     insert_siege_zone(&mut world, 3, 5000, 6000, -500, 500);
@@ -384,7 +386,7 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
 #[test]
 fn siege_relation_carries_clan_leader_crown_bit() {
     use crate::model::Player;
-    use crate::model::components::Position;
+    use crate::model::components::space::Position;
     use crate::model::siege::Siege;
     let (mut world, ..) = cast_test_world();
     insert_siege_zone(&mut world, 3, 5000, 6000, -500, 500);

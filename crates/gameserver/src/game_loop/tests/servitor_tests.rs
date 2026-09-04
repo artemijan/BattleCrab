@@ -10,7 +10,7 @@ use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::character::inventory;
 use crate::game_loop::servitor::evolve;
 use crate::game_loop::skills::skill_by_id;
-use crate::model::components::ServitorOf;
+use crate::model::components::summons::ServitorOf;
 use crate::model::skill::effects::SkillEffect;
 
 use crate::game_loop::servitor::{
@@ -977,7 +977,7 @@ fn a_pet_declares_the_pet_summon_type() {
 // Pet persistence (slice 7)
 // ---------------------------------------------------------------------------
 
-use crate::model::components::{PetOf, PlayerPets};
+use crate::model::components::summons::{PetOf, PlayerPets};
 
 /// Give the Wolf template a level-2 row so level-dependent lookups have
 /// somewhere to move to — with a single level every "restored at level N"
@@ -2110,7 +2110,7 @@ fn a_duel_death_costs_the_pet_no_experience() {
     // condition Java tests.
     world
         .objects
-        .add_components(&OWNER, model::components::DuelRef(1));
+        .add_components(&OWNER, model::components::social::DuelRef(1));
     crate::game_loop::npc::npc_do_die(&mut world, pet_oid, OWNER);
 
     assert_eq!(
@@ -2651,7 +2651,7 @@ fn a_pet_charges_shots_from_its_owner() {
     assert!(
         world
             .objects
-            .get_component::<model::components::ChargedShots>(&pet_oid)
+            .get_component::<model::components::combat::ChargedShots>(&pet_oid)
             .unwrap()
             .soulshot
     );
@@ -3068,7 +3068,7 @@ fn a_summon_attacking_a_player_flags_its_owner() {
 
     let flagged = world
         .objects
-        .get_component::<model::components::PvpState>(&OWNER)
+        .get_component::<model::components::combat::PvpState>(&OWNER)
         .is_some_and(|s| s.flag > 0);
     assert!(flagged, "the owner is flagged for their summon's attack");
 }
@@ -3088,7 +3088,7 @@ fn a_real_summon_swing_flags_the_owner() {
 
     let flagged = world
         .objects
-        .get_component::<model::components::PvpState>(&OWNER)
+        .get_component::<model::components::combat::PvpState>(&OWNER)
         .is_some_and(|s| s.flag > 0);
     assert!(
         flagged,
@@ -3113,7 +3113,7 @@ fn a_summon_swing_puts_its_owner_in_combat_stance() {
     assert!(
         world
             .objects
-            .get_component::<model::components::AttackState>(&OWNER)
+            .get_component::<model::components::combat::AttackState>(&OWNER)
             .is_some_and(|s| s.stance_until_tick > now),
         "the owner is in combat stance"
     );
@@ -3135,14 +3135,14 @@ fn a_monster_attacking_a_player_flags_nobody() {
     assert!(
         world
             .objects
-            .get_component::<model::components::PvpState>(&victim)
+            .get_component::<model::components::combat::PvpState>(&victim)
             .is_none_or(|s| s.flag == 0),
         "the victim is not flagged by being attacked"
     );
     assert!(
         world
             .objects
-            .get_component::<model::components::PvpState>(&FOE)
+            .get_component::<model::components::combat::PvpState>(&FOE)
             .is_none_or(|s| s.flag == 0),
         "and neither is the monster"
     );
@@ -3290,10 +3290,10 @@ fn a_summons_blow_cannot_kill_a_duel_opponent() {
     // Put the two players in a duel with each other.
     world
         .objects
-        .add_components(&OWNER, model::components::DuelRef(1));
+        .add_components(&OWNER, model::components::social::DuelRef(1));
     world
         .objects
-        .add_components(&foe_player, model::components::DuelRef(1));
+        .add_components(&foe_player, model::components::social::DuelRef(1));
     // The snapshot the end-of-duel restore puts back: both at full.
     let snap = |world: &World, oid: i32| {
         let v = world.objects.get_component::<Vitals>(&oid).unwrap();
@@ -3815,7 +3815,7 @@ fn a_servitor_dismissed_before_logout_stays_away() {
     assert!(
         world
             .objects
-            .get_component::<model::components::PlayerSummons>(&OWNER)
+            .get_component::<model::components::summons::PlayerSummons>(&OWNER)
             .unwrap()
             .0
             .is_empty(),
@@ -3840,7 +3840,7 @@ fn an_unlearned_summon_skill_restores_nothing_and_is_not_retried() {
     assert!(
         world
             .objects
-            .get_component::<model::components::PlayerSummons>(&OWNER)
+            .get_component::<model::components::summons::PlayerSummons>(&OWNER)
             .unwrap()
             .0
             .is_empty(),
@@ -3904,7 +3904,7 @@ fn a_servitors_buffs_survive_a_relog() {
     on_owner_leave_world(&mut world, OWNER);
     let saved = world
         .objects
-        .get_component::<model::components::PlayerSummons>(&OWNER)
+        .get_component::<model::components::summons::PlayerSummons>(&OWNER)
         .unwrap()
         .0[0]
         .clone();
@@ -3956,7 +3956,7 @@ fn an_expired_servitor_buff_is_not_saved() {
 
     let saved = world
         .objects
-        .get_component::<model::components::PlayerSummons>(&OWNER)
+        .get_component::<model::components::summons::PlayerSummons>(&OWNER)
         .unwrap()
         .0[0]
         .clone();
@@ -4196,7 +4196,7 @@ fn a_pet_charges_spiritshots_from_its_owner() {
     assert!(
         world
             .objects
-            .get_component::<model::components::ChargedShots>(&pet_oid)
+            .get_component::<model::components::combat::ChargedShots>(&pet_oid)
             .unwrap()
             .spiritshot
     );
@@ -4227,7 +4227,7 @@ fn a_spiritshot_doubles_a_summons_magic_damage() {
         if charged {
             world.objects.add_components(
                 &pet_oid,
-                model::components::ChargedShots {
+                model::components::combat::ChargedShots {
                     soulshot: false,
                     spiritshot: true,
                 },
@@ -4289,7 +4289,7 @@ fn a_physical_skill_does_not_spend_a_spiritshot() {
     assert!(
         world
             .objects
-            .get_component::<model::components::ChargedShots>(&pet_oid)
+            .get_component::<model::components::combat::ChargedShots>(&pet_oid)
             .unwrap()
             .spiritshot,
         "the magic shot is still charged"
@@ -4438,7 +4438,7 @@ fn community_board_pet_buffer_targets_the_summon() {
 /// though its NPC type isn't Attackable; a plain non-attackable NPC is not.
 #[test]
 fn a_servitor_can_be_feared() {
-    use crate::model::components::{Movement, Position};
+    use crate::model::components::space::{Movement, Position};
     use crate::model::skill::effects::SkillEffect;
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 100, 200);
@@ -5619,7 +5619,7 @@ fn unsummoning_a_pet_refuses_in_combat_and_otherwise_stores_it() {
     // In combat stance → refused, pet still out.
     world
         .objects
-        .get_component_mut::<model::components::AttackState>(&pet)
+        .get_component_mut::<model::components::combat::AttackState>(&pet)
         .unwrap()
         .stance_until_tick = world.tick + 100;
     handle_pet_action(&mut world, CID, OWNER, "UnsummonPet", 0);
@@ -5628,7 +5628,7 @@ fn unsummoning_a_pet_refuses_in_combat_and_otherwise_stores_it() {
     // Out of combat → gone, and the fed value reached the owner's saved row.
     world
         .objects
-        .get_component_mut::<model::components::AttackState>(&pet)
+        .get_component_mut::<model::components::combat::AttackState>(&pet)
         .unwrap()
         .stance_until_tick = 0;
     // Above the wolf's 55 % hunger limit — below it the *hungry* refusal fires
@@ -5756,7 +5756,7 @@ fn a_pet_fetches_a_ground_item_into_its_own_bag() {
     assert!(
         world
             .objects
-            .has_component::<model::components::SummonPickup>(&pet),
+            .has_component::<model::components::summons::SummonPickup>(&pet),
         "the fetch order is pending"
     );
     assert!(
@@ -5783,7 +5783,7 @@ fn a_pet_fetches_a_ground_item_into_its_own_bag() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::SummonPickup>(&pet),
+            .has_component::<model::components::summons::SummonPickup>(&pet),
         "the errand is over"
     );
     assert!(
@@ -5807,7 +5807,7 @@ fn a_pet_fetches_a_ground_item_into_its_own_bag() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&item),
+            .has_component::<model::components::commerce::GroundItem>(&item),
         "and off the floor"
     );
 }
@@ -5834,7 +5834,7 @@ fn a_starving_pet_will_not_fetch() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::SummonPickup>(&pet),
+            .has_component::<model::components::summons::SummonPickup>(&pet),
         "no errand was taken"
     );
     assert!(
@@ -6095,7 +6095,7 @@ fn a_servitors_shot_bonus_comes_from_its_owners_weapon() {
 #[test]
 fn a_siege_weapon_pays_its_upkeep_four_times_as_often() {
     use crate::enums::Race;
-    use crate::model::components::ServitorOf;
+    use crate::model::components::summons::ServitorOf;
 
     const GOLEM: i32 = 14737;
     const GEMSTONE: i32 = 2131;

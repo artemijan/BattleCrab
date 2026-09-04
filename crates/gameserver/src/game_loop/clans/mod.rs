@@ -725,7 +725,7 @@ pub(crate) fn remove_clan_member_for_academy(world: &mut World, clan_id: i32, me
 pub(crate) fn in_siege_zone(world: &World, player_oid: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::Position>(&player_oid)
+        .get_component::<crate::model::components::space::Position>(&player_oid)
         .and_then(|pos| world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z))
         .is_some()
 }
@@ -737,10 +737,10 @@ pub(crate) fn in_siege_zone(world: &World, player_oid: i32) -> bool {
 pub(crate) fn refuse_if_busy(world: &World, player: i32, target_oid: i32) -> bool {
     let busy = world
         .objects
-        .has_component::<crate::model::components::PendingRequest>(&player)
+        .has_component::<crate::model::components::social::PendingRequest>(&player)
         || world
             .objects
-            .has_component::<crate::model::components::PendingRequest>(&target_oid);
+            .has_component::<crate::model::components::social::PendingRequest>(&target_oid);
     if busy {
         helpers::send_sm_to_player(
             world,

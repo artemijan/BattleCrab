@@ -55,7 +55,7 @@ pub(crate) fn use_equipable_item(
     object_id: i32,
     item_object_id: i32,
 ) {
-    use crate::model::components::{AttackState, Casting, QueuedAction};
+    use crate::model::components::combat::{AttackState, Casting, QueuedAction};
 
     let is_equipable = {
         let catalog = &world.data.item_data;
@@ -399,12 +399,12 @@ pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: 
     if let Some((player, base, mods, inventory, mut vitals, mut speeds, mut combat)) =
         world.objects.get_many_mut::<(
             &crate::model::Player,
-            &crate::model::components::BaseStats,
-            &crate::model::components::StatModifiers,
+            &crate::model::components::stats::BaseStats,
+            &crate::model::components::stats::StatModifiers,
             &Inventory,
-            &mut crate::model::components::Vitals,
-            &mut crate::model::components::Speeds,
-            &mut crate::model::components::CombatStats,
+            &mut crate::model::components::stats::Vitals,
+            &mut crate::model::components::stats::Speeds,
+            &mut crate::model::components::stats::CombatStats,
         )>(&object_id)
     {
         player.recalculate_stats(&world.data, base, mods, inventory, &mut speeds, &mut combat);

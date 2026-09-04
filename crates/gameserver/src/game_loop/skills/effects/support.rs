@@ -9,7 +9,7 @@ pub(crate) use crate::game_loop::helpers::{
 };
 use crate::game_loop::net::broadcast;
 use crate::game_loop::{helpers, npc};
-use crate::model::components::CombatStats;
+use crate::model::components::stats::CombatStats;
 use crate::model::formulas;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::RestorationGroup;
@@ -461,7 +461,7 @@ pub(crate) fn send_system_message_to_clan(world: &mut World, target_oid: i32, me
 pub(crate) fn random_damage_multiplier_of(world: &mut World, oid: i32) -> f64 {
     let r = world
         .objects
-        .get_component::<crate::model::components::CombatStats>(&oid)
+        .get_component::<crate::model::components::stats::CombatStats>(&oid)
         .map_or(0, |c| c.random_dmg);
     if r <= 0 {
         return 1.0;

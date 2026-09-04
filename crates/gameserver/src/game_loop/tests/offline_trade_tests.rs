@@ -6,7 +6,7 @@ use super::*;
 use crate::game_loop::character::inventory;
 use crate::game_loop::commerce::offline_trade;
 use crate::game_loop::social::chat;
-use crate::model::components::{PrivateStore, StoreItem};
+use crate::model::components::commerce::{PrivateStore, StoreItem};
 
 /// Turn the feature on the way `Custom/OfflineTrade.ini` does on this dist.
 fn enable_offline(world: &mut World) {

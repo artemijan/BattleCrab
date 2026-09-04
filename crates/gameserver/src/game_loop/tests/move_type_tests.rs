@@ -9,7 +9,8 @@
 
 use super::*;
 
-use crate::model::components::{Movement, PlayerVitals, Speeds, StatModifiers};
+use crate::model::components::space::Movement;
+use crate::model::components::stats::{PlayerVitals, Speeds, StatModifiers};
 use crate::model::movement::MoveData;
 use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
 use crate::model::stats::{MoveType, Stat, StatModifierType};

@@ -16,7 +16,8 @@ use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::TICKS_PER_SECOND;
 use crate::geo::distance::within_3d;
-use crate::model::components::{Position, Vitals};
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::world::World;
 
 /// Java `Stat.MAX_CUBIC`'s default. **Nothing in this datapack sets
@@ -168,7 +169,7 @@ fn schedule_action(world: &mut World, owner_oid: i32, cubic_id: i32, delay_secs:
 fn spawn_cubic_caster(world: &mut World, owner_oid: i32, template: &CubicTemplate) -> Option<i32> {
     let oid = world.alloc_object_id()?;
     let atk = template.power / 10.0;
-    let mut stats = crate::model::components::CombatStats::default();
+    let mut stats = crate::model::components::stats::CombatStats::default();
     stats.p_atk = atk;
     stats.m_atk = atk;
     // `spawn` first — `add_components` silently no-ops on an id the store has
@@ -178,7 +179,7 @@ fn spawn_cubic_caster(world: &mut World, owner_oid: i32, template: &CubicTemplat
     // The level link — see `CubicOf`. Without it every cast is resisted.
     world.objects.add_components(
         &oid,
-        crate::model::components::CubicOf {
+        crate::model::components::summons::CubicOf {
             owner_object_id: owner_oid,
         },
     );
@@ -351,9 +352,9 @@ fn live_target(world: &World, owner_oid: i32) -> Option<i32> {
 /// the dead ("Life Cubic should not try to heal dead targets").
 fn heal_target(world: &mut World, owner_oid: i32, _template: &CubicTemplate) -> Option<i32> {
     let mut candidates = vec![owner_oid];
-    if let Some(crate::model::components::PartyRef(pid)) = world
+    if let Some(crate::model::components::social::PartyRef(pid)) = world
         .objects
-        .get_component::<crate::model::components::PartyRef>(&owner_oid)
+        .get_component::<crate::model::components::social::PartyRef>(&owner_oid)
         .copied()
         && let Some(party) = world.parties.get(&pid)
     {

@@ -80,7 +80,7 @@ pub(super) fn think(world: &mut World, npc_oid: i32) {
     // most-hated" is the right behaviour once the order has seeded the list.
     if world
         .objects
-        .has_component::<components::ServitorOf>(&npc_oid)
+        .has_component::<components::summons::ServitorOf>(&npc_oid)
     {
         // A fetch errand outranks trailing the owner, so it thinks first and
         // suppresses the follow while it is running.
@@ -159,7 +159,7 @@ pub(super) fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32)
             if dist > FOLLOW_RANGE
                 && world
                     .objects
-                    .get_component::<components::Movement>(&npc_oid)
+                    .get_component::<components::space::Movement>(&npc_oid)
                     .is_none()
             {
                 move_npc_to(world, npc_oid, cx, cy, cz);
@@ -171,7 +171,7 @@ pub(super) fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32)
             if let Some((cx, cy, cz)) = position::pos_of(world, commander)
                 && world
                     .objects
-                    .get_component::<components::Movement>(&npc_oid)
+                    .get_component::<components::space::Movement>(&npc_oid)
                     .is_none()
             {
                 move_npc_to(world, npc_oid, cx, cy, cz);
@@ -185,7 +185,7 @@ pub(super) fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32)
 pub(crate) fn seed_attack(world: &mut World, npc_oid: i32, target: i32) {
     let target_alive = world
         .objects
-        .get_component::<components::Vitals>(&target)
+        .get_component::<components::stats::Vitals>(&target)
         .is_some_and(|v| !v.dead);
     if !target_alive {
         stop_npc(world, npc_oid);
@@ -210,7 +210,7 @@ fn nearest_group_member(world: &World, npc_oid: i32, group_id: i32) -> Option<i3
             .filter(|&&m| {
                 world
                     .objects
-                    .get_component::<components::Vitals>(&m)
+                    .get_component::<components::stats::Vitals>(&m)
                     .is_some_and(|v| !v.dead)
             })
             .min_by_key(|&&m| {
@@ -225,7 +225,7 @@ fn nearest_group_member(world: &World, npc_oid: i32, group_id: i32) -> Option<i3
 pub(super) fn distance_2d(world: &World, oid: i32, x: i32, y: i32) -> f64 {
     world
         .objects
-        .get_component::<components::Position>(&oid)
+        .get_component::<components::space::Position>(&oid)
         .map(|p| (((p.x - x) as f64).powi(2) + ((p.y - y) as f64).powi(2)).sqrt())
         .unwrap_or(f64::MAX)
 }
@@ -396,7 +396,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
                     ai.attack_timeout_tick = world.tick + ATTACK_TIMEOUT_TICKS;
                     let speeds = world
                         .objects
-                        .get_component_mut::<components::Speeds>(&npc_oid)
+                        .get_component_mut::<components::stats::Speeds>(&npc_oid)
                         .expect("checked");
                     let flip = !speeds.running;
                     speeds.running = true;
@@ -426,7 +426,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
             .expect("npc");
         let pos = world
             .objects
-            .get_component::<components::Position>(&npc_oid)
+            .get_component::<components::space::Position>(&npc_oid)
             .expect("caller checked");
         let t = npc.template(world);
         let can_move = t.map(|t| t.can_move).unwrap_or(false);
@@ -442,7 +442,7 @@ pub(super) fn think_active(world: &mut World, npc_oid: i32) {
             npc.spawn_loc,
             world
                 .objects
-                .has_component::<components::Movement>(&npc_oid),
+                .has_component::<components::space::Movement>(&npc_oid),
             can_move,
             random_walk,
         )
@@ -499,7 +499,10 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
     // bar still up. Note `try_cast` above does refuse a second concurrent cast,
     // but it reports that as `false` = "no cast this think", which is exactly
     // what lets the caller carry on into both tails.
-    if world.objects.has_component::<components::Casting>(&npc_oid) {
+    if world
+        .objects
+        .has_component::<components::combat::Casting>(&npc_oid)
+    {
         return;
     }
 
@@ -524,7 +527,7 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
     // Target dead or gone → stop hating it (next think re-evaluates).
     let target_alive = world
         .objects
-        .get_component::<components::Vitals>(&target_oid)
+        .get_component::<components::stats::Vitals>(&target_oid)
         .is_some_and(|v| !v.dead);
     if !target_alive {
         if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
@@ -568,7 +571,7 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
         {
             let heading = world
                 .objects
-                .get_component::<components::Position>(&npc_oid)
+                .get_component::<components::space::Position>(&npc_oid)
                 .map(|p| p.heading)
                 .unwrap_or(0);
             npc::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
@@ -594,7 +597,7 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
     // Measured over 300 s of melee: 11 stuns, 0 summons.
     let mid_swing = world
         .objects
-        .get_component::<components::AttackState>(&npc_oid)
+        .get_component::<components::combat::AttackState>(&npc_oid)
         .is_some_and(|st| st.attack_end_tick > now);
 
     // "Actor should be able to see target" (`thinkAttack`'s geodata gate): a
@@ -705,11 +708,11 @@ pub(super) fn think_attack(world: &mut World, npc_oid: i32) {
     // In reach: stop and swing.
     if world
         .objects
-        .has_component::<components::Movement>(&npc_oid)
+        .has_component::<components::space::Movement>(&npc_oid)
     {
         world
             .objects
-            .remove_component::<components::Movement>(&npc_oid);
+            .remove_component::<components::space::Movement>(&npc_oid);
         let (Some(pos), Some(region)) = (
             maybe_position(world, npc_oid),
             position::region_cell_of(world, npc_oid),

@@ -6,7 +6,8 @@
 //! task + the despawn schedule); both halves live here.
 
 use crate::game_loop::skills::skill_by_id;
-use crate::model::components::{SummonerRef, Vitals};
+use crate::model::components::stats::Vitals;
+use crate::model::components::summons::SummonerRef;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -94,7 +95,7 @@ pub(crate) fn spawn_plain_summon(
 ) {
     let heading = world
         .objects
-        .get_component::<crate::model::components::Position>(&owner_oid)
+        .get_component::<crate::model::components::space::Position>(&owner_oid)
         .map_or(0, |p| p.heading);
     let Some(npc_oid) = crate::game_loop::npc::spawn_npc_at(world, npc_id, x, y, z, heading) else {
         return;
@@ -105,7 +106,7 @@ pub(crate) fn spawn_plain_summon(
     // `player.addSummonedNpc(npc)` — the same registry the quest engine's
     // NPC-side summons use; a corpse still counts until decay, as in Java.
     {
-        use crate::model::components::SummonedNpcs;
+        use crate::model::components::summons::SummonedNpcs;
         match world.objects.get_component_mut::<SummonedNpcs>(&owner_oid) {
             Some(list) => list.0.push(npc_oid),
             None => world

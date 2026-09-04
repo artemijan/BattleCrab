@@ -12,9 +12,9 @@ use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_action_failed;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::helpers::send_to_player;
-use crate::model::components::PartyRef;
-use crate::model::components::PendingRequest;
-use crate::model::components::RequestKind;
+use crate::model::components::social::PartyRef;
+use crate::model::components::social::PendingRequest;
+use crate::model::components::social::RequestKind;
 /// Install a linked request on both sides + its timeout tasks.
 use crate::model::party::LootRule;
 use crate::model::party::Party;

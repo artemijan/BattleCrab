@@ -194,7 +194,7 @@ fn buying_a_ticket_charges_adena_grows_the_pot_and_mints_the_ticket() {
     // Five picked numbers.
     world
         .objects
-        .add_components(&100, model::components::LotoPicks([1, 2, 3, 4, 5]));
+        .add_components(&100, model::components::player::LotoPicks([1, 2, 3, 4, 5]));
 
     lottery::loto_bypass(&mut world, 1, 100, 500, "Loto 22");
 
@@ -223,7 +223,7 @@ fn selling_closed_refuses_the_purchase() {
     inventory::add_inventory_item(&mut world, 100, 57, 10_000);
     world
         .objects
-        .add_components(&100, model::components::LotoPicks([1, 2, 3, 4, 5]));
+        .add_components(&100, model::components::player::LotoPicks([1, 2, 3, 4, 5]));
 
     lottery::loto_bypass(&mut world, 1, 100, 500, "Loto 22");
 

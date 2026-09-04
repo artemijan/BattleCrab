@@ -17,7 +17,8 @@ use crate::game_loop::clans::clan_of;
 use crate::game_loop::helpers::{send_message, send_sm_to_client as send_sm};
 use crate::game_loop::{helpers, npc, skills};
 
-use crate::model::components::{Casting, Position};
+use crate::model::components::combat::Casting;
+use crate::model::components::space::Position;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::session::ClientSession;
@@ -193,7 +194,7 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
         helpers::send_action_failed(world, client_id);
         world
             .objects
-            .remove_component::<crate::model::components::Intent>(&object_id);
+            .remove_component::<crate::model::components::combat::Intent>(&object_id);
         return;
     }
     if interval > 100 {
@@ -616,7 +617,7 @@ fn clan_penalty(world: &World, client_id: u32, object_id: i32) {
 /// record (Java reads the command user's own match counts but the **target's**
 /// points — a quirk kept), plus this week's remaining matches.
 fn olympiad_stat(world: &World, client_id: u32, object_id: i32) {
-    use crate::model::components::TargetRef;
+    use crate::model::components::combat::TargetRef;
 
     if !crate::model::olympiad::OLYMPIAD_ENABLED {
         send_sm(
@@ -760,7 +761,7 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
     // Fishing and transformation refuse with a bare `ActionFailed`, as in Java.
     if world
         .objects
-        .has_component::<crate::model::components::FishingSession>(&object_id)
+        .has_component::<crate::model::components::player::FishingSession>(&object_id)
         || world
             .objects
             .get_component::<Player>(&object_id)
@@ -779,7 +780,7 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
     // dismount can `storePetFood` the drained gauge back onto the collar row.
     let collar = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet)
+        .get_component::<crate::model::components::summons::PetOf>(&pet)
         .map_or(0, |p| p.collar_object_id);
     if crate::game_loop::admin::mounts::mount_player(world, object_id, pet_npc_id, mount_type) {
         if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
@@ -812,6 +813,6 @@ fn mount_type_of(world: &World, npc_id: i32) -> Option<u8> {
 pub(crate) fn in_combat(world: &World, object_id: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::AttackState>(&object_id)
+        .get_component::<crate::model::components::combat::AttackState>(&object_id)
         .is_some_and(|a| a.stance_until_tick > world.tick)
 }

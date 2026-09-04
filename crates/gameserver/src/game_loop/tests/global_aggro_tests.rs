@@ -16,7 +16,7 @@
 
 use super::*;
 
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 
 const PLAYER: i32 = 3001;

@@ -23,9 +23,9 @@ use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::moderation::bot_report;
 use crate::game_loop::{helpers, skills};
 
-use crate::model::components::Buffs;
-use crate::model::components::StatModifiers;
-use crate::model::components::Vitals;
+use crate::model::components::skills::Buffs;
+use crate::model::components::stats::StatModifiers;
+use crate::model::components::stats::Vitals;
 use crate::model::punishment::PunishmentType;
 use crate::model::skill::Skill;
 use crate::model::skill::active_buff::ActiveBuff;
@@ -533,7 +533,7 @@ fn handle_buff_expire_inner(world: &mut World, player_object_id: i32, skill_id: 
     {
         world
             .objects
-            .remove_component::<crate::model::components::LockedTarget>(&player_object_id);
+            .remove_component::<crate::model::components::combat::LockedTarget>(&player_object_id);
     }
     // `DefenceTrait.onExit` — unmerge before the buff row goes, while the skill
     // is still resolvable. Covers the NPC branch below as well as the player

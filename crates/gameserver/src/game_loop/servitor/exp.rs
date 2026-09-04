@@ -46,7 +46,7 @@ pub(crate) fn split_exp_with_pet(
     }
     let level = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
         .map(|p| p.level)
         .unwrap_or(1);
     let owner_taken = npc_template_id(world, pet_oid)
@@ -89,7 +89,7 @@ pub(crate) fn add_pet_exp(world: &mut World, owner_oid: i32, exp: f64, sp: f64) 
     let max_level = max_pet_level(world, pet_oid);
     if let Some(p) = world
         .objects
-        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+        .get_component_mut::<crate::model::components::summons::PetOf>(&pet_oid)
     {
         p.exp += gained.max(0);
         p.sp += (sp.round() as i64).max(0);
@@ -123,7 +123,7 @@ fn level_up_pet(world: &mut World, owner_oid: i32, pet_oid: i32, max_level: i32)
     loop {
         let Some(pet) = world
             .objects
-            .get_component::<crate::model::components::PetOf>(&pet_oid)
+            .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
             .copied()
         else {
             return;
@@ -150,7 +150,7 @@ fn level_up_pet(world: &mut World, owner_oid: i32, pet_oid: i32, max_level: i32)
             .unwrap_or(pet.max_fed);
         if let Some(p) = world
             .objects
-            .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+            .get_component_mut::<crate::model::components::summons::PetOf>(&pet_oid)
         {
             p.level = next;
             p.max_fed = new_max_fed;
@@ -176,7 +176,7 @@ fn level_up_pet(world: &mut World, owner_oid: i32, pet_oid: i32, max_level: i32)
 pub(crate) fn sync_collar_enchant(world: &mut World, owner_oid: i32, pet_oid: i32) {
     let Some(pet) = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
         .copied()
     else {
         return;

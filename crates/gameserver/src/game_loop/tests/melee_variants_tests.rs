@@ -4,7 +4,7 @@ use super::*;
 
 use crate::data::item_data::kinds::{CrystalType, EtcItemType, ItemKind, WeaponType};
 use crate::data::item_data::template::ItemTemplate;
-use crate::model::components::StatModifiers;
+use crate::model::components::stats::StatModifiers;
 use crate::model::inventory::Inventory;
 use crate::model::stats::Stat;
 

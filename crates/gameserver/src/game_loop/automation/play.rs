@@ -11,7 +11,9 @@ use crate::game_loop::helpers::nth_arg;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
-use crate::model::components::{AutoPlaySettings, GroundItem, Position};
+use crate::model::components::commerce::GroundItem;
+use crate::model::components::player::AutoPlaySettings;
+use crate::model::components::space::Position;
 use crate::world::World;
 
 use crate::game_loop::combat::target;
@@ -194,7 +196,7 @@ fn run_for_player(world: &mut World, player_oid: i32) {
         .is_some_and(|p| p.sitting)
         || world
             .objects
-            .has_component::<crate::model::components::Casting>(&player_oid);
+            .has_component::<crate::model::components::combat::Casting>(&player_oid);
     if busy {
         return;
     }
@@ -232,11 +234,11 @@ fn keep_attacking(world: &mut World, player_oid: i32, target: i32, s: &AutoPlayS
     }
     let attacking = world
         .objects
-        .get_component::<crate::model::components::AttackState>(&player_oid)
+        .get_component::<crate::model::components::combat::AttackState>(&player_oid)
         .is_some_and(|a| a.attack_end_tick > world.tick);
     let moving = world
         .objects
-        .has_component::<crate::model::components::Movement>(&player_oid);
+        .has_component::<crate::model::components::space::Movement>(&player_oid);
     if attacking || moving {
         reset_idle(world, player_oid);
         return;
@@ -267,7 +269,7 @@ fn nudge(world: &mut World, player_oid: i32, target: i32) {
     };
     let radius = world
         .objects
-        .get_component::<crate::model::components::Collision>(&player_oid)
+        .get_component::<crate::model::components::space::Collision>(&player_oid)
         .map_or(10.0, |c| c.radius);
     let angle = (t.y as f64 - p.y as f64).atan2(t.x as f64 - p.x as f64);
     let distance = radius * 4.0;
@@ -378,7 +380,7 @@ fn find_target(world: &World, player_oid: i32, s: &AutoPlaySettings) -> Option<i
 fn leader_target(world: &World, player_oid: i32) -> Option<i32> {
     let party_id = world
         .objects
-        .get_component::<crate::model::components::PartyRef>(&player_oid)?
+        .get_component::<crate::model::components::social::PartyRef>(&player_oid)?
         .0;
     let leader = world.parties.get(&party_id)?.leader();
     if leader == player_oid {
@@ -420,7 +422,7 @@ fn mode_allows(world: &World, player_oid: i32, other: i32, mode: i32) -> bool {
 fn is_busy_with_someone_else(world: &World, other: i32, player_oid: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::TargetRef>(&other)
+        .get_component::<crate::model::components::combat::TargetRef>(&other)
         .and_then(|t| t.0)
         .is_some_and(|t| t != player_oid)
 }

@@ -4,7 +4,7 @@
 
 use crate::data::GameData;
 
-use super::components::SkillBook;
+use super::components::skills::SkillBook;
 use super::inventory::Inventory;
 use super::skill::active_buff::ActiveBuff;
 use super::skill::effects::StatModifierEffect;

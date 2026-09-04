@@ -29,7 +29,7 @@ pub fn players_in_lair_oids(world: &World, zone: i32) -> Vec<i32> {
 pub(crate) fn in_boss_zone(world: &World, zone_id: i32, oid: i32) -> bool {
     let Some(pos) = world
         .objects
-        .get_component::<crate::model::components::Position>(&oid)
+        .get_component::<crate::model::components::space::Position>(&oid)
     else {
         return false;
     };
@@ -47,7 +47,7 @@ pub(crate) fn in_boss_zone(world: &World, zone_id: i32, oid: i32) -> bool {
 pub(crate) fn in_boss_zone_strict(world: &World, zone_id: i32, oid: i32) -> bool {
     let Some(pos) = world
         .objects
-        .get_component::<crate::model::components::Position>(&oid)
+        .get_component::<crate::model::components::space::Position>(&oid)
     else {
         return false;
     };

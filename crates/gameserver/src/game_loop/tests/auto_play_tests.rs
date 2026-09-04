@@ -4,7 +4,9 @@
 use super::*;
 use crate::game_loop::automation::use_items;
 
-use crate::model::components::{AutoPlaySettings, Casting, TargetRef, Vitals};
+use crate::model::components::combat::{Casting, TargetRef};
+use crate::model::components::player::AutoPlaySettings;
+use crate::model::components::stats::Vitals;
 
 const PLAYER: i32 = 3001;
 
@@ -261,7 +263,8 @@ fn loot_in_reach_is_picked_up() {
 // Auto use (slice 2)
 // ---------------------------------------------------------------------------
 
-use crate::model::components::{AutoUseSettings, Buffs, SkillBook};
+use crate::model::components::player::AutoUseSettings;
+use crate::model::components::skills::{Buffs, SkillBook};
 use crate::model::inventory::Inventory;
 
 const SHOT: i32 = 1835;
@@ -418,7 +421,7 @@ fn a_peace_zone_stops_items_but_not_buffs() {
     );
     world
         .objects
-        .get_component_mut::<model::components::ZoneFlags>(&PLAYER)
+        .get_component_mut::<model::components::space::ZoneFlags>(&PLAYER)
         .unwrap()
         .mask |= crate::data::zone_data::ZoneKind::Peace.bit();
 

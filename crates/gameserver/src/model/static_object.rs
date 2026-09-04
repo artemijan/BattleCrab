@@ -6,7 +6,7 @@
 
 use bevy_ecs::component::Component;
 
-use crate::model::components::{Position, RegionCell};
+use crate::model::components::space::{Position, RegionCell};
 use crate::world::{World, region_of};
 
 #[derive(Debug, Clone, Component)]

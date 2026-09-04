@@ -207,7 +207,7 @@ fn the_shipped_queen_ant_and_orfen_records_spawn_where_they_should() {
         let mut found = None;
         world
             .objects
-            .for_each_mut::<(&model::npc::Npc, &crate::model::components::Position)>(
+            .for_each_mut::<(&model::npc::Npc, &crate::model::components::space::Position)>(
                 |(npc, pos)| {
                     if npc.npc_id == boss_id {
                         found = Some((pos.x, pos.y));
@@ -226,7 +226,7 @@ fn the_shipped_queen_ant_and_orfen_records_spawn_where_they_should() {
             .expect("registered in the id index");
         let region = world
             .objects
-            .get_component::<crate::model::components::RegionCell>(&oid)
+            .get_component::<crate::model::components::space::RegionCell>(&oid)
             .map(|r| r.0)
             .expect("has a region cell");
         assert_ne!(

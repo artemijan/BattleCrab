@@ -11,7 +11,8 @@ use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::is_chest;
 use crate::game_loop::space::position;
 use crate::game_loop::{helpers, npc};
-use crate::model::components::{Buffs, CombatStats, Vitals};
+use crate::model::components::skills::Buffs;
+use crate::model::components::stats::{CombatStats, Vitals};
 use crate::model::formulas;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
@@ -337,7 +338,7 @@ pub(super) fn blow(
         ss,
         ..
     } = *ctx;
-    use crate::model::components::Position as PosComp;
+    use crate::model::components::space::Position as PosComp;
     // Attacker position relative to the target's facing (for the
     // land roll's positional bonus, the blow's back/side damage
     // bonus, and Backstab's flank requirement).
@@ -520,7 +521,7 @@ pub(super) fn lethal(
             .has_component::<crate::model::door::Door>(&target_oid)
         || world
             .objects
-            .has_component::<crate::model::components::NotLethalable>(&target_oid)
+            .has_component::<crate::model::components::combat::NotLethalable>(&target_oid)
     {
         return;
     }
@@ -559,7 +560,7 @@ pub(super) fn lethal(
         if is_player_target {
             if let Some(v) = world
                 .objects
-                .get_component_mut::<crate::model::components::PlayerVitals>(&target_oid)
+                .get_component_mut::<crate::model::components::stats::PlayerVitals>(&target_oid)
             {
                 v.cur_cp = 1.0;
             }
@@ -580,7 +581,7 @@ pub(super) fn lethal(
         if is_player_target {
             if let Some(v) = world
                 .objects
-                .get_component_mut::<crate::model::components::PlayerVitals>(&target_oid)
+                .get_component_mut::<crate::model::components::stats::PlayerVitals>(&target_oid)
             {
                 v.cur_cp = 1.0;
             }
@@ -642,7 +643,7 @@ pub(super) fn hp_drain(
         .unwrap_or(0.0);
     let cur_cp = world
         .objects
-        .get_component::<crate::model::components::PlayerVitals>(&target_oid)
+        .get_component::<crate::model::components::stats::PlayerVitals>(&target_oid)
         .map(|v| v.cur_cp.floor())
         .unwrap_or(0.0);
     let drain = if cur_cp > 0.0 {
@@ -838,7 +839,7 @@ pub(super) fn death_link(world: &mut World, ctx: &CastCtx, skill: &Skill, power:
 
 pub(super) fn cp_heal_percent(world: &mut World, ctx: &CastCtx, power: f64) {
     let CastCtx { target_oid, .. } = *ctx;
-    use crate::model::components::PlayerVitals;
+    use crate::model::components::stats::PlayerVitals;
     if helpers::is_dead(world, target_oid)
         || world
             .objects
@@ -985,7 +986,7 @@ pub(super) fn heal(world: &mut World, ctx: &CastCtx, skill: &Skill, power: f64) 
     // how much of the heal they actually get.
     if let Some(mods) = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&target_oid)
+        .get_component::<crate::model::components::stats::StatModifiers>(&target_oid)
     {
         amount *= mods
             .mul
@@ -1376,17 +1377,17 @@ pub(super) fn target_cancel(world: &mut World, ctx: &CastCtx, skill: &Skill, cha
         crate::game_loop::combat::target::set_target(world, client_id, target_oid, None);
     } else if let Some(t) = world
         .objects
-        .get_component_mut::<crate::model::components::TargetRef>(&target_oid)
+        .get_component_mut::<crate::model::components::combat::TargetRef>(&target_oid)
     {
         t.0 = None; // NPC: no client to notify
     }
     // `abortAttack()` / `abortCast()`.
     world
         .objects
-        .remove_component::<crate::model::components::Intent>(&target_oid);
+        .remove_component::<crate::model::components::combat::Intent>(&target_oid);
     if world
         .objects
-        .has_component::<crate::model::components::Casting>(&target_oid)
+        .has_component::<crate::model::components::combat::Casting>(&target_oid)
     {
         crate::game_loop::skills::cast::stop_casting(world, target_oid);
     }

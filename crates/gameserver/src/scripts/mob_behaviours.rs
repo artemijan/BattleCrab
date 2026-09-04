@@ -14,7 +14,9 @@
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::{Immobilized, Position, Vitals};
+use crate::model::components::combat::Immobilized;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 
 // ---------------------------------------------------------------------------
 // PolymorphingOnAttack
@@ -560,6 +562,6 @@ impl QuestScript for NonLethalableNpcs {
     fn on_spawn(&self, ctx: &mut QuestCtx) {
         ctx.world
             .objects
-            .add_components(&ctx.npc, crate::model::components::NotLethalable);
+            .add_components(&ctx.npc, crate::model::components::combat::NotLethalable);
     }
 }

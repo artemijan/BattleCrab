@@ -6,7 +6,8 @@ use crate::data::door_data::{DoorOpenMethod, DoorTemplate};
 use crate::data::instance_data::{ExitType, InstanceTemplate, SpawnGroup, TemplateSpawn};
 use crate::game_loop::frintezza;
 use crate::game_loop::helpers::instance_of;
-use crate::model::components::{GroundItem, InstanceDoorOpen};
+use crate::model::components::commerce::GroundItem;
+use crate::model::components::space::InstanceDoorOpen;
 use crate::model::door::Door;
 use crate::model::npc::AggroList;
 

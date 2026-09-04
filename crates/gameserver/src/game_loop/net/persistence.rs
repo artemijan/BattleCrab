@@ -81,9 +81,11 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
 /// only mutates these components (never the DB directly), one flush captures
 /// everything the player did since the last one.
 pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::PlayerSaveData> {
-    use crate::model::components::{
-        Macros, PlayerVitals, Position, Quests, Shortcuts, SkillBook, Vitals,
-    };
+    use crate::model::components::player::{Macros, Shortcuts};
+    use crate::model::components::skills::SkillBook;
+    use crate::model::components::social::Quests;
+    use crate::model::components::space::Position;
+    use crate::model::components::stats::{PlayerVitals, Vitals};
     use crate::model::inventory::Inventory;
 
     let p = world
@@ -123,7 +125,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     }
     let skill_enchants = world
         .objects
-        .get_component::<crate::model::components::SkillEnchants>(&object_id)
+        .get_component::<crate::model::components::skills::SkillEnchants>(&object_id)
         .map(|e| e.0.clone())
         .unwrap_or_default();
     let skills = world
@@ -176,18 +178,18 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         world,
         world
             .objects
-            .get_component::<crate::model::components::Reuses>(&object_id),
+            .get_component::<crate::model::components::skills::Reuses>(&object_id),
     );
     let skill_buffs = buffs_to_save(
         world,
         world
             .objects
-            .get_component::<crate::model::components::Buffs>(&object_id),
+            .get_component::<crate::model::components::skills::Buffs>(&object_id),
     );
 
     let hennas = world
         .objects
-        .get_component::<crate::model::components::HennaSlots>(&object_id)
+        .get_component::<crate::model::components::skills::HennaSlots>(&object_id)
         .map(henna_rows)
         .unwrap_or_default();
 
@@ -195,7 +197,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     // the two books split, so the flag is known without a RecipeData lookup.
     let recipe_book = world
         .objects
-        .get_component::<crate::model::components::RecipeBook>(&object_id)
+        .get_component::<crate::model::components::commerce::RecipeBook>(&object_id)
         .map(|rb| {
             rb.dwarven
                 .iter()
@@ -209,7 +211,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     // caller, before the summon leaves the world.
     let summons = world
         .objects
-        .get_component::<crate::model::components::PlayerSummons>(&object_id)
+        .get_component::<crate::model::components::summons::PlayerSummons>(&object_id)
         .map(|s| s.0.clone())
         .unwrap_or_default();
 
@@ -218,14 +220,14 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     // sweep, which this read-only builder does not have).
     let pets = world
         .objects
-        .get_component::<crate::model::components::PlayerPets>(&object_id)
+        .get_component::<crate::model::components::summons::PlayerPets>(&object_id)
         .map(|p| p.0.values().cloned().collect())
         .unwrap_or_default();
 
     // `PlayerVariables.storeMe` — the whole map, flushed with the character.
     let variables = world
         .objects
-        .get_component::<crate::model::components::PlayerVariables>(&object_id)
+        .get_component::<crate::model::components::player::PlayerVariables>(&object_id)
         .map(|v| {
             v.0.iter()
                 .map(|(k, val)| (k.clone(), val.clone()))
@@ -269,7 +271,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     }
     if world
         .objects
-        .has_component::<crate::model::components::HennaSlots>(&object_id)
+        .has_component::<crate::model::components::skills::HennaSlots>(&object_id)
     {
         hennas_by_index.remove(&class_index);
     }
@@ -302,7 +304,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
 }
 
 /// Worn henna dyes → `character_hennas` rows as `(slot 1-3, dye_id)`.
-pub(super) fn henna_rows(henna: &crate::model::components::HennaSlots) -> Vec<(i32, i32)> {
+pub(super) fn henna_rows(henna: &crate::model::components::skills::HennaSlots) -> Vec<(i32, i32)> {
     henna
         .0
         .iter()
@@ -318,7 +320,7 @@ pub(super) fn henna_rows(henna: &crate::model::components::HennaSlots) -> Vec<(i
 /// clears the DB rows on flush) when the config is off or there's no map.
 pub(super) fn reuses_to_save(
     world: &World,
-    reuses: Option<&crate::model::components::Reuses>,
+    reuses: Option<&crate::model::components::skills::Reuses>,
 ) -> Vec<db::SkillReuseRow> {
     let Some(reuses) = reuses.filter(|_| world.cfg.character.store_skill_cooltime) else {
         return Vec::new();
@@ -368,7 +370,7 @@ pub(super) fn reuses_to_save(
 /// reachable carrier ever appears.
 fn buffs_to_save(
     world: &World,
-    buffs: Option<&crate::model::components::Buffs>,
+    buffs: Option<&crate::model::components::skills::Buffs>,
 ) -> Vec<db::SkillBuffRow> {
     use crate::model::skill::BuffSlot;
     let Some(buffs) = buffs.filter(|_| world.cfg.character.store_skill_cooltime) else {

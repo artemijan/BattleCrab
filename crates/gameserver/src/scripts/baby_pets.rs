@@ -17,7 +17,8 @@
 //! lets it lapse when the pet is gone, which needs no logout hook — the pet is
 //! despawned before the player leaves in every path that removes either.
 
-use crate::model::components::{PetOf, Vitals};
+use crate::model::components::stats::Vitals;
+use crate::model::components::summons::PetOf;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -80,7 +81,7 @@ pub(crate) fn handle_heal_tick(world: &mut World, pet_oid: i32) {
     };
     let Some(owner_oid) = world
         .objects
-        .get_component::<crate::model::components::ServitorOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::ServitorOf>(&pet_oid)
         .map(|s| s.owner_object_id)
     else {
         return;

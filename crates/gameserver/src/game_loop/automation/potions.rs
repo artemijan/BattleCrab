@@ -17,7 +17,7 @@
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::{hp_pair, send_message};
 use crate::model::Player;
-use crate::model::components::{PlayerVitals, Vitals};
+use crate::model::components::stats::{PlayerVitals, Vitals};
 use crate::world::World;
 
 use crate::game_loop::helpers::client_for_player;

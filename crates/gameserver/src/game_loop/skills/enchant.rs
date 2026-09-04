@@ -29,7 +29,7 @@ use crate::game_loop::character::inventory::take_items;
 use crate::game_loop::helpers::send_sm_and_action_failed;
 use crate::game_loop::helpers::{send_sm_bare_to_client, send_sm_to_client, send_to_client};
 use crate::model::Player;
-use crate::model::components::{SkillBook, SkillEnchants};
+use crate::model::components::skills::{SkillBook, SkillEnchants};
 use crate::network::server_packets;
 use crate::world::World;
 use commons::network::PacketReader;
@@ -79,16 +79,16 @@ fn busy_for_enchant(world: &World, object_id: i32) -> bool {
     transformed_or_selling
         || world
             .objects
-            .has_component::<crate::model::components::Casting>(&object_id)
+            .has_component::<crate::model::components::combat::Casting>(&object_id)
         || world
             .objects
             .has_component::<crate::model::boat::InVehicle>(&object_id)
         || world
             .objects
-            .has_component::<crate::model::components::PrivateStore>(&object_id)
+            .has_component::<crate::model::components::commerce::PrivateStore>(&object_id)
         || world
             .objects
-            .has_component::<crate::model::components::PrivateBuyStore>(&object_id)
+            .has_component::<crate::model::components::commerce::PrivateBuyStore>(&object_id)
         || crate::game_loop::combat::has_attack_stance(world, object_id)
         || crate::game_loop::olympiad::in_match(world, object_id)
 }
@@ -343,7 +343,7 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
         if let Some(key) = key
             && let Some(reuses) = world
                 .objects
-                .get_component_mut::<crate::model::components::Reuses>(&object_id)
+                .get_component_mut::<crate::model::components::skills::Reuses>(&object_id)
         {
             reuses.0.remove(&key);
         }

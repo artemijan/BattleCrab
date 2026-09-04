@@ -1,8 +1,8 @@
 //! Pet stats: per-level template substitution and stat recalculation.
 
 use super::npc_template_id;
-use crate::model::components::ServitorOf;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
+use crate::model::components::summons::ServitorOf;
 use crate::world::World;
 /// A pet's NPC template with its **per-level pet stats substituted in**.
 ///
@@ -43,7 +43,7 @@ fn pet_template_at_level(
 pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
     let Some(level) = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
         .map(|p| p.level)
     else {
         return;
@@ -66,7 +66,7 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
 
     let buffs = world
         .objects
-        .get_component::<crate::model::components::Buffs>(&pet_oid)
+        .get_component::<crate::model::components::skills::Buffs>(&pet_oid)
         .cloned()
         .unwrap_or_default();
     let (mut combat, mut speeds, max_hp, max_mp) =

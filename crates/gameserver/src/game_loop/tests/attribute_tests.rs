@@ -5,7 +5,8 @@
 
 use super::*;
 
-use crate::model::components::{Buffs, StatModifiers, Vitals};
+use crate::model::components::skills::Buffs;
+use crate::model::components::stats::{StatModifiers, Vitals};
 use crate::model::formulas::land_rate::calc_attribute_bonus;
 use crate::model::skill::active_buff::ActiveBuff;
 use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
@@ -259,7 +260,7 @@ fn holy_weapon_colors_an_attributeless_skill() {
 #[test]
 fn an_elemental_buff_reaches_plain_auto_attacks() {
     use crate::game_loop::combat;
-    use crate::model::components::{StatModifiers, Vitals};
+    use crate::model::components::stats::{StatModifiers, Vitals};
     use crate::model::stats::Stat;
 
     const ATTACKER: i32 = 8801;

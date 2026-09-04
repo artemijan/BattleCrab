@@ -22,7 +22,7 @@ use crate::game_loop::npc::is_raid_npc;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::npc::npc_template;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 use crate::model::npc;
 use crate::scheduler::{ScheduledTask, ms_to_ticks};
 use crate::world::World;
@@ -234,9 +234,9 @@ fn clear_champion_for_raid_minion(world: &mut World, master_oid: i32, minion_oid
     // though the spawn (which only saw the template) gave it none.
     let mods = crate::model::npc_stats::NpcStatMods::of(&world.cfg, false, true);
     if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
-        &crate::model::components::Buffs,
-        &mut crate::model::components::CombatStats,
-        &mut crate::model::components::Speeds,
+        &crate::model::components::skills::Buffs,
+        &mut crate::model::components::stats::CombatStats,
+        &mut crate::model::components::stats::Speeds,
         &mut Vitals,
     )>(&minion_oid)
     {

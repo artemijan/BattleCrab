@@ -319,7 +319,7 @@ fn a_change_of_ownership_clears_the_postings() {
     assert!(
         world
             .objects
-            .has_component::<model::components::GroundItem>(&ticket_ground_oid),
+            .has_component::<model::components::commerce::GroundItem>(&ticket_ground_oid),
         "the ticket is on the ground"
     );
 
@@ -332,7 +332,7 @@ fn a_change_of_ownership_clears_the_postings() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&ticket_ground_oid),
+            .has_component::<model::components::commerce::GroundItem>(&ticket_ground_oid),
         "and the ticket with them"
     );
 }

@@ -8,7 +8,7 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
 
-use crate::model::components::{Buffs, SkillBook};
+use crate::model::components::skills::{Buffs, SkillBook};
 use crate::model::skill::effects::SkillEffect;
 
 const PLAYER: i32 = 8001;

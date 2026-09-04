@@ -95,7 +95,7 @@ pub(crate) fn sit_down(world: &mut World, object_id: i32) {
     // "Cannot sit while casting." — a plain message, not a SystemMessage.
     if world
         .objects
-        .has_component::<crate::model::components::Casting>(&object_id)
+        .has_component::<crate::model::components::combat::Casting>(&object_id)
     {
         send_sm_to_player(
             world,
@@ -118,7 +118,7 @@ pub(crate) fn sit_down(world: &mut World, object_id: i32) {
     // NPC-only — Core, Baium, Sailren), so it has no leg here.
     let mid_swing = world
         .objects
-        .get_component::<crate::model::components::AttackState>(&object_id)
+        .get_component::<crate::model::components::combat::AttackState>(&object_id)
         .is_some_and(|st| st.attack_end_tick > world.tick);
     if is_sitting(world, object_id)
         || mid_swing
@@ -126,7 +126,7 @@ pub(crate) fn sit_down(world: &mut World, object_id: i32) {
         || crate::game_loop::abnormal::is_control_blocked(world, object_id)
         || world
             .objects
-            .has_component::<crate::model::components::FishingSession>(&object_id)
+            .has_component::<crate::model::components::player::FishingSession>(&object_id)
     {
         return;
     }
@@ -145,13 +145,13 @@ pub(crate) fn sit_down(world: &mut World, object_id: i32) {
     // then on, so no later fight could put them back in stance either.
     if let Some(st) = world
         .objects
-        .get_component_mut::<crate::model::components::AttackState>(&object_id)
+        .get_component_mut::<crate::model::components::combat::AttackState>(&object_id)
     {
         st.attack_end_tick = 0;
     }
     world
         .objects
-        .remove_component::<crate::model::components::Intent>(&object_id);
+        .remove_component::<crate::model::components::combat::Intent>(&object_id);
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.sitting = true;
     }
@@ -162,7 +162,7 @@ pub(crate) fn sit_down(world: &mut World, object_id: i32) {
     // while resting is gated on it.
     world
         .objects
-        .remove_component::<crate::model::components::Movement>(&object_id);
+        .remove_component::<crate::model::components::space::Movement>(&object_id);
     crate::game_loop::combat::target::drop_target_notify(world, object_id);
     broadcast_wait_type(world, object_id, WT_SITTING);
     // `setBlockActions(true)` for the 2.5 s animation.
@@ -246,7 +246,7 @@ pub(crate) fn handle_stand_up_finish(world: &mut World, object_id: i32) {
 /// Java `Player.setBlockActions` — the port keeps the seated block as its own
 /// flag rather than an abnormal, since no buff grants it.
 fn set_action_block(world: &mut World, object_id: i32, blocked: bool) {
-    use crate::model::components::SitBlock;
+    use crate::model::components::combat::SitBlock;
     if blocked {
         world.objects.add_components(&object_id, SitBlock);
     } else {

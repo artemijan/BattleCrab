@@ -9,7 +9,7 @@ use crate::game_loop::character::inventory;
 use crate::data::item_data::ADENA_ID;
 use crate::data::manor_data::Seed;
 use crate::model::Player;
-use crate::model::components::LastFolkNpc;
+use crate::model::components::player::LastFolkNpc;
 use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
 
 /// Register + place a Manor Manager (a Merchant with a `manor_id` param) and
@@ -61,7 +61,7 @@ fn add_sowable_mob(world: &mut World, npc_id: i32, level: i32) {
 #[test]
 fn sow_then_harvest_yields_the_crop() {
     use crate::game_loop::skills::effects::{apply_harvesting, apply_sow};
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
     use crate::model::npc::Npc;
 
     let (mut world, mut rx) = chamberlain_world();
@@ -134,7 +134,7 @@ fn sow_then_harvest_yields_the_crop() {
 #[test]
 fn harvest_refused_when_not_the_seeder() {
     use crate::game_loop::skills::effects::apply_harvesting;
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
     use crate::model::npc::Npc;
 
     let (mut world, _rx) = chamberlain_world();

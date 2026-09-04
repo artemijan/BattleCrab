@@ -7,7 +7,8 @@
 use super::*;
 
 use crate::geo::{NSWE_ALL, NSWE_NORTH, synthetic_region};
-use crate::model::components::{Position, TargetRef};
+use crate::model::components::combat::TargetRef;
+use crate::model::components::space::Position;
 
 const DIST: &str = crate::data::DIST_GAME;
 

@@ -13,8 +13,8 @@ use crate::game_loop::items::ground_items::reserve_for;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
 use crate::model::Player;
-use crate::model::components::Position;
-use crate::model::components::Vitals;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::model::formulas;
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
@@ -171,7 +171,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
         );
         let party_id = world
             .objects
-            .get_component::<crate::model::components::PartyRef>(&looter)
+            .get_component::<crate::model::components::social::PartyRef>(&looter)
             .map(|r| r.0);
         // A raid's drops follow `AutoLootRaids` (off on this dist — they hit
         // the ground even though `AutoLoot` is on), everything else `AutoLoot`
@@ -252,7 +252,7 @@ pub(crate) fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32
         }
         let party_id = world
             .objects
-            .get_component::<crate::model::components::PartyRef>(&player_oid)
+            .get_component::<crate::model::components::social::PartyRef>(&player_oid)
             .map(|r| r.0);
         let Some(party_id) = party_id else {
             // Solo branch (unchanged from G9).
@@ -1076,7 +1076,7 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
     if killer_is_player
         && world
             .objects
-            .get_component::<crate::model::components::ZoneFlags>(&victim_oid)
+            .get_component::<crate::model::components::space::ZoneFlags>(&victim_oid)
             .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Pvp))
     {
         return;

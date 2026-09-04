@@ -152,7 +152,7 @@ fn player_max_hp_is_capped_by_the_config_key() {
         .get(0)
         .expect("a human fighter template")
         .clone();
-    let mods = model::components::StatModifiers::default();
+    let mods = model::components::stats::StatModifiers::default();
 
     // Uncapped: raise the ceiling far above anything a level-80 can reach.
     data.combat_caps.max_hp = 10_000_000.0;
@@ -693,7 +693,7 @@ fn the_cooldown_and_persistence_keys_parse_to_the_shipped_values() {
 /// fallback — so the test pins both arms.
 #[test]
 fn armour_set_actives_are_granted_on_cooldown() {
-    use crate::model::components::Reuses;
+    use crate::model::components::skills::Reuses;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -735,7 +735,7 @@ fn armour_set_actives_are_granted_on_cooldown() {
 /// `0` disables the stamp outright, which is Java's `> 0` guard.
 #[test]
 fn a_zero_armour_set_reuse_stamps_nothing() {
-    use crate::model::components::Reuses;
+    use crate::model::components::skills::Reuses;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     world.data.skill_data.insert_for_test(Skill {

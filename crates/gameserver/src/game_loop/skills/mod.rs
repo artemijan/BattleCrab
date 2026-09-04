@@ -57,7 +57,7 @@ pub(crate) fn handle_request_magic_skill_list(world: &mut World, client_id: u32,
 pub(crate) fn remove_player_skill(world: &mut World, object_id: i32, skill_id: i32) {
     if let Some(book) = world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&object_id)
+        .get_component_mut::<crate::model::components::skills::SkillBook>(&object_id)
     {
         book.0.remove(&skill_id);
     }
@@ -151,7 +151,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     // client and writes an audit record (punishment NONE).
     let prev_level = world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&object_id)
+        .get_component::<crate::model::components::skills::SkillBook>(&object_id)
         .and_then(|b| b.0.get(&pkt.skill_id).copied())
         .unwrap_or(0);
     if prev_level == pkt.skill_level {
@@ -295,7 +295,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     }
     if let Some(book) = world
         .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&object_id)
+        .get_component_mut::<crate::model::components::skills::SkillBook>(&object_id)
     {
         // Memory-first: the learned skill (and the SP spend above) live in memory
         // and persist on the next flush.
@@ -313,7 +313,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     {
         let Some(skills) = world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&object_id)
+            .get_component::<crate::model::components::skills::SkillBook>(&object_id)
         else {
             return;
         };

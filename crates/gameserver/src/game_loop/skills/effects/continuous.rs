@@ -16,7 +16,7 @@ use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, skills};
 
-use crate::model::components::Buffs;
+use crate::model::components::skills::Buffs;
 use crate::model::formulas;
 use crate::model::skill::Skill;
 use crate::model::skill::abnormal::abnormal_type_client_id;
@@ -65,7 +65,7 @@ pub(crate) fn set_collision_grown(world: &mut World, npc_oid: i32, grown: bool) 
     };
     if let Some(c) = world
         .objects
-        .get_component_mut::<crate::model::components::Collision>(&npc_oid)
+        .get_component_mut::<crate::model::components::space::Collision>(&npc_oid)
     {
         c.radius = size.0;
         c.height = size.1;
@@ -547,7 +547,7 @@ pub(crate) fn refresh_abnormal_visuals(world: &World, object_id: i32) {
     let visuals = crate::game_loop::abnormal::visual_effects(world, object_id);
     let invisible = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .get_component::<crate::model::components::player::AdminFlags>(&object_id)
         .is_some_and(|f| f.hidden);
     let transform = world
         .objects

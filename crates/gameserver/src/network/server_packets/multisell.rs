@@ -13,7 +13,7 @@ use commons::network::PacketWriter;
 use super::opcodes;
 use crate::data::item_data::ItemData;
 use crate::data::multisell_data::{MultisellList, PAGE_SIZE};
-use crate::model::components::PreparedRow;
+use crate::model::components::commerce::PreparedRow;
 
 /// Port of `serverpackets/MultiSellList`. `index` is the first **row** of this
 /// page (0, 40, 80, …). Mirrors Java's page math: `size = min(PAGE_SIZE,

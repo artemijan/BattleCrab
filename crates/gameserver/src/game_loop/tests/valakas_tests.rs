@@ -413,7 +413,7 @@ fn the_first_entry_arms_beginning_and_the_second_does_not() {
     for oid in [PLAYER, PLAYER + 1] {
         world
             .objects
-            .get_component_mut::<model::components::PlayerVariables>(&oid)
+            .get_component_mut::<model::components::player::PlayerVariables>(&oid)
             .unwrap()
             .0
             .insert("VALAKAS_ALLOW_ENTER".into(), "1".into());
@@ -496,7 +496,7 @@ fn the_bypass_reaches_the_entry_through_the_router() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     world
         .objects
-        .get_component_mut::<model::components::PlayerVariables>(&PLAYER)
+        .get_component_mut::<model::components::player::PlayerVariables>(&PLAYER)
         .unwrap()
         .0
         .insert("VALAKAS_ALLOW_ENTER".into(), "1".into());

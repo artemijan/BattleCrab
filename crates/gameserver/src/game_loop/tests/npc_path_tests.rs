@@ -4,7 +4,8 @@
 use super::*;
 
 use crate::geo::worker::{PathEvent, PathRequest};
-use crate::model::components::{Movement, PathWait, Position, Vitals};
+use crate::model::components::space::{Movement, PathWait, Position};
+use crate::model::components::stats::Vitals;
 
 const NPC_ID: i32 = 44000;
 

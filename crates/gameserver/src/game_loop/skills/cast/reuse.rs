@@ -26,7 +26,7 @@ pub(crate) fn check_skill_reuse(
         ..
     }) = world
         .objects
-        .get_component::<crate::model::components::Reuses>(&object_id)
+        .get_component::<crate::model::components::skills::Reuses>(&object_id)
         .and_then(|r| r.0.get(&skill.reuse_key()))
     else {
         return true;

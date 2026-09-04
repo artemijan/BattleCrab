@@ -11,7 +11,7 @@ use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::game_loop::space::position::pos_of;
-use crate::model::components::RegionCell;
+use crate::model::components::space::RegionCell;
 
 const GOLDEN_SPICE: i32 = 6643;
 const CRYSTAL_SPICE: i32 = 6644;
@@ -180,7 +180,7 @@ impl QuestScript for FeedableBeasts {
         if let Some(t) = ctx
             .world
             .objects
-            .get_component::<crate::model::components::TamedBeastOf>(&ctx.npc)
+            .get_component::<crate::model::components::summons::TamedBeastOf>(&ctx.npc)
             .copied()
         {
             if skill_id == t.food_skill {

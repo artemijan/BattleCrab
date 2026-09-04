@@ -199,7 +199,7 @@ fn restart_blocked_while_in_combat_stance() {
     // In stance until 15 s from now (AttackStanceTaskManager.addAttackStanceTask).
     world
         .objects
-        .get_component_mut::<model::components::AttackState>(&5001)
+        .get_component_mut::<model::components::combat::AttackState>(&5001)
         .unwrap()
         .stance_until_tick = world.tick + 1;
 
@@ -232,7 +232,7 @@ fn logout_blocked_while_in_combat_stance() {
     let mut out_rx = ingame_player(&mut world, 1, 5002, 100, 200, 0);
     world
         .objects
-        .get_component_mut::<model::components::AttackState>(&5002)
+        .get_component_mut::<model::components::combat::AttackState>(&5002)
         .unwrap()
         .stance_until_tick = world.tick + 1;
 
@@ -349,7 +349,7 @@ fn enter_world_replays_the_saved_key_layout() {
     let mut ch = dummy_char(5001, "P5001");
     // 200 stored the way Java stores it: as the signed byte -56.
     ch.variables = vec![(
-        model::components::UI_KEY_MAPPING.to_string(),
+        model::components::player::UI_KEY_MAPPING.to_string(),
         "7\t0\t-56".to_string(),
     )];
     on_characters_loaded(&mut world, 1, "bob".into(), vec![ch], true);

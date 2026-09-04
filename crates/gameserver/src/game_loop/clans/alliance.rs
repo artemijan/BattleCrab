@@ -392,7 +392,7 @@ fn check_ally_join_condition(world: &World, requestor_oid: i32, target_oid: i32)
     let both_in_siege = [requestor_oid, target_oid].iter().all(|&oid| {
         world
             .objects
-            .get_component::<crate::model::components::Position>(&oid)
+            .get_component::<crate::model::components::space::Position>(&oid)
             .is_some_and(|pos| {
                 world
                     .data
@@ -470,7 +470,7 @@ pub(crate) fn handle_request_join_ally(world: &mut World, client_id: u32, body: 
         world,
         player,
         target_oid,
-        crate::model::components::RequestKind::AllyInvite { ally_id },
+        crate::model::components::social::RequestKind::AllyInvite { ally_id },
         crate::game_loop::party::REQUEST_TIMEOUT_TICKS,
     );
     send_sm_with(
@@ -497,12 +497,12 @@ pub(crate) fn handle_request_answer_join_ally(world: &mut World, client_id: u32,
     let answer = PacketReader::new(body).read_i32().unwrap_or(0);
     let Some(req) = world
         .objects
-        .get_component::<crate::model::components::PendingRequest>(&player)
+        .get_component::<crate::model::components::social::PendingRequest>(&player)
         .copied()
     else {
         return;
     };
-    let crate::model::components::RequestKind::AllyInvite { ally_id } = req.kind else {
+    let crate::model::components::social::RequestKind::AllyInvite { ally_id } = req.kind else {
         return;
     };
     if !req.answerer {

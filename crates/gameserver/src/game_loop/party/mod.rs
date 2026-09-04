@@ -10,7 +10,9 @@ use crate::geo::distance::within_2d_xy;
 
 use crate::model::Player;
 
-use crate::model::components::{PartyRef, PlayerVitals, Position, Vitals};
+use crate::model::components::social::PartyRef;
+use crate::model::components::space::Position;
+use crate::model::components::stats::{PlayerVitals, Vitals};
 use crate::network::server_packets::{self, PartyMemberView};
 use crate::scheduler::ScheduledTask;
 

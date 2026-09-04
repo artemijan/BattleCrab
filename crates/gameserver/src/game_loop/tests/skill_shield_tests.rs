@@ -13,7 +13,7 @@ use crate::data::item_data::SLOT_L_HAND;
 use crate::data::item_data::kinds::{ActionType, CrystalType, EtcItemType, ItemHandler, ItemKind};
 use crate::data::item_data::template::{ItemStats, ItemTemplate};
 use crate::game_loop;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 use crate::model::skill::effects::SkillEffect;
 
 const CASTER: i32 = 3001;

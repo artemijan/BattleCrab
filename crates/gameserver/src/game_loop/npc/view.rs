@@ -37,7 +37,7 @@ const DROP_LIST_ITEMS_PER_PAGE: usize = 10;
 /// has no elemental system) an all-`NONE`/`0` attribute block. The caller has
 /// already set the player's target, matching `NpcActionShift`.
 pub(crate) fn send_npc_view(world: &World, client_id: u32, npc_object_id: i32) {
-    use crate::model::components::{Speeds, Vitals};
+    use crate::model::components::stats::{Speeds, Vitals};
     let Some(npc) = world
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_object_id)
@@ -50,7 +50,7 @@ pub(crate) fn send_npc_view(world: &World, client_id: u32, npc_object_id: i32) {
         world.objects.get_component::<Speeds>(&npc_object_id),
         world
             .objects
-            .get_component::<crate::model::components::CombatStats>(&npc_object_id),
+            .get_component::<crate::model::components::stats::CombatStats>(&npc_object_id),
     ) else {
         return;
     };

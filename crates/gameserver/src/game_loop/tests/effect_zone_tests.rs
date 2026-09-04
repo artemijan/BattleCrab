@@ -4,7 +4,7 @@
 use super::*;
 
 use crate::data::zone_data::{EffectZoneParams, Zone, ZoneKind};
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};

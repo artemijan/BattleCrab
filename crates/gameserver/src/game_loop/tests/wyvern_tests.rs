@@ -209,7 +209,7 @@ fn flying_move_ignores_geodata_and_allows_vertical_flight() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::PathWait>(&4001),
+            .has_component::<model::components::space::PathWait>(&4001),
         "no path-worker handoff while flying"
     );
     assert_eq!(
@@ -661,7 +661,7 @@ fn char_info_reflects_live_player_state() {
     }
     world.objects.add_components(
         &8960,
-        model::components::PvpState {
+        model::components::combat::PvpState {
             flag: 1,
             ..Default::default()
         },
@@ -748,7 +748,7 @@ fn mounting_and_dismounting_resend_the_visual_effects() {
 /// and `SiegeZone.onEnter` dismounts a rider who walks in. Both are silent.
 #[test]
 fn a_siege_zone_refuses_and_strips_mounts() {
-    use crate::model::components::ZoneFlags;
+    use crate::model::components::space::ZoneFlags;
 
     let (mut world, _tx, _db, _l) = test_world();
     world.cfg.feature.allow_ride_mounts_during_siege = false;

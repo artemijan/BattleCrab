@@ -63,7 +63,7 @@ pub(crate) fn on_action_request(world: &mut World, client_id: u32, player_oid: i
     // in town that the monsters can see them again.
     let in_peace = world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&player_oid)
+        .get_component::<crate::model::components::space::ZoneFlags>(&player_oid)
         .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
     if !in_peace {
         send_sm_bare_to_client(

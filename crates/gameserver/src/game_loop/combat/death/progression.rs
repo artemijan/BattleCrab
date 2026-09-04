@@ -19,7 +19,7 @@ use crate::world::World;
 /// anyone who didn't land the over-hit blow, and clears the record so a single
 /// kill pays it once.
 pub(crate) fn overhit_bonus(world: &mut World, npc_oid: i32, attacker_oid: i32, exp: f64) -> f64 {
-    use crate::model::components::Overhit;
+    use crate::model::components::combat::Overhit;
     let Some(oh) = world.objects.get_component::<Overhit>(&npc_oid).copied() else {
         return 0.0;
     };
@@ -28,7 +28,7 @@ pub(crate) fn overhit_bonus(world: &mut World, npc_oid: i32, attacker_oid: i32, 
     }
     let max_hp = world
         .objects
-        .get_component::<components::Vitals>(&npc_oid)
+        .get_component::<components::stats::Vitals>(&npc_oid)
         .map(|v| v.max_hp as f64)
         .unwrap_or(0.0);
     if max_hp <= 0.0 {
@@ -401,13 +401,13 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
         let Some((p, mut vitals, mut pvitals, base, mods, inventory, mut speeds, mut combat)) =
             world.objects.get_many_mut::<(
                 &mut Player,
-                &mut components::Vitals,
-                &mut components::PlayerVitals,
-                &components::BaseStats,
-                &components::StatModifiers,
+                &mut components::stats::Vitals,
+                &mut components::stats::PlayerVitals,
+                &components::stats::BaseStats,
+                &components::stats::StatModifiers,
                 &crate::model::inventory::Inventory,
-                &mut components::Speeds,
-                &mut crate::model::components::CombatStats,
+                &mut components::stats::Speeds,
+                &mut crate::model::components::stats::CombatStats,
             )>(&player_oid)
         else {
             return;
@@ -541,7 +541,7 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
         };
         let skills = world
             .objects
-            .get_component::<components::SkillBook>(&player_oid)
+            .get_component::<components::skills::SkillBook>(&player_oid)
             .cloned()
             .unwrap_or_default();
         (p.class_id, p.level, skills.0, p.is_gm(&world.data))
@@ -565,7 +565,7 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
     }
     if let Some(book) = world
         .objects
-        .get_component_mut::<components::SkillBook>(&player_oid)
+        .get_component_mut::<components::skills::SkillBook>(&player_oid)
     {
         for &(id, lvl) in &granted {
             book.0.insert(id, lvl);
@@ -587,7 +587,7 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
             .len();
         if let Some(shortcuts) = world
             .objects
-            .get_component::<crate::model::components::Shortcuts>(&player_oid)
+            .get_component::<crate::model::components::player::Shortcuts>(&player_oid)
         {
             helpers::send_to_client(world, client_id, server_packets::shortcut_init(shortcuts));
         }
@@ -656,7 +656,7 @@ pub(crate) fn check_player_skills(world: &mut World, player_oid: i32) {
         };
         let skills = world
             .objects
-            .get_component::<components::SkillBook>(&player_oid)
+            .get_component::<components::skills::SkillBook>(&player_oid)
             .cloned()
             .unwrap_or_default();
         (p.class_id, p.level, skills.0)
@@ -668,7 +668,7 @@ pub(crate) fn check_player_skills(world: &mut World, player_oid: i32) {
     // Write the filtered book back, then sync the panel shortcuts.
     if let Some(book) = world
         .objects
-        .get_component_mut::<components::SkillBook>(&player_oid)
+        .get_component_mut::<components::skills::SkillBook>(&player_oid)
     {
         book.0 = known;
     }

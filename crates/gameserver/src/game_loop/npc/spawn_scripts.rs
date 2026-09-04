@@ -120,7 +120,7 @@ fn despawn_group(world: &mut World, spawn_idx: usize, group_idx: usize) {
     let mut victims: Vec<(i32, (i32, i32))> = Vec::new();
     world
         .objects
-        .for_each_mut::<(&Npc, &crate::model::components::RegionCell)>(|(npc, region)| {
+        .for_each_mut::<(&Npc, &crate::model::components::space::RegionCell)>(|(npc, region)| {
             if npc.spawn_ref.0 == spawn_idx && npc.spawn_ref.1 == group_idx {
                 victims.push((npc.object_id, region.0));
             }

@@ -9,7 +9,7 @@ use super::*;
 use crate::data::instance_data::{ExitType, InstanceTemplate};
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::space::instances;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 
 /// A minimal instance template: no spawns, no doors, ORIGIN exit.
 const TEST_TEMPLATE: i32 = 920;
@@ -213,7 +213,7 @@ fn the_instance_is_remembered_across_a_logout_only_when_the_key_is_set() {
         instances::on_player_logout(&mut world, 100);
         let remembered = world
             .objects
-            .get_component::<crate::model::components::PlayerVariables>(&100)
+            .get_component::<crate::model::components::player::PlayerVariables>(&100)
             .and_then(|v| v.0.get("INSTANCE_RESTORE").cloned());
         assert_eq!(
             remembered.is_some(),
@@ -236,7 +236,7 @@ fn the_instance_is_remembered_across_a_logout_only_when_the_key_is_set() {
         assert!(
             world
                 .objects
-                .get_component::<crate::model::components::PlayerVariables>(&100)
+                .get_component::<crate::model::components::player::PlayerVariables>(&100)
                 .is_none_or(|v| !v.0.contains_key("INSTANCE_RESTORE")),
             "the variable is consumed either way, as Java's unconditional \
              `vars.remove` does"
@@ -252,7 +252,7 @@ fn a_stale_instance_id_is_consumed_and_ignored() {
     let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
     world.objects.add_components(
         &100,
-        crate::model::components::PlayerVariables(
+        crate::model::components::player::PlayerVariables(
             [("INSTANCE_RESTORE".to_string(), "999999".to_string())]
                 .into_iter()
                 .collect(),
@@ -263,7 +263,7 @@ fn a_stale_instance_id_is_consumed_and_ignored() {
     assert!(
         !world
             .objects
-            .get_component::<crate::model::components::PlayerVariables>(&100)
+            .get_component::<crate::model::components::player::PlayerVariables>(&100)
             .unwrap()
             .0
             .contains_key("INSTANCE_RESTORE"),

@@ -84,7 +84,7 @@ fn scan(world: &mut World, bounds: Option<(i32, i32, i32, i32)>) -> Vec<(i32, i3
         }
         let Some(pos) = world
             .objects
-            .get_component::<crate::model::components::Position>(&oid)
+            .get_component::<crate::model::components::space::Position>(&oid)
         else {
             continue;
         };

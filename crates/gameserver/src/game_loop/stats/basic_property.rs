@@ -47,7 +47,7 @@
 //! rewrites PvP, so it is asserted in `basic_property_tests`.
 
 use crate::game_loop::helpers::stat_add;
-use crate::model::components::BasicPropertyResists;
+use crate::model::components::stats::BasicPropertyResists;
 use crate::model::skill::BasicProperty;
 use crate::world::World;
 

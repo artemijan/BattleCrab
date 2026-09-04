@@ -6,7 +6,7 @@ use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{player_of, send_to_player as send};
-use crate::model::components::{PendingTrade, StoreItem, Trade};
+use crate::model::components::commerce::{PendingTrade, StoreItem, Trade};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;

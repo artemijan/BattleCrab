@@ -18,7 +18,7 @@ use crate::game_loop::npc::is_creature;
 use crate::game_loop::space::position::maybe_position;
 use crate::geo::distance::within_2d_xy;
 use crate::model::Player;
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
@@ -332,7 +332,7 @@ fn players_in_radius(world: &World, origin: &Position, radius: f64) -> Vec<i32> 
 pub(super) fn admin_settargetable(world: &mut World, client_id: u32, object_id: i32) {
     let mut flags = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .get_component::<crate::model::components::player::AdminFlags>(&object_id)
         .copied()
         .unwrap_or_default();
     flags.untargetable = !flags.untargetable;
@@ -378,7 +378,7 @@ pub(super) fn admin_para(
     for target in &targets {
         let mut flags = world
             .objects
-            .get_component::<crate::model::components::AdminFlags>(target)
+            .get_component::<crate::model::components::player::AdminFlags>(target)
             .copied()
             .unwrap_or_default();
         flags.paralyzed = on;
@@ -417,7 +417,7 @@ pub(super) fn admin_bighead(world: &mut World, client_id: u32, object_id: i32, o
 
 /// Pin/unpin one GM abnormal visual (the `//ave_abnormal` storage).
 fn set_admin_visual(world: &mut World, target: i32, ave: i16, on: bool) {
-    use crate::model::components::AdminVisuals;
+    use crate::model::components::player::AdminVisuals;
     match world.objects.get_component_mut::<AdminVisuals>(&target) {
         Some(v) => {
             if on {
@@ -545,7 +545,7 @@ const MOVIES: &[(i32, bool)] = &[
 /// `RequestExEscapeScene` can end it. `ExStartScenePlayer` is skipped while
 /// teleporting, as in Java.
 pub(super) fn admin_playmovie(world: &mut World, client_id: u32, args: &[&str]) {
-    use crate::model::components::InMovie;
+    use crate::model::components::space::InMovie;
 
     let movie =
         nth_arg::<i32>(args, 0).and_then(|id| MOVIES.iter().find(|&&(mid, _)| mid == id).copied());
@@ -596,7 +596,7 @@ pub(crate) fn handle_end_scene_player(world: &mut World, client_id: u32, ex_body
     };
     let matches = world
         .objects
-        .get_component::<crate::model::components::InMovie>(&object_id)
+        .get_component::<crate::model::components::space::InMovie>(&object_id)
         .is_some_and(|m| movie_id != 0 && m.movie_id == movie_id);
     if matches {
         stop_movie(world, client_id, object_id);
@@ -613,7 +613,7 @@ pub(crate) fn handle_escape_scene(world: &mut World, client_id: u32) {
     };
     let escapable = world
         .objects
-        .get_component::<crate::model::components::InMovie>(&object_id)
+        .get_component::<crate::model::components::space::InMovie>(&object_id)
         .is_some_and(|m| m.escapable);
     if escapable {
         stop_movie(world, client_id, object_id);
@@ -624,7 +624,7 @@ pub(crate) fn handle_escape_scene(world: &mut World, client_id: u32) {
 fn stop_movie(world: &mut World, client_id: u32, object_id: i32) {
     let movie_id = world
         .objects
-        .get_component::<crate::model::components::InMovie>(&object_id)
+        .get_component::<crate::model::components::space::InMovie>(&object_id)
         .map(|m| m.movie_id);
     let Some(movie_id) = movie_id else {
         return;
@@ -636,7 +636,7 @@ fn stop_movie(world: &mut World, client_id: u32, object_id: i32) {
     );
     world
         .objects
-        .remove_component::<crate::model::components::InMovie>(&object_id);
+        .remove_component::<crate::model::components::space::InMovie>(&object_id);
 }
 
 /// `//event_trigger <id> [true|false]` — toggle a client emitter for everyone

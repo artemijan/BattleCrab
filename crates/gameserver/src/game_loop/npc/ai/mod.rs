@@ -31,7 +31,9 @@ use std::collections::HashSet;
 
 use commons::util::rnd;
 
-use crate::model::components::{Casting, Movement, Speeds, Vitals};
+use crate::model::components::combat::Casting;
+use crate::model::components::space::Movement;
+use crate::model::components::stats::{Speeds, Vitals};
 use crate::model::npc::{NpcAi, NpcIntention};
 use crate::network::server_packets;
 use crate::world::World;

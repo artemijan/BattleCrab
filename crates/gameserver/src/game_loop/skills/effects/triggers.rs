@@ -1,7 +1,7 @@
 use super::apply_skill_effects;
 use crate::game_loop::skills::skill_by_id;
-use crate::model::components::Buffs;
-use crate::model::components::Vitals;
+use crate::model::components::skills::Buffs;
+use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
 use crate::world::World;
@@ -207,7 +207,7 @@ pub(crate) fn fire_attack_triggers(
     // carriers are all class passives/dances).
     let Some(book) = world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&attacker_oid)
+        .get_component::<crate::model::components::skills::SkillBook>(&attacker_oid)
     else {
         return;
     };
@@ -324,7 +324,7 @@ fn fire_option_triggers(
 ) {
     let Some(reg) = world
         .objects
-        .get_component::<crate::model::components::OptionTriggers>(&caster_oid)
+        .get_component::<crate::model::components::skills::OptionTriggers>(&caster_oid)
     else {
         return;
     };

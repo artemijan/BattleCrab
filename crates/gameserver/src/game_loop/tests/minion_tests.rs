@@ -5,7 +5,7 @@ use super::*;
 
 use crate::data::npc_data::MinionHolder;
 use crate::game_loop::npc::minions::MinionOf;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 use crate::model::npc::{AggroList, Npc, NpcAi, NpcIntention};
 
 const PLAYER: i32 = 2001;

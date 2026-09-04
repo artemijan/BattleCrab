@@ -366,7 +366,7 @@ pub(super) async fn reset_world_chat_points(db: &DatabaseConnection) {
             .col_expr(entity::character_variables::Column::Val, "0".into())
             .filter(
                 entity::character_variables::Column::Var
-                    .eq(crate::model::components::WORLD_CHAT_USED),
+                    .eq(crate::model::components::player::WORLD_CHAT_USED),
             )
             .exec(db)
             .await,

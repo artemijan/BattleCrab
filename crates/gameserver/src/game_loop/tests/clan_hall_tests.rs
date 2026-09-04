@@ -899,7 +899,7 @@ fn a_hall_teleport_moves_the_player() {
 // ---------------------------------------------------------------------------
 
 use crate::game_loop::clans::hall_function::{BuffCastOutcome, cast_hall_buff};
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 
 /// Build a world with a clan-hall manager NPC and a nearby player, plus a
 /// synthetic "Wind Walk" (4342_2) branded onto the Might buff template so it

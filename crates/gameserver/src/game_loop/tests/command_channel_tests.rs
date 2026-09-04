@@ -542,7 +542,7 @@ fn raid_loot_rights_protect_the_drop_for_the_channel() {
     let ground = the_ground_item(&world);
     let g = world
         .objects
-        .get_component::<model::components::GroundItem>(&ground)
+        .get_component::<model::components::commerce::GroundItem>(&ground)
         .unwrap()
         .clone();
     assert_eq!(g.owner_id, 3001, "owned by the CC leader");
@@ -562,7 +562,7 @@ fn raid_loot_rights_protect_the_drop_for_the_channel() {
     assert!(
         world
             .objects
-            .get_component::<model::components::GroundItem>(&ground)
+            .get_component::<model::components::commerce::GroundItem>(&ground)
             .is_some()
     );
 
@@ -571,7 +571,7 @@ fn raid_loot_rights_protect_the_drop_for_the_channel() {
     assert!(
         world
             .objects
-            .get_component::<model::components::GroundItem>(&ground)
+            .get_component::<model::components::commerce::GroundItem>(&ground)
             .is_none()
     );
     assert_eq!(count_of_item(&world, 3004, 9550), 1);
@@ -595,7 +595,7 @@ fn ordinary_drop_is_killer_protected_for_15s() {
     let ground = the_ground_item(&world);
     let g = world
         .objects
-        .get_component::<model::components::GroundItem>(&ground)
+        .get_component::<model::components::commerce::GroundItem>(&ground)
         .unwrap()
         .clone();
     assert_eq!(g.owner_id, 3001, "killer-owned");

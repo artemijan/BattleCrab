@@ -16,7 +16,7 @@ use crate::game_loop::helpers::{send_message, send_sm_bare_to_client};
 use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, npc};
-use crate::model::components::Position;
+use crate::model::components::space::Position;
 use crate::model::npc::Npc;
 use crate::world::World;
 
@@ -753,7 +753,7 @@ pub(super) fn admin_unspawnall(world: &mut World, client_id: u32) {
         let mut v = Vec::new();
         world
             .objects
-            .for_each_mut::<(&Npc, &crate::model::components::RegionCell)>(|(n, r)| {
+            .for_each_mut::<(&Npc, &crate::model::components::space::RegionCell)>(|(n, r)| {
                 v.push((n.object_id, r.0))
             });
         v

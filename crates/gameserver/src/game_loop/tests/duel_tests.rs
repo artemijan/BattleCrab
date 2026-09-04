@@ -5,7 +5,7 @@ use super::*;
 
 use crate::game_loop::combat::duel::{self, DuelResult};
 use crate::model::Player;
-use crate::model::components::{DuelRef, PendingDuel};
+use crate::model::components::social::{DuelRef, PendingDuel};
 
 const A: i32 = 2001;
 const B: i32 = 2002;
@@ -331,7 +331,8 @@ fn duel_end_restores_the_preduel_snapshot() {
 /// down.
 #[test]
 fn a_party_duel_fights_in_an_instance_and_returns_everyone() {
-    use crate::model::components::{InstanceId, PartyRef, Position};
+    use crate::model::components::social::PartyRef;
+    use crate::model::components::space::{InstanceId, Position};
     let (mut world, ..) = test_world();
     let _ra = ingame_caster(&mut world, 1, 2001, 0, 0);
     let _ra2 = ingame_caster(&mut world, 2, 2002, 50, 0);
@@ -435,7 +436,7 @@ fn a_party_duel_fights_in_an_instance_and_returns_everyone() {
 /// Any member may surrender a party duel — the whole team forfeits.
 #[test]
 fn a_member_surrender_forfeits_the_whole_party_duel() {
-    use crate::model::components::PartyRef;
+    use crate::model::components::social::PartyRef;
     let (mut world, ..) = test_world();
     let _ra = ingame_caster(&mut world, 1, 2001, 0, 0);
     let _ra2 = ingame_caster(&mut world, 2, 2002, 50, 0);

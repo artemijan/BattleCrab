@@ -5,7 +5,8 @@ use super::*;
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::combat::death;
 use crate::game_loop::space::water;
-use crate::model::components::{Speeds, Vitals, WaterTask};
+use crate::model::components::space::WaterTask;
+use crate::model::components::stats::{Speeds, Vitals};
 
 /// A `Speeds` with distinct land/swim values, so a slot mix-up is visible.
 fn swim_speeds() -> Speeds {
@@ -315,7 +316,7 @@ fn the_breath_stat_extends_the_gauge() {
 
     let mut mods = world
         .objects
-        .get_component::<model::components::StatModifiers>(&oid)
+        .get_component::<model::components::stats::StatModifiers>(&oid)
         .cloned()
         .expect("stat modifiers");
     // Eva's Kiss level 2: `PER 600` → ×7.

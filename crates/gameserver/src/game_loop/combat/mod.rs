@@ -22,7 +22,9 @@
 //! - `damage` — applying it: HP/MP absorb, reflect, servitor transfer, and the
 //!   NPC and player receive-damage paths.
 
-use crate::model::components::{AttackState, Collision, CombatStats, Position, Vitals};
+use crate::model::components::combat::AttackState;
+use crate::model::components::space::{Collision, Position};
+use crate::model::components::stats::{CombatStats, Vitals};
 use crate::model::formulas;
 
 use crate::model::movement;
@@ -197,7 +199,7 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
 /// The defender's `DEFENCE_CRITICAL_RATE` multiplier and `_ADD` term, both at
 /// Java's identity defaults when nothing grants them.
 pub(crate) fn defence_crit_rate(world: &World, target_oid: i32) -> (f64, f64) {
-    use crate::model::components::StatModifiers;
+    use crate::model::components::stats::StatModifiers;
     use crate::model::stats::Stat;
     let Some(m) = world.objects.get_component::<StatModifiers>(&target_oid) else {
         return (1.0, 0.0);
@@ -238,7 +240,7 @@ pub(crate) fn crit_rate_position_mul(
 ) -> f64 {
     world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&object_id)
+        .get_component::<crate::model::components::stats::StatModifiers>(&object_id)
         .and_then(|m| {
             m.by_position
                 .get(&(crate::model::stats::Stat::CriticalRate, position))
@@ -255,7 +257,7 @@ pub(crate) fn crit_damage_auto(
     target_oid: i32,
     position: movement::Position,
 ) -> formulas::physical::CritDamage {
-    use crate::model::components::StatModifiers;
+    use crate::model::components::stats::StatModifiers;
     use crate::model::stats::Stat;
     let attacker = world.objects.get_component::<StatModifiers>(&attacker_oid);
     let target = world.objects.get_component::<StatModifiers>(&target_oid);
@@ -290,7 +292,7 @@ pub(crate) fn blow_crit_damage(
     target_oid: i32,
     position: movement::Position,
 ) -> formulas::physical::BlowCritDamage {
-    use crate::model::components::StatModifiers;
+    use crate::model::components::stats::StatModifiers;
     use crate::model::stats::Stat;
     let attacker = world.objects.get_component::<StatModifiers>(&attacker_oid);
     let target = world.objects.get_component::<StatModifiers>(&target_oid);
@@ -363,7 +365,7 @@ pub(crate) fn crit_damage_skill(
 fn move_type_evasion_bonus(world: &World, object_id: i32) -> i32 {
     let Some(mods) = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&object_id)
+        .get_component::<crate::model::components::stats::StatModifiers>(&object_id)
     else {
         return 0;
     };
@@ -375,7 +377,7 @@ fn move_type_evasion_bonus(world: &World, object_id: i32) -> i32 {
 /// Only players carry an inventory/shield here; NPCs return no shield with a
 /// neutral CON bonus.
 pub(crate) fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
-    use crate::model::components::{BaseStats, StatModifiers};
+    use crate::model::components::stats::{BaseStats, StatModifiers};
     use crate::model::inventory::{Inventory, PaperdollSlot};
     use crate::model::stats::Stat;
     let Some(base) = world.objects.get_component::<BaseStats>(&object_id) else {
@@ -427,7 +429,8 @@ pub(crate) fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
 /// swapping weapons without any recompute on the summon. `Npc.getActingPlayer()`
 /// is null, which leaves a plain monster at a flat 1.
 pub(crate) fn shots_bonus_of(world: &World, object_id: i32) -> f64 {
-    use crate::model::components::{CombatStats, ServitorOf};
+    use crate::model::components::stats::CombatStats;
+    use crate::model::components::summons::ServitorOf;
     let owner = world
         .objects
         .get_component::<ServitorOf>(&object_id)

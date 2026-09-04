@@ -1221,14 +1221,14 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
     assert!(
         world
             .objects
-            .get_component::<model::components::AttackState>(&3001)
+            .get_component::<model::components::combat::AttackState>(&3001)
             .is_some_and(|st| st.stance_until_tick > world.tick),
         "caster is in combat stance → canLogout refuses relogin"
     );
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::PvpState>(&3001)
+            .get_component::<model::components::combat::PvpState>(&3001)
             .unwrap()
             .flag,
         1,
@@ -1746,7 +1746,7 @@ fn incoming_magic_damage_can_break_precast() {
 /// began and does not resume walking.
 #[test]
 fn cast_discards_inflight_move() {
-    use model::components::QueuedAction;
+    use model::components::combat::QueuedAction;
 
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -1815,7 +1815,7 @@ fn cast_discards_inflight_move() {
 /// `useMagic`, which re-resolves the target).
 #[test]
 fn skill_queued_during_cast_replays_on_current_target() {
-    use model::components::QueuedAction;
+    use model::components::combat::QueuedAction;
 
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -1949,7 +1949,7 @@ fn force_attack_mid_cast_engages_new_target_after_cast() {
 #[test]
 fn skill_mid_swing_is_queued_until_swing_end() {
     use crate::game_loop;
-    use model::components::QueuedAction;
+    use model::components::combat::QueuedAction;
 
     let (mut world, ..) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -1974,7 +1974,7 @@ fn skill_mid_swing_is_queued_until_swing_end() {
     drain(&mut a_rx);
     let swing_end = world
         .objects
-        .get_component::<model::components::AttackState>(&3001)
+        .get_component::<model::components::combat::AttackState>(&3001)
         .unwrap()
         .attack_end_tick;
     assert!(swing_end > world.tick, "swing in flight");
@@ -2080,7 +2080,7 @@ fn broadcast_is_scoped_to_surrounding_regions() {
 #[test]
 fn moving_mob_death_broadcasts_stop_move() {
     use crate::game_loop::npc;
-    use model::components::Movement;
+    use model::components::space::Movement;
     use model::movement::MoveData;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -2225,7 +2225,8 @@ fn buff_on_monster_requires_ctrl() {
 /// character) and reverts on expiry.
 #[test]
 fn buff_on_monster_modifies_stats_and_reverts() {
-    use model::components::{Buffs, CombatStats};
+    use model::components::skills::Buffs;
+    use model::components::stats::CombatStats;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 21;
@@ -2482,7 +2483,8 @@ fn nuke_on_a_same_level_monster_deals_full_damage() {
 #[test]
 fn dagger_blows_deal_damage_and_backstab_requires_flank() {
     use crate::game_loop;
-    use model::components::{CombatStats, Position, Vitals};
+    use model::components::space::Position;
+    use model::components::stats::{CombatStats, Vitals};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0); // caster at (0,0)
@@ -2567,7 +2569,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
 #[test]
 fn vampiric_touch_deals_damage_and_heals_caster() {
     use crate::game_loop;
-    use model::components::Vitals;
+    use model::components::stats::Vitals;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2644,7 +2646,7 @@ fn spawn_debuff_target(world: &mut World, a_rx: &mut UnboundedReceiver<bytes::By
 /// forced value feeds the unconditional magic-crit roll, the second the land roll.
 #[test]
 fn single_target_debuff_lands_and_reports_chance() {
-    use model::components::Speeds;
+    use model::components::stats::Speeds;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2687,7 +2689,7 @@ fn single_target_debuff_lands_and_reports_chance() {
 /// forced to 90, which is not below the 90 rate, so it resists.
 #[test]
 fn single_target_debuff_resisted_leaves_target_and_reports() {
-    use model::components::Speeds;
+    use model::components::stats::Speeds;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -2859,7 +2861,7 @@ fn a_magic_crit_dot_bursts_only_when_the_debuff_lands() {
 /// in `handle_skill_finish`) and forces the land roll to fail.
 #[test]
 fn resisted_debuff_still_aggros_monster() {
-    use model::components::SkillBook;
+    use model::components::skills::SkillBook;
     use model::npc::{AggroList, NpcAi, NpcIntention};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -3264,7 +3266,7 @@ mod hate_effects {
 /// no-op (the poison kept ticking).
 #[test]
 fn cure_poison_dispels_matching_poison_debuff() {
-    use model::components::Buffs;
+    use model::components::skills::Buffs;
     use model::skill::Skill;
     use model::skill::effects::SkillEffect;
     use model::skill::target::{OperateType, TargetType};
@@ -3472,7 +3474,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
 /// unregistered and every skill in the family cast but stripped nothing.
 mod dispel_by_category {
     use super::*;
-    use model::components::Buffs;
+    use model::components::skills::Buffs;
     use model::skill::Skill;
     use model::skill::effects::{DispelSlot, SkillEffect, StatModifierEffect};
     use model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
@@ -4469,7 +4471,7 @@ fn buff_slot_cap_drops_oldest() {
 #[test]
 fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
     use crate::game_loop;
-    use model::components::QueuedAction;
+    use model::components::combat::QueuedAction;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -4643,7 +4645,7 @@ fn far_retarget_after_target_cancel_walks_into_range() {
 #[test]
 fn queued_far_retarget_with_real_datapack_timings() {
     use crate::game_loop;
-    use model::components::QueuedAction;
+    use model::components::combat::QueuedAction;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     world.data = dist::game_data_owned();
@@ -5836,7 +5838,7 @@ fn a_lethal_cast_counters_twice_because_java_rolls_it_from_both_sites() {
     {
         let mut mods = world
             .objects
-            .get_component::<model::components::StatModifiers>(&5622)
+            .get_component::<model::components::stats::StatModifiers>(&5622)
             .cloned()
             .unwrap_or_default();
         mods.add.insert(Stat::VengeanceSkillPhysicalDamage, 100.0);
@@ -6128,7 +6130,7 @@ fn a_trait_resistance_lowers_the_lethal_chance() {
 #[test]
 fn the_skill_power_stats_scale_finished_skill_damage() {
     use crate::game_loop;
-    use model::components::StatModifiers;
+    use model::components::stats::StatModifiers;
     use model::stats::Stat;
 
     const POWER_STRIKE: i32 = 3;
@@ -6433,7 +6435,7 @@ fn inner_rhythm_discounts_a_real_cast_driven_through_the_admin_command() {
 #[test]
 fn npc_body_spoil_gate_only_for_sweeper() {
     use crate::network::server_packets::sm_ids;
-    use model::components::Position;
+    use model::components::space::Position;
     use model::skill::Skill;
     use model::skill::effects::SkillEffect;
     use model::skill::target::TargetType;
@@ -6500,7 +6502,7 @@ fn npc_body_spoil_gate_only_for_sweeper() {
 /// strings 42239–42242). A stranger's interact still takes the normal path.
 #[test]
 fn own_summon_interact_fires_summon_talk() {
-    use model::components::ServitorOf;
+    use model::components::summons::ServitorOf;
 
     let (mut world, ..) = cast_test_world();
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -6595,7 +6597,7 @@ fn magic_damage_varies_with_the_casters_random_spread() {
 /// damage and nothing else.
 #[test]
 fn a_charged_spiritshot_shortens_the_cast() {
-    use crate::model::components::{BaseStats, StatModifiers};
+    use crate::model::components::stats::{BaseStats, StatModifiers};
     use crate::model::formulas;
 
     let (mut world, _db, _l) = cast_test_world();
@@ -6683,7 +6685,8 @@ fn a_charged_spiritshot_shortens_the_cast() {
 /// `refresh_conditioned_passives` the equip path uses.
 #[test]
 fn a_below_thirty_percent_passive_only_counts_while_wounded() {
-    use model::components::{SkillBook, Vitals};
+    use model::components::skills::SkillBook;
+    use model::components::stats::Vitals;
 
     const FINAL_FRENZY: i32 = 290;
     let (mut world, ..) = cast_test_world();

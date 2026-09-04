@@ -7,7 +7,7 @@ use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers::{is_dead, send_to_player};
 use crate::game_loop::net::broadcast;
 use crate::model::Player;
-use crate::model::components::PartyRef;
+use crate::model::components::social::PartyRef;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -194,7 +194,7 @@ pub(crate) fn broadcast_char_info_now(world: &mut World, object_id: i32) {
     // hidden GM back onto every nearby client.
     if world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .get_component::<crate::model::components::player::AdminFlags>(&object_id)
         .is_some_and(|f| f.hidden)
     {
         return;
@@ -234,7 +234,7 @@ pub(crate) fn char_info_state(world: &World, object_id: i32) -> server_packets::
         clan_reputation: clan.map_or(0, |c| c.reputation_score),
         fishing_bait: world
             .objects
-            .get_component::<crate::model::components::FishingSession>(&object_id)
+            .get_component::<crate::model::components::player::FishingSession>(&object_id)
             .filter(|f| f.is_fishing)
             .map(|f| (f.bait_x, f.bait_y, f.bait_z)),
         armor_min_enchant: crate::game_loop::items::armor_sets::max_set_enchant(world, object_id)

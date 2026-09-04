@@ -7,7 +7,7 @@ use crate::game_loop::space::position::set_position;
 
 use crate::data::instance_data::{ExitType, InstanceTemplate};
 use crate::game_loop::events::tvt;
-use crate::model::components::InstanceId;
+use crate::model::components::space::InstanceId;
 use crate::model::event::TvtPhase;
 use crate::scheduler::ScheduledTask;
 
@@ -566,7 +566,9 @@ fn each_phase_arms_a_countdown_that_the_end_cancels() {
 /// in combat is refused (Java shows `manager-combat.html`).
 #[test]
 fn the_arena_manager_buffs_and_heals() {
-    use crate::model::components::{AttackState, LastFolkNpc, PlayerVitals, Vitals};
+    use crate::model::components::combat::AttackState;
+    use crate::model::components::player::LastFolkNpc;
+    use crate::model::components::stats::{PlayerVitals, Vitals};
 
     let (mut world, _oids) = fighting_arena(4);
     let player = world.events.tvt.blue_team[0];
@@ -672,7 +674,7 @@ fn register_hq_zones(world: &mut World) {
 #[test]
 fn the_enemy_headquarters_kicks_intruders_out() {
     use crate::game_loop::space::zones::revalidate_zone;
-    use crate::model::components::Position;
+    use crate::model::components::space::Position;
 
     let (mut world, _oids) = fighting_arena(4);
     register_hq_zones(&mut world);
@@ -852,14 +854,14 @@ fn can_register_honours_every_ported_busy_gate() {
     let cases: &[(&str, Setup)] = &[
         ("in a duel", |w| {
             w.objects
-                .add_components(&100, model::components::DuelRef(1));
+                .add_components(&100, model::components::social::DuelRef(1));
         }),
         ("in an instance", |w| {
             w.objects.add_components(&100, InstanceId(7));
         }),
         ("inside a siege zone", |w| {
             w.objects
-                .get_component_mut::<model::components::ZoneFlags>(&100)
+                .get_component_mut::<model::components::space::ZoneFlags>(&100)
                 .unwrap()
                 .mask |= crate::data::zone_data::ZoneKind::Siege.bit();
         }),
@@ -918,7 +920,8 @@ fn can_register_honours_every_ported_busy_gate() {
 /// undo it. See `docs/CUSTOM_DIST_DEVIATIONS.md`.
 #[test]
 fn end_fight_freezes_players_and_servitors_and_teleport_out_thaws_them() {
-    use crate::model::components::{AdminFlags, Immobilized, SkillsDisabled};
+    use crate::model::components::combat::{Immobilized, SkillsDisabled};
+    use crate::model::components::player::AdminFlags;
 
     let (mut world, oids) = started_with_players(4);
     tvt::teleport_to_arena(&mut world);
@@ -969,7 +972,7 @@ fn end_fight_freezes_players_and_servitors_and_teleport_out_thaws_them() {
 /// team bigger than one party gets a command channel holding every party.
 #[test]
 fn teleport_to_arena_groups_teams_into_parties_and_ccs() {
-    use crate::model::components::PartyRef;
+    use crate::model::components::social::PartyRef;
 
     // 18 players → 9 per team → parties of 7+2 → a CC per team.
     let (mut world, oids) = started_with_players(18);

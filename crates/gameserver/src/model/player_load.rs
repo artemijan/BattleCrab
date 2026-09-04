@@ -6,9 +6,12 @@ use crate::db::CharData;
 
 use crate::game_loop;
 
-use super::components::{
-    AttackState, BaseStats, Buffs, ClientPos, Collision, CombatStats, Macros, PlayerVitals,
-    Position, RegionCell, Reuses, Shortcuts, SkillBook, Speeds, StatModifiers, TargetRef, Vitals,
+use super::components::combat::{AttackState, TargetRef};
+use super::components::player::{Macros, Shortcuts};
+use super::components::skills::{Buffs, Reuses, SkillBook};
+use super::components::space::{ClientPos, Collision, Position, RegionCell};
+use super::components::stats::{
+    BaseStats, CombatStats, PlayerVitals, Speeds, StatModifiers, Vitals,
 };
 use super::equip_conditions::conditioned_passive_buffs;
 use super::inventory::{self, Inventory};
@@ -147,16 +150,16 @@ impl PlayerData {
                     self.buffs,
                     self.stat_modifiers,
                     self.reuses,
-                    components::ZoneFlags::default(),
-                    components::ExpertisePenalty::default(),
-                    components::PvpState::default(),
+                    components::space::ZoneFlags::default(),
+                    components::stats::ExpertisePenalty::default(),
+                    components::combat::PvpState::default(),
                 ),
                 (
                     self.warehouse,
                     self.freight,
-                    components::ClanSkills::default(),
-                    components::OptionSkills::default(),
-                    components::OptionTriggers::default(),
+                    components::skills::ClanSkills::default(),
+                    components::skills::OptionSkills::default(),
+                    components::skills::OptionTriggers::default(),
                     self.skill_enchants,
                     self.henna,
                     self.recipe_book,
@@ -232,7 +235,7 @@ impl Player {
                 henna_slots[(slot - 1) as usize] = Some(dye_id);
             }
         }
-        let henna = components::HennaSlots(henna_slots);
+        let henna = components::skills::HennaSlots(henna_slots);
         let hs = data.hennas.stat_sums(&henna_slots);
         // A complete worn armor set adds flat base stats exactly as a dye does
         // (Java `BaseStatFinalizer`). Folded in here so the enter-world
@@ -490,7 +493,7 @@ impl Player {
         }
 
         // The enchant sub-levels ride the same rows (PLAN_G19_SKILL_ENCHANT.md).
-        let skill_enchants = components::SkillEnchants(
+        let skill_enchants = components::skills::SkillEnchants(
             c.skills
                 .iter()
                 .filter(|&&(_, _, sub)| sub > 0)
@@ -500,7 +503,7 @@ impl Player {
         // Java `restoreRecipeBook`: classify each stored recipe-list id into the
         // dwarven/common book by its `RecipeList.isDwarvenRecipe()`; ids with no
         // matching recipe are dropped (Java's `recipe == null` continue).
-        let mut recipe_book = components::RecipeBook::default();
+        let mut recipe_book = components::commerce::RecipeBook::default();
         for &list_id in &c.recipe_book {
             match data.recipes.get(list_id) {
                 Some(r) if r.is_dwarven => recipe_book.dwarven.push(list_id),
@@ -599,19 +602,19 @@ impl Player {
             skill_enchants,
             henna,
             recipe_book,
-            variables: components::PlayerVariables(c.variables.iter().cloned().collect()),
-            pets: components::PlayerPets(
+            variables: components::player::PlayerVariables(c.variables.iter().cloned().collect()),
+            pets: components::summons::PlayerPets(
                 c.pets
                     .iter()
                     .map(|p| (p.collar_object_id, p.clone()))
                     .collect(),
             ),
-            summons: components::PlayerSummons(c.summons.clone()),
+            summons: components::summons::PlayerSummons(c.summons.clone()),
             pet_inventory,
             shortcuts: Shortcuts::from_list(shortcuts),
             macros: Macros::from_list(c.macros.clone()),
-            friends: components::Friends(c.friends.clone()),
-            quests: components::Quests(c.quests.clone()),
+            friends: components::social::Friends(c.friends.clone()),
+            quests: components::social::Quests(c.quests.clone()),
             // Filled by the select path via `restore_reuses` (needs the game
             // tick); empty here keeps the many test callers unchanged.
             reuses: Reuses::default(),

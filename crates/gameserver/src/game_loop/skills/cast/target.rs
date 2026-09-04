@@ -5,9 +5,9 @@ use crate::game_loop::npc::is_chest;
 use crate::game_loop::npc::npc_template;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
-use crate::model::components::Collision;
-use crate::model::components::Position;
-use crate::model::components::Vitals;
+use crate::model::components::space::Collision;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::TargetType;
@@ -41,7 +41,9 @@ pub(crate) fn resolve_cast_target(
             // through to null there, and no NPC cast path reaches here.
             let Some(gp) = world
                 .objects
-                .get_component::<crate::model::components::GroundSkillTarget>(&caster.object_id)
+                .get_component::<crate::model::components::space::GroundSkillTarget>(
+                    &caster.object_id,
+                )
                 .copied()
             else {
                 // `use_magic_on` already refused the no-position case; this
@@ -98,7 +100,7 @@ pub(crate) fn resolve_cast_target(
         TargetType::Self_ => {
             let in_peace = world
                 .objects
-                .get_component::<crate::model::components::ZoneFlags>(&caster.object_id)
+                .get_component::<crate::model::components::space::ZoneFlags>(&caster.object_id)
                 .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
             if in_peace && skill.is_bad() {
                 return Err(sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE);
@@ -231,7 +233,7 @@ pub(crate) fn resolve_cast_target(
             let is_revivable = world.objects.has_component::<Player>(&t)
                 || world
                     .objects
-                    .has_component::<crate::model::components::PetOf>(&t);
+                    .has_component::<crate::model::components::summons::PetOf>(&t);
             let is_dead = world
                 .objects
                 .get_component::<Vitals>(&t)

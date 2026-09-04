@@ -1409,7 +1409,8 @@ fn a_disallowed_race_cannot_be_created() {
 /// is paid inside a PvP zone or an instance.
 #[test]
 fn a_pvp_kill_pays_the_killer() {
-    use crate::model::components::{PvpState, ZoneFlags};
+    use crate::model::components::combat::PvpState;
+    use crate::model::components::space::ZoneFlags;
     use crate::model::inventory::Inventory;
     const ADENA: i32 = 57;
     const KILLER: i32 = 3001;

@@ -630,7 +630,7 @@ fn the_final_beat_spawns_archangels_and_engages() {
     );
     world
         .objects
-        .add_components(&BAIUM_OID, model::components::Immobilized);
+        .add_components(&BAIUM_OID, model::components::combat::Immobilized);
     world
         .objects
         .add_components(&BAIUM_OID, BaiumWaker { player_oid: PLAYER });
@@ -642,7 +642,7 @@ fn the_final_beat_spawns_archangels_and_engages() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::Immobilized>(&BAIUM_OID),
+            .has_component::<model::components::combat::Immobilized>(&BAIUM_OID),
         "Baium is free to move — his AI is back"
     );
     let hate = hate_of(&world, BAIUM_OID, PLAYER);

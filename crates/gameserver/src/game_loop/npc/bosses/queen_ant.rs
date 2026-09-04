@@ -5,7 +5,8 @@
 //! minions that keep both of them up. Killing the Queen through a working nurse
 //! rotation is the actual fight.
 
-use crate::model::components::{AdminFlags, Vitals};
+use crate::model::components::player::AdminFlags;
+use crate::model::components::stats::Vitals;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 

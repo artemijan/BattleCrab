@@ -15,7 +15,8 @@
 
 use crate::game_loop::helpers::{object_name, send_action_failed, send_to_player};
 use crate::game_loop::npc::is_creature;
-use crate::model::components::{PartyRef, TargetRef};
+use crate::model::components::combat::TargetRef;
+use crate::model::components::social::PartyRef;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
@@ -161,7 +162,7 @@ fn set_target_based_on_tactical_sign_id(
     };
     let invisible = world
         .objects
-        .get_component::<crate::model::components::AdminFlags>(&target)
+        .get_component::<crate::model::components::player::AdminFlags>(&target)
         .is_some_and(|f| f.hidden || f.untargetable);
     if invisible
         || crate::game_loop::abnormal::is_untargetable(world, target)

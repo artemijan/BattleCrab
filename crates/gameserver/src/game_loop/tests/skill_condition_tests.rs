@@ -7,7 +7,8 @@
 use super::*;
 use crate::game_loop::skills::cast::handle_request_magic_skill_use;
 use crate::game_loop::space::position::set_position;
-use crate::model::components::{SkillBook, Vitals};
+use crate::model::components::skills::SkillBook;
+use crate::model::components::stats::Vitals;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::sm_ids;
 
@@ -389,7 +390,7 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
 #[test]
 fn summon_friend_charges_the_target_prompts_them_and_teleports_on_accept() {
     use crate::game_loop::skills::effects::control::{accept_summon_request, call_pc_player};
-    use crate::model::components::Position;
+    use crate::model::components::space::Position;
     use crate::model::inventory::Inventory;
     use crate::network::server_packets::opcodes;
 
@@ -676,13 +677,14 @@ fn can_summon_pet_refuses_each_blocked_state_with_its_own_line() {
     assert!(check_for_test(&world, CASTER, CASTER, &conds), "clear");
 
     // Mid-trade.
-    world
-        .objects
-        .add_components(&CASTER, crate::model::components::Trade::default());
+    world.objects.add_components(
+        &CASTER,
+        crate::model::components::commerce::Trade::default(),
+    );
     assert!(!check_for_test(&world, CASTER, CASTER, &conds));
     world
         .objects
-        .remove_component::<crate::model::components::Trade>(&CASTER);
+        .remove_component::<crate::model::components::commerce::Trade>(&CASTER);
     assert!(check_for_test(&world, CASTER, CASTER, &conds));
 
     // Teleporting, and mounted.

@@ -99,7 +99,7 @@ pub(crate) fn announce_to_all_online(world: &World, text: &str) {
 /// object carries no skill book (not a live player). The single funnel every
 /// `SkillList` resend goes through, so clan skills never fall off the list.
 pub(crate) fn skill_list_packet(world: &World, object_id: i32) -> Option<Vec<u8>> {
-    use crate::model::components::{ClanSkills, OptionSkills, SkillBook, SkillEnchants};
+    use crate::model::components::skills::{ClanSkills, OptionSkills, SkillBook, SkillEnchants};
     let book = world.objects.get_component::<SkillBook>(&object_id)?;
     let empty = ClanSkills::default();
     let clan = world
@@ -130,7 +130,8 @@ pub(crate) fn skill_list_packet(world: &World, object_id: i32) -> Option<Vec<u8>
 /// `sendPacket(new EtcStatusUpdate(this))` which reads it all off the player.
 /// This is what redraws the grade-penalty and chat-block icons.
 pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i32) {
-    use crate::model::components::{AdminFlags, ExpertisePenalty};
+    use crate::model::components::player::AdminFlags;
+    use crate::model::components::stats::ExpertisePenalty;
     let ep = world
         .objects
         .get_component::<ExpertisePenalty>(&object_id)
@@ -149,7 +150,7 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
         .map_or(0, |p| p.charges);
     let wp = world
         .objects
-        .get_component::<model::components::WeightPenalty>(&object_id)
+        .get_component::<model::components::stats::WeightPenalty>(&object_id)
         .map_or(0, |w| w.level);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::enter_world::etc_status_update(

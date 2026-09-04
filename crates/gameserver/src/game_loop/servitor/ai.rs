@@ -12,8 +12,8 @@ use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, skills};
 
 use crate::game_loop::npc::ai::force_attack_target;
-use crate::model::components::Position;
-use crate::model::components::ServitorOf;
+use crate::model::components::space::Position;
+use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets;
 use crate::world::World;
 /// How close a servitor trails its owner before it stops — Java's
@@ -115,7 +115,7 @@ pub(crate) fn summon_stop(world: &mut World, summon_oid: i32) -> bool {
     crate::game_loop::ai::clear_aggro(world, summon_oid);
     world
         .objects
-        .remove_component::<crate::model::components::Movement>(&summon_oid);
+        .remove_component::<crate::model::components::space::Movement>(&summon_oid);
     crate::game_loop::npc::ai::set_active_intention(world, summon_oid);
     if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&summon_oid) {
         l.following = true;
@@ -133,7 +133,7 @@ pub(crate) fn summon_toggle_follow(world: &mut World, summon_oid: i32) -> Option
         // Holding ground: stop where you are.
         world
             .objects
-            .remove_component::<crate::model::components::Movement>(&summon_oid);
+            .remove_component::<crate::model::components::space::Movement>(&summon_oid);
     }
     Some(now)
 }
@@ -233,7 +233,7 @@ pub(crate) fn handle_servitor_action(
             // `player.getTarget()` — no target, nothing to order.
             let Some(target_oid) = world
                 .objects
-                .get_component::<crate::model::components::TargetRef>(&owner_oid)
+                .get_component::<crate::model::components::combat::TargetRef>(&owner_oid)
                 .and_then(|t| t.0)
             else {
                 return;
@@ -310,7 +310,7 @@ pub(crate) fn handle_servitor_action(
 fn target_of(world: &World, owner_oid: i32) -> Option<i32> {
     world
         .objects
-        .get_component::<crate::model::components::TargetRef>(&owner_oid)
+        .get_component::<crate::model::components::combat::TargetRef>(&owner_oid)
         .and_then(|t| t.0)
 }
 
@@ -319,7 +319,7 @@ fn target_of(world: &World, owner_oid: i32) -> Option<i32> {
 fn is_engaged(world: &World, summon_oid: i32) -> bool {
     let mid_swing = world
         .objects
-        .get_component::<crate::model::components::AttackState>(&summon_oid)
+        .get_component::<crate::model::components::combat::AttackState>(&summon_oid)
         .is_some_and(|st| st.attack_end_tick > world.tick);
     mid_swing
         || crate::game_loop::client::user_commands::in_combat(world, summon_oid)
@@ -464,7 +464,7 @@ fn use_pet_skill(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32
     let (pet_level, owner_level) = (
         world
             .objects
-            .get_component::<crate::model::components::PetOf>(&pet_oid)
+            .get_component::<crate::model::components::summons::PetOf>(&pet_oid)
             .map(|p| p.level)
             .unwrap_or(0),
         world
@@ -569,7 +569,7 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
     } else {
         match world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&owner_oid)
+            .get_component::<crate::model::components::combat::TargetRef>(&owner_oid)
             .and_then(|t| t.0)
         {
             Some(t) => t,

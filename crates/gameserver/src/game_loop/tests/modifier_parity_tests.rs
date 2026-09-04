@@ -22,7 +22,7 @@
 use super::*;
 
 use crate::game_loop::skills::effects as port;
-use crate::model::components::{AttackTraits, DefenceTraits, StatModifiers, Vitals};
+use crate::model::components::stats::{AttackTraits, DefenceTraits, StatModifiers, Vitals};
 use crate::model::skill::traits::{TraitType, WeaknessTrait};
 use crate::model::stats::Stat;
 
@@ -494,11 +494,11 @@ fn a_physical_skill_casts_at_the_weapons_attack_speed() {
     let p = world.objects.get_component::<Player>(&oid).expect("player");
     let base = world
         .objects
-        .get_component::<crate::model::components::BaseStats>(&oid)
+        .get_component::<crate::model::components::stats::BaseStats>(&oid)
         .expect("base stats");
     let mods = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&oid)
+        .get_component::<crate::model::components::stats::StatModifiers>(&oid)
         .expect("stat modifiers");
     let bare =
         crate::model::formulas::timing::calc_atk_spd_multiplier(p, base, mods, &world.data, None);
@@ -589,7 +589,7 @@ fn the_counter_attack_reads_the_defenders_table_java_side_up() {
         // CP soaks damage before HP, so the fixture measures a bare HP drop.
         world
             .objects
-            .get_component_mut::<crate::model::components::PlayerVitals>(&attacker)
+            .get_component_mut::<crate::model::components::stats::PlayerVitals>(&attacker)
             .expect("cp")
             .cur_cp = 0.0;
         let before = world

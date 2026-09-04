@@ -17,7 +17,7 @@
 //! (`attack_skill` / `magic_skill` / `critical_skill` → `addTriggerSkill`).
 //!
 //! Both live in their own transient components rather than the
-//! [`crate::model::components::SkillBook`], because Java grants them with
+//! [`crate::model::components::skills::SkillBook`], because Java grants them with
 //! `store = false` and this port persists the whole book — an option skill
 //! filed there would outlive the item. See
 //! [`OptionSkills`] /
@@ -25,7 +25,7 @@
 
 use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::stats::context::with_stat_ctx;
-use crate::model::components::{OptionSkills, OptionTriggers};
+use crate::model::components::skills::{OptionSkills, OptionTriggers};
 use crate::model::inventory::Inventory;
 use crate::model::skill::BuffSlot;
 use crate::model::skill::active_buff::ActiveBuff;
@@ -184,7 +184,7 @@ fn option_effects(world: &World, option_id: i32) -> Option<Vec<StatModifierEffec
 ///
 /// Java grants the actives with `addSkill(skill, false)`; the `false` is
 /// `store`, so they never reach `character_skills`. That distinction is
-/// load-bearing here, where the whole [`crate::model::components::SkillBook`]
+/// load-bearing here, where the whole [`crate::model::components::skills::SkillBook`]
 /// is persisted: they go into [`OptionSkills`] instead.
 ///
 /// The reuse-timestamp restore Java does alongside (`getSkillRemainingReuseTime`

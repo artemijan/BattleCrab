@@ -27,7 +27,9 @@ use crate::game_loop::helpers::restore_hp_mp;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::time::TICKS_PER_SECOND;
-use crate::model::components::{Collision, CombatStats, Position, ServitorOf, Speeds, Vitals};
+use crate::model::components::space::{Collision, Position};
+use crate::model::components::stats::{CombatStats, Speeds, Vitals};
+use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets;
 use crate::world::World;
 pub(crate) use ai::{
@@ -106,7 +108,7 @@ const SIN_EATER_DISPLAY_ID: i32 = 12564;
 pub(crate) fn servitor_of(world: &World, owner_oid: i32) -> Option<i32> {
     let oid = world
         .objects
-        .get_component::<crate::model::components::SummonRef>(&owner_oid)?
+        .get_component::<crate::model::components::summons::SummonRef>(&owner_oid)?
         .servitor?;
     // Validated on read: a despawn path that forgot to clear the link yields
     // `None` here rather than a dangling id.
@@ -192,7 +194,7 @@ pub(crate) fn unsummon_servitor(world: &mut World, owner_oid: i32) -> Option<i32
     set_summon_link(world, owner_oid, None, None, true);
     let region = world
         .objects
-        .get_component::<crate::model::components::RegionCell>(&servitor_oid)?
+        .get_component::<crate::model::components::space::RegionCell>(&servitor_oid)?
         .0;
     crate::game_loop::npc::despawn_npc(world, servitor_oid, region);
     Some(servitor_oid)
@@ -236,7 +238,7 @@ fn build_pet_info(
     let servitor = world.objects.get_component::<ServitorOf>(&servitor_oid)?;
     let pet = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&servitor_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&servitor_oid)
         .copied();
     let owner_name = world
         .objects
@@ -364,16 +366,17 @@ fn set_summon_link(
 ) {
     if world
         .objects
-        .get_component::<crate::model::components::SummonRef>(&owner_oid)
+        .get_component::<crate::model::components::summons::SummonRef>(&owner_oid)
         .is_none()
     {
-        world
-            .objects
-            .add_components(&owner_oid, crate::model::components::SummonRef::default());
+        world.objects.add_components(
+            &owner_oid,
+            crate::model::components::summons::SummonRef::default(),
+        );
     }
     if let Some(r) = world
         .objects
-        .get_component_mut::<crate::model::components::SummonRef>(&owner_oid)
+        .get_component_mut::<crate::model::components::summons::SummonRef>(&owner_oid)
     {
         if is_pet {
             r.pet = pet;

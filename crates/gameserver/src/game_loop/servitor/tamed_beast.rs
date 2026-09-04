@@ -16,7 +16,9 @@ use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::npc::npc_template;
 use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::{Position, TamedBeastOf, Vitals};
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
+use crate::model::components::summons::TamedBeastOf;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -223,7 +225,7 @@ pub(crate) fn handle_buff_check(world: &mut World, beast_oid: i32) {
     let owner_dead = is_dead(world, owner);
     let beast_casting = world
         .objects
-        .has_component::<crate::model::components::Casting>(&beast_oid);
+        .has_component::<crate::model::components::combat::Casting>(&beast_oid);
     if too_far || owner_dead || beast_casting {
         return;
     }
@@ -251,7 +253,7 @@ pub(crate) fn handle_buff_check(world: &mut World, beast_oid: i32) {
     let pick = buffs[world.roll(buffs.len() as i32) as usize];
     let on_owner = world
         .objects
-        .get_component::<crate::model::components::Buffs>(&owner)
+        .get_component::<crate::model::components::skills::Buffs>(&owner)
         .map_or(0, |b| {
             buffs
                 .iter()

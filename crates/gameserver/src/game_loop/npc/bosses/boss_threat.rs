@@ -198,7 +198,7 @@ fn prune_threat(world: &mut World, boss_oid: i32) {
         }
         let dead = world
             .objects
-            .get_component::<crate::model::components::Vitals>(oid)
+            .get_component::<crate::model::components::stats::Vitals>(oid)
             .is_none_or(|v| v.dead);
         let far = !crate::geo::distance::within_3d(world, boss_oid, *oid, THREAT_RANGE);
         cleared[i] = dead || far;

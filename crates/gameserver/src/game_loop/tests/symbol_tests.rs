@@ -6,7 +6,8 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
 use crate::game_loop::grand_boss::find_spawned;
-use crate::model::components::{Casting, SummonerRef};
+use crate::model::components::combat::Casting;
+use crate::model::components::summons::SummonerRef;
 use crate::model::skill::Skill;
 use crate::model::skill::condition::{OpExistNpcCondition, SkillCondition};
 use crate::model::skill::effects::SkillEffect;
@@ -217,7 +218,7 @@ fn a_hostile_aura_spares_a_neutral_bystander_and_catches_a_flagged_one() {
 fn flag_for_pvp(world: &mut World, oid: i32) {
     world.objects.add_components(
         &oid,
-        crate::model::components::PvpState {
+        crate::model::components::combat::PvpState {
             flag: 1,
             ..Default::default()
         },
@@ -459,7 +460,8 @@ fn a_seal_is_titled_with_its_casters_name() {
 /// after the effect's `despawnDelay`.
 #[test]
 fn plain_summon_spawns_folk_with_despawn() {
-    use crate::model::components::{Position, SummonedNpcs};
+    use crate::model::components::space::Position;
+    use crate::model::components::summons::SummonedNpcs;
 
     const TREE_NPC: i32 = 91301;
     const TREE_SKILL: i32 = 9302;

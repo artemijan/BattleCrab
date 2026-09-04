@@ -392,7 +392,7 @@ fn eval(
         } => {
             let at_level = world
                 .objects
-                .get_component::<components::SkillBook>(&caster)
+                .get_component::<components::skills::SkillBook>(&caster)
                 .and_then(|b| b.0.get(skill_id).copied())
                 == Some(*skill_level);
             ok(at_level == *has_learned)
@@ -413,7 +413,7 @@ fn eval(
             let actual = if is_player(world, caster) {
                 world
                     .objects
-                    .get_component::<components::TargetRef>(&caster)
+                    .get_component::<components::combat::TargetRef>(&caster)
                     .and_then(|t| t.0)
             } else {
                 Some(target)
@@ -503,7 +503,9 @@ fn is_npc(world: &World, object_id: i32) -> bool {
 
 /// `WorldObject.isPet()` — a collar pet, as opposed to a summoner's servitor.
 fn is_pet(world: &World, object_id: i32) -> bool {
-    world.objects.has_component::<components::PetOf>(&object_id)
+    world
+        .objects
+        .has_component::<components::summons::PetOf>(&object_id)
 }
 
 // ---------------------------------------------------------------------------
@@ -518,7 +520,7 @@ fn is_player(world: &World, object_id: i32) -> bool {
 fn in_zone(world: &World, object_id: i32, kind: ZoneKind) -> bool {
     world
         .objects
-        .get_component::<components::ZoneFlags>(&object_id)
+        .get_component::<components::space::ZoneFlags>(&object_id)
         .is_some_and(|f| f.contains(kind))
 }
 
@@ -581,7 +583,7 @@ fn free_percent(world: &World, object_id: i32) -> Option<(i32, i32)> {
 fn vital_percent(world: &World, object_id: i32, vital: skill::Vital) -> Option<i32> {
     let v = world
         .objects
-        .get_component::<components::Vitals>(&object_id)?;
+        .get_component::<components::stats::Vitals>(&object_id)?;
     let (cur, max) = match vital {
         skill::Vital::Hp => (v.cur_hp, v.max_hp as f64),
         skill::Vital::Mp => (v.cur_mp, v.max_mp as f64),
@@ -590,7 +592,7 @@ fn vital_percent(world: &World, object_id: i32, vital: skill::Vital) -> Option<i
         skill::Vital::Cp => {
             let cp = world
                 .objects
-                .get_component::<components::PlayerVitals>(&object_id)?;
+                .get_component::<components::stats::PlayerVitals>(&object_id)?;
             (cp.cur_cp, cp.max_cp as f64)
         }
     };
@@ -627,7 +629,7 @@ fn target_in_my_party(world: &World, caster: i32, target: i32, include_me: bool)
     let party_of = |oid: i32| {
         world
             .objects
-            .get_component::<components::PartyRef>(&oid)
+            .get_component::<components::social::PartyRef>(&oid)
             .map(|p| p.0)
     };
     match party_of(caster) {
@@ -682,7 +684,7 @@ fn is_chest(world: &World, target: i32) -> bool {
 fn knows_skill(world: &World, target: i32, skill_id: i32) -> bool {
     world
         .objects
-        .get_component::<components::SkillBook>(&target)
+        .get_component::<components::skills::SkillBook>(&target)
         .is_some_and(|b| b.0.contains_key(&skill_id))
 }
 
@@ -717,7 +719,7 @@ fn can_transform(world: &World, caster: i32) -> Result<(), Refusal> {
     }
     if world
         .objects
-        .get_component::<components::Speeds>(&caster)
+        .get_component::<components::stats::Speeds>(&caster)
         .is_some_and(|s| s.swimming)
     {
         return Err(Refusal(Some(RefusalLine::Sm(
@@ -785,7 +787,7 @@ fn can_summon(world: &World, caster: i32) -> bool {
             && !p.teleporting
             && !world
                 .objects
-                .has_component::<components::OlympiadObserver>(&caster)
+                .has_component::<components::player::OlympiadObserver>(&caster)
     })
 }
 
@@ -871,7 +873,7 @@ fn call_pc(world: &World, caster: i32) -> Result<(), Refusal> {
     }
     if world
         .objects
-        .has_component::<components::OlympiadObserver>(&caster)
+        .has_component::<components::player::OlympiadObserver>(&caster)
     {
         return Err(Refusal(None));
     }
@@ -912,7 +914,7 @@ fn resurrection(world: &World, caster: i32, target: i32) -> Result<(), Refusal> 
     } else {
         world
             .objects
-            .get_component::<components::ServitorOf>(&target)
+            .get_component::<components::summons::ServitorOf>(&target)
             .map(|s| s.owner_object_id)
             .ok_or(Refusal(None))?
     };
@@ -954,10 +956,12 @@ fn can_summon_pet(world: &World, caster: i32) -> Result<(), Refusal> {
             sm_ids::YOU_MAY_NOT_SUMMON_MULTIPLE_PETS_AT_THE_SAME_TIME,
         ))));
     }
-    if world.objects.has_component::<components::Trade>(&caster)
+    if world
+        .objects
+        .has_component::<components::commerce::Trade>(&caster)
         || world
             .objects
-            .has_component::<components::PrivateStore>(&caster)
+            .has_component::<components::commerce::PrivateStore>(&caster)
     {
         return Err(Refusal(Some(RefusalLine::Sm(
             sm_ids::YOU_CANNOT_SUMMON_DURING_A_TRADE_OR_WHILE_USING_A_PRIVATE_STORE,
@@ -972,7 +976,7 @@ fn can_summon_pet(world: &World, caster: i32) -> Result<(), Refusal> {
     if p.is_mounted()
         || world
             .objects
-            .has_component::<components::OlympiadObserver>(&caster)
+            .has_component::<components::player::OlympiadObserver>(&caster)
     {
         return Err(Refusal(None));
     }

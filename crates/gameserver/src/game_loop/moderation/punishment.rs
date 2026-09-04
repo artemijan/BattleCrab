@@ -512,7 +512,7 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
 fn in_jail_zone(world: &World, object_id: i32) -> bool {
     world
         .objects
-        .get_component::<crate::model::components::Position>(&object_id)
+        .get_component::<crate::model::components::space::Position>(&object_id)
         .is_some_and(|pos| world.data.zone_data.in_jail_zone(pos.x, pos.y, pos.z))
 }
 

@@ -16,7 +16,10 @@
 //! [`SailrenWaveMob`]: SailrenWaveMob
 use crate::game_loop::character::inventory;
 use crate::game_loop::common::near_leader;
-use crate::model::components::{AdminFlags, Immobilized, SailrenWaveMob, Vitals};
+use crate::model::components::combat::Immobilized;
+use crate::model::components::player::AdminFlags;
+use crate::model::components::stats::Vitals;
+use crate::model::components::summons::SailrenWaveMob;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 

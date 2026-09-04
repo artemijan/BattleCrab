@@ -9,7 +9,9 @@
 use super::*;
 use crate::game_loop::space::falling::{self, SAFE_FALL_HEIGHT};
 use crate::game_loop::space::position::handle_validate_position;
-use crate::model::components::{AdminFlags, FallingDamage, StatModifiers, Vitals};
+use crate::model::components::player::AdminFlags;
+use crate::model::components::space::FallingDamage;
+use crate::model::components::stats::{StatModifiers, Vitals};
 use crate::model::stats::Stat;
 
 /// Enough drop to be a fall, with room to spare over the 333 safe height.
@@ -334,7 +336,7 @@ fn a_continuing_fall_reprices_nothing_and_only_defers_the_clock() {
 #[test]
 fn death_flight_and_water_are_not_falls() {
     use crate::data::zone_data::ZoneKind;
-    use crate::model::components::ZoneFlags;
+    use crate::model::components::space::ZoneFlags;
 
     for case in ["dead", "flying", "water"] {
         let (mut world, ..) = test_world();

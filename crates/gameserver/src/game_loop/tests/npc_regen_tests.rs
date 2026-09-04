@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 
 const PLAYER: i32 = 2001;
 const CID: u32 = 1;

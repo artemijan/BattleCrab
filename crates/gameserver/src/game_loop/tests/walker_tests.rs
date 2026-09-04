@@ -5,7 +5,8 @@ use crate::game_loop::space::position::set_position;
 
 use crate::data::route_data::{RepeatStyle, RouteData, WalkNode, WalkRoute};
 use crate::game_loop::npc::walkers::WalkState;
-use crate::model::components::{Movement, Vitals};
+use crate::model::components::space::Movement;
+use crate::model::components::stats::Vitals;
 
 const WALKER_ID: i32 = 46000;
 const WALKER: i32 = NPC_OID;

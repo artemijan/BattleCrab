@@ -5,7 +5,8 @@ use crate::data::GameData;
 
 use crate::game_loop;
 
-use super::components::{Buffs, CombatStats, Speeds, StatModifiers, Vitals};
+use super::components::skills::Buffs;
+use super::components::stats::{CombatStats, Speeds, StatModifiers, Vitals};
 use super::stat_finalize::{apply_modifier, finalize, finalize_def, finalize_speed};
 use super::stats::Stat;
 

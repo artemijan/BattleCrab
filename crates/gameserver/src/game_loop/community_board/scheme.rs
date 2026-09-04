@@ -88,7 +88,7 @@ pub(super) fn scheme_create(
 ) -> Result<(), String> {
     let buffs: Vec<i32> = world
         .objects
-        .get_component::<crate::model::components::Buffs>(&object_id)
+        .get_component::<crate::model::components::skills::Buffs>(&object_id)
         .map(|b| {
             b.0.iter()
                 .map(|a| a.skill_id)

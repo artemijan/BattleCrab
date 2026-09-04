@@ -3,7 +3,7 @@
 use super::npc_template_id;
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::{send_sm_to_player, send_to_player};
-use crate::model::components::ServitorOf;
+use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets;
 use crate::world::World;
 /// Which Beast shot a recharge is after. Java has one
@@ -85,7 +85,7 @@ fn disable_auto_shot(world: &mut World, owner: i32, item_id: i32, shot_type: i32
 ///
 /// Returns true when the summon ends up charged.
 fn recharge_summon_shot(world: &mut World, summon_oid: i32, kind: SummonShot) -> bool {
-    use crate::model::components::ChargedShots;
+    use crate::model::components::combat::ChargedShots;
 
     let charged = |world: &World| {
         world
@@ -111,7 +111,7 @@ fn recharge_summon_shot(world: &mut World, summon_oid: i32, kind: SummonShot) ->
     // plain servitor is its template's.
     let per_hit = world
         .objects
-        .get_component::<crate::model::components::PetOf>(&summon_oid)
+        .get_component::<crate::model::components::summons::PetOf>(&summon_oid)
         .and_then(|p| {
             npc_template_id(world, summon_oid)
                 .and_then(|id| world.data.pet_data.get(id))
@@ -168,7 +168,7 @@ pub(crate) fn recharge_shots(world: &mut World, summon_oid: i32, physical: bool)
     if !physical {
         return world
             .objects
-            .get_component::<crate::model::components::ChargedShots>(&summon_oid)
+            .get_component::<crate::model::components::combat::ChargedShots>(&summon_oid)
             .is_some_and(|c| c.soulshot);
     }
     recharge_summon_shot(world, summon_oid, SummonShot::Soulshot)
@@ -177,7 +177,7 @@ pub(crate) fn recharge_shots(world: &mut World, summon_oid: i32, physical: bool)
 /// Spend a summon's charged soulshot (Java `unchargeShot(SOULSHOTS)`), which
 /// happens on a landed hit only — a miss keeps the charge.
 pub(crate) fn uncharge_soulshot(world: &mut World, summon_oid: i32) -> bool {
-    use crate::model::components::ChargedShots;
+    use crate::model::components::combat::ChargedShots;
     match world.objects.get_component_mut::<ChargedShots>(&summon_oid) {
         Some(c) if c.soulshot => {
             c.soulshot = false;
@@ -197,7 +197,7 @@ pub(crate) fn recharge_spiritshots(world: &mut World, summon_oid: i32) -> bool {
 /// landed swing — a magic shot is consumed by the **cast**, so this is called
 /// from the effect path.
 pub(crate) fn uncharge_spiritshot(world: &mut World, summon_oid: i32) -> bool {
-    use crate::model::components::ChargedShots;
+    use crate::model::components::combat::ChargedShots;
     match world.objects.get_component_mut::<ChargedShots>(&summon_oid) {
         Some(c) if c.spiritshot => {
             c.spiritshot = false;

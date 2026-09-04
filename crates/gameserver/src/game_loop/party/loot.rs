@@ -10,7 +10,7 @@ use super::broadcast_to_party;
 use super::members_within;
 use crate::game_loop::helpers::player_name_or_empty;
 use crate::game_loop::helpers::send_sm_to_player;
-use crate::model::components::PartyRef;
+use crate::model::components::social::PartyRef;
 use crate::model::party::LootChangeRequest;
 use crate::model::party::LootRule;
 use crate::model::party::Party;

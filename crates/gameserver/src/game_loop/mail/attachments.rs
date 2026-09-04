@@ -21,7 +21,7 @@ use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::send_sm_to_player as send_sm;
 use crate::game_loop::helpers::send_to_player;
 use crate::model::Player;
-use crate::model::components::Trade;
+use crate::model::components::commerce::Trade;
 use crate::model::inventory::Inventory;
 use crate::model::mail::Message;
 use crate::network::server_packets;

@@ -9,7 +9,8 @@
 use crate::game_loop::character::inventory;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::model::Player;
-use crate::model::components::{PvpState, ZoneFlags};
+use crate::model::components::combat::PvpState;
+use crate::model::components::space::ZoneFlags;
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
@@ -73,7 +74,7 @@ pub(crate) fn in_pvp_zone(world: &World, oid: i32) -> bool {
 pub(crate) fn active_siege_castle(world: &World, oid: i32) -> Option<i32> {
     let pos = world
         .objects
-        .get_component::<crate::model::components::Position>(&oid)?;
+        .get_component::<crate::model::components::space::Position>(&oid)?;
     siege::active_siege_castle_at(world, pos.x, pos.y, pos.z)
 }
 
@@ -283,7 +284,7 @@ pub(crate) fn protection_blessing_blocks(world: &World, actor: i32, target: i32)
     let blessed = |oid: i32| {
         world
             .objects
-            .get_component::<crate::model::components::Buffs>(&oid)
+            .get_component::<crate::model::components::skills::Buffs>(&oid)
             .is_some_and(|b| b.0.iter().any(|x| x.abnormal_type == "PK_PROTECT"))
     };
     (blessed(t) && ap.level - tp.level >= 10 && ap.reputation < 0)
@@ -293,14 +294,14 @@ pub(crate) fn protection_blessing_blocks(world: &World, actor: i32, target: i32)
 pub(crate) fn acting_player(world: &World, object_id: i32) -> i32 {
     world
         .objects
-        .get_component::<crate::model::components::ServitorOf>(&object_id)
+        .get_component::<crate::model::components::summons::ServitorOf>(&object_id)
         .map(|s| s.owner_object_id)
         // A symbol totem (`EffectPoint`) also acts as its summoner — Java's
         // `EffectPoint.getActingPlayer()` returns `_owner`.
         .or_else(|| {
             world
                 .objects
-                .get_component::<crate::model::components::SummonerRef>(&object_id)
+                .get_component::<crate::model::components::summons::SummonerRef>(&object_id)
                 .map(|s| s.0)
         })
         .unwrap_or(object_id)
@@ -769,7 +770,7 @@ pub(crate) fn pay_kill_reward(world: &mut World, killer_oid: i32, victim_oid: i3
     if cfg.disable_in_instances
         && world
             .objects
-            .get_component::<crate::model::components::InstanceId>(&victim_oid)
+            .get_component::<crate::model::components::space::InstanceId>(&victim_oid)
             .is_some_and(|i| i.0 != 0)
     {
         return;

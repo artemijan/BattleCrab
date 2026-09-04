@@ -528,10 +528,10 @@ pub(crate) fn choose_skill(
     let (dist, angle) = {
         let a = world
             .objects
-            .get_component::<crate::model::components::Position>(&antharas_oid)?;
+            .get_component::<crate::model::components::space::Position>(&antharas_oid)?;
         let b = world
             .objects
-            .get_component::<crate::model::components::Position>(&target_oid)?;
+            .get_component::<crate::model::components::space::Position>(&target_oid)?;
         (
             crate::geo::distance::dist3d_xyz(a.x, a.y, a.z, b.x, b.y, b.z),
             angle_between(a.x, a.y, b.x, b.y),
@@ -648,7 +648,7 @@ pub(crate) fn choose_skill(
 pub(crate) fn manage_and_cast(world: &mut World, antharas_oid: i32) {
     if world
         .objects
-        .has_component::<crate::model::components::Casting>(&antharas_oid)
+        .has_component::<crate::model::components::combat::Casting>(&antharas_oid)
     {
         return;
     }
@@ -721,7 +721,7 @@ pub(crate) fn handle_set_regen(world: &mut World, antharas_oid: i32) {
         if !crate::game_loop::abnormal::has_buff(world, antharas_oid, skill_id)
             && !world
                 .objects
-                .has_component::<crate::model::components::Casting>(&antharas_oid)
+                .has_component::<crate::model::components::combat::Casting>(&antharas_oid)
         {
             super::boss_threat::cast_boss_skill(world, antharas_oid, antharas_oid, skill_id, true);
         }

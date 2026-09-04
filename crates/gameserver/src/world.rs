@@ -834,7 +834,7 @@ impl World {
     /// falls back to a full sweep if the id is not where its component says it
     /// is: a dangling entry would send a dead object id's packets forever.
     pub fn unindex_player(&mut self, object_id: i32) {
-        use crate::model::components::RegionCell;
+        use crate::model::components::space::RegionCell;
         if let Some(region) = self
             .objects
             .get_component::<RegionCell>(&object_id)
@@ -869,7 +869,7 @@ impl World {
     /// component writes this replaced did. Their own index, `npc_regions`, is
     /// `update_npc_region`'s business.
     pub fn set_player_region(&mut self, object_id: i32, new: (i32, i32)) -> Option<(i32, i32)> {
-        use crate::model::components::RegionCell;
+        use crate::model::components::space::RegionCell;
         let is_player = self
             .objects
             .has_component::<crate::model::Player>(&object_id);
@@ -956,7 +956,7 @@ impl World {
     /// the invariant; release builds pay nothing.
     #[cfg(debug_assertions)]
     pub fn debug_check_player_regions(&mut self) {
-        use crate::model::components::RegionCell;
+        use crate::model::components::space::RegionCell;
         let mut expected: rustc_hash::FxHashMap<(i32, i32), Vec<i32>> =
             rustc_hash::FxHashMap::default();
         self.objects

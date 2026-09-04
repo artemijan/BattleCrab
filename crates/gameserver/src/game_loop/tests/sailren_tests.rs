@@ -3,7 +3,11 @@
 use super::*;
 use crate::game_loop::sailren;
 
-use crate::model::components::{AdminFlags, Immobilized, Position, SailrenWaveMob, Vitals};
+use crate::model::components::combat::Immobilized;
+use crate::model::components::player::AdminFlags;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
+use crate::model::components::summons::SailrenWaveMob;
 
 const SAILREN: i32 = 29065;
 const VELOCIRAPTOR: i32 = 22218;

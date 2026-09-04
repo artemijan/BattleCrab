@@ -4,10 +4,10 @@ use crate::game_loop::helpers;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position;
 use crate::model::Player;
-use crate::model::components::BaseStats;
-use crate::model::components::PlayerVitals;
-use crate::model::components::Position;
-use crate::model::components::Vitals;
+use crate::model::components::space::Position;
+use crate::model::components::stats::BaseStats;
+use crate::model::components::stats::PlayerVitals;
+use crate::model::components::stats::Vitals;
 use crate::network::server_packets;
 use crate::world::World;
 use bevy_ecs::world::Mut;
@@ -110,12 +110,12 @@ pub(crate) fn revive_request(
     // the player who will be asked, and remember which of the two is dying.
     let is_pet = world
         .objects
-        .has_component::<crate::model::components::PetOf>(&target_oid);
+        .has_component::<crate::model::components::summons::PetOf>(&target_oid);
     let corpse_oid = target_oid;
     let target_oid = if is_pet {
         match world
             .objects
-            .get_component::<crate::model::components::ServitorOf>(&corpse_oid)
+            .get_component::<crate::model::components::summons::ServitorOf>(&corpse_oid)
         {
             Some(s) => s.owner_object_id,
             None => return,
@@ -160,7 +160,7 @@ pub(crate) fn revive_request(
         // A pet's restorable exp is the gap the death penalty opened.
         world
             .objects
-            .get_component::<crate::model::components::PetOf>(&corpse_oid)
+            .get_component::<crate::model::components::summons::PetOf>(&corpse_oid)
             .map(|p| (p.exp_before_death - p.exp).max(0))
             .unwrap_or(0)
     } else {
@@ -453,7 +453,7 @@ pub(crate) fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32
     let range = world.cfg.character.alt_party_range as f64;
     let earner_party = world
         .objects
-        .get_component::<crate::model::components::PartyRef>(&earner_oid)
+        .get_component::<crate::model::components::social::PartyRef>(&earner_oid)
         .map(|r| r.0);
     let group: Option<Vec<i32>> = earner_party
         .map(|pid| crate::game_loop::party::command_channel::cc_or_party_members(world, pid));

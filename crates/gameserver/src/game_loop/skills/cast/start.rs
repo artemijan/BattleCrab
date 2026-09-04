@@ -10,10 +10,10 @@ use crate::game_loop::helpers;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position;
 use crate::model::Player;
-use crate::model::components::Casting;
-use crate::model::components::Position;
-use crate::model::components::QueuedAction;
-use crate::model::components::Vitals;
+use crate::model::components::combat::Casting;
+use crate::model::components::combat::QueuedAction;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Vitals;
 use crate::model::formulas;
 use crate::model::skill::Skill;
 use crate::model::skill::target::OperateType;
@@ -40,19 +40,19 @@ pub(crate) fn start_casting(
     };
     let Some(base) = world
         .objects
-        .get_component::<crate::model::components::BaseStats>(&object_id)
+        .get_component::<crate::model::components::stats::BaseStats>(&object_id)
     else {
         return;
     };
     let Some(mods) = world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&object_id)
+        .get_component::<crate::model::components::stats::StatModifiers>(&object_id)
     else {
         return;
     };
     let Some(combat) = world
         .objects
-        .get_component::<crate::model::components::CombatStats>(&object_id)
+        .get_component::<crate::model::components::stats::CombatStats>(&object_id)
     else {
         return;
     };

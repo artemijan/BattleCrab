@@ -4,7 +4,7 @@ use crate::game_loop::helpers::send_sm_bare_to_player as send_sm;
 use crate::game_loop::helpers::send_sm_bare_to_player;
 use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::npc::npc_template;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 use crate::model::formulas;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
@@ -71,7 +71,7 @@ pub(crate) fn apply_spoil(world: &mut World, caster_oid: i32, target_oid: i32, s
 /// front by `resolve_cast_target` (the `OpSweeper` condition), so here we only
 /// re-check ownership defensively and distribute the claimed items.
 pub(crate) fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32) {
-    use crate::model::components::Position;
+    use crate::model::components::space::Position;
     use crate::model::npc::Npc;
 
     if !crate::game_loop::combat::is_npc_oid(target_oid) {
@@ -254,7 +254,7 @@ pub(crate) fn apply_sow(world: &mut World, caster_oid: i32, target_oid: i32) {
     };
     match world
         .objects
-        .get_component::<crate::model::components::PartyRef>(&caster_oid)
+        .get_component::<crate::model::components::social::PartyRef>(&caster_oid)
         .map(|p| p.0)
     {
         Some(party_id) => {

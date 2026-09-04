@@ -150,7 +150,7 @@ fn players_in_zone(world: &World, zone_id: i32) -> usize {
         .filter(|oid| {
             world
                 .objects
-                .get_component::<crate::model::components::Position>(oid)
+                .get_component::<crate::model::components::space::Position>(oid)
                 .is_some_and(|p| {
                     p.z >= zone.territory.min_z
                         && p.z <= zone.territory.max_z

@@ -67,7 +67,7 @@ pub(crate) fn defence_after_shield(
 pub(crate) fn target_p_def(world: &World, target_oid: i32) -> f64 {
     if let Some(cs) = world
         .objects
-        .get_component::<components::CombatStats>(&target_oid)
+        .get_component::<components::stats::CombatStats>(&target_oid)
     {
         return cs.p_def;
     }
@@ -184,14 +184,17 @@ fn element_stat(
         .unwrap_or(0.0);
     if let Some(mods) = world
         .objects
-        .get_component::<components::StatModifiers>(&oid)
+        .get_component::<components::stats::StatModifiers>(&oid)
     {
         return base * mods.mul.get(&stat).copied().unwrap_or(1.0)
             + mods.add.get(&stat).copied().unwrap_or(0.0);
     }
     // NPC: fold the active buffs' stat modifiers for this stat.
     let (mut add, mut mul) = (0.0, 1.0);
-    if let Some(buffs) = world.objects.get_component::<components::Buffs>(&oid) {
+    if let Some(buffs) = world
+        .objects
+        .get_component::<components::skills::Buffs>(&oid)
+    {
         for b in &buffs.0 {
             for m in &b.effects {
                 if m.stat == stat {
@@ -215,7 +218,7 @@ fn element_stat(
 pub(crate) fn caster_m_atk(world: &World, caster_oid: i32) -> f64 {
     world
         .objects
-        .get_component::<components::CombatStats>(&caster_oid)
+        .get_component::<components::stats::CombatStats>(&caster_oid)
         .map(|c| c.m_atk)
         .unwrap_or(0.0)
 }
@@ -223,7 +226,7 @@ pub(crate) fn caster_m_atk(world: &World, caster_oid: i32) -> f64 {
 pub(crate) fn target_m_def(world: &World, target_oid: i32) -> f64 {
     if let Some(cs) = world
         .objects
-        .get_component::<components::CombatStats>(&target_oid)
+        .get_component::<components::stats::CombatStats>(&target_oid)
     {
         // Players + NPCs: memoized at spawn through the MDefenseFinalizer shape.
         return cs.m_def;
@@ -313,12 +316,12 @@ pub(crate) fn calc_counter_attack(
     let (target_p_atk, attacker_p_def) = (
         world
             .objects
-            .get_component::<components::CombatStats>(&target_oid)
+            .get_component::<components::stats::CombatStats>(&target_oid)
             .map(|c| c.p_atk)
             .unwrap_or(0.0),
         world
             .objects
-            .get_component::<components::CombatStats>(&attacker_oid)
+            .get_component::<components::stats::CombatStats>(&attacker_oid)
             .map(|c| c.p_def)
             .unwrap_or(0.0)
             .max(1.0),
@@ -497,7 +500,7 @@ pub(crate) fn apply_buff_to_npc(
 ) {
     match world
         .objects
-        .get_component_mut::<components::Buffs>(&target_oid)
+        .get_component_mut::<components::skills::Buffs>(&target_oid)
     {
         Some(b) => {
             b.0.retain(|x| x.skill_id != skill_id);
@@ -522,7 +525,7 @@ pub(crate) fn apply_buff_to_npc(
 pub(crate) fn refresh_summon_info(world: &mut World, target_oid: i32) {
     let Some(owner) = world
         .objects
-        .get_component::<crate::model::components::ServitorOf>(&target_oid)
+        .get_component::<crate::model::components::summons::ServitorOf>(&target_oid)
         .map(|s| s.owner_object_id)
     else {
         return;
@@ -544,7 +547,7 @@ pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
     let now = world.tick;
     let pkt = match world
         .objects
-        .get_component::<components::Buffs>(&target_oid)
+        .get_component::<components::skills::Buffs>(&target_oid)
     {
         Some(buffs) => crate::network::enter_world::ex_abnormal_status_update_from_target(
             target_oid, buffs, now,
@@ -552,13 +555,14 @@ pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
         None => return,
     };
     let mut observers: Vec<i32> = Vec::new();
-    world
-        .objects
-        .for_each_mut::<(&crate::model::Player, &crate::model::components::TargetRef)>(|(p, t)| {
-            if t.0 == Some(target_oid) {
-                observers.push(p.object_id);
-            }
-        });
+    world.objects.for_each_mut::<(
+        &crate::model::Player,
+        &crate::model::components::combat::TargetRef,
+    )>(|(p, t)| {
+        if t.0 == Some(target_oid) {
+            observers.push(p.object_id);
+        }
+    });
     for oid in observers {
         helpers::send_to_player(world, oid, pkt.clone());
     }
@@ -589,10 +593,10 @@ pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
         t.is_raid() || crate::game_loop::npc::minions::is_raid_minion(world, target_oid),
     );
     if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
-        &components::Buffs,
-        &mut components::CombatStats,
-        &mut components::Speeds,
-        &mut components::Vitals,
+        &components::skills::Buffs,
+        &mut components::stats::CombatStats,
+        &mut components::stats::Speeds,
+        &mut components::stats::Vitals,
     )>(&target_oid)
     {
         crate::model::npc_stats::recompute_npc_stats_from_buffs(
@@ -615,7 +619,7 @@ pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
 /// carry never move the bar. Current values are only clamped *down* (Java
 /// doesn't heal on a max increase). Callers already broadcast UserInfo.
 pub(crate) fn recompute_max_vitals(world: &mut World, oid: i32) {
-    use crate::model::components::{PlayerVitals, StatModifiers, Vitals};
+    use crate::model::components::stats::{PlayerVitals, StatModifiers, Vitals};
     use crate::model::inventory::Inventory;
     let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) else {
         return;
@@ -725,7 +729,7 @@ pub(crate) fn schedule_dam_over_time(
 pub(crate) fn broadcast_vitals(world: &World, target_oid: i32) {
     if let Some(v) = world
         .objects
-        .get_component::<components::Vitals>(&target_oid)
+        .get_component::<components::stats::Vitals>(&target_oid)
         .copied()
     {
         helpers::send_to_player(
@@ -765,7 +769,7 @@ pub(crate) fn physical_attack(
     let (p_atk, level, str_bonus, random_dmg, caster_name) = {
         let cs = world
             .objects
-            .get_component::<components::CombatStats>(&caster_oid);
+            .get_component::<components::stats::CombatStats>(&caster_oid);
         let p_atk = cs.map(|c| c.p_atk).unwrap_or(0.0);
         let random_dmg = cs.map(|c| c.random_dmg).unwrap_or(0);
         let str_bonus = caster_str_bonus(world, caster_oid);
@@ -829,7 +833,7 @@ pub(crate) fn physical_attack(
     let damage = if hp_link {
         let v = world
             .objects
-            .get_component::<components::Vitals>(&caster_oid)
+            .get_component::<components::stats::Vitals>(&caster_oid)
             .copied();
         match v {
             Some(v) if v.max_hp > 0 => damage * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0),

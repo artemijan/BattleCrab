@@ -14,7 +14,7 @@
 //! the conditions as a robe is worn or removed — mirroring [`expertise`].
 //! No-op when the applicable set is unchanged; resends `UserInfo` when it flips.
 
-use crate::model::components::SkillBook;
+use crate::model::components::skills::SkillBook;
 use crate::model::inventory::Inventory;
 use crate::model::skill::effects::StatModifierEffect;
 use crate::world::World;
@@ -85,7 +85,7 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
     // the bar crosses 30 %.
     let hp_percent = world
         .objects
-        .get_component::<crate::model::components::Vitals>(&object_id)
+        .get_component::<crate::model::components::stats::Vitals>(&object_id)
         .map(|v| crate::model::max_vitals::hp_percent_of(v.cur_hp, v.max_hp))
         .unwrap_or(100);
     let desired = crate::model::equip_conditions::conditioned_passive_buffs(

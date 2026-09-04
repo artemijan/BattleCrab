@@ -24,7 +24,7 @@ use crate::game_loop::helpers::{
     send_action_failed, send_message, send_sm_bare_to_client, send_to_client,
 };
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::Observing;
+use crate::model::components::player::Observing;
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 

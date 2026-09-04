@@ -17,7 +17,8 @@ use crate::game_loop::space::position;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{clans, helpers, npc, skills};
 use crate::model::Player;
-use crate::model::components::{AdminFlags, PartyRef};
+use crate::model::components::player::AdminFlags;
+use crate::model::components::social::PartyRef;
 use crate::model::npc::Npc;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
@@ -521,7 +522,7 @@ pub(super) fn admin_viewblockedeffects(world: &mut World, client_id: u32, object
     let mut blocked: Vec<String> = Vec::new();
     if let Some(buffs) = world
         .objects
-        .get_component::<crate::model::components::Buffs>(&target)
+        .get_component::<crate::model::components::skills::Buffs>(&target)
     {
         for b in buffs.0.iter() {
             if let Some(skill) = world.data.skill_data.get(b.skill_id, b.skill_level) {
@@ -1058,7 +1059,7 @@ pub(super) fn admin_skill_test(world: &mut World, client_id: u32, object_id: i32
     let usage = "Command format is //skill_test <ID>";
     let target = world
         .objects
-        .get_component::<crate::model::components::TargetRef>(&object_id)
+        .get_component::<crate::model::components::combat::TargetRef>(&object_id)
         .and_then(|t| t.0);
     let (Some(skill_id), Some(target_oid)) = (helpers::nth_arg::<i32>(args, 0), target) else {
         send_message(world, client_id, usage);
@@ -1092,7 +1093,7 @@ pub(super) fn admin_skill_test(world: &mut World, client_id: u32, object_id: i32
     } else {
         world.objects.add_components(
             &caster_oid,
-            crate::model::components::TargetRef(Some(object_id)),
+            crate::model::components::combat::TargetRef(Some(object_id)),
         );
     }
     let pkt = server_packets::magic_skill_use_raw(

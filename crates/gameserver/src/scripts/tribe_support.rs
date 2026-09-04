@@ -151,7 +151,7 @@ fn cast_buff(ctx: &mut QuestCtx, skill_id: i32) {
     if let Some(v) = ctx
         .world
         .objects
-        .get_component_mut::<crate::model::components::Vitals>(&npc)
+        .get_component_mut::<crate::model::components::stats::Vitals>(&npc)
     {
         v.cur_hp = v.max_hp as f64;
         v.cur_mp = v.max_mp as f64;

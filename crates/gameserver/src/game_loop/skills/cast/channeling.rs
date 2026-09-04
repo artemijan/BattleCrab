@@ -12,7 +12,7 @@ use crate::game_loop::skills::effects::apply_skill_effects;
 use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -196,7 +196,7 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
 pub(crate) fn buff_level(world: &World, oid: i32, skill_id: i32) -> Option<i32> {
     world
         .objects
-        .get_component::<crate::model::components::Buffs>(&oid)
+        .get_component::<crate::model::components::skills::Buffs>(&oid)
         .and_then(|b| {
             b.0.iter()
                 .find(|a| a.skill_id == skill_id)

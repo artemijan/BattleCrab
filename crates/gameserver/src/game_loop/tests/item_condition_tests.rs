@@ -403,9 +403,10 @@ fn the_instance_gate_matches_the_template_id() {
     assert!(!is_equipped(&world, ITEM_OID), "not in an instance");
 
     let instance_id = world.instances.create(44);
-    world
-        .objects
-        .add_components(&PLAYER, crate::model::components::InstanceId(instance_id));
+    world.objects.add_components(
+        &PLAYER,
+        crate::model::components::space::InstanceId(instance_id),
+    );
     items::handle_use_item(&mut world, CID, &use_item_body(ITEM_OID));
     assert!(is_equipped(&world, ITEM_OID), "inside template 44");
 }

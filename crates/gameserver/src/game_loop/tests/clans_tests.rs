@@ -326,7 +326,7 @@ fn clan_roster_notifications_and_chat() {
 fn clan_warehouse_withdrawal_is_leader_only_at_the_shipped_setting() {
     use crate::game_loop::commerce::warehouse;
     use crate::model::clan::{Clan, ClanMember};
-    use crate::model::components::ActiveWarehouse;
+    use crate::model::components::commerce::ActiveWarehouse;
     let (mut world, _tx, _db_rx, _lrx) = admin_world();
     let _leader_rx = ingame_player_access(&mut world, 1, 3001, 0);
     let _member_rx = ingame_player_access(&mut world, 2, 3002, 0);
@@ -882,7 +882,7 @@ fn the_profession_change_listener_honours_javas_leader_gate() {
 fn give_clan_skills_grants_gates_and_persists() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
     use crate::model::clan::{Clan, ClanMember};
-    use crate::model::components::{Buffs, ClanSkills};
+    use crate::model::components::skills::{Buffs, ClanSkills};
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     // Two clan skills: 370 gated at HEIR (ordinal 3), 371 gated at COUNT (8).
@@ -1052,7 +1052,7 @@ fn give_clan_skills_grants_gates_and_persists() {
 fn give_clan_skills_purges_residence_and_reapplies() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
     use crate::model::clan::{Clan, ClanMember};
-    use crate::model::components::ClanSkills;
+    use crate::model::components::skills::ClanSkills;
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     // Clan skill 370 (HEIR, non-residence) + residence skill 590.
@@ -1180,7 +1180,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
 /// where these finalizers ignored buff modifiers entirely.
 #[test]
 fn max_vitals_finalizers_apply_buff_modifiers() {
-    use crate::model::components::StatModifiers;
+    use crate::model::components::stats::StatModifiers;
     use crate::model::stats::Stat;
 
     let (world, _db_rx, _link_rx) = quest_test_world();
@@ -1218,7 +1218,7 @@ fn max_vitals_finalizers_apply_buff_modifiers() {
 /// the vitals for it).
 #[test]
 fn superhaste_maxmp_doubles_mp() {
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
 
     let (mut world, _db_rx, _link_rx) = quest_test_world();
     // The real Super Haste 7029 L4 from the datapack (+100% MaxMp, PER).
@@ -1247,7 +1247,7 @@ fn superhaste_maxmp_doubles_mp() {
 /// `UserInfo` (the character showed only its base MP).
 #[test]
 fn passive_max_mp_skill_boosts_mp_at_login() {
-    use crate::model::components::StatModifiers;
+    use crate::model::components::stats::StatModifiers;
     use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
     use crate::model::skill::target::OperateType;
     use crate::model::stats::{Stat, StatModifierType};
@@ -1291,7 +1291,7 @@ fn passive_max_mp_skill_boosts_mp_at_login() {
 fn clan_skills_move_max_hp_mp_cp() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
     use crate::model::clan::{Clan, ClanMember};
-    use crate::model::components::{PlayerVitals, StatModifiers, Vitals};
+    use crate::model::components::stats::{PlayerVitals, StatModifiers, Vitals};
     use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
 
@@ -1441,7 +1441,7 @@ fn clan_skills_move_max_hp_mp_cp() {
 #[test]
 fn siege_skills_granted_to_level5_clan_leader_only() {
     use crate::model::clan::{Clan, ClanMember};
-    use crate::model::components::ClanSkills;
+    use crate::model::components::skills::ClanSkills;
 
     let (mut world, _db_rx, _link_rx) = quest_test_world();
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -1544,7 +1544,7 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
 fn clan_skills_reapply_on_member_login() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
     use crate::model::clan::{Clan, ClanMember};
-    use crate::model::components::ClanSkills;
+    use crate::model::components::skills::ClanSkills;
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     world
@@ -2483,7 +2483,7 @@ fn pledge_skill_learning_spends_reputation() {
     assert!(
         world
             .objects
-            .get_component::<model::components::ClanSkills>(&3002)
+            .get_component::<model::components::skills::ClanSkills>(&3002)
             .is_some_and(|c| c.0.get(&370) == Some(&1))
     );
 
@@ -4408,7 +4408,7 @@ fn residence_learn() -> crate::data::pledge_skill_tree::PledgeSkillLearn {
 fn has_clan_skill(world: &World, oid: i32, id: i32) -> bool {
     world
         .objects
-        .get_component::<model::components::ClanSkills>(&oid)
+        .get_component::<model::components::skills::ClanSkills>(&oid)
         .is_some_and(|c| c.0.contains_key(&id))
 }
 

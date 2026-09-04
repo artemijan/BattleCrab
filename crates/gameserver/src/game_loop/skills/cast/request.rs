@@ -84,7 +84,7 @@ pub(crate) fn handle_request_magic_skill_use_ground(
     };
     world.objects.add_components(
         &object_id,
-        crate::model::components::GroundSkillTarget {
+        crate::model::components::space::GroundSkillTarget {
             x: pkt.x,
             y: pkt.y,
             z: pkt.z,
@@ -92,7 +92,7 @@ pub(crate) fn handle_request_magic_skill_use_ground(
     );
     if let Some(pos) = world
         .objects
-        .get_component_mut::<components::Position>(&object_id)
+        .get_component_mut::<components::space::Position>(&object_id)
     {
         pos.heading = crate::model::movement::calculate_heading(
             (pkt.x - pos.x) as f64,
@@ -179,7 +179,7 @@ pub(crate) fn use_magic_on(
     // any sub the data lacks.
     let sub_level = world
         .objects
-        .get_component::<crate::model::components::SkillEnchants>(&object_id)
+        .get_component::<crate::model::components::skills::SkillEnchants>(&object_id)
         .and_then(|e| e.0.get(&magic_id).copied())
         .unwrap_or(0);
     let Some(skill) = world
@@ -229,7 +229,7 @@ pub(crate) fn use_magic_on(
     if skill.operate_type == OperateType::Toggle {
         let already_on = world
             .objects
-            .get_component::<crate::model::components::Buffs>(&object_id)
+            .get_component::<crate::model::components::skills::Buffs>(&object_id)
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill.id));
         if already_on {
             crate::game_loop::skills::effects::handle_buff_expire(world, object_id, skill.id);
@@ -241,7 +241,7 @@ pub(crate) fn use_magic_on(
             // exclusive, so switching this one on drops its siblings.
             let siblings: Vec<i32> = world
                 .objects
-                .get_component::<crate::model::components::Buffs>(&object_id)
+                .get_component::<crate::model::components::skills::Buffs>(&object_id)
                 .map(|b| {
                     b.0.iter()
                         .map(|x| x.skill_id)
@@ -306,7 +306,7 @@ pub(crate) fn use_magic_on(
     if skill.target_type == TargetType::Ground
         && !world
             .objects
-            .has_component::<crate::model::components::GroundSkillTarget>(&object_id)
+            .has_component::<crate::model::components::space::GroundSkillTarget>(&object_id)
     {
         helpers::send_action_failed(world, client_id);
         return;
@@ -342,7 +342,7 @@ pub(crate) fn use_magic_on(
     let caster_target = forced_target.or_else(|| {
         world
             .objects
-            .get_component::<crate::model::components::TargetRef>(&object_id)
+            .get_component::<crate::model::components::combat::TargetRef>(&object_id)
             .copied()
             .unwrap_or_default()
             .0
@@ -354,7 +354,7 @@ pub(crate) fn use_magic_on(
         && (world.objects.has_component::<Player>(&t)
             || world
                 .objects
-                .has_component::<crate::model::components::ServitorOf>(&t))
+                .has_component::<crate::model::components::summons::ServitorOf>(&t))
         && crate::game_loop::combat::pvp::protection_blessing_blocks(world, object_id, t)
     {
         helpers::send_sm_and_action_failed(
@@ -407,16 +407,16 @@ pub(crate) fn use_magic_on(
     // Java checks MP only after this, so a low-MP click still queues.
     let mid_swing = world
         .objects
-        .get_component::<components::AttackState>(&object_id)
+        .get_component::<components::combat::AttackState>(&object_id)
         .is_some_and(|st| st.attack_end_tick > world.tick);
     if mid_swing
         || world
             .objects
-            .has_component::<components::Casting>(&object_id)
+            .has_component::<components::combat::Casting>(&object_id)
     {
         world.objects.add_components(
             &object_id,
-            components::QueuedAction::Skill {
+            components::combat::QueuedAction::Skill {
                 skill_id: magic_id,
                 ctrl,
                 shift,
@@ -433,7 +433,7 @@ pub(crate) fn use_magic_on(
         crate::game_loop::skills::effects::mp_consume_for(world, object_id, &skill);
     let Some(v) = world
         .objects
-        .get_component::<components::Vitals>(&object_id)
+        .get_component::<components::stats::Vitals>(&object_id)
     else {
         return;
     };
@@ -509,18 +509,20 @@ pub(crate) fn use_magic_on(
     if matches!(
         world
             .objects
-            .get_component::<components::Intent>(&object_id),
-        Some(components::Intent(crate::model::PlayerIntent::Cast { .. }))
+            .get_component::<components::combat::Intent>(&object_id),
+        Some(components::combat::Intent(
+            crate::model::PlayerIntent::Cast { .. }
+        ))
     ) {
         world
             .objects
-            .remove_component::<components::Intent>(&object_id);
+            .remove_component::<components::combat::Intent>(&object_id);
     }
 
     if out_of_range {
         world.objects.add_components(
             &object_id,
-            components::Intent(crate::model::PlayerIntent::Cast {
+            components::combat::Intent(crate::model::PlayerIntent::Cast {
                 skill_id: magic_id,
                 ctrl,
                 shift,

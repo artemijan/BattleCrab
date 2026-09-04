@@ -11,7 +11,7 @@ use super::*;
 use crate::data::action_data::ActionData;
 use crate::game_loop::client::actions;
 use crate::game_loop::client::dispatch::on_packet;
-use crate::model::components::Speeds;
+use crate::model::components::stats::Speeds;
 use crate::network::server_packets::opcodes;
 
 const DIST: &str = crate::data::DIST_GAME;

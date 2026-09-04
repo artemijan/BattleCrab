@@ -9,7 +9,7 @@ use crate::game_loop::helpers::is_dead;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
-use crate::model::components::Casting;
+use crate::model::components::combat::Casting;
 use crate::model::npc::AggroList;
 use crate::model::npc::NpcAi;
 use crate::model::npc::NpcIntention;
@@ -119,7 +119,7 @@ pub(crate) fn faction_call_on_kill(world: &mut World, npc_oid: i32, killer_oid: 
         .has_component::<crate::model::Player>(&killer_oid)
         || world
             .objects
-            .has_component::<crate::model::components::ServitorOf>(&killer_oid);
+            .has_component::<crate::model::components::summons::ServitorOf>(&killer_oid);
     if !killer_is_playable {
         return;
     }

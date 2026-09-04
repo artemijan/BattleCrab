@@ -7,7 +7,7 @@
 
 use super::*;
 use crate::game_loop::skills::effects::handle_buff_expire;
-use crate::model::components::{Movement, Position};
+use crate::model::components::space::{Movement, Position};
 use crate::model::npc::{NpcAi, NpcIntention};
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;

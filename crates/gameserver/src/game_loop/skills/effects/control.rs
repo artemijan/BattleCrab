@@ -14,8 +14,8 @@ use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
 use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::ai::force_attack_target;
 use crate::game_loop::space::position;
-use crate::model::components::StatModifiers;
-use crate::model::components::Vitals;
+use crate::model::components::stats::StatModifiers;
+use crate::model::components::stats::Vitals;
 use crate::model::formulas;
 use crate::model::skill::Skill;
 use crate::network::server_packets;
@@ -255,10 +255,10 @@ pub(crate) fn fear_can_start(world: &World, target_oid: i32) -> bool {
     // which its non-Attackable "Servitor" type would otherwise reject.)
     if world
         .objects
-        .has_component::<crate::model::components::ServitorOf>(&target_oid)
+        .has_component::<crate::model::components::summons::ServitorOf>(&target_oid)
         || world
             .objects
-            .has_component::<crate::model::components::PetOf>(&target_oid)
+            .has_component::<crate::model::components::summons::PetOf>(&target_oid)
     {
         return true;
     }
@@ -367,7 +367,7 @@ pub(crate) fn record_overhit(
     damage: f64,
     over_hit: bool,
 ) {
-    use crate::model::components::Overhit;
+    use crate::model::components::combat::Overhit;
     if damage <= 0.0 {
         return;
     }
@@ -447,11 +447,11 @@ pub(crate) fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) 
     // Then freeze them where they stand and tell everyone who can see them.
     if world
         .objects
-        .has_component::<crate::model::components::Movement>(&target_oid)
+        .has_component::<crate::model::components::space::Movement>(&target_oid)
     {
         world
             .objects
-            .remove_component::<crate::model::components::Movement>(&target_oid);
+            .remove_component::<crate::model::components::space::Movement>(&target_oid);
         if let Some(pos) = maybe_position(world, target_oid)
             && let Some(region) = position::region_cell_of(world, target_oid)
         {
@@ -474,7 +474,7 @@ pub(crate) fn creature_level(world: &World, oid: i32) -> i32 {
     // player split because a cubic's caster entity is neither.
     if let Some(c) = world
         .objects
-        .get_component::<crate::model::components::CubicOf>(&oid)
+        .get_component::<crate::model::components::summons::CubicOf>(&oid)
     {
         return world
             .objects
@@ -603,7 +603,7 @@ pub(crate) fn casting_resists_abnormal(
     }
     let Some(casting) = world
         .objects
-        .get_component::<crate::model::components::Casting>(&target_oid)
+        .get_component::<crate::model::components::combat::Casting>(&target_oid)
     else {
         return false;
     };
@@ -751,7 +751,7 @@ pub(crate) fn check_summon_target_status(
     }
     if world
         .objects
-        .has_component::<crate::model::components::OlympiadObserver>(&member)
+        .has_component::<crate::model::components::player::OlympiadObserver>(&member)
         || world.olympiad.is_registered(member)
     {
         return Some((
@@ -954,13 +954,13 @@ pub(crate) fn teleport_to_target(world: &mut World, caster_oid: i32, target_oid:
     // dash interrupts whatever the caster was doing, its own cast included.
     world
         .objects
-        .remove_component::<crate::model::components::Movement>(&caster_oid);
+        .remove_component::<crate::model::components::space::Movement>(&caster_oid);
     world
         .objects
-        .remove_component::<crate::model::components::Intent>(&caster_oid);
+        .remove_component::<crate::model::components::combat::Intent>(&caster_oid);
     world
         .objects
-        .remove_component::<crate::model::components::AttackState>(&caster_oid);
+        .remove_component::<crate::model::components::combat::AttackState>(&caster_oid);
     crate::game_loop::skills::cast::abort_cast_when_untargeted(world, caster_oid);
 
     // Java broadcasts `FlyToLocation` *before* `setXYZ` and `ValidateLocation`
@@ -1026,13 +1026,13 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
     crate::game_loop::skills::cast::abort_cast_when_untargeted(world, target_oid);
     world
         .objects
-        .remove_component::<crate::model::components::AttackState>(&target_oid);
+        .remove_component::<crate::model::components::combat::AttackState>(&target_oid);
     world
         .objects
-        .remove_component::<crate::model::components::Movement>(&target_oid);
+        .remove_component::<crate::model::components::space::Movement>(&target_oid);
     world
         .objects
-        .remove_component::<crate::model::components::Intent>(&target_oid);
+        .remove_component::<crate::model::components::combat::Intent>(&target_oid);
     // Java's `stopMove(null)` ends with `broadcastPacket(new StopMove(this))`.
     // Dropping the `Movement` component only stops the *server* walking the
     // victim; without the packet every client keeps animating the run toward
@@ -1140,14 +1140,14 @@ pub(crate) fn bluff(
     }
     let Some(caster_heading) = world
         .objects
-        .get_component::<crate::model::components::Position>(&caster_oid)
+        .get_component::<crate::model::components::space::Position>(&caster_oid)
         .map(|p| p.heading)
     else {
         return;
     };
     let target_heading = world
         .objects
-        .get_component::<crate::model::components::Position>(&target_oid)
+        .get_component::<crate::model::components::space::Position>(&target_oid)
         .map(|p| p.heading)
         .unwrap_or(0);
     if let Some(region) = position::region_cell_of(world, target_oid) {
@@ -1160,7 +1160,7 @@ pub(crate) fn bluff(
     }
     if let Some(p) = world
         .objects
-        .get_component_mut::<crate::model::components::Position>(&target_oid)
+        .get_component_mut::<crate::model::components::space::Position>(&target_oid)
     {
         p.heading = caster_heading;
     }
@@ -1182,10 +1182,10 @@ pub(crate) fn fake_death(world: &mut World, target_oid: i32) {
     }
     world
         .objects
-        .remove_component::<crate::model::components::Intent>(&target_oid);
+        .remove_component::<crate::model::components::combat::Intent>(&target_oid);
     if world
         .objects
-        .has_component::<crate::model::components::Casting>(&target_oid)
+        .has_component::<crate::model::components::combat::Casting>(&target_oid)
     {
         crate::game_loop::skills::cast::stop_casting(world, target_oid);
     }
@@ -1194,7 +1194,7 @@ pub(crate) fn fake_death(world: &mut World, target_oid: i32) {
     crate::game_loop::combat::abort_attack(world, target_oid);
     world
         .objects
-        .remove_component::<crate::model::components::Movement>(&target_oid);
+        .remove_component::<crate::model::components::space::Movement>(&target_oid);
     broadcast_change_wait_type(
         world,
         target_oid,
@@ -1258,7 +1258,7 @@ pub(crate) fn target_me(
     // moves.
     let already = world
         .objects
-        .get_component::<crate::model::components::TargetRef>(&target_oid)
+        .get_component::<crate::model::components::combat::TargetRef>(&target_oid)
         .and_then(|t| t.0);
     if already != Some(caster_oid)
         && let Some(client_id) = helpers::client_for_player(world, target_oid)
@@ -1273,7 +1273,7 @@ pub(crate) fn target_me(
     if chance.is_none() {
         world.objects.add_components(
             &target_oid,
-            crate::model::components::LockedTarget(caster_oid),
+            crate::model::components::combat::LockedTarget(caster_oid),
         );
     }
 }
@@ -1494,7 +1494,7 @@ pub(crate) fn cp(world: &mut World, target_oid: i32, amount: f64, percent: bool)
     }
     let Some(pv) = world
         .objects
-        .get_component::<crate::model::components::PlayerVitals>(&target_oid)
+        .get_component::<crate::model::components::stats::PlayerVitals>(&target_oid)
         .copied()
     else {
         return; // NPCs have no CP pool
@@ -1519,7 +1519,7 @@ pub(crate) fn cp(world: &mut World, target_oid: i32, amount: f64, percent: bool)
     if delta != 0.0 {
         if let Some(v) = world
             .objects
-            .get_component_mut::<crate::model::components::PlayerVitals>(&target_oid)
+            .get_component_mut::<crate::model::components::stats::PlayerVitals>(&target_oid)
         {
             v.cur_cp = (v.cur_cp + delta).clamp(0.0, v.max_cp as f64);
         }

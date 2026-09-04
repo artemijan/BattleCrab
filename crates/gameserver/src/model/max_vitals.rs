@@ -4,7 +4,7 @@
 use crate::data::GameData;
 use crate::data::player_template::PlayerTemplate;
 
-use super::components::StatModifiers;
+use super::components::stats::StatModifiers;
 use super::inventory::Inventory;
 use super::stats::Stat;
 

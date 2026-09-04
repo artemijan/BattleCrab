@@ -26,13 +26,14 @@ use crate::game_loop::{combat, items};
 use crate::geo::worker::PathRequest;
 use crate::loginlink::LoginLinkCommand;
 use crate::model::clan::Clan;
-use crate::model::components::Friends;
-use crate::model::components::{
-    AdminFlags, Buffs, Casting, ClientPos, CombatStats, Intent, LastFolkNpc, Movement,
-    PlayerVitals, Position, Reuses, SkillBook, Speeds, TargetRef, Vitals,
-};
-use crate::model::components::{Macros, Shortcuts};
-use crate::model::components::{PartyRef, PendingRequest};
+use crate::model::components::combat::{Casting, Intent, TargetRef};
+use crate::model::components::player::{AdminFlags, LastFolkNpc};
+use crate::model::components::player::{Macros, Shortcuts};
+use crate::model::components::skills::{Buffs, Reuses, SkillBook};
+use crate::model::components::social::Friends;
+use crate::model::components::social::{PartyRef, PendingRequest};
+use crate::model::components::space::{ClientPos, Movement, Position};
+use crate::model::components::stats::{CombatStats, PlayerVitals, Speeds, Vitals};
 use crate::model::formulas;
 use crate::model::inventory::Inventory;
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
@@ -2506,7 +2507,7 @@ fn add_shot_item(
 fn quest_cond(world: &World, player: i32, quest: &str) -> Option<i32> {
     world
         .objects
-        .get_component::<model::components::Quests>(&player)
+        .get_component::<model::components::social::Quests>(&player)
         .and_then(|q| q.0.get(quest).map(|qs| qs.cond()))
 }
 

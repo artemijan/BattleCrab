@@ -9,7 +9,7 @@
 
 use super::*;
 use crate::config::npc::NpcConfig;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
 use crate::model::npc::Npc;
 
 /// `DecayTaskManager.add`: `delay += SPOILED_CORPSE_EXTEND_TIME` when the

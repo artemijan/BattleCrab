@@ -8,8 +8,8 @@ use super::servitor_of;
 use super::summon_pet;
 use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::time::TICKS_PER_SECOND;
-use crate::model::components::ServitorOf;
-use crate::model::components::Vitals;
+use crate::model::components::stats::Vitals;
+use crate::model::components::summons::ServitorOf;
 use crate::world::World;
 /// Java `CharSummonTable.restorePet` — bring back the pet that was out when the
 /// owner logged off.
@@ -27,7 +27,7 @@ pub(crate) fn restore_pet_on_login(world: &mut World, owner_oid: i32) {
     }
     let collar = world
         .objects
-        .get_component::<crate::model::components::PlayerPets>(&owner_oid)
+        .get_component::<crate::model::components::summons::PlayerPets>(&owner_oid)
         .and_then(|p| p.0.values().find(|r| r.restore).map(|r| r.collar_object_id));
     let Some(collar) = collar else { return };
     // The collar must still be there: it can have been traded or destroyed
@@ -65,7 +65,7 @@ pub(crate) fn sync_summon_row(world: &mut World, owner_oid: i32) {
         // logout would come back anyway.
         if let Some(s) = world
             .objects
-            .get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid)
+            .get_component_mut::<crate::model::components::summons::PlayerSummons>(&owner_oid)
         {
             s.0.clear();
         }
@@ -96,7 +96,7 @@ pub(crate) fn sync_summon_row(world: &mut World, owner_oid: i32) {
     let now = world.tick;
     let buffs = world
         .objects
-        .get_component::<crate::model::components::Buffs>(&servitor_oid)
+        .get_component::<crate::model::components::skills::Buffs>(&servitor_oid)
         .map(|b| {
             b.0.iter()
                 .filter(|buf| buf.expires_at_tick > now)
@@ -117,17 +117,17 @@ pub(crate) fn sync_summon_row(world: &mut World, owner_oid: i32) {
     };
     if world
         .objects
-        .get_component::<crate::model::components::PlayerSummons>(&owner_oid)
+        .get_component::<crate::model::components::summons::PlayerSummons>(&owner_oid)
         .is_none()
     {
         world.objects.add_components(
             &owner_oid,
-            crate::model::components::PlayerSummons::default(),
+            crate::model::components::summons::PlayerSummons::default(),
         );
     }
     if let Some(s) = world
         .objects
-        .get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid)
+        .get_component_mut::<crate::model::components::summons::PlayerSummons>(&owner_oid)
     {
         s.0.clear();
         s.0.push(row);
@@ -149,7 +149,7 @@ pub(crate) fn restore_servitor_on_login(world: &mut World, owner_oid: i32) {
     }
     let Some(row) = world
         .objects
-        .get_component::<crate::model::components::PlayerSummons>(&owner_oid)
+        .get_component::<crate::model::components::summons::PlayerSummons>(&owner_oid)
         .and_then(|s| s.0.first().cloned())
     else {
         return;
@@ -158,13 +158,13 @@ pub(crate) fn restore_servitor_on_login(world: &mut World, owner_oid: i32) {
     // a skill the player no longer knows must not be retried every login.
     if let Some(s) = world
         .objects
-        .get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid)
+        .get_component_mut::<crate::model::components::summons::PlayerSummons>(&owner_oid)
     {
         s.0.clear();
     }
     let Some(level) = world
         .objects
-        .get_component::<crate::model::components::SkillBook>(&owner_oid)
+        .get_component::<crate::model::components::skills::SkillBook>(&owner_oid)
         .and_then(|b| b.0.get(&row.summon_skill_id).copied())
     else {
         return; // unlearned across a subclass change — nothing to restore

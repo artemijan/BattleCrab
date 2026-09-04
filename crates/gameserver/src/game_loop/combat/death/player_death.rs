@@ -7,10 +7,10 @@ use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::helpers::send_sm_to_player;
 use crate::game_loop::net::broadcast;
 use crate::model::Player;
-use crate::model::components::Intent;
-use crate::model::components::Movement;
-use crate::model::components::StatModifiers;
-use crate::model::components::Vitals;
+use crate::model::components::combat::Intent;
+use crate::model::components::space::Movement;
+use crate::model::components::stats::StatModifiers;
+use crate::model::components::stats::Vitals;
 use crate::network::server_packets;
 use crate::network::server_packets::SmParam;
 use crate::network::server_packets::sm_ids;
@@ -48,10 +48,10 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         world.objects.remove_component::<Intent>(&player_oid);
         world
             .objects
-            .remove_component::<crate::model::components::QueuedAction>(&player_oid);
+            .remove_component::<crate::model::components::combat::QueuedAction>(&player_oid);
         if let Some(t) = world
             .objects
-            .get_component_mut::<crate::model::components::TargetRef>(&player_oid)
+            .get_component_mut::<crate::model::components::combat::TargetRef>(&player_oid)
         {
             t.0 = None;
         }
@@ -105,7 +105,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // Arena and siege deaths are free.
     let in_free_death_zone = world
         .objects
-        .get_component::<crate::model::components::ZoneFlags>(&player_oid)
+        .get_component::<crate::model::components::space::ZoneFlags>(&player_oid)
         .is_some_and(|f| {
             f.contains(crate::data::zone_data::ZoneKind::Pvp)
                 || f.contains(crate::data::zone_data::ZoneKind::Siege)

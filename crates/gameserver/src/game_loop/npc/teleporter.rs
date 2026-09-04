@@ -438,7 +438,7 @@ fn is_noble(world: &World, player_object_id: i32) -> bool {
 fn npc_castle_id(world: &World, npc_object_id: i32) -> Option<i32> {
     let pos = world
         .objects
-        .get_component::<crate::model::components::Position>(&npc_object_id)?;
+        .get_component::<crate::model::components::space::Position>(&npc_object_id)?;
     world
         .data
         .zone_data

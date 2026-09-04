@@ -12,10 +12,10 @@ use crate::game_loop::npc::walkers::WalkState;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::space::position::region_cell_of;
 use crate::game_loop::{abnormal, npc};
-use crate::model::components::Movement;
-use crate::model::components::Position;
-use crate::model::components::Speeds;
-use crate::model::components::Vitals;
+use crate::model::components::space::Movement;
+use crate::model::components::space::Position;
+use crate::model::components::stats::Speeds;
+use crate::model::components::stats::Vitals;
 use crate::model::movement::MoveData;
 use crate::network::server_packets;
 use crate::world::World;
@@ -229,14 +229,14 @@ fn npc_geo_move(world: &mut World, npc_oid: i32, dest: (i32, i32, i32), pawn: Op
         // for the same mob.
         if world
             .objects
-            .has_component::<crate::model::components::PathWait>(&npc_oid)
+            .has_component::<crate::model::components::space::PathWait>(&npc_oid)
         {
             return;
         }
         let seq = world.next_path_seq();
         world
             .objects
-            .add_components(&npc_oid, crate::model::components::PathWait { seq });
+            .add_components(&npc_oid, crate::model::components::space::PathWait { seq });
         let _ = world.path.send(crate::geo::worker::PathRequest {
             seq,
             // NPCs have no client; every client-facing send on the reply path

@@ -7,7 +7,8 @@
 
 use super::*;
 
-use crate::model::components::{PetOf, Vitals};
+use crate::model::components::stats::Vitals;
+use crate::model::components::summons::PetOf;
 use crate::scripts::baby_pets;
 
 const OWNER: i32 = 9901;

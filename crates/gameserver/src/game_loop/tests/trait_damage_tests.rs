@@ -49,7 +49,7 @@ fn attack_traits_merge_onto_an_identity_of_one() {
     merge_attack_traits(&mut world, ATTACKER, &[(beast, 0.30)]);
     let traits = world
         .objects
-        .get_component::<model::components::AttackTraits>(&ATTACKER)
+        .get_component::<model::components::stats::AttackTraits>(&ATTACKER)
         .expect("the accumulator exists");
     assert!((traits.values[&beast] - 1.30).abs() < 1e-9, "1.0 + 30/100");
 
@@ -58,7 +58,7 @@ fn attack_traits_merge_onto_an_identity_of_one() {
     assert!(
         (world
             .objects
-            .get_component::<model::components::AttackTraits>(&ATTACKER)
+            .get_component::<model::components::stats::AttackTraits>(&ATTACKER)
             .unwrap()
             .values[&beast]
             - 1.50)
@@ -70,7 +70,7 @@ fn attack_traits_merge_onto_an_identity_of_one() {
     assert!(
         !world
             .objects
-            .get_component::<model::components::AttackTraits>(&ATTACKER)
+            .get_component::<model::components::stats::AttackTraits>(&ATTACKER)
             .unwrap()
             .values
             .contains_key(&beast),
@@ -347,7 +347,7 @@ fn the_race_skills_carry_the_weakness_defence_traits() {
 #[test]
 fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
     use crate::game_loop;
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
 
     let swing = |trait_pct: Option<f64>| {
         let (mut world, _db, _l) = combat_test_world();
@@ -425,7 +425,7 @@ fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
 #[test]
 fn a_physical_skill_is_softened_by_the_weapon_trait_too() {
     use crate::game_loop;
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
 
     let hit = |with_trait: bool| {
         let (mut world, _db, _l) = combat_test_world();

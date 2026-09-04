@@ -62,7 +62,7 @@ fn heal_on_other_restores_hp_with_formula() {
 /// at click time, the equip lands when the cast stops.
 #[test]
 fn equip_click_during_cast_is_deferred_to_cast_end() {
-    use crate::model::components::QueuedAction;
+    use crate::model::components::combat::QueuedAction;
     use crate::model::inventory::Inventory;
 
     let (mut world, ..) = cast_test_world();
@@ -534,7 +534,7 @@ fn equipping_gear_updates_combat_stats() {
 /// ceiling as the physical one, which a buffed level-80 caster can reach.
 #[test]
 fn evasion_may_go_negative_but_never_past_the_ceiling() {
-    use crate::model::components::StatModifiers;
+    use crate::model::components::stats::StatModifiers;
     use crate::model::stats::Stat;
 
     let (mut world, ..) = cast_test_world();
@@ -753,7 +753,7 @@ fn equipping_gear_updates_max_hp_mp() {
     use crate::data::item_data::SLOT_NECK;
     use crate::data::item_data::kinds::{CrystalType, ItemHandler, ItemKind};
     use crate::data::item_data::template::{ItemStats, ItemTemplate};
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
     use crate::model::inventory::Inventory;
     use crate::model::stats::Stat;
 
@@ -1397,7 +1397,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
 fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
     use crate::data::item_data::kinds::{ItemHandler, ItemKind};
     use crate::data::item_data::template::ItemTemplate;
-    use crate::model::components::Casting;
+    use crate::model::components::combat::Casting;
     use crate::model::inventory::Inventory;
     use crate::model::skill::effects::SkillEffect;
 
@@ -2405,7 +2405,7 @@ fn soulshot_consumed_on_hit_doubles_melee_damage() {
 #[test]
 fn spiritshot_doubles_magic_damage_and_is_consumed() {
     use crate::game_loop;
-    use crate::model::components::Vitals;
+    use crate::model::components::stats::Vitals;
     use crate::model::{Player, ShotType};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -2479,7 +2479,7 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
 #[test]
 fn physical_skill_damages_monster_and_soulshot_doubles() {
     use crate::game_loop;
-    use crate::model::components::{CombatStats, Vitals};
+    use crate::model::components::stats::{CombatStats, Vitals};
     use crate::model::{Player, ShotType};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -2769,7 +2769,7 @@ fn drop_and_pickup_ground_item() {
     assert_eq!(count_of(&world), 600, "400 left the inventory");
     let g = world
         .objects
-        .get_component::<model::components::GroundItem>(&item_oid)
+        .get_component::<model::components::commerce::GroundItem>(&item_oid)
         .expect("ground item spawned");
     assert_eq!((g.item_id, g.count), (57, 400));
     assert!(
@@ -2796,7 +2796,7 @@ fn drop_and_pickup_ground_item() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::commerce::GroundItem>(&item_oid),
         "ground item removed"
     );
     assert!(
@@ -2851,7 +2851,7 @@ fn a_dropped_item_keeps_its_enchant_when_picked_back_up() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::GroundItem>(&ground_oid)
+            .get_component::<model::components::commerce::GroundItem>(&ground_oid)
             .expect("ground item spawned")
             .enchant,
         7,
@@ -2973,7 +2973,7 @@ fn drop_beyond_150_units_is_refused() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::commerce::GroundItem>(&ground_oid),
         "nothing reached the ground"
     );
     assert_eq!(
@@ -3010,7 +3010,7 @@ fn drop_more_than_50_units_below_is_refused() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::commerce::GroundItem>(&ground_oid),
         "nothing reached the ground"
     );
     assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
@@ -3026,7 +3026,7 @@ fn drop_more_than_50_units_below_is_refused() {
     assert!(
         world
             .objects
-            .has_component::<model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::commerce::GroundItem>(&ground_oid),
         "the in-range drop goes through"
     );
 }
@@ -3078,7 +3078,7 @@ fn drop_inside_a_no_item_drop_zone_is_refused() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::commerce::GroundItem>(&ground_oid),
         "nothing reached the ground inside the zone"
     );
     assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
@@ -3139,7 +3139,7 @@ fn drop_while_casting_a_known_skill_is_refused_by_name() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::commerce::GroundItem>(&ground_oid),
         "nothing reached the ground mid-cast"
     );
     assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
@@ -3177,7 +3177,7 @@ fn drop_of_more_than_is_held_is_refused() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&ground_oid),
+            .has_component::<model::components::commerce::GroundItem>(&ground_oid),
         "nothing reached the ground"
     );
     assert_eq!(
@@ -3231,7 +3231,7 @@ fn bound_item_cannot_be_discarded() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&would_be_ground_oid),
+            .has_component::<model::components::commerce::GroundItem>(&would_be_ground_oid),
         "nothing reached the ground"
     );
     assert!(
@@ -3284,7 +3284,7 @@ fn distant_ground_item_is_walked_to_before_pickup() {
     assert!(
         world
             .objects
-            .has_component::<model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::commerce::GroundItem>(&item_oid),
         "the item is still on the ground"
     );
     assert!(
@@ -3311,7 +3311,7 @@ fn distant_ground_item_is_walked_to_before_pickup() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::commerce::GroundItem>(&item_oid),
         "ground item removed"
     );
     assert!(
@@ -3359,7 +3359,7 @@ fn seated_player_cannot_pick_up() {
     assert!(
         world
             .objects
-            .has_component::<model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::commerce::GroundItem>(&item_oid),
         "loot stays on the floor while seated"
     );
     assert!(
@@ -3391,7 +3391,7 @@ fn ground_item_decays_after_lifetime() {
     assert!(
         world
             .objects
-            .has_component::<model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::commerce::GroundItem>(&item_oid),
         "dropped"
     );
 
@@ -3401,7 +3401,7 @@ fn ground_item_decays_after_lifetime() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::commerce::GroundItem>(&item_oid),
         "decayed"
     );
     assert!(
@@ -3433,7 +3433,7 @@ fn player_ground_item_persists_when_destroy_player_dropped_off() {
     assert!(
         world
             .objects
-            .has_component::<model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::commerce::GroundItem>(&item_oid),
         "player drop persists"
     );
 }
@@ -3451,7 +3451,7 @@ fn npc_ground_item_decays_regardless_of_player_flag() {
     assert!(
         world
             .objects
-            .has_component::<model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::commerce::GroundItem>(&item_oid),
         "npc drop on ground"
     );
 
@@ -3460,7 +3460,7 @@ fn npc_ground_item_decays_regardless_of_player_flag() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::GroundItem>(&item_oid),
+            .has_component::<model::components::commerce::GroundItem>(&item_oid),
         "npc drop decays"
     );
 }
@@ -3628,7 +3628,7 @@ fn private_store_sell_and_buy() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::PrivateStore>(&9600)
+            .get_component::<model::components::commerce::PrivateStore>(&9600)
             .unwrap()
             .items
             .len(),
@@ -3729,7 +3729,7 @@ fn player_trade_swaps_items() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::PendingTrade>(&9701)
+            .get_component::<model::components::commerce::PendingTrade>(&9701)
             .map(|p| p.from),
         Some(9700)
     );
@@ -3737,7 +3737,7 @@ fn player_trade_swaps_items() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::Trade>(&9700)
+            .get_component::<model::components::commerce::Trade>(&9700)
             .unwrap()
             .partner,
         9701
@@ -3749,7 +3749,7 @@ fn player_trade_swaps_items() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::Trade>(&9700)
+            .get_component::<model::components::commerce::Trade>(&9700)
             .unwrap()
             .items[0]
             .count,
@@ -3785,13 +3785,13 @@ fn player_trade_swaps_items() {
     assert!(
         !world
             .objects
-            .has_component::<model::components::Trade>(&9700),
+            .has_component::<model::components::commerce::Trade>(&9700),
         "trade closed"
     );
     assert!(
         !world
             .objects
-            .has_component::<model::components::Trade>(&9701),
+            .has_component::<model::components::commerce::Trade>(&9701),
         "trade closed"
     );
 }
@@ -3801,7 +3801,7 @@ fn player_trade_swaps_items() {
 /// returns crystals.
 #[test]
 fn enchant_scroll_success_and_failure() {
-    use crate::model::components::EnchantRequest;
+    use crate::model::components::commerce::EnchantRequest;
     use crate::model::inventory::Inventory;
     const DIST: &str = crate::data::DIST_GAME;
     let (mut world, ..) = admin_world();
@@ -4354,7 +4354,7 @@ fn private_buy_store_takes_items_and_pays_out() {
     assert_eq!(
         world
             .objects
-            .get_component::<model::components::PrivateBuyStore>(&9610)
+            .get_component::<model::components::commerce::PrivateBuyStore>(&9610)
             .unwrap()
             .items[0]
             .count,
@@ -4581,7 +4581,7 @@ fn augment_options_apply_while_the_item_is_equipped() {
 /// refused outright — Java's anti-bot check. Taking every line goes through.
 #[test]
 fn package_store_is_all_or_nothing() {
-    use crate::model::components::PrivateStore;
+    use crate::model::components::commerce::PrivateStore;
     use crate::model::inventory::Inventory;
 
     let (mut world, ..) = admin_world();
@@ -4715,7 +4715,7 @@ fn package_store_is_all_or_nothing() {
 /// `PrivateStoreMsgSell`, which was missing entirely.
 #[test]
 fn package_store_title_round_trips() {
-    use crate::model::components::PrivateStore;
+    use crate::model::components::commerce::PrivateStore;
 
     let (mut world, ..) = admin_world();
     let mut rx = ingame_player_access(&mut world, 1, 9702, 0);
@@ -4753,7 +4753,7 @@ fn package_store_title_round_trips() {
 /// and writes the items to the (offline) recipient's freight rows.
 #[test]
 fn freight_send_delivers_to_an_offline_character() {
-    use crate::model::components::LastFolkNpc;
+    use crate::model::components::player::LastFolkNpc;
     use crate::model::inventory::Inventory;
 
     let (mut world, mut db, _link) = quest_test_world();
@@ -4853,7 +4853,7 @@ fn freight_send_delivers_to_an_offline_character() {
 /// recipient who isn't on the account both leave everything where it is.
 #[test]
 fn freight_send_refuses_bad_items_and_strangers() {
-    use crate::model::components::LastFolkNpc;
+    use crate::model::components::player::LastFolkNpc;
     use crate::model::inventory::Inventory;
 
     let (mut world, _db, _link) = quest_test_world();
@@ -4923,7 +4923,7 @@ fn freight_send_refuses_bad_items_and_strangers() {
 fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
     use crate::data::item_data::kinds::{ItemHandler, ItemKind};
     use crate::data::item_data::template::ItemTemplate;
-    use crate::model::components::Casting;
+    use crate::model::components::combat::Casting;
     use crate::model::inventory::Inventory;
     use crate::model::skill::Skill;
     use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
@@ -5251,7 +5251,7 @@ fn the_saved_key_mapping_round_trips() {
 #[test]
 fn herbs_decay_on_their_own_shorter_clock() {
     use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
-    use crate::model::components::GroundItem;
+    use crate::model::components::commerce::GroundItem;
 
     let (mut world, ..) = admin_world();
     world.data.item_data = dist::items_owned();
@@ -5288,7 +5288,7 @@ fn herbs_decay_on_their_own_shorter_clock() {
 #[test]
 fn herbs_decay_even_with_the_ordinary_destroyer_off() {
     use crate::game_loop::items::ground_items::{DropSource, spawn_ground_item};
-    use crate::model::components::GroundItem;
+    use crate::model::components::commerce::GroundItem;
 
     let (mut world, ..) = admin_world();
     world.data.item_data = dist::items_owned();
@@ -5538,7 +5538,7 @@ fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
 /// last touched the window" rather than anything about the enchant itself.
 #[test]
 fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
-    use crate::model::components::EnchantRequest;
+    use crate::model::components::commerce::EnchantRequest;
     use crate::model::inventory::Inventory;
     const DIST: &str = crate::data::DIST_GAME;
     const PLAYER: i32 = 9805;

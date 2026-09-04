@@ -75,7 +75,7 @@ pub(crate) fn prepare_ranged_shot(
     // 1. Reload delay (`_disableRangedAttackEndTime > now`).
     if world
         .objects
-        .get_component::<crate::model::components::RangedReload>(&attacker_oid)
+        .get_component::<crate::model::components::combat::RangedReload>(&attacker_oid)
         .is_some_and(|r| r.ready_at_tick > world.tick)
     {
         return Err(RangedRefusal::Reloading);
@@ -102,7 +102,7 @@ pub(crate) fn prepare_ranged_shot(
     if mp_cost > 0.0 {
         let cur_mp = world
             .objects
-            .get_component::<crate::model::components::Vitals>(&attacker_oid)
+            .get_component::<crate::model::components::stats::Vitals>(&attacker_oid)
             .map(|v| v.cur_mp)
             .unwrap_or(0.0);
         if cur_mp < mp_cost {
@@ -116,7 +116,7 @@ pub(crate) fn prepare_ranged_shot(
     let reuse_ms = reuse_time_ms(world, attacker_oid);
     world.objects.add_components(
         &attacker_oid,
-        crate::model::components::RangedReload {
+        crate::model::components::combat::RangedReload {
             ready_at_tick: world.tick + crate::scheduler::ms_to_ticks(reuse_ms),
         },
     );
@@ -149,7 +149,7 @@ pub(crate) fn report_refusal(world: &mut World, attacker_oid: i32, why: RangedRe
         RangedRefusal::OutOfAmmo => {
             world
                 .objects
-                .remove_component::<crate::model::components::Intent>(&attacker_oid);
+                .remove_component::<crate::model::components::combat::Intent>(&attacker_oid);
             crate::game_loop::helpers::send_sm_and_action_failed(
                 world,
                 client_id,
@@ -291,7 +291,7 @@ fn shot_mp_cost(world: &mut World, object_id: i32) -> f64 {
 fn reuse_time_ms(world: &World, object_id: i32) -> i32 {
     let p_atk_spd = world
         .objects
-        .get_component::<crate::model::components::CombatStats>(&object_id)
+        .get_component::<crate::model::components::stats::CombatStats>(&object_id)
         .map(|c| c.p_atk_spd)
         .unwrap_or(1)
         .max(1);

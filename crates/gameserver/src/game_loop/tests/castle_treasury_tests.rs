@@ -15,7 +15,7 @@ use crate::game_loop::siege::treasury::{
 };
 use crate::model::castle::{Castle, CastleSide, TaxType};
 use crate::model::clan::Clan;
-use crate::model::components::ActiveMultisell;
+use crate::model::components::commerce::ActiveMultisell;
 
 const GLUDIO: i32 = 1;
 const ADEN: i32 = 5;

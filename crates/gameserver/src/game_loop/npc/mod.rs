@@ -16,7 +16,8 @@ use crate::game_loop::{
     siege, valakas,
 };
 use crate::model::Player;
-use crate::model::components::{Movement, RegionCell, Vitals};
+use crate::model::components::space::{Movement, RegionCell};
+use crate::model::components::stats::Vitals;
 use crate::model::npc::{AggroList, Npc, NpcAi};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -64,7 +65,7 @@ const RANDOM_HEADING_BOUND: i32 = 61794;
 pub fn npc_combat_stats(
     t: &NpcTemplate,
     sb: &crate::data::stat_bonus::StatBonus,
-) -> crate::model::components::CombatStats {
+) -> crate::model::components::stats::CombatStats {
     use crate::model::stats::BaseStat;
     let level_mod = (t.level as f64 + 89.0) / 100.0;
     let level = t.level as f64;
@@ -110,7 +111,7 @@ pub fn npc_combat_stats(
     } else {
         1.0
     };
-    crate::model::components::CombatStats {
+    crate::model::components::stats::CombatStats {
         p_atk: t.base_p_atk * sb.bonus(BaseStat::Str, t.base_str) * level_mod,
         // `MAttackFinalizer`: `base × (INT bonus × levelMod)^2.2072` — a power,
         // not the linear `× INT × levelMod` p.atk uses. (This is why a mob's
@@ -441,7 +442,7 @@ fn spawn_npc_entity(
     let (combat, speeds, max_hp, max_mp) = crate::model::npc_stats::npc_finalized_stats(
         &world.data,
         t,
-        &crate::model::components::Buffs::default(),
+        &crate::model::components::skills::Buffs::default(),
         crate::model::npc_stats::NpcStatMods::of(&world.cfg, champion, t.is_raid()),
     );
 
@@ -510,7 +511,7 @@ fn spawn_npc_entity(
         object_id,
         (
             npc,
-            crate::model::components::Position { x, y, z, heading },
+            crate::model::components::space::Position { x, y, z, heading },
             RegionCell(region),
             Vitals {
                 max_hp: max_hp as i32,
@@ -522,18 +523,18 @@ fn spawn_npc_entity(
             // Speeds finalized off the template (NPCs spawn walking; AI flips
             // `running` on aggro).
             speeds,
-            crate::model::components::Collision {
+            crate::model::components::space::Collision {
                 radius: t.collision_radius,
                 height: t.collision_height,
             },
             combat,
-            crate::model::components::AttackState::default(),
+            crate::model::components::combat::AttackState::default(),
             NpcAi::default(),
             AggroList::default(),
             // NPCs can now carry buffs (e.g. a player casting Might on a mob);
             // their stats recompute from template + these via
             // `recompute_npc_stats_from_buffs`.
-            crate::model::components::Buffs::default(),
+            crate::model::components::skills::Buffs::default(),
         ),
     );
     // `onSpawn` hook (Java `Quest.notifySpawn` via `addSpawnId`) — fires for
@@ -692,7 +693,7 @@ fn announce_boss_spawn(world: &World, object_id: i32) {
     // `!isInInstance() || …InstanceAnnouncements`.
     let in_instance = world
         .objects
-        .get_component::<crate::model::components::InstanceId>(&object_id)
+        .get_component::<crate::model::components::space::InstanceId>(&object_id)
         .is_some_and(|i| i.0 != 0);
     if in_instance && !in_instance_ok {
         return;
@@ -773,7 +774,7 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         // dinosaurs also roam the open world).
         if world
             .objects
-            .has_component::<crate::model::components::SailrenWaveMob>(&npc_oid)
+            .has_component::<crate::model::components::summons::SailrenWaveMob>(&npc_oid)
         {
             let killer = pvp::acting_player(world, killer_oid);
             sailren::on_wave_kill(world, killer, npc_id);
@@ -917,7 +918,7 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     // because it needs the pet's components, which drop with the entity.
     if world
         .objects
-        .has_component::<crate::model::components::PetOf>(&npc_oid)
+        .has_component::<crate::model::components::summons::PetOf>(&npc_oid)
     {
         servitor::pet_decay(world, npc_oid);
     }

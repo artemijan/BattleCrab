@@ -32,7 +32,7 @@ pub(crate) fn refresh_one(world: &mut World, object_id: i32, night: bool) -> boo
     let wanted: Vec<(i32, Vec<crate::model::skill::effects::StatModifierEffect>)> = {
         let Some(buffs) = world
             .objects
-            .get_component::<crate::model::components::Buffs>(&object_id)
+            .get_component::<crate::model::components::skills::Buffs>(&object_id)
         else {
             return false;
         };
@@ -76,7 +76,7 @@ pub(crate) fn refresh_one(world: &mut World, object_id: i32, night: bool) -> boo
     let mut changed = false;
     if let Some(buffs) = world
         .objects
-        .get_component_mut::<crate::model::components::Buffs>(&object_id)
+        .get_component_mut::<crate::model::components::skills::Buffs>(&object_id)
     {
         for (skill_id, grants) in wanted {
             for b in buffs.0.iter_mut().filter(|b| b.skill_id == skill_id) {
@@ -96,12 +96,12 @@ pub(crate) fn refresh_one(world: &mut World, object_id: i32, night: bool) -> boo
     if let Some((player, base, mut mods, inventory, buffs, mut speeds, mut combat)) =
         world.objects.get_many_mut::<(
             &crate::model::Player,
-            &crate::model::components::BaseStats,
-            &mut crate::model::components::StatModifiers,
+            &crate::model::components::stats::BaseStats,
+            &mut crate::model::components::stats::StatModifiers,
             &crate::model::inventory::Inventory,
-            &crate::model::components::Buffs,
-            &mut crate::model::components::Speeds,
-            &mut crate::model::components::CombatStats,
+            &crate::model::components::skills::Buffs,
+            &mut crate::model::components::stats::Speeds,
+            &mut crate::model::components::stats::CombatStats,
         )>(&object_id)
     {
         mods.add.clear();
@@ -144,7 +144,7 @@ pub(crate) fn on_day_night_change(world: &mut World, night: bool) {
         }
         let knows = world
             .objects
-            .get_component::<crate::model::components::SkillBook>(&oid)
+            .get_component::<crate::model::components::skills::SkillBook>(&oid)
             .is_some_and(|b| b.0.contains_key(&SHADOW_SENSE));
         if !knows {
             continue;

@@ -15,7 +15,7 @@ use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::helpers::{player_of, send_sm_bare_to_client};
 use crate::game_loop::net::broadcast;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::{PrivateStore, StoreItem};
+use crate::model::components::commerce::{PrivateStore, StoreItem};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self as sp, StoreLine};
@@ -107,7 +107,7 @@ fn store_slot_limit(world: &World, owner: i32, sell: bool) -> usize {
     };
     world
         .objects
-        .get_component::<crate::model::components::StatModifiers>(&owner)
+        .get_component::<crate::model::components::stats::StatModifiers>(&owner)
         .map_or(base, |m| {
             crate::model::stat_finalize::finalize(m, stat, f64::from(base)) as i32
         })
@@ -453,7 +453,7 @@ pub(crate) fn is_store_owner(world: &World, oid: i32) -> bool {
 // owner can spend elsewhere while the store stands.
 
 use crate::game_loop::space::position::region_cell_of;
-use crate::model::components::{PrivateBuyStore, WantedItem};
+use crate::model::components::commerce::{PrivateBuyStore, WantedItem};
 
 const STORE_TYPE_BUY: u8 = 3;
 const STORE_TYPE_BUY_MANAGE: u8 = 4;
@@ -984,7 +984,7 @@ pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) 
     }
     world
         .objects
-        .get_component::<crate::model::components::Vitals>(&owner)
+        .get_component::<crate::model::components::stats::Vitals>(&owner)
         .is_some_and(|v| !v.dead)
         && !world
             .objects
@@ -993,7 +993,7 @@ pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) 
         && !world.olympiad.in_competition.contains(&owner)
         && !world
             .objects
-            .has_component::<crate::model::components::Casting>(&owner)
+            .has_component::<crate::model::components::combat::Casting>(&owner)
 }
 
 /// Java `isInsideZone(ZoneId.NO_STORE)` for a player, by position.

@@ -3,7 +3,7 @@
 use super::*;
 use crate::game_loop::skills::skill_by_id;
 
-use crate::model::components::Overhit;
+use crate::model::components::combat::Overhit;
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
 use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};

@@ -9,7 +9,7 @@ use crate::game_loop::helpers::{nth_arg, send_sm_bare_to_client};
 use crate::game_loop::skills::skill_by_id;
 use crate::game_loop::{clans, helpers};
 use crate::model::Player;
-use crate::model::components::{Buffs, SkillBook};
+use crate::model::components::skills::{Buffs, SkillBook};
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 
@@ -631,14 +631,14 @@ fn removereuse(world: &mut World, client_id: u32, object_id: i32, args: &[&str])
     };
     if let Some(reuses) = world
         .objects
-        .get_component_mut::<crate::model::components::Reuses>(&target)
+        .get_component_mut::<crate::model::components::skills::Reuses>(&target)
     {
         reuses.0.clear();
     }
     if let Some(cid) = helpers::client_for_player(world, target)
         && let Some(reuses) = world
             .objects
-            .get_component::<crate::model::components::Reuses>(&target)
+            .get_component::<crate::model::components::skills::Reuses>(&target)
     {
         let packet = crate::network::server_packets::skill_cool_time(reuses, world.tick);
         send_to_client(world, cid, packet);

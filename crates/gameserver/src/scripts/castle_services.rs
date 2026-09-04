@@ -42,7 +42,7 @@ fn castle_id(ctx: &QuestCtx) -> Option<i32> {
     let pos = ctx
         .world
         .objects
-        .get_component::<crate::model::components::Position>(&ctx.npc)?;
+        .get_component::<crate::model::components::space::Position>(&ctx.npc)?;
     let (x, y, z) = (pos.x, pos.y, pos.z);
     ctx.world.data.zone_data.nearest_castle_at(x, y, z)
 }

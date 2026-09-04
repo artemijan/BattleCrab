@@ -56,7 +56,7 @@ impl QuestScript for FrozenLabyrinth {
         let Some(pos) = ctx
             .world
             .objects
-            .get_component::<crate::model::components::Position>(&ctx.npc)
+            .get_component::<crate::model::components::space::Position>(&ctx.npc)
             .map(|p| (p.x, p.y, p.z, p.heading))
         else {
             return;

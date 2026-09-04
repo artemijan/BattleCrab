@@ -9,7 +9,7 @@
 
 use super::*;
 
-use crate::model::components::StatModifiers;
+use crate::model::components::stats::StatModifiers;
 use crate::model::formulas;
 use crate::model::formulas::physical::CritDamage;
 use crate::model::movement::Position;
@@ -426,7 +426,7 @@ fn learned_crit_damage_passive_folds_into_stat_modifiers() {
 /// someone equips the defence.
 #[test]
 fn a_physical_skill_crit_reads_the_skill_crit_stats_not_the_autoattack_one() {
-    use crate::model::components::StatModifiers;
+    use crate::model::components::stats::StatModifiers;
     use crate::model::stats::Stat;
     let (mut world, ..) = test_world();
     let attacker = 6301;

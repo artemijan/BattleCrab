@@ -143,7 +143,7 @@ impl QuestScript for FrightenedRagnaOrc {
                 let low_hp = ctx
                     .world
                     .objects
-                    .get_component::<crate::model::components::Vitals>(&ctx.npc)
+                    .get_component::<crate::model::components::stats::Vitals>(&ctx.npc)
                     .is_some_and(|v| v.cur_hp < v.max_hp as f64 * 0.2);
                 if low_hp {
                     ctx.start_quest_timer("reward", 10_000);
@@ -159,7 +159,7 @@ impl QuestScript for FrightenedRagnaOrc {
         let dead = ctx
             .world
             .objects
-            .get_component::<crate::model::components::Vitals>(&ctx.npc)
+            .get_component::<crate::model::components::stats::Vitals>(&ctx.npc)
             .is_none_or(|v| v.dead);
         match name {
             "say" => {
