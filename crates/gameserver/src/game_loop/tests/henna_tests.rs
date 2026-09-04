@@ -1,7 +1,8 @@
 use super::*;
 
 use crate::data::henna_data::Henna;
-use crate::data::item_data::{CrystalType, EtcItemType, ItemHandler, ItemKind, ItemTemplate};
+use crate::data::item_data::kinds::{CrystalType, EtcItemType, ItemHandler, ItemKind};
+use crate::data::item_data::template::ItemTemplate;
 use crate::game_loop::character::henna;
 use crate::model::components::{BaseStats, HennaSlots};
 use crate::model::inventory::Inventory;
@@ -20,7 +21,7 @@ fn etc_template(item_id: i32, name: &str) -> ItemTemplate {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id,
         name: name.into(),
         kind: ItemKind::Etc,

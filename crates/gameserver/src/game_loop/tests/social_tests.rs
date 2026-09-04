@@ -721,7 +721,7 @@ fn party_loot_split_and_rotation() {
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             trade_flags: Default::default(),
             pre_conditions: Vec::new(),
             is_oly_restricted: false,
@@ -731,10 +731,10 @@ fn party_loot_split_and_rotation() {
             duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
+            default_action: crate::data::item_data::kinds::ActionType::Other,
             item_id: 1234,
             name: "Test Loot".into(),
-            kind: crate::data::item_data::ItemKind::Etc,
+            kind: crate::data::item_data::kinds::ItemKind::Etc,
             body_part: 0,
             weight: 0,
             is_stackable: false,
@@ -745,8 +745,8 @@ fn party_loot_split_and_rotation() {
             is_sellable: true,
             is_freightable: false,
             price: 0,
-            handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            handler: crate::data::item_data::kinds::ItemHandler::None,
+            crystal_type: crate::data::item_data::kinds::CrystalType::None,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,
@@ -757,7 +757,7 @@ fn party_loot_split_and_rotation() {
             extractable_count_min: 0,
             extractable_count_max: 0,
             item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
             enchant_enabled: false,
             enchant_limit: 0,
             is_magic_weapon: false,
@@ -1187,7 +1187,7 @@ fn banking_swaps_adena_for_goldbars() {
     // Both currencies must be stackable, or a million adena becomes a million
     // item instances.
     for (id, name) in [(ADENA, "Adena"), (GOLDBAR, "Goldbar")] {
-        let mut t = crate::data::item_data::ItemTemplate::default();
+        let mut t = crate::data::item_data::template::ItemTemplate::default();
         t.item_id = id;
         t.name = name.into();
         t.is_stackable = true;
@@ -1417,7 +1417,7 @@ fn a_pvp_kill_pays_the_killer() {
 
     let (mut world, ..) = test_world();
     world.id_pool = 0x8000_0000..0x8000_0100;
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = ADENA;
     t.name = "Adena".into();
     t.is_stackable = true;

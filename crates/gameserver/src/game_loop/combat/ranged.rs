@@ -19,7 +19,7 @@
 //! The attack *range* already works — bows declare `pAtkRange` 500, which the
 //! item-stat path has applied to `CombatStats.atk_range` since G14.
 
-use crate::data::item_data::{EtcItemType, WeaponType};
+use crate::data::item_data::kinds::{EtcItemType, WeaponType};
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::{send_action_failed, spend_mp};
 use crate::model::inventory::{Inventory, PaperdollSlot};

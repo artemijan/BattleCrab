@@ -70,7 +70,7 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             trade_flags: Default::default(),
             pre_conditions: Vec::new(),
             is_oly_restricted: false,
@@ -80,10 +80,10 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
             duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
+            default_action: crate::data::item_data::kinds::ActionType::Other,
             item_id: 2,
             name: "Test Sword".into(),
-            kind: crate::data::item_data::ItemKind::Weapon,
+            kind: crate::data::item_data::kinds::ItemKind::Weapon,
             body_part: crate::data::item_data::SLOT_R_HAND,
             weight: 0,
             is_stackable: false,
@@ -94,8 +94,8 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
             is_sellable: true,
             is_freightable: false,
             price: 0,
-            handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            handler: crate::data::item_data::kinds::ItemHandler::None,
+            crystal_type: crate::data::item_data::kinds::CrystalType::None,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,
@@ -106,7 +106,7 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
             extractable_count_min: 0,
             extractable_count_max: 0,
             item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
             enchant_enabled: false,
             enchant_limit: 0,
             is_magic_weapon: false,
@@ -173,7 +173,7 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
         world
             .data
             .item_data
-            .insert_for_test(crate::data::item_data::ItemTemplate {
+            .insert_for_test(crate::data::item_data::template::ItemTemplate {
                 trade_flags: Default::default(),
                 pre_conditions: Vec::new(),
                 is_oly_restricted: false,
@@ -183,10 +183,10 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
                 duration: -1,
                 immediate_effect: false,
                 ex_immediate_effect: false,
-                default_action: crate::data::item_data::ActionType::Other,
+                default_action: crate::data::item_data::kinds::ActionType::Other,
                 item_id: id,
                 name: format!("earring{id}"),
-                kind: crate::data::item_data::ItemKind::Armor,
+                kind: crate::data::item_data::kinds::ItemKind::Armor,
                 body_part: crate::data::item_data::SLOT_L_EAR | crate::data::item_data::SLOT_R_EAR,
                 weight: 0,
                 is_stackable: false,
@@ -197,8 +197,8 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
                 is_sellable: true,
                 is_freightable: false,
                 price: 0,
-                handler: crate::data::item_data::ItemHandler::None,
-                crystal_type: crate::data::item_data::CrystalType::None,
+                handler: crate::data::item_data::kinds::ItemHandler::None,
+                crystal_type: crate::data::item_data::kinds::CrystalType::None,
                 crystal_count: 0,
                 attack_radius: 40,
                 attack_angle: 0,
@@ -209,7 +209,7 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
                 extractable_count_min: 0,
                 extractable_count_max: 0,
                 item_skills: Vec::new(),
-                etc_item_type: crate::data::item_data::EtcItemType::Other,
+                etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
                 enchant_enabled: false,
                 enchant_limit: 0,
                 is_magic_weapon: false,
@@ -303,7 +303,9 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
 /// correctly showed nothing equipped.
 #[test]
 fn destroying_an_equipped_quest_item_repaints_the_paperdoll() {
-    use crate::data::item_data::{CrystalType, ItemHandler, ItemKind, ItemTemplate, SLOT_R_HAND};
+    use crate::data::item_data::SLOT_R_HAND;
+    use crate::data::item_data::kinds::{CrystalType, ItemHandler, ItemKind};
+    use crate::data::item_data::template::ItemTemplate;
     use crate::enums::InventorySlot;
     use crate::model::inventory::Inventory;
 
@@ -322,7 +324,7 @@ fn destroying_an_equipped_quest_item_repaints_the_paperdoll() {
         duration: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id: SWORD,
         name: "Sword of Seal".to_string(),
         kind: ItemKind::Weapon,
@@ -349,7 +351,7 @@ fn destroying_an_equipped_quest_item_repaints_the_paperdoll() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -406,9 +408,9 @@ fn destroying_an_equipped_quest_item_repaints_the_paperdoll() {
 /// armor's *sums* on top (matching the Java finalizers).
 #[test]
 fn equipping_gear_updates_combat_stats() {
-    use crate::data::item_data::{
-        CrystalType, ItemHandler, ItemKind, ItemStats, ItemTemplate, SLOT_CHEST, SLOT_R_HAND,
-    };
+    use crate::data::item_data::kinds::{CrystalType, ItemHandler, ItemKind};
+    use crate::data::item_data::template::{ItemStats, ItemTemplate};
+    use crate::data::item_data::{SLOT_CHEST, SLOT_R_HAND};
     use crate::model::inventory::Inventory;
     use crate::model::stats::Stat;
 
@@ -425,7 +427,7 @@ fn equipping_gear_updates_combat_stats() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id,
         name: format!("gear{item_id}"),
         kind,
@@ -451,7 +453,7 @@ fn equipping_gear_updates_combat_stats() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -594,10 +596,9 @@ fn evasion_may_go_negative_but_never_past_the_ceiling() {
 /// number — the multipliers cancel and the table is what is left.
 #[test]
 fn enchanting_gear_raises_attack_and_defence() {
-    use crate::data::item_data::{
-        CrystalType, ItemHandler, ItemKind, ItemStats, ItemTemplate, SLOT_CHEST, SLOT_LR_HAND,
-        WeaponType,
-    };
+    use crate::data::item_data::kinds::{CrystalType, ItemHandler, ItemKind, WeaponType};
+    use crate::data::item_data::template::{ItemStats, ItemTemplate};
+    use crate::data::item_data::{SLOT_CHEST, SLOT_LR_HAND};
     use crate::model::inventory::Inventory;
     use crate::model::stats::Stat;
 
@@ -621,7 +622,7 @@ fn enchanting_gear_raises_attack_and_defence() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id,
         name: format!("enchant{item_id}"),
         kind,
@@ -648,7 +649,7 @@ fn enchanting_gear_raises_attack_and_defence() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: true,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -749,9 +750,9 @@ fn enchanting_gear_raises_attack_and_defence() {
 /// +MP jewelry must raise Max MP; unequipping restores it and clamps current MP.
 #[test]
 fn equipping_gear_updates_max_hp_mp() {
-    use crate::data::item_data::{
-        CrystalType, ItemHandler, ItemKind, ItemStats, ItemTemplate, SLOT_NECK,
-    };
+    use crate::data::item_data::SLOT_NECK;
+    use crate::data::item_data::kinds::{CrystalType, ItemHandler, ItemKind};
+    use crate::data::item_data::template::{ItemStats, ItemTemplate};
     use crate::model::components::Vitals;
     use crate::model::inventory::Inventory;
     use crate::model::stats::Stat;
@@ -770,7 +771,7 @@ fn equipping_gear_updates_max_hp_mp() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id: 520,
         name: "MP Necklace".into(),
         kind: ItemKind::Armor,
@@ -796,7 +797,7 @@ fn equipping_gear_updates_max_hp_mp() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -841,7 +842,8 @@ fn equipping_gear_updates_max_hp_mp() {
 /// grant its `<capsuled_items>` contents.
 #[test]
 fn extractable_pack_item_unpacks_into_its_contents() {
-    use crate::data::item_data::{CapsuledItem, ItemHandler, ItemKind, ItemTemplate};
+    use crate::data::item_data::kinds::{ItemHandler, ItemKind};
+    use crate::data::item_data::template::{CapsuledItem, ItemTemplate};
     use crate::model::inventory::Inventory;
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
@@ -858,7 +860,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id: 15195,
         name: "Mage Class Equipment Set".into(),
         kind: ItemKind::Etc,
@@ -873,7 +875,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -897,7 +899,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -913,7 +915,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
             duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
+            default_action: crate::data::item_data::kinds::ActionType::Other,
             item_id,
             name: format!("Pack Content {item_id}"),
             kind: ItemKind::Etc,
@@ -928,7 +930,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
             is_freightable: false,
             price: 0,
             handler: ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_type: crate::data::item_data::kinds::CrystalType::None,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,
@@ -939,7 +941,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
             extractable_count_min: 0,
             extractable_count_max: 0,
             item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
             enchant_enabled: false,
             enchant_limit: 0,
             is_magic_weapon: false,
@@ -990,7 +992,9 @@ fn extractable_pack_item_unpacks_into_its_contents() {
 /// into one instance per unit; this asserts the Rust port now does too.
 #[test]
 fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
-    use crate::data::item_data::{self, CapsuledItem, ItemHandler, ItemKind, ItemTemplate};
+    use crate::data::item_data;
+    use crate::data::item_data::kinds::{ItemHandler, ItemKind};
+    use crate::data::item_data::template::{CapsuledItem, ItemTemplate};
     use crate::model::inventory::Inventory;
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
@@ -1007,7 +1011,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: item_data::ActionType::Other,
+        default_action: item_data::kinds::ActionType::Other,
         item_id: 15274,
         name: "Jewelry Pack (A-grade)".into(),
         kind: ItemKind::Etc,
@@ -1022,7 +1026,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
-        crystal_type: item_data::CrystalType::None,
+        crystal_type: item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -1038,7 +1042,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: item_data::EtcItemType::Other,
+        etc_item_type: item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -1053,7 +1057,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: item_data::ActionType::Other,
+        default_action: item_data::kinds::ActionType::Other,
         item_id: 14966,
         name: "Majestic Earring of Fortune".into(),
         kind: ItemKind::Armor,
@@ -1068,7 +1072,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: item_data::CrystalType::None,
+        crystal_type: item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -1079,7 +1083,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: item_data::EtcItemType::Other,
+        etc_item_type: item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -1146,7 +1150,8 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
 /// (`Player.isInventoryUnder80(false)`).
 #[test]
 fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
-    use crate::data::item_data::{CapsuledItem, ItemHandler, ItemKind, ItemTemplate};
+    use crate::data::item_data::kinds::{ItemHandler, ItemKind};
+    use crate::data::item_data::template::{CapsuledItem, ItemTemplate};
     use crate::model::inventory::Inventory;
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
@@ -1167,7 +1172,7 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id: 15195,
         name: "Mage Class Equipment Set".into(),
         kind: ItemKind::Etc,
@@ -1182,7 +1187,7 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -1198,7 +1203,7 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -1240,7 +1245,8 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
 /// blocked and doesn't consume another.
 #[test]
 fn item_skill_potion_heals_and_enforces_reuse() {
-    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::data::item_data::kinds::{ItemHandler, ItemKind};
+    use crate::data::item_data::template::ItemTemplate;
     use crate::model::inventory::Inventory;
     use crate::model::skill::effects::SkillEffect;
 
@@ -1300,7 +1306,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         duration: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::SkillReduce,
+        default_action: crate::data::item_data::kinds::ActionType::SkillReduce,
         item_id: 9910,
         name: "Lesser Healing Potion".into(),
         kind: ItemKind::Etc,
@@ -1315,7 +1321,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -1326,7 +1332,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: vec![(2031, 1)],
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -1389,7 +1395,8 @@ fn item_skill_potion_heals_and_enforces_reuse() {
 /// `SKILL_REDUCE` item whose skill declares an `itemConsumeId`.
 #[test]
 fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
-    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::data::item_data::kinds::{ItemHandler, ItemKind};
+    use crate::data::item_data::template::ItemTemplate;
     use crate::model::components::Casting;
     use crate::model::inventory::Inventory;
     use crate::model::skill::effects::SkillEffect;
@@ -1459,7 +1466,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::SkillReduce,
+        default_action: crate::data::item_data::kinds::ActionType::SkillReduce,
         item_id: 9909,
         name: "Scroll of Escape".into(),
         kind: ItemKind::Etc,
@@ -1474,7 +1481,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -1485,7 +1492,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: vec![(2013, 1)],
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -1549,7 +1556,8 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
 /// was found and "cast") but granted nothing: the pack just disappeared.
 #[test]
 fn item_skill_give_item_grants_reward_and_consumes_pack() {
-    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::data::item_data::kinds::{ItemHandler, ItemKind};
+    use crate::data::item_data::template::ItemTemplate;
     use crate::model::inventory::Inventory;
     use crate::model::skill::effects::SkillEffect;
 
@@ -1614,7 +1622,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         duration: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::SkillReduce,
+        default_action: crate::data::item_data::kinds::ActionType::SkillReduce,
         item_id: 22599,
         name: "Mysterious Blessed Spiritshot Pack (5000) (D-grade)".into(),
         kind: ItemKind::Etc,
@@ -1629,7 +1637,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -1640,7 +1648,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: vec![(22490, 5)],
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -1655,7 +1663,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id: 21852,
         name: "Blessed Spiritshot: D-grade".into(),
         kind: ItemKind::Etc,
@@ -1670,7 +1678,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -1681,7 +1689,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -1721,7 +1729,8 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
 /// values.
 #[test]
 fn item_skill_give_item_random_grants_one_weighted_group() {
-    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::data::item_data::kinds::{ItemHandler, ItemKind};
+    use crate::data::item_data::template::ItemTemplate;
     use crate::model::inventory::Inventory;
     use crate::model::skill::effects::{RestorationGroup, RestorationItem, SkillEffect};
     use crate::model::skill::target::{AffectObject, AffectScope};
@@ -1821,7 +1830,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id: 1344,
         name: "Mithril Arrow".into(),
         kind: ItemKind::Etc,
@@ -1836,7 +1845,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -1847,7 +1856,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -1862,7 +1871,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         duration: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::SkillReduce,
+        default_action: crate::data::item_data::kinds::ActionType::SkillReduce,
         item_id: 9999,
         name: "Quiver of Arrow scroll".into(),
         kind: ItemKind::Etc,
@@ -1877,7 +1886,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -1888,7 +1897,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: vec![(323, 1)],
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -1918,7 +1927,8 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
 /// onto the created non-stackable item and sends the "obtained a +S1 S2" message.
 #[test]
 fn item_skill_give_item_random_rolls_enchant_on_created_item() {
-    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::data::item_data::kinds::{ItemHandler, ItemKind};
+    use crate::data::item_data::template::ItemTemplate;
     use crate::model::inventory::Inventory;
     use crate::model::skill::effects::{RestorationGroup, RestorationItem, SkillEffect};
 
@@ -1997,7 +2007,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id: 6001,
         name: "Enchanted Blade".into(),
         kind: ItemKind::Weapon,
@@ -2012,7 +2022,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -2023,7 +2033,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -2038,7 +2048,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         duration: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::SkillReduce,
+        default_action: crate::data::item_data::kinds::ActionType::SkillReduce,
         item_id: 9998,
         name: "Enchanted Reward scroll".into(),
         kind: ItemKind::Etc,
@@ -2053,7 +2063,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -2064,7 +2074,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: vec![(324, 1)],
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -2228,7 +2238,7 @@ fn buy_bypass_opens_buy_and_sell_tabs() {
 /// visual (`SoulShots.useItem`).
 #[test]
 fn soulshot_charges_consumes_and_plays_visual() {
-    use crate::data::item_data::{CrystalType, ItemHandler};
+    use crate::data::item_data::kinds::{CrystalType, ItemHandler};
     use crate::model::inventory::Inventory;
     use crate::model::{Player, ShotType};
 
@@ -2283,7 +2293,7 @@ fn soulshot_charges_consumes_and_plays_visual() {
 /// A soulshot whose grade doesn't match the equipped weapon is refused.
 #[test]
 fn soulshot_wrong_grade_is_refused() {
-    use crate::data::item_data::{CrystalType, ItemHandler};
+    use crate::data::item_data::kinds::{CrystalType, ItemHandler};
     use crate::model::{Player, ShotType};
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
@@ -2556,7 +2566,7 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
 /// charged immediately; a following attack keeps it topped up.
 #[test]
 fn auto_soulshot_toggle_activates_and_recharges() {
-    use crate::data::item_data::{CrystalType, ItemHandler};
+    use crate::data::item_data::kinds::{CrystalType, ItemHandler};
     use crate::game_loop;
     use crate::model::{Player, ShotType};
 
@@ -4446,9 +4456,9 @@ fn private_buy_store_enforces_the_slot_limit() {
 /// behave like a pair of passive buffs tied to the item.
 #[test]
 fn augment_options_apply_while_the_item_is_equipped() {
-    use crate::data::item_data::{
-        CrystalType, ItemHandler, ItemKind, ItemStats, ItemTemplate, SLOT_R_HAND,
-    };
+    use crate::data::item_data::SLOT_R_HAND;
+    use crate::data::item_data::kinds::{CrystalType, ItemHandler, ItemKind};
+    use crate::data::item_data::template::{ItemStats, ItemTemplate};
     use crate::data::option_data::OptionEntry;
     use crate::model::inventory::Inventory;
     use crate::model::skill::effects::StatModifierEffect;
@@ -4469,7 +4479,7 @@ fn augment_options_apply_while_the_item_is_equipped() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id: 600,
         name: "Augmented Blade".into(),
         kind: ItemKind::Weapon,
@@ -4495,7 +4505,7 @@ fn augment_options_apply_while_the_item_is_equipped() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -4911,7 +4921,8 @@ fn freight_send_refuses_bad_items_and_strangers() {
 /// (Lockup Research Report / Key of Enigma → skill 2260).
 #[test]
 fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
-    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::data::item_data::kinds::{ItemHandler, ItemKind};
+    use crate::data::item_data::template::ItemTemplate;
     use crate::model::components::Casting;
     use crate::model::inventory::Inventory;
     use crate::model::skill::Skill;
@@ -4973,7 +4984,7 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::SkillReduceOnSkillSuccess,
+        default_action: crate::data::item_data::kinds::ActionType::SkillReduceOnSkillSuccess,
         item_id: 8058,
         name: "Lockup Research Report".into(),
         kind: ItemKind::Etc,
@@ -4988,7 +4999,7 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
         is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -4999,7 +5010,7 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: vec![(2260, 1)],
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -5726,7 +5737,7 @@ fn rolling_a_die_broadcasts_the_result() {
 /// on top, keyed on the piece's grade and enchant level.
 #[test]
 fn enchanted_armour_adds_its_max_hp_bonus() {
-    use crate::data::item_data::CrystalType;
+    use crate::data::item_data::kinds::CrystalType;
     let (mut world, ..) = test_world();
     world.data.item_data = dist::items_owned();
     world.data.enchant_hp_bonus =

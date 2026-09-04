@@ -1554,16 +1554,16 @@ fn insert_adena_template(world: &mut World) {
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             item_id: 57,
             name: "Adena".into(),
-            kind: crate::data::item_data::ItemKind::Etc,
+            kind: crate::data::item_data::kinds::ItemKind::Etc,
             body_part: 0,
             is_stackable: true,
             type1: 4,
             type2: 5,
             is_quest_item: false,
-            ..crate::data::item_data::ItemTemplate::for_test()
+            ..crate::data::item_data::template::ItemTemplate::for_test()
         });
 }
 
@@ -1995,16 +1995,16 @@ fn quest_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>)
         world
             .data
             .item_data
-            .insert_for_test(crate::data::item_data::ItemTemplate {
+            .insert_for_test(crate::data::item_data::template::ItemTemplate {
                 item_id,
                 name: name.into(),
-                kind: crate::data::item_data::ItemKind::Etc,
+                kind: crate::data::item_data::kinds::ItemKind::Etc,
                 body_part: 0,
                 is_stackable,
                 type1: 4,
                 type2: if is_quest_item { 3 } else { 5 },
                 is_quest_item,
-                ..crate::data::item_data::ItemTemplate::for_test()
+                ..crate::data::item_data::template::ItemTemplate::for_test()
             });
     }
     for npc_id in [20120i32, 20517] {
@@ -2386,16 +2386,16 @@ fn shop_world() -> (World, db::CmdRx, UnboundedReceiver<bytes::Bytes>) {
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             item_id: 1061,
             name: "Greater Healing Potion".into(),
-            kind: crate::data::item_data::ItemKind::Etc,
+            kind: crate::data::item_data::kinds::ItemKind::Etc,
             body_part: 0,
             is_stackable: true,
             type1: 4,
             type2: 5,
             is_quest_item: false,
-            ..crate::data::item_data::ItemTemplate::for_test()
+            ..crate::data::item_data::template::ItemTemplate::for_test()
         });
     world
         .data
@@ -2462,16 +2462,16 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
         world
             .data
             .item_data
-            .insert_for_test(crate::data::item_data::ItemTemplate {
+            .insert_for_test(crate::data::item_data::template::ItemTemplate {
                 item_id,
                 name: name.into(),
-                kind: crate::data::item_data::ItemKind::Etc,
+                kind: crate::data::item_data::kinds::ItemKind::Etc,
                 body_part: 0,
                 is_stackable: true,
                 type1: 4,
                 type2: if is_quest_item { 3 } else { 5 },
                 is_quest_item,
-                ..crate::data::item_data::ItemTemplate::for_test()
+                ..crate::data::item_data::template::ItemTemplate::for_test()
             });
     }
 }
@@ -2482,24 +2482,24 @@ fn add_shot_item(
     world: &mut World,
     item_id: i32,
     name: &str,
-    handler: crate::data::item_data::ItemHandler,
-    default_action: crate::data::item_data::ActionType,
+    handler: crate::data::item_data::kinds::ItemHandler,
+    default_action: crate::data::item_data::kinds::ActionType,
 ) {
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             default_action,
             item_id,
             name: name.into(),
-            kind: crate::data::item_data::ItemKind::Etc,
+            kind: crate::data::item_data::kinds::ItemKind::Etc,
             body_part: 0,
             is_stackable: true,
             type1: 4,
             type2: 5,
             is_quest_item: false,
             handler,
-            ..crate::data::item_data::ItemTemplate::for_test()
+            ..crate::data::item_data::template::ItemTemplate::for_test()
         });
 }
 
@@ -2521,21 +2521,21 @@ fn item_count(world: &World, player: i32, item_id: i32) -> i64 {
 /// A `<set name="handler">` shot item template (soulshot/spiritshot).
 fn shot_template(
     item_id: i32,
-    grade: crate::data::item_data::CrystalType,
-    handler: crate::data::item_data::ItemHandler,
+    grade: crate::data::item_data::kinds::CrystalType,
+    handler: crate::data::item_data::kinds::ItemHandler,
     skill_id: i32,
-) -> crate::data::item_data::ItemTemplate {
-    crate::data::item_data::ItemTemplate {
+) -> crate::data::item_data::template::ItemTemplate {
+    crate::data::item_data::template::ItemTemplate {
         item_id,
         name: format!("shot{item_id}"),
-        kind: crate::data::item_data::ItemKind::Etc,
+        kind: crate::data::item_data::kinds::ItemKind::Etc,
         crystal_type: grade,
         body_part: crate::data::item_data::SLOT_NONE,
         is_stackable: true,
         is_quest_item: false,
         handler,
         item_skills: vec![(skill_id, 1)],
-        ..crate::data::item_data::ItemTemplate::for_test()
+        ..crate::data::item_data::template::ItemTemplate::for_test()
     }
 }
 
@@ -2543,22 +2543,22 @@ fn shot_template(
 fn shot_weapon(
     world: &mut World,
     item_id: i32,
-    grade: crate::data::item_data::CrystalType,
+    grade: crate::data::item_data::kinds::CrystalType,
     ss: i32,
     sps: i32,
 ) {
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             item_id,
             name: format!("weapon{item_id}"),
-            kind: crate::data::item_data::ItemKind::Weapon,
+            kind: crate::data::item_data::kinds::ItemKind::Weapon,
             crystal_type: grade,
             body_part: crate::data::item_data::SLOT_R_HAND,
             is_stackable: false,
             is_quest_item: false,
-            ..crate::data::item_data::ItemTemplate::for_test()
+            ..crate::data::item_data::template::ItemTemplate::for_test()
         });
     world
         .data

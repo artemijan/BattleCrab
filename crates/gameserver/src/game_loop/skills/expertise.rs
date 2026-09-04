@@ -8,7 +8,7 @@
 //! stat malus (accuracy/atk-speed/speed/… down); the penalty level is also sent
 //! to the client in `EtcStatusUpdate` so it can draw the penalty icons.
 
-use crate::data::item_data::ItemKind;
+use crate::data::item_data::kinds::ItemKind;
 use crate::model::components::{ExpertisePenalty, SkillBook};
 use crate::model::inventory::Inventory;
 use crate::model::skill::active_buff::ActiveBuff;

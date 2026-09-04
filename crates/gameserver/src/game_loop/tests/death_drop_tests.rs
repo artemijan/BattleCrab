@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::data::item_data::ItemTemplate;
+use crate::data::item_data::template::ItemTemplate;
 use crate::game_loop::character::inventory::get_inventory_items_oids;
 use crate::model::Player;
 use crate::model::inventory::Inventory;
@@ -68,7 +68,7 @@ fn ground_item_count(world: &World) -> usize {
 
 fn register_loot(world: &mut World, stacks: i32) {
     for i in 0..stacks {
-        let mut t = crate::data::item_data::ItemTemplate {
+        let mut t = crate::data::item_data::template::ItemTemplate {
             item_id: LOOT_ITEM + i,
             name: format!("Loot {i}"),
             ..items_tests_template()
@@ -79,8 +79,8 @@ fn register_loot(world: &mut World, stacks: i32) {
 }
 
 /// Minimal etc-item template shared by the fixtures.
-fn items_tests_template() -> crate::data::item_data::ItemTemplate {
-    crate::data::item_data::ItemTemplate {
+fn items_tests_template() -> crate::data::item_data::template::ItemTemplate {
+    crate::data::item_data::template::ItemTemplate {
         trade_flags: Default::default(),
         pre_conditions: Vec::new(),
         is_oly_restricted: false,
@@ -90,11 +90,11 @@ fn items_tests_template() -> crate::data::item_data::ItemTemplate {
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id: 0,
         name: String::new(),
-        kind: crate::data::item_data::ItemKind::Etc,
-        crystal_type: crate::data::item_data::CrystalType::None,
+        kind: crate::data::item_data::kinds::ItemKind::Etc,
+        crystal_type: crate::data::item_data::kinds::CrystalType::None,
         crystal_count: 0,
         attack_radius: 40,
         attack_angle: 0,
@@ -111,12 +111,12 @@ fn items_tests_template() -> crate::data::item_data::ItemTemplate {
         is_sellable: true,
         is_freightable: false,
         price: 0,
-        handler: crate::data::item_data::ItemHandler::None,
+        handler: crate::data::item_data::kinds::ItemHandler::None,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
         item_skills: Vec::new(),
-        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
         enchant_enabled: false,
         enchant_limit: 0,
         is_magic_weapon: false,
@@ -363,7 +363,7 @@ fn a_shadow_item_is_never_dropped_on_death() {
     // stack of two, or the instance-vs-template distinction this test exists
     // to prove cannot be set up at all.
     {
-        let mut t = crate::data::item_data::ItemTemplate {
+        let mut t = crate::data::item_data::template::ItemTemplate {
             item_id: LOOT_ITEM,
             name: "Shadow Weapon".into(),
             ..items_tests_template()

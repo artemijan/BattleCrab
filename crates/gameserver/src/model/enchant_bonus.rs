@@ -12,9 +12,8 @@
 //! enchant − 3)`: the first three enchant levels pay `k` each, every level past
 //! +3 pays three times that. It is why +4 is the wall retail players talk about.
 
-use crate::data::item_data::{
-    CrystalType, SLOT_HAIR, SLOT_HAIR2, SLOT_HAIRALL, SLOT_LR_HAND, WeaponType,
-};
+use crate::data::item_data::kinds::{CrystalType, WeaponType};
+use crate::data::item_data::{SLOT_HAIR, SLOT_HAIR2, SLOT_HAIRALL, SLOT_LR_HAND};
 
 /// `IStatFunction.calcEnchantDefBonus`:
 ///

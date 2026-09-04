@@ -61,7 +61,7 @@ pub(super) fn render_drop_search(world: &World, client_id: u32, f: impl FnOnce(S
 pub(super) fn build_item_search_result(world: &World, item_name: &str) -> String {
     let index = world.data.npc_data.drop_index();
     let needle = item_name.to_lowercase();
-    let mut items: Vec<&crate::data::item_data::ItemTemplate> = world
+    let mut items: Vec<&crate::data::item_data::template::ItemTemplate> = world
         .data
         .item_data
         .all()

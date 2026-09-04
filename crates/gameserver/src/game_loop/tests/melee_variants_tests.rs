@@ -2,7 +2,8 @@
 
 use super::*;
 
-use crate::data::item_data::{CrystalType, EtcItemType, ItemKind, ItemTemplate, WeaponType};
+use crate::data::item_data::kinds::{CrystalType, EtcItemType, ItemKind, WeaponType};
+use crate::data::item_data::template::ItemTemplate;
 use crate::model::components::StatModifiers;
 use crate::model::inventory::Inventory;
 use crate::model::stats::Stat;
@@ -24,7 +25,7 @@ fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTem
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id,
         name: name.into(),
         kind: ItemKind::Weapon,
@@ -45,7 +46,7 @@ fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTem
         is_sellable: true,
         is_freightable: false,
         price: 0,
-        handler: crate::data::item_data::ItemHandler::None,
+        handler: crate::data::item_data::kinds::ItemHandler::None,
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,

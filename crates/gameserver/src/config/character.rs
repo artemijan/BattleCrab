@@ -291,7 +291,7 @@ pub struct CharacterConfig {
     /// or recipe list will offer. Java parses it as a `CrystalType` name and
     /// defaults to `EVENT` (i.e. no filtering); this dist ships **S**, which
     /// is what makes the filter bite at all.
-    pub max_equipable_item_grade: crate::data::item_data::CrystalType,
+    pub max_equipable_item_grade: crate::data::item_data::kinds::CrystalType,
     /// `MaxBuffAmount`: the good-buff slot cap (Java `Config.BUFFS_MAX_AMOUNT` →
     /// `getMaxBuffCount`; 24 on this dist). When exceeded the oldest buff is
     /// dropped (`EffectList.addActive`).
@@ -799,7 +799,7 @@ impl Default for CharacterConfig {
             warehouse_slots_no_dwarf: 100,
             max_num_of_clans_in_ally: 3,
             clan_members_for_war: 15,
-            max_equipable_item_grade: crate::data::item_data::CrystalType::S,
+            max_equipable_item_grade: crate::data::item_data::kinds::CrystalType::S,
             max_buff_count: 24,
             max_subclass: 5,
             max_dance_count: 12,
@@ -1129,7 +1129,7 @@ impl CharacterConfig {
             max_num_of_clans_in_ally: p.get_int("AltMaxNumOfClansInAlly", 3).max(0) as usize,
             clan_members_for_war: p.get_int("AltClanMembersForWar", 15).max(0) as usize,
             // Java's default is `EVENT` — the top of the enum, i.e. no filter.
-            max_equipable_item_grade: crate::data::item_data::CrystalType::from_config_name(
+            max_equipable_item_grade: crate::data::item_data::kinds::CrystalType::from_config_name(
                 p.get_string("MaxEquipableItemGrade", "EVENT").as_str(),
             ),
             max_buff_count: p.get_int("MaxBuffAmount", 24),

@@ -125,7 +125,8 @@ fn inventory_rows(world: &World, player: i32, list: &MultisellList) -> Vec<Prepa
         let equippable = world.data.item_data.get(item.item_id).is_some_and(|t| {
             matches!(
                 t.kind,
-                crate::data::item_data::ItemKind::Weapon | crate::data::item_data::ItemKind::Armor
+                crate::data::item_data::kinds::ItemKind::Weapon
+                    | crate::data::item_data::kinds::ItemKind::Armor
             )
         });
         if !equippable || inv.paperdoll_slot_of(item.object_id).is_some() {
@@ -473,7 +474,8 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         let equippable_product = world.data.item_data.get(product.id).is_some_and(|t| {
             matches!(
                 t.kind,
-                crate::data::item_data::ItemKind::Weapon | crate::data::item_data::ItemKind::Armor
+                crate::data::item_data::kinds::ItemKind::Weapon
+                    | crate::data::item_data::kinds::ItemKind::Armor
             )
         });
         if maintain_enchantment

@@ -146,7 +146,10 @@ pub(crate) fn open_deposit_window(world: &mut World, client_id: u32) {
         return;
     };
     // Depositable = not equipped (Java `getAvailableItems`).
-    let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = inv
+    let items: Vec<(
+        &ItemInstance,
+        &crate::data::item_data::template::ItemTemplate,
+    )> = inv
         .unequipped_with_templates(&world.data.item_data)
         .collect();
     let packet = sp::warehouse_deposit_list(
@@ -178,7 +181,10 @@ pub(crate) fn open_withdraw_window(world: &mut World, client_id: u32) {
     let Some(container) = container_ref(world, player_oid, tgt) else {
         return;
     };
-    let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = container
+    let items: Vec<(
+        &ItemInstance,
+        &crate::data::item_data::template::ItemTemplate,
+    )> = container
         .items()
         .iter()
         .filter_map(|it| world.data.item_data.get(it.item_id).map(|t| (it, t)))
@@ -563,7 +569,10 @@ pub(crate) fn handle_package_sendable_list(world: &mut World, client_id: u32, bo
     let Some(inv) = world.objects.get_component::<Inventory>(&player_oid) else {
         return;
     };
-    let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = inv
+    let items: Vec<(
+        &ItemInstance,
+        &crate::data::item_data::template::ItemTemplate,
+    )> = inv
         .unequipped_with_templates(&world.data.item_data)
         .filter(|(_, t)| t.is_freightable)
         .collect();

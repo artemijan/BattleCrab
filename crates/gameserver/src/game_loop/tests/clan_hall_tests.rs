@@ -1026,7 +1026,7 @@ fn the_item_functions_map_to_the_managers_buylists() {
     let buy_lists = crate::data::BuyListData::load_from(
         DIST,
         items,
-        crate::data::item_data::CrystalType::S,
+        crate::data::item_data::kinds::CrystalType::S,
         true,
         true,
     );

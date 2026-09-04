@@ -474,10 +474,10 @@ fn spawn_dropper(world: &mut World, npc_oid: i32, npc_id: i32, type_name: &str, 
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             item_id: drop_item,
             name: "Raid Loot".into(),
-            kind: crate::data::item_data::ItemKind::Etc,
+            kind: crate::data::item_data::kinds::ItemKind::Etc,
             is_stackable: false,
             is_infinite: false,
             is_sellable: true,

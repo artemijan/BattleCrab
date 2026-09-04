@@ -93,9 +93,9 @@ fn equip_augmented(
     rx: &mut UnboundedReceiver<bytes::Bytes>,
     options: [i32; 2],
 ) -> i32 {
-    use crate::data::item_data::{
-        CrystalType, ItemHandler, ItemKind, ItemStats, ItemTemplate, SLOT_R_HAND,
-    };
+    use crate::data::item_data::SLOT_R_HAND;
+    use crate::data::item_data::kinds::{CrystalType, ItemHandler, ItemKind};
+    use crate::data::item_data::template::{ItemStats, ItemTemplate};
     use crate::model::inventory::Inventory;
     use crate::model::stats::Stat;
 
@@ -111,7 +111,7 @@ fn equip_augmented(
             duration: -1,
             crystal_type: CrystalType::None,
             handler: ItemHandler::None,
-            default_action: crate::data::item_data::ActionType::Other,
+            default_action: crate::data::item_data::kinds::ActionType::Other,
             attack_radius: 40,
             is_sellable: true,
             ..Default::default()
@@ -218,7 +218,9 @@ fn the_skill_book_wins_over_an_option_granting_the_same_skill() {
 /// manually re-equipped.
 #[test]
 fn equipped_augments_are_reapplied_at_enter_world() {
-    use crate::data::item_data::{CrystalType, ItemHandler, ItemKind, ItemTemplate, SLOT_R_HAND};
+    use crate::data::item_data::SLOT_R_HAND;
+    use crate::data::item_data::kinds::{CrystalType, ItemHandler, ItemKind};
+    use crate::data::item_data::template::ItemTemplate;
     use crate::model::inventory::Inventory;
 
     let (mut world, ..) = augment_world();
@@ -233,7 +235,7 @@ fn equipped_augments_are_reapplied_at_enter_world() {
         duration: -1,
         crystal_type: CrystalType::None,
         handler: ItemHandler::None,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         attack_radius: 40,
         is_sellable: true,
         ..Default::default()

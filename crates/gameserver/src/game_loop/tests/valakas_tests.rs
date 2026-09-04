@@ -304,7 +304,7 @@ fn entry_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         IN_LAIR.1,
         IN_LAIR.2,
     );
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = VACUALITE;
     t.name = "Vacualite Floating Stone".into();
     t.is_stackable = true;

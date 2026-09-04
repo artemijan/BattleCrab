@@ -8,7 +8,7 @@
 //! unenchanted stats — which is the sort of gap a player notices as "my +10
 //! set has less HP than it should" and a test suite never notices at all.
 
-use crate::data::item_data::CrystalType;
+use crate::data::item_data::kinds::CrystalType;
 use crate::data::xml;
 use quick_xml::events::Event;
 use std::collections::HashMap;

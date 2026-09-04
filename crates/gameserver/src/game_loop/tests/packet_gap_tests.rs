@@ -320,13 +320,13 @@ fn preview_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             item_id: PREVIEW_CHEST,
             name: "Preview Tunic".into(),
-            kind: crate::data::item_data::ItemKind::Armor,
+            kind: crate::data::item_data::kinds::ItemKind::Armor,
             body_part: crate::data::item_data::SLOT_CHEST,
             type2: 1,
-            ..crate::data::item_data::ItemTemplate::for_test()
+            ..crate::data::item_data::template::ItemTemplate::for_test()
         });
     world
         .data

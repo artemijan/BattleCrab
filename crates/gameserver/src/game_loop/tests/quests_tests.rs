@@ -739,10 +739,10 @@ fn sell_list_hides_unsellable_and_refund_round_trips() {
         world
             .data
             .item_data
-            .insert_for_test(crate::data::item_data::ItemTemplate {
+            .insert_for_test(crate::data::item_data::template::ItemTemplate {
                 item_id,
                 name: name.into(),
-                kind: crate::data::item_data::ItemKind::Etc,
+                kind: crate::data::item_data::kinds::ItemKind::Etc,
                 is_stackable: stackable,
                 is_infinite: false,
                 is_sellable: sellable,
@@ -859,10 +859,10 @@ fn refund_container_caps_at_twelve() {
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             item_id: 9003,
             name: "Test Potion".into(),
-            kind: crate::data::item_data::ItemKind::Etc,
+            kind: crate::data::item_data::kinds::ItemKind::Etc,
             is_stackable: true,
             is_infinite: false,
             is_sellable: true,
@@ -1414,7 +1414,7 @@ fn request_sell_item_pays_adena() {
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             trade_flags: Default::default(),
             pre_conditions: Vec::new(),
             is_oly_restricted: false,
@@ -1424,10 +1424,10 @@ fn request_sell_item_pays_adena() {
             duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
+            default_action: crate::data::item_data::kinds::ActionType::Other,
             item_id: 5000,
             name: "Trophy".into(),
-            kind: crate::data::item_data::ItemKind::Etc,
+            kind: crate::data::item_data::kinds::ItemKind::Etc,
             body_part: 0,
             weight: 0,
             is_stackable: true,
@@ -1438,8 +1438,8 @@ fn request_sell_item_pays_adena() {
             is_sellable: true,
             is_freightable: false,
             price: 200, // sells for 100 each
-            handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            handler: crate::data::item_data::kinds::ItemHandler::None,
+            crystal_type: crate::data::item_data::kinds::CrystalType::None,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,
@@ -1450,7 +1450,7 @@ fn request_sell_item_pays_adena() {
             extractable_count_min: 0,
             extractable_count_max: 0,
             item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
             enchant_enabled: false,
             enchant_limit: 0,
             is_magic_weapon: false,
@@ -6091,7 +6091,7 @@ fn quest_q00415_weapon_gate_wants_bare_hands_or_fists() {
             world
                 .data
                 .item_data
-                .set_weapon_type_for_test(w, crate::data::item_data::WeaponType::Fist);
+                .set_weapon_type_for_test(w, crate::data::item_data::kinds::WeaponType::Fist);
         }
         // Get pouch 1 from Rosheek.
         let rosheek = NPC_OID + 20;
@@ -20100,7 +20100,7 @@ fn quest_q00333_hunt_of_the_black_lion() {
 #[test]
 fn fishing_cast_hook_and_land_a_fish() {
     use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
-    use crate::data::item_data::WeaponType;
+    use crate::data::item_data::kinds::WeaponType;
     use crate::model::inventory::{Inventory, PaperdollSlot};
 
     const ROD: i32 = 45492;
@@ -20234,7 +20234,7 @@ fn item_row(
 #[test]
 fn fishing_premium_and_underwater_gates() {
     use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
-    use crate::data::item_data::WeaponType;
+    use crate::data::item_data::kinds::WeaponType;
     use crate::data::zone_data::ZoneKind;
     use crate::model::components::Position;
     use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -20336,7 +20336,7 @@ fn fishing_premium_and_underwater_gates() {
 #[test]
 fn fishing_shots_double_the_win_chance() {
     use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
-    use crate::data::item_data::{ActionType, ItemHandler, WeaponType};
+    use crate::data::item_data::kinds::{ActionType, ItemHandler, WeaponType};
     use crate::data::zone_data::ZoneKind;
     use crate::model::inventory::{Inventory, PaperdollSlot};
 
@@ -20440,7 +20440,7 @@ fn fishing_shots_double_the_win_chance() {
 #[test]
 fn fishing_zone_toggles_auto_fish_available() {
     use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
-    use crate::data::item_data::WeaponType;
+    use crate::data::item_data::kinds::WeaponType;
     use crate::data::zone_data::ZoneKind;
     use crate::model::components::{Position, ZoneFlags};
     use crate::model::inventory::{Inventory, PaperdollSlot};

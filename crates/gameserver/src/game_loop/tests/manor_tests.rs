@@ -994,7 +994,7 @@ fn sowing_is_gated_on_the_seeds_own_territory() {
     add_stackable_item(&mut world, 5016, 10);
     {
         let mut t = world.data.item_data.get(5016).cloned().unwrap();
-        t.handler = crate::data::item_data::ItemHandler::Seed;
+        t.handler = crate::data::item_data::kinds::ItemHandler::Seed;
         world.data.item_data.insert_for_test(t);
     }
     // Give the player the seed item and target the mob.

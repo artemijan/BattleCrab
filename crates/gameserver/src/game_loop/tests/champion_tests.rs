@@ -762,14 +762,14 @@ fn npc_weapon_mastery_needs_the_template_weapon() {
     world
         .data
         .item_data
-        .set_weapon_type_for_test(SWORD, crate::data::item_data::WeaponType::Sword);
+        .set_weapon_type_for_test(SWORD, crate::data::item_data::kinds::WeaponType::Sword);
     let mut mastery = passive_clan_test_skill(9403);
     mastery.effects = vec![SkillEffect::StatModifier(StatModifierEffect {
         stat: Stat::PhysicalAttack,
         mode: StatModifierType::Diff,
         amount: 50.0,
         armor_condition: 0,
-        weapon_condition: crate::data::item_data::WeaponType::Sword.mask_bit(),
+        weapon_condition: crate::data::item_data::kinds::WeaponType::Sword.mask_bit(),
         qualifier: None,
         two_handed: false,
         hp_percent: 0,

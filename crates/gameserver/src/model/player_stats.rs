@@ -14,7 +14,7 @@ use super::stats::{BaseStat, Stat};
 /// Equipped-gear contributions to the combat finalizers, summarized from the
 /// paperdoll once per recompute — Java re-reads item `getStats(...)` inside
 /// each finalizer, but the numbers are the same. Two families, matching the
-/// Java stat finalizers (see [`crate::data::item_data::ItemStats`]):
+/// Java stat finalizers (see [`crate::data::item_data::template::ItemStats`]):
 ///   * **weapon-replace** bases (`None` ⇒ fall back to the class template
 ///     base) — `calcWeaponBaseValue`, the equipped weapon only;
 ///   * **sum-add** contributions (0.0 when nothing equipped adds them) —
@@ -153,7 +153,7 @@ impl EquippedBonuses {
             };
             // `stat == PHYSICAL_ATTACK && equippedItem.isWeapon()` — the extra
             // weapon test Java applies only on this arm.
-            if tpl.kind == crate::data::item_data::ItemKind::Weapon
+            if tpl.kind == crate::data::item_data::kinds::ItemKind::Weapon
                 && enchant_bonus_applies(body_part, declares(Stat::PhysicalAttack), false)
             {
                 eq.enchant_p_atk += enchant_p_atk_bonus(

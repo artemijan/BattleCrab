@@ -29,7 +29,7 @@ fn sell_world() -> (
     world.cfg.sell_buffs.mp_multiplier = 1;
     world.data.sell_buff_data.insert_for_test(BUFF);
 
-    let mut adena = crate::data::item_data::ItemTemplate::default();
+    let mut adena = crate::data::item_data::template::ItemTemplate::default();
     adena.item_id = ADENA;
     adena.name = "Adena".into();
     adena.is_stackable = true;

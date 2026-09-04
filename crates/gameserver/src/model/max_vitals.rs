@@ -85,7 +85,8 @@ pub fn calc_max_hp(
 /// which is why the test is on the slot rather than on "is it a jewel":
 /// `ItemKind::Armor` covers jewellery too.
 fn enchanted_armour_hp(inventory: &Inventory, data: &GameData) -> f64 {
-    use crate::data::item_data::{ItemKind, SLOT_LR_EAR, SLOT_LR_FINGER, SLOT_NECK};
+    use crate::data::item_data::kinds::ItemKind;
+    use crate::data::item_data::{SLOT_LR_EAR, SLOT_LR_FINGER, SLOT_NECK};
     inventory
         .equipped_items()
         .iter()

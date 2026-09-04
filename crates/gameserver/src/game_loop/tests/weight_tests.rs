@@ -15,7 +15,7 @@ const BRICK: i32 = 9600;
 
 fn weight_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = cast_test_world();
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = BRICK;
     t.name = "Brick".into();
     t.weight = 1000;
@@ -233,7 +233,7 @@ fn the_inventory_slot_gate_is_about_slots_not_weight() {
     let limit = weight::inventory_limit(&world, PLAYER);
     for i in 0..=(limit * 8 / 10) {
         let id = BRICK + 1 + i;
-        let mut t = crate::data::item_data::ItemTemplate::default();
+        let mut t = crate::data::item_data::template::ItemTemplate::default();
         t.item_id = id;
         t.name = format!("Trinket {i}");
         world.data.item_data.insert_for_test(t);

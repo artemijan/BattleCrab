@@ -33,7 +33,9 @@ use std::collections::{HashMap, HashSet};
 use quick_xml::events::Event;
 use tracing::info;
 
-use super::item_data::{CrystalType, ItemTemplate, slot_mask};
+use super::item_data::kinds::CrystalType;
+use super::item_data::slot_mask;
+use super::item_data::template::ItemTemplate;
 use crate::data::xml;
 use crate::data::xml::attr_strict as attr;
 
@@ -658,8 +660,9 @@ fn parse_range(range: &str) -> Option<(i32, i32)> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data::item_data::kinds::ItemKind;
     use crate::data::item_data::{
-        ItemKind, SLOT_FULL_ARMOR, SLOT_HEAD, SLOT_R_HAND, TYPE2_SHIELD_ARMOR, TYPE2_WEAPON,
+        SLOT_FULL_ARMOR, SLOT_HEAD, SLOT_R_HAND, TYPE2_SHIELD_ARMOR, TYPE2_WEAPON,
     };
 
     const DIST: &str = crate::data::DIST_GAME;
@@ -677,7 +680,7 @@ mod tests {
             duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
+            default_action: crate::data::item_data::kinds::ActionType::Other,
             item_id,
             name: String::new(),
             kind: if type2 == TYPE2_WEAPON {
@@ -707,7 +710,7 @@ mod tests {
             extractable_count_min: 0,
             extractable_count_max: 0,
             item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
             enchant_enabled: false,
             enchant_limit: 0,
             is_magic_weapon: false,

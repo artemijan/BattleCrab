@@ -4,7 +4,9 @@
 
 use super::*;
 use crate::data::item_cond::{Cond, CondMessage, ItemCondition};
-use crate::data::item_data::{ItemKind, ItemTemplate, SLOT_BACK, SLOT_HEAD, SLOT_R_HAND};
+use crate::data::item_data::kinds::ItemKind;
+use crate::data::item_data::template::ItemTemplate;
+use crate::data::item_data::{SLOT_BACK, SLOT_HEAD, SLOT_R_HAND};
 use crate::enums::Race;
 use crate::network::server_packets::sm_ids;
 

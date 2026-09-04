@@ -3,7 +3,8 @@
 //! resolution ordinary gear exercises. Warehouse/trade/pickup/enchant/
 //! augmentation arrive with later milestones.
 
-use crate::data::item_data::{self, ItemData, ItemKind};
+use crate::data::item_data::kinds::ItemKind;
+use crate::data::item_data::{self, ItemData};
 use crate::db::ItemRow;
 
 /// Port of the `Inventory.PAPERDOLL_*` constants — the 32 equipment-slot
@@ -257,7 +258,7 @@ impl Inventory {
     pub fn unequipped_with_templates<'a>(
         &'a self,
         data: &'a ItemData,
-    ) -> impl Iterator<Item = (&'a ItemInstance, &'a item_data::ItemTemplate)> {
+    ) -> impl Iterator<Item = (&'a ItemInstance, &'a item_data::template::ItemTemplate)> {
         self.items
             .iter()
             .filter(|it| self.paperdoll_slot_of(it.object_id).is_none())
@@ -979,7 +980,7 @@ impl Inventory {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data::item_data::ItemTemplate;
+    use crate::data::item_data::template::ItemTemplate;
 
     fn armor(id: i32, body_part: i32) -> ItemTemplate {
         ItemTemplate {

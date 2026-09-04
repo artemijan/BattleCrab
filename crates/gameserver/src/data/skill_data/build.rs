@@ -1316,8 +1316,10 @@ pub(crate) fn build_skill(
                                 .map(|v| {
                                     v.split(',')
                                         .map(|w| {
-                                            crate::data::item_data::WeaponType::from_name(w.trim())
-                                                .mask_bit()
+                                            crate::data::item_data::kinds::WeaponType::from_name(
+                                                w.trim(),
+                                            )
+                                            .mask_bit()
                                         })
                                         .fold(0u32, |acc, b| acc | b)
                                 })
@@ -1355,9 +1357,9 @@ pub(crate) fn build_skill(
                         // `two_handed` axis.
                         "TwoHandedBluntBonus" | "TwoHandedSwordBonus" => {
                             let weapon = if xml_name == "TwoHandedBluntBonus" {
-                                crate::data::item_data::WeaponType::Blunt.mask_bit()
+                                crate::data::item_data::kinds::WeaponType::Blunt.mask_bit()
                             } else {
-                                crate::data::item_data::WeaponType::Sword.mask_bit()
+                                crate::data::item_data::kinds::WeaponType::Sword.mask_bit()
                             };
                             let pair = |amount_key: &str, mode_key: &str, stat: Stat| {
                                 let amount = value_at(params, amount_key, level)

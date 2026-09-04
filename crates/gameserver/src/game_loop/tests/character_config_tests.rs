@@ -9,7 +9,7 @@
 
 use super::*;
 use crate::config::character::CharacterConfig;
-use crate::data::item_data::CrystalType;
+use crate::data::item_data::kinds::CrystalType;
 
 /// The parse, against the shipped file.
 #[test]
@@ -796,7 +796,7 @@ fn herbs_are_excluded_from_ordinary_auto_loot() {
     const HERB: i32 = 8_600;
     const PLAIN: i32 = 8_601;
     for (id, herb) in [(HERB, true), (PLAIN, false)] {
-        let mut t = crate::data::item_data::ItemTemplate::default();
+        let mut t = crate::data::item_data::template::ItemTemplate::default();
         t.item_id = id;
         t.ex_immediate_effect = herb;
         world.data.item_data.insert_for_test(t);
@@ -831,7 +831,7 @@ fn the_auto_loot_id_list_overrides_every_other_flag() {
     use crate::game_loop::combat::death::auto_loots_for_test as auto_loots;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     const HERB: i32 = 8_602;
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = HERB;
     t.ex_immediate_effect = true;
     world.data.item_data.insert_for_test(t);

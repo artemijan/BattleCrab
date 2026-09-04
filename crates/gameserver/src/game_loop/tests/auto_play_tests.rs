@@ -272,13 +272,13 @@ const ATTACK_SKILL: i32 = 3;
 fn use_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let (mut world, rx) = play_world();
     for (item_id, skill_id) in [(SHOT, 9201), (POTION, 9202)] {
-        let mut t = crate::data::item_data::ItemTemplate::default();
+        let mut t = crate::data::item_data::template::ItemTemplate::default();
         t.item_id = item_id;
         t.name = format!("Item {item_id}");
         t.is_stackable = true;
-        t.handler = crate::data::item_data::ItemHandler::ItemSkills;
+        t.handler = crate::data::item_data::kinds::ItemHandler::ItemSkills;
         t.item_skills = vec![(skill_id, 1)];
-        t.default_action = crate::data::item_data::ActionType::SkillReduce;
+        t.default_action = crate::data::item_data::kinds::ActionType::SkillReduce;
         t.immediate_effect = true;
         world.data.item_data.insert_for_test(t);
         world.data.skill_data.insert_for_test(Skill {

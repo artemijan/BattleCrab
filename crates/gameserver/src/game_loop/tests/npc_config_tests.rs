@@ -184,12 +184,12 @@ fn the_pet_bag_stops_at_the_configured_slot_count() {
 
     // Three distinct non-stackable items, plus one stackable.
     for (i, id) in [9_101, 9_102, 9_103].into_iter().enumerate() {
-        let mut item = crate::data::item_data::ItemTemplate::default();
+        let mut item = crate::data::item_data::template::ItemTemplate::default();
         item.item_id = id;
         item.name = format!("Slot Filler {i}");
         world.data.item_data.insert_for_test(item);
     }
-    let mut stack = crate::data::item_data::ItemTemplate::default();
+    let mut stack = crate::data::item_data::template::ItemTemplate::default();
     stack.item_id = 9_200;
     stack.name = "Stackable".into();
     stack.is_stackable = true;

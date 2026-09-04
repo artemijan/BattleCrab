@@ -160,7 +160,7 @@ pub(crate) fn passive_stat_gate(
         skill::condition::SkillCondition::EquipShield => {
             inventory.paperdoll_item_id(PaperdollSlot::LHand) != 0
                 && items.armor_type(inventory.paperdoll_item_id(PaperdollSlot::LHand))
-                    == crate::data::item_data::ArmorType::Shield
+                    == crate::data::item_data::kinds::ArmorType::Shield
         }
         _ => true,
     })
@@ -559,7 +559,7 @@ fn has_shield(world: &World, object_id: i32) -> bool {
         .map(|inv| inv.paperdoll_item_id(PaperdollSlot::LHand))
         .filter(|&id| id != 0)
         .is_some_and(|id| {
-            world.data.item_data.armor_type(id) == crate::data::item_data::ArmorType::Shield
+            world.data.item_data.armor_type(id) == crate::data::item_data::kinds::ArmorType::Shield
         })
 }
 

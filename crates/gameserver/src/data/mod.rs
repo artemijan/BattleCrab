@@ -329,7 +329,7 @@ pub struct GameData {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DataOptions {
     /// `MaxEquipableItemGrade` — the buy-list / multisell grade filter.
-    pub max_equipable_item_grade: item_data::CrystalType,
+    pub max_equipable_item_grade: item_data::kinds::CrystalType,
     /// `MaximumPlayerLevel` **as Java stores it** (the ini value + 1) — the
     /// ceiling `ExperienceData` clamps its own `maxLevel + 1` to, and stops
     /// loading rows above.
@@ -352,7 +352,7 @@ pub struct DataOptions {
 impl Default for DataOptions {
     fn default() -> Self {
         Self {
-            max_equipable_item_grade: item_data::CrystalType::S,
+            max_equipable_item_grade: item_data::kinds::CrystalType::S,
             maximum_player_level: experience::DIST_PLAYER_MAXIMUM_LEVEL,
             correct_prices: true,
             initial_equipment_event: true,

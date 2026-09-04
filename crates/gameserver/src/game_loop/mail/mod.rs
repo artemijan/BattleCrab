@@ -103,7 +103,10 @@ pub(crate) fn on_enter_world(world: &World, object_id: i32) {
 pub(crate) fn attachment_views(
     world: &World,
     message_id: i32,
-) -> Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> {
+) -> Vec<(
+    &ItemInstance,
+    &crate::data::item_data::template::ItemTemplate,
+)> {
     world
         .mail
         .attachments
@@ -189,7 +192,10 @@ pub(crate) fn handle_post_item_list(world: &mut World, client_id: u32) {
     }
     // Java `PlayerInventory.getAvailableItems(allowAdena=true,
     // allowNonTradeable=false)`: everything unequipped and tradeable.
-    let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = world
+    let items: Vec<(
+        &ItemInstance,
+        &crate::data::item_data::template::ItemTemplate,
+    )> = world
         .objects
         .get_component::<Inventory>(&player)
         .map(|inv| {

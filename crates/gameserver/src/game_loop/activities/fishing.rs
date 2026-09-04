@@ -10,7 +10,7 @@
 //! it. The bob still lands at a heading offset rather than a geo-validated
 //! water point, which no zone can express; cosmetic only.
 
-use crate::data::item_data::WeaponType;
+use crate::data::item_data::kinds::WeaponType;
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::is_dead;

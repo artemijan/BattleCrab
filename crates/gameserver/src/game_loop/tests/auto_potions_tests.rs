@@ -29,15 +29,15 @@ fn potion_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
 
     // Potions that restore through an item skill, like the real ones.
     for (item_id, skill_id) in [(HP_GOOD, 9101), (HP_CHEAP, 9102), (MP_POTION, 9103)] {
-        let mut t = crate::data::item_data::ItemTemplate::default();
+        let mut t = crate::data::item_data::template::ItemTemplate::default();
         t.item_id = item_id;
         t.name = format!("Potion {item_id}");
         t.is_stackable = true;
-        t.handler = crate::data::item_data::ItemHandler::ItemSkills;
+        t.handler = crate::data::item_data::kinds::ItemHandler::ItemSkills;
         t.item_skills = vec![(skill_id, 1)];
         // The dist's potions: `default_action = SKILL_REDUCE` +
         // `immediate_effect`, which is what makes the handler consume one.
-        t.default_action = crate::data::item_data::ActionType::SkillReduce;
+        t.default_action = crate::data::item_data::kinds::ActionType::SkillReduce;
         t.immediate_effect = true;
         world.data.item_data.insert_for_test(t);
         world.data.skill_data.insert_for_test(Skill {
@@ -257,13 +257,13 @@ fn an_olympiad_competitor_is_dropped() {
 fn cp_has_its_own_pool() {
     const CP_POTION: i32 = 5592;
     let (mut world, _rx) = potion_world();
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = CP_POTION;
     t.name = "CP Potion".into();
     t.is_stackable = true;
-    t.handler = crate::data::item_data::ItemHandler::ItemSkills;
+    t.handler = crate::data::item_data::kinds::ItemHandler::ItemSkills;
     t.item_skills = vec![(9104, 1)];
-    t.default_action = crate::data::item_data::ActionType::SkillReduce;
+    t.default_action = crate::data::item_data::kinds::ActionType::SkillReduce;
     t.immediate_effect = true;
     world.data.item_data.insert_for_test(t);
     world.data.skill_data.insert_for_test(Skill {

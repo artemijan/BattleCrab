@@ -37,7 +37,7 @@ fn dist_shop_world(npc_id: i32) -> (World, db::CmdRx, UnboundedReceiver<bytes::B
     let lists = BuyListData::load_from(
         crate::data::DIST_GAME,
         &items,
-        crate::data::item_data::CrystalType::S,
+        crate::data::item_data::kinds::CrystalType::S,
         true,
         true,
     );

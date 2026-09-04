@@ -1,8 +1,8 @@
 use super::*;
 
-use crate::data::item_data::{
-    CrystalType, EtcItemType, ItemHandler, ItemKind, ItemTemplate, SLOT_R_HAND,
-};
+use crate::data::item_data::SLOT_R_HAND;
+use crate::data::item_data::kinds::{CrystalType, EtcItemType, ItemHandler, ItemKind};
+use crate::data::item_data::template::ItemTemplate;
 use crate::data::recipe_data::{RareProduction, RecipeList};
 use crate::game_loop::commerce::crafting;
 use crate::model::components::{RecipeBook, SkillBook};
@@ -27,7 +27,7 @@ fn etc_template(item_id: i32, name: &str, stackable: bool, handler: ItemHandler)
         duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
+        default_action: crate::data::item_data::kinds::ActionType::Other,
         item_id,
         name: name.into(),
         kind: ItemKind::Etc,

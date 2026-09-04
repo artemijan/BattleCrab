@@ -504,7 +504,7 @@ fn format_chance(value: f64) -> String {
 /// `Creature.getAttackType`: the equipped weapon's type, else `FIST`,
 /// formatted like Java `CommonUtil.capitalizeFirst(name.toLowerCase())`.
 pub(in crate::game_loop) fn attack_type_name(world: &World, t: &NpcTemplate) -> String {
-    use crate::data::item_data::WeaponType;
+    use crate::data::item_data::kinds::WeaponType;
     let wt = if t.rhand != 0 {
         world.data.item_data.weapon_type(t.rhand)
     } else {

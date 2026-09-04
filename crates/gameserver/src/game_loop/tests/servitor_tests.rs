@@ -1240,7 +1240,7 @@ const WOLF_FOOD_SKILL: i32 = 2048;
 /// real to run. Without the skill the item would be consumed for nothing,
 /// which is exactly the bug the `Feed` parse arm fixes.
 fn register_food(world: &mut World, restores: i32) {
-    let mut item = crate::data::item_data::ItemTemplate::default();
+    let mut item = crate::data::item_data::template::ItemTemplate::default();
     item.item_id = WOLF_FOOD;
     item.name = "Wolf Food".into();
     // 2515 ships `for_npc="true"`, which is Java's first gate on the pet
@@ -2599,12 +2599,12 @@ fn a_dead_pet_does_not_regenerate() {
 const BEAST_SOULSHOT: i32 = 6645;
 
 fn register_beast_soulshot(world: &mut World) {
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = BEAST_SOULSHOT;
     t.name = "Beast Soulshot".into();
     t.is_stackable = true;
-    t.handler = crate::data::item_data::ItemHandler::BeastSoulShot;
-    t.default_action = crate::data::item_data::ActionType::SummonSoulshot;
+    t.handler = crate::data::item_data::kinds::ItemHandler::BeastSoulShot;
+    t.default_action = crate::data::item_data::kinds::ActionType::SummonSoulshot;
     world.data.item_data.insert_for_test(t);
 }
 
@@ -3477,10 +3477,10 @@ const WOLF_ARMOR: i32 = 3891;
 
 /// Register Wolf's Hide Armor — a real chest-slot pet armour with defence.
 fn register_pet_armor(world: &mut World) {
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = WOLF_ARMOR;
     t.name = "Wolf's Hide Armor".into();
-    t.kind = crate::data::item_data::ItemKind::Armor;
+    t.kind = crate::data::item_data::kinds::ItemKind::Armor;
     t.body_part = crate::data::item_data::SLOT_CHEST;
     // As the real 3891 declares it: the pet window refuses anything else.
     t.for_npc = true;
@@ -4153,12 +4153,12 @@ fn the_real_action_data_binds_servitor_skills() {
 const BEAST_SPIRITSHOT: i32 = 6646;
 
 fn register_beast_spiritshot(world: &mut World) {
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = BEAST_SPIRITSHOT;
     t.name = "Beast Spiritshot".into();
     t.is_stackable = true;
-    t.handler = crate::data::item_data::ItemHandler::BeastSpiritShot;
-    t.default_action = crate::data::item_data::ActionType::SummonSpiritshot;
+    t.handler = crate::data::item_data::kinds::ItemHandler::BeastSpiritShot;
+    t.default_action = crate::data::item_data::kinds::ActionType::SummonSpiritshot;
     world.data.item_data.insert_for_test(t);
     let World { data, objects, .. } = world;
     objects
@@ -5057,7 +5057,7 @@ fn the_summoned_pets_collar_is_not_offered_for_sale() {
     // `give_collar` registers the *pet* and NPC templates but not the collar's
     // own `ItemTemplate`, without which the sell filter drops it for want of a
     // template and the test below passes vacuously.
-    let mut tmpl = crate::data::item_data::ItemTemplate::default();
+    let mut tmpl = crate::data::item_data::template::ItemTemplate::default();
     tmpl.item_id = WOLF_COLLAR;
     tmpl.name = "Wolf Collar".into();
     tmpl.is_sellable = true;
@@ -5854,10 +5854,10 @@ fn a_starving_pet_will_not_fetch() {
 /// A pet armour gated on a category, the way every real one is.
 fn register_gated_pet_armor(world: &mut World, category: &str) {
     use crate::data::item_cond::{Cond, CondMessage, ItemCondition};
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = WOLF_ARMOR;
     t.name = "Gated Hide Armor".into();
-    t.kind = crate::data::item_data::ItemKind::Armor;
+    t.kind = crate::data::item_data::kinds::ItemKind::Armor;
     t.body_part = crate::data::item_data::SLOT_CHEST;
     t.for_npc = true;
     t.pre_conditions = vec![ItemCondition {
@@ -6025,7 +6025,9 @@ fn only_a_for_npc_item_reaches_the_pet_at_all() {
 /// A plain monster's `getActingPlayer()` is null and stays at a flat 1.
 #[test]
 fn a_servitors_shot_bonus_comes_from_its_owners_weapon() {
-    use crate::data::item_data::{ItemKind, ItemStats, SLOT_R_HAND};
+    use crate::data::item_data::SLOT_R_HAND;
+    use crate::data::item_data::kinds::ItemKind;
+    use crate::data::item_data::template::ItemStats;
     use crate::game_loop::combat::shots_bonus_of;
     use crate::model::inventory::Inventory;
     use crate::model::stats::Stat;

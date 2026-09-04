@@ -106,7 +106,7 @@ pub struct RestorationItem {
 /// together when this slice is picked. `chance` is the raw XML percentage
 /// (0-100 space, slices summing to ~100), matching Java's
 /// `100 * Rnd.nextDouble()` roulette roll — not pre-scaled like
-/// `item_data::CapsuledItem::chance`.
+/// `item_data::template::CapsuledItem::chance`.
 /// `Escape.java`'s `escapeType`, i.e. the `TeleportWhereType` it hands to
 /// `teleToLocation` — see [`SkillEffect::Escape`].
 ///

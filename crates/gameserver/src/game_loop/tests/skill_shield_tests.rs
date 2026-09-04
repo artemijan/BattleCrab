@@ -9,10 +9,9 @@
 
 use super::*;
 
-use crate::data::item_data::{
-    ActionType, CrystalType, EtcItemType, ItemHandler, ItemKind, ItemStats, ItemTemplate,
-    SLOT_L_HAND,
-};
+use crate::data::item_data::SLOT_L_HAND;
+use crate::data::item_data::kinds::{ActionType, CrystalType, EtcItemType, ItemHandler, ItemKind};
+use crate::data::item_data::template::{ItemStats, ItemTemplate};
 use crate::game_loop;
 use crate::model::components::Vitals;
 use crate::model::skill::effects::SkillEffect;
@@ -290,7 +289,8 @@ fn the_shield_switch_adds_defence_or_signals_a_perfect_block() {
 /// halves.
 #[test]
 fn a_bow_attacker_raises_the_shield_block_rate() {
-    use crate::data::item_data::{SLOT_LR_HAND, WeaponType};
+    use crate::data::item_data::SLOT_LR_HAND;
+    use crate::data::item_data::kinds::WeaponType;
     use crate::game_loop::skills::effects::defence_after_shield;
 
     const BOW_ID: i32 = 7701;

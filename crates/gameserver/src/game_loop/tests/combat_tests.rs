@@ -2701,7 +2701,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             trade_flags: Default::default(),
             pre_conditions: Vec::new(),
             is_oly_restricted: false,
@@ -2711,10 +2711,10 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
             duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
+            default_action: crate::data::item_data::kinds::ActionType::Other,
             item_id: 1871,
             name: "Charcoal".into(),
-            kind: crate::data::item_data::ItemKind::Etc,
+            kind: crate::data::item_data::kinds::ItemKind::Etc,
             body_part: 0,
             weight: 0,
             is_stackable: true,
@@ -2725,8 +2725,8 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
             is_sellable: true,
             is_freightable: false,
             price: 0,
-            handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None,
+            handler: crate::data::item_data::kinds::ItemHandler::None,
+            crystal_type: crate::data::item_data::kinds::CrystalType::None,
             crystal_count: 0,
             attack_radius: 40,
             attack_angle: 0,
@@ -2737,7 +2737,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
             extractable_count_min: 0,
             extractable_count_max: 0,
             item_skills: Vec::new(),
-            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            etc_item_type: crate::data::item_data::kinds::EtcItemType::Other,
             enchant_enabled: false,
             enchant_limit: 0,
             is_magic_weapon: false,

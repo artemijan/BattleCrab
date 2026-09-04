@@ -10,7 +10,7 @@
 use commons::network::PacketWriter;
 
 use crate::data::GameData;
-use crate::data::item_data::ItemTemplate;
+use crate::data::item_data::template::ItemTemplate;
 use crate::enums::InventorySlot;
 use crate::game_loop::stats::weight::total_load;
 use crate::model::Player;
@@ -754,7 +754,9 @@ pub fn ex_auto_soul_shot(item_id: i32, enable: bool, kind: i32) -> Vec<u8> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data::item_data::{self, ItemData, ItemKind, ItemTemplate};
+    use crate::data::item_data::kinds::ItemKind;
+    use crate::data::item_data::template::ItemTemplate;
+    use crate::data::item_data::{self, ItemData};
     use crate::model::inventory::Inventory;
 
     fn earring(id: i32) -> ItemTemplate {

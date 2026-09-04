@@ -32,7 +32,7 @@
 
 use commons::network::PacketReader;
 
-use crate::data::item_data::EtcItemType;
+use crate::data::item_data::kinds::EtcItemType;
 use crate::game_loop::character::inventory;
 use crate::model::components::EnchantRequest;
 use crate::model::inventory::Inventory;
@@ -646,7 +646,7 @@ fn apply_failure(
     item_oid: i32,
     current: i32,
     etc: EtcItemType,
-    target_tpl: &crate::data::item_data::ItemTemplate,
+    target_tpl: &crate::data::item_data::template::ItemTemplate,
 ) {
     // Safe scroll: level retained, nothing lost.
     if etc.is_safe() {

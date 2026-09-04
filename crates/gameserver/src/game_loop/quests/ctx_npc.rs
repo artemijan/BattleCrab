@@ -614,7 +614,8 @@ impl<'w> QuestCtx<'w> {
         }
         matches!(
             self.world.data.item_data.weapon_type(weapon),
-            crate::data::item_data::WeaponType::Fist | crate::data::item_data::WeaponType::DualFist
+            crate::data::item_data::kinds::WeaponType::Fist
+                | crate::data::item_data::kinds::WeaponType::DualFist
         )
     }
 

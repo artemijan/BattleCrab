@@ -564,7 +564,7 @@ impl Player {
                         .iter()
                         .find(|i| i.object_id == sc.id)
                         .and_then(|i| data.item_data.get(i.item_id))
-                        .is_some_and(|t| t.kind == crate::data::item_data::ItemKind::Etc);
+                        .is_some_and(|t| t.kind == crate::data::item_data::kinds::ItemKind::Etc);
                     if is_etc {
                         // `shared_reuse_group` template default (never set in
                         // this dist's item XMLs).

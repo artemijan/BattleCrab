@@ -290,12 +290,12 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                     // `<effect><armorType><item>MAGIC</item>...` — OR each armor
                     // kind's bit into the effect's condition mask.
                     cur_effect_armor |=
-                        crate::data::item_data::ArmorType::from_name(text).mask_bit();
+                        crate::data::item_data::kinds::ArmorType::from_name(text).mask_bit();
                 } else if in_effects && cur_effect_field == "weaponType" && path.len() == 5 {
                     // `<effect><weaponType><item>BOW</item>...` — OR each weapon
                     // kind's bit into the effect's weapon-condition mask.
                     cur_effect_weapon |=
-                        crate::data::item_data::WeaponType::from_name(text).mask_bit();
+                        crate::data::item_data::kinds::WeaponType::from_name(text).mask_bit();
                 } else if in_effects {
                     match path.len() {
                         4 if cur_effect_field == "mode" => {

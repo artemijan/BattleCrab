@@ -125,10 +125,10 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         .unwrap_or(0);
     let is_dual = matches!(
         world.data.item_data.weapon_type(weapon_id),
-        crate::data::item_data::WeaponType::Dual
-            | crate::data::item_data::WeaponType::DualBlunt
-            | crate::data::item_data::WeaponType::DualDagger
-            | crate::data::item_data::WeaponType::DualFist
+        crate::data::item_data::kinds::WeaponType::Dual
+            | crate::data::item_data::kinds::WeaponType::DualBlunt
+            | crate::data::item_data::kinds::WeaponType::DualDagger
+            | crate::data::item_data::kinds::WeaponType::DualFist
     );
 
     // Rolled per hit: (miss, crit, damage, ss, shield).

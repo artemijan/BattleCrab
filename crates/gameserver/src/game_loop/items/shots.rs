@@ -1,7 +1,7 @@
 //! Soulshot/spiritshot/fishshot charging, the auto-shot toggle and the
 //! shot visual broadcast.
 
-use crate::data::item_data::ItemHandler;
+use crate::data::item_data::kinds::ItemHandler;
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::is_dead;
 use crate::game_loop::helpers::send_to_client;

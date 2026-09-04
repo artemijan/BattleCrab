@@ -24,10 +24,10 @@ fn link_world() -> (
     world
         .data
         .item_data
-        .insert_for_test(crate::data::item_data::ItemTemplate {
+        .insert_for_test(crate::data::item_data::template::ItemTemplate {
             item_id: LINKED_ITEM,
             name: "Squire's Sword".into(),
-            kind: crate::data::item_data::ItemKind::Weapon,
+            kind: crate::data::item_data::kinds::ItemKind::Weapon,
             type2: 0,
             body_part: 0x0080, // R-hand
             is_stackable: false,

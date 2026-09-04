@@ -60,7 +60,7 @@ fn resolve_fee(
         return None;
     }
     let template = world.data.item_data.get(target.item_id)?;
-    if template.kind != crate::data::item_data::ItemKind::Weapon {
+    if template.kind != crate::data::item_data::kinds::ItemKind::Weapon {
         return None;
     }
     // `AbstractRefinePacket.isValid`'s last line — the blacklist check, after

@@ -110,7 +110,9 @@ pub(crate) fn start_casting(
                 .data
                 .item_data
                 .get(skill.item_consume_id)
-                .is_none_or(|t| t.default_action == crate::data::item_data::ActionType::Other);
+                .is_none_or(|t| {
+                    t.default_action == crate::data::item_data::kinds::ActionType::Other
+                });
         if is_reagent {
             inventory::take_items(
                 world,

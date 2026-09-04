@@ -951,7 +951,7 @@ pub(crate) fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Opti
     let weapon_mask = || {
         c.lists.get("weaponType").map_or(0, |types| {
             types.iter().fold(0u32, |acc, t| {
-                acc | crate::data::item_data::WeaponType::from_name(t).mask_bit()
+                acc | crate::data::item_data::kinds::WeaponType::from_name(t).mask_bit()
             })
         })
     };

@@ -290,7 +290,7 @@ fn gate_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
             status: 0, // ALIVE — entry open
         },
     );
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = PORTAL_STONE;
     t.name = "Portal Stone".into();
     t.is_stackable = true;

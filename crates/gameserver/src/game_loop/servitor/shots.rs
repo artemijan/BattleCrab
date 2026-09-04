@@ -17,8 +17,8 @@ enum SummonShot {
 
 impl SummonShot {
     /// The `default_action` that marks an auto-shot entry as this kind's.
-    fn action(self) -> crate::data::item_data::ActionType {
-        use crate::data::item_data::ActionType;
+    fn action(self) -> crate::data::item_data::kinds::ActionType {
+        use crate::data::item_data::kinds::ActionType;
         match self {
             SummonShot::Soulshot => ActionType::SummonSoulshot,
             SummonShot::Spiritshot => ActionType::SummonSpiritshot,

@@ -24,7 +24,7 @@
 //! is **not** here: `world.data` is shared and immutable, so the counts live on
 //! the `World` (`buy_list_stock`) and the rules in `game_loop/commerce/shop.rs`.
 
-use crate::data::item_data::CrystalType;
+use crate::data::item_data::kinds::CrystalType;
 
 use std::collections::HashMap;
 
@@ -67,8 +67,12 @@ impl Product {
     /// ships as 1, so this is an identity here; it is a getter in Java and
     /// stays a getter here rather than being folded in at load, because the
     /// rate is config and the load is not.
-    pub fn price_at(&self, template: &crate::data::item_data::ItemTemplate, rate: f64) -> i64 {
-        if template.etc_item_type == crate::data::item_data::EtcItemType::CastleGuard {
+    pub fn price_at(
+        &self,
+        template: &crate::data::item_data::template::ItemTemplate,
+        rate: f64,
+    ) -> i64 {
+        if template.etc_item_type == crate::data::item_data::kinds::EtcItemType::CastleGuard {
             return (self.price as f64 * rate) as i64;
         }
         self.price

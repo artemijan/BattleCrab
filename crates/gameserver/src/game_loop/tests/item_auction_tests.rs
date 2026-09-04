@@ -311,7 +311,7 @@ fn warehouse_count(world: &World, oid: i32, item_id: i32) -> i64 {
 fn a_winning_bidder_gets_the_item_in_their_warehouse() {
     let mut world = bidding_world(100, 500_000);
     // Register the auctioned item (9901) so the reward can be built.
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = 9901;
     t.name = "Reward".into();
     world.data.item_data.insert_for_test(t);
@@ -340,7 +340,7 @@ fn a_finished_auction_with_no_bids_just_closes() {
 #[test]
 fn canceled_bids_are_cleared_when_the_auction_finishes() {
     let mut world = bidding_world(100, 500_000);
-    let mut t = crate::data::item_data::ItemTemplate::default();
+    let mut t = crate::data::item_data::template::ItemTemplate::default();
     t.item_id = 9901;
     world.data.item_data.insert_for_test(t);
     ingame_player(&mut world, 2, 200, 0, 0, 0);

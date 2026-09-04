@@ -137,8 +137,8 @@ impl TraitType {
     /// Java `WeaponType.getTraitType()` — every weapon type *is* a trait, which
     /// is what `calcWeaponTraitBonus` looks the target's defence up by. The
     /// types Java maps to `NONE` (fishing rod, flag) stay `None`.
-    pub fn of_weapon(weapon: crate::data::item_data::WeaponType) -> Self {
-        use crate::data::item_data::WeaponType as W;
+    pub fn of_weapon(weapon: crate::data::item_data::kinds::WeaponType) -> Self {
+        use crate::data::item_data::kinds::WeaponType as W;
         use WeaponTrait as P;
         match weapon {
             W::Sword => Self::Weapon(P::Sword),

@@ -18,7 +18,8 @@ pub(crate) fn armor_condition_passes(
     inventory: &Inventory,
     items: &crate::data::item_data::ItemData,
 ) -> bool {
-    use crate::data::item_data::{ArmorType, SLOT_FULL_ARMOR};
+    use crate::data::item_data::SLOT_FULL_ARMOR;
+    use crate::data::item_data::kinds::ArmorType;
     use crate::model::inventory::PaperdollSlot;
     const NONE_BIT: u8 = ArmorType::None.mask_bit();
     let Some(chest) = inventory.paperdoll_item(PaperdollSlot::Chest) else {

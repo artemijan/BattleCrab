@@ -7,7 +7,7 @@
 use commons::network::PacketWriter;
 
 use super::opcodes;
-use crate::data::item_data::ItemTemplate;
+use crate::data::item_data::template::ItemTemplate;
 use crate::model::inventory::ItemInstance;
 use crate::network::enter_world::write_item_entry;
 

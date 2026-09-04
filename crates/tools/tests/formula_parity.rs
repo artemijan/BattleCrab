@@ -51,7 +51,7 @@ mod common;
 /// Transcriptions of Java's expressions. Each function quotes the source it
 /// came from; nothing here calls the port.
 mod java {
-    use gameserver::data::item_data::CrystalType as Grade;
+    use gameserver::data::item_data::kinds::CrystalType as Grade;
     use gameserver::model::formulas::heal::HealCaster as Caster;
     use gameserver::model::movement::Position;
 
@@ -1861,7 +1861,8 @@ fn effect_abnormal_time_matches_java_across_the_grid() {
 /// to carry and the transcription reads like Java with them in.
 #[test]
 fn enchant_bonus_tables_match_java_across_the_grid() {
-    use gameserver::data::item_data::{CrystalType, SLOT_LR_HAND, SLOT_R_HAND, WeaponType};
+    use gameserver::data::item_data::kinds::{CrystalType, WeaponType};
+    use gameserver::data::item_data::{SLOT_LR_HAND, SLOT_R_HAND};
     use gameserver::model::enchant_bonus::{
         enchant_def_bonus, enchant_m_atk_bonus, enchant_p_atk_bonus,
     };

@@ -4,7 +4,7 @@
 use super::charge_fish_shot;
 use super::charge_shot;
 use super::destroy_item_by_id;
-use crate::data::item_data::ItemHandler;
+use crate::data::item_data::kinds::ItemHandler;
 use crate::game_loop::skills::item_skills;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, npc, skills};
@@ -496,7 +496,9 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
             // Java `SkillCaster(caster, target, skill, item, …)`: a
             // `SKILL_REDUCE_ON_SKILL_SUCCESS` item rides the cast and is spent
             // by `finishSkill` only if it lands.
-            if default_action == crate::data::item_data::ActionType::SkillReduceOnSkillSuccess {
+            if default_action
+                == crate::data::item_data::kinds::ActionType::SkillReduceOnSkillSuccess
+            {
                 skills::cast::set_cast_trigger_item(world, object_id, item_object_id);
             }
         }
@@ -511,11 +513,11 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
 /// Port of `ItemSkillsTemplate.checkConsume`: whether the *item handler* is
 /// the one that destroys the item.
 fn check_consume(
-    default_action: crate::data::item_data::ActionType,
+    default_action: crate::data::item_data::kinds::ActionType,
     has_consume_skill: bool,
     immediate_effect: bool,
 ) -> bool {
-    use crate::data::item_data::ActionType;
+    use crate::data::item_data::kinds::ActionType;
     match default_action {
         // Java: `if (!hasConsumeSkill && hasImmediateEffect()) return true;`
         // then falls out of the switch to `return hasConsumeSkill`.

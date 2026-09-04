@@ -150,7 +150,10 @@ fn open_window(world: &World, viewer: i32, partner: i32) {
             .objects
             .get_component::<crate::model::Player>(&viewer)
             .is_some_and(|p| p.can_override_cond(crate::game_loop::admin::ITEM_CONDITIONS_ORDINAL));
-    let items: Vec<(ItemInstance, &crate::data::item_data::ItemTemplate)> = world
+    let items: Vec<(
+        ItemInstance,
+        &crate::data::item_data::template::ItemTemplate,
+    )> = world
         .objects
         .get_component::<Inventory>(&viewer)
         .map(|inv| {
