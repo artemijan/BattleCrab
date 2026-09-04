@@ -252,7 +252,7 @@ fn a_gm_skips_every_skill_condition() {
 /// `addString` where the first three branches use `addPcName`.
 #[test]
 fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
-    use crate::game_loop::skills::effects::control::check_summon_target_status;
+    use crate::game_loop::skills::effects::summoning::check_summon_target_status;
     use crate::model::skill::active_buff::ActiveBuff;
     use crate::model::skill::{BuffSlot, effect_flag};
     use commons::system_messages::SmParam;
@@ -389,7 +389,7 @@ fn the_recall_gate_refuses_each_state_with_javas_message_and_order() {
 /// item. Charging on accept would make a declined summon free.
 #[test]
 fn summon_friend_charges_the_target_prompts_them_and_teleports_on_accept() {
-    use crate::game_loop::skills::effects::control::{accept_summon_request, call_pc_player};
+    use crate::game_loop::skills::effects::summoning::{accept_summon_request, call_pc_player};
     use crate::model::components::space::Position;
     use crate::model::inventory::Inventory;
     use crate::network::server_packets::opcodes;

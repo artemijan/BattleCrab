@@ -35,35 +35,35 @@ use crate::world::World;
 
 use super::instant;
 use crate::game_loop::helpers::send_sm_to_player;
+mod aggro;
 mod continuous;
 pub(crate) mod control;
+mod creature;
 pub(crate) mod damage;
 mod dispel;
 mod gathering;
-mod summoning;
+pub(crate) mod summoning;
 mod support;
 mod ticks;
 mod traits;
 mod triggers;
+mod vitals;
 
 use crate::game_loop::admin::refresh_skill_list;
 use crate::game_loop::npc::ai::force_attack_target;
+pub(crate) use aggro::{add_hate, delete_hate, delete_hate_of_me, randomize_hate, target_me};
 pub(crate) use continuous::{
     apply_continuous_effects, broadcast_change_wait_type, refresh_abnormal_visuals,
     restore_persisted_buffs, set_collision_grown, stop_fake_death,
 };
-#[cfg(test)]
-pub(crate) use control::creature_level_for_test;
-#[cfg(test)]
-pub(crate) use control::recharge_level_penalty;
 pub(crate) use control::{
-    ManaHealKind, add_hate, apply_block_actions_interrupt, apply_mute_interrupt, bluff,
-    break_fake_death_on_damage, call_party, call_pc, call_pc_player, casting_resists_abnormal,
-    confuse_chance_passes, cp, creature_level, creature_name, delete_hate, delete_hate_of_me,
-    fake_death, fear_action, fear_can_start, hp_by_level, mana_heal, mp_restore, random_bystander,
-    randomize_hate, rebalance_party_hp, record_overhit, retarget_onto, skill_turning,
-    stop_effects_on_damage, target_me, teleport_to_target, try_break_stun,
+    apply_block_actions_interrupt, apply_mute_interrupt, bluff, break_fake_death_on_damage,
+    casting_resists_abnormal, confuse_chance_passes, fake_death, fear_action, fear_can_start,
+    random_bystander, retarget_onto, skill_turning, stop_effects_on_damage, try_break_stun,
 };
+#[cfg(test)]
+pub(crate) use creature::creature_level_for_test;
+pub(crate) use creature::{creature_level, creature_name};
 pub(crate) use damage::{
     SkillHit, apply_buff_to_npc, apply_skill_damage, attribute_mod, attribute_mod_no_skill,
     broadcast_target_buffs, broadcast_vitals, caster_m_atk, defence_after_shield,
@@ -78,6 +78,7 @@ pub(crate) use gathering::{
 #[cfg(test)]
 pub(crate) use gathering::{calc_harvest_success, calc_sow_success};
 pub(crate) use summoning::{betray, summon_npc};
+pub(crate) use summoning::{call_party, call_pc, call_pc_player, teleport_to_target};
 pub(crate) use support::send_sm;
 pub(crate) use support::{
     broadcast_social_action, change_appearance, focus_momentum, give_item, give_item_random,
@@ -100,6 +101,9 @@ pub(crate) use triggers::{
     fire_attack_triggers, fire_damage_received_triggers, fire_magic_type_triggers,
     fire_option_attack_triggers, fire_option_cast_triggers,
 };
+#[cfg(test)]
+pub(crate) use vitals::recharge_level_penalty;
+pub(crate) use vitals::{ManaHealKind, cp, hp_by_level, mana_heal, mp_restore, rebalance_party_hp};
 
 /// The `callSkill` → `activateSkill` → effect-handler chain for the effect
 /// kinds ported so far. Continuous stat modifiers land as an `ActiveBuff` on

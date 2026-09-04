@@ -1101,7 +1101,7 @@ fn dispatch_dlg_answer(world: &mut World, client_id: u32, body: &[u8]) {
         || (answer.message_id
             == server_packets::sm_ids::C1_WISHES_TO_SUMMON_YOU_FROM_S2_DO_YOU_ACCEPT as i32
             && oid.is_some_and(|oid| {
-                crate::game_loop::skills::effects::control::accept_summon_request(
+                crate::game_loop::skills::effects::summoning::accept_summon_request(
                     world,
                     oid,
                     answer.requester_id,

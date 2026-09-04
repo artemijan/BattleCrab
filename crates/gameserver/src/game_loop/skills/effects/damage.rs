@@ -6,10 +6,10 @@ use super::caster_str_bonus;
 use super::creature_name;
 use super::player_or_npc_level;
 use super::pvp_pve_bonus;
-use super::record_overhit;
 use super::skill_power_mul;
 use crate::game_loop::{helpers, npc, skills};
 use crate::model::components;
+use crate::model::components::stats::Vitals;
 
 use crate::model::formulas;
 use crate::model::skill::Skill;
@@ -853,6 +853,44 @@ pub(crate) fn physical_attack(
             over_hit: skill.over_hit,
             skill_id: skill.id,
             ..Default::default()
+        },
+    );
+}
+
+/// Java `AttackableStatus.reduceHp` + `Attackable.setOverhitValues`: bank the
+/// *excess* damage of a killing `<overHit>` blow, so the kill reward can pay a
+/// bonus for it.
+///
+/// `excess = damage - currentHp`. A blow that fails to kill (negative excess)
+/// **disarms** the state — as does any damage from a non-overhit skill — so the
+/// record only ever survives on a corpse, and only from the blow that made it
+/// one.
+pub(crate) fn record_overhit(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    damage: f64,
+    over_hit: bool,
+) {
+    use crate::model::components::combat::Overhit;
+    if damage <= 0.0 {
+        return;
+    }
+    let cur_hp = world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .map(|v| v.cur_hp)
+        .unwrap_or(0.0);
+    let excess = damage - cur_hp;
+    if !over_hit || excess < 0.0 {
+        world.objects.remove_component::<Overhit>(&target_oid);
+        return;
+    }
+    world.objects.add_components(
+        &target_oid,
+        Overhit {
+            damage: excess,
+            attacker: caster_oid,
         },
     );
 }
