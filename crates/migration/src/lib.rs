@@ -19,6 +19,7 @@ pub use sea_orm_migration::prelude::*;
 mod m20260801_000001_baseline_login;
 mod m20260801_000002_baseline_game;
 mod m20260801_000003_master_accounts;
+mod m20260908_000001_grandboss_real_hp;
 
 pub struct Migrator;
 
@@ -29,6 +30,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20260801_000001_baseline_login::Migration),
             Box::new(m20260801_000002_baseline_game::Migration),
             Box::new(m20260801_000003_master_accounts::Migration),
+            Box::new(m20260908_000001_grandboss_real_hp::Migration),
         ]
     }
 }

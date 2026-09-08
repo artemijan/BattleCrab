@@ -194,5 +194,9 @@ async fn up_is_idempotent_on_an_existing_database() {
         .await
         .unwrap()
         .get("n");
-    assert_eq!(applied, 3, "every migration should be recorded as applied");
+    assert_eq!(
+        applied,
+        migration::Migrator::migrations().len() as i64,
+        "every migration should be recorded as applied"
+    );
 }
