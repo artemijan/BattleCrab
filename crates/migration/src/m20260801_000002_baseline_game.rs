@@ -3996,12 +3996,12 @@ async fn create_grandboss_data(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 )
                 .col(
                     ColumnDef::new(Alias::new("currentHP"))
-                        .custom(Alias::new("decimal(30,15)"))
+                        .custom(Alias::new("double"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("currentMP"))
-                        .custom(Alias::new("decimal(30,15)"))
+                        .custom(Alias::new("double"))
                         .not_null(),
                 )
                 .col(

@@ -27,23 +27,30 @@ pub struct NpcRespawnRow {
 }
 /// Boot load of the whole `npc_respawns` table (Java `DBSpawnManager.load`).
 /// Missing table → empty, like the other boot loads.
+///
+/// A failure here is **logged**, not swallowed: an empty result is
+/// indistinguishable from a world with no raid bosses in it, and a boot that
+/// quietly leaves every boss unspawned is the shape of GitHub #19.
 pub(crate) async fn load_npc_respawns(db: &DatabaseConnection) -> Vec<NpcRespawnRow> {
-    entity::npc_respawns::Entity::find()
-        .all(db)
-        .await
-        .unwrap_or_default()
-        .into_iter()
-        .map(|row| NpcRespawnRow {
-            npc_id: row.id,
-            x: row.x,
-            y: row.y,
-            z: row.z,
-            heading: row.heading,
-            respawn_time: row.respawn_time,
-            cur_hp: row.current_hp,
-            cur_mp: row.current_mp,
-        })
-        .collect()
+    match entity::npc_respawns::Entity::find().all(db).await {
+        Ok(rows) => rows
+            .into_iter()
+            .map(|row| NpcRespawnRow {
+                npc_id: row.id,
+                x: row.x,
+                y: row.y,
+                z: row.z,
+                heading: row.heading,
+                respawn_time: row.respawn_time,
+                cur_hp: row.current_hp,
+                cur_mp: row.current_mp,
+            })
+            .collect(),
+        Err(e) => {
+            warn!("load_npc_respawns: {e}; no raid boss will be restored");
+            Vec::new()
+        }
+    }
 }
 /// Java's `IdManager` hands out ids from a single pool shared by every
 /// world-object type, so the next free id must clear the high-water mark of
@@ -72,27 +79,40 @@ pub(crate) async fn load_next_id(db: &DatabaseConnection) -> i64 {
         .unwrap_or(0);
     (max_char.max(max_item) + 1).max(FIRST_OID)
 }
+/// `GrandBossManager.init` — every `grandboss_data` row.
+///
+/// A failure here is **logged**, not swallowed. This whole `SELECT` used to
+/// fail on a single row whose `currentHP` had been stored as an INTEGER (see
+/// `m20260908_000001_grandboss_real_hp`), and the empty result that came back
+/// read as "this world has no grand bosses": no Queen Ant, no Orfen, nothing
+/// to respawn, and not a word in the log (GitHub #19).
 pub(crate) async fn load_grandboss_data(
     db: &DatabaseConnection,
 ) -> Vec<crate::model::grand_boss::GrandBoss> {
-    entity::grandboss_data::Entity::find()
+    match entity::grandboss_data::Entity::find()
         .order_by_asc(entity::grandboss_data::Column::BossId)
         .all(db)
         .await
-        .unwrap_or_default()
-        .into_iter()
-        .map(|r| crate::model::grand_boss::GrandBoss {
-            boss_id: r.boss_id,
-            loc_x: r.loc_x,
-            loc_y: r.loc_y,
-            loc_z: r.loc_z,
-            heading: r.heading,
-            respawn_time: r.respawn_time,
-            current_hp: r.current_hp,
-            current_mp: r.current_mp,
-            status: r.status,
-        })
-        .collect()
+    {
+        Ok(rows) => rows
+            .into_iter()
+            .map(|r| crate::model::grand_boss::GrandBoss {
+                boss_id: r.boss_id,
+                loc_x: r.loc_x,
+                loc_y: r.loc_y,
+                loc_z: r.loc_z,
+                heading: r.heading,
+                respawn_time: r.respawn_time,
+                current_hp: r.current_hp,
+                current_mp: r.current_mp,
+                status: r.status,
+            })
+            .collect(),
+        Err(e) => {
+            warn!("load_grandboss_data: {e}; no grand boss will be spawned");
+            Vec::new()
+        }
+    }
 }
 /// `CastleManager.load`: every `castle` row (id/name/side).
 /// `GlobalVariablesManager.restoreMe` — the whole `global_variables` table.
