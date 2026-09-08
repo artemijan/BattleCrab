@@ -863,7 +863,12 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         }
 
         "admin_social" | "admin_social_menu" => admin_social(world, client_id, object_id, &args),
-        "admin_effect" | "admin_npc_use_skill" => admin_effect(world, client_id, object_id, &args),
+        // Java's branch is `startsWith("admin_effect")`, so the Effects
+        // panel's "Effect" button (`admin_effect_menu $qbox`) runs the same
+        // MagicSkillUse; the `_menu` tail only adds the re-served panel below.
+        "admin_effect" | "admin_npc_use_skill" | "admin_effect_menu" => {
+            admin_effect(world, client_id, object_id, &args)
+        }
         "admin_earthquake" | "admin_earthquake_menu" => {
             admin_earthquake(world, client_id, object_id, &args)
         }
@@ -964,7 +969,6 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_clan_changeleader" => admin_clan_changeleader(world, client_id, object_id, &args),
         "admin_add_clan_skill" => admin_add_clan_skill(world, client_id, object_id, &args),
         "admin_play_sounds" => admin_play_sounds(world, client_id, &args),
-        "admin_effect_menu" => admin_effect_menu(world, client_id),
         "admin_event_menu" | "admin_event_start_menu" | "admin_event_stop_menu" => {
             admin_event_menu(world, client_id)
         }

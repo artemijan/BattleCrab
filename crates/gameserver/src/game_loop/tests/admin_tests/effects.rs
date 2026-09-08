@@ -1184,3 +1184,65 @@ fn para_sends_the_abnormal_visual_to_the_target() {
     let effects = ave_effect_count(&drain(&mut victim_rx));
     assert_eq!(effects, Some(0), "and about it going away");
 }
+
+/// **The Effects panel's "Effect" button actually casts.** Java's branch is
+/// `command.startsWith("admin_effect")`, so `//effect_menu <skill>` — what
+/// `effects_menu.htm`'s "Effect" button fires with the QuickBox contents —
+/// runs the same `MagicSkillUse` as `//effect` and only then re-serves the
+/// panel. The port dispatched `admin_effect_menu` to a page-only handler, so
+/// the button printed the html path (GMDebugHtmlPaths) and redrew the panel
+/// with no animation: issue #21.
+#[test]
+fn effect_menu_button_broadcasts_the_msu_and_reserves_the_panel() {
+    const ROOT: &str = crate::data::DIST_GAME;
+    let (mut world, ..) = admin_world();
+    world.data.root = ROOT.to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 8811, 100);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, build_admin("effect_menu 1177 1 1"));
+    let pkts = drain(&mut rx);
+    let msu = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE)
+        .expect("the button casts, not just redraws");
+    assert_eq!(
+        i32::from_le_bytes(msu[5..9].try_into().unwrap()),
+        8811,
+        "GM is the animation source"
+    );
+    assert!(
+        pkts.iter()
+            .filter_map(|p| decode_npc_html(p))
+            .next_back()
+            .is_some_and(|h| h.contains("Effects Menu")),
+        "and the panel comes back so the GM can keep clicking"
+    );
+}
+
+/// An empty QuickBox is Java's `catch` arm: the usage line, and the panel
+/// still returns.
+#[test]
+fn effect_menu_without_a_skill_id_answers_the_usage_line() {
+    const ROOT: &str = crate::data::DIST_GAME;
+    let (mut world, ..) = admin_world();
+    world.data.root = ROOT.to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 8812, 100);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, build_admin("effect_menu"));
+    let pkts = drain(&mut rx);
+    assert!(
+        !pkts
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        "nothing to cast"
+    );
+    assert!(
+        pkts.iter()
+            .filter_map(|p| decode_npc_html(p))
+            .next_back()
+            .is_some_and(|h| h.contains("Effects Menu")),
+        "the panel still comes back"
+    );
+}

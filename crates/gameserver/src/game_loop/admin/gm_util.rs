@@ -485,11 +485,6 @@ pub(super) fn admin_play_sounds(world: &World, client_id: u32, args: &[&str]) {
     super::menu::show_admin_html(world, client_id, &file);
 }
 
-/// `//effect_menu` — the effects panel (same page as `//admin3`).
-pub(super) fn admin_effect_menu(world: &World, client_id: u32) {
-    super::menu::show_admin_html(world, client_id, "effects_menu.htm");
-}
-
 /// `//event_menu` (and the start/stop menu aliases) — `gm_events.htm` with
 /// `%LIST%` filled from the registered event engines (G28), each with
 /// Start/Stop buttons routing to the wired `//event_start`/`//event_stop`.
