@@ -11,10 +11,11 @@ use crate::network::client_packets::{self as cp, ex_opcodes as exop, opcodes as 
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
-use tracing::{error, trace};
+use tracing::trace;
 
 use super::bypass::handle_request_bypass_to_server;
 use super::flood;
+use super::probes::Probe;
 use crate::game_loop::combat::death::{handle_appearing, handle_request_restart_point};
 use crate::game_loop::combat::{duel, handle_attack_request};
 use crate::game_loop::social::chat::{block_list, handle_say2};
@@ -600,7 +601,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::LOGOUT => handle_logout(world, client_id),
         cop::REQUEST_RESTART => handle_request_restart(world, client_id),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
-        _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
+        // No arm claims it. Every opcode this chronicle defines has one, so
+        // this is a client sending something else — bounded and warned rather
+        // than logged per packet at `error!`, see `probes`.
+        _ => report_probe(world, client_id, Probe::Opcode(opcode)),
     }
 }
 
@@ -1076,7 +1080,16 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                 session.send(body);
             }
         }
-        _ => error!("GameLoop: client {client_id} sent ex-opcode 0x{sub:04x}, unhandled."),
+        _ => report_probe(world, client_id, Probe::ExOpcode(sub)),
+    }
+}
+
+/// Log an unrecognised request once per connection (see
+/// [`super::probes`]). A missing session drops it: the connection is already
+/// gone, so there is nothing to rate-limit and nobody to tell.
+pub(super) fn report_probe(world: &mut World, client_id: u32, probe: Probe<'_>) {
+    if let Some(session) = world.clients.get_mut(&client_id) {
+        session.probes_mut().report(client_id, probe);
     }
 }
 

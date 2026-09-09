@@ -63,8 +63,9 @@ use std::time::{Duration, Instant};
 
 use crate::data::GameData;
 use crate::db;
-use crate::events::GameEventRx;
+use crate::events::{GameEvent, GameEventRx};
 use crate::loginlink::CommandTx;
+use crate::network::NetEvent;
 use crate::world::World;
 use combat::death;
 use tracing::{info, warn};
@@ -255,7 +256,8 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         //    the deadline, so a packet no longer waits out the remainder of
         //    the 100 ms (the added-latency cost THREADING_MODEL §5 used to
         //    carry).
-        let event_work = pump_events_until(&mut world, &events_rx, deadline);
+        let events = pump_events_until(&mut world, &events_rx, deadline);
+        let event_work = events.busy;
         timings.push(("events", event_work));
 
         // The tick boundary: timers + fixed-rate systems.
@@ -362,10 +364,11 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
                 .collect::<Vec<_>>()
                 .join(", ");
             warn!(
-                "GameLoop: tick {} ran {} ms (budget {} ms; slowest: {slowest}).",
+                "GameLoop: tick {} ran {} ms (budget {} ms; slowest: {slowest}){}.",
                 world.tick,
                 busy.as_millis(),
-                TICK.as_millis()
+                TICK.as_millis(),
+                events.detail(),
             );
         }
         // Next boundary: one TICK after the previous one, but never in the
@@ -380,6 +383,153 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     boot::shutdown_flush(&mut world);
 }
 
+/// What the event phase actually spent its time on.
+///
+/// The tick's overrun warning names its slowest *step*, which for every
+/// boundary system is enough to act on: `regen 0.6 ms` is a system with a known
+/// body. `events 376.4 ms` is not — the event phase is one step covering every
+/// inbound packet plus every DB, login-link and pathfinding result that arrived
+/// in the tick, so naming it says only "the work came from outside", which was
+/// already known.
+///
+/// This is the missing half: per-kind totals, and the single slowest individual
+/// event with the opcode that carried it. That distinguishes the two shapes an
+/// overrun takes — one pathological handler, or a legitimate flood of cheap
+/// ones — which are diagnosed in completely different places.
+///
+/// Cost: four `Instant` reads and some adds per event, on a path that already
+/// takes two for `busy`. There is no histogram and nothing per-opcode is
+/// accumulated, because a fixed-size struct is what makes this affordable
+/// enough to leave on always — and an overrun that cannot be reproduced is one
+/// that has to be diagnosed from the line that was already logged.
+#[derive(Default)]
+struct EventProfile {
+    /// Handler time only; the channel wait is excluded, as in `busy`.
+    busy: Duration,
+    /// How many events were handled — the "flood of cheap ones" signal.
+    handled: u32,
+    /// Per-kind busy time and count, indexed by [`EventLabel::kind_index`].
+    kinds: [(Duration, u32); 4],
+    /// The slowest single event of the tick, and what it was.
+    worst: Duration,
+    worst_label: Option<EventLabel>,
+}
+
+/// Enough of an event to name it in a log line, captured *before* the handler
+/// consumes it. Copy, and never holds the packet.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum EventLabel {
+    /// A connect/disconnect/protocol-version event — no opcode to name.
+    Net(&'static str),
+    /// An inbound packet, by opcode. `ex` is the `0xD0` sub-opcode, which is
+    /// where the interesting handlers live, so a bare `0xd0` would name the
+    /// wrong thing.
+    Packet {
+        opcode: u8,
+        ex: Option<u16>,
+    },
+    Login,
+    Db,
+    Path,
+}
+
+impl EventLabel {
+    /// Read the label off an event without taking anything out of it.
+    fn of(event: &GameEvent) -> Self {
+        match event {
+            GameEvent::Net(NetEvent::Received { data, .. }) => {
+                let opcode = data.first().copied().unwrap_or(0);
+                let ex = (opcode == crate::network::client_packets::opcodes::EX_PACKET)
+                    .then(|| {
+                        crate::network::client_packets::session::read_ex_opcode(&data[1..])
+                            .map(|(sub, _)| sub)
+                    })
+                    .flatten();
+                EventLabel::Packet { opcode, ex }
+            }
+            GameEvent::Net(NetEvent::Connected { .. }) => EventLabel::Net("connect"),
+            GameEvent::Net(NetEvent::Disconnected { .. }) => EventLabel::Net("disconnect"),
+            GameEvent::Net(NetEvent::ProtocolVersion { .. }) => EventLabel::Net("protocol"),
+            GameEvent::Login(_) => EventLabel::Login,
+            GameEvent::Db(_) => EventLabel::Db,
+            GameEvent::Path(_) => EventLabel::Path,
+        }
+    }
+
+    /// Which [`EventProfile::kinds`] slot this counts against. The four service
+    /// channels, matching `handle_game_event`'s own four arms.
+    fn kind_index(self) -> usize {
+        match self {
+            EventLabel::Net(_) | EventLabel::Packet { .. } => 0,
+            EventLabel::Login => 1,
+            EventLabel::Db => 2,
+            EventLabel::Path => 3,
+        }
+    }
+}
+
+impl std::fmt::Display for EventLabel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            EventLabel::Net(what) => write!(f, "net/{what}"),
+            EventLabel::Packet {
+                opcode,
+                ex: Some(sub),
+            } => write!(f, "packet 0x{opcode:02x}:0x{sub:04x}"),
+            EventLabel::Packet { opcode, ex: None } => write!(f, "packet 0x{opcode:02x}"),
+            EventLabel::Login => write!(f, "login-link"),
+            EventLabel::Db => write!(f, "db"),
+            EventLabel::Path => write!(f, "path"),
+        }
+    }
+}
+
+/// The names of [`EventProfile::kinds`]' slots, in index order.
+const EVENT_KINDS: [&str; 4] = ["net", "login-link", "db", "path"];
+
+impl EventProfile {
+    /// Time one event's handler into the profile.
+    fn record(&mut self, label: EventLabel, elapsed: Duration) {
+        self.busy += elapsed;
+        self.handled += 1;
+        let slot = &mut self.kinds[label.kind_index()];
+        slot.0 += elapsed;
+        slot.1 += 1;
+        if elapsed > self.worst {
+            self.worst = elapsed;
+            self.worst_label = Some(label);
+        }
+    }
+
+    /// The clause the overrun warning appends: how many events, which single
+    /// one was worst, and the per-kind split. Empty when nothing was handled,
+    /// so a boundary-only overrun does not carry a misleading `events` clause.
+    fn detail(&self) -> String {
+        let Some(worst) = self.worst_label else {
+            return String::new();
+        };
+        // Worst-first, like the step list this clause hangs off — the reader is
+        // scanning for where the time went, not looking a name up.
+        let mut rows: Vec<(&str, Duration, u32)> = EVENT_KINDS
+            .iter()
+            .zip(&self.kinds)
+            .filter(|(_, (d, _))| !d.is_zero())
+            .map(|(name, (d, n))| (*name, *d, *n))
+            .collect();
+        rows.sort_by_key(|(name, d, _)| (std::cmp::Reverse(*d), *name));
+        let kinds: Vec<String> = rows
+            .iter()
+            .map(|(name, d, n)| format!("{name} {n}×{:.1} ms", d.as_secs_f64() * 1000.0))
+            .collect();
+        format!(
+            "; events: {} handled, slowest single {worst} {:.1} ms, by kind: {}",
+            self.handled,
+            self.worst.as_secs_f64() * 1000.0,
+            kinds.join(", "),
+        )
+    }
+}
+
 /// Phase 1 of each tick: handle service events until `deadline`.
 ///
 /// Blocks on the unified channel (`recv_timeout`) between events — this *is*
@@ -391,37 +541,152 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
 /// therefore bounded by the flood protector (dispatch punishes it), not here
 /// — also as before.
 ///
-/// Returns the time spent handling events (waiting excluded), for the
-/// tick-overrun metric.
-fn pump_events_until(world: &mut World, events_rx: &GameEventRx, deadline: Instant) -> Duration {
-    let mut busy = Duration::ZERO;
+/// Returns the phase's [`EventProfile`] — the time spent handling events
+/// (waiting excluded) for the tick-overrun metric, plus the breakdown that
+/// makes an overrun attributable.
+fn pump_events_until(
+    world: &mut World,
+    events_rx: &GameEventRx,
+    deadline: Instant,
+) -> EventProfile {
+    let mut profile = EventProfile::default();
+    /// Handle one event, timed and labelled into the profile. A macro rather
+    /// than a closure because the body needs `&mut world` at both call sites.
+    macro_rules! handle {
+        ($event:expr) => {{
+            let event = $event;
+            let label = EventLabel::of(&event);
+            let start = Instant::now();
+            handle_game_event(world, event);
+            profile.record(label, start.elapsed());
+        }};
+    }
     loop {
         // Everything already queued, without blocking.
         while let Ok(event) = events_rx.try_recv() {
-            let start = Instant::now();
-            handle_game_event(world, event);
-            busy += start.elapsed();
+            handle!(event);
         }
         let Some(remaining) = deadline.checked_duration_since(Instant::now()) else {
-            return busy;
+            return profile;
         };
         if remaining.is_zero() {
-            return busy;
+            return profile;
         }
         match events_rx.recv_timeout(remaining) {
-            Ok(event) => {
-                let start = Instant::now();
-                handle_game_event(world, event);
-                busy += start.elapsed();
-            }
-            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => return busy,
+            Ok(event) => handle!(event),
+            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => return profile,
             Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
                 // Every service sender is gone — teardown (or a test driving
                 // the loop by hand). Keep the tick cadence instead of
                 // busy-spinning on an empty, closed channel.
                 std::thread::sleep(remaining);
-                return busy;
+                return profile;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod event_profile_tests {
+    use super::*;
+
+    fn ms(n: u64) -> Duration {
+        Duration::from_millis(n)
+    }
+
+    /// **The point of the whole type.** The old warning said
+    /// `slowest: events 376.4 ms` and stopped there; this asserts the clause
+    /// that turns that into something to act on — one pathological handler,
+    /// named by opcode, rather than a flood.
+    #[test]
+    fn the_detail_names_the_single_slowest_packet() {
+        let mut p = EventProfile::default();
+        p.record(
+            EventLabel::Packet {
+                opcode: 0x0f,
+                ex: None,
+            },
+            ms(2),
+        );
+        p.record(
+            EventLabel::Packet {
+                opcode: 0xd0,
+                ex: Some(0x005f),
+            },
+            ms(370),
+        );
+        p.record(EventLabel::Db, ms(4));
+
+        let detail = p.detail();
+        assert!(detail.contains("3 handled"), "{detail}");
+        // The ex sub-opcode, not the bare 0xd0 envelope, is what identifies the
+        // handler — naming `0xd0` would point at every extended packet at once.
+        assert!(
+            detail.contains("slowest single packet 0xd0:0x005f 370.0 ms"),
+            "{detail}"
+        );
+        // …and the per-kind split separates "our own DB callback" from "a
+        // packet", worst-first like the step list it hangs off.
+        assert!(
+            detail.ends_with("by kind: net 2×372.0 ms, db 1×4.0 ms"),
+            "{detail}"
+        );
+        // A kind that contributed nothing is left out rather than logged as 0.
+        assert!(!detail.contains("path"), "{detail}");
+        assert!(!detail.contains("login-link"), "{detail}");
+    }
+
+    /// The other shape an overrun takes: nothing individually slow, just a lot
+    /// of it. The count is what distinguishes the two, so it is always there.
+    #[test]
+    fn a_flood_of_cheap_events_is_visible_as_a_count() {
+        let mut p = EventProfile::default();
+        for _ in 0..500 {
+            p.record(
+                EventLabel::Packet {
+                    opcode: 0x0f,
+                    ex: None,
+                },
+                ms(1),
+            );
+        }
+        let detail = p.detail();
+        assert!(detail.contains("500 handled"), "{detail}");
+        assert!(
+            detail.contains("slowest single packet 0x0f 1.0 ms"),
+            "{detail}"
+        );
+        assert_eq!(p.busy, ms(500));
+    }
+
+    /// A tick that overran on boundary work alone must not carry an `events`
+    /// clause claiming otherwise — an empty phase says nothing, so it says
+    /// nothing.
+    #[test]
+    fn an_empty_event_phase_adds_no_clause() {
+        assert_eq!(EventProfile::default().detail(), "");
+        assert_eq!(EventProfile::default().busy, Duration::ZERO);
+    }
+
+    /// Packets and the connect/disconnect events share the `net` slot because
+    /// they share a service; the other three channels each get their own.
+    #[test]
+    fn every_label_counts_against_its_service_channel() {
+        assert_eq!(
+            EventLabel::Packet {
+                opcode: 0,
+                ex: None
+            }
+            .kind_index(),
+            EventLabel::Net("connect").kind_index()
+        );
+        let indices = [
+            EventLabel::Net("connect").kind_index(),
+            EventLabel::Login.kind_index(),
+            EventLabel::Db.kind_index(),
+            EventLabel::Path.kind_index(),
+        ];
+        assert_eq!(indices, [0, 1, 2, 3], "one slot each, in EVENT_KINDS order");
+        assert!(indices.iter().all(|i| *i < EVENT_KINDS.len()));
     }
 }

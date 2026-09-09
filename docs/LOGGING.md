@@ -147,6 +147,45 @@ directory would put two processes on the same NDJSON files — interleaved
 appends, and two independent retention sweeps deleting each other's rotated
 files. Any future service that audits needs the same treatment.
 
+## What a client is allowed to write
+
+Some log lines have their severity and their *rate* chosen by whoever is on the
+other end of the socket. "The client sent an opcode / ex-opcode / `bypass -h`
+command no handler claims" is the whole family, and it needs two rules that the
+rest of the diagnostic log does not.
+
+**Severity is `warn!`, never `error!`.** Every opcode this chronicle defines has
+a dispatch arm, so the fallback arm is only ever reached by something that is
+not a well-behaved Interlude client — the log excerpt this policy came from had
+opcode `0xff`, which does not exist in the protocol, arriving alongside a
+connection-flood warning from the same window. `error!` routes to
+`game_server_error.log`, next to the failures an operator is paged for, and
+anything a port scanner can put in that file trains operators to stop reading
+it.
+
+**Volume is bounded per connection, not per request.** Formatting is *not*
+moved off the game thread (see the top of this document), so one line per packet
+is a socket choosing how much of the tick budget goes to `format!`. The bound
+lives in `game_loop::client::probes`: one line per **distinct** unknown input
+per connection, up to `PROBE_LOG_CAP` distinct inputs, then one closing line and
+silence.
+
+Distinct-per-connection rather than a flat rate limit on purpose — the distinct
+part is what keeps the signal usable in development. An unported NPC bypass
+still announces itself exactly once per session, which is how these gaps get
+found; what it can no longer do is announce itself sixty times a second. The
+state rides on `Session` next to the flood protectors and for the same reason:
+a cap that resets when a client bounces to character select is not a cap.
+
+**A client-supplied string in a log line is escaped and truncated.** The bypass
+command is echoed because the name is the whole point of the line, and it
+reaches a plain-text sink — so control characters are escaped (a newline would
+otherwise forge a line) and the echo is capped well below dialog length.
+
+The same reasoning applies to any future line whose trigger is remote: ask who
+chooses the severity and who chooses the rate. If the answer to either is "the
+client", it belongs in `probes`.
+
 ## Correlation spans
 
 Packet handling runs inside a `packet` span carrying `client_id`, `oid` and
