@@ -8,8 +8,10 @@ use super::RangedRow;
 use super::SkillGaps;
 use super::effect_level_attrs;
 use super::finalize_skill;
+use super::is_recorded_decision;
 use super::ranged_bounds;
 use super::record_dropped_scope;
+use super::recorded_reason;
 use crate::data::xml;
 use crate::data::xml::attr_f64;
 use crate::data::xml::attr_i32;
@@ -449,9 +451,60 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
 /// **This is a log line, not the gate.** The authority is
 /// `coverage_census::datapack_skill_coverage_census`, which does the same
 /// intersection against the raw XML — deliberately not through these loaders,
-/// so it cannot measure the port against itself — and holds a named
+/// so it cannot measure the port against itself — and asserts a named
 /// `(skill_id, reason)` list rather than a count.
+///
+/// That list is [`super::RECORDED_OUT_OF_SCOPE`], which both readers share, and
+/// it splits the reachable half again. A reachable name every one of whose
+/// learnable carriers is recorded there is a *decision* and logs at `info!`
+/// with its reason; only an unrecorded one is the `warn!`. Without the split
+/// the two were one line, so Sweeper's deliberately apply-time `OpSweeper` gate
+/// re-raised itself as parity debt on every datapack load — a warning an
+/// operator cannot act on, which is how the category as a whole stops being
+/// read.
 pub fn log_gaps(gaps: &SkillGaps, learnable: &BTreeSet<i32>) {
+    /// The learnable ids behind one gap name, ascending.
+    fn hits(ids: &BTreeSet<i32>, learnable: &BTreeSet<i32>) -> Vec<i32> {
+        let mut hit: Vec<i32> = ids
+            .iter()
+            .copied()
+            .filter(|id| learnable.contains(id))
+            .collect();
+        hit.sort_unstable();
+        hit
+    }
+
+    /// `Name (skill 1/2/3); …` — the work list, naming exact ids.
+    fn named(rows: &[(&String, &BTreeSet<i32>)], learnable: &BTreeSet<i32>) -> String {
+        rows.iter()
+            .map(|(name, ids)| {
+                let shown = hits(ids, learnable)
+                    .iter()
+                    .map(i32::to_string)
+                    .collect::<Vec<_>>()
+                    .join("/");
+                format!("{name} (skill {shown})")
+            })
+            .collect::<Vec<_>>()
+            .join("; ")
+    }
+
+    /// `Name (skill 42: <recorded reason>); …` — the decisions, each with the
+    /// reason it is not a gap, so the line answers "why" without a code read.
+    fn reasons(rows: &[(&String, &BTreeSet<i32>)], learnable: &BTreeSet<i32>) -> String {
+        rows.iter()
+            .map(|(name, ids)| {
+                let shown = hits(ids, learnable)
+                    .iter()
+                    .map(|id| format!("{id}: {}", recorded_reason(*id).unwrap_or("?")))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                format!("{name} (skill {shown})")
+            })
+            .collect::<Vec<_>>()
+            .join("; ")
+    }
+
     /// Worst-first `Name(count)`, capped so one line stays readable.
     fn summarise(mut top: Vec<(&str, usize)>, cap: usize) -> String {
         top.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
@@ -477,27 +530,33 @@ pub fn log_gaps(gaps: &SkillGaps, learnable: &BTreeSet<i32>) {
             .iter()
             .partition(|(_, ids)| ids.iter().any(|id| learnable.contains(id)));
 
-        if !reachable.is_empty() {
-            let named = reachable
-                .iter()
-                .map(|(name, ids)| {
-                    let mut hit: Vec<i32> = ids
-                        .iter()
-                        .copied()
-                        .filter(|id| learnable.contains(id))
-                        .collect();
-                    hit.sort_unstable();
-                    let shown = hit.iter().map(i32::to_string).collect::<Vec<_>>().join("/");
-                    format!("{name} (skill {shown})")
-                })
-                .collect::<Vec<_>>()
-                .join("; ");
+        // A reachable name is only an *alarm* when nobody has decided about
+        // it. Split it again by `RECORDED_OUT_OF_SCOPE`: a name whose every
+        // learnable carrier is on that list is a decision with a census test
+        // behind it, and re-raising it once per datapack load is how a real
+        // warning gets trained away.
+        let (recorded, unrecorded): (Vec<_>, Vec<_>) = reachable
+            .into_iter()
+            .partition(|(_, ids)| is_recorded_decision(ids, learnable));
+
+        if !unrecorded.is_empty() {
             warn!(
                 "SkillData: <{label}> — {} name(s) unhandled on skills a player can actually \
-                 learn, so those skills are wrong in game: {named}. Each of these should be a \
-                 recorded decision in coverage_census::datapack_skill_coverage_census; one \
-                 that is not on that list is an unrecorded gap.",
-                reachable.len()
+                 learn, so those skills are wrong in game: {}. Each of these should be a \
+                 recorded decision in `skill_data::RECORDED_OUT_OF_SCOPE` (asserted by \
+                 coverage_census::datapack_skill_coverage_census); one that is not on that \
+                 list is an unrecorded gap.",
+                unrecorded.len(),
+                named(&unrecorded, learnable),
+            );
+        }
+
+        if !recorded.is_empty() {
+            info!(
+                "SkillData: <{label}> — {} name(s) unhandled on a learnable skill, each a \
+                 recorded decision in `skill_data::RECORDED_OUT_OF_SCOPE`: {}.",
+                recorded.len(),
+                reasons(&recorded, learnable),
             );
         }
 

@@ -1503,3 +1503,41 @@ fn every_datapack_abnormal_visual_name_resolves() {
     assert_eq!(abnormal_visual_client_id("CHANGE_HAIR_B"), Some(39));
     assert_eq!(abnormal_visual_client_id("ABSORB_SHIELD"), Some(152));
 }
+
+/// **A recorded decision is not an alarm.** `OpSweeper` on Sweeper (42) is the
+/// port's one deliberate unenforced cast condition, so the boot report must
+/// treat it as a decision rather than re-raising it as parity debt on every
+/// datapack load — which is what it did until this split existed.
+#[test]
+fn the_recorded_out_of_scope_list_demotes_sweeper() {
+    use super::is_recorded_decision;
+
+    let learnable = BTreeSet::from([42, 848, 4242]);
+
+    // Sweeper alone: recorded, so `log_gaps` reports it at `info` with a reason.
+    assert!(is_recorded_decision(&BTreeSet::from([42]), &learnable));
+    // Every `StatUp` carrier is recorded too (Territory War content).
+    assert!(is_recorded_decision(&BTreeSet::from([848]), &learnable));
+    // An id nobody has decided about stays a warning.
+    assert!(!is_recorded_decision(&BTreeSet::from([4242]), &learnable));
+    // Mixed: one decided carrier must not excuse the undecided one.
+    assert!(!is_recorded_decision(
+        &BTreeSet::from([42, 4242]),
+        &learnable
+    ));
+    // Carriers no tree can reach are not this report's business either way —
+    // the off-chronicle `info` line already covers them.
+    assert!(is_recorded_decision(&BTreeSet::from([999_999]), &learnable));
+}
+
+/// The list is only worth sharing with the census if it stays a `(id, reason)`
+/// record: an entry with no reason is the count the census was built to reject.
+#[test]
+fn every_recorded_decision_carries_a_reason() {
+    for (id, reason) in super::RECORDED_OUT_OF_SCOPE {
+        assert!(
+            !reason.trim().is_empty(),
+            "skill {id} is excused with no reason"
+        );
+    }
+}

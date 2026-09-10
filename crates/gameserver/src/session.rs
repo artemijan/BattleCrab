@@ -13,6 +13,7 @@ use std::net::SocketAddr;
 
 use crate::db::CharData;
 use crate::game_loop::client::flood::FloodProtectors;
+use crate::game_loop::client::probes::ProbeLog;
 use crate::network::OutboundTx;
 
 /// Java `LoginServerThread.SessionKey`: the two 2×int keys agreed with the login
@@ -46,6 +47,10 @@ pub struct Session<S> {
     /// clear its flood budget by bouncing to character select and back — which
     /// is exactly the `CharacterSelect` protector's own flood surface.
     pub flood: FloodProtectors,
+    /// Which unrecognised opcodes / bypasses this connection has already been
+    /// logged for. On the connection for the same reason `flood` is: the cap
+    /// must survive a bounce to character select and back, or it is not a cap.
+    pub probes: ProbeLog,
     pub state: S,
 }
 
@@ -101,6 +106,7 @@ impl Session<Connecting> {
             out: out.into(),
             addr,
             flood: FloodProtectors::new(),
+            probes: ProbeLog::default(),
             state: Connecting,
         }
     }
@@ -116,6 +122,7 @@ impl Session<Connecting> {
             out: self.out,
             addr: self.addr,
             flood: self.flood,
+            probes: self.probes,
             state: Authenticated {
                 account,
                 session_key,
@@ -136,6 +143,7 @@ impl Session<Authenticated> {
             out: self.out,
             addr: self.addr,
             flood: self.flood,
+            probes: self.probes,
             state: InLobby {
                 account: self.state.account,
                 session_key: self.state.session_key,
@@ -185,6 +193,7 @@ impl Session<InLobby> {
             out: self.out,
             addr: self.addr,
             flood: self.flood,
+            probes: self.probes,
             state: Entering {
                 account: self.state.account,
                 session_key: self.state.session_key,
@@ -241,6 +250,7 @@ impl Session<Entering> {
             out: self.out,
             addr: self.addr,
             flood: self.flood,
+            probes: self.probes,
             state: InGame {
                 account: self.state.account,
                 session_key: self.state.session_key,
@@ -287,6 +297,7 @@ impl Session<InGame> {
             out: self.out,
             addr: self.addr,
             flood: self.flood,
+            probes: self.probes,
             state: Authenticated {
                 account: self.state.account,
                 session_key: self.state.session_key,
@@ -342,6 +353,19 @@ impl ClientSession {
             ClientSession::InLobby(s) => &mut s.flood,
             ClientSession::Entering(s) => &mut s.flood,
             ClientSession::InGame(s) => &mut s.flood,
+        }
+    }
+
+    /// The connection's unknown-input log (see
+    /// `game_loop::client::probes`), available in every state — an
+    /// unrecognised opcode can arrive before a player exists, and does.
+    pub fn probes_mut(&mut self) -> &mut ProbeLog {
+        match self {
+            ClientSession::Connecting(s) => &mut s.probes,
+            ClientSession::Authenticated(s) => &mut s.probes,
+            ClientSession::InLobby(s) => &mut s.probes,
+            ClientSession::Entering(s) => &mut s.probes,
+            ClientSession::InGame(s) => &mut s.probes,
         }
     }
 
@@ -529,6 +553,7 @@ mod client_table_tests {
             out: out.into(),
             addr: "127.0.0.1:0".parse().unwrap(),
             flood: FloodProtectors::new(),
+            probes: ProbeLog::default(),
             state: InGame {
                 account: String::new(),
                 session_key: SessionKey::new(0, 0, 0, 0),

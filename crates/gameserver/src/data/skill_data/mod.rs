@@ -274,6 +274,81 @@ pub struct SkillGaps {
     pub operate_types: GapMap,
 }
 
+/// **The recorded out-of-scope decisions** — the learnable skills that still
+/// carry an unhandled `<effect>` or an unenforced `<condition>` *on purpose*,
+/// each with the reason it is not a gap.
+///
+/// `parse::log_gaps` warns about a reachable gap because a skill a
+/// player can learn is wrong in game. That is the right alarm for a gap nobody
+/// has looked at, and the wrong one for a decision — Sweeper's `OpSweeper`
+/// cast condition is *deliberately* left to apply time, and re-deciding it once
+/// per datapack load teaches operators to ignore the whole category.
+///
+/// So the list lives here rather than only in the census, and both readers take
+/// it from one place:
+///
+/// * `parse::log_gaps` demotes a reachable name to `info!` (with
+///   the reason) when every learnable skill behind it is recorded here, and
+///   keeps the `warn!` for anything that is not.
+/// * `coverage_census::datapack_skill_coverage_census` asserts that the
+///   *unexplained* remainder is empty, and that no entry here has since been
+///   ported — so an id cannot sit here excusing a gap that no longer exists.
+///
+/// Adding an entry is therefore a deliberate act with a test behind it, which
+/// is the property the census was built for; what changes is only that the
+/// running server can now tell a decision from an unrecorded gap.
+pub const RECORDED_OUT_OF_SCOPE: &[(i32, &str)] = &[
+    // `StatUp` — the nine "<Town> Territory Benefaction" skills, i.e.
+    // Territory War content, which this chronicle has none of.
+    (848, "StatUp: Gludio Territory Benefaction (Territory War)"),
+    (849, "StatUp: Dion Territory Benefaction (Territory War)"),
+    (850, "StatUp: Giran Territory Benefaction (Territory War)"),
+    (851, "StatUp: Oren Territory Benefaction (Territory War)"),
+    (852, "StatUp: Aden Territory Benefaction (Territory War)"),
+    (
+        853,
+        "StatUp: Innadril Territory Benefaction (Territory War)",
+    ),
+    (854, "StatUp: Goddard Territory Benefaction (Territory War)"),
+    (855, "StatUp: Rune Territory Benefaction (Territory War)"),
+    (
+        856,
+        "StatUp: Schuttgart Territory Benefaction (Territory War)",
+    ),
+    // `OpSweeper` — Sweeper (42), deliberate: Java's cast condition re-runs
+    // the whole per-corpse sweep that `effects::sweep` already does at apply
+    // time, with the right per-corpse messages. Gating the cast on it too
+    // would double every one of them.
+    (42, "OpSweeper: Sweeper — enforced at apply time instead"),
+];
+
+/// The recorded reason skill `id` is out of scope, if it is on
+/// [`RECORDED_OUT_OF_SCOPE`]. A linear scan over ten entries, called once per
+/// learnable carrier of a reachable gap at boot.
+pub fn recorded_reason(id: i32) -> Option<&'static str> {
+    RECORDED_OUT_OF_SCOPE
+        .iter()
+        .find(|(recorded, _)| *recorded == id)
+        .map(|(_, reason)| *reason)
+}
+
+/// Is a reachable gap name a recorded *decision* rather than an alarm?
+///
+/// True when **every** learnable skill carrying it is on
+/// [`RECORDED_OUT_OF_SCOPE`]. `all` and not `any` on purpose: a name that is
+/// decided for one carrier and unexamined for another is still an unrecorded
+/// gap, and demoting it would hide the carrier nobody has looked at behind the
+/// one somebody has.
+///
+/// Both readers of the list go through this: `parse::log_gaps` to pick the
+/// log level, and the coverage census to assert that a clean gate means a quiet
+/// boot.
+pub fn is_recorded_decision(ids: &BTreeSet<i32>, learnable: &BTreeSet<i32>) -> bool {
+    ids.iter()
+        .filter(|id| learnable.contains(id))
+        .all(|id| recorded_reason(*id).is_some())
+}
+
 impl SkillGaps {
     /// `map[name] += id`, without allocating a key when the name is already
     /// known — this runs once per (skill, level, sub, effect) over the whole

@@ -18,7 +18,7 @@
 //! tool here it links the server's own parser, so a verdict here is a verdict
 //! in game.
 
-use gameserver::data::skill_data::{GapMap, SkillData};
+use gameserver::data::skill_data::{GapMap, SkillData, is_recorded_decision};
 use std::collections::BTreeSet;
 
 mod common;
@@ -321,31 +321,13 @@ fn datapack_skill_coverage_census() {
     // *decided* or merely never looked at. So the gate names every
     // remaining skill and the reason it is out of scope. A new gap cannot
     // hide inside the count; it shows up as an id with no entry here.
-    let out_of_scope: &[(i32, &str)] = &[
-        // `StatUp` — the nine "<Town> Territory Benefaction" skills, i.e.
-        // Territory War content, which this chronicle has none of.
-        (848, "StatUp: Gludio Territory Benefaction (Territory War)"),
-        (849, "StatUp: Dion Territory Benefaction (Territory War)"),
-        (850, "StatUp: Giran Territory Benefaction (Territory War)"),
-        (851, "StatUp: Oren Territory Benefaction (Territory War)"),
-        (852, "StatUp: Aden Territory Benefaction (Territory War)"),
-        (
-            853,
-            "StatUp: Innadril Territory Benefaction (Territory War)",
-        ),
-        (854, "StatUp: Goddard Territory Benefaction (Territory War)"),
-        (855, "StatUp: Rune Territory Benefaction (Territory War)"),
-        (
-            856,
-            "StatUp: Schuttgart Territory Benefaction (Territory War)",
-        ),
-        // `OpSweeper` — Sweeper (42), deliberate: see `CONDITIONS` above.
-        // Java's cast condition re-runs the whole per-corpse sweep that
-        // `effects::sweep` already does at apply time, with the right
-        // per-corpse messages. Gating the cast on it too would double
-        // every one of them.
-        (42, "OpSweeper: Sweeper — enforced at apply time instead"),
-    ];
+    // The list itself lives in the server (`skill_data::RECORDED_OUT_OF_SCOPE`)
+    // rather than here, because the running server needs it too: without it
+    // `parse::log_gaps` cannot tell a decision from an unrecorded gap and
+    // re-warns about Sweeper on every datapack load. Sharing it does not
+    // weaken this gate — the gate is that `wrong`, measured from the raw XML,
+    // has no id the list fails to explain, and that no entry has gone stale.
+    let out_of_scope = gameserver::data::skill_data::RECORDED_OUT_OF_SCOPE;
     let recorded: BTreeSet<i32> = out_of_scope.iter().map(|(id, _)| *id).collect();
     let unexplained: Vec<i32> = wrong.difference(&recorded).copied().collect();
     assert!(
@@ -364,6 +346,29 @@ fn datapack_skill_coverage_census() {
         stale.is_empty(),
         "recorded as out of scope but no longer failing — delete these entries: \
          {stale:?}"
+    );
+
+    // **And the boot log must agree with this gate.** `parse::log_gaps` warns
+    // once per datapack load for every reachable gap name that is *not* fully
+    // recorded above; the whole point of sharing the list is that a clean gate
+    // means a quiet boot. Asserted here rather than trusted, because the
+    // failure mode is a `warn!` nobody can act on that operators then learn to
+    // skip — which is how the `OpSweeper` line came to fire hourly.
+    let noisy: Vec<String> = gaps
+        .categories()
+        .iter()
+        .flat_map(|(label, map)| {
+            map.iter()
+                .filter(|(_, ids)| ids.iter().any(|id| learn.contains(id)))
+                .filter(|(_, ids)| !is_recorded_decision(ids, &learn))
+                .map(move |(name, _)| format!("<{label}> {name}"))
+        })
+        .collect();
+    assert!(
+        noisy.is_empty(),
+        "these would warn on every datapack load with nothing an operator can \
+         do about them — either port them or record them in \
+         skill_data::RECORDED_OUT_OF_SCOPE: {noisy:?}"
     );
 }
 

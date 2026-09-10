@@ -131,7 +131,9 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         // interaction range are re-derived/re-checked inside.
         crate::game_loop::manor::handle_manor_menu_select(world, client_id, object_id, &command);
     } else {
-        warn!("Bypass: client {client_id} sent unhandled bypass [{command}].");
+        // Client-controlled, so the echo is bounded and deduped per connection
+        // rather than written per request (see `super::probes`).
+        super::dispatch::report_probe(world, client_id, super::probes::Probe::Bypass(&command));
     }
 }
 
@@ -651,9 +653,9 @@ fn npc_bypass(
         // (only that script's htms emit these verbs).
         "Draw" => crate::game_loop::character::henna::handle_item_list(world, client_id),
         "Remove" => crate::game_loop::character::henna::handle_remove_list(world, client_id),
-        _ => {
-            warn!("Bypass: unhandled npc bypass verb [{verb}] in [{command}].");
-        }
+        // Same treatment as the top-level router's fallback: an unrecognised
+        // verb is a client statement, deduped and bounded per connection.
+        _ => super::dispatch::report_probe(world, client_id, super::probes::Probe::Bypass(command)),
     }
 }
 

@@ -206,6 +206,19 @@ These are enforced by structure and checked in review.
 4. **Tick budget is a metric, not a hope.** A tick over 50 ms warns with its
    number. Tick overrun is *the* failure mode of this architecture, so it has to
    be visible from day one.
+
+   And *attributable*, which is a separate property. The warning names the
+   slowest steps, but "events" is one step covering every inbound packet plus
+   every DB, login-link and pathfinding result that arrived in the tick, so
+   `slowest: events 376.4 ms` named the phase and nothing inside it — it says
+   only "the work came from outside", which was already known. So the phase
+   carries an `EventProfile`: per-kind totals plus the single slowest event and
+   the opcode that carried it, appended to the same warning. That separates the
+   two shapes an overrun takes — one pathological handler, or a legitimate flood
+   of cheap ones — which are diagnosed in completely different places. It is a
+   fixed-size struct and no histogram, because the alternative to a breakdown
+   that is cheap enough to leave on always is an overrun that has to be
+   reproduced before it can be read.
 5. **A panic must not outlive its packet, and a dead game thread must not
    outlive its process.** Each inbound packet is handled inside `catch_unwind`
    (Java parity: `ExecuteThread` catches `Throwable` per packet); the offending
