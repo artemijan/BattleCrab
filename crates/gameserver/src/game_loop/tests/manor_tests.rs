@@ -28,18 +28,7 @@ fn add_manor_manager(world: &mut World, oid: i32, npc_id: i32, manor_id: i32) {
 
 /// Put Gludio (castle 1) on the world so the manor sale has a vault to pay.
 fn add_gludio(world: &mut World) {
-    world.castles = vec![model::castle::Castle {
-        show_npc_crest: false,
-        id: 1,
-        name: "Gludio".into(),
-        side: model::castle::CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
+    world.castles = vec![castle_row(1, "Gludio")];
 }
 
 /// Register + place a sowable monster (a `canBeSown` Monster) at the origin.
@@ -975,7 +964,7 @@ fn default_info_packet(rx: &mut UnboundedReceiver<bytes::Bytes>) -> Option<Vec<u
 fn ex_packet(rx: &mut UnboundedReceiver<bytes::Bytes>, subop: u8) -> Option<Vec<u8>> {
     drain(rx)
         .into_iter()
-        .find(|p| p.len() >= 8 && p[0] == 0xFE && p[1] == subop && p[2] == 0x00)
+        .find(|p| p.len() >= 8 && is_ex(p, subop as i16))
 }
 
 /// **A seed may only be sown inside its own castle's territory.** Java's Seed
@@ -1323,19 +1312,7 @@ fn the_manor_admin_page_reports_the_period_and_the_costs() {
     world.data.root = crate::data::DIST_GAME.to_string();
     world.cfg.general.allow_manor = true;
     // Two castles, deliberately inserted out of id order.
-    let castle = |id: i32, name: &str| model::castle::Castle {
-        show_npc_crest: false,
-        id,
-        name: name.into(),
-        side: model::castle::CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    };
-    world.castles = vec![castle(5, "Aden"), castle(1, "Gludio")];
+    world.castles = vec![castle_row(5, "Aden"), castle_row(1, "Gludio")];
     // Seed id 90001 is not a real item ⇒ its reference price defaults to 1, so
     // the cost is just the start amount — 30 now, 70 next period. The two must
     // not be read off the same list.
@@ -1369,11 +1346,7 @@ fn the_manor_admin_page_reports_the_period_and_the_costs() {
         [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("manor")].concat(),
     );
 
-    let page = drain(&mut gm_rx)
-        .into_iter()
-        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
-        .map(|p| String::from_utf8_lossy(&p).replace('\0', ""))
-        .expect("the manor page");
+    let page = raw_html(&mut gm_rx).expect("the manor page");
     assert!(
         page.contains("APPROVED"),
         "the bare enum name, as Java sends"

@@ -34,32 +34,7 @@ fn human_mystic_lvl1_full_loadout_matches_java_client() {
             inv.equip_item(&data.item_data, oid);
         }
     }
-    let items: Vec<crate::db::ItemRow> = inv
-        .items()
-        .iter()
-        .map(|it| {
-            let slot = inv.paperdoll_slot_of(it.object_id);
-            crate::db::ItemRow {
-                object_id: it.object_id,
-                item_id: it.item_id,
-                count: it.count,
-                enchant_level: 0,
-                loc: if slot.is_some() {
-                    "PAPERDOLL".into()
-                } else {
-                    "INVENTORY".into()
-                },
-                loc_data: slot.map(|s| s as i32).unwrap_or(0),
-                custom_type1: 0,
-                custom_type2: 0,
-                mana_left: -1,
-                time: 0,
-                augment_mineral: 0,
-                augment_option1: 0,
-                augment_option2: 0,
-            }
-        })
-        .collect();
+    let items = inventory_rows(&inv);
 
     let mut chr = dummy_char(4212, "Mystic");
     chr.class_id = class_id;
@@ -128,28 +103,13 @@ fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
     data.skill_data = dist::skills_owned();
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
-    let paperdoll = |object_id, item_id, slot| crate::db::ItemRow {
-        object_id,
-        item_id,
-        count: 1,
-        enchant_level: 0,
-        loc: "PAPERDOLL".into(),
-        loc_data: slot,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    };
     let mut chr = dummy_char(4211, "Robe");
     chr.class_id = 10;
     chr.base_class_id = 10;
     chr.items = vec![
-        paperdoll(1001, 6, 5),
-        paperdoll(1002, 425, 6),
-        paperdoll(1003, 461, 11),
+        paperdoll_row(1001, 6, 5),
+        paperdoll_row(1002, 425, 6),
+        paperdoll_row(1003, 461, 11),
     ];
     // The two autoGet mystic passives.
     chr.skills = vec![(163, 1, 0), (118, 1, 0)];
@@ -212,32 +172,7 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
         inv.add_item(&data.item_data, oid, item_id, 1);
         inv.equip_item(&data.item_data, oid);
     }
-    let items: Vec<crate::db::ItemRow> = inv
-        .items()
-        .iter()
-        .map(|it| {
-            let slot = inv.paperdoll_slot_of(it.object_id);
-            crate::db::ItemRow {
-                object_id: it.object_id,
-                item_id: it.item_id,
-                count: it.count,
-                enchant_level: 0,
-                loc: if slot.is_some() {
-                    "PAPERDOLL".into()
-                } else {
-                    "INVENTORY".into()
-                },
-                loc_data: slot.map(|s| s as i32).unwrap_or(0),
-                custom_type1: 0,
-                custom_type2: 0,
-                mana_left: -1,
-                time: 0,
-                augment_mineral: 0,
-                augment_option1: 0,
-                augment_option2: 0,
-            }
-        })
-        .collect();
+    let items = inventory_rows(&inv);
 
     let mut chr = dummy_char(4213, "Mystic7");
     chr.class_id = class_id;
@@ -337,24 +272,9 @@ fn shield_mastery_passive_raises_shield_block_stats() {
     data.skill_data = dist::skills_owned();
     let mut world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
-    let paperdoll = |object_id, item_id, slot| crate::db::ItemRow {
-        object_id,
-        item_id,
-        count: 1,
-        enchant_level: 0,
-        loc: "PAPERDOLL".into(),
-        loc_data: slot,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    };
     // Item 628 "Hoplon" (sDef 128, rShld 20) in LHand (slot 7).
     let mut bare = dummy_char(5201, "Bare");
-    bare.items = vec![paperdoll(1, 628, 7)];
+    bare.items = vec![paperdoll_row(1, 628, 7)];
     let bare_bundle = Player::from_char(&world.data, &bare);
     bare_bundle.spawn_into(&mut world);
     let bare_shield = combat::combatant(&world, 5201).expect("bare combatant");
@@ -364,7 +284,7 @@ fn shield_mastery_passive_raises_shield_block_stats() {
     );
 
     let mut masted = dummy_char(5202, "Masted");
-    masted.items = vec![paperdoll(2, 628, 7)];
+    masted.items = vec![paperdoll_row(2, 628, 7)];
     masted.skills = vec![(153, 4, 0)];
     let masted_bundle = Player::from_char(&world.data, &masted);
     masted_bundle.spawn_into(&mut world);
@@ -401,24 +321,9 @@ fn archery_passive_raises_bow_attack_range() {
     data.skill_data = dist::skills_owned();
     let world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
-    let paperdoll = |object_id, item_id, slot| crate::db::ItemRow {
-        object_id,
-        item_id,
-        count: 1,
-        enchant_level: 0,
-        loc: "PAPERDOLL".into(),
-        loc_data: slot,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    };
     // Item 14 "Bow" (pAtkRange 500) in RHand (slot 5, two-handed).
     let mut bare = dummy_char(5401, "Bare Bow");
-    bare.items = vec![paperdoll(1, 14, 5)];
+    bare.items = vec![paperdoll_row(1, 14, 5)];
     let bare_bundle = Player::from_char(&world.data, &bare);
     assert_eq!(
         bare_bundle.combat.atk_range, 500,
@@ -426,7 +331,7 @@ fn archery_passive_raises_bow_attack_range() {
     );
 
     let mut archer = dummy_char(5402, "Archer");
-    archer.items = vec![paperdoll(2, 14, 5)];
+    archer.items = vec![paperdoll_row(2, 14, 5)];
     archer.skills = vec![(431, 1, 0)]; // Archery
     let archer_bundle = Player::from_char(&world.data, &archer);
     assert_eq!(

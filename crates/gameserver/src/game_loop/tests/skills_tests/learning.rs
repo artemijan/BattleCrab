@@ -32,29 +32,14 @@ fn delevel_filter_on_select_keeps_passive_stats() {
     // strict is what gives this test something to refold stats after.
     world.cfg.character.strict_delevel_skill_removal = true;
 
-    let paperdoll = |object_id, item_id, slot| crate::db::ItemRow {
-        object_id,
-        item_id,
-        count: 1,
-        enchant_level: 0,
-        loc: "PAPERDOLL".into(),
-        loc_data: slot,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    };
     let mut chr = dummy_char(4213, "Robe");
     chr.class_id = 10;
     chr.base_class_id = 10;
     chr.level = 5; // below the getLevel-7 skills
     chr.items = vec![
-        paperdoll(1001, 6, 5),
-        paperdoll(1002, 425, 6),
-        paperdoll(1003, 461, 11),
+        paperdoll_row(1001, 6, 5),
+        paperdoll_row(1002, 425, 6),
+        paperdoll_row(1003, 461, 11),
     ];
     // Spellcraft (163, getLevel 1) + Magician's Movement (118, getLevel 1) +
     // Shield (1040, getLevel 7) that a level-5 delevel strips.
@@ -113,29 +98,14 @@ fn live_delevel_removes_passive_and_recomputes_stats() {
     // See the doc comment — the grace would leave nothing to strip.
     world.cfg.character.strict_delevel_skill_removal = true;
 
-    let paperdoll = |object_id, item_id, slot| crate::db::ItemRow {
-        object_id,
-        item_id,
-        count: 1,
-        enchant_level: 0,
-        loc: "PAPERDOLL".into(),
-        loc_data: slot,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    };
     let mut chr = dummy_char(4214, "Mage");
     chr.class_id = 10;
     chr.base_class_id = 10;
     chr.level = 5;
     chr.items = vec![
-        paperdoll(1001, 6, 5),
-        paperdoll(1002, 425, 6),
-        paperdoll(1003, 461, 11),
+        paperdoll_row(1001, 6, 5),
+        paperdoll_row(1002, 425, 6),
+        paperdoll_row(1003, 461, 11),
     ];
     // Spellcraft (163, getLevel 1) + Weapon Mastery (249, getLevel 7, passive +m.atk).
     chr.skills = vec![(163, 1, 0), (249, 1, 0)];
@@ -191,39 +161,14 @@ fn auto_learn_grants_all_reachable_class_skills() {
         data.skill_trees.insert_for_test(
             0,
             SkillLearn {
-                skill_id: 1000,
-                skill_level: 1,
-                name: "Auto".into(),
-                get_level: 1,
-                level_up_sp: 0,
                 auto_get: true,
-                required_items: Vec::new(),
+                ..skill_learn(1000, 1, "Auto", 1, 0)
             },
         );
-        data.skill_trees.insert_for_test(
-            0,
-            SkillLearn {
-                skill_id: 91,
-                skill_level: 1,
-                name: "Class1".into(),
-                get_level: 5,
-                level_up_sp: 100,
-                auto_get: false,
-                required_items: Vec::new(),
-            },
-        );
-        data.skill_trees.insert_for_test(
-            0,
-            SkillLearn {
-                skill_id: 91,
-                skill_level: 2,
-                name: "Class2".into(),
-                get_level: 10,
-                level_up_sp: 200,
-                auto_get: false,
-                required_items: Vec::new(),
-            },
-        );
+        data.skill_trees
+            .insert_for_test(0, skill_learn(91, 1, "Class1", 5, 100));
+        data.skill_trees
+            .insert_for_test(0, skill_learn(91, 2, "Class2", 10, 200));
         data
     };
 
@@ -232,10 +177,7 @@ fn auto_learn_grants_all_reachable_class_skills() {
         chr.level = 5;
         let bundle = Player::from_char(&world.data, &chr);
         let (link_out, _r) = tokio::sync::mpsc::unbounded_channel();
-        let s = Session::new(1, link_out, "127.0.0.1:1".parse().unwrap())
-            .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-            .into_lobby(vec![])
-            .into_entering(bundle);
+        let s = get_test_session(1, link_out, bundle);
         let (_session, bundle) = s.into_ingame();
         bundle.spawn_into(world);
     };
@@ -282,51 +224,19 @@ fn auto_learn_grants_all_reachable_class_skills() {
 /// is off.
 #[test]
 fn delevel_downgrades_then_removes_skills() {
-    use crate::data::skill_tree::SkillLearn;
-
     let mk_data = || {
         let mut data = GameData::for_test();
         data.player_templates =
             crate::data::PlayerTemplateData::from_vec(vec![human_fighter_template()]);
         // Skill 91: level 1 @ getLevel 20, level 2 @ getLevel 40.
-        data.skill_trees.insert_for_test(
-            0,
-            SkillLearn {
-                skill_id: 91,
-                skill_level: 1,
-                name: "S1".into(),
-                get_level: 20,
-                level_up_sp: 100,
-                auto_get: false,
-                required_items: Vec::new(),
-            },
-        );
-        data.skill_trees.insert_for_test(
-            0,
-            SkillLearn {
-                skill_id: 91,
-                skill_level: 2,
-                name: "S2".into(),
-                get_level: 40,
-                level_up_sp: 200,
-                auto_get: false,
-                required_items: Vec::new(),
-            },
-        );
+        data.skill_trees
+            .insert_for_test(0, skill_learn(91, 1, "S1", 20, 100));
+        data.skill_trees
+            .insert_for_test(0, skill_learn(91, 2, "S2", 40, 200));
         // Skill 92: a single level @ getLevel 7 — used to show the strict flag
         // vs the 9-level grace at low character levels.
-        data.skill_trees.insert_for_test(
-            0,
-            SkillLearn {
-                skill_id: 92,
-                skill_level: 1,
-                name: "S3".into(),
-                get_level: 7,
-                level_up_sp: 100,
-                auto_get: false,
-                required_items: Vec::new(),
-            },
-        );
+        data.skill_trees
+            .insert_for_test(0, skill_learn(92, 1, "S3", 7, 100));
         data
     };
 
@@ -344,10 +254,7 @@ fn delevel_downgrades_then_removes_skills() {
         chr.skills = vec![(91, 2, 0), (92, 1, 0)];
         let bundle = Player::from_char(&world.data, &chr);
         let (link_out, _r) = tokio::sync::mpsc::unbounded_channel();
-        let s = Session::new(1, link_out, "127.0.0.1:1".parse().unwrap())
-            .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-            .into_lobby(vec![])
-            .into_entering(bundle);
+        let s = get_test_session(1, link_out, bundle);
         let (_session, bundle) = s.into_ingame();
         bundle.spawn_into(&mut world);
 
@@ -417,10 +324,7 @@ fn delevel_downgrades_then_removes_skills() {
 /// changes every test world at once.
 #[test]
 fn the_delevel_grace_is_what_ships_and_what_defaults() {
-    let shipped = crate::config::CharacterConfig::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let shipped = crate::config::CharacterConfig::load_from(crate::data::DIST_GAME);
     assert!(
         !shipped.strict_delevel_skill_removal,
         "dist/game/config/Character.ini must ship the retail grace"
@@ -440,38 +344,20 @@ fn the_delevel_grace_is_what_ships_and_what_defaults() {
 /// `YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL` — instead of silently dropping.
 #[test]
 fn skill_acquire_gates_send_system_messages() {
-    use crate::data::skill_tree::SkillLearn;
-
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0); // dummy_char: class 0, level 1, sp 0
     drain(&mut rx);
 
     // Under-level: get_level 10 > player level 1.
-    world.data.skill_trees.insert_for_test(
-        0,
-        SkillLearn {
-            skill_id: 1001,
-            skill_level: 1,
-            name: "Too High".into(),
-            get_level: 10,
-            level_up_sp: 0,
-            auto_get: false,
-            required_items: Vec::new(),
-        },
-    );
+    world
+        .data
+        .skill_trees
+        .insert_for_test(0, skill_learn(1001, 1, "Too High", 10, 0));
     // Reachable level, but costs more SP than the player has (sp 0).
-    world.data.skill_trees.insert_for_test(
-        0,
-        SkillLearn {
-            skill_id: 1002,
-            skill_level: 1,
-            name: "Too Pricey".into(),
-            get_level: 1,
-            level_up_sp: 100,
-            auto_get: false,
-            required_items: Vec::new(),
-        },
-    );
+    world
+        .data
+        .skill_trees
+        .insert_for_test(0, skill_learn(1002, 1, "Too Pricey", 1, 100));
 
     handle_request_acquire_skill(
         &mut world,
@@ -515,13 +401,8 @@ fn skill_acquire_requires_and_consumes_the_book() {
     world.data.skill_trees.insert_for_test(
         0,
         SkillLearn {
-            skill_id: 1003,
-            skill_level: 1,
-            name: "Book Gated".into(),
-            get_level: 1,
-            level_up_sp: 100,
-            auto_get: false,
             required_items: vec![(BOOK, 1)],
+            ..skill_learn(1003, 1, "Book Gated", 1, 100)
         },
     );
     drain(&mut rx);
@@ -607,13 +488,8 @@ fn acquire_skill_list_carries_the_required_book() {
     world.data.skill_trees.insert_for_test(
         0,
         SkillLearn {
-            skill_id: 1003,
-            skill_level: 1,
-            name: "Book Gated".into(),
-            get_level: 1,
-            level_up_sp: 100,
-            auto_get: false,
             required_items: vec![(BOOK, 2)],
+            ..skill_learn(1003, 1, "Book Gated", 1, 100)
         },
     );
 
@@ -653,13 +529,8 @@ fn divine_inspiration_book_waiver_also_waives_sp() {
     world.data.skill_trees.insert_for_test(
         0,
         SkillLearn {
-            skill_id: DIVINE_INSPIRATION_SKILL_ID,
-            skill_level: 1,
-            name: "Divine Inspiration".into(),
-            get_level: 1,
-            level_up_sp: 100,
-            auto_get: false,
             required_items: vec![(BOOK, 1)],
+            ..skill_learn(DIVINE_INSPIRATION_SKILL_ID, 1, "Divine Inspiration", 1, 100)
         },
     );
     // A second book-gated skill that is *not* Divine Inspiration — the waiver is
@@ -667,13 +538,8 @@ fn divine_inspiration_book_waiver_also_waives_sp() {
     world.data.skill_trees.insert_for_test(
         0,
         SkillLearn {
-            skill_id: 1003,
-            skill_level: 1,
-            name: "Book Gated".into(),
-            get_level: 1,
-            level_up_sp: 100,
-            auto_get: false,
             required_items: vec![(BOOK, 1)],
+            ..skill_learn(1003, 1, "Book Gated", 1, 100)
         },
     );
     drain(&mut rx);

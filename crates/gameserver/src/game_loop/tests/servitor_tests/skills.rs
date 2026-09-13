@@ -80,7 +80,6 @@ fn a_summon_target_skill_reaches_the_servitor() {
         .cur_hp = 10.0;
 
     let skill = Skill {
-        self_continuous: false,
         id: 1127,
         level: 1,
         target_type: TargetType::Summon,
@@ -160,23 +159,7 @@ fn a_stat_buff_on_a_servitor_changes_its_stats() {
         .unwrap()
         .run_spd;
 
-    // Servitor Wind Walk's shape: a flat speed increase.
-    let skill = Skill {
-        self_continuous: false,
-        id: 1144,
-        level: 1,
-        target_type: TargetType::Summon,
-        abnormal_time: 1200,
-        effects: vec![SkillEffect::StatModifier(
-            model::skill::effects::StatModifierEffect {
-                stat: Stat::RunSpeed,
-                mode: model::stats::StatModifierType::Diff,
-                amount: 50.0,
-                ..Default::default()
-            },
-        )],
-        ..Default::default()
-    };
+    let skill = servitor_wind_walk(1200);
     world.data.skill_data.insert_for_test(skill.clone());
     effects::apply_continuous_effects(&mut world, OWNER, servitor, &skill, None);
 
@@ -201,22 +184,7 @@ fn buffing_a_servitor_refreshes_its_client_info() {
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1, 1200, 0, 0).unwrap();
     while rx.try_recv().is_ok() {} // drain the summon packets
 
-    let skill = Skill {
-        self_continuous: false,
-        id: 1144,
-        level: 1,
-        target_type: TargetType::Summon,
-        abnormal_time: 1200,
-        effects: vec![SkillEffect::StatModifier(
-            model::skill::effects::StatModifierEffect {
-                stat: Stat::RunSpeed,
-                mode: model::stats::StatModifierType::Diff,
-                amount: 50.0,
-                ..Default::default()
-            },
-        )],
-        ..Default::default()
-    };
+    let skill = servitor_wind_walk(1200);
     effects::apply_continuous_effects(&mut world, OWNER, servitor, &skill, None);
 
     // `PetInfo` is 0xB2 — the packet that carries the summon's speeds.
@@ -246,7 +214,6 @@ fn an_npc_records_its_skill_reuse() {
     add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
 
     let skill = Skill {
-        self_continuous: false,
         id: 4049,
         level: 1,
         reuse_delay: 10_000,
@@ -277,7 +244,6 @@ fn an_npc_skill_on_cooldown_cannot_be_recast() {
         v.cur_mp = 1000.0;
     }
     let skill = Skill {
-        self_continuous: false,
         id: 4049,
         level: 1,
         reuse_delay: 10_000,
@@ -336,41 +302,9 @@ fn a_servitors_buffs_survive_a_relog() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let summon_skill = 1111;
-    world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
-        id: summon_skill,
-        level: 1,
-        effects: vec![SkillEffect::Summon {
-            npc_id: PANTHER,
-            life_time: 1200,
-            consume_item_id: 0,
-            consume_item_count: 0,
-        }],
-        ..Default::default()
-    });
-    world
-        .objects
-        .get_component_mut::<SkillBook>(&OWNER)
-        .unwrap()
-        .0
-        .insert(summon_skill, 1);
+    teach_summon_skill(&mut world, summon_skill);
 
-    // Servitor Wind Walk's shape, cast on the servitor.
-    let buff = Skill {
-        self_continuous: false,
-        id: 1144,
-        level: 1,
-        abnormal_time: 1200,
-        effects: vec![SkillEffect::StatModifier(
-            model::skill::effects::StatModifierEffect {
-                stat: Stat::RunSpeed,
-                mode: model::stats::StatModifierType::Diff,
-                amount: 50.0,
-                ..Default::default()
-            },
-        )],
-        ..Default::default()
-    };
+    let buff = servitor_wind_walk(1200);
     world.data.skill_data.insert_for_test(buff.clone());
 
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, summon_skill, 1200, 0, 0).unwrap();
@@ -422,16 +356,9 @@ fn a_servitor_casts_the_skill_its_action_button_names() {
         .insert_servitor_skill_for_test(ACTION, SKILL);
 
     // Give the servitor template the skill, and register it.
-    {
-        let mut t = world.data.npc_data.get(PANTHER).unwrap().clone();
-        t.skill_list.push((SKILL, 1));
-        world.data.npc_data.insert_for_test(t);
-    }
+    give_panther_skill(&mut world, SKILL);
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: SKILL,
-        level: 1,
-        target_type: TargetType::Self_,
         effects: vec![SkillEffect::Heal { power: 100.0 }],
         ..Default::default()
     });
@@ -473,13 +400,8 @@ fn an_owner_pet_skill_targets_the_owner_not_their_selection() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     const SKILL: i32 = 4025;
-    {
-        let mut tpl = world.data.npc_data.get(PANTHER).unwrap().clone();
-        tpl.skill_list.push((SKILL, 1));
-        world.data.npc_data.insert_for_test(tpl);
-    }
+    give_panther_skill(&mut world, SKILL);
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: SKILL,
         level: 1,
         name: "Master Recharge".into(),
@@ -533,10 +455,7 @@ fn a_servitor_refuses_a_skill_it_does_not_have() {
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     const SKILL: i32 = 4079;
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: SKILL,
-        level: 1,
-        target_type: TargetType::Self_,
         effects: vec![SkillEffect::Heal { power: 100.0 }],
         ..Default::default()
     });
@@ -673,7 +592,6 @@ const SHARED_DEBUFF: i32 = 9503;
 
 fn sharing_skill(id: i32, shared: bool, is_debuff: bool) -> Skill {
     Skill {
-        self_continuous: false,
         id,
         level: 1,
         name: format!("Share {id}"),
@@ -698,19 +616,6 @@ fn sharing_skill(id: i32, shared: bool, is_debuff: bool) -> Skill {
         )],
         ..Default::default()
     }
-}
-
-fn buff_ids(world: &World, oid: i32) -> Vec<i32> {
-    world
-        .objects
-        .get_component::<Buffs>(&oid)
-        .map(|b| {
-            b.0.iter()
-                .filter(|x| !x.passive)
-                .map(|x| x.skill_id)
-                .collect()
-        })
-        .unwrap_or_default()
 }
 
 fn sharing_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
@@ -743,9 +648,13 @@ fn a_buff_on_the_owner_is_shared_with_their_servitor() {
 
     land_on(&mut world, SHARED_BUFF, OWNER);
 
-    assert_eq!(buff_ids(&world, OWNER), vec![SHARED_BUFF], "owner keeps it");
     assert_eq!(
-        buff_ids(&world, servitor),
+        live_buffs(&world, OWNER),
+        vec![SHARED_BUFF],
+        "owner keeps it"
+    );
+    assert_eq!(
+        live_buffs(&world, servitor),
         vec![SHARED_BUFF],
         "and the servitor receives the same buff"
     );
@@ -762,9 +671,9 @@ fn a_non_shared_buff_stops_at_the_owner() {
 
     land_on(&mut world, PRIVATE_BUFF, OWNER);
 
-    assert_eq!(buff_ids(&world, OWNER), vec![PRIVATE_BUFF]);
+    assert_eq!(live_buffs(&world, OWNER), vec![PRIVATE_BUFF]);
     assert!(
-        buff_ids(&world, servitor).is_empty(),
+        live_buffs(&world, servitor).is_empty(),
         "a non-shared buff must not reach the servitor"
     );
 }
@@ -779,9 +688,9 @@ fn a_debuff_on_the_owner_is_never_shared() {
 
     land_on(&mut world, SHARED_DEBUFF, OWNER);
 
-    assert_eq!(buff_ids(&world, OWNER), vec![SHARED_DEBUFF]);
+    assert_eq!(live_buffs(&world, OWNER), vec![SHARED_DEBUFF]);
     assert!(
-        buff_ids(&world, servitor).is_empty(),
+        live_buffs(&world, servitor).is_empty(),
         "a debuff is not shared even when the skill is flagged shared"
     );
 }
@@ -799,9 +708,9 @@ fn a_pet_does_not_receive_shared_buffs() {
 
     land_on(&mut world, SHARED_BUFF, OWNER);
 
-    assert_eq!(buff_ids(&world, OWNER), vec![SHARED_BUFF]);
+    assert_eq!(live_buffs(&world, OWNER), vec![SHARED_BUFF]);
     assert!(
-        buff_ids(&world, pet).is_empty(),
+        live_buffs(&world, pet).is_empty(),
         "Java reads getServitors(), which excludes the pet"
     );
 }
@@ -819,9 +728,9 @@ fn sharing_does_not_recurse_past_the_servitor() {
     // back to the owner.
     land_on(&mut world, SHARED_BUFF, servitor);
 
-    assert_eq!(buff_ids(&world, servitor), vec![SHARED_BUFF]);
+    assert_eq!(live_buffs(&world, servitor), vec![SHARED_BUFF]);
     assert!(
-        buff_ids(&world, OWNER).is_empty(),
+        live_buffs(&world, OWNER).is_empty(),
         "sharing runs owner → servitor only, never the reverse"
     );
 }

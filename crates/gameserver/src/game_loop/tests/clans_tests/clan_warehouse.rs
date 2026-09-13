@@ -7,26 +7,13 @@ use super::*;
 #[test]
 fn clan_warehouse_withdrawal_is_leader_only_at_the_shipped_setting() {
     use crate::game_loop::commerce::warehouse;
-    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::clan::Clan;
     use crate::model::components::commerce::ActiveWarehouse;
     let (mut world, _tx, _db_rx, _lrx) = admin_world();
     let _leader_rx = ingame_player_access(&mut world, 1, 3001, 0);
     let _member_rx = ingame_player_access(&mut world, 2, 3002, 0);
 
     let clan_id = 0x7000_0009;
-    let cm = |id: i32| ClanMember {
-        char_id: id,
-        name: format!("P{id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     world.clans.insert(
         clan_id,
         Clan {
@@ -36,7 +23,7 @@ fn clan_warehouse_withdrawal_is_leader_only_at_the_shipped_setting() {
             level: 1,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![cm(3001), cm(3002)],
+            members: vec![clan_member_p(3001), clan_member_p(3002)],
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,
@@ -96,7 +83,7 @@ fn clan_warehouse_withdrawal_is_leader_only_at_the_shipped_setting() {
 
 #[test]
 fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
-    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::clan::Clan;
     use crate::model::inventory::Inventory;
     let (mut world, _tx, mut db_rx, _lrx) = admin_world();
     world.data.item_data = dist::items_owned();
@@ -108,19 +95,6 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
 
     // A level-1 clan: 3001 leader, 3002 plain member (no privileges).
     let clan_id = 0x7000_0001;
-    let cm = |id: i32| ClanMember {
-        char_id: id,
-        name: format!("P{id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     world.clans.insert(
         clan_id,
         Clan {
@@ -130,7 +104,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
             level: 1,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![cm(3001), cm(3002)],
+            members: vec![clan_member_p(3001), clan_member_p(3002)],
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,

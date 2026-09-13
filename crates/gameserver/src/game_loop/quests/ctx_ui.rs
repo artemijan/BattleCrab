@@ -95,10 +95,7 @@ impl<'w> QuestCtx<'w> {
     /// The template id of whatever the player currently targets, 0 when
     /// nothing / not an NPC (Java `player.getTarget().getId()`).
     pub fn player_target_npc_id(&self) -> i32 {
-        self.world
-            .objects
-            .get_component::<crate::model::components::combat::TargetRef>(&self.player)
-            .and_then(|t| t.0)
+        crate::game_loop::combat::target::current(self.world, self.player)
             .and_then(|oid| {
                 self.world
                     .objects

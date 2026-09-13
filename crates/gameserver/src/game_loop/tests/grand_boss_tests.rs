@@ -10,11 +10,7 @@ const QUEEN_OID: i32 = NPC_OID + 60;
 
 fn boss_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
-    let mut t = crate::data::npc_data::default_template(QUEEN);
-    t.type_name = "GrandBoss".into();
-    t.level = 40;
-    t.base_hp_max = 100_000.0;
-    world.data.npc_data.insert_for_test(t);
+    register_npc_hp(&mut world, QUEEN, "GrandBoss", 40, 100_000.0);
     world.grand_bosses.insert(
         QUEEN,
         model::grand_boss::GrandBoss {
@@ -33,13 +29,7 @@ fn boss_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
 }
 
 fn boss_alive_in_world(world: &mut World) -> bool {
-    let mut found = false;
-    world.objects.for_each_mut::<&model::npc::Npc>(|n| {
-        if n.npc_id == QUEEN {
-            found = true;
-        }
-    });
-    found
+    npc_count(world, QUEEN) > 0
 }
 
 /// Regression: grand bosses must spawn when their `grandboss_data` row lands as
@@ -331,11 +321,7 @@ const ZAKEN: i32 = 29022;
 
 fn zaken_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
-    let mut t = crate::data::npc_data::default_template(ZAKEN);
-    t.type_name = "GrandBoss".into();
-    t.level = 60;
-    t.base_hp_max = 800_000.0;
-    world.data.npc_data.insert_for_test(t);
+    register_npc_hp(&mut world, ZAKEN, "GrandBoss", 60, 800_000.0);
     world.grand_bosses.insert(
         ZAKEN,
         model::grand_boss::GrandBoss {
@@ -415,9 +401,7 @@ fn a_simple_boss_roars_on_spawn_and_on_death() {
 fn a_cinematic_boss_spawns_silently() {
     let (mut world, _db, _l) = combat_test_world();
     const ANTHARAS: i32 = 29068;
-    let mut t = crate::data::npc_data::default_template(ANTHARAS);
-    t.type_name = "GrandBoss".into();
-    world.data.npc_data.insert_for_test(t);
+    register_npc_kind(&mut world, ANTHARAS, "GrandBoss");
     world.grand_bosses.insert(
         ANTHARAS,
         model::grand_boss::GrandBoss {
@@ -444,10 +428,7 @@ fn a_cinematic_boss_spawns_silently() {
 /// The real `GrandBoss.ini` is read — a fixture cannot catch a key rename.
 #[test]
 fn the_real_grand_boss_config_loads() {
-    let cfg = crate::config::GrandBossConfig::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let cfg = crate::config::GrandBossConfig::load_from(crate::data::DIST_GAME);
     let q = cfg
         .window_for(QUEEN)
         .expect("Queen Ant has a configured window");
@@ -475,10 +456,7 @@ fn the_real_grand_boss_config_loads() {
 /// to one side and not the other fails here too.
 #[test]
 fn default_config_matches_the_shipped_ini() {
-    let from_file = crate::config::GrandBossConfig::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let from_file = crate::config::GrandBossConfig::load_from(crate::data::DIST_GAME);
     assert_eq!(
         crate::config::GrandBossConfig::default(),
         from_file,
@@ -496,10 +474,7 @@ fn default_config_matches_the_shipped_ini() {
 /// whole failure mode is the two lists disagreeing.
 #[test]
 fn every_configured_boss_id_is_one_the_boss_table_tracks() {
-    let cfg = crate::config::GrandBossConfig::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let cfg = crate::config::GrandBossConfig::load_from(crate::data::DIST_GAME);
     // The ids `grandboss_data` ships on this dist.
     const TRACKED: [i32; 8] = [25512, 29001, 29006, 29014, 29020, 29022, 29028, 29068];
     for id in TRACKED {

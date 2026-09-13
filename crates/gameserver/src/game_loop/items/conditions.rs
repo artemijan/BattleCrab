@@ -46,7 +46,6 @@ use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::space::position;
 use crate::model::Player;
 use crate::model::castle::CastleSide;
-use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets::{SmParam, sm_ids};
 use crate::world::World;
 
@@ -148,10 +147,7 @@ struct Effector {
 
 impl Effector {
     fn of(world: &World, object_id: i32) -> Self {
-        let owner = world
-            .objects
-            .get_component::<ServitorOf>(&object_id)
-            .map(|s| s.owner_object_id);
+        let owner = crate::game_loop::servitor::owner_of(world, object_id);
         let is_player = world.objects.get_component::<Player>(&object_id).is_some();
         Self {
             object_id,
@@ -476,11 +472,7 @@ fn send_refusal(world: &World, object_id: i32, item_id: i32, message: &CondMessa
 /// Send to whoever is driving `object_id` — a pet's messages go to its owner's
 /// client, which is what `player.sendPacket` does at the pet call sites.
 fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    let target = world
-        .objects
-        .get_component::<ServitorOf>(&object_id)
-        .map(|s| s.owner_object_id)
-        .unwrap_or(object_id);
+    let target = crate::game_loop::servitor::owner_of(world, object_id).unwrap_or(object_id);
     send_sm_to_player(world, target, message_id, params);
 }
 

@@ -471,6 +471,21 @@ pub struct ClanWar {
 pub const WAR_TIMEOUT_MS: i64 = 7 * 86_400_000;
 
 impl ClanWar {
+    /// A war as it starts: no kills scored, no winner, no end date. Only the
+    /// two sides, the opening state and when it began differ between callers.
+    pub fn new(attacker_id: i32, attacked_id: i32, state: ClanWarState, start_time: i64) -> Self {
+        Self {
+            attacker_id,
+            attacked_id,
+            state,
+            winner_id: 0,
+            start_time,
+            end_time: 0,
+            attacker_kills: 0,
+            attacked_kills: 0,
+        }
+    }
+
     pub fn involves(&self, clan_id: i32) -> bool {
         self.attacker_id == clan_id || self.attacked_id == clan_id
     }

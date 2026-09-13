@@ -10,9 +10,7 @@ use super::components::combat::{AttackState, TargetRef};
 use super::components::player::{Macros, Shortcuts};
 use super::components::skills::{Buffs, Reuses, SkillBook};
 use super::components::space::{ClientPos, Collision, Position, RegionCell};
-use super::components::stats::{
-    BaseStats, CombatStats, PlayerVitals, Speeds, StatModifiers, Vitals,
-};
+use super::components::stats::{CombatStats, PlayerVitals, Speeds, StatModifiers, Vitals};
 use super::equip_conditions::conditioned_passive_buffs;
 use super::inventory::{self, Inventory};
 use super::max_vitals::{calc_max_cp, calc_max_hp, calc_max_mp, hp_percent_of};
@@ -242,14 +240,7 @@ impl Player {
         // `UserInfo` already carries them; `compose_base_stats` is the same
         // sum for every later recompute.
         let sets = game_loop::items::armor_sets::set_stat_sums_for(&data.armor_sets, &inventory);
-        let base_stats = BaseStats {
-            str_: t.base_str + hs.str_ + sets.str_ as i32,
-            dex: t.base_dex + hs.dex + sets.dex as i32,
-            con: t.base_con + hs.con + sets.con as i32,
-            int_: t.base_int + hs.int_ + sets.int_ as i32,
-            wit: t.base_wit + hs.wit + sets.wit as i32,
-            men: t.base_men + hs.men + sets.men as i32,
-        };
+        let base_stats = crate::model::stat_finalize::compose_base_stats_from(&t, &hs, &sets);
         let mut vitals = Vitals {
             max_hp: max_hp as i32,
             cur_hp: c.cur_hp.min(max_hp),

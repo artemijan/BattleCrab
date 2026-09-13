@@ -19,13 +19,7 @@ fn lucky_exempts_a_newbie_from_the_death_exp_penalty() {
     world.data.skill_data.insert_for_test(lucky);
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
-    let set_level = |world: &mut World, level: i32| {
-        if let Some(p) = world.objects.get_component_mut::<Player>(&CASTER) {
-            p.level = level;
-        }
-    };
-
-    set_level(&mut world, 5);
+    set_level(&mut world, CASTER, 5);
     assert!(
         !crate::game_loop::death::is_lucky(&world, CASTER),
         "level alone is not enough — the buff has to be up"
@@ -36,7 +30,7 @@ fn lucky_exempts_a_newbie_from_the_death_exp_penalty() {
         "a level-5 character holding Lucky is exempt"
     );
 
-    set_level(&mut world, 10);
+    set_level(&mut world, CASTER, 10);
     assert!(
         !crate::game_loop::death::is_lucky(&world, CASTER),
         "…and the buff alone is not enough past level 9"
@@ -121,12 +115,7 @@ fn residence_death_fortune_softens_a_mob_death_but_not_a_pvp_one() {
     assert!(plain_mob > 0, "a mob death costs exp to begin with");
 
     // Grant the *mob* reduction only.
-    if let Some(m) = world
-        .objects
-        .get_component_mut::<model::components::stats::StatModifiers>(&CASTER)
-    {
-        *m.mul.entry(Stat::ReduceExpLostByMob).or_insert(1.0) *= 0.88;
-    }
+    stack_mul_modifier(&mut world, CASTER, Stat::ReduceExpLostByMob, 0.88);
 
     assert!(
         lost_against(&mut world, mob) < plain_mob,

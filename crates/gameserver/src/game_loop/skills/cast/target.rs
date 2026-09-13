@@ -98,10 +98,11 @@ pub(crate) fn resolve_cast_target(
         // `Self.java`: a bad (offensive) self-target skill is refused inside
         // a peace zone — SM 2167.
         TargetType::Self_ => {
-            let in_peace = world
-                .objects
-                .get_component::<crate::model::components::space::ZoneFlags>(&caster.object_id)
-                .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
+            let in_peace = crate::game_loop::space::zones::has_zone_flag(
+                world,
+                caster.object_id,
+                crate::data::zone_data::ZoneKind::Peace,
+            );
             if in_peace && skill.is_bad() {
                 return Err(sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE);
             }

@@ -15,18 +15,11 @@ fn quest_q00266_pixies_loop() {
         &[(1334, "Predator's Fang", true), (1336, "Glass Shard", true)],
     );
     for id in [20537, 20525] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 5;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 5);
     }
     add_test_npc(&mut world, NPC_OID, 31852, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 5;
-        p.race = 1; // Elf
-    }
+    set_level_race(&mut world, 3001, 5, 1); // Elf
     drain_db(&mut db_rx);
 
     let q = "Q00266_PleasOfPixies";
@@ -106,17 +99,10 @@ fn quest_q00266_reward_buckets() {
             (1337, "Emerald", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20537);
-    t.type_name = "Monster".into();
-    t.level = 5;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20537, "Monster", 5);
     add_test_npc(&mut world, NPC_OID, 31852, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 5;
-        p.race = 1;
-    }
+    set_level_race(&mut world, 3001, 5, 1);
     let q = "Q00266_PleasOfPixies";
     let mob = NPC_OID + 1;
     for (mi, (roll, item, adena)) in [(30, 1338, 500), (60, 1337, 5000)].into_iter().enumerate() {
@@ -172,11 +158,7 @@ fn quest_q00266_race_and_level_gates() {
     add_test_npc(&mut world, NPC_OID, 31852, "Folk", 5, 100, 0, 0);
     let mut elf_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut human_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
-    {
-        let e = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        e.level = 5;
-        e.race = 1;
-    }
+    set_level_race(&mut world, 3001, 5, 1);
     world
         .objects
         .get_component_mut::<Player>(&3002)
@@ -186,18 +168,6 @@ fn quest_q00266_race_and_level_gates() {
     drain(&mut human_rx);
 
     let q = "Q00266_PleasOfPixies";
-    let quest_html = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> String {
-        drain(rx)
-            .iter()
-            .find_map(|p| {
-                is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE).then(|| {
-                    let mut r = commons::network::PacketReader::new(&p[3..]);
-                    r.read_i32();
-                    r.read_string().unwrap_or_default()
-                })
-            })
-            .unwrap_or_default()
-    };
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -217,11 +187,7 @@ fn quest_q00266_race_and_level_gates() {
     // A fresh level-9 Elf: `addCondMaxLevel(8)` blocks the start-npc talk from
     // ever creating the state, so the start event has nothing to start.
     let _rx3 = ingame_player(&mut world, 3, 3003, 0, 0, 0);
-    {
-        let e = world.objects.get_component_mut::<Player>(&3003).unwrap();
-        e.level = 9;
-        e.race = 1;
-    }
+    set_level_race(&mut world, 3003, 9, 1);
     handle_request_bypass_to_server(
         &mut world,
         3,
@@ -251,17 +217,10 @@ fn quest_q00271_proof_of_valor_loop() {
             (1539, "Healing Potion", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20475);
-    t.type_name = "Monster".into();
-    t.level = 6;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20475, "Monster", 6);
     add_test_npc(&mut world, NPC_OID, 30577, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 5;
-        p.race = 3; // Orc
-    }
+    set_level_race(&mut world, 3001, 5, 3); // Orc
     drain_db(&mut db_rx);
 
     let q = "Q00271_ProofOfValor";
@@ -280,12 +239,8 @@ fn quest_q00271_proof_of_valor_loop() {
 
     let mob = NPC_OID + 1;
     // roll 10 (<25) at count 0 → double drop; roll 50 → single.
-    add_test_npc(&mut world, mob, 20475, "Monster", 6, 30, 0, 0);
-    world.force_roll(10);
-    npc::npc_do_die(&mut world, mob, 3001);
-    add_test_npc(&mut world, mob + 1, 20475, "Monster", 6, 30, 0, 0);
-    world.force_roll(50);
-    npc::npc_do_die(&mut world, mob + 1, 3001);
+    kill_mob(&mut world, mob, 20475, 6, 10);
+    kill_mob(&mut world, mob + 1, 20475, 6, 50);
     assert_eq!(item_count(&world, 3001, 1473), 3, "2 + 1 fangs");
 
     // Fill to 49, then a <25 roll still gives ONE (count 49 is not < 49) → exactly 50, cond 2.
@@ -296,9 +251,7 @@ fn quest_q00271_proof_of_valor_loop() {
             .unwrap()
             .add_item(&data.item_data, 0x5300_0000, 1473, 46);
     }
-    add_test_npc(&mut world, mob + 2, 20475, "Monster", 6, 30, 0, 0);
-    world.force_roll(10);
-    npc::npc_do_die(&mut world, mob + 2, 3001);
+    kill_mob(&mut world, mob + 2, 20475, 6, 10);
     assert_eq!(
         item_count(&world, 3001, 1473),
         50,
@@ -338,9 +291,7 @@ fn quest_q00271_gates_and_necklace_page() {
     let mut necklace_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
     let mut human_rx = ingame_player(&mut world, 3, 3003, 0, 0, 0);
     for (oid, race) in [(3001, 3), (3002, 3), (3003, 0)] {
-        let p = world.objects.get_component_mut::<Player>(&oid).unwrap();
-        p.level = 5;
-        p.race = race;
+        set_level_race(&mut world, oid, 5, race);
     }
     {
         // Player 3002 already owns the necklace.
@@ -355,18 +306,6 @@ fn quest_q00271_gates_and_necklace_page() {
     }
 
     let q = "Q00271_ProofOfValor";
-    let page = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> String {
-        drain(rx)
-            .iter()
-            .find_map(|p| {
-                is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE).then(|| {
-                    let mut r = commons::network::PacketReader::new(&p[3..]);
-                    r.read_i32();
-                    r.read_string().unwrap_or_default()
-                })
-            })
-            .unwrap_or_default()
-    };
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -383,9 +322,9 @@ fn quest_q00271_gates_and_necklace_page() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
     );
     let (orc, necklace, human) = (
-        page(&mut orc_rx),
-        page(&mut necklace_rx),
-        page(&mut human_rx),
+        quest_html(&mut orc_rx),
+        quest_html(&mut necklace_rx),
+        quest_html(&mut human_rx),
     );
     assert!(
         !orc.is_empty() && orc != human,
@@ -395,11 +334,7 @@ fn quest_q00271_gates_and_necklace_page() {
 
     // A fresh level-9 Orc: refused before the state is created.
     let _rx4 = ingame_player(&mut world, 4, 3004, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3004).unwrap();
-        p.level = 9;
-        p.race = 3;
-    }
+    set_level_race(&mut world, 3004, 9, 3);
     handle_request_bypass_to_server(
         &mut world,
         4,
@@ -425,10 +360,7 @@ fn quest_q00277_gatekeepers_offering_loop() {
         &mut world,
         &[(1572, "Starstone", true), (1658, "Gatekeeper Charm", true)],
     );
-    let mut t = crate::data::npc_data::default_template(20333);
-    t.type_name = "Monster".into();
-    t.level = 18;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20333, "Monster", 18);
     add_test_npc(&mut world, NPC_OID, 30576, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -551,17 +483,10 @@ fn quest_q00277_level_gates() {
 fn quest_q00267_wrath_of_verdure_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(&mut world, &[(1335, "Goblin Club", true)]);
-    let mut t = crate::data::npc_data::default_template(20325);
-    t.type_name = "Monster".into();
-    t.level = 6;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20325, "Monster", 6);
     add_test_npc(&mut world, NPC_OID, 31853, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 6;
-        p.race = 1; // Elf
-    }
+    set_level_race(&mut world, 3001, 6, 1); // Elf
     drain_db(&mut db_rx);
 
     let q = "Q00267_WrathOfVerdure";
@@ -580,9 +505,7 @@ fn quest_q00267_wrath_of_verdure_loop() {
 
     let mut mob = NPC_OID + 1;
     let mut kill = |world: &mut World, roll: i32| {
-        add_test_npc(world, mob, 20325, "Monster", 6, 30, 0, 0);
-        world.force_roll(roll);
-        npc::npc_do_die(world, mob, 3001);
+        kill_mob(world, mob, 20325, 6, roll);
         mob += 1;
     };
     kill(&mut world, 2); // < 5 → club
@@ -633,11 +556,7 @@ fn quest_q00267_race_and_level_gates() {
     add_test_npc(&mut world, NPC_OID, 31853, "Folk", 5, 100, 0, 0);
     let mut elf_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut human_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
-    {
-        let e = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        e.level = 6;
-        e.race = 1;
-    }
+    set_level_race(&mut world, 3001, 6, 1);
     world
         .objects
         .get_component_mut::<Player>(&3002)
@@ -647,18 +566,6 @@ fn quest_q00267_race_and_level_gates() {
     drain(&mut human_rx);
 
     let q = "Q00267_WrathOfVerdure";
-    let page = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> String {
-        drain(rx)
-            .iter()
-            .find_map(|p| {
-                is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE).then(|| {
-                    let mut r = commons::network::PacketReader::new(&p[3..]);
-                    r.read_i32();
-                    r.read_string().unwrap_or_default()
-                })
-            })
-            .unwrap_or_default()
-    };
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -670,17 +577,13 @@ fn quest_q00267_race_and_level_gates() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
     );
     assert_ne!(
-        page(&mut elf_rx),
-        page(&mut human_rx),
+        quest_html(&mut elf_rx),
+        quest_html(&mut human_rx),
         "Elf and Human see different pages"
     );
 
     let _rx3 = ingame_player(&mut world, 3, 3003, 0, 0, 0);
-    {
-        let e = world.objects.get_component_mut::<Player>(&3003).unwrap();
-        e.level = 10;
-        e.race = 1;
-    }
+    set_level_race(&mut world, 3003, 10, 1);
     handle_request_bypass_to_server(
         &mut world,
         3,
@@ -703,17 +606,10 @@ fn quest_q00267_race_and_level_gates() {
 fn quest_q00272_wrath_of_ancestors() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(&mut world, &[(1474, "Grave Robber's Head", true)]);
-    let mut t = crate::data::npc_data::default_template(20319);
-    t.type_name = "Monster".into();
-    t.level = 8;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20319, "Monster", 8);
     add_test_npc(&mut world, NPC_OID, 30572, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 8;
-        p.race = 3;
-    }
+    set_level_race(&mut world, 3001, 8, 3);
     let q = "Q00272_WrathOfAncestors";
     handle_request_bypass_to_server(
         &mut world,
@@ -751,17 +647,10 @@ fn quest_q00274_skirmish_with_the_werewolves() {
             (1507, "Necklace of Valor", false),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20363);
-    t.type_name = "Monster".into();
-    t.level = 12;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20363, "Monster", 12);
     add_test_npc(&mut world, NPC_OID, 30569, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 12;
-        p.race = 3;
-    }
+    set_level_race(&mut world, 3001, 12, 3);
     inject(&mut world, 3001, 0x6300_0000, 1507, 1); // Necklace of Valor gates the start
     let q = "Q00274_SkirmishWithTheWerewolves";
     handle_request_bypass_to_server(
@@ -776,9 +665,7 @@ fn quest_q00274_skirmish_with_the_werewolves() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x6301_0000, 1477, 39);
-    add_test_npc(&mut world, NPC_OID + 1, 20363, "Monster", 12, 30, 0, 0);
-    world.force_roll(50); // > 5 → no totem
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 20363, 12, 50); // > 5 → no totem
     assert_eq!(item_count(&world, 3001, 1477), 40);
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 40 heads");
     let a = item_count(&world, 3001, 57);
@@ -802,10 +689,7 @@ fn quest_q00264_keen_claws() {
             (35, "Reward B", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20003);
-    t.type_name = "Monster".into();
-    t.level = 5;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20003, "Monster", 5);
     add_test_npc(&mut world, NPC_OID, 30136, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -861,18 +745,11 @@ fn quest_q00276_totem_of_the_hestui() {
         ],
     );
     for id in [20479, 27044] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 18;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 18);
     }
     add_test_npc(&mut world, NPC_OID, 30571, "Folk", 5, 100, 0, 0); // Tanapi
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 18;
-        p.race = 3; // Orc
-    }
+    set_level_race(&mut world, 3001, 18, 3); // Orc
     let q = "Q00276_TotemOfTheHestui";
     handle_request_bypass_to_server(
         &mut world,
@@ -905,9 +782,7 @@ fn quest_q00276_totem_of_the_hestui() {
     // (ladder head (79, 100)) and wipes the hoard.
     inject(&mut world, 3001, 0x1480_0000, 1480, 78);
     let bear2 = NPC_OID + 11;
-    add_test_npc(&mut world, bear2, 20479, "Monster", 18, 30, 0, 0);
-    world.force_roll(0); // roll(100)=0 ≤ 100 → spawn
-    npc::npc_do_die(&mut world, bear2, 3001);
+    kill_mob(&mut world, bear2, 20479, 18, 0); // roll(100)=0 ≤ 100 → spawn
     assert_eq!(
         item_count(&world, 3001, 1480),
         0,
@@ -953,21 +828,14 @@ fn quest_q00275_dark_winged_spies() {
         ],
     );
     {
-        let mut t = crate::data::npc_data::default_template(BAT);
-        t.type_name = "Monster".into();
-        t.level = 13;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, BAT, "Monster", 13);
     }
     let tantus = NPC_OID;
     let bat = NPC_OID + 1;
     add_test_npc(&mut world, tantus, TANTUS, "Folk", 13, 100, 200, 0);
     add_test_npc(&mut world, bat, BAT, "Monster", 13, 300, 300, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 12;
-        p.race = 3; // Orc
-    }
+    set_level_race(&mut world, 3001, 12, 3); // Orc
 
     let event = |w: &mut World, e: &str| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{tantus}_Quest {q} {e}")));

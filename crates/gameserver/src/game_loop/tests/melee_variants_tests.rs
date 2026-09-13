@@ -4,7 +4,6 @@ use super::*;
 
 use crate::data::item_data::kinds::{CrystalType, EtcItemType, ItemKind, WeaponType};
 use crate::data::item_data::template::ItemTemplate;
-use crate::model::components::stats::StatModifiers;
 use crate::model::inventory::Inventory;
 use crate::model::stats::Stat;
 
@@ -101,12 +100,7 @@ fn equip(world: &mut World, item_id: i32) {
 /// Grant Polearm Mastery's `ATTACK_COUNT_MAX` bonus directly (skill 216 is
 /// `HitNumber` amount 5 → 4 extra targets beyond the base 1).
 fn grant_hit_number(world: &mut World, extra: f64) {
-    world
-        .objects
-        .get_component_mut::<StatModifiers>(&ATTACKER)
-        .expect("stat modifiers")
-        .add
-        .insert(Stat::AttackCountMax, extra);
+    set_add_modifier(world, ATTACKER, Stat::AttackCountMax, extra);
 }
 
 /// The hits carried by the Attack packet: `(target_id, damage)`, first inline
@@ -326,12 +320,7 @@ fn focus_attack_gives_up_the_polearm_sweep() {
         .heading = 0;
 
     // Focus Attack up: `PHYSICAL_POLEARM_TARGET_SINGLE` above 0.
-    world
-        .objects
-        .get_component_mut::<StatModifiers>(&ATTACKER)
-        .expect("stat modifiers")
-        .add
-        .insert(Stat::PhysicalPolearmTargetSingle, 1.0);
+    set_add_modifier(&mut world, ATTACKER, Stat::PhysicalPolearmTargetSingle, 1.0);
     drain(&mut out);
 
     combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);

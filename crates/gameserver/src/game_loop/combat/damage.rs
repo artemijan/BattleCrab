@@ -375,10 +375,8 @@ pub(crate) fn npc_receive_damage(
     // ignored by monsters. Nothing else in the port makes an NPC invulnerable
     // through its owner, so the check lives here rather than in a shared
     // predicate.
-    if world
-        .objects
-        .get_component::<crate::model::components::summons::ServitorOf>(&npc_oid)
-        .is_some_and(|s| super::spawn_protection::is_protected(world, s.owner_object_id))
+    if crate::game_loop::servitor::owner_of(world, npc_oid)
+        .is_some_and(|owner| super::spawn_protection::is_protected(world, owner))
     {
         return;
     }
@@ -560,10 +558,7 @@ pub(crate) fn npc_receive_damage(
     {
         Some((attacker_oid, false))
     } else {
-        world
-            .objects
-            .get_component::<crate::model::components::summons::ServitorOf>(&attacker_oid)
-            .map(|s| (s.owner_object_id, true))
+        crate::game_loop::servitor::owner_of(world, attacker_oid).map(|owner| (owner, true))
     };
     if let Some((player_oid, is_summon)) = quest_attacker {
         let npc_id = npc::npc_id_of(world, npc_oid).unwrap_or(0);

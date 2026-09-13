@@ -1,7 +1,6 @@
 use super::*;
 use crate::game_loop::character::inventory;
 use crate::game_loop::client::user_commands;
-use crate::model::skill::target::{AffectObject, AffectScope};
 
 /// `showTeleports` builds the button list: the fee suffix shows only above
 /// the free-teleport level (`shouldPayFee`/`calculateFee`), the button
@@ -209,45 +208,12 @@ fn unstuck_casts_escape_and_teleports_to_town() {
     world.cfg.character.unstuck_interval = 30;
     with_town(&mut world);
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
-        without_action: false,
-        trait_type: model::skill::traits::TraitType::None,
-        item_consume_id: 0,
-        item_consume_count: 0,
         id: 2099,
-        level: 1,
         name: "Escape".into(),
-        operate_type: OperateType::Active,
-        is_continuous: false,
-        target_type: TargetType::Self_,
-        magic_type: 2, // static: the forced hit time is used verbatim
+        magic_type: 2,
+        // static: the forced hit time is used verbatim
         magic_level: 0,
-        effect_point: 0,
-        cast_range: 0,
-        effect_range: 0,
         hit_time: 300_000,
-        hit_cancel_time: 0.0,
-        cool_time: 0,
-        reuse_delay: 0,
-        reuse_delay_group: -1,
-        mp_consume: 0,
-        mp_initial_consume: 0,
-        hp_consume: 0,
-        abnormal_time: 0,
-        abnormal_level: 0,
-        abnormal_type: "NONE".into(),
-        activate_rate: -1,
-        lvl_bonus_rate: 0,
-        over_hit: false,
-        abnormal_visuals: Vec::new(),
-        toggle_group_id: 0,
-        affect_scope: AffectScope::Single,
-        affect_object: AffectObject::All,
-        affect_range: 0,
-        affect_limit: (0, 0),
-        can_be_dispelled: true,
-        is_debuff: false,
-        stay_after_death: false,
         effects: vec![model::skill::effects::SkillEffect::Escape {
             dest: model::skill::effects::EscapeDest::Town,
         }],
@@ -337,13 +303,10 @@ fn unstuck_says_nothing_when_the_cast_is_refused() {
     let (mut world, ..) = test_world();
     world.cfg.character.unstuck_interval = 30;
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 2099,
-        level: 1,
         name: "Escape".into(),
-        operate_type: OperateType::Active,
-        target_type: TargetType::Self_,
-        magic_type: 2, // static: the forced hit time is used verbatim
+        magic_type: 2,
+        // static: the forced hit time is used verbatim
         hit_time: 300_000,
         mp_initial_consume: 50,
         effects: vec![model::skill::effects::SkillEffect::Escape {
@@ -422,12 +385,7 @@ fn loc_user_command_reports_region() {
 #[test]
 fn a_subclass_pays_the_teleport_fee() {
     let (mut world, mut rx) = teleporter_world(20_000);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 20; // below MaxFreeTeleportLevel (40)
-        p.base_class_id = 0;
-        p.class_id = 0;
-    }
+    set_level_class(&mut world, 3001, 20, 0); // below MaxFreeTeleportLevel (40)
     handle_request_bypass_to_server(
         &mut world,
         1,

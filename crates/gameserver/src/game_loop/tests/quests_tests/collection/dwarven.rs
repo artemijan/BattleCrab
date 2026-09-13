@@ -19,20 +19,13 @@ fn quest_q00293_hidden_veins_loop() {
         ],
     );
     for id in [20446, 20447, 20448] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 10;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 10);
     }
     let (filaur, chichirin) = (NPC_OID, NPC_OID + 1);
     add_test_npc(&mut world, filaur, 30535, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, chichirin, 30539, "Folk", 5, 120, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 10;
-        p.race = 4; // Dwarf
-    }
+    set_level_race(&mut world, 3001, 10, 4); // Dwarf
     drain_db(&mut db_rx);
 
     let q = "Q00293_TheHiddenVeins";
@@ -52,14 +45,10 @@ fn quest_q00293_hidden_veins_loop() {
     // One getRandom(100) per kill: 4 fragments (roll 2 < 5), 3 ores (roll 60 > 50).
     let mob = NPC_OID + 2;
     for i in 0..4 {
-        add_test_npc(&mut world, mob + i, 20446, "Monster", 10, 30, 0, 0);
-        world.force_roll(2);
-        npc::npc_do_die(&mut world, mob + i, 3001);
+        kill_mob(&mut world, mob + i, 20446, 10, 2);
     }
     for i in 4..7 {
-        add_test_npc(&mut world, mob + i, 20447, "Monster", 10, 30, 0, 0);
-        world.force_roll(60);
-        npc::npc_do_die(&mut world, mob + i, 3001);
+        kill_mob(&mut world, mob + i, 20447, 10, 60);
     }
     assert_eq!(item_count(&world, 3001, 1489), 4, "four map fragments");
     assert_eq!(item_count(&world, 3001, 1488), 3, "three ores");
@@ -105,11 +94,7 @@ fn quest_q00293_race_gate() {
     add_test_npc(&mut world, NPC_OID, 30535, "Folk", 5, 100, 0, 0);
     let mut dwarf_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut human_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
-    {
-        let d = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        d.level = 10;
-        d.race = 4; // Dwarf
-    }
+    set_level_race(&mut world, 3001, 10, 4); // Dwarf
     world
         .objects
         .get_component_mut::<Player>(&3002)
@@ -117,19 +102,6 @@ fn quest_q00293_race_gate() {
         .level = 10; // Human (race 0)
     drain(&mut dwarf_rx);
     drain(&mut human_rx);
-
-    fn quest_html(rx: &mut UnboundedReceiver<bytes::Bytes>) -> String {
-        drain(rx)
-            .iter()
-            .find_map(|p| {
-                is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE).then(|| {
-                    let mut r = commons::network::PacketReader::new(&p[3..]);
-                    r.read_i32();
-                    r.read_string().unwrap_or_default()
-                })
-            })
-            .unwrap_or_default()
-    }
 
     let q = "Q00293_TheHiddenVeins";
     handle_request_bypass_to_server(
@@ -167,10 +139,7 @@ fn quest_q00296_spider_silk_loop() {
             (1494, "Tarantula Spinnerette", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20394);
-    t.type_name = "Monster".into();
-    t.level = 18;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20394, "Monster", 18);
     let (mion, nathan) = (NPC_OID, NPC_OID + 1);
     add_test_npc(&mut world, mion, 30519, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, nathan, 30548, "Folk", 5, 120, 0, 0);
@@ -264,10 +233,7 @@ fn quest_q00295_dreaming_loop() {
             (1509, "Ring of Firefly", false),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20153);
-    t.type_name = "Monster".into();
-    t.level = 13;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20153, "Monster", 13);
     add_test_npc(&mut world, NPC_OID, 30536, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -347,10 +313,7 @@ fn quest_q00297_gatekeepers_favor() {
         &mut world,
         &[(1573, "Starstone", true), (736, "Gatekeeper Token", true)],
     );
-    let mut t = crate::data::npc_data::default_template(20521);
-    t.type_name = "Monster".into();
-    t.level = 18;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20521, "Monster", 18);
     add_test_npc(&mut world, NPC_OID, 30540, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -390,17 +353,10 @@ fn quest_q00294_covert_business() {
         &mut world,
         &[(1491, "Bat Fang", true), (1508, "Ring of Raccoon", false)],
     );
-    let mut t = crate::data::npc_data::default_template(20370);
-    t.type_name = "Monster".into();
-    t.level = 12;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20370, "Monster", 12);
     add_test_npc(&mut world, NPC_OID, 30534, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 12;
-        p.race = 4;
-    }
+    set_level_race(&mut world, 3001, 12, 4);
     let q = "Q00294_CovertBusiness";
     handle_request_bypass_to_server(
         &mut world,
@@ -443,18 +399,11 @@ fn quest_q00292_brigands_sweep() {
         ],
     );
     // Goblin Brigand (20322) drops the necklace.
-    let mut t = crate::data::npc_data::default_template(20322);
-    t.type_name = "Monster".into();
-    t.level = 10;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20322, "Monster", 10);
     add_test_npc(&mut world, NPC_OID, 30532, "Folk", 5, 100, 0, 0); // Spiron
     add_test_npc(&mut world, NPC_OID + 1, 30533, "Folk", 5, 100, 0, 0); // Balanki
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 10;
-        p.race = 4; // Dwarf
-    }
+    set_level_race(&mut world, 3001, 10, 4); // Dwarf
     let q = "Q00292_BrigandsSweep";
     handle_request_bypass_to_server(
         &mut world,

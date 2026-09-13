@@ -3,6 +3,7 @@ use super::combatant;
 use super::distance_2d;
 use super::do_auto_attack;
 use super::refresh_attack_stance;
+use super::target;
 use super::target_is_dead;
 use super::wields_two_handed;
 use crate::game_loop::helpers;
@@ -71,14 +72,8 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
     // mid-swing, `start_attack_intent` parks the attack as the intention that
     // fires when the cast/swing ends — Java's `onForcedAttack` →
     // `setIntention(ATTACK)`, deferred to `_nextIntention` while busy.
-    let current = world
-        .objects
-        .get_component::<crate::model::components::combat::TargetRef>(&object_id)
-        .copied()
-        .unwrap_or_default()
-        .0;
-    if current != Some(pkt.object_id) {
-        super::target::set_target(world, client_id, object_id, Some(pkt.object_id));
+    if target::current(world, object_id) != Some(pkt.object_id) {
+        target::set_target(world, client_id, object_id, Some(pkt.object_id));
     }
 
     // `pkt.shift` is deliberately dropped — Java's `AttackRequest._attackId`

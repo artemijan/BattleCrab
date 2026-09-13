@@ -106,18 +106,10 @@ fn skill_evasion_dodges_only_its_own_magic_type() {
     );
     nuke.magic_type = 0; // the bucket the buff covers
     world.data.skill_data.insert_for_test(nuke);
-    let hp_before = world
-        .objects
-        .get_component::<Vitals>(&NPC_OID)
-        .map(|v| v.cur_hp)
-        .unwrap_or(0.0);
+    let hp_before = hp_of(&world, NPC_OID);
     land(&mut world, 9343, NPC_OID);
     assert_eq!(
-        world
-            .objects
-            .get_component::<Vitals>(&NPC_OID)
-            .map(|v| v.cur_hp)
-            .unwrap_or(0.0),
+        hp_of(&world, NPC_OID),
         hp_before,
         "a 100 % dodge takes no damage — the map has to reach the roll"
     );
@@ -202,20 +194,12 @@ fn counter_physical_skill_answers_melee_skills_only() {
         cs.p_atk = 500.0;
     }
 
-    let caster_hp = |world: &World| {
-        world
-            .objects
-            .get_component::<Vitals>(&CASTER)
-            .map(|v| v.cur_hp)
-            .unwrap_or(0.0)
-    };
-
     // A melee skill (castRange 40, physical) is countered.
     let mut melee = cc_skill(9351, SkillEffect::Root, "NONE");
     melee.magic_type = 0;
     melee.cast_range = 40;
     world.data.skill_data.insert_for_test(melee);
-    let before = caster_hp(&world);
+    let before = hp_of(&world, CASTER);
     effects::apply_skill_damage(
         &mut world,
         CASTER,
@@ -228,9 +212,9 @@ fn counter_physical_skill_answers_melee_skills_only() {
         },
     );
     assert!(
-        caster_hp(&world) < before,
+        hp_of(&world, CASTER) < before,
         "a melee skill draws a counter ({before} → {})",
-        caster_hp(&world)
+        hp_of(&world, CASTER)
     );
 
     // A *magic* skill never is, however high the chance.
@@ -238,7 +222,7 @@ fn counter_physical_skill_answers_melee_skills_only() {
     magic.magic_type = 1;
     magic.cast_range = 40;
     world.data.skill_data.insert_for_test(magic);
-    let before = caster_hp(&world);
+    let before = hp_of(&world, CASTER);
     effects::apply_skill_damage(
         &mut world,
         CASTER,
@@ -252,7 +236,7 @@ fn counter_physical_skill_answers_melee_skills_only() {
         },
     );
     assert_eq!(
-        caster_hp(&world),
+        hp_of(&world, CASTER),
         before,
         "magic is not counterable — Java bails on skill.isMagic()"
     );
@@ -262,7 +246,7 @@ fn counter_physical_skill_answers_melee_skills_only() {
     ranged.magic_type = 0;
     ranged.cast_range = 600;
     world.data.skill_data.insert_for_test(ranged);
-    let before = caster_hp(&world);
+    let before = hp_of(&world, CASTER);
     effects::apply_skill_damage(
         &mut world,
         CASTER,
@@ -275,7 +259,7 @@ fn counter_physical_skill_answers_melee_skills_only() {
         },
     );
     assert_eq!(
-        caster_hp(&world),
+        hp_of(&world, CASTER),
         before,
         "only melee-range skills can be countered"
     );
@@ -318,12 +302,7 @@ fn fatal_counter_scales_with_the_archers_missing_hp() {
         world.clear_forced_rolls();
         world.force_rolls([50; 12]);
         land(world, 9413, NPC_OID);
-        1_000_000.0
-            - world
-                .objects
-                .get_component::<Vitals>(&NPC_OID)
-                .map(|v| v.cur_hp)
-                .unwrap_or(0.0)
+        1_000_000.0 - hp_of(world, NPC_OID)
     };
 
     let at_full = damage_at(&mut world, 1.0);

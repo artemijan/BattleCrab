@@ -10,7 +10,7 @@ use super::net::*;
 use super::skills::cast::*;
 use super::skills::*;
 use super::space::position::*;
-use crate::data::spawn_data::Territory;
+use crate::data::spawn_data::{NpcSpawnDef, SpawnGroup, SpawnTemplate, Territory};
 use crate::data::{GameData, MultisellData};
 use crate::db::CharData;
 use crate::db::DbEvent;
@@ -294,6 +294,17 @@ fn apply_dist_general_config(world: &mut World) {
     world.cfg.general.restore_player_instance = true;
 }
 
+/// Every buff id on `oid`, in the order they are held — passive stat-pump
+/// markers included. Empty when the object has no `Buffs` component.
+fn all_buff_ids(world: &World, oid: i32) -> Vec<i32> {
+    world
+        .objects
+        .get_component::<Buffs>(&oid)
+        .map(|b| b.0.iter().map(|x| x.skill_id).collect())
+        .unwrap_or_default()
+}
+
+/// [`all_buff_ids`] without the passives — what a player would call "my buffs".
 fn live_buffs(world: &World, oid: i32) -> Vec<i32> {
     world
         .objects
@@ -354,9 +365,30 @@ fn test_clan(id: i32, leader_id: i32) -> Clan {
     }
 }
 
+/// Whether `oid` currently holds clan skill `id` (the transient [`ClanSkills`]
+/// component, not the clan's own learned list).
+///
+/// [`ClanSkills`]: model::components::skills::ClanSkills
+fn has_clan_skill(world: &World, oid: i32, id: i32) -> bool {
+    world
+        .objects
+        .get_component::<model::components::skills::ClanSkills>(&oid)
+        .is_some_and(|c| c.0.contains_key(&id))
+}
+
 /// Component peek helpers for assertions (stage-2 shape).
 fn pvit(world: &World, oid: i32) -> Vitals {
     *world.objects.get_component::<Vitals>(&oid).unwrap()
+}
+
+/// `oid`'s current HP, or `0.0` once it has no `Vitals` — a corpse that has
+/// been cleaned up reads as dead rather than panicking.
+fn hp_of(world: &World, oid: i32) -> f64 {
+    world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .map(|v| v.cur_hp)
+        .unwrap_or(0.0)
 }
 
 fn pcp(world: &World, oid: i32) -> PlayerVitals {
@@ -410,14 +442,114 @@ fn insert_positions_for(world: &mut World, npc_id: i32) -> Vec<(i32, i32, i32)> 
     out
 }
 
-fn find_npc_object_id(world: &mut World, npc_id: i32) -> Option<i32> {
-    let mut f = None;
+/// Object ids of every live NPC the predicate accepts, in world order.
+fn npc_oids_where(world: &mut World, mut keep: impl FnMut(&model::npc::Npc) -> bool) -> Vec<i32> {
+    let mut out = Vec::new();
     world.objects.for_each_mut::<&model::npc::Npc>(|n| {
-        if n.npc_id == npc_id {
-            f = Some(n.object_id);
+        if keep(n) {
+            out.push(n.object_id);
         }
     });
-    f
+    out
+}
+
+/// Object ids of every live NPC with `npc_id`.
+fn npcs_of(world: &mut World, npc_id: i32) -> Vec<i32> {
+    npc_oids_where(world, |n| n.npc_id == npc_id)
+}
+
+/// The last-spawned NPC with `npc_id`, if any.
+fn find_npc_object_id(world: &mut World, npc_id: i32) -> Option<i32> {
+    npcs_of(world, npc_id).last().copied()
+}
+
+/// A `SkillLearn` row: `skill_id` at `skill_level`, learnable from character
+/// level `get_level` for `level_up_sp` SP. Not auto-granted and with no item
+/// requirement — the two fields a test overrides when it is testing them.
+fn skill_learn(
+    skill_id: i32,
+    skill_level: i32,
+    name: &str,
+    get_level: i32,
+    level_up_sp: i64,
+) -> crate::data::skill_tree::SkillLearn {
+    crate::data::skill_tree::SkillLearn {
+        skill_id,
+        skill_level,
+        name: name.into(),
+        get_level,
+        level_up_sp,
+        auto_get: false,
+        required_items: Vec::new(),
+    }
+}
+
+/// One `items` row as the DB hands it back, with the eight fields no fixture
+/// varies already set: no enchant, no augment, no mana timer, no custom types.
+/// `loc`/`loc_data` are the storage location ("INVENTORY", "PAPERDOLL", "MAIL",
+/// …) and its slot.
+fn item_row_at(
+    object_id: i32,
+    item_id: i32,
+    count: i64,
+    loc: &str,
+    loc_data: i32,
+) -> crate::db::ItemRow {
+    crate::db::ItemRow {
+        object_id,
+        item_id,
+        count,
+        enchant_level: 0,
+        loc: loc.into(),
+        loc_data,
+        custom_type1: 0,
+        custom_type2: 0,
+        mana_left: -1,
+        time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
+    }
+}
+
+/// [`item_row_at`] worn in a paperdoll slot named by its raw index, for the
+/// fixtures that spell the slot as a number rather than a [`PaperdollSlot`].
+fn paperdoll_row(object_id: i32, item_id: i32, slot: i32) -> crate::db::ItemRow {
+    item_row_at(object_id, item_id, 1, "PAPERDOLL", slot)
+}
+
+/// An `Inventory` written back out as `items` rows — what a `CharData` carries,
+/// so a test can build a bag through the real add/equip logic and then load a
+/// character from it. Worn items land in "PAPERDOLL" at their slot, the rest in
+/// "INVENTORY".
+fn inventory_rows(inv: &Inventory) -> Vec<crate::db::ItemRow> {
+    inv.items()
+        .iter()
+        .map(|it| {
+            let slot = inv.paperdoll_slot_of(it.object_id);
+            item_row_at(
+                it.object_id,
+                it.item_id,
+                it.count,
+                if slot.is_some() {
+                    "PAPERDOLL"
+                } else {
+                    "INVENTORY"
+                },
+                slot.map(|s| s as i32).unwrap_or(0),
+            )
+        })
+        .collect()
+}
+
+/// [`item_row_at`] worn in a paperdoll slot — what most fixtures want.
+fn item_row(
+    object_id: i32,
+    item_id: i32,
+    count: i64,
+    slot: model::inventory::PaperdollSlot,
+) -> crate::db::ItemRow {
+    item_row_at(object_id, item_id, count, "PAPERDOLL", slot as i32)
 }
 
 fn give_to_player(world: &mut World, item_id: i32, count: i64, obj_id: i32, player_id: i32) {
@@ -454,13 +586,7 @@ fn stat_value_of(id: i32, level: i32, stat: Stat) -> Option<f64> {
 }
 
 fn npc_count(world: &mut World, npc_id: i32) -> usize {
-    let mut n = 0;
-    world.objects.for_each_mut::<&model::npc::Npc>(|x| {
-        if x.npc_id == npc_id {
-            n += 1;
-        }
-    });
-    n
+    npcs_of(world, npc_id).len()
 }
 
 fn served_html(rx: &mut UnboundedReceiver<bytes::Bytes>) -> Option<String> {
@@ -518,9 +644,7 @@ fn has_sm(out: &[Vec<u8>], id: i16) -> bool {
         .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
 }
 fn find_ex_opcode(out_rx: &mut UnboundedReceiver<bytes::Bytes>, opcode: i16) -> Option<Vec<u8>> {
-    drain(out_rx)
-        .into_iter()
-        .find(|p| p.len() >= 3 && p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == opcode)
+    drain(out_rx).into_iter().find(|p| is_ex(p, opcode))
 }
 fn give_item(world: &mut World, oid: i32, obj_id: i32, item_id: i32, count: i64) {
     let World { objects, data, .. } = world;
@@ -570,11 +694,7 @@ fn add_hate(world: &mut World, npc: i32, attacker: i32, hate: f64, damage: f64) 
         .insert(attacker, model::npc::AggroInfo { hate, damage });
 }
 fn pbuffs(world: &World, oid: i32) -> usize {
-    world
-        .objects
-        .get_component::<Buffs>(&oid)
-        .map(|b| b.0.len())
-        .unwrap_or(0)
+    all_buff_ids(world, oid).len()
 }
 
 fn dummy_char(object_id: i32, name: &str) -> CharData {
@@ -787,9 +907,7 @@ async fn character_create_inserts_into_real_schema() {
 
     let (out_tx, _out_rx) = tokio::sync::mpsc::unbounded_channel();
     let account = format!("acct{}", std::process::id());
-    let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated(account.clone(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![]);
+    let s = lobby_session(1, out_tx, &account, vec![]);
     world.clients.insert(1, ClientSession::InLobby(s));
 
     let name = format!("Tc{}", std::process::id() % 100000);
@@ -977,7 +1095,6 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         effects: vec![],
     };
     data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 1177,
         name: "Wind Strike".into(),
         target_type: TargetType::EnemyOnly,
@@ -987,7 +1104,6 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         ..base.clone()
     });
     data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 1015,
         name: "Battle Heal".into(),
         target_type: TargetType::Target,
@@ -997,7 +1113,6 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
         ..base.clone()
     });
     data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 1068,
         name: "Might".into(),
         target_type: TargetType::Target,
@@ -1020,7 +1135,6 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
     });
     // Power Strike 3 — the canonical physical attack skill (`magic_type: 0`).
     data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 3,
         name: "Power Strike".into(),
         target_type: TargetType::EnemyOnly,
@@ -1043,7 +1157,6 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
     // lvl-bonus trio matches dist level 1 so the landing-rate roll and its
     // caster-facing chance line compute the real 90 (constrained) vs a low-level mob.
     data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 1160,
         name: "Decrease Speed".into(),
         target_type: TargetType::EnemyOnly,
@@ -1078,7 +1191,6 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
     });
     // Vampiric Touch 1147 — HpDrain: magic damage + 40% self-heal.
     data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 1147,
         name: "Vampiric Touch".into(),
         target_type: TargetType::Enemy,
@@ -1092,7 +1204,6 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
     });
     // Backstab 30 — a dagger blow requiring a flank (backstab: true).
     data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 30,
         name: "Backstab".into(),
         target_type: TargetType::Enemy,
@@ -1110,7 +1221,6 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
     });
     // Mortal Blow 16 — a FatalBlow (no flank requirement).
     data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 16,
         name: "Mortal Blow".into(),
         target_type: TargetType::Enemy,
@@ -1128,7 +1238,6 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
     });
     // A slow self-buff (10 s cast) used as the interruptible victim cast.
     data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 91,
         name: "Slow Aura".into(),
         target_type: TargetType::Self_,
@@ -1155,7 +1264,6 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
     // indistinguishable from a working port that simply did not fire. Any
     // test asserting an NPC cast needs its skill present.
     data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 4243,
         name: "Venomous Poison".into(),
         target_type: TargetType::EnemyOnly,
@@ -1174,15 +1282,53 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
     apply_dist_general_config(&mut world);
     (world, db_rx, link_rx)
 }
+/// A session authenticated as `account` and sitting in the lobby with `chars`
+/// on the list — the first two rungs every test session climbs.
+fn lobby_session(
+    client_id: u32,
+    out_tx: UnboundedSender<bytes::Bytes>,
+    account: &str,
+    chars: Vec<CharData>,
+) -> Session<session::InLobby> {
+    Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated(account.into(), SessionKey::new(1, 2, 3, 4))
+        .into_lobby(chars)
+}
+
+/// The next rung: entering the world as `bundle`. `chars` only matters to the
+/// tests that read the account's character list back.
+fn entering_session(
+    client_id: u32,
+    out_tx: UnboundedSender<bytes::Bytes>,
+    chars: Vec<CharData>,
+    bundle: PlayerData,
+) -> Session<session::Entering> {
+    lobby_session(client_id, out_tx, "bob", chars).into_entering(bundle)
+}
+
 fn get_test_session(
     client_id: u32,
     out_tx: UnboundedSender<bytes::Bytes>,
     bundle: PlayerData,
 ) -> Session<session::Entering> {
-    Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![])
-        .into_entering(bundle)
+    entering_session(client_id, out_tx, vec![], bundle)
+}
+
+/// The last rung: `bundle` in-game as `client_id` — session, spawn and client
+/// map — with its outbound queue handed back.
+fn ingame_bundle(
+    world: &mut World,
+    client_id: u32,
+    chars: Vec<CharData>,
+    bundle: PlayerData,
+) -> UnboundedReceiver<bytes::Bytes> {
+    let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (session, spawn) = entering_session(client_id, out_tx, chars, bundle).into_ingame();
+    spawn.spawn_into(world);
+    world
+        .clients
+        .insert(client_id, ClientSession::InGame(session));
+    out_rx
 }
 
 /// An `InGame` level-5 player knowing every `cast_test_world` skill, with
@@ -1203,13 +1349,7 @@ fn ingame_caster(
     chr.z = 0;
     chr.skills = vec![(1177, 1, 0), (1015, 1, 0), (1068, 1, 0), (91, 1, 0)];
     let player = Player::from_char(&world.data, &chr);
-    let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = get_test_session(client_id, out_tx, player);
-    let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(world);
-    world
-        .clients
-        .insert(client_id, ClientSession::InGame(session));
+    let out_rx = ingame_bundle(world, client_id, vec![], player);
     world
         .objects
         .get_component_mut::<PlayerVitals>(&object_id)
@@ -1218,15 +1358,28 @@ fn ingame_caster(
     out_rx
 }
 
+/// Everything queued on an unbounded channel right now, in send order.
+fn drain_rx<T>(rx: &mut UnboundedReceiver<T>) -> Vec<T> {
+    let mut out = Vec::new();
+    while let Ok(v) = rx.try_recv() {
+        out.push(v);
+    }
+    out
+}
+
 /// The outbound queue carries `Bytes` (shared broadcast payloads); tests
 /// assert against owned `Vec<u8>`, so materialize here rather than at every
 /// assertion.
 fn drain(rx: &mut UnboundedReceiver<bytes::Bytes>) -> Vec<Vec<u8>> {
-    let mut out = Vec::new();
-    while let Ok(p) = rx.try_recv() {
-        out.push(p.to_vec());
-    }
-    out
+    drain_rx(rx).iter().map(|p| p.to_vec()).collect()
+}
+
+/// How many packets waiting on `rx` carry `opcode`. Drains the queue.
+fn drain_count(rx: &mut UnboundedReceiver<bytes::Bytes>, opcode: u8) -> usize {
+    drain(rx)
+        .iter()
+        .filter(|p| p.first() == Some(&opcode))
+        .count()
 }
 
 fn requests(rx: &std::sync::mpsc::Receiver<PathRequest>) -> Vec<PathRequest> {
@@ -1349,6 +1502,12 @@ fn use_item_body(object_id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// A whole `UseItem` packet — [`use_item_body`] behind its opcode, for the
+/// tests that go in through `on_packet` rather than calling the handler.
+fn use_item_packet(object_id: i32) -> Vec<u8> {
+    [vec![cop::USE_ITEM], use_item_body(object_id)].concat()
+}
+
 /// Puts a bare `Player` (built from `dummy_char`) straight into `InGame`,
 /// the same session-transition chain the other tests use, and returns its
 /// outbound packet receiver.
@@ -1365,14 +1524,7 @@ fn ingame_player(
     chr.y = y;
     chr.z = z;
     let bundle = Player::from_char(&world.data, &chr);
-    let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = get_test_session(client_id, out_tx, bundle);
-    let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(world);
-    world
-        .clients
-        .insert(client_id, ClientSession::InGame(session));
-    out_rx
+    ingame_bundle(world, client_id, vec![], bundle)
 }
 
 fn action_body(object_id: i32, action_id: u8) -> Vec<u8> {
@@ -1405,6 +1557,92 @@ fn move_body(target: (i32, i32, i32), origin: (i32, i32, i32), movement_mode: i3
 
 /// Register a synthetic NPC template and place one instance in the world +
 /// region index (the test-side mirror of `model::npc::spawn_one`).
+/// Register a synthetic NPC template — the datapack has no row for these test
+/// ids, so a fixture that spawns one has to invent it. `type_name` selects the
+/// behaviour branch ("Monster", "Folk", "GrandBoss", …); everything else is
+/// [`crate::data::npc_data::default_template`]'s, level 85 included.
+fn register_npc_kind(world: &mut World, npc_id: i32, type_name: &str) {
+    let mut t = crate::data::npc_data::default_template(npc_id);
+    t.type_name = type_name.into();
+    world.data.npc_data.insert_for_test(t);
+}
+
+/// [`register_npc_kind`] at an explicit level.
+fn register_npc(world: &mut World, npc_id: i32, type_name: &str, level: i32) {
+    let mut t = crate::data::npc_data::default_template(npc_id);
+    t.type_name = type_name.into();
+    t.level = level;
+    world.data.npc_data.insert_for_test(t);
+}
+
+/// [`register_npc`] with an HP pool — bosses, and the mobs a test must not
+/// kill by accident. `default_template` leaves HP at 0.
+fn register_npc_hp(world: &mut World, npc_id: i32, type_name: &str, level: i32, hp: f64) {
+    register_npc_vitals(world, npc_id, type_name, level, hp, 0.0);
+}
+
+/// [`register_npc_hp`] with an MP pool too, for the casters.
+fn register_npc_vitals(
+    world: &mut World,
+    npc_id: i32,
+    type_name: &str,
+    level: i32,
+    hp: f64,
+    mp: f64,
+) {
+    let mut t = crate::data::npc_data::default_template(npc_id);
+    t.type_name = type_name.into();
+    t.level = level;
+    t.base_hp_max = hp;
+    t.base_mp_max = mp;
+    world.data.npc_data.insert_for_test(t);
+}
+
+/// The quest-drop beat: spawn `npc_id` at `(x, y, 0)` with `level`, arm `roll`
+/// as the next forced random — the drop/chance roll the kill then consumes —
+/// and kill it for the fixture player, 3001. `mob_oid` must be fresh: a corpse
+/// stays in the world, so a reused id would land the second kill on the first
+/// carcass.
+fn kill_mob_at(
+    world: &mut World,
+    mob_oid: i32,
+    npc_id: i32,
+    level: i32,
+    x: i32,
+    y: i32,
+    roll: i32,
+) {
+    add_test_npc(world, mob_oid, npc_id, "Monster", level, x, y, 0);
+    world.force_roll(roll);
+    game_loop::npc::npc_do_die(world, mob_oid, 3001);
+}
+
+/// [`kill_mob_at`] at the spot these fixtures put a mob by default, `(30, 0, 0)`
+/// — far enough from the player at the origin not to aggro, close enough to
+/// stay in the same region.
+fn kill_mob(world: &mut World, mob_oid: i32, npc_id: i32, level: i32, roll: i32) {
+    kill_mob_at(world, mob_oid, npc_id, level, 30, 0, roll);
+}
+
+/// A quest-kill beat: every call spawns a fresh `npc_id` mob at `level`,
+/// standing at `(x, y, 0)`, and kills it for `killer_oid`. Object ids are
+/// handed out from `first_mob_oid` upward, because a corpse stays in the world
+/// — reusing one id would have the second kill land on the first carcass.
+fn mob_killer(
+    first_mob_oid: i32,
+    level: i32,
+    killer_oid: i32,
+    x: i32,
+    y: i32,
+) -> impl FnMut(&mut World, i32) {
+    let mut mob_oid = first_mob_oid;
+    move |world: &mut World, npc_id: i32| {
+        mob_oid += 1;
+        add_test_npc(world, mob_oid, npc_id, "Monster", level, x, y, 0);
+        game_loop::npc::npc_do_die(world, mob_oid, killer_oid);
+    }
+}
+
 fn add_test_npc(
     world: &mut World,
     object_id: i32,
@@ -1416,12 +1654,7 @@ fn add_test_npc(
     z: i32,
 ) {
     if world.data.npc_data.get(npc_id).is_none() {
-        let mut t = crate::data::npc_data::default_template(npc_id);
-        t.type_name = type_name.into();
-        t.level = level;
-        t.base_hp_max = 100.0;
-        t.base_mp_max = 50.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_vitals(world, npc_id, type_name, level, 100.0, 50.0);
     }
     let (npc, extra) = model::npc::Npc::for_test(object_id, npc_id, x, y, z, 100, 50);
     world
@@ -1730,11 +1963,7 @@ fn player_shortcuts(world: &World, oid: i32) -> Vec<Shortcut> {
 }
 
 fn drain_db(rx: &mut db::CmdRx) -> Vec<db::DbCommand> {
-    let mut out = Vec::new();
-    while let Ok(c) = rx.try_recv() {
-        out.push(c);
-    }
-    out
+    drain_rx(rx)
 }
 
 fn say2_body(text: &str, chat_type: i32, target: Option<&str>) -> Vec<u8> {
@@ -1815,6 +2044,35 @@ fn ids_after_opcode(pkts: &[Vec<u8>], opcode: u8) -> Vec<i16> {
         .collect()
 }
 
+/// The `RadarControl` markers in `pkts`, as `(show, kind, x, y, z)` — the five
+/// ints Java's `Radar.addMarker` writes. It sends a clear leg and a show leg
+/// per marker, so a single `addRadar` yields two entries.
+fn radar_markers(pkts: &[Vec<u8>]) -> Vec<(i32, i32, i32, i32, i32)> {
+    pkts.iter()
+        .filter(|p| p[0] == server_packets::opcodes::RADAR_CONTROL)
+        .map(|p| {
+            let mut r = commons::network::PacketReader::new(&p[1..]);
+            (
+                r.read_i32().unwrap(),
+                r.read_i32().unwrap(),
+                r.read_i32().unwrap(),
+                r.read_i32().unwrap(),
+                r.read_i32().unwrap(),
+            )
+        })
+        .collect()
+}
+
+/// The object id every `opcode` packet in `pkts` leads with — the i32 sibling
+/// of [`ids_after_opcode`], over the broadcasts [`is_for`] describes. Packets
+/// too short to carry an id are skipped rather than panicking.
+fn subject_ids(pkts: &[Vec<u8>], opcode: u8) -> Vec<i32> {
+    pkts.iter()
+        .filter(|p| p.len() >= 5 && p[0] == opcode)
+        .map(|p| i32::from_le_bytes(p[1..5].try_into().unwrap()))
+        .collect()
+}
+
 /// The string of a `SystemMessage` whose first parameter is `Text` (the shape
 /// `Player.sendMessage(String)` / `send_message` produces). `None` for other
 /// packets or non-text messages. Layout: opcode, id(i16), count(u8),
@@ -1874,16 +2132,23 @@ fn sysmsg_int(p: &[u8]) -> Option<i32> {
     }
     None
 }
-/// One map region so the TOWN fallback has somewhere to land.
-fn with_town(world: &mut World) {
+/// One map region covering the origin tile, so the TOWN respawn fallback has
+/// somewhere to land. `loc_id` is the id `/loc` and the restart flow report
+/// back; `respawn` is where a to-village death lands.
+fn with_town_at(world: &mut World, loc_id: i32, respawn: (i32, i32, i32)) {
     world.data.map_region =
         crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
             name: "test_town".into(),
-            loc_id: 924,
+            loc_id,
             bbs: 0,
-            respawn_points: vec![(5000, 6000, -30)],
+            respawn_points: vec![respawn],
             tiles: vec![(20, 18)], // the tile containing (0,0)
         }]);
+}
+
+/// [`with_town_at`] with the fixture town most tests want.
+fn with_town(world: &mut World) {
+    with_town_at(world, 924, (5000, 6000, -30));
 }
 /// Directly install a formed party (the invite flow has its own tests).
 fn make_party(world: &mut World, members: &[i32], rule: LootRule) -> u32 {
@@ -2203,12 +2468,83 @@ fn sound_names(pkts: &[Vec<u8>]) -> Vec<String> {
     pkts.iter().filter_map(|p| play_sound_name(p)).collect()
 }
 
-/// True if `pkt` is the `EX` packet carrying sub-opcode `sub`. A packet too
-/// short to carry one is not a match, rather than a panic.
+/// True if `pkt` is the `EX` packet carrying sub-opcode `sub` — the EX-family
+/// sibling of [`is_for`]. A packet too short to carry one is not a match,
+/// rather than a panic.
 fn is_ex(pkt: &[u8], sub: i16) -> bool {
     pkt.len() >= 3
         && pkt[0] == server_packets::opcodes::EX
         && i16::from_le_bytes([pkt[1], pkt[2]]) == sub
+}
+
+/// Whether a datapack file ships. Named so the dist-coverage assertions read
+/// as claims about the datapack rather than as filesystem calls; `path` is a
+/// full path, usually built from a test's `DIST` constant.
+fn ships(path: &str) -> bool {
+    std::path::Path::new(path).exists()
+}
+
+/// The html of an `ExNpcQuestHtmlMessage` — the quest window a `.htm` quest
+/// page ships as, where a `.html` one rides a plain `NpcHtmlMessage` (see
+/// [`decode_npc_html`]). `None` for any other packet.
+fn decode_quest_html(pkt: &[u8]) -> Option<String> {
+    if !is_ex(pkt, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE) {
+        return None;
+    }
+    let mut r = commons::network::PacketReader::new(&pkt[3..]);
+    r.read_i32()?;
+    r.read_string()
+}
+
+/// The html of whichever packet carried it — a `.html` page rides
+/// `NpcHtmlMessage`, a `.htm` one the quest window — so a test that only cares
+/// *what* was said can ask once instead of branching on the wrapper.
+///
+/// The `EX` branch reads the body of **any** extended packet as
+/// `(sub-opcode, npc oid, string)`, which is what the call sites this replaced
+/// did; [`decode_quest_html`] is the strict form that checks the sub-opcode.
+fn decode_any_html(pkt: &[u8]) -> Option<String> {
+    if pkt[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
+        return decode_npc_html(pkt);
+    }
+    if pkt[0] != server_packets::opcodes::EX {
+        return None;
+    }
+    let mut r = commons::network::PacketReader::new(&pkt[1..]);
+    r.read_i16()?; // ex sub-opcode
+    r.read_i32()?; // npc oid
+    r.read_string()
+}
+
+/// The first html of either kind waiting on `rx` — [`served_html`] that also
+/// takes the quest window.
+fn served_any_html(rx: &mut UnboundedReceiver<bytes::Bytes>) -> Option<String> {
+    drain(rx).iter().find_map(|p| decode_any_html(p))
+}
+
+/// [`served_any_html`], empty when none was sent.
+fn any_html(rx: &mut UnboundedReceiver<bytes::Bytes>) -> String {
+    served_any_html(rx).unwrap_or_default()
+}
+
+/// The first `NpcHtmlMessage` on `rx` read as text the crude way: the whole
+/// packet taken as UTF-8 with the zero bytes dropped, which leaves the UTF-16LE
+/// body readable behind a few junk characters from the header. Only good for
+/// `contains` checks — [`served_html`] is the proper decode.
+fn raw_html(rx: &mut UnboundedReceiver<bytes::Bytes>) -> Option<String> {
+    drain(rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .map(|p| String::from_utf8_lossy(&p).replace('\0', ""))
+}
+
+/// The first quest-window html waiting on `rx`, empty when none was sent —
+/// [`served_html`]'s counterpart for the quest window. Drains the queue.
+fn quest_html(rx: &mut UnboundedReceiver<bytes::Bytes>) -> String {
+    drain(rx)
+        .iter()
+        .find_map(|p| decode_quest_html(p))
+        .unwrap_or_default()
 }
 
 fn decode_npc_html(pkt: &[u8]) -> Option<String> {
@@ -2246,6 +2582,142 @@ fn insert_zone(
         condition: None,
         mother_tree: None,
     });
+}
+
+/// Write a flat stat modifier onto `object_id` — the `add` map
+/// `StatModifiers` keeps, as a landed buff would. A no-op when the object has
+/// no modifiers component, which in these fixtures means it was never spawned.
+fn set_add_modifier(world: &mut World, object_id: i32, stat: Stat, value: f64) {
+    if let Some(m) = world
+        .objects
+        .get_component_mut::<model::components::stats::StatModifiers>(&object_id)
+    {
+        m.add.insert(stat, value);
+    }
+}
+
+/// [`set_add_modifier`] for the multiplicative `mul` map.
+fn set_mul_modifier(world: &mut World, object_id: i32, stat: Stat, value: f64) {
+    if let Some(m) = world
+        .objects
+        .get_component_mut::<model::components::stats::StatModifiers>(&object_id)
+    {
+        m.mul.insert(stat, value);
+    }
+}
+
+/// Stack a multiplier onto whatever `stat` already carries in the `mul` map
+/// (identity 1.0) — what a second buff of the same kind does, rather than
+/// replacing the first like [`set_mul_modifier`].
+fn stack_mul_modifier(world: &mut World, object_id: i32, stat: Stat, factor: f64) {
+    if let Some(m) = world
+        .objects
+        .get_component_mut::<model::components::stats::StatModifiers>(&object_id)
+    {
+        *m.mul.entry(stat).or_insert(1.0) *= factor;
+    }
+}
+
+/// Set a spawned player's level in place, leaving everything else alone. The
+/// tolerant `if let` is the shape every call site already used: the player is
+/// always spawned first, so a miss would mean a broken fixture, not a case to
+/// handle.
+fn set_level(world: &mut World, object_id: i32, level: i32) {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.level = level;
+    }
+}
+
+/// A dist html page as the server would serve it: read from the datapack under
+/// [`crate::data::DIST_GAME`], run through the same strip `HtmCache.loadFile`
+/// applies, with `%objectId%` resolved to `object_id`. Comparing against the
+/// raw file would fail on the comments and whitespace the cache removes, and
+/// asserting "non-empty" would happily accept the *wrong* page.
+fn dist_page(relative: &str, object_id: i32) -> String {
+    let path = format!("{}{relative}", crate::data::DIST_GAME);
+    let raw = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("dist page {path}"));
+    crate::data::htm_cache::strip_htm(&raw).replace("%objectId%", &object_id.to_string())
+}
+
+/// Retune a spawned player's level and race in place, leaving the class as
+/// spawned — the setup every race-gated dialogue test needs.
+fn set_level_race(world: &mut World, object_id: i32, level: i32, race: i32) {
+    let p = world
+        .objects
+        .get_component_mut::<Player>(&object_id)
+        .unwrap();
+    p.level = level;
+    p.race = race;
+}
+
+/// Level and class, with `base_class_id` following `class_id` — every caller
+/// that sets one sets the other. Race is left as spawned.
+fn set_level_class(world: &mut World, object_id: i32, level: i32, class_id: i32) {
+    let p = world
+        .objects
+        .get_component_mut::<Player>(&object_id)
+        .unwrap();
+    p.level = level;
+    p.class_id = class_id;
+    p.base_class_id = class_id;
+}
+
+/// Level, race and class together — the class-quest / class-transfer setup.
+fn set_level_race_class(world: &mut World, object_id: i32, level: i32, race: i32, class_id: i32) {
+    set_level_race(world, object_id, level, race);
+    set_level_class(world, object_id, level, class_id);
+}
+
+/// A `clan_members` roster row: level 1, no title, main pledge, power grade 5
+/// (Java's "new member"). A test that cares about rank or level overrides it —
+/// `ClanMember { level: 40, ..clan_member(id, "Lordy") }`.
+fn clan_member(char_id: i32, name: &str) -> model::clan::ClanMember {
+    model::clan::ClanMember {
+        char_id,
+        name: name.into(),
+        level: 1,
+        class_id: 0,
+        sex: 0,
+        race: 0,
+        power_grade: 5,
+        title: String::new(),
+        pledge_type: 0,
+        apprentice: 0,
+        sponsor: 0,
+    }
+}
+
+/// The same row under the conventional `P<id>` test name.
+fn clan_member_p(char_id: i32) -> model::clan::ClanMember {
+    clan_member(char_id, &format!("P{char_id}"))
+}
+
+/// A clan leader's roster row — Java's power grade 1, and level 40 so the
+/// clan-level and siege gates every caller of this is testing are satisfied.
+fn clan_leader(char_id: i32) -> model::clan::ClanMember {
+    model::clan::ClanMember {
+        level: 40,
+        power_grade: 1,
+        ..clan_member_p(char_id)
+    }
+}
+
+/// A `castle` row as the DB hands one back for an unclaimed castle: no crest,
+/// no tickets placed, no siege hour booked, empty treasury. A test that cares
+/// about one of those overrides it — `Castle { side: …, ..castle_row(1, "X") }`.
+fn castle_row(id: i32, name: &str) -> model::castle::Castle {
+    model::castle::Castle {
+        id,
+        name: name.into(),
+        side: model::castle::CastleSide::Neutral,
+        show_npc_crest: false,
+        ticket_buy_count: 0,
+        first_mid_victory: false,
+        time_registration_over: true,
+        siege_time_registration_end: 0,
+        siege_date: 0,
+        treasury: 0,
+    }
 }
 
 /// A synthetic siege-zone cuboid tied to `castle_id`.
@@ -2504,11 +2976,56 @@ fn add_shot_item(
         });
 }
 
+/// `player`'s entry for `quest`, if they have one — the lookup the questions
+/// below all start from. `None` when they never started it: no `Quests`
+/// component, or no entry for the id.
+fn quest_of<'a>(
+    world: &'a World,
+    player: i32,
+    quest: &str,
+) -> Option<&'a model::quest::QuestState> {
+    world
+        .objects
+        .get_component::<model::components::social::Quests>(&player)
+        .and_then(|q| q.0.get(quest))
+}
+
+/// Whether `player` has `quest` marked completed.
+fn quest_completed(world: &World, player: i32, quest: &str) -> bool {
+    quest_of(world, player, quest).is_some_and(|qs| qs.is_completed())
+}
+
+/// Whether `player` has `quest` STARTED — Java `QuestState.isStarted`.
+fn quest_started(world: &World, player: i32, quest: &str) -> bool {
+    quest_of(world, player, quest).is_some_and(|qs| qs.is_started())
+}
+
+/// A quest variable read as an int — `QuestState::get_int`, so a missing quest,
+/// a missing var and an unparseable one all read 0.
+fn quest_var_int(world: &World, player: i32, quest: &str, var: &str) -> i32 {
+    quest_of(world, player, quest).map_or(0, |qs| qs.get_int(var))
+}
+
+/// The stored `state` byte of `player`'s `quest` (`model::quest::state::*`).
+fn quest_state(world: &World, player: i32, quest: &str) -> Option<u8> {
+    quest_of(world, player, quest).map(|qs| qs.state)
+}
+
 fn quest_cond(world: &World, player: i32, quest: &str) -> Option<i32> {
     world
         .objects
         .get_component::<model::components::social::Quests>(&player)
         .and_then(|q| q.0.get(quest).map(|qs| qs.cond()))
+}
+
+/// The enchant level of the item with `item_oid` in `owner`'s bag. `None` when
+/// they carry no such item — which is distinct from carrying it at +0.
+fn enchant_level(world: &World, owner: i32, item_oid: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<Inventory>(&owner)
+        .and_then(|inv| inv.by_object_id(item_oid))
+        .map(|it| it.enchant_level)
 }
 
 fn item_count(world: &World, player: i32, item_id: i32) -> i64 {
@@ -2597,14 +3114,7 @@ fn ingame_player_access(
     let mut chr = dummy_char(object_id, &format!("P{object_id}"));
     chr.access_level = access_level;
     let bundle = Player::from_char(&world.data, &chr);
-    let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = get_test_session(client_id, out_tx, bundle);
-    let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(world);
-    world
-        .clients
-        .insert(client_id, ClientSession::InGame(session));
-    out_rx
+    ingame_bundle(world, client_id, vec![], bundle)
 }
 
 /// `SendBypassBuildCmd` (0x74) body — the raw `//command` text (no `admin_`).
@@ -2770,5 +3280,44 @@ pub(crate) fn real_db_path() -> Option<std::path::PathBuf> {
 fn zero_random_damage(world: &mut World, oid: i32) {
     if let Some(cs) = world.objects.get_component_mut::<CombatStats>(&oid) {
         cs.random_dmg = 0;
+    }
+}
+
+/// Build a template with the two phase groups, both `spawnByDefault=false`.
+fn day_night_test_template(day_npc: i32, night_npc: i32) -> SpawnTemplate {
+    let line = |npc_id: i32| NpcSpawnDef {
+        npc_id,
+        count: 1,
+        loc: Some(crate::data::spawn_data::FixedLoc {
+            x: 100,
+            y: 100,
+            z: 0,
+            heading: 0,
+        }),
+        respawn_secs: 60,
+        respawn_random_secs: 0,
+        chase_range: 0,
+        db_save: false,
+    };
+    SpawnTemplate {
+        file: "test/day-night.xml".to_string(),
+        name: Some("test-day-night".to_string()),
+        ai: Some("DayNightSpawns".to_string()),
+        parameters: Default::default(),
+        territories: Vec::new(),
+        groups: vec![
+            SpawnGroup {
+                name: Some("dayTime".to_string()),
+                spawn_by_default: false,
+                territories: Vec::new(),
+                npcs: vec![line(day_npc)],
+            },
+            SpawnGroup {
+                name: Some("nightTime".to_string()),
+                spawn_by_default: false,
+                territories: Vec::new(),
+                npcs: vec![line(night_npc)],
+            },
+        ],
     }
 }

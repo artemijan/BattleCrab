@@ -64,13 +64,10 @@ fn quest_q00109_multi_cond_one_time() {
     );
     assert_eq!(item_count(&world, 3001, 57), adena + 161500);
     assert!(world.objects.get_component::<Player>(&3001).unwrap().exp > exp);
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
-    }
+    assert!(
+        quest_completed(&world, 3001, q),
+        "one-time quest stays COMPLETED"
+    );
 
     // Talking to Pierce again answers the already-completed page.
     drain(&mut rx);
@@ -333,10 +330,7 @@ fn quest_q00111_elrokian_hunters_proof() {
         ],
     );
     for id in [22196, 22200] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 75;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 75);
     }
     let marquez = NPC_OID;
     let mushika = NPC_OID + 1;
@@ -371,9 +365,7 @@ fn quest_q00111_elrokian_hunters_proof() {
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
     // Diary stage: 49 + one kill topping to 50 → cond 5.
     inject(&mut world, 3001, 0x0111_0000, 8768, 49);
-    add_test_npc(&mut world, NPC_OID + 10, 22196, "Monster", 75, 30, 0, 0);
-    world.force_roll(0); // give_item_randomly roll_f64 (0.0 < 0.51)
-    npc::npc_do_die(&mut world, NPC_OID + 10, 3001);
+    kill_mob(&mut world, NPC_OID + 10, 22196, 75, 0); // give_item_randomly roll_f64 (0.0 < 0.51)
     assert_eq!(item_count(&world, 3001, 8768), 50, "diary tops to 50");
     assert_eq!(quest_cond(&world, 3001, q), Some(5));
     // Marquez takes the diary (memo 4 → 5); then hands out the Expedition Letter.
@@ -401,9 +393,7 @@ fn quest_q00111_elrokian_hunters_proof() {
     inject(&mut world, 3001, 0x0111_1000, 8770, 9);
     inject(&mut world, 3001, 0x0111_2000, 8771, 10);
     inject(&mut world, 3001, 0x0111_3000, 8772, 10);
-    add_test_npc(&mut world, NPC_OID + 11, 22200, "Monster", 75, 30, 0, 0);
-    world.force_roll(0); // give_item_randomly roll_f64 (0.0 < 0.66)
-    npc::npc_do_die(&mut world, NPC_OID + 11, 3001);
+    kill_mob(&mut world, NPC_OID + 11, 22200, 75, 0); // give_item_randomly roll_f64 (0.0 < 0.66)
     assert_eq!(item_count(&world, 3001, 8770), 10, "claws top to 10");
     assert_eq!(quest_cond(&world, 3001, q), Some(11));
     // Asamah forges the Practice Elrokian Trap (memo 11 → 12, cond 12, takes trophies).
@@ -476,11 +466,7 @@ fn run_help_quest(p: HelpQuest) {
             (p.ticket, "Pet Ticket", false),
         ],
     );
-    let mut mt = crate::data::npc_data::default_template(p.mob);
-    mt.type_name = "Monster".into();
-    mt.level = 30;
-    mt.base_hp_max = 100.0;
-    world.data.npc_data.insert_for_test(mt);
+    register_npc_hp(&mut world, p.mob, "Monster", 30, 100.0);
 
     let start = NPC_OID;
     let second = NPC_OID + 1;
@@ -500,24 +486,10 @@ fn run_help_quest(p: HelpQuest) {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab_html = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> Option<String> {
-        drain(rx).iter().find_map(|pkt| {
-            if pkt[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
-                decode_npc_html(pkt)
-            } else if pkt[0] == server_packets::opcodes::EX {
-                let mut r = commons::network::PacketReader::new(&pkt[1..]);
-                r.read_i16()?;
-                r.read_i32()?;
-                r.read_string()
-            } else {
-                None
-            }
-        })
-    };
 
     // --- Level gate: the refusal page carries no accept button. ---
     talk(&mut world, start);
-    let refusal = grab_html(&mut rx).expect("under-level greeting");
+    let refusal = served_any_html(&mut rx).expect("under-level greeting");
     assert!(
         !refusal.contains(p.accept),
         "{q}: under-level page offers no start: {refusal}"
@@ -528,7 +500,7 @@ fn run_help_quest(p: HelpQuest) {
         .unwrap()
         .level = p.min_level;
     talk(&mut world, start);
-    let intro = grab_html(&mut rx).expect("intro");
+    let intro = served_any_html(&mut rx).expect("intro");
     assert!(
         intro.contains(p.accept),
         "{q}: at-level intro offers start: {intro}"
@@ -607,11 +579,7 @@ fn run_help_quest(p: HelpQuest) {
         1,
         "{q}: Pet Ticket awarded"
     );
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed(), "{q}: completed on reward");
+    assert!(quest_completed(&world, 3001, q), "{q}: completed on reward");
 }
 
 #[test]
@@ -745,24 +713,10 @@ fn quest_q00037_make_formal_wear() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab_html = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> Option<String> {
-        drain(rx).iter().find_map(|p| {
-            if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
-                decode_npc_html(p)
-            } else if p[0] == server_packets::opcodes::EX {
-                let mut r = commons::network::PacketReader::new(&p[1..]);
-                r.read_i16()?;
-                r.read_i32()?;
-                r.read_string()
-            } else {
-                None
-            }
-        })
-    };
 
     // Level gate: 59 is refused (no accept button to 30842-03).
     talk(&mut world, alexis);
-    let html = grab_html(&mut rx).expect("greeting");
+    let html = served_any_html(&mut rx).expect("greeting");
     assert!(!html.contains("30842-03.htm"), "under-60 refused: {html}");
     world
         .objects
@@ -817,12 +771,8 @@ fn quest_q00037_make_formal_wear() {
         1,
         "Formal Wear crafted"
     );
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
     assert!(
-        quests.0[q].is_completed(),
+        quest_completed(&world, 3001, q),
         "quest completes on the Formal Wear"
     );
 }
@@ -846,11 +796,7 @@ fn quest_q00036_make_a_sewing_kit() {
             (SEWING_KIT, "reward", false),
         ],
     );
-    let mut gt = crate::data::npc_data::default_template(IRON_GOLEM);
-    gt.type_name = "Monster".into();
-    gt.level = 60;
-    gt.base_hp_max = 100.0;
-    world.data.npc_data.insert_for_test(gt);
+    register_npc_hp(&mut world, IRON_GOLEM, "Monster", 60, 100.0);
     let ferris = NPC_OID;
     add_test_npc(&mut world, ferris, FERRIS, "Folk", 60, 100, 200, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
@@ -867,27 +813,10 @@ fn quest_q00036_make_a_sewing_kit() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> String {
-        drain(rx)
-            .iter()
-            .find_map(|p| {
-                if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
-                    decode_npc_html(p)
-                } else if p[0] == server_packets::opcodes::EX {
-                    let mut r = commons::network::PacketReader::new(&p[1..]);
-                    r.read_i16()?;
-                    r.read_i32()?;
-                    r.read_string()
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_default()
-    };
 
     // Prereq: without Make Formal Wear at cond 6, Ferris offers no accept button.
     talk(&mut world, ferris);
-    let html = grab(&mut rx2);
+    let html = any_html(&mut rx2);
     assert!(
         !html.contains("30847-03.htm"),
         "no accept offered without parent: {html}"
@@ -902,9 +831,7 @@ fn quest_q00036_make_a_sewing_kit() {
     let mut mob = NPC_OID + 20;
     for _ in 0..5 {
         mob += 1;
-        add_test_npc(&mut world, mob, IRON_GOLEM, "Monster", 60, 110, 200, 0);
-        world.force_roll(0); // roll(2)==0 → the peel succeeds
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob_at(&mut world, mob, IRON_GOLEM, 60, 110, 200, 0); // roll(2)==0 → the peel succeeds
     }
     assert_eq!(
         item_count(&world, 3001, REINFORCED_STEEL),
@@ -939,11 +866,7 @@ fn quest_q00036_make_a_sewing_kit() {
         0,
         "oriharukon consumed"
     );
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed());
+    assert!(quest_completed(&world, 3001, q));
 }
 
 #[test]
@@ -968,11 +891,7 @@ fn quest_q00035_find_glittering_jewelry() {
             (JEWEL_BOX, "reward", false),
         ],
     );
-    let mut at = crate::data::npc_data::default_template(ALLIGATOR);
-    at.type_name = "Monster".into();
-    at.level = 60;
-    at.base_hp_max = 100.0;
-    world.data.npc_data.insert_for_test(at);
+    register_npc_hp(&mut world, ALLIGATOR, "Monster", 60, 100.0);
     let ellie = NPC_OID;
     let felton = NPC_OID + 1;
     add_test_npc(&mut world, ellie, ELLIE, "Folk", 60, 100, 200, 0);
@@ -999,9 +918,7 @@ fn quest_q00035_find_glittering_jewelry() {
     let mut mob = NPC_OID + 20;
     for _ in 0..10 {
         mob += 1;
-        add_test_npc(&mut world, mob, ALLIGATOR, "Monster", 60, 110, 200, 0);
-        world.force_roll(0);
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob_at(&mut world, mob, ALLIGATOR, 60, 110, 200, 0);
     }
     assert_eq!(item_count(&world, 3001, ROUGH_JEWEL), 10, "10 rough jewels");
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
@@ -1015,11 +932,7 @@ fn quest_q00035_find_glittering_jewelry() {
     ev(&mut world, ellie, "30091-11.html");
     assert_eq!(item_count(&world, 3001, JEWEL_BOX), 1, "Jewel Box crafted");
     assert_eq!(item_count(&world, 3001, THONS), 0, "thons consumed");
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed());
+    assert!(quest_completed(&world, 3001, q));
 }
 
 #[test]
@@ -1045,11 +958,7 @@ fn quest_q00034_in_search_of_cloth() {
             (MYSTERIOUS_CLOTH, "reward", false),
         ],
     );
-    let mut st = crate::data::npc_data::default_template(TRISALIM_SPIDER);
-    st.type_name = "Monster".into();
-    st.level = 46;
-    st.base_hp_max = 100.0;
-    world.data.npc_data.insert_for_test(st);
+    register_npc_hp(&mut world, TRISALIM_SPIDER, "Monster", 46, 100.0);
     let radia = NPC_OID;
     let ralford = NPC_OID + 1;
     let varan = NPC_OID + 2;
@@ -1080,9 +989,7 @@ fn quest_q00034_in_search_of_cloth() {
     let mut mob = NPC_OID + 20;
     for _ in 0..10 {
         mob += 1;
-        add_test_npc(&mut world, mob, TRISALIM_SPIDER, "Monster", 46, 110, 200, 0);
-        world.force_roll(0);
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob_at(&mut world, mob, TRISALIM_SPIDER, 46, 110, 200, 0);
     }
     assert_eq!(item_count(&world, 3001, SPINNERET), 10, "10 spinnerets");
     assert_eq!(quest_cond(&world, 3001, q), Some(5));
@@ -1110,11 +1017,7 @@ fn quest_q00034_in_search_of_cloth() {
         0,
         "spidersilk consumed"
     );
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed());
+    assert!(quest_completed(&world, 3001, q));
 }
 
 #[test]
@@ -1190,11 +1093,7 @@ fn quest_q00033_make_a_pair_of_dress_shoes() {
     );
     assert_eq!(item_count(&world, 3001, LEATHER), 0, "leather consumed");
     assert_eq!(item_count(&world, 3001, ADENA), 0, "200k paid to Woodley");
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed());
+    assert!(quest_completed(&world, 3001, q));
 }
 
 // ---------------------------------------------------------------------------
@@ -1229,11 +1128,7 @@ fn quest_q00125_the_name_of_evil_1() {
         ],
     );
     for id in [ORNITHO, DEINO] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 78;
-        t.base_hp_max = 100.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 78, 100.0);
     }
     let mushika = NPC_OID;
     let karakawei = NPC_OID + 1;
@@ -1296,9 +1191,7 @@ fn quest_q00125_the_name_of_evil_1() {
     let mut mob = NPC_OID + 20;
     for id in [ORNITHO, ORNITHO, DEINO, DEINO] {
         mob += 1;
-        add_test_npc(&mut world, mob, id, "Monster", 78, 110, 200, 0);
-        world.force_roll(0); // roll(1000)==0 < chance → drop
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob_at(&mut world, mob, id, 78, 110, 200, 0); // roll(1000)==0 < chance → drop
     }
     assert_eq!(item_count(&world, 3001, CLAW), 2, "2 claws");
     assert_eq!(item_count(&world, 3001, BONE), 2, "2 bones");
@@ -1311,13 +1204,7 @@ fn quest_q00125_the_name_of_evil_1() {
     assert_eq!(quest_cond(&world, 3001, q), Some(5));
 
     // The puzzle sets the "Memo" quest var only on the full correct word.
-    let memo = |w: &World| -> i32 {
-        w.objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap()
-            .0[q]
-            .get_int("Memo")
-    };
+    let memo = |w: &World| quest_var_int(w, 3001, q, "Memo");
     // A wrong Ulu attempt (skip letters) does not solve it.
     ev(&mut world, ulu, "T_One");
     ev(&mut world, ulu, "U_One"); // T and U set, but not E/P → fail
@@ -1361,11 +1248,7 @@ fn quest_q00125_the_name_of_evil_1() {
 
     // Mushika completes the quest for the Epitaph.
     talk(&mut world, mushika);
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed(), "completed at Mushika");
+    assert!(quest_completed(&world, 3001, q), "completed at Mushika");
 }
 
 /// The Name of Evil - 2 (126): the level-77 conclusion — the singing Kaimu
@@ -1519,11 +1402,10 @@ fn quest_q00126_the_name_of_evil_2() {
         1,
         "A-grade Weapon Enchant"
     );
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed(), "The Name of Evil - 2 complete");
+    assert!(
+        quest_completed(&world, 3001, q),
+        "The Name of Evil - 2 complete"
+    );
 }
 
 /// An Obvious Lie (32): Maximilian → Gentler's map → Miki → farm 20 Medicinal
@@ -1550,11 +1432,7 @@ fn quest_q00032_an_obvious_lie() {
             .collect();
     items.push((CAT_EARS, "ears", false));
     add_quest_items(&mut world, &items);
-    let mut at = crate::data::npc_data::default_template(ALLIGATOR);
-    at.type_name = "Monster".into();
-    at.level = 46;
-    at.base_hp_max = 100.0;
-    world.data.npc_data.insert_for_test(at);
+    register_npc_hp(&mut world, ALLIGATOR, "Monster", 46, 100.0);
     let maximilian = NPC_OID;
     let gentler = NPC_OID + 1;
     let miki = NPC_OID + 2;
@@ -1595,9 +1473,7 @@ fn quest_q00032_an_obvious_lie() {
     let mut mob = NPC_OID + 20;
     for _ in 0..20 {
         mob += 1;
-        add_test_npc(&mut world, mob, ALLIGATOR, "Monster", 46, 110, 200, 0);
-        world.force_roll(0); // give_item_randomly → drop
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob_at(&mut world, mob, ALLIGATOR, 46, 110, 200, 0); // give_item_randomly → drop
     }
     assert_eq!(item_count(&world, 3001, MEDICINAL_HERB), 20, "20 herbs");
     assert_eq!(cond(&world), Some(4), "20th herb → cond 4");
@@ -1638,9 +1514,5 @@ fn quest_q00032_an_obvious_lie() {
     ev(&mut world, gentler, "cat");
     assert_eq!(item_count(&world, 3001, CAT_EARS), 1, "Cat Ears crafted");
     assert_eq!(item_count(&world, 3001, THREAD), 0, "thread consumed");
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed(), "one-time quest completes");
+    assert!(quest_completed(&world, 3001, q), "one-time quest completes");
 }

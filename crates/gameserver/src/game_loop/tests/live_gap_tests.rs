@@ -587,19 +587,7 @@ fn a_clan_message_effect_reaches_every_online_member() {
     // on it — being in-world with a matching `clan_id` is not enough.
     clan.members = [CASTER, CASTER + 1]
         .iter()
-        .map(|&oid| model::clan::ClanMember {
-            char_id: oid,
-            name: format!("P{oid}"),
-            level: 1,
-            class_id: 0,
-            sex: 0,
-            race: 0,
-            power_grade: 5,
-            title: String::new(),
-            pledge_type: 0,
-            apprentice: 0,
-            sponsor: 0,
-        })
+        .map(|&oid| clan_member_p(oid))
         .collect();
     world.clans.insert(90, clan);
     for oid in [CASTER, CASTER + 1] {
@@ -655,12 +643,7 @@ fn the_vitality_consume_rate_scales_only_the_loss() {
     assert_eq!(vit(&world), 9_000);
 
     // -50 %: half of it.
-    world
-        .objects
-        .get_component_mut::<crate::model::components::stats::StatModifiers>(&CASTER)
-        .expect("mods")
-        .mul
-        .insert(Stat::VitalityConsumeRate, 0.5);
+    set_mul_modifier(&mut world, CASTER, Stat::VitalityConsumeRate, 0.5);
     set(&mut world, 10_000);
     crate::game_loop::character::vitality::update_vitality_points(
         &mut world, CASTER, -1000, true, true,
@@ -675,12 +658,7 @@ fn the_vitality_consume_rate_scales_only_the_loss() {
     assert_eq!(vit(&world), 11_000, "the rate is loss-only");
 
     // A rate of 0 bails out before anything is spent.
-    world
-        .objects
-        .get_component_mut::<crate::model::components::stats::StatModifiers>(&CASTER)
-        .expect("mods")
-        .mul
-        .insert(Stat::VitalityConsumeRate, 0.0);
+    set_mul_modifier(&mut world, CASTER, Stat::VitalityConsumeRate, 0.0);
     set(&mut world, 10_000);
     crate::game_loop::character::vitality::update_vitality_points(
         &mut world, CASTER, -1000, true, true,

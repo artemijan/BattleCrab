@@ -277,14 +277,7 @@ fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
     chr.base_class_id = 10;
     chr.skills = vec![(1418, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
-    let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![])
-        .into_entering(bundle);
-    let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(&mut world);
-    world.clients.insert(1, ClientSession::InGame(session));
+    let mut rx = ingame_bundle(&mut world, 1, vec![], bundle);
     world
         .objects
         .get_component_mut::<Vitals>(&5801)

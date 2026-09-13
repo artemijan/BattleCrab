@@ -19,18 +19,10 @@ const ILLEGAL_SKILL: i32 = 999_001;
 fn world_with_one_class_skill(check: SkillCheckSettings) -> World {
     let (mut world, ..) = test_world();
     world.data.skill_check = check;
-    world.data.skill_trees.insert_for_test(
-        0,
-        crate::data::skill_tree::SkillLearn {
-            skill_id: 3,
-            skill_level: 1,
-            name: "Power Strike".into(),
-            get_level: 1,
-            level_up_sp: 0,
-            auto_get: false,
-            required_items: Vec::new(),
-        },
-    );
+    world
+        .data
+        .skill_trees
+        .insert_for_test(0, skill_learn(3, 1, "Power Strike", 1, 0));
     world
 }
 

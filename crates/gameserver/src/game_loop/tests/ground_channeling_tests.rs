@@ -19,7 +19,6 @@ const CID: u32 = 1;
 /// channel — real geometry, test-sized clock.
 fn volcano_like(id: i32) -> Skill {
     Skill {
-        self_continuous: false,
         id,
         name: format!("Test Volcano {id}"),
         operate_type: OperateType::Channeling,
@@ -360,7 +359,6 @@ fn channeling_cast_time_is_static() {
 
     let channel = volcano_like(9206);
     let active = Skill {
-        self_continuous: false,
         operate_type: OperateType::Active,
         ..volcano_like(9207)
     };
@@ -388,12 +386,7 @@ fn channeling_cast_time_is_static() {
 
     // Double the casting speed (the time factor reads
     // `StatModifiers.mul[MagicAttackSpeed]`).
-    world
-        .objects
-        .get_component_mut::<model::components::stats::StatModifiers>(&CASTER)
-        .unwrap()
-        .mul
-        .insert(Stat::MagicAttackSpeed, 2.0);
+    set_mul_modifier(&mut world, CASTER, Stat::MagicAttackSpeed, 2.0);
     let (channel_fast, _, _) = hit_of(&world, &channel);
     let (active_fast, _, _) = hit_of(&world, &active);
 
@@ -459,7 +452,6 @@ const ALLY2: i32 = 2003;
 
 fn channeled_skill(level: i32) -> Skill {
     Skill {
-        self_continuous: false,
         id: CHANNELED,
         level,
         name: format!("Battle Force {level}"),
@@ -488,7 +480,6 @@ fn channeled_skill(level: i32) -> Skill {
 
 fn stance_skill() -> Skill {
     Skill {
-        self_continuous: false,
         id: STANCE,
         level: 1,
         name: "Battle Stance".into(),

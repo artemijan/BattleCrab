@@ -225,10 +225,7 @@ fn quest_q00261_collectors_dream_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(&mut world, &[(1087, "Spider Leg", true)]);
     for id in [20308, 20460, 20466] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 18;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 18);
     }
     add_test_npc(&mut world, NPC_OID, 30222, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -257,9 +254,7 @@ fn quest_q00261_collectors_dream_loop() {
     let mob = NPC_OID + 1;
     for i in 0..8 {
         let species = [20308, 20460, 20466][(i % 3) as usize];
-        add_test_npc(&mut world, mob + i, species, "Monster", 18, 30, 0, 0);
-        world.force_roll(0);
-        npc::npc_do_die(&mut world, mob + i, 3001);
+        kill_mob(&mut world, mob + i, species, 18, 0);
     }
     assert_eq!(item_count(&world, 3001, 1087), 8, "eight legs collected");
     assert_eq!(
@@ -329,9 +324,7 @@ fn quest_q00261_collectors_dream_loop() {
     // — this is the part worth pinning — sends no banner either.
     for i in 8..16 {
         let species = [20308, 20460, 20466][(i % 3) as usize];
-        add_test_npc(&mut world, mob + i, species, "Monster", 18, 30, 0, 0);
-        world.force_roll(0);
-        npc::npc_do_die(&mut world, mob + i, 3001);
+        kill_mob(&mut world, mob + i, species, 18, 0);
     }
     handle_request_bypass_to_server(
         &mut world,
@@ -371,10 +364,7 @@ fn quest_q00257_the_guard_is_busy_loop() {
         ],
     );
     for id in [20006, 20093, 20130, 20343] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 10;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 10);
     }
     add_test_npc(&mut world, NPC_OID, 30039, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -406,9 +396,7 @@ fn quest_q00257_the_guard_is_busy_loop() {
 
     let mob = NPC_OID + 1;
     // Orc Archer 20006: first table entry (roll(10) < 2) wins → 2 amulets, one roll.
-    add_test_npc(&mut world, mob, 20006, "Monster", 10, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, mob, 3001);
+    kill_mob(&mut world, mob, 20006, 10, 0);
     assert_eq!(
         item_count(&world, 3001, 752),
         2,
@@ -416,12 +404,8 @@ fn quest_q00257_the_guard_is_busy_loop() {
     );
 
     // Orc Fighter 20093 → 1 necklace; Werewolf Hunter 20343 → 1 fang.
-    add_test_npc(&mut world, mob + 1, 20093, "Monster", 10, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, mob + 1, 3001);
-    add_test_npc(&mut world, mob + 2, 20343, "Monster", 10, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, mob + 2, 3001);
+    kill_mob(&mut world, mob + 1, 20093, 10, 0);
+    kill_mob(&mut world, mob + 2, 20343, 10, 0);
     assert_eq!(item_count(&world, 3001, 1085), 1, "one necklace");
     assert_eq!(item_count(&world, 3001, 1086), 1, "one fang");
     drain(&mut rx);
@@ -470,10 +454,7 @@ fn quest_q00259_edmond_adena_path() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(&mut world, &[(1495, "Spider Skin", true)]);
     for id in [20103, 20106, 20108] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 18;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 18);
     }
     add_test_npc(&mut world, NPC_OID, 30497, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -551,10 +532,7 @@ fn quest_q00259_marius_consumables_path() {
             (1061, "Greater Healing Potion", false),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20103);
-    t.type_name = "Monster".into();
-    t.level = 18;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20103, "Monster", 18);
     let edmond = NPC_OID;
     let marius = NPC_OID + 1;
     add_test_npc(&mut world, edmond, 30497, "Folk", 5, 100, 0, 0);
@@ -612,10 +590,7 @@ fn quest_q00262_ivory_tower_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(&mut world, &[(707, "Spore Sac", true)]);
     for id in [20007, 20400] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 12;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 12);
     }
     add_test_npc(&mut world, NPC_OID, 30137, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -642,9 +617,7 @@ fn quest_q00262_ivory_tower_loop() {
 
     let mut mob = NPC_OID + 1;
     let mut kill = |world: &mut World, species: i32, roll: i32| {
-        add_test_npc(world, mob, species, "Monster", 12, 30, 0, 0);
-        world.force_roll(roll);
-        npc::npc_do_die(world, mob, 3001);
+        kill_mob(world, mob, species, 12, roll);
         mob += 1;
     };
     kill(&mut world, 20007, 2); // Green base 3: 2 < 3 → drop

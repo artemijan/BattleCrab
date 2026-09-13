@@ -180,23 +180,12 @@ fn admin_grandboss_status_panel_and_actions() {
 /// siege actions report unavailable. Port of AdminCastle.
 #[test]
 fn admin_castlemanage_ownership_and_side() {
-    use model::castle::{Castle, CastleSide};
+    use model::castle::CastleSide;
     use model::clan::{Clan, ClanMember};
     const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
-    world.castles = vec![Castle {
-        show_npc_crest: false,
-        id: 3,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
+    world.castles = vec![castle_row(3, "Giran")];
     world.clans.insert(
         500,
         Clan {
@@ -207,17 +196,8 @@ fn admin_castlemanage_ownership_and_side() {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember {
-                char_id: 8002,
-                name: "P8002".into(),
                 level: 40,
-                class_id: 0,
-                sex: 0,
-                race: 0,
-                power_grade: 5,
-                title: String::new(),
-                pledge_type: 0,
-                apprentice: 0,
-                sponsor: 0,
+                ..clan_member_p(8002)
             }],
             skills: Default::default(),
             warehouse: Default::default(),
@@ -358,24 +338,12 @@ fn admin_castlemanage_ownership_and_side() {
 /// AdminCastle's siege branch over the model/siege slice.
 #[test]
 fn admin_castlemanage_siege_registration_and_state() {
-    use model::castle::{Castle, CastleSide};
     use model::clan::{Clan, ClanMember};
     use model::siege::Siege;
     const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, _db_tx, mut db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
-    world.castles = vec![Castle {
-        show_npc_crest: false,
-        id: 3,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
+    world.castles = vec![castle_row(3, "Giran")];
     world.sieges.insert(3, Siege::new(3));
     world.clans.insert(
         700,
@@ -387,17 +355,8 @@ fn admin_castlemanage_siege_registration_and_state() {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember {
-                char_id: 8102,
-                name: "P8102".into(),
                 level: 40,
-                class_id: 0,
-                sex: 0,
-                race: 0,
-                power_grade: 5,
-                title: String::new(),
-                pledge_type: 0,
-                apprentice: 0,
-                sponsor: 0,
+                ..clan_member_p(8102)
             }],
             skills: Default::default(),
             warehouse: Default::default(),

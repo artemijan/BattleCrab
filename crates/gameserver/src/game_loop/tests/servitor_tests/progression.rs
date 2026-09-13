@@ -200,13 +200,7 @@ fn levelling_stamps_the_pets_level_onto_its_collar() {
     summon_pet(&mut world, OWNER).unwrap();
 
     add_pet_exp(&mut world, OWNER, 6_000.0, 0.0);
-    let enchant = world
-        .objects
-        .get_component::<Inventory>(&OWNER)
-        .unwrap()
-        .by_object_id(collar)
-        .unwrap()
-        .enchant_level;
+    let enchant = enchant_level(&world, OWNER, collar).unwrap();
     assert_eq!(enchant, 2, "the collar reads +2 once the pet hits level 2");
 }
 
@@ -506,21 +500,7 @@ fn an_expired_servitor_buff_is_not_saved() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, 1111, 1200, 0, 0).unwrap();
-    let buff = Skill {
-        self_continuous: false,
-        id: 1144,
-        level: 1,
-        abnormal_time: 10,
-        effects: vec![SkillEffect::StatModifier(
-            model::skill::effects::StatModifierEffect {
-                stat: Stat::RunSpeed,
-                mode: model::stats::StatModifierType::Diff,
-                amount: 50.0,
-                ..Default::default()
-            },
-        )],
-        ..Default::default()
-    };
+    let buff = servitor_wind_walk(10);
     effects::apply_continuous_effects(&mut world, OWNER, servitor, &buff, None);
 
     world.tick += 20 * 10; // past its 10 s
@@ -798,7 +778,6 @@ fn servitor_empowerment_roots_the_servitor_until_it_expires() {
     assert!(!immobile(&world), "free to move before the buff");
 
     let empower = Skill {
-        self_continuous: false,
         id: 9422,
         level: 1,
         target_type: TargetType::Summon,

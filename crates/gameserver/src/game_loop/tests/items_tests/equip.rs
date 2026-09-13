@@ -174,7 +174,7 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
         let pkt = packets
             .iter()
             .rev()
-            .find(|p| p.len() > 2 && p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0x156)
+            .find(|p| is_ex(p, 0x156))
             .expect("ExUserInfoEquipSlot not sent");
         let mut offset = 14usize;
         let (mut rear, mut lear) = ((0, 0), (0, 0));
@@ -313,7 +313,7 @@ fn destroying_an_equipped_quest_item_repaints_the_paperdoll() {
         let pkt = packets
             .iter()
             .rev()
-            .find(|p| p.len() > 2 && p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0x156)
+            .find(|p| is_ex(p, 0x156))
             .expect("ExUserInfoEquipSlot not sent");
         let mut offset = 14usize;
         for slot in InventorySlot::VALUES {
@@ -803,21 +803,8 @@ fn the_user_info_stats_block_reports_weapon_attack_range() {
 
     let unarmed = packet(&world);
 
-    let weapon = crate::db::ItemRow {
-        object_id: 8_300_001,
-        item_id: 1, // a Short Sword; any right-hand item takes the branch
-        count: 1,
-        enchant_level: 0,
-        loc: "PAPERDOLL".into(),
-        loc_data: model::inventory::PaperdollSlot::RHand as i32,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    };
+    // item 1 is a Short Sword; any right-hand item takes the branch.
+    let weapon = item_row(8_300_001, 1, 1, model::inventory::PaperdollSlot::RHand);
     world
         .objects
         .add_components(&8300, Inventory::from_rows(&[weapon]));

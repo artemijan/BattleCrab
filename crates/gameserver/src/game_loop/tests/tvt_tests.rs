@@ -13,12 +13,7 @@ use crate::scheduler::ScheduledTask;
 
 /// Register the manager NPC template (70010) so `event_start`'s spawn resolves.
 fn register_manager_template(world: &mut World) {
-    let mut t = crate::data::npc_data::default_template(tvt::MANAGER);
-    t.type_name = "Npc".into();
-    t.level = 70;
-    t.base_hp_max = 100.0;
-    t.base_mp_max = 50.0;
-    world.data.npc_data.insert_for_test(t);
+    register_npc_vitals(world, tvt::MANAGER, "Npc", 70, 100.0, 50.0);
 }
 
 /// A minimal coliseum template (3049) so `teleport_to_arena` can create the
@@ -44,9 +39,7 @@ fn register_coliseum_template(world: &mut World) {
 /// An in-game player at `oid` with a participation-eligible level.
 fn eligible_player(world: &mut World, client_id: u32, oid: i32) {
     ingame_player(world, client_id, oid, 83425, 148585, -3406);
-    if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
-        p.level = 80;
-    }
+    set_level(world, oid, 80);
 }
 
 /// The templates a full run needs, an open event, and `n` registered players.
@@ -929,12 +922,7 @@ fn end_fight_freezes_players_and_servitors_and_teleport_out_thaws_them() {
 
     // Give one participant a servitor to carry through the freeze.
     const PANTHER: i32 = 14799;
-    let mut tmpl = crate::data::npc_data::default_template(PANTHER);
-    tmpl.type_name = "Servitor".into();
-    tmpl.level = 20;
-    tmpl.base_hp_max = 400.0;
-    tmpl.base_mp_max = 200.0;
-    world.data.npc_data.insert_for_test(tmpl);
+    register_npc_vitals(&mut world, PANTHER, "Servitor", 20, 400.0, 200.0);
     let owner = oids[0];
     let pet =
         crate::game_loop::servitor::summon_servitor(&mut world, owner, PANTHER, 283, 1200, 0, 0)

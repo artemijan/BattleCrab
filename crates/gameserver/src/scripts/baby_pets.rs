@@ -79,11 +79,7 @@ pub(crate) fn handle_heal_tick(world: &mut World, pet_oid: i32) {
     let Some(link) = world.objects.get_component::<PetOf>(&pet_oid).copied() else {
         return; // pet gone — the chain ends here
     };
-    let Some(owner_oid) = world
-        .objects
-        .get_component::<crate::model::components::summons::ServitorOf>(&pet_oid)
-        .map(|s| s.owner_object_id)
-    else {
+    let Some(owner_oid) = crate::game_loop::servitor::owner_of(world, pet_oid) else {
         return;
     };
     if crate::game_loop::servitor::pet_of(world, owner_oid) != Some(pet_oid) {

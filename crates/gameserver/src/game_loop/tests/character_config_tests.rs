@@ -877,9 +877,7 @@ fn character_create_refuses_a_forbidden_name() {
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = Session::new(9, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("acct".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![]);
+    let s = lobby_session(9, out_tx, "acct", vec![]);
     world.clients.insert(9, ClientSession::InLobby(s));
     world.cfg.character.forbidden_names = vec!["annou".to_string()];
 

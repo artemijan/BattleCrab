@@ -27,13 +27,7 @@ fn make_noble(
         .categories
         .insert_for_test("THIRD_CLASS_GROUP", &[2]);
     let rx = ingame_player(world, client_id, object_id, 0, 0, 0);
-    let p = world
-        .objects
-        .get_component_mut::<Player>(&object_id)
-        .unwrap();
-    p.class_id = 2;
-    p.base_class_id = 2;
-    p.level = 55;
+    set_level_class(world, object_id, 55, 2);
     rx
 }
 
@@ -207,12 +201,7 @@ fn oly_manager_dialog_registers_via_bypass() {
         .insert_for_test("THIRD_CLASS_GROUP", &[2]);
     open_games(&mut world);
     let mut rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&100).unwrap();
-        p.class_id = 2;
-        p.base_class_id = 2;
-        p.level = 55;
-    }
+    set_level_class(&mut world, 100, 55, 2);
 
     // The join page substitutes the round / week / participant placeholders.
     handle_request_bypass_to_server(
@@ -1083,12 +1072,7 @@ fn monument_world() -> (
         .categories
         .insert_for_test("THIRD_CLASS_GROUP", &[2]);
     let rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&100).unwrap();
-        p.class_id = 2;
-        p.base_class_id = 2;
-        p.level = 55;
-    }
+    set_level_class(&mut world, 100, 55, 2);
     (world, db_rx, link, rx)
 }
 
@@ -1287,7 +1271,7 @@ fn monument_hero_list_sends_ex_hero_list() {
 
     let pkt = drain(&mut rx)
         .into_iter()
-        .find(|p| p.first() == Some(&0xFE) && p.get(1) == Some(&0x7A))
+        .find(|p| is_ex(p, 0x7A))
         .expect("ExHeroList (0xFE 0x7A) was sent");
     // Layout: opcode(1) + subop(2) → the hero count at offset 3.
     let count = i32::from_le_bytes(pkt[3..7].try_into().unwrap());
@@ -1414,17 +1398,10 @@ fn hero_clan(world: &mut World, member: i32, level: i32) -> i32 {
             reputation_score: 0,
             castle_id: 0,
             members: vec![model::clan::ClanMember {
-                char_id: member,
-                name: format!("P{member}"),
                 level: 80,
                 class_id: 88,
-                sex: 0,
-                race: 0,
                 power_grade: 1,
-                title: String::new(),
-                pledge_type: 0,
-                apprentice: 0,
-                sponsor: 0,
+                ..clan_member_p(member)
             }],
             skills: Default::default(),
             warehouse: Default::default(),

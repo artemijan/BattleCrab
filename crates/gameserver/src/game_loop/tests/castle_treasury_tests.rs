@@ -22,16 +22,8 @@ const ADEN: i32 = 5;
 
 fn castle(id: i32, name: &str, side: CastleSide) -> Castle {
     Castle {
-        show_npc_crest: false,
-        id,
-        name: name.into(),
         side,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
+        ..castle_row(id, name)
     }
 }
 

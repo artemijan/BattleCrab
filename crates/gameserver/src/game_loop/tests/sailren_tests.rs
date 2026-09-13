@@ -20,11 +20,7 @@ const KILLER: i32 = 500;
 fn sailren_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for id in [SAILREN, VELOCIRAPTOR, PTEROSAUR, TREX, CUBIC] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 80;
-        t.base_hp_max = 10_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 80, 10_000.0);
     }
     (world, db, l)
 }

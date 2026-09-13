@@ -120,9 +120,7 @@ fn grids_always_on_activates_every_npc_region() {
 fn alt_dev_no_spawns_places_nothing() {
     let spawn_world = || {
         let (mut world, ..) = test_world();
-        let mut t = crate::data::npc_data::default_template(20001);
-        t.type_name = "Monster".into();
-        world.data.npc_data.insert_for_test(t);
+        register_npc_kind(&mut world, 20001, "Monster");
         world
             .data
             .spawn_data

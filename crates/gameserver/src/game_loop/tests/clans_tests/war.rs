@@ -125,16 +125,12 @@ fn clan_war_kills_drive_state_and_reputation() {
     let mut b_rx = ingame_player(&mut world, 2, 3003, 0, 0, 0); // attacked clan member
     install_clan(&mut world, 5000, &[3001]);
     install_clan(&mut world, 5001, &[3003]);
-    world.clan_wars.push(model::clan::ClanWar {
-        attacker_id: 5000,
-        attacked_id: 5001,
-        state: model::clan::ClanWarState::BloodDeclaration,
-        winner_id: 0,
-        start_time: 1,
-        end_time: 0,
-        attacker_kills: 0,
-        attacked_kills: 0,
-    });
+    world.clan_wars.push(model::clan::ClanWar::new(
+        5000,
+        5001,
+        model::clan::ClanWarState::BloodDeclaration,
+        1,
+    ));
     drain_db(&mut db_rx);
 
     // Four kills of the declaring side: progress messages only.
@@ -203,16 +199,7 @@ fn clan_war_stop_surrender_timeout() {
     let mut b_rx = ingame_player(&mut world, 2, 3003, 0, 0, 0);
     install_clan(&mut world, 5000, &[3001]);
     install_clan(&mut world, 5001, &[3003]);
-    let mutual_war = || model::clan::ClanWar {
-        attacker_id: 5000,
-        attacked_id: 5001,
-        state: model::clan::ClanWarState::Mutual,
-        winner_id: 0,
-        start_time: 1,
-        end_time: 0,
-        attacker_kills: 0,
-        attacked_kills: 0,
-    };
+    let mutual_war = || model::clan::ClanWar::new(5000, 5001, model::clan::ClanWarState::Mutual, 1);
     world.clan_wars.push(mutual_war());
     drain_db(&mut db_rx);
 

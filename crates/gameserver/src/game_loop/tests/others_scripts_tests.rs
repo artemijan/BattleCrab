@@ -128,9 +128,7 @@ fn multisell_bypass_refuses_a_foreign_npc() {
 
 fn register_mammon_templates(world: &mut World) {
     for npc_id in [MERCHANT_OF_MAMMON, BLACKSMITH_OF_MAMMON, PRIEST_OF_MAMMON] {
-        let mut t = crate::data::npc_data::default_template(npc_id);
-        t.type_name = "Merchant".into();
-        world.data.npc_data.insert_for_test(t);
+        register_npc_kind(world, npc_id, "Merchant");
     }
 }
 
@@ -688,39 +686,11 @@ fn castle_teleporter_serves_defenders_during_a_siege() {
     );
 }
 
-fn castle_row(id: i32, name: &str) -> model::castle::Castle {
-    model::castle::Castle {
-        show_npc_crest: false,
-        id,
-        name: name.into(),
-        side: Default::default(),
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }
-}
-
 // ---------------------------------------------------------------------------
 // Slice 3 — the small combat behaviours
 // ---------------------------------------------------------------------------
 
 use crate::game_loop::quests;
-
-/// Count the NPCs of a given template id in the world.
-fn npc_count(world: &mut World, npc_id: i32) -> usize {
-    let mut n = 0;
-    world
-        .objects
-        .for_each_mut::<(&model::npc::Npc, &Position)>(|(npc, _)| {
-            if npc.npc_id == npc_id {
-                n += 1;
-            }
-        });
-    n
-}
 
 /// An Ol Mahum Transcender sheds into its next stage on the chance roll, and
 /// the new form is already hating whoever was hitting the old one.
@@ -730,9 +700,7 @@ fn a_wounded_mob_polymorphs_into_its_next_form() {
     const TRANSCENDER_2: i32 = 21262;
     let (mut world, _db, _l) = combat_test_world();
     {
-        let mut t = crate::data::npc_data::default_template(TRANSCENDER_2);
-        t.type_name = "Monster".into();
-        world.data.npc_data.insert_for_test(t);
+        register_npc_kind(&mut world, TRANSCENDER_2, "Monster");
     }
     add_test_npc(&mut world, NPC_OID, TRANSCENDER_1, "Monster", 40, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 8830, 60, 0, 0);
@@ -795,9 +763,7 @@ fn killing_an_angel_raises_its_twin() {
     const TWIN: i32 = 20859;
     let (mut world, _db, _l) = combat_test_world();
     {
-        let mut t = crate::data::npc_data::default_template(TWIN);
-        t.type_name = "Monster".into();
-        world.data.npc_data.insert_for_test(t);
+        register_npc_kind(&mut world, TWIN, "Monster");
     }
     add_test_npc(&mut world, NPC_OID, ANGEL, "Monster", 40, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 8832, 60, 0, 0);
@@ -829,9 +795,7 @@ fn timak_leader_calls_privates_one_at_a_time() {
         }
         world.data.npc_data.insert_for_test(t);
         for npc_id in [PRIVATE_A, PRIVATE_B] {
-            let mut m = crate::data::npc_data::default_template(npc_id);
-            m.type_name = "Monster".into();
-            world.data.npc_data.insert_for_test(m);
+            register_npc_kind(&mut world, npc_id, "Monster");
         }
     }
     add_test_npc(&mut world, NPC_OID, LEADER, "Monster", 40, 100, 0, 0);
@@ -898,9 +862,7 @@ fn a_felled_fairy_tree_releases_its_guardians() {
     const SOUL_GUARDIAN: i32 = 27189;
     let (mut world, _db, _l) = combat_test_world();
     {
-        let mut t = crate::data::npc_data::default_template(SOUL_GUARDIAN);
-        t.type_name = "Monster".into();
-        world.data.npc_data.insert_for_test(t);
+        register_npc_kind(&mut world, SOUL_GUARDIAN, "Monster");
     }
     add_test_npc(&mut world, NPC_OID, FAIRY_TREE, "Monster", 40, 0, 0, 0);
     let _rx = ingame_player(&mut world, 1, 8835, 100, 0, 0);
@@ -919,9 +881,7 @@ fn a_fairy_tree_felled_from_afar_stays_quiet() {
     const SOUL_GUARDIAN: i32 = 27189;
     let (mut world, _db, _l) = combat_test_world();
     {
-        let mut t = crate::data::npc_data::default_template(SOUL_GUARDIAN);
-        t.type_name = "Monster".into();
-        world.data.npc_data.insert_for_test(t);
+        register_npc_kind(&mut world, SOUL_GUARDIAN, "Monster");
     }
     add_test_npc(&mut world, NPC_OID, FAIRY_TREE, "Monster", 40, 0, 0, 0);
     let _rx = ingame_player(&mut world, 1, 8836, 2000, 0, 0);
@@ -941,9 +901,7 @@ fn a_fairy_tree_is_immobile() {
     const FAIRY_TREE: i32 = 27187;
     let (mut world, _db, _l) = combat_test_world();
     {
-        let mut t = crate::data::npc_data::default_template(FAIRY_TREE);
-        t.type_name = "Monster".into();
-        world.data.npc_data.insert_for_test(t);
+        register_npc_kind(&mut world, FAIRY_TREE, "Monster");
     }
     let oid = game_loop::npc::spawn_npc_at(&mut world, FAIRY_TREE, 0, 0, 0, 0).expect("spawned");
     assert!(
@@ -959,9 +917,7 @@ fn the_siege_headquarters_ignores_a_lethal_blow() {
     const HEADQUARTERS: i32 = 35062;
     let (mut world, _db, _l) = combat_test_world();
     {
-        let mut t = crate::data::npc_data::default_template(HEADQUARTERS);
-        t.type_name = "Npc".into();
-        world.data.npc_data.insert_for_test(t);
+        register_npc_kind(&mut world, HEADQUARTERS, "Npc");
     }
     let oid = game_loop::npc::spawn_npc_at(&mut world, HEADQUARTERS, 0, 0, 0, 0).expect("spawned");
     assert!(
@@ -976,7 +932,6 @@ fn the_siege_headquarters_ignores_a_lethal_blow() {
 // Slice 4 — day/night spawn groups + NoRandomActivity
 // ---------------------------------------------------------------------------
 
-use crate::data::spawn_data::{NpcSpawnDef, SpawnGroup, SpawnTemplate};
 use crate::game_loop;
 use crate::game_loop::npc::spawn_scripts;
 
@@ -1021,49 +976,8 @@ fn the_dist_ships_day_night_templates_and_non_default_groups() {
     );
 }
 
-/// Build a template with the two phase groups, both `spawnByDefault=false`.
-fn day_night_test_template(day_npc: i32, night_npc: i32) -> SpawnTemplate {
-    let line = |npc_id: i32| NpcSpawnDef {
-        npc_id,
-        count: 1,
-        loc: Some(crate::data::spawn_data::FixedLoc {
-            x: 100,
-            y: 100,
-            z: 0,
-            heading: 0,
-        }),
-        respawn_secs: 60,
-        respawn_random_secs: 0,
-        chase_range: 0,
-        db_save: false,
-    };
-    SpawnTemplate {
-        file: "test/day-night.xml".to_string(),
-        name: Some("test-day-night".to_string()),
-        ai: Some("DayNightSpawns".to_string()),
-        parameters: Default::default(),
-        territories: Vec::new(),
-        groups: vec![
-            SpawnGroup {
-                name: Some("dayTime".to_string()),
-                spawn_by_default: false,
-                territories: Vec::new(),
-                npcs: vec![line(day_npc)],
-            },
-            SpawnGroup {
-                name: Some("nightTime".to_string()),
-                spawn_by_default: false,
-                territories: Vec::new(),
-                npcs: vec![line(night_npc)],
-            },
-        ],
-    }
-}
-
 fn register_monster(world: &mut World, npc_id: i32) {
-    let mut t = crate::data::npc_data::default_template(npc_id);
-    t.type_name = "Monster".into();
-    world.data.npc_data.insert_for_test(t);
+    register_npc_kind(world, npc_id, "Monster");
 }
 
 /// The phase swap: exactly one half stands at a time, and a transition

@@ -22,7 +22,6 @@ use crate::game_loop::skills::item_skills;
 use crate::model::Player;
 use crate::model::components::player::{AutoPlaySettings, AutoUseSettings};
 use crate::model::components::skills::SkillBook;
-use crate::model::components::space::ZoneFlags;
 use crate::model::inventory::Inventory;
 use crate::world::World;
 
@@ -61,10 +60,11 @@ fn run_for_player(world: &mut World, player_oid: i32) {
     if blocked {
         return;
     }
-    let in_peace = world
-        .objects
-        .get_component::<ZoneFlags>(&player_oid)
-        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
+    let in_peace = crate::game_loop::space::zones::has_zone_flag(
+        world,
+        player_oid,
+        crate::data::zone_data::ZoneKind::Peace,
+    );
 
     if world.cfg.auto_play.item && !in_peace {
         use_supply_items(world, player_oid);
@@ -159,19 +159,16 @@ fn cast_attack_skills(world: &mut World, player_oid: i32) {
     if ids.is_empty() {
         return;
     }
-    let Some(target) = world
-        .objects
-        .get_component::<crate::model::components::combat::TargetRef>(&player_oid)
-        .and_then(|t| t.0)
-    else {
+    let Some(target) = crate::game_loop::combat::target::current(world, player_oid) else {
         return;
     };
     if target == player_oid
         || is_dead(world, target)
-        || world
-            .objects
-            .get_component::<ZoneFlags>(&target)
-            .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace))
+        || crate::game_loop::space::zones::has_zone_flag(
+            world,
+            target,
+            crate::data::zone_data::ZoneKind::Peace,
+        )
     {
         return;
     }

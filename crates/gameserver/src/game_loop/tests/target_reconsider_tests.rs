@@ -25,7 +25,6 @@ const STRANGER: i32 = NPC_OID + 2;
 
 fn support_skill(id: i32, effects: Vec<SkillEffect>, continuous: bool) -> Skill {
     Skill {
-        self_continuous: false,
         without_action: false,
         trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,

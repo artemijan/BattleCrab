@@ -41,19 +41,10 @@ fn quest_q00401_spider_legs_require_the_quest_sword() {
                 (1144, "Spider Leg", true),
             ],
         );
-        let mut t = crate::data::npc_data::default_template(20038);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        t.base_hp_max = 1000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, 20038, "Monster", 20, 1000.0);
         add_test_npc(&mut world, NPC_OID, 30010, "Folk", 5, 100, 0, 0);
         let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-        {
-            let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-            p.level = 19;
-            p.class_id = 0; // Human Fighter
-            p.base_class_id = 0;
-        }
+        set_level_class(&mut world, 3001, 19, 0); // Human Fighter
         if equip_sword {
             equip_weapon_row(&mut world, 3001, 1142);
         }
@@ -88,27 +79,17 @@ fn quest_q00401_rusted_sword_chance_is_out_of_ten() {
                 (1140, "Rusted Sword 1", true),
             ],
         );
-        let mut t = crate::data::npc_data::default_template(20035);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, 20035, "Monster", 20);
         add_test_npc(&mut world, NPC_OID, 30010, "Folk", 5, 100, 0, 0);
         let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-        {
-            let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-            p.level = 19;
-            p.class_id = 0;
-            p.base_class_id = 0;
-        }
+        set_level_class(&mut world, 3001, 19, 0);
         drain_db(&mut db_rx);
         accept_q401(&mut world);
         inventory::add_inventory_item(&mut world, 3001, 1139, 1); // guild mark
         drain(&mut rx);
 
         let mob = NPC_OID + 1;
-        add_test_npc(&mut world, mob, 20035, "Monster", 20, 30, 0, 0);
-        world.force_roll(forced);
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob(&mut world, mob, 20035, 20, forced);
 
         assert_eq!(
             item_count(&world, 3001, 1140),
@@ -136,19 +117,10 @@ fn quest_q00403_bone_chance_is_out_of_ten_not_a_hundred() {
             (1183, "Spartois Bones", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20054);
-    t.type_name = "Monster".into();
-    t.level = 20;
-    t.base_hp_max = 1000.0;
-    world.data.npc_data.insert_for_test(t);
+    register_npc_hp(&mut world, 20054, "Monster", 20, 1000.0);
     add_test_npc(&mut world, NPC_OID, 30379, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 0;
-        p.base_class_id = 0;
-    }
+    set_level_class(&mut world, 3001, 19, 0);
     equip_weapon_row(&mut world, 3001, 1181); // Neti's bow satisfies the tag
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
@@ -203,19 +175,10 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
             (1189, "Stolen Necklace", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(27038);
-    t.type_name = "Monster".into();
-    t.level = 20;
-    t.base_hp_max = 1000.0;
-    world.data.npc_data.insert_for_test(t);
+    register_npc_hp(&mut world, 27038, "Monster", 20, 1000.0);
     add_test_npc(&mut world, NPC_OID, 30379, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 0;
-        p.base_class_id = 0;
-    }
+    set_level_class(&mut world, 3001, 19, 0);
     equip_weapon_row(&mut world, 3001, 1181);
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
@@ -296,10 +259,7 @@ fn warrior_rogue_quest_pages_exist_in_dist() {
     for (dir, npc, pages) in htm {
         for p in pages {
             let path = format!("{DIST}{dir}/{npc}-{p}.htm");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {dir}/{npc}-{p}.htm"
-            );
+            assert!(ships(&path), "missing {dir}/{npc}-{p}.htm");
         }
     }
     let html: [(&str, &str, &[&str]); 4] = [
@@ -327,10 +287,7 @@ fn warrior_rogue_quest_pages_exist_in_dist() {
     for (dir, npc, pages) in html {
         for p in pages {
             let path = format!("{DIST}{dir}/{npc}-{p}.html");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {dir}/{npc}-{p}.html"
-            );
+            assert!(ships(&path), "missing {dir}/{npc}-{p}.html");
         }
     }
 }
@@ -356,12 +313,7 @@ fn q402_world_with_coins(coins: usize) -> (World, UnboundedReceiver<bytes::Bytes
     add_quest_items(&mut world, &items);
     add_test_npc(&mut world, NPC_OID, 30417, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 0; // Human Fighter
-        p.base_class_id = 0;
-    }
+    set_level_class(&mut world, 3001, 19, 0); // Human Fighter
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -412,16 +364,10 @@ fn quest_q00402_three_coins_needs_the_confirm_button() {
         1,
         "the confirm button awards the Sword of Ritual"
     );
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(
-            quests.0[Q402].is_completed(),
-            "one-time quest stays COMPLETED"
-        );
-    }
+    assert!(
+        quest_completed(&world, 3001, Q402),
+        "one-time quest stays COMPLETED"
+    );
 }
 
 /// Six coins is the one path that completes **inside `onTalk`**, with no
@@ -449,13 +395,7 @@ fn quest_q00402_six_coins_completes_on_talk_without_a_confirm() {
         0,
         "the Squire's Mark is taken"
     );
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q402].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q402));
 }
 
 /// Each confirm button is bound to its own coin range, so a client replaying
@@ -494,10 +434,7 @@ fn quest_q00402_confirm_buttons_check_their_coin_range() {
 #[test]
 fn quest_q00402_badge_to_coin_and_the_unrolled_drop() {
     let (mut world, mut rx) = q402_world_with_coins(0);
-    let mut t = crate::data::npc_data::default_template(20775); // Bugbear Raider
-    t.type_name = "Monster".into();
-    t.level = 20;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20775, "Monster", 20);
     let bathis = NPC_OID + 60;
     add_test_npc(&mut world, bathis, 30332, "Folk", 5, 100, 0, 0);
 
@@ -542,10 +479,7 @@ fn quest_q00402_badge_to_coin_and_the_unrolled_drop() {
 #[test]
 fn quest_q00402_drops_need_the_matching_badge() {
     let (mut world, _rx) = q402_world_with_coins(0);
-    let mut t = crate::data::npc_data::default_template(20775);
-    t.type_name = "Monster".into();
-    t.level = 20;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20775, "Monster", 20);
 
     let mob = NPC_OID + 200;
     add_test_npc(&mut world, mob, 20775, "Monster", 20, 30, 0, 0);
@@ -565,21 +499,15 @@ fn human_knight_quest_pages_exist_in_dist() {
     );
     for p in ["01", "02", "02a", "03", "04", "05", "07", "08"] {
         let path = format!("{DIST}30417-{p}.htm");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30417-{p}.htm"
-        );
+        assert!(ships(&path), "missing 30417-{p}.htm");
     }
     for p in ["06", "09", "10", "11", "12", "13", "14", "15"] {
         let path = format!("{DIST}30417-{p}.html");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30417-{p}.html"
-        );
+        assert!(ships(&path), "missing 30417-{p}.html");
     }
     // The alternation is real, not a tidy prefix split.
-    assert!(!std::path::Path::new(&format!("{DIST}30417-07.html")).exists());
-    assert!(!std::path::Path::new(&format!("{DIST}30417-06.htm")).exists());
+    assert!(!ships(&format!("{DIST}30417-07.html")));
+    assert!(!ships(&format!("{DIST}30417-06.htm")));
 
     let officers: [(&str, &[&str]); 6] = [
         ("30332", &["01", "02", "03", "04", "05"]),
@@ -592,17 +520,14 @@ fn human_knight_quest_pages_exist_in_dist() {
     for (npc, pages) in officers {
         for p in pages {
             let path = format!("{DIST}{npc}-{p}.html");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {npc}-{p}.html"
-            );
+            assert!(ships(&path), "missing {npc}-{p}.html");
         }
     }
-    assert!(std::path::Path::new(&format!("{DIST}30653-01.html")).exists());
+    assert!(ships(&format!("{DIST}30653-01.html")));
     // Only Raymond has a sixth page.
     for npc in ["30332", "30379", "30037", "30039", "30031"] {
         assert!(
-            !std::path::Path::new(&format!("{DIST}{npc}-06.html")).exists(),
+            !ships(&format!("{DIST}{npc}-06.html")),
             "{npc} must not ship a -06"
         );
     }

@@ -307,7 +307,6 @@ fn a_spiritshot_doubles_a_summons_magic_damage() {
             v.cur_hp = 100_000.0;
         }
         let skill = Skill {
-            self_continuous: false,
             id: 4079,
             level: 1,
             magic_type: 1,
@@ -367,10 +366,7 @@ fn a_physical_skill_does_not_spend_a_spiritshot() {
     add_test_npc(&mut world, FOE, PANTHER + 1, "Monster", 20, 60, 0, 0);
 
     let physical = Skill {
-        self_continuous: false,
         id: 4080,
-        level: 1,
-        magic_type: 0,
         effects: vec![SkillEffect::MagicalAttack { power: 10.0 }],
         ..Default::default()
     };

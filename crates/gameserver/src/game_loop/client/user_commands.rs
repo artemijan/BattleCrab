@@ -617,8 +617,6 @@ fn clan_penalty(world: &World, client_id: u32, object_id: i32) {
 /// record (Java reads the command user's own match counts but the **target's**
 /// points — a quirk kept), plus this week's remaining matches.
 fn olympiad_stat(world: &World, client_id: u32, object_id: i32) {
-    use crate::model::components::combat::TargetRef;
-
     if !crate::model::olympiad::OLYMPIAD_ENABLED {
         send_sm(
             world,
@@ -629,16 +627,12 @@ fn olympiad_stat(world: &World, client_id: u32, object_id: i32) {
         return;
     }
     // Java: the target must be a player who has completed the 2nd class transfer.
-    let target = world
-        .objects
-        .get_component::<TargetRef>(&object_id)
-        .and_then(|t| t.0)
-        .filter(|oid| {
-            world
-                .objects
-                .get_component::<crate::model::Player>(oid)
-                .is_some_and(|p| helpers::class_level(world, p.class_id) >= 2)
-        });
+    let target = crate::game_loop::combat::target::current(world, object_id).filter(|oid| {
+        world
+            .objects
+            .get_component::<crate::model::Player>(oid)
+            .is_some_and(|p| helpers::class_level(world, p.class_id) >= 2)
+    });
     let Some(target) = target else {
         send_sm(
             world,

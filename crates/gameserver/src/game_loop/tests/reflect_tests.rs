@@ -229,12 +229,7 @@ fn riposte_stance_keeps_its_other_effects() {
 fn the_incoming_skill_picks_which_reflect_stat_is_read() {
     let (mut world, _db, _l) = cast_test_world();
     let _c = ingame_caster(&mut world, CID, PLAYER, 0, 0);
-    world
-        .objects
-        .get_component_mut::<StatModifiers>(&PLAYER)
-        .unwrap()
-        .add
-        .insert(Stat::ReflectSkillPhysic, 100.0);
+    set_add_modifier(&mut world, PLAYER, Stat::ReflectSkillPhysic, 100.0);
 
     let mods = world
         .objects

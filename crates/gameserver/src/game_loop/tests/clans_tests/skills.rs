@@ -11,8 +11,8 @@ use super::*;
 #[test]
 fn give_clan_skills_grants_gates_and_persists() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::components::skills::{Buffs, ClanSkills};
+    use crate::model::clan::Clan;
+    use crate::model::components::skills::Buffs;
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     // Two clan skills: 370 gated at HEIR (ordinal 3), 371 gated at COUNT (8).
@@ -48,19 +48,6 @@ fn give_clan_skills_grants_gates_and_persists() {
     let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
     drain_db(&mut db_rx);
     let clan_id = 0x3000_0055;
-    let cm = |id: i32| ClanMember {
-        char_id: id,
-        name: format!("P{id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     world.clans.insert(
         clan_id,
         Clan {
@@ -70,7 +57,7 @@ fn give_clan_skills_grants_gates_and_persists() {
             level: 8,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![cm(3001), cm(3002)],
+            members: vec![clan_member_p(3001), clan_member_p(3002)],
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,
@@ -96,12 +83,6 @@ fn give_clan_skills_grants_gates_and_persists() {
             .clan_id = clan_id;
     }
 
-    let clan_skill = |world: &World, oid: i32, id: i32| {
-        world
-            .objects
-            .get_component::<ClanSkills>(&oid)
-            .is_some_and(|c| c.0.contains_key(&id))
-    };
     let has_passive_buff = |world: &World, oid: i32, id: i32| {
         world
             .objects
@@ -127,15 +108,15 @@ fn give_clan_skills_grants_gates_and_persists() {
 
     // Leader (social 9) gets both; member (social 6) gets only the HEIR skill.
     assert!(
-        clan_skill(&world, 3001, 370) && clan_skill(&world, 3001, 371),
+        has_clan_skill(&world, 3001, 370) && has_clan_skill(&world, 3001, 371),
         "leader gets both"
     );
     assert!(
-        clan_skill(&world, 3002, 370),
+        has_clan_skill(&world, 3002, 370),
         "member qualifies for the HEIR skill"
     );
     assert!(
-        !clan_skill(&world, 3002, 371),
+        !has_clan_skill(&world, 3002, 371),
         "member is gated out of the COUNT skill"
     );
     // Applied skills land as icon-less passive buffs (stat effect, no abnormal row).
@@ -160,7 +141,7 @@ fn give_clan_skills_grants_gates_and_persists() {
     // Dispersing the clan strips the clan skills from the (still-online) members.
     clans::destroy_clan(&mut world, clan_id);
     assert!(
-        !clan_skill(&world, 3001, 370) && !clan_skill(&world, 3001, 371),
+        !has_clan_skill(&world, 3001, 370) && !has_clan_skill(&world, 3001, 371),
         "leader clan skills cleared on disperse"
     );
     assert!(
@@ -168,7 +149,7 @@ fn give_clan_skills_grants_gates_and_persists() {
         "leader clan-skill buff reverted"
     );
     assert!(
-        !clan_skill(&world, 3002, 370),
+        !has_clan_skill(&world, 3002, 370),
         "member clan skills cleared on disperse"
     );
 }
@@ -181,7 +162,7 @@ fn give_clan_skills_grants_gates_and_persists() {
 #[test]
 fn give_clan_skills_purges_residence_and_reapplies() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
-    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::clan::Clan;
     use crate::model::components::skills::ClanSkills;
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
@@ -222,19 +203,6 @@ fn give_clan_skills_purges_residence_and_reapplies() {
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     drain_db(&mut db_rx);
     let clan_id = 0x3000_0056;
-    let cm = |id: i32| ClanMember {
-        char_id: id,
-        name: format!("P{id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     // The clan already "owns" 370 and a residence 590 (as a pre-fix grant left it),
     // and the residence skill is applied to the online leader.
     let mut skills = std::collections::HashMap::new();
@@ -249,7 +217,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
             level: 8,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![cm(3001)],
+            members: vec![clan_member_p(3001)],
             skills,
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,
@@ -420,7 +388,7 @@ fn passive_max_mp_skill_boosts_mp_at_login() {
 #[test]
 fn clan_skills_move_max_hp_mp_cp() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
-    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::clan::Clan;
     use crate::model::components::stats::{PlayerVitals, StatModifiers, Vitals};
     use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
@@ -497,19 +465,6 @@ fn clan_skills_move_max_hp_mp_cp() {
     };
 
     let clan_id = 0x3000_00AA;
-    let cm = |id: i32| ClanMember {
-        char_id: id,
-        name: format!("P{id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     world.clans.insert(
         clan_id,
         Clan {
@@ -519,7 +474,7 @@ fn clan_skills_move_max_hp_mp_cp() {
             level: 8,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![cm(3001)],
+            members: vec![clan_member_p(3001)],
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,
@@ -570,26 +525,12 @@ fn clan_skills_move_max_hp_mp_cp() {
 /// channel so they show in the merged SkillList without persisting.
 #[test]
 fn siege_skills_granted_to_level5_clan_leader_only() {
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::components::skills::ClanSkills;
+    use crate::model::clan::Clan;
 
     let (mut world, _db_rx, _link_rx) = quest_test_world();
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
     let clan_id = 0x3000_0077;
-    let cm = |id: i32| ClanMember {
-        char_id: id,
-        name: format!("P{id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     world.clans.insert(
         clan_id,
         Clan {
@@ -599,7 +540,7 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
             level: 4,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![cm(3001), cm(3002)],
+            members: vec![clan_member_p(3001), clan_member_p(3002)],
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,
@@ -625,17 +566,10 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
             .clan_id = clan_id;
     }
 
-    let has = |world: &World, oid: i32, id: i32| {
-        world
-            .objects
-            .get_component::<ClanSkills>(&oid)
-            .is_some_and(|c| c.0.contains_key(&id))
-    };
-
     // Level 4: below the siege min level — the leader gets no siege skills.
     clans::on_enter_world(&mut world, 1, 3001);
     assert!(
-        !has(&world, 3001, 247),
+        !has_clan_skill(&world, 3001, 247),
         "no siege skills below clan level 5"
     );
 
@@ -643,19 +577,19 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
     clans::set_clan_level(&mut world, clan_id, 5);
     for id in [247, 19034, 19035] {
         assert!(
-            has(&world, 3001, id),
+            has_clan_skill(&world, 3001, id),
             "leader gains siege skill {id} at clan level 5"
         );
     }
     // No castle yet → no Outpost skills.
     assert!(
-        !has(&world, 3001, 844) && !has(&world, 3001, 845),
+        !has_clan_skill(&world, 3001, 844) && !has_clan_skill(&world, 3001, 845),
         "Outpost skills need a castle"
     );
     // A regular member never gets siege skills.
     clans::on_enter_world(&mut world, 2, 3002);
     assert!(
-        !has(&world, 3002, 247),
+        !has_clan_skill(&world, 3002, 247),
         "non-leader member gets no siege skills"
     );
 
@@ -663,7 +597,7 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
     world.clans.get_mut(&clan_id).unwrap().castle_id = 3;
     clans::on_enter_world(&mut world, 1, 3001);
     assert!(
-        has(&world, 3001, 844) && has(&world, 3001, 845),
+        has_clan_skill(&world, 3001, 844) && has_clan_skill(&world, 3001, 845),
         "castle owner gets Outpost skills"
     );
 }
@@ -673,8 +607,7 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
 #[test]
 fn clan_skills_reapply_on_member_login() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
-    use crate::model::clan::{Clan, ClanMember};
-    use crate::model::components::skills::ClanSkills;
+    use crate::model::clan::Clan;
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     world
@@ -696,19 +629,6 @@ fn clan_skills_reapply_on_member_login() {
     let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     drain_db(&mut db_rx);
     let clan_id = 0x3000_0066;
-    let cm = |id: i32| ClanMember {
-        char_id: id,
-        name: format!("P{id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     // The clan already knows skill 370 (as if loaded from clan_skills).
     let mut skills = std::collections::HashMap::new();
     skills.insert(370, 1);
@@ -721,7 +641,7 @@ fn clan_skills_reapply_on_member_login() {
             level: 8,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![cm(3001)],
+            members: vec![clan_member_p(3001)],
             skills,
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,
@@ -748,10 +668,7 @@ fn clan_skills_reapply_on_member_login() {
     // Simulate the leader's login → clan skills re-applied from the clan.
     clans::on_enter_world(&mut world, 1, 3001);
     assert!(
-        world
-            .objects
-            .get_component::<ClanSkills>(&3001)
-            .is_some_and(|c| c.0.contains_key(&370)),
+        has_clan_skill(&world, 3001, 370),
         "clan skills re-derived on login"
     );
     // Nothing was written to the player's own persisted skill book.

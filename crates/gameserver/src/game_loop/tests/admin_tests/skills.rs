@@ -414,7 +414,6 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
     use crate::data::pledge_skill_tree::PledgeSkillLearn;
     use model::clan::{Clan, ClanMember};
     use model::components::combat::TargetRef;
-    use model::components::skills::ClanSkills;
 
     let (mut world, _tx, mut db_rx, _link) = admin_world();
     world
@@ -446,17 +445,8 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember {
-                char_id: 6500,
-                name: "P6500".into(),
                 level: 80,
-                class_id: 0,
-                sex: 0,
-                race: 0,
-                power_grade: 5,
-                title: String::new(),
-                pledge_type: 0,
-                apprentice: 0,
-                sponsor: 0,
+                ..clan_member_p(6500)
             }],
             skills: Default::default(),
             warehouse: Default::default(),
@@ -492,10 +482,7 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
         "clan learned the pledge skill"
     );
     assert!(
-        world
-            .objects
-            .get_component::<ClanSkills>(&6500)
-            .is_some_and(|c| c.0.contains_key(&370)),
+        has_clan_skill(&world, 6500, 370),
         "skill applied to the online leader"
     );
     assert!(
@@ -694,11 +681,7 @@ fn admin_remove_skills_generates_the_targets_own_skill_list() {
     drain(&mut gm_rx);
 
     on_packet(&mut world, 1, build_admin("remove_skills"));
-    let html = drain(&mut gm_rx)
-        .into_iter()
-        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
-        .map(|p| String::from_utf8_lossy(&p).replace('\0', ""))
-        .expect("an html page was sent");
+    let html = raw_html(&mut gm_rx).expect("an html page was sent");
     assert!(
         html.contains("admin_remove_skill 1177"),
         "the page offers the skill the target actually knows: {html:.400}"

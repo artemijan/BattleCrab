@@ -89,10 +89,8 @@ pub(crate) fn check_water_state(world: &mut World, object_id: i32) {
     // The sole caller (`zones::revalidate_zone`) has just recomputed and
     // written the membership mask for this exact position, so read it back
     // instead of walking the zone grid a second time.
-    let in_water_zone = world
-        .objects
-        .get_component::<crate::model::components::space::ZoneFlags>(&object_id)
-        .is_some_and(|f| f.mask & ZoneKind::Water.bit() != 0);
+    let in_water_zone =
+        crate::game_loop::space::zones::has_zone_flag(world, object_id, ZoneKind::Water);
     if in_water_zone {
         start_water_task(world, object_id);
     } else {

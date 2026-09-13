@@ -50,19 +50,11 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
                 value_at(params, "type", level).and_then(crate::model::stats::MoveType::from_xml);
             match (stat, move_type, param("value")) {
                 (Some(stat), Some(move_type), Some(amount)) => {
-                    vec![skill::effects::SkillEffect::StatModifier(
-                        skill::effects::StatModifierEffect {
-                            stat,
-                            mode: StatModifierType::Diff,
-                            amount,
-                            armor_condition: *armor_condition,
-                            weapon_condition: *weapon_condition,
-                            qualifier: Some(crate::model::stats::StatQualifier::MoveType(
-                                move_type,
-                            )),
-                            two_handed: false,
-                            hp_percent: 0,
-                        },
+                    vec![cx.fixed_stat_mod(
+                        stat,
+                        StatModifierType::Diff,
+                        amount,
+                        Some(crate::model::stats::StatQualifier::MoveType(move_type)),
                     )]
                 }
                 _ => Vec::new(),
@@ -84,16 +76,12 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             param("amount")
                 .filter(|_| slot == "DEBUFF")
                 .map(|amount| {
-                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
-                        stat: Stat::ResistAbnormalDebuff,
-                        mode: StatModifierType::Per,
+                    cx.fixed_stat_mod(
+                        Stat::ResistAbnormalDebuff,
+                        StatModifierType::Per,
                         amount,
-                        armor_condition: *armor_condition,
-                        weapon_condition: *weapon_condition,
-                        qualifier: None,
-                        two_handed: false,
-                        hp_percent: 0,
-                    })
+                        None,
+                    )
                 })
                 .into_iter()
                 .collect()
@@ -106,16 +94,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             param("amount")
                 .filter(|_| slot == "BUFF")
                 .map(|amount| {
-                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
-                        stat: Stat::ResistDispelBuff,
-                        mode: StatModifierType::Per,
-                        amount,
-                        armor_condition: *armor_condition,
-                        weapon_condition: *weapon_condition,
-                        qualifier: None,
-                        two_handed: false,
-                        hp_percent: 0,
-                    })
+                    cx.fixed_stat_mod(Stat::ResistDispelBuff, StatModifierType::Per, amount, None)
                 })
                 .into_iter()
                 .collect()
@@ -198,16 +177,12 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // which would honour the (absent) mode and read `Diff`.
         "VampiricDefence" => param("amount")
             .map(|amount| {
-                skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
-                    stat: Stat::AbsorbDamageDefence,
-                    mode: StatModifierType::Per,
+                cx.fixed_stat_mod(
+                    Stat::AbsorbDamageDefence,
+                    StatModifierType::Per,
                     amount,
-                    armor_condition: *armor_condition,
-                    weapon_condition: *weapon_condition,
-                    qualifier: None,
-                    two_handed: false,
-                    hp_percent: 0,
-                })
+                    None,
+                )
             })
             .into_iter()
             .collect(),
@@ -215,26 +190,18 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             .map(|amount| {
                 let chance = param("chance").unwrap_or(30.0);
                 vec![
-                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
-                        stat: Stat::AbsorbManaDamagePercent,
-                        mode: StatModifierType::Diff,
-                        amount: amount / 100.0,
-                        armor_condition: *armor_condition,
-                        weapon_condition: *weapon_condition,
-                        qualifier: None,
-                        two_handed: false,
-                        hp_percent: 0,
-                    }),
-                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
-                        stat: Stat::MpVampiricSum,
-                        mode: StatModifierType::Diff,
-                        amount: amount * chance,
-                        armor_condition: *armor_condition,
-                        weapon_condition: *weapon_condition,
-                        qualifier: None,
-                        two_handed: false,
-                        hp_percent: 0,
-                    }),
+                    cx.fixed_stat_mod(
+                        Stat::AbsorbManaDamagePercent,
+                        StatModifierType::Diff,
+                        amount / 100.0,
+                        None,
+                    ),
+                    cx.fixed_stat_mod(
+                        Stat::MpVampiricSum,
+                        StatModifierType::Diff,
+                        amount * chance,
+                        None,
+                    ),
                 ]
             })
             .unwrap_or_default(),
@@ -274,9 +241,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // `magicType` in a separate map, so a skill-dodge buff
         // dodges only its own bucket (0 = physical skills).
         "SkillEvasion" => vec![skill::effects::SkillEffect::SkillEvasion {
-            magic_type: value_at(params, "magicType", level)
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(0),
+            magic_type: cx.int_param("magicType", 0),
             amount: param("amount").unwrap_or(0.0),
         }],
         "SkillTurning" => vec![skill::effects::SkillEffect::SkillTurning {
@@ -329,39 +294,13 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // the flat add). Every one of these was parsed *before* this
         // slice and pumped a stat that nothing read — see
         // `formulas::crit_damage_multiplier`.
-        "CriticalDamage" => param("amount")
-            .map(|amount| {
-                let stat = if modifier_mode == StatModifierType::Per {
-                    Stat::CriticalDamage
-                } else {
-                    Stat::CriticalDamageAdd
-                };
-                stat_mod(stat, amount)
-            })
-            .into_iter()
-            .collect(),
-        "DefenceCriticalRate" => param("amount")
-            .map(|amount| {
-                let stat = if modifier_mode == StatModifierType::Per {
-                    Stat::DefenceCriticalRate
-                } else {
-                    Stat::DefenceCriticalRateAdd
-                };
-                stat_mod(stat, amount)
-            })
-            .into_iter()
-            .collect(),
-        "DefenceCriticalDamage" => param("amount")
-            .map(|amount| {
-                let stat = if modifier_mode == StatModifierType::Per {
-                    Stat::DefenceCriticalDamage
-                } else {
-                    Stat::DefenceCriticalDamageAdd
-                };
-                stat_mod(stat, amount)
-            })
-            .into_iter()
-            .collect(),
+        "CriticalDamage" => cx.stat_mod_by_mode(Stat::CriticalDamage, Stat::CriticalDamageAdd),
+        "DefenceCriticalRate" => {
+            cx.stat_mod_by_mode(Stat::DefenceCriticalRate, Stat::DefenceCriticalRateAdd)
+        }
+        "DefenceCriticalDamage" => {
+            cx.stat_mod_by_mode(Stat::DefenceCriticalDamage, Stat::DefenceCriticalDamageAdd)
+        }
         // Prophecy of Wind (1357), Victories of Pa'agrio (1414).
         // Java's `MAGIC_CRITICAL_DAMAGE_ADD` half is dropped: the
         // magic branch of `calcCritDamage` reads only the
@@ -388,29 +327,12 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // crit-*rate* twin of `CriticalDamagePosition`, and the
         // only skill on this dist that declares all three
         // positions at once (−30 front, +30 side, +60 back).
-        "CriticalRatePositionBonus" => {
-            let position = match value_at(params, "position", level) {
-                Some("BACK") => crate::model::movement::Position::Back,
-                Some("SIDE") => crate::model::movement::Position::Side,
-                _ => crate::model::movement::Position::Front,
+        "CriticalRatePositionBonus" | "CriticalDamagePosition" => {
+            let stat = if xml_name == "CriticalRatePositionBonus" {
+                Stat::CriticalRate
+            } else {
+                Stat::CriticalDamage
             };
-            param("amount")
-                .map(|amount| {
-                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
-                        stat: Stat::CriticalRate,
-                        mode: StatModifierType::Per,
-                        amount,
-                        armor_condition: *armor_condition,
-                        weapon_condition: *weapon_condition,
-                        qualifier: Some(crate::model::stats::StatQualifier::Position(position)),
-                        two_handed: false,
-                        hp_percent: 0,
-                    })
-                })
-                .into_iter()
-                .collect()
-        }
-        "CriticalDamagePosition" => {
             let position = match value_at(params, "position", level) {
                 // Java `params.getEnum("position", Position.class, Position.FRONT)`.
                 Some("BACK") => crate::model::movement::Position::Back,
@@ -419,16 +341,12 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             };
             param("amount")
                 .map(|amount| {
-                    skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
-                        stat: Stat::CriticalDamage,
-                        mode: StatModifierType::Per,
+                    cx.fixed_stat_mod(
+                        stat,
+                        StatModifierType::Per,
                         amount,
-                        armor_condition: *armor_condition,
-                        weapon_condition: *weapon_condition,
-                        qualifier: Some(crate::model::stats::StatQualifier::Position(position)),
-                        two_handed: false,
-                        hp_percent: 0,
-                    })
+                        Some(crate::model::stats::StatQualifier::Position(position)),
+                    )
                 })
                 .into_iter()
                 .collect()

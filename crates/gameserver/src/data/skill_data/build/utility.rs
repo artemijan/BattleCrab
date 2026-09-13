@@ -74,13 +74,9 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             _ => Vec::new(),
         },
         "SetSkill" => vec![skill::effects::SkillEffect::SetSkill {
-            skill_id: value_at(params, "skillId", level)
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(0),
+            skill_id: cx.int_param("skillId", 0),
             // Java defaults this to 1, not 0.
-            skill_level: value_at(params, "skillLevel", level)
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(1),
+            skill_level: cx.int_param("skillLevel", 1),
         }],
         // Java `params.getInt("sp", 0)` — an int on the XML, but
         // the award path takes the same i64 as every other SP

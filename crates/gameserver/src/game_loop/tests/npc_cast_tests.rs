@@ -21,7 +21,6 @@ const MOB_HEAL: i32 = 8402;
 
 fn npc_skill(id: i32, name: &str, effects: Vec<SkillEffect>) -> Skill {
     Skill {
-        self_continuous: false,
         without_action: false,
         trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,
@@ -648,11 +647,7 @@ fn a_monsters_call_pc_drags_the_player_onto_it() {
     // (skillgrp) timing. Cancelling from the caster would cut that leftover
     // short, but it is a packet Java never sends — pinned here so the
     // deviation is not reintroduced without a decision.
-    let cancels: Vec<i32> = packets
-        .iter()
-        .filter(|p| p.first() == Some(&server_packets::opcodes::MAGIC_SKILL_CANCELED))
-        .map(|p| i32::from_le_bytes([p[1], p[2], p[3], p[4]]))
-        .collect();
+    let cancels = subject_ids(&packets, server_packets::opcodes::MAGIC_SKILL_CANCELED);
     assert!(
         !cancels.contains(&NPC_OID),
         "the drag must not cancel the caster's own cast; got {cancels:?}"

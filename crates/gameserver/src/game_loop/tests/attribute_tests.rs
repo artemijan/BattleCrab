@@ -6,7 +6,7 @@
 use super::*;
 
 use crate::model::components::skills::Buffs;
-use crate::model::components::stats::{StatModifiers, Vitals};
+use crate::model::components::stats::Vitals;
 use crate::model::formulas::land_rate::calc_attribute_bonus;
 use crate::model::skill::active_buff::ActiveBuff;
 use crate::model::skill::effects::{SkillEffect, StatModifierEffect};
@@ -33,7 +33,6 @@ fn register_mob(world: &mut World, npc_id: i32, fire_res: i32) {
 
 fn fire_nuke(id: i32) -> Skill {
     Skill {
-        self_continuous: false,
         id,
         name: format!("Test Fire Nuke {id}"),
         operate_type: OperateType::Active,
@@ -239,12 +238,7 @@ fn holy_weapon_colors_an_attributeless_skill() {
     nuke.attribute_value = 0;
 
     let plain = cast_damage(&mut world, CASTER, mob, &nuke);
-    world
-        .objects
-        .get_component_mut::<StatModifiers>(&CASTER)
-        .unwrap()
-        .add
-        .insert(Stat::HolyPower, 20.0);
+    set_add_modifier(&mut world, CASTER, Stat::HolyPower, 20.0);
     let blessed = cast_damage(&mut world, CASTER, mob, &nuke);
     assert!(
         blessed > plain,
@@ -260,7 +254,7 @@ fn holy_weapon_colors_an_attributeless_skill() {
 #[test]
 fn an_elemental_buff_reaches_plain_auto_attacks() {
     use crate::game_loop::combat;
-    use crate::model::components::stats::{StatModifiers, Vitals};
+    use crate::model::components::stats::Vitals;
     use crate::model::stats::Stat;
 
     const ATTACKER: i32 = 8801;
@@ -273,12 +267,7 @@ fn an_elemental_buff_reaches_plain_auto_attacks() {
         // runs; the sampling below covers what this cannot pin (see the helper).
         pin_swing_damage(&mut world, ATTACKER);
         if elemental {
-            world
-                .objects
-                .get_component_mut::<StatModifiers>(&ATTACKER)
-                .expect("mods")
-                .add
-                .insert(Stat::FirePower, 60.0);
+            set_add_modifier(&mut world, ATTACKER, Stat::FirePower, 60.0);
         }
         add_test_npc(&mut world, TARGET, 20001, "Monster", 5, 0, 0, 0);
         {

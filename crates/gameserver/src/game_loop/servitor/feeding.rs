@@ -14,7 +14,6 @@ use crate::game_loop::helpers::send_to_player;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::skills::item_skills;
 use crate::game_loop::time::TICKS_PER_SECOND;
-use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets;
 use crate::world::World;
 /// Java `Pet.FeedTask`'s fixed period: `scheduleAtFixedRate(..., 10000, 10000)`.
@@ -88,11 +87,7 @@ pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
     if is_dead(world, pet_oid) {
         return;
     }
-    let Some(owner) = world
-        .objects
-        .get_component::<ServitorOf>(&pet_oid)
-        .map(|s| s.owner_object_id)
-    else {
+    let Some(owner) = super::owner_of(world, pet_oid) else {
         return;
     };
 

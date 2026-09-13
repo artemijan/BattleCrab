@@ -36,31 +36,16 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // resistance (HOLD/SLEEP/SHOCK…). Its params are the trait
         // *names*, not `amount`, so they are read straight off the
         // param map rather than through the usual `amount` lookup.
-        "DefenceTrait" => {
-            // Every param is a trait name → percent; Java
-            // divides by 100 and treats >= 1.0 as invulnerable.
-            let traits: Vec<(crate::model::skill::traits::TraitType, f64)> = params
-                .keys()
-                .filter_map(|key| {
-                    let raw = value_at(params, key, level)?;
-                    let pct: f64 = raw.parse().ok()?;
-                    Some((
-                        crate::model::skill::traits::TraitType::from_xml(key),
-                        pct / 100.0,
-                    ))
-                })
-                .collect();
-            vec![skill::effects::SkillEffect::DefenceTrait { traits }]
-        }
+        //
         // "Detect <Category> Weakness" (75/80/87/88/104, 359/360):
         // Java `AttackTrait` merges a `*_WEAKNESS` bonus onto the
         // caster — genuinely inert in the reference server too (see
         // the doc comment on `SkillEffect::AttackTrait`), so this
         // carries an icon-only marker like `DefenceTrait`/
         // `VampiricAttack` rather than the per-trait param map.
-        // Same shape as `DefenceTrait`: every param is a trait
-        // name → percent, divided by 100.
-        "AttackTrait" => {
+        "DefenceTrait" | "AttackTrait" => {
+            // Every param is a trait name → percent; Java divides by
+            // 100 (and a defence value >= 1.0 is invulnerable).
             let traits: Vec<(crate::model::skill::traits::TraitType, f64)> = params
                 .keys()
                 .filter_map(|key| {
@@ -72,7 +57,11 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
                     ))
                 })
                 .collect();
-            vec![skill::effects::SkillEffect::AttackTrait { traits }]
+            vec![if xml_name == "DefenceTrait" {
+                skill::effects::SkillEffect::DefenceTrait { traits }
+            } else {
+                skill::effects::SkillEffect::AttackTrait { traits }
+            }]
         }
         _ => return None,
     })

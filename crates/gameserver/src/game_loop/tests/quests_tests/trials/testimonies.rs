@@ -12,11 +12,7 @@ fn quest_q00217_testimony_of_trust() {
     for id in [
         20013, 27121, 20036, 27120, 20550, 20082, 20157, 20553, 20213,
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100_000.0);
     }
     let hollint = NPC_OID;
     let biotin = NPC_OID + 1;
@@ -60,12 +56,7 @@ fn quest_q00217_testimony_of_trust() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 40;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, hollint);
     ev(&mut world, hollint, "ACCEPT");
     assert_eq!(quest_memo(&world, 3001, q), 1);
@@ -175,10 +166,7 @@ fn quest_q00219_testimony_of_fate() {
     for id in [
         20144, 20158, 20233, 20202, 20192, 20157, 20270, 20554, 20582, 20600, 27079,
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     let kaira = NPC_OID;
     let metheus = NPC_OID + 1;
@@ -220,12 +208,7 @@ fn quest_q00219_testimony_of_fate() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 40;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, kaira);
     ev(&mut world, kaira, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -317,11 +300,7 @@ fn quest_q00218_testimony_of_life() {
     items.push((3140, "Mark of Life", false));
     add_quest_items(&mut world, &items);
     for id in [20550, 20082, 20176, 20145, 20233, 20581, 27077] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100_000.0);
     }
     let cardien = NPC_OID;
     let asterios = NPC_OID + 1;
@@ -359,12 +338,7 @@ fn quest_q00218_testimony_of_life() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 40;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, cardien);
     ev(&mut world, cardien, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -458,11 +432,7 @@ fn quest_q00220_testimony_of_glory() {
     for id in [
         20563, 20192, 20550, 20583, 20601, 20778, 27080, 27081, 27082, 27083, 27086,
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100_000.0);
     }
     let vokian = NPC_OID;
     let chianta = NPC_OID + 1;
@@ -508,12 +478,7 @@ fn quest_q00220_testimony_of_glory() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 40;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, vokian);
     ev(&mut world, vokian, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -621,10 +586,7 @@ fn quest_q00221_testimony_of_prosperity() {
     items.push((1867, "Animal Skin", false));
     add_quest_items(&mut world, &items);
     for id in [20154, 20228, 20157, 20231, 20233] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     let n = |i| NPC_OID + i;
     let (parman, wilford, lilith, bright, lockirin, shari, mion, toma) =
@@ -674,12 +636,7 @@ fn quest_q00221_testimony_of_prosperity() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 40;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, parman);
     ev(&mut world, parman, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));

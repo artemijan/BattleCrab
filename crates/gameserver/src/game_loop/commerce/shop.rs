@@ -19,7 +19,6 @@ use crate::data::item_data::ADENA_ID;
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::send_message;
-use crate::model::components::combat::TargetRef;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::sm_ids;
@@ -27,7 +26,7 @@ use crate::network::trade;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use crate::game_loop::combat::target::can_interact;
+use crate::game_loop::combat::target;
 use crate::game_loop::helpers::send_sm_and_action_failed;
 use crate::game_loop::npc::npc_id_of;
 use crate::game_loop::siege::treasury::{handle_tax_payment, npc_tax_rate as merchant_tax_rate};
@@ -167,13 +166,8 @@ pub(crate) fn is_merchant(world: &World, npc_object_id: i32) -> bool {
 /// the target instead of trusting the packet is what stops a hand-built
 /// `RequestBuyItem` from shopping at an NPC across the map.
 fn targeted_merchant(world: &World, player: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<TargetRef>(&player)
-        .copied()
-        .unwrap_or_default()
-        .0
-        .filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
+    target::current(world, player)
+        .filter(|&t| is_merchant(world, t) && target::can_interact(world, player, t))
 }
 
 /// `bypasshandlers/Buy.java` → `Merchant.showBuyWindow`: the buy tab +

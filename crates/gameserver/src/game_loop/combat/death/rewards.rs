@@ -1074,10 +1074,11 @@ pub(crate) fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i
     let killer_is_player = world.objects.has_component::<Player>(&killer_oid);
     // Arena deaths cost nothing when another player did it.
     if killer_is_player
-        && world
-            .objects
-            .get_component::<crate::model::components::space::ZoneFlags>(&victim_oid)
-            .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Pvp))
+        && crate::game_loop::space::zones::has_zone_flag(
+            world,
+            victim_oid,
+            crate::data::zone_data::ZoneKind::Pvp,
+        )
     {
         return;
     }

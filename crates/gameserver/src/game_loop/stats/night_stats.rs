@@ -93,35 +93,7 @@ pub(crate) fn refresh_one(world: &mut World, object_id: i32, night: bool) -> boo
 
     // Same rebuild-from-survivors the buff add/remove paths use: the maps
     // cannot be patched in place without drifting under rounding.
-    if let Some((player, base, mut mods, inventory, buffs, mut speeds, mut combat)) =
-        world.objects.get_many_mut::<(
-            &crate::model::Player,
-            &crate::model::components::stats::BaseStats,
-            &mut crate::model::components::stats::StatModifiers,
-            &crate::model::inventory::Inventory,
-            &crate::model::components::skills::Buffs,
-            &mut crate::model::components::stats::Speeds,
-            &mut crate::model::components::stats::CombatStats,
-        )>(&object_id)
-    {
-        mods.add.clear();
-        mods.mul.clear();
-        mods.by_move_type.clear();
-        mods.by_position.clear();
-        for b in &buffs.0 {
-            for effect in &b.effects {
-                crate::model::stat_finalize::apply_modifier(&mut mods, effect);
-            }
-        }
-        player.recalculate_stats(
-            &world.data,
-            base,
-            &mods,
-            inventory,
-            &mut speeds,
-            &mut combat,
-        );
-    }
+    crate::game_loop::stats::context::with_stat_ctx(world, object_id, |ctx| ctx.rebuild());
     true
 }
 

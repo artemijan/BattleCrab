@@ -341,12 +341,7 @@ pub(crate) fn is_inside_peace_zone(world: &World, attacker_oid: i32, target_oid:
     if !attacker_player || !target_player {
         return false;
     }
-    let in_peace = |oid: i32| {
-        world
-            .objects
-            .get_component::<ZoneFlags>(&oid)
-            .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace))
-    };
+    let in_peace = |oid: i32| has_zone_flag(world, oid, ZoneKind::Peace);
     in_peace(attacker_oid) || in_peace(target_oid)
 }
 
@@ -377,6 +372,16 @@ pub(crate) fn broadcast_to_zone(world: &World, zone_id: i32, pkt: &[u8]) {
     for oid in players_in_zone(world, zone_id) {
         send_to_player(world, oid, pkt.to_vec());
     }
+}
+
+/// `player.isInsideZone(kind)` — read off the cached [`ZoneFlags`] the movement
+/// path maintains for this exact position, rather than walking the zone grid a
+/// second time like [`in_zone`]. `false` for an object with no flags yet.
+pub(crate) fn has_zone_flag(world: &World, object_id: i32, kind: ZoneKind) -> bool {
+    world
+        .objects
+        .get_component::<ZoneFlags>(&object_id)
+        .is_some_and(|f| f.contains(kind))
 }
 
 /// Whether an object stands in any zone of `zone_kind` right now.

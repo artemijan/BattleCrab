@@ -22,7 +22,7 @@
 use super::*;
 
 use crate::game_loop::skills::effects as port;
-use crate::model::components::stats::{AttackTraits, DefenceTraits, StatModifiers, Vitals};
+use crate::model::components::stats::{AttackTraits, DefenceTraits, Vitals};
 use crate::model::skill::traits::{TraitType, WeaknessTrait};
 use crate::model::stats::Stat;
 
@@ -569,12 +569,12 @@ fn the_counter_attack_reads_the_defenders_table_java_side_up() {
         v.dead = false;
     }
     // `CounterPhysicalSkill` grants a *chance*; 100 makes every roll counter.
-    world
-        .objects
-        .get_component_mut::<StatModifiers>(&counterer)
-        .expect("stat modifiers")
-        .add
-        .insert(Stat::VengeanceSkillPhysicalDamage, 100.0);
+    set_add_modifier(
+        &mut world,
+        counterer,
+        Stat::VengeanceSkillPhysicalDamage,
+        100.0,
+    );
 
     let counter_damage = |world: &mut World, resist_on: Option<i32>| -> f64 {
         for oid in [attacker, counterer] {

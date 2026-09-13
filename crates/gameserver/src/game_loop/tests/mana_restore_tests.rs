@@ -37,47 +37,13 @@ fn cast(
     target: i32,
 ) {
     use crate::model::skill::Skill;
-    use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
+    use crate::model::skill::target::TargetType;
     let skill = Skill {
-        self_continuous: false,
-        without_action: false,
-        trait_type: model::skill::traits::TraitType::None,
-        item_consume_id: 0,
-        item_consume_count: 0,
         id: skill_id,
-        level: 1,
         name: format!("R{skill_id}"),
-        operate_type: OperateType::Active,
-        is_continuous: false,
         target_type: TargetType::Target,
         magic_type: 1,
         magic_level,
-        effect_point: 0,
-        cast_range: 0,
-        effect_range: 0,
-        hit_time: 0,
-        hit_cancel_time: 0.0,
-        cool_time: 0,
-        reuse_delay: 0,
-        reuse_delay_group: -1,
-        mp_consume: 0,
-        mp_initial_consume: 0,
-        hp_consume: 0,
-        abnormal_time: 0,
-        abnormal_level: 0,
-        abnormal_type: "NONE".to_string(),
-        activate_rate: -1,
-        lvl_bonus_rate: 0,
-        over_hit: false,
-        abnormal_visuals: Vec::new(),
-        toggle_group_id: 0,
-        affect_scope: AffectScope::Single,
-        affect_object: AffectObject::All,
-        affect_range: 0,
-        affect_limit: (0, 0),
-        can_be_dispelled: true,
-        is_debuff: false,
-        stay_after_death: false,
         effects,
         ..Default::default()
     };
@@ -294,12 +260,7 @@ fn mana_charge_adds_to_the_recharged_amount() {
     let bare = mp(&world, TARGET);
 
     // The bonus belongs to the *recipient*: put it on the target, not the caster.
-    world
-        .objects
-        .get_component_mut::<StatModifiers>(&TARGET)
-        .unwrap()
-        .add
-        .insert(Stat::ManaCharge, 22.0);
+    set_add_modifier(&mut world, TARGET, Stat::ManaCharge, 22.0);
     empty_mp(&mut world, TARGET);
     cast(
         &mut world,
@@ -321,12 +282,7 @@ fn mana_charge_adds_to_the_recharged_amount() {
         .unwrap()
         .add
         .clear();
-    world
-        .objects
-        .get_component_mut::<StatModifiers>(&CASTER)
-        .unwrap()
-        .add
-        .insert(Stat::ManaCharge, 22.0);
+    set_add_modifier(&mut world, CASTER, Stat::ManaCharge, 22.0);
     empty_mp(&mut world, TARGET);
     cast(
         &mut world,

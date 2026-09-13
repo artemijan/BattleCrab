@@ -185,19 +185,6 @@ fn a_transfer_to_a_departed_member_is_skipped_not_cleared() {
 /// A clan carrying a pending transfer, leader `leader` and nominee `nominee`.
 fn pending_transfer_clan(world: &mut World, leader: i32, nominee: i32) -> i32 {
     let clan_id = 0x4100_0001;
-    let member = |char_id: i32| model::clan::ClanMember {
-        char_id,
-        name: format!("P{char_id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     world.clans.insert(
         clan_id,
         Clan {
@@ -207,7 +194,7 @@ fn pending_transfer_clan(world: &mut World, leader: i32, nominee: i32) -> i32 {
             level: 5,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![member(leader), member(nominee)],
+            members: vec![clan_member_p(leader), clan_member_p(nominee)],
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,

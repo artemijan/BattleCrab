@@ -9,7 +9,6 @@ use super::set_summon_link;
 use super::sync_pet_row;
 use crate::game_loop::character::inventory;
 use crate::model;
-use crate::model::components::summons::ServitorOf;
 use crate::world::World;
 /// Java `Pet.doDie` — the pet-specific half, called from the NPC death path
 /// once a dying NPC turns out to be a pet.
@@ -17,10 +16,7 @@ use crate::world::World;
 /// Returns the owner so the caller can finish its own bookkeeping.
 pub(crate) fn pet_do_die(world: &mut World, pet_oid: i32) -> Option<i32> {
     use crate::network::server_packets::sm_ids;
-    let owner = world
-        .objects
-        .get_component::<ServitorOf>(&pet_oid)?
-        .owner_object_id;
+    let owner = super::owner_of(world, pet_oid)?;
     world
         .objects
         .get_component::<crate::model::components::summons::PetOf>(&pet_oid)?;
@@ -126,11 +122,7 @@ pub(crate) fn pet_restore_exp(world: &mut World, pet_oid: i32, restore_percent: 
 /// branch. (The "24 hours" in the death message is flavour text that does not
 /// match the mechanic; checked against the datapack rather than trusted.)
 pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
-    let Some(owner) = world
-        .objects
-        .get_component::<ServitorOf>(&pet_oid)
-        .map(|s| s.owner_object_id)
-    else {
+    let Some(owner) = super::owner_of(world, pet_oid) else {
         return;
     };
     let Some(pet) = world

@@ -10,10 +10,7 @@ fn augment_make_and_cancel() {
     use crate::model::inventory::Inventory;
     let (mut world, ..) = admin_world();
     world.data.item_data = dist::items_owned();
-    world.data.variations = crate::data::VariationData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.variations = crate::data::VariationData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0200;
     let mut rx = ingame_player_access(&mut world, 1, 9900, 0);
     drain(&mut rx);
@@ -247,10 +244,7 @@ fn the_augment_window_confirms_each_slot() {
 
     let (mut world, ..) = admin_world();
     world.data.item_data = dist::items_owned();
-    world.data.variations = crate::data::VariationData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.variations = crate::data::VariationData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4700_0000..0x4700_0200;
     let mut rx = ingame_player_access(&mut world, 1, 9910, 0);
     inventory::add_inventory_item(&mut world, 9910, 2551, 1).unwrap(); // Crimson Sword

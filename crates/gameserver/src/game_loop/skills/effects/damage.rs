@@ -523,11 +523,7 @@ pub(crate) fn apply_buff_to_npc(
 /// land in fields `PetInfo`/`SummonInfo` carry, and both are cast by the owner
 /// *expecting* to see the difference.
 pub(crate) fn refresh_summon_info(world: &mut World, target_oid: i32) {
-    let Some(owner) = world
-        .objects
-        .get_component::<crate::model::components::summons::ServitorOf>(&target_oid)
-        .map(|s| s.owner_object_id)
-    else {
+    let Some(owner) = crate::game_loop::servitor::owner_of(world, target_oid) else {
         return;
     };
     crate::game_loop::servitor::send_pet_info(
@@ -592,23 +588,13 @@ pub(crate) fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
             .is_some_and(|n| n.champion),
         t.is_raid() || crate::game_loop::npc::minions::is_raid_minion(world, target_oid),
     );
-    if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
-        &components::skills::Buffs,
-        &mut components::stats::CombatStats,
-        &mut components::stats::Speeds,
-        &mut components::stats::Vitals,
-    )>(&target_oid)
-    {
-        crate::model::npc_stats::recompute_npc_stats_from_buffs(
-            &world.data,
-            t,
-            buffs,
-            champion_mods,
-            &mut combat,
-            &mut speeds,
-            &mut vitals,
-        );
-    }
+    crate::game_loop::npc::recompute_npc_stats(
+        &mut world.objects,
+        &world.data,
+        target_oid,
+        t,
+        champion_mods,
+    );
 }
 
 /// Recompute a player's max HP/MP/CP from base + CON/MEN + gear + the current

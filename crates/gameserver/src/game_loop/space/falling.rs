@@ -116,11 +116,7 @@ pub(crate) fn is_falling(world: &mut World, object_id: i32, client_z: i32) -> bo
     if player.is_flying() {
         return false;
     }
-    if world
-        .objects
-        .get_component::<components::space::ZoneFlags>(&object_id)
-        .is_some_and(|f| f.mask & ZoneKind::Water.bit() != 0)
-    {
+    if crate::game_loop::space::zones::has_zone_flag(world, object_id, ZoneKind::Water) {
         return false;
     }
 

@@ -9,7 +9,6 @@
 use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::space::position::maybe_position;
-use crate::model::components::combat::TargetRef;
 use crate::model::components::space::{Movement, Position, RegionCell};
 use crate::network::server_packets;
 use crate::session::ClientSession;
@@ -427,11 +426,7 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
     // broadcasts `TargetUnselected` including the owner's own client — without
     // that packet our client keeps the object id selected and the ground ring
     // re-attaches when the same id re-enters via `NpcInfo`/`CharInfo`.
-    if let Some(TargetRef(Some(target))) = world
-        .objects
-        .get_component::<TargetRef>(&object_id)
-        .copied()
-    {
+    if let Some(target) = crate::game_loop::combat::target::current(world, object_id) {
         let target_region = region_cell_of(world, target);
         if target_region.is_some_and(|r| !regions_adjacent(new, r)) {
             crate::game_loop::combat::target::drop_target_notify(world, object_id);
@@ -809,12 +804,7 @@ pub(crate) fn movement_tick(world: &mut World) {
 /// no-op-when-it-points-elsewhere behaviour is what makes the symmetric pair of
 /// calls on a mutual despawn safe to issue unconditionally.
 fn drop_target_if_pointing_at(world: &mut World, viewer: i32, object_id: i32) {
-    if world
-        .objects
-        .get_component::<TargetRef>(&viewer)
-        .copied()
-        .is_some_and(|t| t.0 == Some(object_id))
-    {
+    if crate::game_loop::combat::target::current(world, viewer) == Some(object_id) {
         crate::game_loop::combat::target::drop_target_notify(world, viewer);
     }
 }

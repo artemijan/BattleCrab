@@ -271,10 +271,7 @@ fn a_non_combat_transform_is_refused_a_walk_to_cast() {
 
     let refused_for = |transform_id: i32| -> bool {
         let (mut world, ..) = cast_test_world();
-        world.data.transforms = crate::data::TransformData::load_from(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../dist/game/"
-        ));
+        world.data.transforms = crate::data::TransformData::load_from(crate::data::DIST_GAME);
         let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
         // A target far enough that the cast needs a walk.
         let _target_rx = ingame_caster(&mut world, 2, 3002, 5000, 0);

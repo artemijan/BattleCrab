@@ -14,20 +14,11 @@ fn q414_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
         .collect();
     add_quest_items(&mut world, &rows);
     for id in [20320, 27045, 27054] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 20);
     }
     add_test_npc(&mut world, NPC_OID, 30570, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 44; // Orc Fighter
-        p.base_class_id = 44;
-        p.race = 3;
-    }
+    set_level_race_class(&mut world, 3001, 19, 3, 44); // Orc Fighter
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -52,17 +43,13 @@ fn quest_q00414_green_blood_is_a_summon_meter() {
 
     // blood 0, forced roll 5 → `0 <= 5` → gain.
     let mob = NPC_OID + 100;
-    add_test_npc(&mut world, mob, 20320, "Monster", 20, 30, 0, 0);
-    world.force_roll(5);
-    npc::npc_do_die(&mut world, mob, 3001);
+    kill_mob(&mut world, mob, 20320, 20, 5);
     assert_eq!(item_count(&world, 3001, 1578), 1, "gained a green blood");
     assert!(npcs_of(&mut world, 27045).is_empty(), "no summon yet");
 
     // blood 1, forced roll 0 → `1 <= 0` is false → wipe and summon.
     let mob2 = NPC_OID + 101;
-    add_test_npc(&mut world, mob2, 20320, "Monster", 20, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, mob2, 3001);
+    kill_mob(&mut world, mob2, 20320, 20, 0);
     assert_eq!(item_count(&world, 3001, 1578), 0, "the meter is wiped");
     let summoned = npcs_of(&mut world, 27045);
     assert_eq!(summoned.len(), 1, "Kuruka Ratman Leader was summoned");
@@ -82,9 +69,7 @@ fn quest_q00414_teeth_come_from_kuruka_and_reset_the_meter() {
     let (mut world, _rx) = q414_world();
     // Stock a little blood first.
     let mob = NPC_OID + 100;
-    add_test_npc(&mut world, mob, 20320, "Monster", 20, 30, 0, 0);
-    world.force_roll(19);
-    npc::npc_do_die(&mut world, mob, 3001);
+    kill_mob(&mut world, mob, 20320, 20, 19);
     assert_eq!(item_count(&world, 3001, 1578), 1);
 
     let kuruka = NPC_OID + 200;
@@ -116,9 +101,7 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
 
     // A roll of 2 misses (`getRandom(10) < 2`).
     let miss = NPC_OID + 300;
-    add_test_npc(&mut world, miss, 27054, "Monster", 20, 30, 0, 0);
-    world.force_roll(2);
-    npc::npc_do_die(&mut world, miss, 3001);
+    kill_mob(&mut world, miss, 27054, 20, 2);
     assert_eq!(
         item_count(&world, 3001, 1591),
         0,
@@ -127,9 +110,7 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
 
     for i in 0..2 {
         let mob = NPC_OID + 310 + i;
-        add_test_npc(&mut world, mob, 27054, "Monster", 20, 30, 0, 0);
-        world.force_roll(0);
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob(&mut world, mob, 27054, 20, 0);
     }
     assert_eq!(item_count(&world, 3001, 1591), 2, "two betrayer heads");
     assert_eq!(
@@ -149,13 +130,7 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
         &bypass_body(&format!("npc_{kasman}_Quest {Q414}")),
     );
     assert_eq!(item_count(&world, 3001, 1592), 1, "the Mark of Raider");
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q414].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q414));
 }
 
 /// NPC 31978 ships five pages in this quest's directory but is registered
@@ -171,7 +146,7 @@ fn orc_raider_dead_branch_is_dead_at_both_ends() {
     // The orphaned pages really do ship.
     for p in ["01", "02", "03", "04", "05"] {
         assert!(
-            std::path::Path::new(&format!("{DIST}31978-{p}.htm")).exists(),
+            ships(&format!("{DIST}31978-{p}.htm")),
             "31978-{p}.htm ships but is unreachable"
         );
     }
@@ -194,13 +169,13 @@ fn orc_raider_quest_pages_exist_in_dist() {
         "01", "02", "02a", "03", "04", "05", "06", "07", "07a", "07b", "08",
     ] {
         assert!(
-            std::path::Path::new(&format!("{DIST}30570-{p}.htm")).exists(),
+            ships(&format!("{DIST}30570-{p}.htm")),
             "missing 30570-{p}.htm"
         );
     }
     for p in ["01", "02", "03"] {
         assert!(
-            std::path::Path::new(&format!("{DIST}30501-{p}.htm")).exists(),
+            ships(&format!("{DIST}30501-{p}.htm")),
             "missing 30501-{p}.htm"
         );
     }
@@ -221,21 +196,11 @@ fn q415_world(weapon: Option<i32>) -> (World, UnboundedReceiver<bytes::Bytes>) {
     for id in [
         20014, 20017, 20024, 20359, 20415, 20476, 20478, 20479, 21118,
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        t.base_hp_max = 1000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 20, 1000.0);
     }
     add_test_npc(&mut world, NPC_OID, 30587, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 44; // Orc Fighter
-        p.base_class_id = 44;
-        p.race = 3;
-    }
+    set_level_race_class(&mut world, 3001, 19, 3, 44); // Orc Fighter
     if let Some(w) = weapon {
         equip_weapon_row(&mut world, 3001, w);
     }
@@ -391,16 +356,10 @@ fn orc_monk_alternate_ending_is_dead_at_both_ends() {
     );
     // The orphaned pages ship: 31979 x4, 32056 x9.
     for p in ["01", "02", "03", "04"] {
-        assert!(
-            std::path::Path::new(&format!("{DIST}31979-{p}.html")).exists(),
-            "31979-{p} ships"
-        );
+        assert!(ships(&format!("{DIST}31979-{p}.html")), "31979-{p} ships");
     }
     for n in 1..=9 {
-        assert!(
-            std::path::Path::new(&format!("{DIST}32056-0{n}.html")).exists(),
-            "32056-0{n} ships"
-        );
+        assert!(ships(&format!("{DIST}32056-0{n}.html")), "32056-0{n} ships");
     }
     // ...and the fork page offers only 09b.
     let fork = std::fs::read_to_string(format!("{DIST}30587-09a.html")).expect("the fork page");
@@ -419,31 +378,31 @@ fn orc_monk_quest_pages_exist_in_dist() {
     );
     for p in ["01", "02", "02a", "03", "04", "05", "06"] {
         assert!(
-            std::path::Path::new(&format!("{DIST}30587-{p}.htm")).exists(),
+            ships(&format!("{DIST}30587-{p}.htm")),
             "missing 30587-{p}.htm"
         );
     }
     for p in ["07", "08", "09a", "09b", "09c", "10", "11"] {
         assert!(
-            std::path::Path::new(&format!("{DIST}30587-{p}.html")).exists(),
+            ships(&format!("{DIST}30587-{p}.html")),
             "missing 30587-{p}.html"
         );
     }
     for n in 1..=4 {
         assert!(
-            std::path::Path::new(&format!("{DIST}30501-0{n}.html")).exists(),
+            ships(&format!("{DIST}30501-0{n}.html")),
             "missing 30501-0{n}"
         );
     }
     for n in 1..=9 {
         assert!(
-            std::path::Path::new(&format!("{DIST}30590-0{n}.html")).exists(),
+            ships(&format!("{DIST}30590-0{n}.html")),
             "missing 30590-0{n}"
         );
     }
     for n in 1..=4 {
         assert!(
-            std::path::Path::new(&format!("{DIST}30591-0{n}.html")).exists(),
+            ships(&format!("{DIST}30591-0{n}.html")),
             "missing 30591-0{n}"
         );
     }
@@ -457,20 +416,11 @@ fn q416_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let rows: Vec<(i32, &str, bool)> = (1616..=1631).map(|id| (id, "Q416", true)).collect();
     add_quest_items(&mut world, &rows);
     for id in [20038, 20043, 20335, 20415, 20478, 20479, 27056] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 20);
     }
     add_test_npc(&mut world, NPC_OID, 30585, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 49; // Orc Mage
-        p.base_class_id = 49;
-        p.race = 3;
-    }
+    set_level_race_class(&mut world, 3001, 19, 3, 49); // Orc Mage
     drain_db(&mut db_rx);
     // Note the event name: START, not ACCEPT.
     handle_request_bypass_to_server(
@@ -626,13 +576,7 @@ fn quest_q00416_finish_awards_the_mask_of_medium() {
         &bypass_body(&format!("npc_{umos}_Quest {Q416} 30502-07.html")),
     );
     assert_eq!(item_count(&world, 3001, 1631), 1, "the Mask of Medium");
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q416].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q416));
     assert!(
         drain(&mut rx)
             .iter()
@@ -649,14 +593,11 @@ fn orc_shaman_dead_branch_is_dead_at_both_ends() {
     );
     // The orphaned NPCs really do ship pages.
     for npc in ["31979", "32057", "32090"] {
-        let any = (1..=9).any(|n| std::path::Path::new(&format!("{DIST}{npc}-0{n}.html")).exists());
+        let any = (1..=9).any(|n| ships(&format!("{DIST}{npc}-0{n}.html")));
         assert!(any, "{npc} ships pages but is registered nowhere");
     }
     // The only entry to memoState 100 is 30585-14, which nothing offers.
-    assert!(
-        std::path::Path::new(&format!("{DIST}30585-14.html")).exists(),
-        "30585-14 ships"
-    );
+    assert!(ships(&format!("{DIST}30585-14.html")), "30585-14 ships");
     for page in ["30585-11.html", "30585-12.html", "30585-13.html"] {
         let body = std::fs::read_to_string(format!("{DIST}{page}")).expect(page);
         assert!(
@@ -674,31 +615,31 @@ fn orc_shaman_quest_pages_exist_in_dist() {
     );
     for p in ["01", "02", "03", "04", "05", "06", "07"] {
         assert!(
-            std::path::Path::new(&format!("{DIST}30585-{p}.htm")).exists(),
+            ships(&format!("{DIST}30585-{p}.htm")),
             "missing 30585-{p}.htm"
         );
     }
     for n in 8..=16 {
         assert!(
-            std::path::Path::new(&format!("{DIST}30585-{n:02}.html")).exists(),
+            ships(&format!("{DIST}30585-{n:02}.html")),
             "missing 30585-{n:02}.html"
         );
     }
     for n in 1..=7 {
         assert!(
-            std::path::Path::new(&format!("{DIST}30502-0{n}.html")).exists(),
+            ships(&format!("{DIST}30502-0{n}.html")),
             "missing 30502-0{n}"
         );
     }
     for n in 1..=5 {
         assert!(
-            std::path::Path::new(&format!("{DIST}30592-0{n}.html")).exists(),
+            ships(&format!("{DIST}30592-0{n}.html")),
             "missing 30592-0{n}"
         );
     }
     for n in 1..=6 {
         assert!(
-            std::path::Path::new(&format!("{DIST}30593-0{n}.html")).exists(),
+            ships(&format!("{DIST}30593-0{n}.html")),
             "missing 30593-0{n}"
         );
     }

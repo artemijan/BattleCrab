@@ -308,21 +308,7 @@ fn skill_upgrade_updates_matching_shortcuts() {
 fn from_char_restores_and_prunes_shortcuts() {
     let (world, ..) = test_world();
     let mut chr = dummy_char(3001, "P");
-    chr.items = vec![crate::db::ItemRow {
-        object_id: 500,
-        item_id: 57,
-        count: 10,
-        enchant_level: 0,
-        loc: "INVENTORY".into(),
-        loc_data: 0,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    }];
+    chr.items = vec![item_row_at(500, 57, 10, "INVENTORY", 0)];
     let sc = |slot: i32, kind: ShortcutType, id: i32| Shortcut {
         slot,
         page: 0,
@@ -395,10 +381,7 @@ fn enter_world_sends_macros_and_shortcut_panel() {
     }];
     let bundle = Player::from_char(&world.data, &chr);
     let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![])
-        .into_entering(bundle);
+    let s = get_test_session(1, out_tx, bundle);
     world
         .clients
         .insert(1, ClientSession::Entering(Box::new(s)));

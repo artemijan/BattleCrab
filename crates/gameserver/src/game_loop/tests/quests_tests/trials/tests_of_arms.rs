@@ -15,10 +15,7 @@ fn quest_q00222_test_of_the_duelist() {
     ];
     let stage2_mobs = [20214, 20217, 20554, 20588, 20604];
     for &id in stage1_mobs.iter().chain(stage2_mobs.iter()) {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     add_test_npc(&mut world, NPC_OID, 30623, "Folk", 40, 100, 0, 0); // Kaien
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -132,11 +129,7 @@ fn quest_q00223_test_of_the_champion() {
     items.push((3276, "Mark of Champion", false));
     add_quest_items(&mut world, &items);
     for id in [20145, 20158, 20551, 20553, 20577, 20780] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100_000.0; // survive the on_attack probe without dying
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100_000.0); // survive the on_attack probe without dying
     }
     let ascalon = NPC_OID;
     let groot = NPC_OID + 1;
@@ -163,12 +156,7 @@ fn quest_q00223_test_of_the_champion() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, ascalon);
     ev(&mut world, ascalon, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -283,11 +271,7 @@ fn quest_q00224_test_of_sagittarius() {
     items.push((17, "Wooden Arrow", false));
     add_quest_items(&mut world, &items);
     for id in [20079, 20269, 20233, 20230, 20577, 27090] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100_000.0);
     }
     let bernard = NPC_OID;
     let vokian = NPC_OID + 1;
@@ -316,12 +300,7 @@ fn quest_q00224_test_of_sagittarius() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, bernard);
     ev(&mut world, bernard, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -460,11 +439,7 @@ fn quest_q00225_test_of_the_searcher() {
     items.push((2809, "Mark of Searcher", false));
     add_quest_items(&mut world, &items);
     for id in [20781, 27093, 20555, 20551, 20144, 27092] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100_000.0);
     }
     // The Ancient Tree conjures a Strong Wooden Chest; it needs a template.
     world
@@ -504,12 +479,7 @@ fn quest_q00225_test_of_the_searcher() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, luther);
     ev(&mut world, luther, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));

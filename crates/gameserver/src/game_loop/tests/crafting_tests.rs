@@ -567,10 +567,7 @@ fn user_info_carries_the_crest_raid_points_and_cursed_stage() {
         "an unknown cursed weapon reports no stage"
     );
     // Load the real Zariche/Akamanah definitions, then mark one wielded.
-    world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(crate::data::DIST_GAME);
     world.cursed_weapons = world.data.cursed_weapons.weapons.clone();
     let cw = world
         .cursed_weapons

@@ -45,7 +45,6 @@ fn attack_template(level: i32) -> CubicTemplate {
 fn register(world: &mut World, t: CubicTemplate) {
     world.data.cubic_data.insert_for_test(t);
     let skill = Skill {
-        self_continuous: false,
         id: CUBIC_SKILL,
         level: 1,
         effects: vec![model::skill::effects::SkillEffect::MagicalAttack { power: 50.0 }],
@@ -84,11 +83,7 @@ fn a_cubic_is_not_a_world_object() {
     let (mut world, _db, _l) = combat_test_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     register(&mut world, attack_template(1));
-    let count = |w: &mut World| {
-        let mut n = 0;
-        w.objects.for_each_mut::<&model::npc::Npc>(|_| n += 1);
-        n
-    };
+    let count = |w: &mut World| npc_oids_where(w, |_| true).len();
     let before = count(&mut world);
 
     summon_cubic(&mut world, OWNER, CUBIC_ID, 1);

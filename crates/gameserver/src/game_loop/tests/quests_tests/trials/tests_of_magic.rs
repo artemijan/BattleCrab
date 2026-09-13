@@ -10,10 +10,7 @@ fn quest_q00226_test_of_the_healer() {
     items.push((2820, "Mark of Healer", false));
     add_quest_items(&mut world, &items);
     for id in [27122, 27123, 27124, 27125, 27126, 27127, 27134] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     let bandellos = NPC_OID;
     let perrin = NPC_OID + 1;
@@ -56,12 +53,7 @@ fn quest_q00226_test_of_the_healer() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, bandellos);
     ev(&mut world, bandellos, "ACCEPT");
     assert_eq!(quest_memo(&world, 3001, q), 1);
@@ -158,10 +150,7 @@ fn quest_q00228_test_of_magus() {
     for id in [
         27095, 27096, 27097, 20564, 20565, 20566, 27098, 20145, 20176, 20553, 20157,
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     let rukal = NPC_OID;
     let parina = NPC_OID + 1;
@@ -194,12 +183,7 @@ fn quest_q00228_test_of_magus() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, rukal);
     ev(&mut world, rukal, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -280,11 +264,7 @@ fn quest_q00229_test_of_witchcraft() {
     items.push((3307, "Mark of Witchcraft", false));
     add_quest_items(&mut world, &items);
     for id in [20557, 20565, 20577, 20601, 27099, 27100, 27101] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100_000.0);
     }
     let orim = NPC_OID;
     let alexandria = NPC_OID + 1;
@@ -323,12 +303,7 @@ fn quest_q00229_test_of_witchcraft() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 40;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, orim);
     ev(&mut world, orim, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -442,11 +417,7 @@ fn quest_q00227_test_of_the_reformer() {
     items.push((2821, "Mark of Reformer", false));
     add_quest_items(&mut world, &items);
     for id in [27099, 27128, 27129, 27130, 27131, 27132, 20022, 20100] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100_000.0);
     }
     let pupina = NPC_OID;
     let sla = NPC_OID + 1;
@@ -479,12 +450,7 @@ fn quest_q00227_test_of_the_reformer() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     // A skill hit: stash the skill id the way the damage path does, then strike.
     let skill_hit = |w: &mut World, npc_oid: i32, skill_id: i32| {
         w.quest_attack_skill = Some(skill_id);
@@ -534,9 +500,7 @@ fn quest_q00227_test_of_the_reformer() {
     talk(&mut world, kakan);
     // Register the duel monster's template so the staged spawn can conjure it.
     if world.data.npc_data.get(27131).is_none() {
-        let mut t = crate::data::npc_data::default_template(27131);
-        t.type_name = "Monster".into();
-        world.data.npc_data.insert_for_test(t);
+        register_npc_kind(&mut world, 27131, "Monster");
     }
     ev(&mut world, kakan, "30669-03.html"); // cond 12, spawn the staged duel
     assert_eq!(quest_cond(&world, 3001, q), Some(12));

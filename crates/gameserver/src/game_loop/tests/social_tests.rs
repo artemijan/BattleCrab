@@ -1025,10 +1025,7 @@ fn friend_login_logout_notifications() {
     }];
     let bundle = Player::from_char(&world.data, &chr);
     let (out_tx, mut b_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = Session::new(2, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![])
-        .into_entering(bundle);
+    let s = get_test_session(2, out_tx, bundle);
     world
         .clients
         .insert(2, ClientSession::Entering(Box::new(s)));

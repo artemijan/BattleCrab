@@ -15,7 +15,6 @@
 
 use crate::game_loop::helpers::{object_name, send_action_failed, send_to_player};
 use crate::game_loop::npc::is_creature;
-use crate::model::components::combat::TargetRef;
 use crate::model::components::social::PartyRef;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
@@ -39,10 +38,7 @@ pub(crate) fn handle_tactical_sign_use(
         .objects
         .get_component::<PartyRef>(&object_id)
         .map(|&PartyRef(id)| id);
-    let target = world
-        .objects
-        .get_component::<TargetRef>(&object_id)
-        .and_then(|t| t.0);
+    let target = crate::game_loop::combat::target::current(world, object_id);
     // `!player.isInParty() || player.getTarget() == null || !isCreature()`.
     let (Some(party_id), Some(target)) = (party_id, target) else {
         send_action_failed(world, client_id);

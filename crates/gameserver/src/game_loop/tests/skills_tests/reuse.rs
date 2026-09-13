@@ -277,7 +277,6 @@ fn shared_reuse_group_blocks_sibling_skill() {
     let base = world.data.skill_data.get(91, 1).unwrap().clone();
     for id in [7001, 7002] {
         world.data.skill_data.insert_for_test(Skill {
-            self_continuous: false,
             id,
             hit_time: 400,
             reuse_delay: 2000,

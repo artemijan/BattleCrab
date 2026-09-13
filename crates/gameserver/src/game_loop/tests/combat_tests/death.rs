@@ -262,14 +262,7 @@ fn decaying_mob_sends_target_unselected_to_all_holders() {
 fn player_death_penalty_and_revive_to_village() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     // One town region covering the fight location, respawn at (1000, 1000).
-    world.data.map_region =
-        crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
-            name: "test_town".into(),
-            loc_id: 0,
-            bbs: 0,
-            respawn_points: vec![(1000, 1000, 7)],
-            tiles: vec![(20, 18)],
-        }]);
+    with_town_at(&mut world, 0, (1000, 1000, 7));
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     {
         let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
@@ -444,13 +437,7 @@ fn dead_monster_decays_and_respawns() {
 
     // Respawn at +3 s more: a fresh NPC on the same spawn line, announced.
     advance_world(&mut world, 31);
-    let mut respawned_ids: Vec<i32> = Vec::new();
-    world.objects.for_each_mut::<&model::npc::Npc>(|n| {
-        if n.npc_id == 40001 {
-            respawned_ids.push(n.object_id);
-        }
-    });
-    let respawned_oid = *respawned_ids.first().expect("respawned");
+    let respawned_oid = *npcs_of(&mut world, 40001).first().expect("respawned");
     assert_ne!(respawned_oid, npc_oid, "transient ids are not reused");
     let rpos = world
         .objects
@@ -477,7 +464,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     use crate::game_loop::npc;
     use model::skill::Skill;
     use model::skill::effects::SkillEffect;
-    use model::skill::target::{AffectObject, AffectScope, TargetType};
+    use model::skill::target::TargetType;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
@@ -547,45 +534,12 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     // A skill carrying just the Spoil effect (magic level 10 ⇒ near-certain
     // land on a level-5 mob), and the Sweeper skill (Sweeper then ConsumeBody).
     let make = |id: i32, target_type, magic_level, effects| Skill {
-        self_continuous: false,
-        without_action: false,
-        trait_type: model::skill::traits::TraitType::None,
-        item_consume_id: 0,
-        item_consume_count: 0,
         id,
-        level: 1,
-        name: String::new(),
-        operate_type: OperateType::Active,
-        is_continuous: false,
         target_type,
-        magic_type: 0,
         magic_level,
         effect_point: -1,
         cast_range: 400,
         effect_range: 400,
-        hit_time: 0,
-        hit_cancel_time: 0.0,
-        cool_time: 0,
-        reuse_delay: 0,
-        reuse_delay_group: -1,
-        mp_consume: 0,
-        mp_initial_consume: 0,
-        hp_consume: 0,
-        abnormal_time: 0,
-        abnormal_level: 0,
-        abnormal_type: "NONE".into(),
-        activate_rate: -1,
-        lvl_bonus_rate: 0,
-        over_hit: false,
-        abnormal_visuals: Vec::new(),
-        toggle_group_id: 0,
-        affect_scope: AffectScope::Single,
-        affect_object: AffectObject::All,
-        affect_range: 0,
-        affect_limit: (0, 0),
-        can_be_dispelled: true,
-        is_debuff: false,
-        stay_after_death: false,
         effects,
         ..Default::default()
     };

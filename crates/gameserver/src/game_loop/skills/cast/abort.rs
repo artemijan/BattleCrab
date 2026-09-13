@@ -87,11 +87,7 @@ pub(crate) fn abort_cast_when_untargeted(world: &mut World, object_id: i32) {
     if !world.objects.has_component::<Casting>(&object_id) {
         return;
     }
-    let has_target = world
-        .objects
-        .get_component::<crate::model::components::combat::TargetRef>(&object_id)
-        .is_some_and(|t| t.0.is_some());
-    if has_target {
+    if crate::game_loop::combat::target::current(world, object_id).is_some() {
         return;
     }
     emit_cast_abort(world, object_id);

@@ -12,7 +12,6 @@ use crate::data::castle_siege_guards::SiegeGuardHolder;
 use crate::data::zone_data::{Zone, ZoneKind};
 use crate::game_loop::siege::{handle_mercenary_confirm, use_mercenary_ticket};
 use crate::model::Player;
-use crate::model::castle::{Castle, CastleSide};
 use crate::model::clan::Clan;
 
 const CASTLE: i32 = 3;
@@ -65,18 +64,7 @@ fn merc_world(max_npc_amount: i32) -> (World, UnboundedReceiver<bytes::Bytes>) {
             max_npc_amount,
             stationary: true,
         });
-    world.castles = vec![Castle {
-        show_npc_crest: false,
-        id: CASTLE,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
+    world.castles = vec![castle_row(CASTLE, "Giran")];
     // Ownership lives on the clan (`Clan.castle_id`), which is what the
     // handler's `owns` check reads.
     world.clans.insert(

@@ -39,25 +39,13 @@ fn siege_zone_makes_participants_attackable_only_during_siege() {
 /// to their nearest town (Java teleportPlayer(NotOwner, TOWN)).
 #[test]
 fn siege_start_evicts_non_owners_to_town() {
-    use model::castle::{Castle, CastleSide};
     use model::clan::{Clan, ClanMember};
     use model::siege::Siege;
     const ROOT: &str = crate::data::DIST_GAME;
     let (mut world, ..) = test_world();
     world.data.map_region = crate::data::MapRegionData::load_from(ROOT);
     insert_siege_zone(&mut world, 3, 0, 1000, 0, 1000);
-    world.castles = vec![Castle {
-        show_npc_crest: false,
-        id: 3,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
+    world.castles = vec![castle_row(3, "Giran")];
     world.sieges.insert(3, Siege::new(3));
     // Owner clan 500 holds castle 3.
     world.clans.insert(
@@ -70,17 +58,8 @@ fn siege_start_evicts_non_owners_to_town() {
             reputation_score: 0,
             castle_id: 3,
             members: vec![ClanMember {
-                char_id: 9002,
-                name: "P9002".into(),
                 level: 40,
-                class_id: 0,
-                sex: 0,
-                race: 0,
-                power_grade: 5,
-                title: String::new(),
-                pledge_type: 0,
-                apprentice: 0,
-                sponsor: 0,
+                ..clan_member_p(9002)
             }],
             skills: Default::default(),
             warehouse: Default::default(),
@@ -193,14 +172,7 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
     use model::siege::Siege;
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     // Town fallback: one region covering the death spot, respawn at (1000, 1000).
-    world.data.map_region =
-        crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
-            name: "test_town".into(),
-            loc_id: 0,
-            bbs: 0,
-            respawn_points: vec![(1000, 1000, 7)],
-            tiles: vec![(20, 18)],
-        }]);
+    with_town_at(&mut world, 0, (1000, 1000, 7));
     insert_siege_zone(&mut world, 3, -1000, 1000, -1000, 1000);
     // The castle's owner restart point (from castle_hall.xml).
     world.data.castle_restart_points.insert(
@@ -221,17 +193,8 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
             reputation_score: 0,
             castle_id: 3,
             members: vec![ClanMember {
-                char_id: 3001,
-                name: "P3001".into(),
                 level: 40,
-                class_id: 0,
-                sex: 0,
-                race: 0,
-                power_grade: 5,
-                title: String::new(),
-                pledge_type: 0,
-                apprentice: 0,
-                sponsor: 0,
+                ..clan_member_p(3001)
             }],
             skills: Default::default(),
             warehouse: Default::default(),
@@ -298,24 +261,12 @@ fn siege_sides_world(
     a_kind: model::siege::SiegeClanType,
     b_kind: model::siege::SiegeClanType,
 ) -> World {
-    use model::castle::{Castle, CastleSide};
     use model::clan::Clan;
     use model::siege::Siege;
 
     let (mut world, ..) = test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, 0, 1000);
-    world.castles = vec![Castle {
-        show_npc_crest: false,
-        id: 3,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
+    world.castles = vec![castle_row(3, "Giran")];
     let mut siege = Siege::new(3);
     siege.add_clan(500, a_kind);
     siege.add_clan(700, b_kind);
@@ -329,19 +280,7 @@ fn siege_sides_world(
             level: 5,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![model::clan::ClanMember {
-                char_id: leader,
-                name: format!("P{leader}"),
-                level: 40,
-                class_id: 0,
-                sex: 0,
-                race: 0,
-                power_grade: 1,
-                title: String::new(),
-                pledge_type: 0,
-                apprentice: 0,
-                sponsor: 0,
-            }],
+            members: vec![clan_leader(leader)],
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,

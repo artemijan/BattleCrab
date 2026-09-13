@@ -285,7 +285,6 @@ fn use_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
         t.immediate_effect = true;
         world.data.item_data.insert_for_test(t);
         world.data.skill_data.insert_for_test(Skill {
-            self_continuous: false,
             id: skill_id,
             level: 1,
             name: format!("Effect {skill_id}"),
@@ -397,11 +396,8 @@ fn a_peace_zone_stops_items_but_not_buffs() {
     let (mut world, _rx) = use_world();
     give_to_player(&mut world, SHOT, 2, 0x4D00_0030, PLAYER);
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: BUFF_SKILL,
-        level: 1,
         name: "Wind Walk".into(),
-        target_type: TargetType::Self_,
         ..Default::default()
     });
     world
@@ -482,7 +478,6 @@ fn the_skill_page_sorts_buffs_from_attack_skills() {
         (ATTACK_SKILL, TargetType::Enemy),
     ] {
         world.data.skill_data.insert_for_test(Skill {
-            self_continuous: false,
             id,
             level: 1,
             name: format!("Skill {id}"),

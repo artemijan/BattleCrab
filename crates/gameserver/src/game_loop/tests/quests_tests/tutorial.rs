@@ -161,21 +161,8 @@ fn npc_location_info_marks_the_requested_npc_on_the_radar() {
     // why it kept passing while `add_radar` sent only the second leg — the
     // community-board path sent both and the quest path did not. Assert the
     // shape, not its presence.
-    let radars: Vec<_> = pkts.iter().filter(|p| p[0] == 0xF1).collect();
-    assert_eq!(radars.len(), 2, "addMarker sends two RadarControl packets");
-    let legs: Vec<(i32, i32, i32, i32, i32)> = radars
-        .iter()
-        .map(|p| {
-            let mut r = commons::network::PacketReader::new(&p[1..]);
-            (
-                r.read_i32().unwrap(),
-                r.read_i32().unwrap(),
-                r.read_i32().unwrap(),
-                r.read_i32().unwrap(),
-                r.read_i32().unwrap(),
-            )
-        })
-        .collect();
+    let legs = radar_markers(&pkts);
+    assert_eq!(legs.len(), 2, "addMarker sends two RadarControl packets");
     assert_eq!(legs[0], (2, 2, 500, 600, 700), "clear leg, at the spawn");
     assert_eq!(legs[1], (0, 1, 500, 600, 700), "show leg, at the spawn");
 

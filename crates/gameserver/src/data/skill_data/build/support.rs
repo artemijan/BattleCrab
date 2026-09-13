@@ -1,6 +1,5 @@
 //! Heal, mana, CP and the restore/resurrect effects.
 
-use super::super::value_at;
 use super::effect::Cx;
 use crate::model::skill;
 use crate::model::stats::{Stat, StatModifierType};
@@ -19,6 +18,8 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         hp_percent,
     } = cx;
     let _ = (
+        params,
+        level,
         mode,
         groups,
         armor_condition,
@@ -28,7 +29,6 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         hp_percent,
     );
     let param = |key: &str| cx.param(key);
-    let stat_mod = |stat: Stat, amount: f64| cx.stat_mod(stat, amount);
 
     Some(match xml_name.as_str() {
         // Poison/bleed damage-over-time (e.g. Curse Poison 1168).
@@ -41,17 +41,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // `HealEffect` scales the healing its bearer *receives* — a two-stat
         // AbstractStatEffect like CriticalDamage: PER feeds the multiplier,
         // DIFF the flat addend.
-        "HealEffect" => param("amount")
-            .map(|amount| {
-                let stat = if modifier_mode == StatModifierType::Per {
-                    Stat::HealEffect
-                } else {
-                    Stat::HealEffectAdd
-                };
-                stat_mod(stat, amount)
-            })
-            .into_iter()
-            .collect(),
+        "HealEffect" => cx.stat_mod_by_mode(Stat::HealEffect, Stat::HealEffectAdd),
         "Heal" => vec![skill::effects::SkillEffect::Heal {
             power: param("power").unwrap_or(0.0),
         }],
@@ -118,16 +108,11 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             wyvern: param("wyvern").unwrap_or(0.0) as i32,
         }],
         "Resurrection" => {
-            let int_param = |key: &str, d: i32| {
-                value_at(params, key, level)
-                    .and_then(|v| v.parse().ok())
-                    .unwrap_or(d)
-            };
             vec![skill::effects::SkillEffect::Resurrection {
-                power: int_param("power", 0),
-                hp_percent: int_param("hpPercent", 0),
-                mp_percent: int_param("mpPercent", 0),
-                cp_percent: int_param("cpPercent", 0),
+                power: cx.int_param("power", 0),
+                hp_percent: cx.int_param("hpPercent", 0),
+                mp_percent: cx.int_param("mpPercent", 0),
+                cp_percent: cx.int_param("cpPercent", 0),
             }]
         }
         "ResurrectionSpecial" => {

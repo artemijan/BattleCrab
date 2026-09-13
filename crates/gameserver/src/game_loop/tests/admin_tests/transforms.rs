@@ -53,10 +53,7 @@ fn admin_ride_and_unride() {
 #[test]
 fn admin_mounted_blocks_horse_and_transform() {
     let (mut world, ..) = admin_world();
-    world.data.transforms = crate::data::TransformData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.transforms = crate::data::TransformData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 8925, 100);
     drain(&mut gm_rx);
 
@@ -91,10 +88,7 @@ fn admin_mounted_blocks_horse_and_transform() {
 #[test]
 fn admin_transform_refused_in_water() {
     let (mut world, ..) = admin_world();
-    world.data.transforms = crate::data::TransformData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.transforms = crate::data::TransformData::load_from(crate::data::DIST_GAME);
     let mut rx = ingame_player_access(&mut world, 1, 8925, 100);
     drain(&mut rx);
 
@@ -143,10 +137,7 @@ fn admin_transform_refused_in_water() {
 #[test]
 fn admin_ride_bike_transforms_and_reverts() {
     let (mut world, ..) = admin_world();
-    world.data.transforms = crate::data::TransformData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.transforms = crate::data::TransformData::load_from(crate::data::DIST_GAME);
     world.data.skill_data = dist::skills_owned();
     // Jet bike (20001) exists in the dist with run=170 + a Dismount skill.
     let bike = world
@@ -243,10 +234,7 @@ fn admin_ride_bike_transforms_and_reverts() {
 #[test]
 fn dismount_skill_reverts_gm_ride_transform() {
     let (mut world, ..) = admin_world();
-    world.data.transforms = crate::data::TransformData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.transforms = crate::data::TransformData::load_from(crate::data::DIST_GAME);
     world.data.skill_data = dist::skills_owned();
 
     let mut gm_rx = ingame_player_access(&mut world, 1, 8935, 100);
@@ -310,10 +298,7 @@ fn dismount_skill_reverts_gm_ride_transform() {
 #[test]
 fn transform_skills_never_persist() {
     let (mut world, ..) = admin_world();
-    world.data.transforms = crate::data::TransformData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.transforms = crate::data::TransformData::load_from(crate::data::DIST_GAME);
     world.data.skill_data = dist::skills_owned();
     let bike_skills: Vec<i32> = world
         .data
@@ -369,7 +354,7 @@ fn transform_skills_never_persist() {
 fn basic_action_lists(pkts: &[Vec<u8>]) -> Vec<Vec<i32>> {
     let mut out = Vec::new();
     for p in pkts {
-        if p.len() < 7 || p[0] != 0xFE || p[1] != 0x60 || p[2] != 0x00 {
+        if p.len() < 7 || !is_ex(p, 0x0060) {
             continue;
         }
         let rd = |o: usize| i32::from_le_bytes([p[o], p[o + 1], p[o + 2], p[o + 3]]);
@@ -390,18 +375,12 @@ fn basic_action_lists(pkts: &[Vec<u8>]) -> Vec<Vec<i32>> {
 #[test]
 fn admin_transform_swaps_and_restores_the_action_bar() {
     let (mut world, ..) = admin_world();
-    world.data.transforms = crate::data::TransformData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.transforms = crate::data::TransformData::load_from(crate::data::DIST_GAME);
     world.data.skill_data = dist::skills_owned();
     // The fixture world ships an *empty* ActionData, which would make the
     // restore leg below compare an empty bar against an empty bar and pass
     // while proving nothing. Load the real one.
-    world.data.action_data = crate::data::ActionData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.action_data = crate::data::ActionData::load_from(crate::data::DIST_GAME);
 
     // Transform 105 is one of the two forms a *player* can actually enter on
     // this dist (the Rabbits event casts it), which is why it is the one worth
@@ -452,10 +431,7 @@ fn admin_transform_swaps_and_restores_the_action_bar() {
 #[test]
 fn transform_base_replaces_the_weapon_only_for_non_combat_forms() {
     let (mut world, ..) = admin_world();
-    world.data.transforms = crate::data::TransformData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.transforms = crate::data::TransformData::load_from(crate::data::DIST_GAME);
     world.data.skill_data = dist::skills_owned();
     // The fixture's single synthetic class template does not cover the test
     // player's class, so `recalculate_stats` would fall back to

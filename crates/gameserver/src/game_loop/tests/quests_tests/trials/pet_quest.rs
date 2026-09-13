@@ -83,11 +83,10 @@ fn quest_q00210_wolf_pet_chain() {
         &bypass_body(&format!("npc_{lundy}_Quest {q} 30827-05.html")),
     );
     assert_eq!(item_count(&world, 3001, 2375), 1, "Wolf Collar rewarded");
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
+    assert!(
+        quest_completed(&world, 3001, q),
+        "one-time quest stays COMPLETED"
+    );
 }
 
 /// Q00210 refuses a starter below level 15 with `no_level.htm` and does not
@@ -113,17 +112,6 @@ fn quest_q00210_refused_below_level_15() {
     );
     // `no_level.htm` is a `.htm` file, so it ships as ExNpcQuestHtmlMessage
     // (the quest window), not a plain NpcHtmlMessage.
-    let decode_quest_html = |pkt: &[u8]| -> Option<String> {
-        if pkt[0] != server_packets::opcodes::EX
-            || i16::from_le_bytes([pkt[1], pkt[2]])
-                != server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE
-        {
-            return None;
-        }
-        let mut r = commons::network::PacketReader::new(&pkt[3..]);
-        r.read_i32()?;
-        r.read_string()
-    };
     let html = drain(&mut rx)
         .iter()
         .find_map(|p| decode_quest_html(p))
@@ -134,9 +122,5 @@ fn quest_q00210_refused_below_level_15() {
     );
     // The talk creates a CREATED state (Java `getQuestState(player, true)`) but
     // the gate keeps it un-started (cond 0, never `startQuest`).
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(!quests.0[q].is_started(), "the quest never started");
+    assert!(!quest_started(&world, 3001, q), "the quest never started");
 }

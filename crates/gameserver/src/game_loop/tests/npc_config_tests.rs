@@ -95,7 +95,7 @@ fn a_seeded_corpse_takes_the_same_extension_as_a_spoiled_one() {
 fn a_corpse_about_to_decay_is_too_old_to_sweep() {
     use crate::model::skill::Skill;
     use crate::model::skill::effects::SkillEffect;
-    use crate::model::skill::target::{AffectObject, AffectScope, TargetType};
+    use crate::model::skill::target::TargetType;
     use crate::network::server_packets::sm_ids;
 
     // `None` = no decay scheduled at all, which Java answers with
@@ -121,10 +121,7 @@ fn a_corpse_about_to_decay_is_too_old_to_sweep() {
             .dead = true;
         let sweeper = Skill {
             id: 42,
-            level: 1,
             target_type: TargetType::NpcBody,
-            affect_scope: AffectScope::Single,
-            affect_object: AffectObject::All,
             effects: vec![SkillEffect::Sweeper],
             ..Default::default()
         };

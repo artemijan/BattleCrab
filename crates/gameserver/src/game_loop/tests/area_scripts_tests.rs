@@ -19,9 +19,7 @@ const TOMA_LOCS: [(i32, i32, i32); 3] = [
 #[test]
 fn toma_spawns_at_boot_and_relocates_without_duplicating() {
     let (mut world, _db, _l) = combat_test_world();
-    let mut t = crate::data::npc_data::default_template(TOMA);
-    t.type_name = "Folk".into();
-    world.data.npc_data.insert_for_test(t);
+    register_npc_kind(&mut world, TOMA, "Folk");
 
     area::spawn_at_boot(&mut world);
     let at_boot = insert_positions_for(&mut world, TOMA);
@@ -212,16 +210,6 @@ fn tunatun_hands_out_one_whip_at_level_82() {
 // Slice 2 — the small combat scripts
 // ---------------------------------------------------------------------------
 
-fn count_npcs(world: &mut World, npc_id: i32) -> usize {
-    let mut n = 0;
-    world.objects.for_each_mut::<&model::npc::Npc>(|x| {
-        if x.npc_id == npc_id {
-            n += 1;
-        }
-    });
-    n
-}
-
 /// Cave Maiden: a 20% kill proc swaps the corpse for a Banshee set on the
 /// killer (Pytan/Knoriks is the same script shape at 5%).
 #[test]
@@ -241,8 +229,8 @@ fn cave_maiden_kill_can_spring_a_banshee() {
     // Roll under 20 → the proc fires.
     world.force_roll(10);
     quests::notify_kill(&mut world, 5001, NPC_OID, CAVE_MAIDEN, false);
-    assert_eq!(count_npcs(&mut world, BANSHEE), 1, "banshee sprang");
-    assert_eq!(count_npcs(&mut world, CAVE_MAIDEN), 0, "corpse consumed");
+    assert_eq!(npc_count(&mut world, BANSHEE), 1, "banshee sprang");
+    assert_eq!(npc_count(&mut world, CAVE_MAIDEN), 0, "corpse consumed");
 }
 
 /// Frozen Labyrinth: a physical *skill* blow shatters a Pronghorn into six
@@ -270,12 +258,12 @@ fn frozen_labyrinth_shatters_on_physical_skill_only() {
 
     // Magic skill: nothing happens.
     quests::notify_attack(&mut world, 5001, NPC_OID, PRONGHORN, Some(9002), false);
-    assert_eq!(count_npcs(&mut world, SPIRIT), 0, "magic does not shatter");
+    assert_eq!(npc_count(&mut world, SPIRIT), 0, "magic does not shatter");
 
     // Physical skill: six spirits, original gone.
     quests::notify_attack(&mut world, 5001, NPC_OID, PRONGHORN, Some(9001), false);
-    assert_eq!(count_npcs(&mut world, SPIRIT), 6, "six spirits");
-    assert_eq!(count_npcs(&mut world, PRONGHORN), 0, "pronghorn gone");
+    assert_eq!(npc_count(&mut world, SPIRIT), 6, "six spirits");
+    assert_eq!(npc_count(&mut world, PRONGHORN), 0, "pronghorn gone");
 }
 
 /// Pagan keys: 10% kill proc — ground drop owned by the killer with
@@ -359,10 +347,10 @@ fn eilhalder_walks_at_night_and_vanishes_by_day() {
         .insert_for_test(crate::data::npc_data::default_template(EILHALDER));
 
     area::eilhalder_on_day_night_change(&mut world, true);
-    assert_eq!(count_npcs(&mut world, EILHALDER), 1, "night: he walks");
+    assert_eq!(npc_count(&mut world, EILHALDER), 1, "night: he walks");
 
     area::eilhalder_on_day_night_change(&mut world, false);
-    assert_eq!(count_npcs(&mut world, EILHALDER), 0, "day: gone");
+    assert_eq!(npc_count(&mut world, EILHALDER), 0, "day: gone");
 
     // Night again, but this time he is fighting at daybreak.
     area::eilhalder_on_day_night_change(&mut world, true);
@@ -377,7 +365,7 @@ fn eilhalder_walks_at_night_and_vanishes_by_day() {
     );
     world.objects.add_components(&oid, aggro);
     area::eilhalder_on_day_night_change(&mut world, false);
-    assert_eq!(count_npcs(&mut world, EILHALDER), 1, "fighting: he stays");
+    assert_eq!(npc_count(&mut world, EILHALDER), 1, "fighting: he stays");
 
     // Fight over → the retry removes him.
     world
@@ -388,7 +376,7 @@ fn eilhalder_walks_at_night_and_vanishes_by_day() {
         .clear();
     area::handle_eilhalder_despawn_retry(&mut world);
     assert_eq!(
-        count_npcs(&mut world, EILHALDER),
+        npc_count(&mut world, EILHALDER),
         0,
         "retry finishes the job"
     );
@@ -482,8 +470,8 @@ fn ragna_commander_picks_named_escort_groups() {
     }
 
     game_loop::npc::spawn_npc_at(&mut world, COMMANDER, 0, 0, 0, 0);
-    let p1 = count_npcs(&mut world, 22695);
-    let extra = count_npcs(&mut world, 22693) + count_npcs(&mut world, 22697);
+    let p1 = npc_count(&mut world, 22695);
+    let extra = npc_count(&mut world, 22693) + npc_count(&mut world, 22697);
     assert_eq!(p1, 1, "Privates1 always comes out");
     assert_eq!(extra, 1, "exactly one of Privates2/Privates3 — not both");
 }
@@ -531,7 +519,7 @@ fn frightened_orc_bribe_pays_out_and_he_vanishes() {
 
     // The 1 s despawn: he keeps his word and disappears.
     advance_ticks(&mut world, 15);
-    assert_eq!(count_npcs(&mut world, ORC), 0, "gone as promised");
+    assert_eq!(npc_count(&mut world, ORC), 0, "gone as promised");
 }
 
 // ---------------------------------------------------------------------------
@@ -666,19 +654,19 @@ fn forge_kill_streak_erupts_a_lavasaurus_and_refresh_cools_it() {
         world.force_roll(5);
         quests::notify_kill(&mut world, 5001, w(i), WORKER, false);
     }
-    assert_eq!(count_npcs(&mut world, NEWBORN), 0, "streak too short");
+    assert_eq!(npc_count(&mut world, NEWBORN), 0, "streak too short");
 
     // Kill 3 with rand <= 20: the Newborn erupts, hating the killer.
     world.force_roll(5);
     quests::notify_kill(&mut world, 5001, w(2), WORKER, false);
-    assert_eq!(count_npcs(&mut world, NEWBORN), 1, "the forge answers");
+    assert_eq!(npc_count(&mut world, NEWBORN), 1, "the forge answers");
 
     // The refresh beat resets the streak: the next lucky kill is kill #1.
     area::handle_fog_refresh(&mut world);
     world.force_roll(5);
     quests::notify_kill(&mut world, 5001, w(3), WORKER, false);
     assert_eq!(
-        count_npcs(&mut world, NEWBORN),
+        npc_count(&mut world, NEWBORN),
         1,
         "cooled: no second eruption"
     );
@@ -709,12 +697,7 @@ fn an_expiring_lavasaurus_dies_rather_than_vanishing() {
         world.force_roll(5);
         quests::notify_kill(&mut world, 5001, w(i), WORKER, false);
     }
-    let mut beast = 0;
-    world.objects.for_each_mut::<&model::npc::Npc>(|n| {
-        if n.npc_id == NEWBORN {
-            beast = n.object_id;
-        }
-    });
+    let beast = find_npc_object_id(&mut world, NEWBORN).unwrap_or(0);
     assert_ne!(beast, 0, "the forge erupted");
 
     // Still alive well inside its minute.
@@ -776,22 +759,14 @@ fn spice_grows_the_beast_and_wrong_spice_does_not() {
         world.force_roll(r);
     }
     quests::notify_skill_see(&mut world, 5001, NPC_OID + 900, HATCHLING, 2188);
-    assert_eq!(count_npcs(&mut world, HATCHLING), 0, "hatchling grew up");
-    assert_eq!(count_npcs(&mut world, GOLD_STAGE_1), 1, "into stage one");
+    assert_eq!(npc_count(&mut world, HATCHLING), 0, "hatchling grew up");
+    assert_eq!(npc_count(&mut world, GOLD_STAGE_1), 1, "into stage one");
 
     // Stage one eats ONLY golden spice — crystal is consumed with no effect.
-    let grown = {
-        let mut found = 0;
-        world.objects.for_each_mut::<&model::npc::Npc>(|n| {
-            if n.npc_id == GOLD_STAGE_1 {
-                found = n.object_id;
-            }
-        });
-        found
-    };
+    let grown = find_npc_object_id(&mut world, GOLD_STAGE_1).unwrap_or(0);
     quests::notify_skill_see(&mut world, 5001, grown, GOLD_STAGE_1, 2189);
     assert_eq!(
-        count_npcs(&mut world, GOLD_STAGE_1),
+        npc_count(&mut world, GOLD_STAGE_1),
         1,
         "crystal does nothing"
     );
@@ -818,7 +793,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
         world.force_roll(r);
     }
     quests::notify_skill_see(&mut world, 5001, NPC_OID + 900, TOP, 2188);
-    assert_eq!(count_npcs(&mut world, TOP), 0, "the wild one is gone");
+    assert_eq!(npc_count(&mut world, TOP), 0, "the wild one is gone");
     let beast = {
         let mut found = None;
         world
@@ -873,7 +848,7 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
 
     // Pouch empty and past the newcomer grace: the beast leaves.
     crate::game_loop::servitor::tamed_beast::handle_duration(&mut world, beast_oid);
-    assert_eq!(count_npcs(&mut world, TAMED_FIGHTER), 0, "starved out");
+    assert_eq!(npc_count(&mut world, TAMED_FIGHTER), 0, "starved out");
 }
 
 // ---------------------------------------------------------------------------
@@ -1177,24 +1152,16 @@ fn four_sepulchers_admission_and_first_wave() {
 
     // The 3-minute chest appears...
     advance_ticks(&mut world, 3 * 60 * 10 + 5);
-    assert_eq!(count_npcs(&mut world, fs::MYSTERIOUS_CHEST), 1, "chest up");
+    assert_eq!(npc_count(&mut world, fs::MYSTERIOUS_CHEST), 1, "chest up");
 
     // ...the party opens it: wave 1 has no rows in this fixture, so advance
     // progress manually to wave 2 and pour it.
     world.four_sepulchers.progress[0] = 2;
     fs::spawn_next_wave(&mut world, 1);
-    assert_eq!(count_npcs(&mut world, 18120), 1, "wave 2 spawned");
+    assert_eq!(npc_count(&mut world, 18120), 1, "wave 2 spawned");
 
     // Clearing the wave pays a key chest at the last corpse.
-    let mob = {
-        let mut found = 0;
-        world.objects.for_each_mut::<&model::npc::Npc>(|n| {
-            if n.npc_id == 18120 {
-                found = n.object_id;
-            }
-        });
-        found
-    };
+    let mob = find_npc_object_id(&mut world, 18120).unwrap_or(0);
     world
         .objects
         .get_component_mut::<Vitals>(&mob)
@@ -1202,7 +1169,7 @@ fn four_sepulchers_admission_and_first_wave() {
         .dead = true;
     advance_ticks(&mut world, 60);
     assert_eq!(
-        count_npcs(&mut world, fs::KEY_CHEST),
+        npc_count(&mut world, fs::KEY_CHEST),
         1,
         "key chest paid out"
     );
@@ -1238,7 +1205,7 @@ fn four_sepulchers_boss_pays_goblets() {
         assert_eq!(item_count(&world, oid, 7256), 1, "sepulcher 1 goblet");
     }
     assert_eq!(
-        count_npcs(&mut world, fs::TELEPORTER),
+        npc_count(&mut world, fs::TELEPORTER),
         1,
         "exit teleporter up"
     );
@@ -1248,10 +1215,8 @@ fn four_sepulchers_boss_pays_goblets() {
 /// XML rename or schema drift must fail loudly here.
 #[test]
 fn four_sepulchers_real_spawn_table_loads() {
-    let data = crate::data::four_sepulchers_data::FourSepulchersData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let data =
+        crate::data::four_sepulchers_data::FourSepulchersData::load_from(crate::data::DIST_GAME);
     assert!(
         data.spawns.len() > 700,
         "expected the full wave table, got {}",
@@ -1317,16 +1282,7 @@ fn a_summons_kill_points_the_avenger_at_the_summon() {
     world.force_roll(10); // under 20 → the proc fires
     quests::notify_kill(&mut world, 5001, NPC_OID, CAVE_MAIDEN, true);
 
-    let oids_of = |world: &mut World, npc_id: i32| {
-        let mut out = Vec::new();
-        world.objects.for_each_mut::<&model::npc::Npc>(|n| {
-            if n.npc_id == npc_id {
-                out.push(n.object_id);
-            }
-        });
-        out
-    };
-    let banshee = *oids_of(&mut world, BANSHEE)
+    let banshee = *npcs_of(&mut world, BANSHEE)
         .first()
         .expect("banshee sprang");
     // `addAttackPlayerDesire` seeds the hate list, which is what the AI reads.
@@ -1356,7 +1312,7 @@ fn a_summons_kill_points_the_avenger_at_the_summon() {
     );
     world.force_roll(10);
     quests::notify_kill(&mut world, 5001, NPC_OID + 1, CAVE_MAIDEN, false);
-    let second = oids_of(&mut world, BANSHEE)
+    let second = npcs_of(&mut world, BANSHEE)
         .into_iter()
         .find(|&o| o != banshee)
         .expect("a second banshee");
@@ -1524,10 +1480,7 @@ fn creature_see_spooks_the_ornithomimus_once() {
 fn trex_hunts_a_herbivore_on_sight() {
     let (mut world, _db, _l) = combat_test_world();
     world.data.npc_data.insert_for_test(trex_template());
-    let mut prey = crate::data::npc_data::default_template(22202);
-    prey.type_name = "Monster".into();
-    prey.level = 74;
-    world.data.npc_data.insert_for_test(prey);
+    register_npc(&mut world, 22202, "Monster", 74);
     add_test_npc(&mut world, NPC_OID + 700, 22215, "Monster", 76, 0, 0, 0);
     add_test_npc(&mut world, NPC_OID + 701, 22202, "Monster", 74, 200, 0, 0);
 

@@ -17,16 +17,10 @@ fn queen_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         (LARVA, "Monster", 50_000.0),
         (NURSE, "Monster", 5_000.0),
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = kind.into();
-        t.level = 40;
-        t.base_hp_max = hp;
-        t.base_mp_max = 10_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_vitals(&mut world, id, kind, 40, hp, 10_000.0);
     }
     for id in [HEAL1, HEAL2] {
         world.data.skill_data.insert_for_test(Skill {
-            self_continuous: false,
             id,
             level: 1,
             magic_type: 1,
@@ -109,17 +103,8 @@ fn the_queen_spawns_her_nurses_and_royal_guards() {
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
     queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
 
-    let count = |world: &mut World, npc_id: i32| {
-        let mut n = 0;
-        world.objects.for_each_mut::<&model::npc::Npc>(|x| {
-            if x.npc_id == npc_id {
-                n += 1;
-            }
-        });
-        n
-    };
-    assert_eq!(count(&mut world, NURSE), 6, "six nurses at her side");
-    assert_eq!(count(&mut world, ROYAL_GUARD), 8, "eight royal guards");
+    assert_eq!(npc_count(&mut world, NURSE), 6, "six nurses at her side");
+    assert_eq!(npc_count(&mut world, ROYAL_GUARD), 8, "eight royal guards");
 
     // The nurses are the Queen's minions, so the heal rotation finds them.
     let a_nurse = find_npc_object_id(&mut world, NURSE).unwrap();

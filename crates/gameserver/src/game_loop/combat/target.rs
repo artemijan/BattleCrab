@@ -122,13 +122,7 @@ fn cursed_weapon_blocks_attack(world: &World, attacker: i32, target: i32) -> boo
 /// click on an already-selected object into the interaction (open the store,
 /// talk to the NPC, engage the door) rather than another select.
 fn is_targeting(world: &World, object_id: i32, other_object_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<components::combat::TargetRef>(&object_id)
-        .copied()
-        .unwrap_or_default()
-        .0
-        == Some(other_object_id)
+    current(world, object_id) == Some(other_object_id)
 }
 
 pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
@@ -526,13 +520,8 @@ pub(crate) fn set_target(
     let Some(player) = world.objects.get_component::<model::Player>(&object_id) else {
         return;
     };
-    let current = world
-        .objects
-        .get_component::<components::combat::TargetRef>(&object_id)
-        .copied()
-        .unwrap_or_default()
-        .0;
-    if current == new_target {
+    let previous = current(world, object_id);
+    if previous == new_target {
         return;
     }
     let viewer_level = player.level;
@@ -546,7 +535,7 @@ pub(crate) fn set_target(
             .map(|i| (i.z - ppos.z).abs() <= 1000)
             .unwrap_or(false)
     });
-    if current == new_target {
+    if previous == new_target {
         return;
     }
 
@@ -608,12 +597,7 @@ pub(crate) fn set_target(
         broadcast::broadcast_to_others(world, object_id, &pkt);
     }
 
-    if let Some(t) = world
-        .objects
-        .get_component_mut::<components::combat::TargetRef>(&object_id)
-    {
-        t.0 = new_target;
-    }
+    set_ref(world, object_id, new_target);
 }
 
 /// Server-initiated `Player.setTarget(null)` (target left the 3×3 visibility
@@ -625,20 +609,10 @@ pub(crate) fn set_target(
 /// must invoke this *before* sending the target's `DeleteObject`, matching
 /// Java `World.switchRegion` (`setTarget(null)` runs first).
 pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
-    if !world
-        .objects
-        .get_component::<components::combat::TargetRef>(&holder_object_id)
-        .copied()
-        .is_some_and(|t| t.0.is_some())
-    {
+    if current(world, holder_object_id).is_none() {
         return;
     }
-    if let Some(t) = world
-        .objects
-        .get_component_mut::<components::combat::TargetRef>(&holder_object_id)
-    {
-        t.0 = None;
-    }
+    set_ref(world, holder_object_id, None);
     let Some(pos) = maybe_position(world, holder_object_id) else {
         return;
     };
@@ -694,11 +668,7 @@ pub(crate) fn interact_with_npc(
     // summon never reaches the NPC talk/attack flow — Java shows the status
     // window and fires `ON_PLAYER_SUMMON_TALK`, whose only listener on this
     // dist is the Sin Eater's grumbling.
-    if world
-        .objects
-        .get_component::<components::summons::ServitorOf>(&npc_object_id)
-        .is_some_and(|s| s.owner_object_id == object_id)
-    {
+    if crate::game_loop::servitor::owner_of(world, npc_object_id) == Some(object_id) {
         crate::scripts::sin_eater::on_summon_talk(world, npc_object_id);
         return;
     }
@@ -881,6 +851,18 @@ pub(crate) fn current(world: &World, object_id: i32) -> Option<i32> {
         .objects
         .get_component::<components::combat::TargetRef>(&object_id)
         .and_then(|t| t.0)
+}
+
+/// Raw `TargetRef` write with no client notification — Java's bare
+/// `_target = …` field assignment. Callers that must tell the client use
+/// [`set_target`] / [`drop_target_notify`] instead.
+pub(in crate::game_loop) fn set_ref(world: &mut World, object_id: i32, new_target: Option<i32>) {
+    if let Some(t) = world
+        .objects
+        .get_component_mut::<components::combat::TargetRef>(&object_id)
+    {
+        t.0 = new_target;
+    }
 }
 
 /// The current target, but only when it is a player — Java's

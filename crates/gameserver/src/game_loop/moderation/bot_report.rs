@@ -126,15 +126,8 @@ pub(crate) fn handle_bot_report_action(world: &mut World, client_id: u32, player
 
 /// Java `BotReportTable.reportBot`.
 pub(crate) fn report_bot(world: &mut World, client_id: u32, reporter_oid: i32) -> bool {
-    let target_oid = match world
-        .objects
-        .get_component::<crate::model::components::combat::TargetRef>(&reporter_oid)
-    {
-        Some(t) => match t.0 {
-            Some(oid) => oid,
-            None => return false,
-        },
-        None => return false,
+    let Some(target_oid) = crate::game_loop::combat::target::current(world, reporter_oid) else {
+        return false;
     };
 
     match check_report(world, reporter_oid, target_oid) {

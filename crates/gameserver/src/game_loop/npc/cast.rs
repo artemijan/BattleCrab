@@ -502,12 +502,7 @@ pub(crate) fn resolve_npc_cast_target(
         // whose "not a servitor → itself" fallback would let a plain monster
         // self-target. Java has no such fallback: `getActingPlayer()` is null
         // for a bare `Npc`, so the cast finds no target and dies.
-        TargetType::OwnerPet => {
-            world
-                .objects
-                .get_component::<crate::model::components::summons::ServitorOf>(&npc_oid)?
-                .owner_object_id
-        }
+        TargetType::OwnerPet => crate::game_loop::servitor::owner_of(world, npc_oid)?,
         // The handlers this port still collapses into `Other` (`OTHERS`,
         // `ARTILLERY`, `WYVERN_TARGET`, `ADVANCE_BASE`, …): passing the
         // selected target through matches each reachable carrier. `OTHERS`

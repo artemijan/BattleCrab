@@ -189,44 +189,16 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
     }
 
     let effects = penalty_effects(world, level);
-    {
-        let Some((player, base, mut mods, inv, mut buffs, mut speeds, mut combat)) =
-            world.objects.get_many_mut::<(
-                &Player,
-                &components::stats::BaseStats,
-                &mut components::stats::StatModifiers,
-                &Inventory,
-                &mut components::skills::Buffs,
-                &mut components::stats::Speeds,
-                &mut components::stats::CombatStats,
-            )>(&object_id)
-        else {
-            return;
-        };
+    let edited = crate::game_loop::stats::context::with_stat_ctx(world, object_id, |ctx| {
         // Remove first so the modifier maps rebuild from the remaining buffs —
         // otherwise stepping 2 → 3 would stack both levels' speed maluses.
-        player.remove_buff(
-            &world.data,
-            base,
-            &mut mods,
-            inv,
-            &mut buffs,
-            &mut speeds,
-            &mut combat,
-            WEIGHT_PENALTY_SKILL,
-        );
+        ctx.remove(WEIGHT_PENALTY_SKILL);
         if let Some((lvl, effects)) = effects {
-            player.apply_buff(
-                &world.data,
-                base,
-                &mut mods,
-                inv,
-                &mut buffs,
-                &mut speeds,
-                &mut combat,
-                passive_weight_buff(lvl, effects),
-            );
+            ctx.apply(passive_weight_buff(lvl, effects));
         }
+    });
+    if edited.is_none() {
+        return;
     }
 
     world.objects.add_components(

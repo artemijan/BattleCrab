@@ -434,11 +434,7 @@ fn end_pickup(world: &mut World, pet_oid: i32) {
 /// where the item lands (`PetInventory`) and the one message that says so.
 fn pet_pickup_item(world: &mut World, pet_oid: i32, item_oid: i32) {
     use crate::model::components::commerce::GroundItem;
-    let Some(owner_oid) = world
-        .objects
-        .get_component::<ServitorOf>(&pet_oid)
-        .map(|l| l.owner_object_id)
-    else {
+    let Some(owner_oid) = super::owner_of(world, pet_oid) else {
         return;
     };
     let Some(client_id) = crate::game_loop::helpers::client_for_player(world, owner_oid) else {

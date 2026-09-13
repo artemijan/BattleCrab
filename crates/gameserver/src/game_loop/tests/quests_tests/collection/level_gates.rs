@@ -109,11 +109,7 @@ fn quest_q00293_refused_above_level_15() {
     add_quest_items(&mut world, &[(1488, "Chrysolite Ore", true)]);
     add_test_npc(&mut world, NPC_OID, 30535, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 16;
-        p.race = 4;
-    }
+    set_level_race(&mut world, 3001, 16, 4);
     let q = "Q00293_TheHiddenVeins";
     handle_request_bypass_to_server(
         &mut world,

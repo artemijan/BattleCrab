@@ -53,11 +53,7 @@ fn quest_q00420_little_wing() {
     items.push((DRAGONFLUTE_OF_WIND, "flute", false));
     add_quest_items(&mut world, &items);
     for id in [LETO_WARRIOR, FLINE] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100.0);
     }
     let cooper = NPC_OID;
     let cronos = NPC_OID + 1;
@@ -148,9 +144,7 @@ fn quest_q00420_little_wing() {
     let mut mob = NPC_OID + 20;
     for _ in 0..20 {
         mob += 1;
-        add_test_npc(&mut world, mob, LETO_WARRIOR, "Monster", 40, 110, 200, 0);
-        world.force_roll(0); // give_item_randomly roll → drop
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob_at(&mut world, mob, LETO_WARRIOR, 40, 110, 200, 0); // give_item_randomly roll → drop
     }
     assert_eq!(item_count(&world, 3001, EXARION_EGG), 20, "20 eggs farmed");
 
@@ -264,20 +258,8 @@ fn quest_q00421_little_wings_big_adventure() {
             .unwrap()
             .set_item_enchant_level(FLUTE, level);
     };
-    let memo = |w: &World| -> i32 {
-        w.objects
-            .get_component::<Quests>(&3001)
-            .and_then(|qc| qc.0.get(q))
-            .and_then(|qs| qs.vars.get("memoState"))
-            .and_then(|s| s.parse().ok())
-            .unwrap_or(0)
-    };
-    let started = |w: &World| -> bool {
-        w.objects
-            .get_component::<Quests>(&3001)
-            .and_then(|qc| qc.0.get(q))
-            .is_some_and(|qs| qs.state == model::quest::state::STARTED)
-    };
+    let memo = |w: &World| quest_var_int(w, 3001, q, "memoState");
+    let started = |w: &World| quest_started(w, 3001, q);
     let set_hits = |w: &mut World, n: i32| {
         w.objects
             .get_component_mut::<Quests>(&3001)
@@ -443,10 +425,7 @@ fn quest_q00421_guardian_ambush_despawns() {
 
     let (mut world, _db, _l) = quest_test_world();
     {
-        let mut t = crate::data::npc_data::default_template(GUARDIAN);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, GUARDIAN, "Monster", 40);
     }
     let tree = NPC_OID;
     add_test_npc(&mut world, tree, TREE, "Monster", 60, 300, 300, 0);

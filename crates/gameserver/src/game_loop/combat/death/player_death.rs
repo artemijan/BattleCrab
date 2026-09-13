@@ -49,12 +49,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         world
             .objects
             .remove_component::<crate::model::components::combat::QueuedAction>(&player_oid);
-        if let Some(t) = world
-            .objects
-            .get_component_mut::<crate::model::components::combat::TargetRef>(&player_oid)
-        {
-            t.0 = None;
-        }
+        crate::game_loop::combat::target::set_ref(world, player_oid, None);
     }
     // Any cast dies with the caster (`abortCast`; also stops pre-launch
     // packets via the seq mismatch).
@@ -103,13 +98,15 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // Death XP penalty — Java skips it entirely when the victim died inside a
     // PVP or siege zone (`!isLucky() && !insidePvpZone && !isOnEvent()`).
     // Arena and siege deaths are free.
-    let in_free_death_zone = world
-        .objects
-        .get_component::<crate::model::components::space::ZoneFlags>(&player_oid)
-        .is_some_and(|f| {
-            f.contains(crate::data::zone_data::ZoneKind::Pvp)
-                || f.contains(crate::data::zone_data::ZoneKind::Siege)
-        });
+    let in_free_death_zone = crate::game_loop::space::zones::has_zone_flag(
+        world,
+        player_oid,
+        crate::data::zone_data::ZoneKind::Pvp,
+    ) || crate::game_loop::space::zones::has_zone_flag(
+        world,
+        player_oid,
+        crate::data::zone_data::ZoneKind::Siege,
+    );
     if !in_free_death_zone && world.objects.has_component::<Player>(&killer_oid) {
         crate::game_loop::clans::clan_war_on_kill(world, killer_oid, player_oid);
     }

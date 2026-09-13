@@ -16,11 +16,7 @@ fn valakas_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     // The real zone data — the whole mechanic is "is the attacker inside it".
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
-    let mut t = crate::data::npc_data::default_template(VALAKAS);
-    t.type_name = "GrandBoss".into();
-    t.level = 85;
-    t.base_hp_max = 1_000_000.0;
-    world.data.npc_data.insert_for_test(t);
+    register_npc_hp(&mut world, VALAKAS, "GrandBoss", 85, 1_000_000.0);
     world.grand_bosses.insert(
         VALAKAS,
         model::grand_boss::GrandBoss {
@@ -243,21 +239,16 @@ fn only_players_inside_the_lair_see_the_cinematic() {
 
     crate::game_loop::valakas::handle_cinematic_step(&mut world, VALAKAS_OID, 0);
 
-    let count = |rx: &mut UnboundedReceiver<bytes::Bytes>| {
-        let mut n = 0;
-        while let Ok(p) = rx.try_recv() {
-            if p.first() == Some(&0xD6) {
-                n += 1;
-            }
-        }
-        n
-    };
     assert_eq!(
-        count(&mut inside_rx),
+        drain_count(&mut inside_rx, 0xD6),
         1,
         "the player in the lair saw the shot"
     );
-    assert_eq!(count(&mut outside_rx), 0, "the player outside saw nothing");
+    assert_eq!(
+        drain_count(&mut outside_rx, 0xD6),
+        0,
+        "the player outside saw nothing"
+    );
 }
 
 /// The beats are **not evenly spaced** — 330 ms between two of them and 6.7 s
@@ -731,7 +722,6 @@ fn a_recently_hit_valakas_keeps_fighting() {
 
 fn insert_valakas_skill(world: &mut World, id: i32, cast_range: i32) {
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id,
         level: 1,
         cast_range,
@@ -894,8 +884,7 @@ fn beginning_the_cinematic_plays_the_lair_theme_and_the_roar() {
 
     crate::game_loop::valakas::begin_cinematic(&mut world, VALAKAS_OID);
 
-    let packets: Vec<Vec<u8>> =
-        std::iter::from_fn(|| rx.try_recv().ok().map(|b| b.to_vec())).collect();
+    let packets = drain(&mut rx);
     let sound = packets
         .iter()
         .find(|p| p[0] == opcodes::PLAY_SOUND)
@@ -906,9 +895,10 @@ fn beginning_the_cinematic_plays_the_lair_theme_and_the_roar() {
         "type 1 — the music shape, not the type-0 quest sound"
     );
     assert!(
-        packets.iter().any(|p| p[0] == opcodes::SOCIAL_ACTION
-            && i32::from_le_bytes([p[1], p[2], p[3], p[4]]) == VALAKAS_OID
-            && i32::from_le_bytes([p[5], p[6], p[7], p[8]]) == 3),
+        packets
+            .iter()
+            .any(|p| is_for(p, opcodes::SOCIAL_ACTION, VALAKAS_OID)
+                && i32::from_le_bytes([p[5], p[6], p[7], p[8]]) == 3),
         "and Valakas performs social action 3"
     );
 }

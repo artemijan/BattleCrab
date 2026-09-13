@@ -219,10 +219,11 @@ fn roll_dice(world: &mut World, client_id: u32, object_id: i32, item_object_id: 
         &[SmParam::Text(name), SmParam::Int(number)],
     );
     helpers::send_to_client(world, client_id, sm.clone());
-    let in_peace = world
-        .objects
-        .get_component::<crate::model::components::space::ZoneFlags>(&object_id)
-        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
+    let in_peace = crate::game_loop::space::zones::has_zone_flag(
+        world,
+        object_id,
+        crate::data::zone_data::ZoneKind::Peace,
+    );
     if in_peace {
         broadcast::broadcast_from(world, object_id, &sm);
     } else if let Some(party) =
@@ -315,7 +316,6 @@ fn feed_mount(world: &mut World, _client_id: u32, object_id: i32, item_object_id
 /// The sow-location gate (`seed.getCastleId() == target.getTaxCastle()`) is
 /// honored, `THIS_SEED_MAY_NOT_BE_SOWN_HERE` included.
 fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
-    use crate::model::components::combat::TargetRef;
     use crate::model::npc::Npc;
     use crate::network::server_packets::sm_ids;
 
@@ -335,10 +335,7 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
     };
 
     // The seeded target is the player's current target.
-    let Some(target_oid) = world
-        .objects
-        .get_component::<TargetRef>(&object_id)
-        .and_then(|t| t.0)
+    let Some(target_oid) = crate::game_loop::combat::target::current(world, object_id)
         .filter(|oid| crate::game_loop::combat::is_npc_oid(*oid))
     else {
         send(world, sm_ids::INVALID_TARGET);
@@ -402,7 +399,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     };
     use crate::game_loop::skills::effects::apply_skill_effects;
     use crate::model::Player;
-    use crate::model::components::combat::{Casting, TargetRef};
+    use crate::model::components::combat::Casting;
     use crate::model::skill::target::TargetType;
 
     let (item_skills, immediate_effect, ex_immediate_effect, default_action) = {
@@ -464,12 +461,7 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
                 let Some(pos) = maybe_position(world, object_id) else {
                     continue;
                 };
-                let target_ref = world
-                    .objects
-                    .get_component::<TargetRef>(&object_id)
-                    .copied()
-                    .unwrap_or_default()
-                    .0;
+                let target_ref = crate::game_loop::combat::target::current(world, object_id);
                 match resolve_cast_target(world, player, &pos, target_ref, &skill, true, false) {
                     Ok(oid) => oid,
                     Err(_) => continue,

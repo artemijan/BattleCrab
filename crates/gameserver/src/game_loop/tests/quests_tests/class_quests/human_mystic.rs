@@ -16,19 +16,11 @@ fn q404_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     }
     add_quest_items(&mut world, &items);
     for id in [20021, 20359, 27030] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 20);
     }
     add_test_npc(&mut world, NPC_OID, 30391, "Folk", 5, 100, 0, 0); // Parina
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 10; // Mage
-        p.base_class_id = 10;
-    }
+    set_level_class(&mut world, 3001, 19, 10); // Mage
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -147,9 +139,7 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     let mut mob_oid = NPC_OID + 500;
     let mut kill = |world: &mut World, npc_id: i32| {
         mob_oid += 1;
-        add_test_npc(world, mob_oid, npc_id, "Monster", 20, 30, 0, 0);
-        world.force_roll(0); // always inside the chance
-        npc::npc_do_die(world, mob_oid, 3001);
+        kill_mob(world, mob_oid, npc_id, 20, 0); // always inside the chance
     };
 
     // Fire: map → key (Ratman Warrior) → earring.
@@ -284,19 +274,11 @@ fn q405_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     }
     add_quest_items(&mut world, &items);
     for id in [20026, 20029] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 20);
     }
     add_test_npc(&mut world, NPC_OID, 30022, "Folk", 5, 100, 0, 0); // Zigaunt
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 10;
-        p.base_class_id = 10;
-    }
+    set_level_class(&mut world, 3001, 19, 10);
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -433,13 +415,7 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405}")),
     );
     assert_eq!(item_count(&world, 3001, 1201), 1, "the Mark of Faith");
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q405].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q405));
 }
 
 /// Pages for both quests, including 404's uniform four-page scheme across all
@@ -452,34 +428,22 @@ fn wizard_cleric_quest_pages_exist_in_dist() {
     );
     for p in ["01", "02", "02a", "03", "04", "07"] {
         let path = format!("{DIST}Q00404_PathOfTheHumanWizard/30391-{p}.htm");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30391-{p}.htm"
-        );
+        assert!(ships(&path), "missing 30391-{p}.htm");
     }
     for p in ["05", "06"] {
         let path = format!("{DIST}Q00404_PathOfTheHumanWizard/30391-{p}.html");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30391-{p}.html"
-        );
+        assert!(ships(&path), "missing 30391-{p}.html");
     }
     // All four spirits (and the lizardman) use the same 01..04 scheme.
     for npc in ["30409", "30410", "30411", "30412", "30413"] {
         for p in ["01", "02", "03", "04"] {
             let path = format!("{DIST}Q00404_PathOfTheHumanWizard/{npc}-{p}.html");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {npc}-{p}.html"
-            );
+            assert!(ships(&path), "missing {npc}-{p}.html");
         }
     }
     for p in ["01", "02", "02a", "03", "04", "05"] {
         let path = format!("{DIST}Q00405_PathOfTheCleric/30022-{p}.htm");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30022-{p}.htm"
-        );
+        assert!(ships(&path), "missing 30022-{p}.htm");
     }
     let cleric: [(&str, &[&str]); 6] = [
         ("30022", &["06", "07", "08", "09"]),
@@ -492,10 +456,7 @@ fn wizard_cleric_quest_pages_exist_in_dist() {
     for (npc, pages) in cleric {
         for p in pages {
             let path = format!("{DIST}Q00405_PathOfTheCleric/{npc}-{p}.html");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {npc}-{p}.html"
-            );
+            assert!(ships(&path), "missing {npc}-{p}.html");
         }
     }
 }

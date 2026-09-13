@@ -3,14 +3,50 @@
 
 use super::*;
 
+/// The bait row every fishing test uses: a guaranteed catch of `fish` after a
+/// fixed one-second wait and reel, open to levels 1–100 so the player's level
+/// never gates the bite.
+fn bait_row(fish: i32, premium_only: bool) -> crate::data::fishing_data::FishingBait {
+    crate::data::fishing_data::FishingBait {
+        min_player_level: 1,
+        max_player_level: 100,
+        chance: 40,
+        time_min: 1000,
+        time_max: 1000,
+        wait_min: 1000,
+        wait_max: 1000,
+        premium_only,
+        catches: vec![crate::data::fishing_data::FishingCatch {
+            item_id: fish,
+            chance: 100,
+            multiplier: 1,
+        }],
+    }
+}
+
+/// Register the tackle a fishing test needs: `rod` as a fishing weapon with a
+/// default rod row, and `bait` loaded with [`bait_row`].
+fn install_tackle(world: &mut World, rod: i32, bait: i32, fish: i32) {
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(rod, crate::data::item_data::kinds::WeaponType::FishingRod);
+    world
+        .data
+        .fishing_data
+        .insert_rod_for_test(rod, crate::data::fishing_data::FishingRod::default());
+    world
+        .data
+        .fishing_data
+        .insert_bait_for_test(bait, bait_row(fish, false));
+}
+
 /// Fishing (G32) — the gate line: **cast, hook, and land a fish.** With a rod
 /// equipped and a bait hooked, toggling auto-fish casts the line; after the
 /// bait's reel time the cast lands (forced win), consuming one bait and awarding
 /// a fish + XP.
 #[test]
 fn fishing_cast_hook_and_land_a_fish() {
-    use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
-    use crate::data::item_data::kinds::WeaponType;
     use crate::model::inventory::{Inventory, PaperdollSlot};
 
     const ROD: i32 = 45492;
@@ -26,32 +62,7 @@ fn fishing_cast_hook_and_land_a_fish() {
             (FISH, "Ugly Fish", true),
         ],
     );
-    world
-        .data
-        .item_data
-        .set_weapon_type_for_test(ROD, WeaponType::FishingRod);
-    world
-        .data
-        .fishing_data
-        .insert_rod_for_test(ROD, FishingRod::default());
-    world.data.fishing_data.insert_bait_for_test(
-        BAIT,
-        FishingBait {
-            min_player_level: 1,
-            max_player_level: 100,
-            chance: 40,
-            time_min: 1000,
-            time_max: 1000,
-            wait_min: 1000,
-            wait_max: 1000,
-            premium_only: false,
-            catches: vec![FishingCatch {
-                item_id: FISH,
-                chance: 100,
-                multiplier: 1,
-            }],
-        },
-    );
+    install_tackle(&mut world, ROD, BAIT, FISH);
 
     let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
     world
@@ -115,36 +126,10 @@ fn fishing_cast_hook_and_land_a_fish() {
     );
 }
 
-/// Build a `PAPERDOLL`-located `ItemRow` for a fishing-fixture inventory.
-fn item_row(
-    object_id: i32,
-    item_id: i32,
-    count: i64,
-    slot: model::inventory::PaperdollSlot,
-) -> crate::db::ItemRow {
-    crate::db::ItemRow {
-        object_id,
-        item_id,
-        count,
-        enchant_level: 0,
-        loc: "PAPERDOLL".into(),
-        loc_data: slot as i32,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    }
-}
-
 /// Fishing (G32) `canFish` gates: premium-only bait needs a premium account, and
 /// a player standing in water can't fish.
 #[test]
 fn fishing_premium_and_underwater_gates() {
-    use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
-    use crate::data::item_data::kinds::WeaponType;
     use crate::data::zone_data::ZoneKind;
     use crate::model::components::space::Position;
     use crate::model::inventory::{Inventory, PaperdollSlot};
@@ -162,29 +147,8 @@ fn fishing_premium_and_underwater_gates() {
             (FISH, "Ugly Fish", true),
         ],
     );
-    world
-        .data
-        .item_data
-        .set_weapon_type_for_test(ROD, WeaponType::FishingRod);
-    world
-        .data
-        .fishing_data
-        .insert_rod_for_test(ROD, FishingRod::default());
-    let bait = |premium: bool| FishingBait {
-        min_player_level: 1,
-        max_player_level: 100,
-        chance: 40,
-        time_min: 1000,
-        time_max: 1000,
-        wait_min: 1000,
-        wait_max: 1000,
-        premium_only: premium,
-        catches: vec![FishingCatch {
-            item_id: FISH,
-            chance: 100,
-            multiplier: 1,
-        }],
-    };
+    install_tackle(&mut world, ROD, BAIT, FISH);
+    let bait = |premium: bool| bait_row(FISH, premium);
 
     let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
     world
@@ -245,8 +209,7 @@ fn fishing_premium_and_underwater_gates() {
 /// loses at the bare 40% chance but wins at the shot-doubled 80%.
 #[test]
 fn fishing_shots_double_the_win_chance() {
-    use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
-    use crate::data::item_data::kinds::{ActionType, ItemHandler, WeaponType};
+    use crate::data::item_data::kinds::{ActionType, ItemHandler};
     use crate::data::zone_data::ZoneKind;
     use crate::model::inventory::{Inventory, PaperdollSlot};
 
@@ -271,32 +234,7 @@ fn fishing_shots_double_the_win_chance() {
         ItemHandler::FishShots,
         ActionType::Other,
     );
-    world
-        .data
-        .item_data
-        .set_weapon_type_for_test(ROD, WeaponType::FishingRod);
-    world
-        .data
-        .fishing_data
-        .insert_rod_for_test(ROD, FishingRod::default());
-    world.data.fishing_data.insert_bait_for_test(
-        BAIT,
-        FishingBait {
-            min_player_level: 1,
-            max_player_level: 100,
-            chance: 40,
-            time_min: 1000,
-            time_max: 1000,
-            wait_min: 1000,
-            wait_max: 1000,
-            premium_only: false,
-            catches: vec![FishingCatch {
-                item_id: FISH,
-                chance: 100,
-                multiplier: 1,
-            }],
-        },
-    );
+    install_tackle(&mut world, ROD, BAIT, FISH);
 
     let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
     world
@@ -349,46 +287,20 @@ fn fishing_shots_double_the_win_chance() {
 /// auto-fish button (`ExAutoFishAvailable` YES); leaving dims it (NO).
 #[test]
 fn fishing_zone_toggles_auto_fish_available() {
-    use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
-    use crate::data::item_data::kinds::WeaponType;
     use crate::data::zone_data::ZoneKind;
     use crate::model::components::space::{Position, ZoneFlags};
     use crate::model::inventory::{Inventory, PaperdollSlot};
 
     const ROD: i32 = 45492;
     const BAIT: i32 = 47547;
+    const FISH: i32 = 47550;
 
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(
         &mut world,
         &[(ROD, "Fishing Rod", false), (BAIT, "Bait", true)],
     );
-    world
-        .data
-        .item_data
-        .set_weapon_type_for_test(ROD, WeaponType::FishingRod);
-    world
-        .data
-        .fishing_data
-        .insert_rod_for_test(ROD, FishingRod::default());
-    world.data.fishing_data.insert_bait_for_test(
-        BAIT,
-        FishingBait {
-            min_player_level: 1,
-            max_player_level: 100,
-            chance: 40,
-            time_min: 1000,
-            time_max: 1000,
-            wait_min: 1000,
-            wait_max: 1000,
-            premium_only: false,
-            catches: vec![FishingCatch {
-                item_id: 47550,
-                chance: 100,
-                multiplier: 1,
-            }],
-        },
-    );
+    install_tackle(&mut world, ROD, BAIT, FISH);
 
     let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
     world

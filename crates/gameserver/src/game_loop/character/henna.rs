@@ -8,7 +8,6 @@
 //! scheduler + `HennaDuration` character variables are out of scope; dye
 //! `<skill>` grants (none on Interlude dyes) are likewise skipped.
 
-use crate::data::henna_data::HennaStatSums;
 use crate::data::item_data::ADENA_ID;
 use crate::game_loop::character::inventory;
 use crate::game_loop::character::inventory::{adena, send_inventory_item_list};
@@ -51,15 +50,6 @@ fn class_id_of(world: &World, oid: i32) -> i32 {
         .get_component::<Player>(&oid)
         .map(|p| p.class_id)
         .unwrap_or(0)
-}
-
-fn worn_sums(world: &World, oid: i32) -> HennaStatSums {
-    let slots = world
-        .objects
-        .get_component::<components::skills::HennaSlots>(&oid)
-        .map(|h| h.0)
-        .unwrap_or_default();
-    world.data.hennas.stat_sums(&slots)
 }
 
 // --- windows (SymbolMaker "Draw"/"Remove") --------------------------------
@@ -369,9 +359,10 @@ pub(crate) fn send_henna_info(world: &World, client_id: u32, oid: i32) {
     send(world, client_id, pkt);
 }
 
-/// Recompute `BaseStats = template + worn-henna sums`, re-run the finalizers +
-/// max-HP/MP, then push `UserInfo` + `HennaInfo` to the owner (Java `addHenna`/
-/// `removeHenna`'s `recalcHennaStats` + `broadcastUserInfo(BASE_STATS, …)`).
+/// Recompute `BaseStats` through [`crate::model::stat_finalize::compose_base_stats`],
+/// re-run the finalizers + max-HP/MP, then push `UserInfo` + `HennaInfo` to the
+/// owner (Java `addHenna`/`removeHenna`'s `recalcHennaStats` +
+/// `broadcastUserInfo(BASE_STATS, …)`).
 pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
     let (class_id, base_class_id) = world
         .objects
@@ -384,7 +375,9 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
         .get_or_base(class_id, base_class_id)
         .cloned()
         .unwrap_or_default();
-    let sums = worn_sums(world, oid);
+    // Through the shared composition, so a worn armor set's flat bonus is not
+    // dropped by a dye redraw (this path used to sum template + hennas only).
+    let composed = crate::model::stat_finalize::compose_base_stats(world, oid);
 
     if let Some((player, mut base, mods, inventory, mut vitals, mut speeds, mut combat)) =
         world.objects.get_many_mut::<(
@@ -397,14 +390,9 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
             &mut components::stats::CombatStats,
         )>(&oid)
     {
-        *base = components::stats::BaseStats {
-            str_: t.base_str + sums.str_,
-            dex: t.base_dex + sums.dex,
-            con: t.base_con + sums.con,
-            int_: t.base_int + sums.int_,
-            wit: t.base_wit + sums.wit,
-            men: t.base_men + sums.men,
-        };
+        if let Some(composed) = composed {
+            *base = composed;
+        }
         player.recalculate_stats(
             &world.data,
             &base,

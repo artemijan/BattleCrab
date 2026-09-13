@@ -105,23 +105,18 @@ pub(super) fn is_busy(world: &World, object_id: i32) -> bool {
     // `isInsideZone(SIEGE) || isInsideZone(PVP)` — the zones, which is wider
     // than `is_in_siege` (that one asks whether a *siege* is running).
     let in_pvp_zone = crate::game_loop::combat::pvp::is_in_siege(world, object_id)
-        || in_zone(world, object_id, crate::data::zone_data::ZoneKind::Siege)
-        || in_zone(world, object_id, crate::data::zone_data::ZoneKind::Pvp);
+        || crate::game_loop::space::zones::has_zone_flag(
+            world,
+            object_id,
+            crate::data::zone_data::ZoneKind::Siege,
+        )
+        || crate::game_loop::space::zones::has_zone_flag(
+            world,
+            object_id,
+            crate::data::zone_data::ZoneKind::Pvp,
+        );
     let on_event = crate::game_loop::events::tvt::is_on_event(world, object_id);
     casting || pvp || dead || is_in_combat || in_duel || in_olympiad || in_pvp_zone || on_event
-}
-
-/// `player.isInsideZone(kind)` — read off the cached `ZoneFlags` the movement
-/// path maintains, not recomputed from the position.
-pub(super) fn in_zone(
-    world: &World,
-    object_id: i32,
-    kind: crate::data::zone_data::ZoneKind,
-) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::space::ZoneFlags>(&object_id)
-        .is_some_and(|f| f.contains(kind))
 }
 
 pub(super) fn reputation(world: &World, object_id: i32) -> i32 {

@@ -24,19 +24,6 @@ use crate::game_loop::{clans, helpers};
 /// the members' Player clan fields — the fixture every lifecycle test starts
 /// from.
 fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
-    let cm = |char_id: i32| model::clan::ClanMember {
-        char_id,
-        name: format!("P{char_id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     world.clans.insert(
         clan_id,
         Clan {
@@ -49,7 +36,7 @@ fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
             members: member_oids
                 .iter()
                 .map(|&o| {
-                    let mut m = cm(o);
+                    let mut m = clan_member_p(o);
                     if o == member_oids[0] {
                         m.power_grade = 1; // leader
                     }
@@ -104,17 +91,8 @@ fn pad_clan(world: &mut World, clan_id: i32, to: usize) {
     let mut i = 0;
     while c.members.len() < to {
         c.members.push(model::clan::ClanMember {
-            char_id: 90_000 + clan_id + i,
-            name: format!("Pad{clan_id}x{i}"),
             level: 40,
-            class_id: 0,
-            sex: 0,
-            race: 0,
-            power_grade: 5,
-            title: String::new(),
-            pledge_type: 0,
-            apprentice: 0,
-            sponsor: 0,
+            ..clan_member(90_000 + clan_id + i, &format!("Pad{clan_id}x{i}"))
         });
         i += 1;
     }

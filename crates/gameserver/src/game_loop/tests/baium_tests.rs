@@ -21,15 +21,9 @@ fn baium_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         (BAIUM_STONE, "Folk"),
         (TELE_CUBE, "Folk"),
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = kind.into();
-        t.level = 75;
-        t.base_hp_max = 100_000.0;
-        t.base_mp_max = 10_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_vitals(&mut world, id, kind, 75, 100_000.0, 10_000.0);
     }
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: ANTI_STRIDER,
         level: 1,
         abnormal_time: 60,
@@ -131,13 +125,7 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
 
     // A second hit while it still holds must start no new cast.
     crate::game_loop::npc::bosses::combat::anti_strider(&mut world, BAIUM_OID, PLAYER);
-    let mut casts = 0;
-    while let Ok(p) = rx.try_recv() {
-        if p.first() == Some(&0x48) {
-            // MagicSkillUse
-            casts += 1;
-        }
-    }
+    let casts = drain_count(&mut rx, 0x48); // MagicSkillUse
     assert_eq!(casts, 0, "already hindered, nothing recast");
 }
 
@@ -450,7 +438,6 @@ fn a_hit_makes_baium_cast() {
     }
     // BAIUM_ATTACK, the fallback every band ends on.
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 4127,
         level: 1,
         ..Default::default()
@@ -465,9 +452,7 @@ fn a_hit_makes_baium_cast() {
     }
     baium::on_baium_damage(&mut world, BAIUM_OID, PLAYER, 500, true);
 
-    let casts = std::iter::from_fn(|| rx.try_recv().ok())
-        .filter(|p| p.first() == Some(&0x48))
-        .count();
+    let casts = drain_count(&mut rx, 0x48); // MagicSkillUse
     assert_eq!(casts, 1, "the damage hook chose a skill and cast it");
 }
 
@@ -908,7 +893,6 @@ fn a_recently_hit_baium_keeps_fighting() {
 fn a_wounded_idle_baium_heals_itself() {
     let (mut world, _db, _l) = baium_world();
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 4135,
         level: 1,
         ..Default::default()

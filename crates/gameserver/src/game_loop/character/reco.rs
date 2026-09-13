@@ -12,7 +12,6 @@ use commons::network::PacketReader;
 
 use crate::game_loop::helpers::send_sm_to_player as send_sm;
 use crate::model::Player;
-use crate::model::components::combat::TargetRef;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -56,10 +55,7 @@ pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &
     };
 
     // `player.getTarget()`.
-    let target = world
-        .objects
-        .get_component::<TargetRef>(&player)
-        .and_then(|t| t.0);
+    let target = crate::game_loop::combat::target::current(world, player);
     let Some(target) = target else {
         // Java: `object == null` → SELECT_TARGET.
         send_sm(world, player, sm_ids::SELECT_TARGET, &[]);

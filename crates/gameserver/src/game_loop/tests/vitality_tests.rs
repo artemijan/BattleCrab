@@ -100,9 +100,7 @@ fn ordinary_drain_sends_no_system_message() {
     assert!(!has_sm(&packets, sm_ids::YOUR_VITALITY_IS_AT_MAXIMUM));
     // The gauge still updates, so the client shows the drain.
     assert!(
-        packets
-            .iter()
-            .any(|p| p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0xA1),
+        packets.iter().any(|p| is_ex(p, 0xA1)),
         "expected ExVitalityPointInfo"
     );
 }
@@ -122,9 +120,7 @@ fn quiet_set_skips_messages_but_updates_gauge() {
     assert!(!has_sm(&packets, sm_ids::YOUR_VITALITY_HAS_INCREASED));
     // 0xFE extended packet 0xA1 = ExVitalityPointInfo.
     assert!(
-        packets
-            .iter()
-            .any(|p| p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0xA1),
+        packets.iter().any(|p| is_ex(p, 0xA1)),
         "expected ExVitalityPointInfo"
     );
 }

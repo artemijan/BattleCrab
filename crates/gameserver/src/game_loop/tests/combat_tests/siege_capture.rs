@@ -4,67 +4,33 @@
 
 use super::*;
 
+/// A level-5 clan holding `castle` (0 for none), led by a `leader` whose roster
+/// row passes the siege gates.
+fn siege_clan(id: i32, name: &str, leader: i32, castle: i32) -> Clan {
+    Clan {
+        name: name.into(),
+        castle_id: castle,
+        members: vec![clan_leader(leader)],
+        ..test_clan(id, leader)
+    }
+}
+
 /// Castle 3 with clan 500 owning it and clan 700 registered as an attacker —
 /// the shape both the capture test and the reputation-settlement tests want.
 fn siege_world_for_capture() -> (World, UnboundedReceiver<db::DbCommand>, ()) {
-    use model::castle::{Castle, CastleSide};
-    use model::clan::{Clan, ClanMember};
     use model::siege::{Siege, SiegeClanType};
     let (mut world, _db_tx, db_rx, _link) = test_world();
-    world.castles = vec![Castle {
-        show_npc_crest: false,
-        id: 3,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
+    world.castles = vec![castle_row(3, "Giran")];
     let mut siege = Siege::new(3);
     siege.add_clan(500, SiegeClanType::Owner);
     siege.add_clan(700, SiegeClanType::Attacker);
     world.sieges.insert(3, siege);
-    let clan = |id: i32, name: &str, leader: i32, castle: i32| Clan {
-        id,
-        name: name.into(),
-        leader_id: leader,
-        level: 5,
-        reputation_score: 0,
-        castle_id: castle,
-        members: vec![ClanMember {
-            char_id: leader,
-            name: format!("P{leader}"),
-            level: 40,
-            class_id: 0,
-            sex: 0,
-            race: 0,
-            power_grade: 1,
-            title: String::new(),
-            pledge_type: 0,
-            apprentice: 0,
-            sponsor: 0,
-        }],
-        skills: Default::default(),
-        warehouse: Default::default(),
-        char_penalty_expiry_time: 0,
-        dissolving_expiry_time: 0,
-        rank_privs: Default::default(),
-        new_leader_id: 0,
-        sub_pledges: Default::default(),
-        ally_id: 0,
-        ally_name: String::new(),
-        ally_penalty_expiry_time: 0,
-        ally_penalty_type: 0,
-        crest_id: 0,
-        crest_large_id: 0,
-        ally_crest_id: 0,
-        blood_alliance_count: 0,
-    };
-    world.clans.insert(500, clan(500, "Defenders", 8002, 3));
-    world.clans.insert(700, clan(700, "Attackers", 8003, 0));
+    world
+        .clans
+        .insert(500, siege_clan(500, "Defenders", 8002, 3));
+    world
+        .clans
+        .insert(700, siege_clan(700, "Attackers", 8003, 0));
     (world, db_rx, ())
 }
 
@@ -73,64 +39,19 @@ fn siege_world_for_capture() -> (World, UnboundedReceiver<db::DbCommand>, ()) {
 /// Siege capture (midVictory) + endSiege victory determination.
 #[test]
 fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
-    use model::castle::{Castle, CastleSide};
-    use model::clan::{Clan, ClanMember};
     use model::siege::{Siege, SiegeClanType};
     let (mut world, _db_tx, mut db_rx, _link) = test_world();
-    world.castles = vec![Castle {
-        show_npc_crest: false,
-        id: 3,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
+    world.castles = vec![castle_row(3, "Giran")];
     let mut siege = Siege::new(3);
     siege.add_clan(500, SiegeClanType::Owner); // defender/owner
     siege.add_clan(700, SiegeClanType::Attacker); // attacker
     world.sieges.insert(3, siege);
-    let clan = |id: i32, name: &str, leader: i32, castle: i32| Clan {
-        id,
-        name: name.into(),
-        leader_id: leader,
-        level: 5,
-        reputation_score: 0,
-        castle_id: castle,
-        members: vec![ClanMember {
-            char_id: leader,
-            name: format!("P{leader}"),
-            level: 40,
-            class_id: 0,
-            sex: 0,
-            race: 0,
-            power_grade: 1,
-            title: String::new(),
-            pledge_type: 0,
-            apprentice: 0,
-            sponsor: 0,
-        }],
-        skills: Default::default(),
-        warehouse: Default::default(),
-        char_penalty_expiry_time: 0,
-        dissolving_expiry_time: 0,
-        rank_privs: Default::default(),
-        new_leader_id: 0,
-        sub_pledges: Default::default(),
-        ally_id: 0,
-        ally_name: String::new(),
-        ally_penalty_expiry_time: 0,
-        ally_penalty_type: 0,
-        crest_id: 0,
-        crest_large_id: 0,
-        ally_crest_id: 0,
-        blood_alliance_count: 0,
-    };
-    world.clans.insert(500, clan(500, "Defenders", 8002, 3)); // owns castle 3
-    world.clans.insert(700, clan(700, "Attackers", 8003, 0));
+    world
+        .clans
+        .insert(500, siege_clan(500, "Defenders", 8002, 3)); // owns castle 3
+    world
+        .clans
+        .insert(700, siege_clan(700, "Attackers", 8003, 0));
     let mut rx = ingame_player(&mut world, 1, 8002, 0, 0, 0); // hears the announcements
     drain(&mut rx);
 
@@ -251,64 +172,19 @@ fn a_successful_defence_pays_castle_defended_points() {
 /// 500, attacker clan 700, siege started so `first_owner_clan_id == 500`.
 #[cfg(test)]
 fn siege_end_world(tickets: i32) -> (World, UnboundedReceiver<db::DbCommand>) {
-    use model::castle::{Castle, CastleSide};
-    use model::clan::{Clan, ClanMember};
+    use model::castle::Castle;
     use model::siege::{Siege, SiegeClanType};
     let (mut world, _db_tx, db_rx, _link) = test_world();
     world.castles = vec![Castle {
-        show_npc_crest: false,
-        id: 3,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
         ticket_buy_count: tickets,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
+        ..castle_row(3, "Giran")
     }];
     let mut siege = Siege::new(3);
     siege.add_clan(500, SiegeClanType::Owner);
     siege.add_clan(700, SiegeClanType::Attacker);
     world.sieges.insert(3, siege);
-    let clan = |id: i32, castle: i32| Clan {
-        id,
-        name: format!("Clan{id}"),
-        leader_id: id * 10,
-        level: 5,
-        reputation_score: 0,
-        castle_id: castle,
-        members: vec![ClanMember {
-            char_id: id * 10,
-            name: format!("P{id}"),
-            level: 40,
-            class_id: 0,
-            sex: 0,
-            race: 0,
-            power_grade: 1,
-            title: String::new(),
-            pledge_type: 0,
-            apprentice: 0,
-            sponsor: 0,
-        }],
-        skills: Default::default(),
-        warehouse: Default::default(),
-        char_penalty_expiry_time: 0,
-        dissolving_expiry_time: 0,
-        rank_privs: Default::default(),
-        new_leader_id: 0,
-        sub_pledges: Default::default(),
-        ally_id: 0,
-        ally_name: String::new(),
-        ally_penalty_expiry_time: 0,
-        ally_penalty_type: 0,
-        crest_id: 0,
-        crest_large_id: 0,
-        ally_crest_id: 0,
-        blood_alliance_count: 0,
-    };
-    world.clans.insert(500, clan(500, 3));
-    world.clans.insert(700, clan(700, 0));
+    world.clans.insert(500, siege_clan(500, "Clan500", 5000, 3));
+    world.clans.insert(700, siege_clan(700, "Clan700", 7000, 0));
     crate::game_loop::siege::start_siege(&mut world, 3);
     assert_eq!(world.sieges[&3].first_owner_clan_id, 500);
     (world, db_rx)
@@ -428,8 +304,6 @@ fn a_non_noble_captor_gets_no_diary_entry() {
 /// control/flame towers are torn down and rebuilt with the count reset to 0.
 #[test]
 fn siege_capture_evicts_the_new_attackers_and_rebuilds_the_towers() {
-    use model::castle::{Castle, CastleSide};
-    use model::clan::{Clan, ClanMember};
     use model::siege::{Siege, SiegeClanType, SiegeSpawn};
     const ROOT: &str = crate::data::DIST_GAME;
 
@@ -437,56 +311,13 @@ fn siege_capture_evicts_the_new_attackers_and_rebuilds_the_towers() {
     // The eviction lands the player in a town, so the real region table has to
     // be there — an empty one resolves no respawn point and nobody moves.
     world.data.map_region = crate::data::MapRegionData::load_from(ROOT);
-    world.castles = vec![Castle {
-        show_npc_crest: false,
-        id: 3,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
-    let clan = |id: i32, name: &str, leader: i32, castle: i32| Clan {
-        id,
-        name: name.into(),
-        leader_id: leader,
-        level: 5,
-        members: vec![ClanMember {
-            char_id: leader,
-            name: format!("P{leader}"),
-            level: 40,
-            class_id: 0,
-            sex: 0,
-            race: 0,
-            power_grade: 1,
-            title: String::new(),
-            pledge_type: 0,
-            apprentice: 0,
-            sponsor: 0,
-        }],
-        reputation_score: 0,
-        castle_id: castle,
-        skills: Default::default(),
-        warehouse: Default::default(),
-        char_penalty_expiry_time: 0,
-        dissolving_expiry_time: 0,
-        rank_privs: Default::default(),
-        new_leader_id: 0,
-        sub_pledges: Default::default(),
-        ally_id: 0,
-        ally_name: String::new(),
-        ally_penalty_expiry_time: 0,
-        ally_penalty_type: 0,
-        crest_id: 0,
-        crest_large_id: 0,
-        ally_crest_id: 0,
-        blood_alliance_count: 0,
-    };
-    world.clans.insert(500, clan(500, "Defenders", 8002, 3));
-    world.clans.insert(700, clan(700, "Attackers", 8003, 0));
+    world.castles = vec![castle_row(3, "Giran")];
+    world
+        .clans
+        .insert(500, siege_clan(500, "Defenders", 8002, 3));
+    world
+        .clans
+        .insert(700, siege_clan(700, "Attackers", 8003, 0));
 
     // One control tower and one flame tower for castle 3.
     let tower = |npc_id: i32| SiegeSpawn {
@@ -576,7 +407,7 @@ fn siege_capture_evicts_the_new_attackers_and_rebuilds_the_towers() {
 fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
     use crate::data::zone_data::{Zone, ZoneKind};
     use crate::game_loop;
-    use model::castle::{Castle, CastleSide};
+    use model::castle::Castle;
 
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let tax_zone = |castle_id: i32| Zone {
@@ -605,44 +436,20 @@ fn tax_zone_npc_wears_owner_crest_when_display_is_on() {
     insert_zone(&mut world, ZoneKind::Peace, -500, 500, -500, 500);
     world.castles = vec![Castle {
         show_npc_crest: true,
-        id: 3,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
+        ..castle_row(3, "Giran")
     }];
     let clan = Clan {
-        id: 500,
         name: "Owners".into(),
-        leader_id: 5000,
-        level: 5,
-        reputation_score: 0,
         castle_id: 3,
-        members: Vec::new(),
-        skills: Default::default(),
-        warehouse: Default::default(),
-        char_penalty_expiry_time: 0,
-        dissolving_expiry_time: 0,
-        rank_privs: Default::default(),
-        new_leader_id: 0,
-        sub_pledges: Default::default(),
         ally_id: 77,
         ally_name: "Ally".into(),
-        ally_penalty_expiry_time: 0,
-        ally_penalty_type: 0,
         crest_id: 11,
         crest_large_id: 12,
         ally_crest_id: 13,
-        blood_alliance_count: 0,
+        ..test_clan(500, 5000)
     };
     world.clans.insert(500, clan);
-    let mut t = crate::data::npc_data::default_template(30099);
-    t.type_name = "Folk".into();
-    world.data.npc_data.insert_for_test(t);
+    register_npc_kind(&mut world, 30099, "Folk");
 
     let npc = game_loop::npc::spawn_npc_at(&mut world, 30099, 0, 0, 0, 0).unwrap();
     assert_eq!(

@@ -8,7 +8,6 @@ use crate::game_loop::siege::{
     RegisterOutcome, approve_defender, check_can_register, is_registration_over, register,
     remove_registration,
 };
-use crate::model::castle::{Castle, CastleSide};
 use crate::model::clan::Clan;
 use crate::model::siege::{Siege, SiegeClanType};
 
@@ -52,30 +51,8 @@ fn mk_clan(id: i32, level: i32, castle_id: i32, ally_id: i32) -> Clan {
 fn siege_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     world.castles = vec![
-        Castle {
-            show_npc_crest: false,
-            id: CASTLE,
-            name: "Gludio".into(),
-            side: CastleSide::Neutral,
-            ticket_buy_count: 0,
-            first_mid_victory: false,
-            time_registration_over: true,
-            siege_time_registration_end: 0,
-            siege_date: 0,
-            treasury: 0,
-        },
-        Castle {
-            show_npc_crest: false,
-            id: OTHER_CASTLE,
-            name: "Dion".into(),
-            side: CastleSide::Neutral,
-            ticket_buy_count: 0,
-            first_mid_victory: false,
-            time_registration_over: true,
-            siege_time_registration_end: 0,
-            siege_date: 0,
-            treasury: 0,
-        },
+        castle_row(CASTLE, "Gludio"),
+        castle_row(OTHER_CASTLE, "Dion"),
     ];
     for id in [CASTLE, OTHER_CASTLE] {
         world.sieges.insert(id, Siege::new(id));
@@ -301,13 +278,7 @@ fn world_with_leader() -> (World, UnboundedReceiver<bytes::Bytes>) {
 }
 
 fn sent_opcode(rx: &mut UnboundedReceiver<bytes::Bytes>, opcode: u8) -> bool {
-    let mut found = false;
-    while let Ok(p) = rx.try_recv() {
-        if p.first() == Some(&opcode) {
-            found = true;
-        }
-    }
-    found
+    drain_count(rx, opcode) > 0
 }
 
 /// **A clan leader registers through the packet** — the whole point of the
@@ -494,13 +465,7 @@ fn list_body(castle_id: i32) -> Vec<u8> {
 
 /// Drain `rx` and return the last packet with the given opcode, if any.
 fn take_packet(rx: &mut UnboundedReceiver<bytes::Bytes>, opcode: u8) -> Option<Vec<u8>> {
-    let mut found = None;
-    while let Ok(p) = rx.try_recv() {
-        if p.first() == Some(&opcode) {
-            found = Some(p.to_vec());
-        }
-    }
-    found
+    drain(rx).into_iter().rfind(|p| p.first() == Some(&opcode))
 }
 
 /// **The attacker list (0xCA) answers a `RequestSiegeAttackerList` (0xAB)** with
@@ -690,10 +655,7 @@ fn the_death_window_offers_the_siege_restart_buttons() {
     const POS: (i32, i32, i32) = (-17964, 110730, -1000);
 
     let (mut world, _tx, _db, _l) = test_world();
-    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(crate::data::DIST_GAME);
     let (x, y, z) = POS;
     let _d = ingame_player(&mut world, 1, DEF, x, y, z);
     let _a = ingame_player(&mut world, 2, ATK, x, y, z);
@@ -788,10 +750,7 @@ fn the_death_window_offers_the_ordinary_restart_buttons() {
 
     // …and owning a clan hall lights that one.
     assert!(!die_options(&world, OID).to_clan_hall);
-    let mut halls = crate::data::clan_hall_data::load_clan_halls(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let mut halls = crate::data::clan_hall_data::load_clan_halls(crate::data::DIST_GAME);
     let first = *halls.keys().next().expect("the dist has clan halls");
     halls.get_mut(&first).unwrap().owner_id = 500;
     world.clan_halls = halls;

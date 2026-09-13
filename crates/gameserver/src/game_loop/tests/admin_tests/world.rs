@@ -217,8 +217,7 @@ fn admin_event_trigger_and_playmovie_send_their_packets() {
     );
     let got = drain(&mut rx);
     assert!(
-        got.iter()
-            .any(|p| p.first() == Some(&0xCF) && p[1..5] == 21170110i32.to_le_bytes() && p[5] == 1),
+        got.iter().any(|p| is_for(p, 0xCF, 21170110) && p[5] == 1),
         "OnEventTrigger 0xCF with the id and enabled byte"
     );
 
@@ -501,12 +500,7 @@ fn debug_panel_geodata_toggle_draws_grid() {
 
     on_packet(&mut world, 1, build_admin("debug geodata on menu"));
     let pkts = drain(&mut gm_rx);
-    let prim_count = pkts
-        .iter()
-        .filter(|p| {
-            p[0] == 0xFE && p.len() > 2 && i16::from_le_bytes(p[1..3].try_into().unwrap()) == 0x11
-        })
-        .count();
+    let prim_count = pkts.iter().filter(|p| is_ex(p, 0x11)).count();
     assert!(
         prim_count >= 42,
         "41×41 cells / 40 per packet → 43 ExServerPrimitive frames, got {prim_count}"

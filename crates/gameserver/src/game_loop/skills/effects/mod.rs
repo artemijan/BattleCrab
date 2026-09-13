@@ -277,10 +277,6 @@ pub(crate) fn max_recoverable(
         .unwrap_or(base)
 }
 
-/// The inverse of `servitor::servitor_of` — given a servitor, who owns it.
-/// The owner link lives on the servitor as `ServitorOf`, which is also what
-/// makes Java's `canStart` (`effected.isSummon()`) expressible: no component,
-/// not a servitor, no unsummon.
 /// Java's ten-minute Force decay: `restartChargeTask` on every gain or partial
 /// spend, `stopChargeTask` when the pool empties, `ResetChargesTask` clearing
 /// it when the timer runs out.
@@ -334,14 +330,6 @@ pub(crate) fn reset_charges(world: &mut World, player_oid: i32, seq: u64) {
     if let Some(client_id) = client_for_player(world, player_oid) {
         crate::game_loop::helpers::send_etc_status_update(world, client_id, player_oid);
     }
-}
-
-pub(crate) fn servitor_owner_of(world: &World, servitor_oid: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<crate::model::components::summons::ServitorOf>(&servitor_oid)
-        .map(|s| s.owner_object_id)
-        .filter(|&owner| owner != 0)
 }
 
 pub(crate) fn apply_skill_effects(
