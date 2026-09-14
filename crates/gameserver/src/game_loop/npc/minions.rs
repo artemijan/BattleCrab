@@ -233,23 +233,7 @@ fn clear_champion_for_raid_minion(world: &mut World, master_oid: i32, minion_oid
     // `isRaid()` reads — so the escort keeps the raid stat multipliers even
     // though the spawn (which only saw the template) gave it none.
     let mods = crate::model::npc_stats::NpcStatMods::of(&world.cfg, false, true);
-    if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
-        &crate::model::components::skills::Buffs,
-        &mut crate::model::components::stats::CombatStats,
-        &mut crate::model::components::stats::Speeds,
-        &mut Vitals,
-    )>(&minion_oid)
-    {
-        crate::model::npc_stats::recompute_npc_stats_from_buffs(
-            &world.data,
-            &t,
-            buffs,
-            mods,
-            &mut combat,
-            &mut speeds,
-            &mut vitals,
-        );
-    }
+    super::recompute_npc_stats(&mut world.objects, &world.data, minion_oid, &t, mods);
 }
 
 /// `Attackable.doDie` → `MinionList.onMinionDie`. The delay is Java's ladder:

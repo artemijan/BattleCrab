@@ -2,7 +2,6 @@
 
 use super::npc_template_id;
 use crate::model::components::stats::Vitals;
-use crate::model::components::summons::ServitorOf;
 use crate::world::World;
 /// A pet's NPC template with its **per-level pet stats substituted in**.
 ///
@@ -86,10 +85,7 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
     //
     // Only the defensive stats are folded: the 96 pet-armour items on this dist
     // are armour, and a pet has no weapon slot to speak of.
-    let owner = world
-        .objects
-        .get_component::<ServitorOf>(&pet_oid)
-        .map(|s| s.owner_object_id);
+    let owner = super::owner_of(world, pet_oid);
     if let Some(owner) = owner
         && let Some(pi) = world
             .objects

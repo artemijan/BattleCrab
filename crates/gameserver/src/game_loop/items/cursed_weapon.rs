@@ -14,6 +14,7 @@
 //! slice. There is no HP decay to port: Java's only HP touch is the full heal
 //! `activate` gives the new wielder.
 
+use crate::data::GameData;
 use crate::game_loop::combat::pvp;
 use crate::game_loop::helpers::send_to_client;
 use crate::game_loop::space::position::maybe_position;
@@ -32,6 +33,24 @@ use crate::game_loop::items::ground_items::{DropSource, despawn_ground_item, spa
 use crate::game_loop::net::broadcast;
 use crate::game_loop::npc::npc_template;
 use crate::game_loop::space::position::region_cell_of;
+
+/// `CursedWeaponsManager.load()`'s first half: the `CursedWeapons.xml` config
+/// as runtime weapons, each with `skill_max_level` resolved off the loaded
+/// skills. The persisted wielder state is overlaid on top by the caller
+/// (Java `restore` → `reActivate`), so a fresh list is entirely inactive.
+pub(crate) fn from_config(data: &GameData) -> Vec<crate::model::cursed_weapon::CursedWeapon> {
+    data.cursed_weapons
+        .weapons
+        .iter()
+        .cloned()
+        .map(|mut cw| {
+            // `.max(1)`: an unloaded skill table must not store a 0 here, or
+            // `level()` would clamp every stage away.
+            cw.skill_max_level = data.skill_data.max_level(cw.skill_id).max(1);
+            cw
+        })
+        .collect()
+}
 
 /// Java `CursedWeapon.dropRate` is out of 100000 (config comment "100000 for
 /// 100%"), so a value of 50 is 0.05%.

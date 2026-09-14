@@ -12,28 +12,17 @@ use super::super::*;
 fn quest_q00406_drop_ignores_the_quest_drop_rate() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(&mut world, &[(1205, "Topaz Piece", true)]);
-    let mut t = crate::data::npc_data::default_template(20035);
-    t.type_name = "Monster".into();
-    t.level = 20;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20035, "Monster", 20);
     world.cfg.rates.rate_quest_drop = 3.0;
     add_test_npc(&mut world, NPC_OID, 30327, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 18; // Elven Fighter
-        p.base_class_id = 18;
-        p.race = 1;
-    }
+    set_level_race_class(&mut world, 3001, 19, 1, 18); // Elven Fighter
     drain_db(&mut db_rx);
     accept_q406(&mut world);
     drain(&mut rx);
 
     let mob = NPC_OID + 1;
-    add_test_npc(&mut world, mob, 20035, "Monster", 20, 30, 0, 0);
-    world.force_roll(0); // roll(100) → 0 < 70
-    npc::npc_do_die(&mut world, mob, 3001);
+    kill_mob(&mut world, mob, 20035, 20, 0); // roll(100) → 0 < 70
 
     assert_eq!(
         item_count(&world, 3001, 1205),
@@ -84,22 +73,13 @@ fn quest_q00406_full_chain_awards_the_brooch() {
         ],
     );
     for id in [20035, 20782] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 20);
     }
     let kluto = NPC_OID + 50;
     add_test_npc(&mut world, NPC_OID, 30327, "Folk", 5, 100, 0, 0); // Sorius
     add_test_npc(&mut world, kluto, 30317, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 18;
-        p.base_class_id = 18;
-        p.race = 1;
-    }
+    set_level_race_class(&mut world, 3001, 19, 1, 18);
     drain_db(&mut db_rx);
     accept_q406(&mut world);
     assert_eq!(
@@ -111,9 +91,7 @@ fn quest_q00406_full_chain_awards_the_brooch() {
     // 20 topaz.
     for i in 0..20 {
         let mob = NPC_OID + 100 + i;
-        add_test_npc(&mut world, mob, 20035, "Monster", 20, 30, 0, 0);
-        world.force_roll(0);
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob(&mut world, mob, 20035, 20, 0);
     }
     assert_eq!(item_count(&world, 3001, 1205), 20);
     assert_eq!(
@@ -152,9 +130,7 @@ fn quest_q00406_full_chain_awards_the_brooch() {
     // 20 emerald from Ol Mahum Novices.
     for i in 0..20 {
         let mob = NPC_OID + 200 + i;
-        add_test_npc(&mut world, mob, 20782, "Monster", 20, 30, 0, 0);
-        world.force_roll(0); // roll(100) → 0 < 50
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob(&mut world, mob, 20782, 20, 0); // roll(100) → 0 < 50
     }
     assert_eq!(item_count(&world, 3001, 1206), 20);
     assert_eq!(
@@ -187,12 +163,8 @@ fn quest_q00406_full_chain_awards_the_brooch() {
     {
         // `exitQuest(false, ...)` — one-time, so the state stays COMPLETED
         // rather than being deleted (that would let it be repeated).
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
         assert!(
-            quests.0["Q00406_PathOfTheElvenKnight"].is_completed(),
+            quest_completed(&world, 3001, "Q00406_PathOfTheElvenKnight"),
             "one-time quest stays COMPLETED"
         );
     }
@@ -220,22 +192,12 @@ fn quest_q00407_only_the_tagging_player_gets_the_letter() {
             (1211, "Torn 4", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20053);
-    t.type_name = "Monster".into();
-    t.level = 20;
-    t.base_hp_max = 1000.0;
-    world.data.npc_data.insert_for_test(t);
+    register_npc_hp(&mut world, 20053, "Monster", 20, 1000.0);
     let moretti = NPC_OID + 50;
     add_test_npc(&mut world, NPC_OID, 30328, "Folk", 5, 100, 0, 0); // Reoria
     add_test_npc(&mut world, moretti, 30337, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 18;
-        p.base_class_id = 18;
-        p.race = 1;
-    }
+    set_level_race_class(&mut world, 3001, 19, 1, 18);
     drain_db(&mut db_rx);
 
     handle_request_bypass_to_server(
@@ -319,10 +281,7 @@ fn elven_path_quest_pages_exist_in_dist() {
     for (dir, npc, pages) in htm {
         for p in pages {
             let path = format!("{DIST}{dir}/{npc}-{p}.htm");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {dir}/{npc}-{p}.htm"
-            );
+            assert!(ships(&path), "missing {dir}/{npc}-{p}.htm");
         }
     }
     let html: [(&str, &str, &[&str]); 6] = [
@@ -348,18 +307,12 @@ fn elven_path_quest_pages_exist_in_dist() {
     for (dir, npc, pages) in html {
         for p in pages {
             let path = format!("{DIST}{dir}/{npc}-{p}.html");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {dir}/{npc}-{p}.html"
-            );
+            assert!(ships(&path), "missing {dir}/{npc}-{p}.html");
         }
     }
     // Prias' gap is real; the port must not invent a -03 to "complete" the run.
     let gap = format!("{DIST}Q00407_PathOfTheElvenScout/30426-03.html");
-    assert!(
-        !std::path::Path::new(&gap).exists(),
-        "30426-03 genuinely does not ship"
-    );
+    assert!(!ships(&gap), "30426-03 genuinely does not ship");
 }
 
 const Q409: &str = "Q00409_PathOfTheElvenOracle";
@@ -373,21 +326,11 @@ fn q409_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     }
     add_quest_items(&mut world, &items);
     for id in [27032, 27033, 27034, 27035] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        t.base_hp_max = 1000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 20, 1000.0);
     }
     add_test_npc(&mut world, NPC_OID, 30293, "Folk", 5, 100, 0, 0); // Manuel
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 25; // Elven Mage
-        p.base_class_id = 25;
-        p.race = 1;
-    }
+    set_level_race_class(&mut world, 3001, 19, 1, 25); // Elven Mage
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -518,31 +461,19 @@ fn elven_oracle_quest_pages_exist_in_dist() {
     );
     for p in ["01", "02", "02a", "03", "04", "05"] {
         let path = format!("{DIST}30293-{p}.htm");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30293-{p}.htm"
-        );
+        assert!(ships(&path), "missing 30293-{p}.htm");
     }
     for p in ["06", "07", "08", "09"] {
         let path = format!("{DIST}30293-{p}.html");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30293-{p}.html"
-        );
+        assert!(ships(&path), "missing 30293-{p}.html");
     }
     for p in ["01", "02", "03", "04", "05", "06", "07", "08", "09"] {
         let path = format!("{DIST}30424-{p}.html");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30424-{p}.html"
-        );
+        assert!(ships(&path), "missing 30424-{p}.html");
     }
     for p in ["01", "02", "03", "04", "05", "06"] {
         let path = format!("{DIST}30428-{p}.html");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30428-{p}.html"
-        );
+        assert!(ships(&path), "missing 30428-{p}.html");
     }
 }
 
@@ -559,20 +490,11 @@ fn q408_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     }
     add_quest_items(&mut world, &items);
     for id in [20019, 20047, 20466] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 20);
     }
     add_test_npc(&mut world, NPC_OID, 30414, "Folk", 5, 100, 0, 0); // Rossela
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 25; // Elven Mage
-        p.base_class_id = 25;
-        p.race = 1;
-    }
+    set_level_race_class(&mut world, 3001, 19, 1, 25); // Elven Mage
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -649,9 +571,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
         }
         for _ in 0..need {
             mob_oid += 1;
-            add_test_npc(&mut world, mob_oid, mob, "Monster", 20, 30, 0, 0);
-            world.force_roll(0); // inside every chance
-            npc::npc_do_die(&mut world, mob_oid, 3001);
+            kill_mob(&mut world, mob_oid, mob, 20, 0); // inside every chance
         }
         assert_eq!(
             item_count(&world, 3001, material),
@@ -678,13 +598,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408}")),
     );
     assert_eq!(item_count(&world, 3001, 1230), 1, "the Eternity Diamond");
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q408].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q408));
     assert!(
         drain(&mut rx)
             .iter()
@@ -699,9 +613,7 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
 fn quest_q00408_drops_need_the_charm() {
     let (mut world, _rx) = q408_world();
     let mob = NPC_OID + 400;
-    add_test_npc(&mut world, mob, 20466, "Monster", 20, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, mob, 3001);
+    kill_mob(&mut world, mob, 20466, 20, 0);
     assert_eq!(item_count(&world, 3001, 1219), 0, "no charm, no Red Down");
 }
 
@@ -715,36 +627,24 @@ fn elven_wizard_quest_pages_exist_in_dist() {
     );
     for p in ["01", "02", "02a", "03", "04", "05", "06"] {
         let path = format!("{DIST}30414-{p}.htm");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30414-{p}.htm"
-        );
+        assert!(ships(&path), "missing 30414-{p}.htm");
     }
     for n in 7..=23 {
         let path = format!("{DIST}30414-{n:02}.html");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30414-{n:02}.html"
-        );
+        assert!(ships(&path), "missing 30414-{n:02}.html");
     }
     for npc in ["30157", "30371"] {
         for p in ["01", "02", "03", "04"] {
             let path = format!("{DIST}{npc}-{p}.html");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {npc}-{p}.html"
-            );
+            assert!(ships(&path), "missing {npc}-{p}.html");
         }
     }
     for p in ["01", "02", "03"] {
         let path = format!("{DIST}30423-{p}.html");
-        assert!(
-            std::path::Path::new(&path).exists(),
-            "missing 30423-{p}.html"
-        );
+        assert!(ships(&path), "missing 30423-{p}.html");
     }
     assert!(
-        !std::path::Path::new(&format!("{DIST}30423-04.html")).exists(),
+        !ships(&format!("{DIST}30423-04.html")),
         "Northwind has no fourth page — hence no swap event"
     );
 }

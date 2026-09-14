@@ -10,7 +10,6 @@ use crate::game_loop::character::inventory;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::model::Player;
 use crate::model::components::combat::PvpState;
-use crate::model::components::space::ZoneFlags;
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::{World, regions_adjacent};
@@ -53,19 +52,17 @@ fn flag_of(world: &World, oid: i32) -> u8 {
 }
 
 fn in_peace(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<ZoneFlags>(&oid)
-        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace))
+    crate::game_loop::space::zones::has_zone_flag(
+        world,
+        oid,
+        crate::data::zone_data::ZoneKind::Peace,
+    )
 }
 
 /// In an `ArenaZone` (`ZoneId.PVP`): free-for-all, and hostile actions there
 /// don't raise a flag.
 pub(crate) fn in_pvp_zone(world: &World, oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<ZoneFlags>(&oid)
-        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Pvp))
+    crate::game_loop::space::zones::has_zone_flag(world, oid, crate::data::zone_data::ZoneKind::Pvp)
 }
 
 /// The castle id of the active siege zone the creature stands in, if any. A
@@ -274,11 +271,11 @@ pub(crate) fn protection_blessing_blocks(world: &World, actor: i32, target: i32)
     ) else {
         return false;
     };
-    if world
-        .objects
-        .get_component::<ZoneFlags>(&t)
-        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Pvp))
-    {
+    if crate::game_loop::space::zones::has_zone_flag(
+        world,
+        t,
+        crate::data::zone_data::ZoneKind::Pvp,
+    ) {
         return false;
     }
     let blessed = |oid: i32| {
@@ -292,10 +289,7 @@ pub(crate) fn protection_blessing_blocks(world: &World, actor: i32, target: i32)
 }
 
 pub(crate) fn acting_player(world: &World, object_id: i32) -> i32 {
-    world
-        .objects
-        .get_component::<crate::model::components::summons::ServitorOf>(&object_id)
-        .map(|s| s.owner_object_id)
+    crate::game_loop::servitor::owner_of(world, object_id)
         // A symbol totem (`EffectPoint`) also acts as its summoner — Java's
         // `EffectPoint.getActingPlayer()` returns `_owner`.
         .or_else(|| {

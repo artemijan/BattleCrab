@@ -15,10 +15,7 @@ fn quest_q00211_trial_of_the_challenger() {
     }
     add_quest_items(&mut world, &items);
     for id in [27110, 27112, 27113, 27114] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     world
         .data
@@ -55,12 +52,7 @@ fn quest_q00211_trial_of_the_challenger() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, kash);
     ev(&mut world, kash, "30644-06.htm"); // startQuest, cond 1
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -145,11 +137,7 @@ fn quest_q00212_trial_of_duty() {
     items.push((2633, "Mark of Duty", false));
     add_quest_items(&mut world, &items);
     for id in [20190, 27119, 20200, 20144, 20577, 20270, 30656] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100_000.0);
     }
     let hanna = NPC_OID;
     let aron = NPC_OID + 1;
@@ -183,12 +171,7 @@ fn quest_q00212_trial_of_duty() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, hanna);
     ev(&mut world, hanna, "quest_accept");
     assert_eq!(quest_memo(&world, 3001, q), 1, "accepted → memo 1");
@@ -306,10 +289,7 @@ fn quest_q00213_trial_of_the_seeker() {
     for id in [
         20198, 20211, 20495, 20080, 20249, 20158, 20234, 20270, 20088, 20580,
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     let dufner = NPC_OID;
     let terry = NPC_OID + 1;
@@ -338,12 +318,7 @@ fn quest_q00213_trial_of_the_seeker() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, dufner);
     ev(&mut world, dufner, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -441,10 +416,7 @@ fn quest_q00215_trial_of_the_pilgrim() {
     items.push((2721, "Mark of Pilgrim", false));
     add_quest_items(&mut world, &items);
     for id in [27116, 27117, 27118] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     let santiago = NPC_OID;
     let tanapi = NPC_OID + 1;
@@ -486,12 +458,7 @@ fn quest_q00215_trial_of_the_pilgrim() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     talk(&mut world, santiago);
     ev(&mut world, santiago, "ACCEPT");
     assert_eq!(quest_memo(&world, 3001, q), 1);
@@ -587,10 +554,7 @@ fn quest_q00216_trial_of_the_guildsman() {
     items.push((3119, "Mark of Guildsman", false));
     add_quest_items(&mut world, &items);
     for id in [20154, 20267, 20200, 20083, 20202, 20168, 20079] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     let valkon = NPC_OID;
     let norman = NPC_OID + 1;
@@ -619,12 +583,7 @@ fn quest_q00216_trial_of_the_guildsman() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 30;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 30, 40, 3001, 30, 0);
     inject(&mut world, 3001, 0x0216_0000, 57, 2000); // entry fee
     talk(&mut world, valkon);
     ev(&mut world, valkon, "ACCEPT"); // 2000 adena → Valkon's Recommendation, cond 1
@@ -718,10 +677,7 @@ fn quest_q00214_trial_of_the_scholar() {
     for id in [
         20580, 20068, 20269, 20235, 20554, 20158, 20201, 20552, 20567,
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     let n = |i| NPC_OID + i;
     let (mirien, sylvain, maria, lucas, creta) = (n(0), n(1), n(2), n(3), n(4));
@@ -758,12 +714,7 @@ fn quest_q00214_trial_of_the_scholar() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 40;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, mirien);
     ev(&mut world, mirien, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -828,14 +779,9 @@ fn quest_q00214_trial_of_the_scholar() {
     // neither Valkon's page nor any journal step named her before. Every
     // RadarControl in the drained batch, as (showRadar, radarType) pairs.
     let radar = |pkts: &[Vec<u8>]| -> Vec<(i32, i32)> {
-        pkts.iter()
-            .filter(|p| p[0] == 0xF1)
-            .map(|p| {
-                (
-                    i32::from_le_bytes(p[1..5].try_into().unwrap()),
-                    i32::from_le_bytes(p[5..9].try_into().unwrap()),
-                )
-            })
+        radar_markers(pkts)
+            .into_iter()
+            .map(|(show, kind, ..)| (show, kind))
             .collect()
     };
     drain(&mut rx);

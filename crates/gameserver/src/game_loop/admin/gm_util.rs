@@ -1052,10 +1052,7 @@ pub(super) fn admin_setconfig(world: &mut World, client_id: u32, args: &[&str]) 
 ///   `Command format is //skill_test <ID>`.
 pub(super) fn admin_skill_test(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let usage = "Command format is //skill_test <ID>";
-    let target = world
-        .objects
-        .get_component::<crate::model::components::combat::TargetRef>(&object_id)
-        .and_then(|t| t.0);
+    let target = target::current(world, object_id);
     let (Some(skill_id), Some(target_oid)) = (helpers::nth_arg::<i32>(args, 0), target) else {
         send_message(world, client_id, usage);
         return;

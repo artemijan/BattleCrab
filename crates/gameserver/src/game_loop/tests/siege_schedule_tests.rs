@@ -71,32 +71,7 @@ fn the_dist_schedule_loads_all_nine_castles() {
 
 fn schedule_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
-    world.castles = vec![
-        Castle {
-            show_npc_crest: false,
-            id: 1,
-            name: "Gludio".into(),
-            side: CastleSide::Neutral,
-            ticket_buy_count: 0,
-            first_mid_victory: false,
-            time_registration_over: true,
-            siege_time_registration_end: 0,
-            siege_date: 0,
-            treasury: 0,
-        },
-        Castle {
-            show_npc_crest: false,
-            id: 2,
-            name: "Dion".into(),
-            side: CastleSide::Neutral,
-            ticket_buy_count: 0,
-            first_mid_victory: false,
-            time_registration_over: true,
-            siege_time_registration_end: 0,
-            siege_date: 0,
-            treasury: 0,
-        },
-    ];
+    world.castles = vec![castle_row(1, "Gludio"), castle_row(2, "Dion")];
     world.sieges.insert(1, Siege::new(1));
     world.sieges.insert(2, Siege::new(2));
     world.data.siege_schedule.insert(
@@ -298,29 +273,11 @@ fn castle_info_overlay_carries_owner_tax_and_siege() {
     let (mut world, ..) = test_world();
     world.castles = vec![
         Castle {
-            show_npc_crest: false,
-            id: 1,
-            name: "Gludio".into(),
             side: CastleSide::Dark,
-            ticket_buy_count: 0,
-            first_mid_victory: false,
-            time_registration_over: true,
-            siege_time_registration_end: 0,
             siege_date: 1_700_000_000_000,
-            treasury: 0,
+            ..castle_row(1, "Gludio")
         },
-        Castle {
-            show_npc_crest: false,
-            id: 2,
-            name: "Dion".into(),
-            side: CastleSide::Neutral,
-            ticket_buy_count: 0,
-            first_mid_victory: false,
-            time_registration_over: true,
-            siege_time_registration_end: 0,
-            siege_date: 0,
-            treasury: 0,
-        },
+        castle_row(2, "Dion"),
     ];
     // Gludio is held; Dion is not. A castle with no owning clan must still
     // occupy its slot with an empty name, or every field after it shifts.

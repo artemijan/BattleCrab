@@ -8,7 +8,7 @@ const DIST_RES: &str = crate::data::DIST_GAME;
 /// Build a clan that owns `castle` with a single online member `leader`.
 #[cfg(test)]
 fn owner_clan(id: i32, leader: i32, castle: i32) -> Clan {
-    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::clan::Clan;
     Clan {
         id,
         name: format!("Clan{id}"),
@@ -16,19 +16,7 @@ fn owner_clan(id: i32, leader: i32, castle: i32) -> Clan {
         level: 5,
         reputation_score: 0,
         castle_id: castle,
-        members: vec![ClanMember {
-            char_id: leader,
-            name: format!("P{leader}"),
-            level: 40,
-            class_id: 0,
-            sex: 0,
-            race: 0,
-            power_grade: 1,
-            title: String::new(),
-            pledge_type: 0,
-            apprentice: 0,
-            sponsor: 0,
-        }],
+        members: vec![clan_leader(leader)],
         skills: Default::default(),
         warehouse: Default::default(),
         char_penalty_expiry_time: 0,
@@ -59,14 +47,6 @@ fn residence_learn() -> crate::data::pledge_skill_tree::PledgeSkillLearn {
         residence_ids: vec![3],
         level_up_sp: 0,
     }
-}
-
-#[cfg(test)]
-fn has_clan_skill(world: &World, oid: i32, id: i32) -> bool {
-    world
-        .objects
-        .get_component::<model::components::skills::ClanSkills>(&oid)
-        .is_some_and(|c| c.0.contains_key(&id))
 }
 
 /// **Residential skills load per residence** — castle 1 grants Residence Health

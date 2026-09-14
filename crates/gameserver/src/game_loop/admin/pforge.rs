@@ -189,11 +189,7 @@ fn big_integer_bytes(value: &str) -> Option<Vec<u8>> {
 fn substitute(world: &World, gm_oid: i32, token: &str) -> Option<String> {
     let pos = |oid: i32| maybe_position(world, oid);
     let target = || -> Option<i32> {
-        world
-            .objects
-            .get_component::<crate::model::components::combat::TargetRef>(&gm_oid)
-            .and_then(|t| t.0)
-            .filter(|&t| t != 0)
+        crate::game_loop::combat::target::current(world, gm_oid).filter(|&t| t != 0)
     };
     let name_of = |oid: i32| {
         world

@@ -3,7 +3,6 @@
 use super::npc_template_id;
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers::{send_sm_to_player, send_to_player};
-use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets;
 use crate::world::World;
 /// Which Beast shot a recharge is after. Java has one
@@ -99,11 +98,7 @@ fn recharge_summon_shot(world: &mut World, summon_oid: i32, kind: SummonShot) ->
     if charged(world) {
         return true;
     }
-    let Some(owner) = world
-        .objects
-        .get_component::<ServitorOf>(&summon_oid)
-        .map(|s| s.owner_object_id)
-    else {
+    let Some(owner) = super::owner_of(world, summon_oid) else {
         return false;
     };
     // How many the swing costs: from the pet's level row. A servitor has no

@@ -299,19 +299,8 @@ fn a_worn_set_survives_a_relog() {
     let (world, _db, _l) = armor_set_world();
     let mut chr = dummy_char(PLAYER, "Setter");
     let paperdoll = |item_id: i32, slot: PaperdollSlot| ItemRow {
-        object_id: oid_of(item_id),
-        item_id,
-        count: 1,
         enchant_level: 6,
-        loc: "PAPERDOLL".into(),
-        loc_data: slot as i32,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
+        ..item_row(oid_of(item_id), item_id, 1, slot)
     };
     chr.items = vec![
         paperdoll(HELMET, PaperdollSlot::Head),

@@ -19,20 +19,11 @@ fn dark_elf_quest_world(
     let rows: Vec<(i32, &str, bool)> = items.iter().map(|id| (*id, "Q item", true)).collect();
     add_quest_items(&mut world, &rows);
     for id in mobs {
-        let mut t = crate::data::npc_data::default_template(*id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, *id, "Monster", 20);
     }
     add_test_npc(&mut world, NPC_OID, start_npc, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 31; // Dark Fighter
-        p.base_class_id = 31;
-        p.race = 2;
-    }
+    set_level_race_class(&mut world, 3001, 19, 2, 31); // Dark Fighter
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -68,12 +59,7 @@ fn quest_q00410_full_chain_awards_the_gaze_of_abyss() {
     );
     let kalinta = NPC_OID + 20;
     add_test_npc(&mut world, kalinta, 30422, "Folk", 5, 100, 0, 0);
-    let mut mob_oid = NPC_OID + 500;
-    let mut kill = |world: &mut World, npc_id: i32| {
-        mob_oid += 1;
-        add_test_npc(world, mob_oid, npc_id, "Monster", 20, 30, 0, 0);
-        npc::npc_do_die(world, mob_oid, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 500, 20, 3001, 30, 0);
 
     // 13 lycanthrope skulls — 13 kills, no rolls.
     for _ in 0..13 {
@@ -126,13 +112,7 @@ fn quest_q00410_full_chain_awards_the_gaze_of_abyss() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {Q410}")),
     );
     assert_eq!(item_count(&world, 3001, 1244), 1, "the Gaze of Abyss");
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q410].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q410));
     assert!(
         drain(&mut rx)
             .iter()
@@ -176,12 +156,7 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
     let (leikan, arkenia) = (NPC_OID + 20, NPC_OID + 21);
     add_test_npc(&mut world, leikan, 30382, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, arkenia, 30419, "Folk", 5, 100, 0, 0);
-    let mut mob_oid = NPC_OID + 500;
-    let mut kill = |world: &mut World, npc_id: i32| {
-        mob_oid += 1;
-        add_test_npc(world, mob_oid, npc_id, "Monster", 20, 30, 0, 0);
-        npc::npc_do_die(world, mob_oid, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 500, 20, 3001, 30, 0);
 
     handle_request_bypass_to_server(
         &mut world,
@@ -244,13 +219,7 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {Q411}")),
     );
     assert_eq!(item_count(&world, 3001, 1252), 1, "the Iron Heart");
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q411].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q411));
 }
 
 /// Leikan answers on the same token but a different molar count — the one
@@ -279,12 +248,10 @@ fn quest_q00411_leikan_page_tracks_the_molar_count() {
     );
 
     let dist = |page: &str| {
-        let path = format!(
-            "{}/../../dist/game/data/scripts/quests/Q00411_PathOfTheAssassin/{page}",
-            env!("CARGO_MANIFEST_DIR")
-        );
-        crate::data::htm_cache::strip_htm(&std::fs::read_to_string(&path).expect("dist page"))
-            .replace("%objectId%", &leikan.to_string())
+        dist_page(
+            &format!("data/scripts/quests/Q00411_PathOfTheAssassin/{page}"),
+            leikan,
+        )
     };
 
     // 0 molars.
@@ -334,54 +301,44 @@ fn dark_elf_path_quest_pages_exist_in_dist() {
     // assumed uniform across the tier.
     for p in ["01", "02", "02a", "03", "04", "05", "06"] {
         assert!(
-            std::path::Path::new(&format!("{DIST}Q00410_PathOfThePalusKnight/30329-{p}.htm"))
-                .exists(),
+            ships(&format!("{DIST}Q00410_PathOfThePalusKnight/30329-{p}.htm")),
             "missing 30329-{p}.htm"
         );
     }
     for p in ["01", "02", "02a", "03", "04", "05"] {
         assert!(
-            std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30416-{p}.htm")).exists(),
+            ships(&format!("{DIST}Q00411_PathOfTheAssassin/30416-{p}.htm")),
             "missing 30416-{p}.htm"
         );
     }
     assert!(
-        !std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30416-06.htm")).exists(),
+        !ships(&format!("{DIST}Q00411_PathOfTheAssassin/30416-06.htm")),
         "411's -06 is .html, unlike 410's"
     );
     for n in 7..=12 {
-        assert!(
-            std::path::Path::new(&format!(
-                "{DIST}Q00410_PathOfThePalusKnight/30329-{n:02}.html"
-            ))
-            .exists()
-        );
+        assert!(ships(&format!(
+            "{DIST}Q00410_PathOfThePalusKnight/30329-{n:02}.html"
+        )));
     }
     for n in 1..=6 {
-        assert!(
-            std::path::Path::new(&format!(
-                "{DIST}Q00410_PathOfThePalusKnight/30422-{n:02}.html"
-            ))
-            .exists()
-        );
+        assert!(ships(&format!(
+            "{DIST}Q00410_PathOfThePalusKnight/30422-{n:02}.html"
+        )));
     }
     for n in 6..=11 {
-        assert!(
-            std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30416-{n:02}.html"))
-                .exists()
-        );
+        assert!(ships(&format!(
+            "{DIST}Q00411_PathOfTheAssassin/30416-{n:02}.html"
+        )));
     }
     for n in 1..=9 {
-        assert!(
-            std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30382-{n:02}.html"))
-                .exists()
-        );
+        assert!(ships(&format!(
+            "{DIST}Q00411_PathOfTheAssassin/30382-{n:02}.html"
+        )));
     }
     for n in 1..=11 {
-        assert!(
-            std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30419-{n:02}.html"))
-                .exists()
-        );
+        assert!(ships(&format!(
+            "{DIST}Q00411_PathOfTheAssassin/30419-{n:02}.html"
+        )));
     }
 }
 
@@ -401,20 +358,11 @@ fn dark_mage_quest_world(
     let rows: Vec<(i32, &str, bool)> = items.iter().map(|id| (*id, "Q item", true)).collect();
     add_quest_items(&mut world, &rows);
     for id in mobs {
-        let mut t = crate::data::npc_data::default_template(*id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, *id, "Monster", 20);
     }
     add_test_npc(&mut world, NPC_OID, start_npc, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 38; // Dark Mage
-        p.base_class_id = 38;
-        p.race = 2;
-    }
+    set_level_race_class(&mut world, 3001, 19, 2, 38); // Dark Mage
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -485,9 +433,7 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
         assert_eq!(item_count(&world, 3001, tool), 1, "tool {tool} received");
         for _ in 0..need {
             mob_oid += 1;
-            add_test_npc(&mut world, mob_oid, mob, "Monster", 20, 30, 0, 0);
-            world.force_roll(0); // `getRandom(2) == 0`
-            npc::npc_do_die(&mut world, mob_oid, 3001);
+            kill_mob(&mut world, mob_oid, mob, 20, 0); // `getRandom(2) == 0`
         }
         assert_eq!(
             item_count(&world, 3001, material),
@@ -510,13 +456,7 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {Q412}")),
     );
     assert_eq!(item_count(&world, 3001, 1261), 1, "the Jewel of Darkness");
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q412].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q412));
 }
 
 /// Q00412 rolls `getRandom(2) == 0` — **equality**. A forced roll of 1 must
@@ -534,9 +474,7 @@ fn quest_q00412_drop_is_a_coin_flip_on_equality() {
             &bypass_body(&format!("npc_{charkeren}_Quest {Q412} 30415-03.html")),
         );
         let mob = NPC_OID + 400;
-        add_test_npc(&mut world, mob, 20015, "Monster", 20, 30, 0, 0);
-        world.force_roll(forced);
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob(&mut world, mob, 20015, 20, forced);
         assert_eq!(
             item_count(&world, 3001, 1257),
             expected,
@@ -607,12 +545,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
     let (adonius, talbot) = (NPC_OID + 21, NPC_OID + 20);
     add_test_npc(&mut world, talbot, 30377, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, adonius, 30375, "Folk", 5, 100, 0, 0);
-    let mut mob_oid = NPC_OID + 500;
-    let mut kill = |world: &mut World, npc_id: i32| {
-        mob_oid += 1;
-        add_test_npc(world, mob_oid, npc_id, "Monster", 20, 30, 0, 0);
-        npc::npc_do_die(world, mob_oid, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 500, 20, 3001, 30, 0);
 
     handle_request_bypass_to_server(
         &mut world,
@@ -662,13 +595,7 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {Q413}")),
     );
     assert_eq!(item_count(&world, 3001, 1270), 1, "the Orb of Abyss");
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q413].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q413));
     assert!(
         drain(&mut rx)
             .iter()

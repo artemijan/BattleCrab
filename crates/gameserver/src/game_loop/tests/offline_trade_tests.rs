@@ -28,21 +28,7 @@ fn enable_offline(world: &mut World) {
 
 /// One inventory row: five D-grade crystals as object id 4242.
 fn crystal_row() -> crate::db::ItemRow {
-    crate::db::ItemRow {
-        object_id: 4242,
-        item_id: 1458,
-        count: 5,
-        enchant_level: 0,
-        loc: "INVENTORY".into(),
-        loc_data: 0,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    }
+    item_row_at(4242, 1458, 5, "INVENTORY", 0)
 }
 
 /// Give `oid` a live sell store holding `count` of item 57 at `price`.
@@ -106,7 +92,8 @@ fn a_logout_with_a_store_open_leaves_the_shop_behind() {
     );
     // Java `GameClient.onDisconnection` sends the account logout either way.
     assert!(
-        std::iter::from_fn(|| link_rx.try_recv().ok())
+        drain_rx(&mut link_rx)
+            .iter()
             .any(|c| matches!(c, LoginLinkCommand::PlayerLogout { .. })),
         "the login server is told the account left"
     );

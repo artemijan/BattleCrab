@@ -41,7 +41,6 @@ fn potion_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
         t.immediate_effect = true;
         world.data.item_data.insert_for_test(t);
         world.data.skill_data.insert_for_test(Skill {
-            self_continuous: false,
             id: skill_id,
             level: 1,
             name: format!("Restore {item_id}"),
@@ -267,7 +266,6 @@ fn cp_has_its_own_pool() {
     t.immediate_effect = true;
     world.data.item_data.insert_for_test(t);
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 9104,
         level: 1,
         name: "Restore CP".into(),

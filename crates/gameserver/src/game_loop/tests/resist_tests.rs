@@ -19,7 +19,6 @@ const VICTIM_CID: u32 = 2;
 
 fn base_skill(id: i32, effects: Vec<SkillEffect>) -> Skill {
     Skill {
-        self_continuous: false,
         without_action: false,
         trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 0,

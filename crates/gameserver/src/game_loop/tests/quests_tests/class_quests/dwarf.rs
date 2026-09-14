@@ -10,20 +10,11 @@ fn q418_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let rows: Vec<(i32, &str, bool)> = (1632..=1641).map(|id| (id, "Q418", true)).collect();
     add_quest_items(&mut world, &rows);
     for id in [20017, 20389, 20390] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 20);
     }
     add_test_npc(&mut world, NPC_OID, 30527, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 53; // Dwarven Fighter
-        p.base_class_id = 53;
-        p.race = 4;
-    }
+    set_level_race_class(&mut world, 3001, 19, 4, 53); // Dwarven Fighter
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -54,9 +45,7 @@ fn quest_q00418_leader_tooth_roll_has_a_hole_at_zero() {
 
     // Roll 0 with zero teeth: the `< 5` branch does nothing at all.
     oid += 1;
-    add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, oid, 3001);
+    kill_mob(&mut world, oid, 20390, 20, 0);
     assert_eq!(
         item_count(&world, 3001, 1637),
         0,
@@ -65,16 +54,12 @@ fn quest_q00418_leader_tooth_roll_has_a_hole_at_zero() {
 
     // Roll 5 with zero teeth: the `else` branch always pays.
     oid += 1;
-    add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
-    world.force_roll(5);
-    npc::npc_do_die(&mut world, oid, 3001);
+    kill_mob(&mut world, oid, 20390, 20, 5);
     assert_eq!(item_count(&world, 3001, 1637), 1, "roll>=5 always pays");
 
     // Roll 0 with one tooth: now the `< 5` branch does pay.
     oid += 1;
-    add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, oid, 3001);
+    kill_mob(&mut world, oid, 20390, 20, 0);
     assert_eq!(
         item_count(&world, 3001, 1637),
         2,
@@ -87,15 +72,11 @@ fn quest_q00418_leader_tooth_roll_has_a_hole_at_zero() {
 fn quest_q00418_ratman_teeth_roll_is_seventy_percent() {
     let (mut world, _rx) = q418_world();
     let miss = NPC_OID + 200;
-    add_test_npc(&mut world, miss, 20389, "Monster", 20, 30, 0, 0);
-    world.force_roll(7);
-    npc::npc_do_die(&mut world, miss, 3001);
+    kill_mob(&mut world, miss, 20389, 20, 7);
     assert_eq!(item_count(&world, 3001, 1636), 0, "roll 7 is outside `< 7`");
 
     let hit = NPC_OID + 201;
-    add_test_npc(&mut world, hit, 20389, "Monster", 20, 30, 0, 0);
-    world.force_roll(6);
-    npc::npc_do_die(&mut world, hit, 3001);
+    kill_mob(&mut world, hit, 20389, 20, 6);
     assert_eq!(item_count(&world, 3001, 1636), 1, "roll 6 pays");
 }
 
@@ -140,9 +121,7 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     assert_eq!(quest_cond(&world, 3001, Q418), Some(5));
 
     let orc = NPC_OID + 300;
-    add_test_npc(&mut world, orc, 20017, "Monster", 20, 30, 0, 0);
-    world.force_roll(0); // `getRandom(10) < 2`
-    npc::npc_do_die(&mut world, orc, 3001);
+    kill_mob(&mut world, orc, 20017, 20, 0); // `getRandom(10) < 2`
     assert_eq!(item_count(&world, 3001, 1640), 1, "the stolen secret box");
     assert_eq!(quest_cond(&world, 3001, Q418), Some(6));
 
@@ -166,13 +145,7 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
         1,
         "the Final Pass Certificate"
     );
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q418].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q418));
     assert!(
         drain(&mut rx)
             .iter()
@@ -188,7 +161,7 @@ fn artisan_dead_branch_is_dead_at_both_ends() {
         "/../../dist/game/data/scripts/quests/Q00418_PathOfTheArtisan/"
     );
     for npc in ["31956", "31963", "32052"] {
-        let any = (1..=9).any(|n| std::path::Path::new(&format!("{DIST}{npc}-0{n}.html")).exists());
+        let any = (1..=9).any(|n| ships(&format!("{DIST}{npc}-0{n}.html")));
         assert!(any, "{npc} ships pages but is registered nowhere");
     }
     // Only 08b is offered; 08c (the memoState 10 entry) is not.
@@ -222,21 +195,11 @@ fn q417_world() -> (World, UnboundedReceiver<bytes::Bytes>) {
     let rows: Vec<(i32, &str, bool)> = (1642..=1657).map(|id| (id, "Q417", true)).collect();
     add_quest_items(&mut world, &rows);
     for id in [20403, 20508, 20777, 27058] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        t.base_hp_max = 1000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 20, 1000.0);
     }
     add_test_npc(&mut world, NPC_OID, 30524, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.class_id = 53; // Dwarven Fighter
-        p.base_class_id = 53;
-        p.race = 4;
-    }
+    set_level_race_class(&mut world, 3001, 19, 4, 53); // Dwarven Fighter
     drain_db(&mut db_rx);
     handle_request_bypass_to_server(
         &mut world,
@@ -413,13 +376,7 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
         &bypass_body(&format!("npc_{raut}_Quest {Q417}")),
     );
     assert_eq!(item_count(&world, 3001, 1642), 1, "the Ring of Raven");
-    {
-        let quests = world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap();
-        assert!(quests.0[Q417].is_completed());
-    }
+    assert!(quest_completed(&world, 3001, Q417));
     assert!(
         drain(&mut rx)
             .iter()

@@ -102,17 +102,28 @@ pub(crate) fn compose_base_stats(world: &crate::world::World, oid: i32) -> Optio
         .unwrap_or_default();
     let hs = world.data.hennas.stat_sums(&slots);
     let sets = game_loop::items::armor_sets::set_stat_sums(world, oid);
-    // Java sums the set bonus as a double into the finalizer's base value and
-    // the consumer truncates; every `<stat val>` on this dist is a whole
-    // number, so the cast is exact rather than lossy.
-    Some(BaseStats {
+    Some(compose_base_stats_from(&t, &hs, &sets))
+}
+
+/// [`compose_base_stats`]'s arithmetic, for the login path that has the three
+/// inputs in hand before the object exists to look them up on.
+///
+/// Java sums the set bonus as a double into the finalizer's base value and the
+/// consumer truncates; every `<stat val>` on this dist is a whole number, so
+/// the cast is exact rather than lossy.
+pub(crate) fn compose_base_stats_from(
+    t: &crate::data::player_template::PlayerTemplate,
+    hs: &crate::data::henna_data::HennaStatSums,
+    sets: &crate::data::armor_set_data::ArmorSetStats,
+) -> BaseStats {
+    BaseStats {
         str_: t.base_str + hs.str_ + sets.str_ as i32,
         dex: t.base_dex + hs.dex + sets.dex as i32,
         con: t.base_con + hs.con + sets.con as i32,
         int_: t.base_int + hs.int_ + sets.int_ as i32,
         wit: t.base_wit + hs.wit + sets.wit as i32,
         men: t.base_men + hs.men + sets.men as i32,
-    })
+    }
 }
 
 /// Java `CreatureStat.mergeAdd`/`mergeMul`/`mergeMoveTypeValue`/

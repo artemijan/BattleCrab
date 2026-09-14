@@ -94,61 +94,13 @@ fn spawnnight_and_spawnday_force_the_phase() {
     let mut gm_rx = ingame_player_access(&mut world, 1, 7204, 100);
     drain(&mut gm_rx);
     for npc_id in [DAY_MOB, NIGHT_MOB] {
-        let mut t = crate::data::npc_data::default_template(npc_id);
-        t.type_name = "Monster".into();
-        world.data.npc_data.insert_for_test(t);
+        register_npc_kind(&mut world, npc_id, "Monster");
     }
-    let line = |npc_id: i32| crate::data::spawn_data::NpcSpawnDef {
-        npc_id,
-        count: 1,
-        loc: Some(crate::data::spawn_data::FixedLoc {
-            x: 100,
-            y: 100,
-            z: 0,
-            heading: 0,
-        }),
-        respawn_secs: 60,
-        respawn_random_secs: 0,
-        chase_range: 0,
-        db_save: false,
-    };
     world
         .data
         .spawn_data
         .spawns
-        .push(crate::data::spawn_data::SpawnTemplate {
-            file: "test/admin-day-night.xml".to_string(),
-            name: Some("test-admin-day-night".to_string()),
-            ai: Some("DayNightSpawns".to_string()),
-            parameters: Default::default(),
-            territories: Vec::new(),
-            groups: vec![
-                crate::data::spawn_data::SpawnGroup {
-                    name: Some("dayTime".to_string()),
-                    spawn_by_default: false,
-                    territories: Vec::new(),
-                    npcs: vec![line(DAY_MOB)],
-                },
-                crate::data::spawn_data::SpawnGroup {
-                    name: Some("nightTime".to_string()),
-                    spawn_by_default: false,
-                    territories: Vec::new(),
-                    npcs: vec![line(NIGHT_MOB)],
-                },
-            ],
-        });
-
-    let count_of = |world: &mut World, npc_id: i32| {
-        let mut n = 0;
-        world
-            .objects
-            .for_each_mut::<&crate::model::npc::Npc>(|npc| {
-                if npc.npc_id == npc_id {
-                    n += 1;
-                }
-            });
-        n
-    };
+        .push(day_night_test_template(DAY_MOB, NIGHT_MOB));
 
     on_packet(
         &mut world,
@@ -159,16 +111,16 @@ fn spawnnight_and_spawnday_force_the_phase() {
         ]
         .concat(),
     );
-    assert_eq!(count_of(&mut world, NIGHT_MOB), 1, "night half is up");
-    assert_eq!(count_of(&mut world, DAY_MOB), 0, "day half is not");
+    assert_eq!(npc_count(&mut world, NIGHT_MOB), 1, "night half is up");
+    assert_eq!(npc_count(&mut world, DAY_MOB), 0, "day half is not");
 
     on_packet(
         &mut world,
         1,
         [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("spawnday")].concat(),
     );
-    assert_eq!(count_of(&mut world, DAY_MOB), 1, "they traded places");
-    assert_eq!(count_of(&mut world, NIGHT_MOB), 0);
+    assert_eq!(npc_count(&mut world, DAY_MOB), 1, "they traded places");
+    assert_eq!(npc_count(&mut world, NIGHT_MOB), 0);
 }
 
 /// **`//respawnall` has to make the NPCs visible** (GitHub #2). The boot spawn
@@ -186,9 +138,7 @@ fn respawnall_shows_the_new_npcs_to_a_player_standing_there() {
         .get_component::<crate::model::components::space::Position>(&7203)
         .expect("gm position");
     let npc_id = 90201;
-    let mut template = crate::data::npc_data::default_template(npc_id);
-    template.type_name = "Monster".into();
-    world.data.npc_data.insert_for_test(template);
+    register_npc_kind(&mut world, npc_id, "Monster");
     world
         .data
         .spawn_data

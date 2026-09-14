@@ -76,16 +76,12 @@ fn ally_create_join_and_interlocks() {
     );
 
     // At war → no invite.
-    world.clan_wars.push(model::clan::ClanWar {
-        attacker_id: 5000,
-        attacked_id: 5001,
-        state: model::clan::ClanWarState::Mutual,
-        winner_id: 0,
-        start_time: 1,
-        end_time: 0,
-        attacker_kills: 0,
-        attacked_kills: 0,
-    });
+    world.clan_wars.push(model::clan::ClanWar::new(
+        5000,
+        5001,
+        model::clan::ClanWarState::Mutual,
+        1,
+    ));
     clans::handle_request_join_ally(&mut world, 1, &oid_body(3003));
     assert!(
         ids_after_opcode(&drain(&mut a_rx), server_packets::opcodes::SYSTEM_MESSAGE)

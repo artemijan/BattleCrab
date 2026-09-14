@@ -221,11 +221,7 @@ fn the_punishment_ladder_picks_exact_and_range_rows() {
 
     assert!(bot_report::report_bot(&mut world, 1, 6001));
 
-    let buffs: Vec<i32> = world
-        .objects
-        .get_component::<Buffs>(&6002)
-        .map(|b| b.0.iter().map(|x| x.skill_id).collect())
-        .unwrap_or_default();
+    let buffs = all_buff_ids(&world, 6002);
     assert!(buffs.contains(&6038), "the exact-count punishment landed");
     assert!(buffs.contains(&6040), "the range punishment landed too");
 }

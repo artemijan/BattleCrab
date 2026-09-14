@@ -195,12 +195,7 @@ fn hp_regen_stat_modifiers_now_reach_the_regen_tick() {
     let bare = hp_gain_per_tick(&mut world);
 
     // A flat +10 `HpRegen` (Java `Diff` mode), as Regeneration 1044 grants.
-    world
-        .objects
-        .get_component_mut::<StatModifiers>(&PLAYER)
-        .unwrap()
-        .add
-        .insert(Stat::RegenerateHpRate, 10.0);
+    set_add_modifier(&mut world, PLAYER, Stat::RegenerateHpRate, 10.0);
     let buffed = hp_gain_per_tick(&mut world);
     assert!(
         (buffed - bare - 10.0).abs() < 1e-6,
@@ -214,12 +209,7 @@ fn hp_regen_stat_modifiers_now_reach_the_regen_tick() {
         .unwrap()
         .add
         .clear();
-    world
-        .objects
-        .get_component_mut::<StatModifiers>(&PLAYER)
-        .unwrap()
-        .mul
-        .insert(Stat::RegenerateHpRate, 2.0);
+    set_mul_modifier(&mut world, PLAYER, Stat::RegenerateHpRate, 2.0);
     let doubled = hp_gain_per_tick(&mut world);
     assert!(
         (doubled - bare * 2.0).abs() < 1e-6,
@@ -236,12 +226,7 @@ fn mp_regen_stat_modifiers_now_reach_the_regen_tick() {
     set_moving(&mut world, PLAYER, false, false);
 
     let bare = mp_gain_per_tick(&mut world);
-    world
-        .objects
-        .get_component_mut::<StatModifiers>(&PLAYER)
-        .unwrap()
-        .add
-        .insert(Stat::RegenerateMpRate, 7.0);
+    set_add_modifier(&mut world, PLAYER, Stat::RegenerateMpRate, 7.0);
     let buffed = mp_gain_per_tick(&mut world);
     assert!(
         (buffed - bare - 7.0).abs() < 1e-6,

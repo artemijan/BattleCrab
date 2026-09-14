@@ -1112,11 +1112,8 @@ pub(crate) fn on_raid_attacked_loot_rights(world: &mut World, npc_oid: i32, atta
     // The acting player: a servitor/pet hit counts for its owner.
     let player = if world.objects.has_component::<Player>(&attacker_oid) {
         attacker_oid
-    } else if let Some(s) = world
-        .objects
-        .get_component::<crate::model::components::summons::ServitorOf>(&attacker_oid)
-    {
-        s.owner_object_id
+    } else if let Some(owner) = crate::game_loop::servitor::owner_of(world, attacker_oid) {
+        owner
     } else {
         return;
     };

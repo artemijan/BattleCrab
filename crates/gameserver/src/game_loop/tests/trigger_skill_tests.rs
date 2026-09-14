@@ -8,7 +8,7 @@
 use super::*;
 use crate::game_loop::abnormal::has_buff;
 
-use crate::model::components::skills::{Buffs, SkillBook};
+use crate::model::components::skills::SkillBook;
 use crate::model::skill::effects::SkillEffect;
 
 const PLAYER: i32 = 8001;
@@ -35,48 +35,16 @@ fn trigger_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
 fn install(world: &mut World, effect: SkillEffect) {
     use crate::model::skill::Skill;
     use crate::model::skill::effects::StatModifierEffect;
-    use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
+    use crate::model::skill::target::OperateType;
     use crate::model::stats::{Stat, StatModifierType};
     let base = |id: i32, effects: Vec<SkillEffect>, abnormal_time: i32, op: OperateType| Skill {
-        self_continuous: false,
-        without_action: false,
-        trait_type: model::skill::traits::TraitType::None,
-        item_consume_id: 0,
-        item_consume_count: 0,
         id,
-        level: 1,
         name: format!("T{id}"),
         operate_type: op,
-        is_continuous: false,
-        target_type: TargetType::Self_,
-        magic_type: 0,
         magic_level: 1,
-        effect_point: 0,
-        cast_range: 0,
-        effect_range: 0,
-        hit_time: 0,
-        hit_cancel_time: 0.0,
-        cool_time: 0,
-        reuse_delay: 0,
-        reuse_delay_group: -1,
-        mp_consume: 0,
-        mp_initial_consume: 0,
-        hp_consume: 0,
         abnormal_time,
         abnormal_level: 1,
         abnormal_type: format!("TRIG{id}"),
-        activate_rate: -1,
-        lvl_bonus_rate: 0,
-        over_hit: false,
-        abnormal_visuals: Vec::new(),
-        toggle_group_id: 0,
-        affect_scope: AffectScope::Single,
-        affect_object: AffectObject::All,
-        affect_range: 0,
-        affect_limit: (0, 0),
-        can_be_dispelled: true,
-        is_debuff: false,
-        stay_after_death: false,
         effects,
         ..Default::default()
     };
@@ -258,21 +226,11 @@ fn an_already_active_trigger_is_not_recast() {
     know(&mut world, PLAYER);
 
     hit(&mut world, 50, false);
-    let after_first = world
-        .objects
-        .get_component::<Buffs>(&PLAYER)
-        .unwrap()
-        .0
-        .len();
+    let after_first = pbuffs(&world, PLAYER);
     for _ in 0..5 {
         hit(&mut world, 50, false);
     }
-    let after_many = world
-        .objects
-        .get_component::<Buffs>(&PLAYER)
-        .unwrap()
-        .0
-        .len();
+    let after_many = pbuffs(&world, PLAYER);
     assert_eq!(
         after_first, after_many,
         "the buff is not re-applied while it is already up"

@@ -313,23 +313,11 @@ fn door_click_does_not_attack_outside_siege() {
 /// capture engine. Port of Artefact.onAction → Castle.setOwner → midVictory.
 #[test]
 fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
-    use model::castle::{Castle, CastleSide};
     use model::clan::{Clan, ClanMember};
     use model::siege::{Siege, SiegeClanType};
     let (mut world, ..) = test_world();
     insert_siege_zone(&mut world, 3, 0, 1000, -1000, 1000);
-    world.castles = vec![Castle {
-        show_npc_crest: false,
-        id: 3,
-        name: "Giran".into(),
-        side: CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
+    world.castles = vec![castle_row(3, "Giran")];
     let mut siege = Siege::new(3);
     siege.in_progress = true;
     siege.add_clan(700, SiegeClanType::Attacker);
@@ -344,17 +332,8 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember {
-                char_id: 8003,
-                name: "P8003".into(),
                 level: 40,
-                class_id: 0,
-                sex: 0,
-                race: 0,
-                power_grade: 5,
-                title: String::new(),
-                pledge_type: 0,
-                apprentice: 0,
-                sponsor: 0,
+                ..clan_member_p(8003)
             }],
             skills: Default::default(),
             warehouse: Default::default(),
@@ -468,17 +447,8 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember {
-                char_id: 3001,
-                name: "P3001".into(),
                 level: 40,
-                class_id: 0,
-                sex: 0,
-                race: 0,
-                power_grade: 5,
-                title: String::new(),
-                pledge_type: 0,
-                apprentice: 0,
-                sponsor: 0,
+                ..clan_member_p(3001)
             }],
             skills: Default::default(),
             warehouse: Default::default(),
@@ -581,17 +551,8 @@ fn attacker_clan(world: &mut World, player_oid: i32) {
             reputation_score: 0,
             castle_id: 0,
             members: vec![ClanMember {
-                char_id: player_oid,
-                name: "P".into(),
                 level: 40,
-                class_id: 0,
-                sex: 0,
-                race: 0,
-                power_grade: 5,
-                title: String::new(),
-                pledge_type: 0,
-                apprentice: 0,
-                sponsor: 0,
+                ..clan_member(player_oid, "P")
             }],
             skills: Default::default(),
             warehouse: Default::default(),
@@ -717,11 +678,7 @@ fn an_advanced_headquarters_takes_half_damage() {
         }
         let _rx = ingame_player(&mut world, 1, 3001, 100, 100, 0);
         combat::npc_receive_damage(&mut world, flag, 3001, 100.0, false);
-        world
-            .objects
-            .get_component::<Vitals>(&flag)
-            .map(|v| v.cur_hp)
-            .unwrap_or(0.0)
+        hp_of(&world, flag)
     };
 
     assert_eq!(hp_after_hit(false), 900.0, "a basic camp takes it all");

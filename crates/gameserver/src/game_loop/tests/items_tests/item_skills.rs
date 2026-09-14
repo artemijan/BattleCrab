@@ -18,45 +18,11 @@ fn item_skill_potion_heals_and_enforces_reuse() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
-        without_action: false,
-        trait_type: model::skill::traits::TraitType::None,
-        item_consume_id: 0,
-        item_consume_count: 0,
         id: 2031,
-        level: 1,
         name: "Lesser Healing Potion".into(),
-        operate_type: OperateType::Active,
-        is_continuous: false,
-        target_type: TargetType::Self_,
         magic_type: 1,
-        magic_level: 0,
         effect_point: 100,
-        cast_range: 0,
-        effect_range: 0,
-        hit_time: 0,
-        hit_cancel_time: 0.0,
-        cool_time: 0,
         reuse_delay: 6000,
-        reuse_delay_group: -1,
-        mp_consume: 0,
-        mp_initial_consume: 0,
-        hp_consume: 0,
-        abnormal_time: 0,
-        abnormal_level: 0,
-        abnormal_type: "NONE".into(),
-        activate_rate: -1,
-        lvl_bonus_rate: 0,
-        over_hit: false,
-        abnormal_visuals: Vec::new(),
-        toggle_group_id: 0,
-        affect_scope: AffectScope::Single,
-        affect_object: AffectObject::All,
-        affect_range: 0,
-        affect_limit: (0, 0),
-        can_be_dispelled: true,
-        is_debuff: false,
-        stay_after_death: false,
         effects: vec![SkillEffect::Heal { power: 30.0 }],
         ..Default::default()
     });
@@ -167,54 +133,16 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.data.map_region =
-        crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
-            name: "test_town".into(),
-            loc_id: 924,
-            bbs: 0,
-            respawn_points: vec![(5000, 6000, -30)],
-            tiles: vec![(20, 18)],
-        }]);
+    with_town(&mut world);
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 2013,
-        level: 1,
         name: "Scroll of Escape".into(),
-        operate_type: OperateType::Active,
-        is_continuous: false,
-        target_type: TargetType::Self_,
-        magic_type: 2, // static: hitTime used verbatim
+        magic_type: 2,
+        // static: hitTime used verbatim
         magic_level: 0,
-        effect_point: 0,
-        cast_range: 0,
-        effect_range: 0,
         hit_time: 20_000,
-        hit_cancel_time: 0.0,
-        cool_time: 0,
-        reuse_delay: 0,
-        reuse_delay_group: -1,
-        mp_consume: 0,
-        mp_initial_consume: 0,
-        hp_consume: 0,
-        without_action: false,
-        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 9909,
         item_consume_count: 1,
-        abnormal_time: 0,
-        abnormal_level: 0,
-        abnormal_type: "NONE".into(),
-        activate_rate: -1,
-        lvl_bonus_rate: 0,
-        over_hit: false,
-        abnormal_visuals: Vec::new(),
-        toggle_group_id: 0,
-        affect_scope: AffectScope::Single,
-        affect_object: AffectObject::All,
-        affect_range: 0,
-        affect_limit: (0, 0),
-        can_be_dispelled: true,
-        is_debuff: false,
-        stay_after_death: false,
         effects: vec![SkillEffect::Escape {
             dest: model::skill::effects::EscapeDest::Town,
         }],
@@ -325,52 +253,19 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
     use crate::model::components::combat::Casting;
     use crate::model::inventory::Inventory;
     use crate::model::skill::Skill;
-    use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     world.id_pool = 0x4600_0000..0x4600_0100;
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 2260,
-        level: 1,
         name: "Key of Enigma".into(),
-        operate_type: OperateType::Active,
-        is_continuous: false,
-        target_type: TargetType::Self_,
-        magic_type: 2, // static: hitTime used verbatim
+        magic_type: 2,
+        // static: hitTime used verbatim
         magic_level: 0,
-        effect_point: 0,
-        cast_range: 0,
-        effect_range: 0,
         hit_time: 5_000,
-        hit_cancel_time: 0.0,
-        cool_time: 0,
-        reuse_delay: 0,
-        reuse_delay_group: -1,
-        mp_consume: 0,
-        mp_initial_consume: 0,
-        hp_consume: 0,
-        without_action: false,
-        trait_type: model::skill::traits::TraitType::None,
         item_consume_id: 8058,
         item_consume_count: 1,
-        abnormal_time: 0,
-        abnormal_level: 0,
-        abnormal_type: "NONE".into(),
-        activate_rate: -1,
-        lvl_bonus_rate: 0,
-        over_hit: false,
-        abnormal_visuals: Vec::new(),
-        toggle_group_id: 0,
-        affect_scope: AffectScope::Single,
-        affect_object: AffectObject::All,
-        affect_range: 0,
-        affect_limit: (0, 0),
-        can_be_dispelled: true,
-        is_debuff: false,
-        stay_after_death: false,
-        effects: Vec::new(),
         ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {

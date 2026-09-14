@@ -14,10 +14,7 @@ fn quest_q00619_relics_of_the_old_empire() {
         ],
     );
     // A killable Imperial Tomb monster in the registered 21396..=21434 range.
-    let mut t = crate::data::npc_data::default_template(21400);
-    t.type_name = "Monster".into();
-    t.level = 74;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 21400, "Monster", 74);
     add_test_npc(&mut world, NPC_OID, 31538, "Folk", 70, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -75,10 +72,7 @@ fn quest_q00623_the_finest_food() {
         ],
     );
     // Thermal Antelope (21318) drops Horn of Antelope.
-    let mut t = crate::data::npc_data::default_template(21318);
-    t.type_name = "Monster".into();
-    t.level = 71;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 21318, "Monster", 71);
     add_test_npc(&mut world, NPC_OID, 31521, "Folk", 70, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -103,9 +97,7 @@ fn quest_q00623_the_finest_food() {
     inject(&mut world, 3001, 0x7199_0000, 7199, 100);
     inject(&mut world, 3001, 0x7200_0000, 7200, 100);
     inject(&mut world, 3001, 0x7201_0000, 7201, 99);
-    add_test_npc(&mut world, NPC_OID + 1, 21318, "Monster", 71, 30, 0, 0);
-    world.force_roll(0); // give_item_randomly roll_f64 → hit
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 21318, 71, 0); // give_item_randomly roll_f64 → hit
     assert_eq!(
         item_count(&world, 3001, 7201),
         100,
@@ -144,10 +136,7 @@ fn quest_q00617_gather_the_flames() {
             (6883, "Recipe B", false),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(22634);
-    t.type_name = "Monster".into();
-    t.level = 74;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 22634, "Monster", 74);
     add_test_npc(&mut world, NPC_OID, 31539, "Folk", 70, 100, 0, 0); // Vulcan
     add_test_npc(&mut world, NPC_OID + 1, 32049, "Folk", 70, 100, 0, 0); // Rooney
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -169,9 +158,7 @@ fn quest_q00617_gather_the_flames() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Kill 22634 (threshold 639): roll(1000)=0 < 639 → 2 torches (plain giveItems).
-    add_test_npc(&mut world, NPC_OID + 2, 22634, "Monster", 74, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    kill_mob(&mut world, NPC_OID + 2, 22634, 74, 0);
     assert_eq!(
         item_count(&world, 3001, 7264),
         2,
@@ -202,10 +189,7 @@ fn quest_q00617_gather_the_flames() {
 fn quest_q00688_defeat_the_elrokian_raiders() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(&mut world, &[(8785, "Dinosaur Fang Necklace", true)]);
-    let mut t = crate::data::npc_data::default_template(22214); // Elroki
-    t.type_name = "Monster".into();
-    t.level = 75;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 22214, "Monster", 75);
     add_test_npc(&mut world, NPC_OID, 32105, "Folk", 70, 100, 0, 0); // Dinn
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -226,9 +210,7 @@ fn quest_q00688_defeat_the_elrokian_raiders() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Kill Elroki: DROP_RATE 448 folded into the threshold, roll(1000)=0 < 448.
-    add_test_npc(&mut world, NPC_OID + 1, 22214, "Monster", 75, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 22214, 75, 0);
     assert_eq!(item_count(&world, 3001, 8785), 1, "Elroki drops a necklace");
     // Per-necklace turn-in: 10 necklaces → 30000 adena.
     inject(&mut world, 3001, 0x0688_0000, 8785, 9);
@@ -385,10 +367,7 @@ fn quest_q00628_hunt_golden_ram() {
         ],
     );
     for id in [21508, 21513] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 66;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 66);
     }
     add_test_npc(&mut world, NPC_OID, 31554, "Folk", 66, 100, 0, 0); // Kahman
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -410,9 +389,7 @@ fn quest_q00628_hunt_golden_ram() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Splinter (count 1) drops at cond 1; needle (count 2) does not.
-    add_test_npc(&mut world, NPC_OID + 1, 21508, "Monster", 66, 30, 0, 0);
-    world.force_roll(0); // roll_f64 (0.0 < 0.5) → hit
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 21508, 66, 0); // roll_f64 (0.0 < 0.5) → hit
     assert_eq!(
         item_count(&world, 3001, 7248),
         1,
@@ -455,10 +432,7 @@ fn quest_q00606_battle_against_varka_silenos() {
         &mut world,
         &[(7233, "Varka Mane", true), (7186, "Varka Horn", false)],
     );
-    let mut t = crate::data::npc_data::default_template(21350); // chance 500
-    t.type_name = "Monster".into();
-    t.level = 74;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 21350, "Monster", 74);
     add_test_npc(&mut world, NPC_OID, 31370, "Folk", 74, 100, 0, 0); // Kadun
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -479,9 +453,7 @@ fn quest_q00606_battle_against_varka_silenos() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // roll(1000)=0 < 500 → a mane.
-    add_test_npc(&mut world, NPC_OID + 1, 21350, "Monster", 74, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 21350, 74, 0);
     assert_eq!(
         item_count(&world, 3001, 7233),
         1,
@@ -505,10 +477,7 @@ fn quest_q00612_battle_against_ketra_orcs() {
         &mut world,
         &[(7234, "Ketra Molar", true), (7187, "Ketra Seed", false)],
     );
-    let mut t = crate::data::npc_data::default_template(21324); // chance 500
-    t.type_name = "Monster".into();
-    t.level = 74;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 21324, "Monster", 74);
     add_test_npc(&mut world, NPC_OID, 31377, "Folk", 74, 100, 0, 0); // Ashas
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -528,9 +497,7 @@ fn quest_q00612_battle_against_ketra_orcs() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31377-03.htm")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
-    add_test_npc(&mut world, NPC_OID + 1, 21324, "Monster", 74, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 21324, 74, 0);
     assert_eq!(
         item_count(&world, 3001, 7234),
         1,
@@ -550,10 +517,7 @@ fn quest_q00612_battle_against_ketra_orcs() {
 fn quest_q00634_in_search_of_fragments_of_dimension() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(&mut world, &[(7079, "Dimension Fragment", true)]);
-    let mut t = crate::data::npc_data::default_template(21139); // an aggressive rift mob
-    t.type_name = "Monster".into();
-    t.level = 40;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 21139, "Monster", 40);
     add_test_npc(&mut world, NPC_OID, 31095, "Folk", 40, 100, 0, 0); // a Dimensional Gate Keeper
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -574,9 +538,7 @@ fn quest_q00634_in_search_of_fragments_of_dimension() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // roll(100)=0 < 80 → fragments, amount = (int)(40*0.15 + 2.6) = 8.
-    add_test_npc(&mut world, NPC_OID + 1, 21139, "Monster", 40, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 21139, 40, 0);
     assert_eq!(
         item_count(&world, 3001, 7079),
         8,
@@ -605,10 +567,7 @@ fn quest_q00643_rise_and_fall_of_the_elroki_tribe() {
             (8712, "Sirra's Blade Edge", false),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(22200); // a MOBS1 dinosaur
-    t.type_name = "Monster".into();
-    t.level = 75;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 22200, "Monster", 75);
     add_test_npc(&mut world, NPC_OID, 32106, "Folk", 75, 100, 0, 0); // Singsing
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -629,9 +588,7 @@ fn quest_q00643_rise_and_fall_of_the_elroki_tribe() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // MOBS1 always pays; roll(1000)=0 < 116 → 2 bones.
-    add_test_npc(&mut world, NPC_OID + 1, 22200, "Monster", 75, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 22200, 75, 0);
     assert_eq!(
         item_count(&world, 3001, 8776),
         2,
@@ -681,11 +638,7 @@ fn quest_q00642_a_powerful_primeval_creature() {
         &[(DINOSAUR_TISSUE, "q", true), (DINOSAUR_EGG, "q", true)],
     );
     for id in [TISSUE_MOB, ANCIENT_EGG] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 78;
-        t.base_hp_max = 100.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 78, 100.0);
     }
     let dinn = NPC_OID;
     add_test_npc(&mut world, dinn, DINN, "Folk", 78, 100, 200, 0);
@@ -706,13 +659,8 @@ fn quest_q00642_a_powerful_primeval_creature() {
     talk(&mut world, dinn);
     ev(&mut world, dinn, "32105-05.html"); // accept
     assert_eq!(
-        world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap()
-            .0[q]
-            .state,
-        model::quest::state::STARTED,
+        quest_state(&world, 3001, q),
+        Some(model::quest::state::STARTED),
         "started"
     );
 
@@ -721,15 +669,11 @@ fn quest_q00642_a_powerful_primeval_creature() {
     let mut mob = NPC_OID + 20;
     for _ in 0..3 {
         mob += 1;
-        add_test_npc(&mut world, mob, TISSUE_MOB, "Monster", 78, 110, 200, 0);
-        world.force_roll(0);
-        npc::npc_do_die(&mut world, mob, 3001);
+        kill_mob_at(&mut world, mob, TISSUE_MOB, 78, 110, 200, 0);
     }
     assert_eq!(item_count(&world, 3001, DINOSAUR_TISSUE), 3, "3 tissues");
     mob += 1;
-    add_test_npc(&mut world, mob, ANCIENT_EGG, "Monster", 78, 110, 200, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, mob, 3001);
+    kill_mob_at(&mut world, mob, ANCIENT_EGG, 78, 110, 200, 0);
     assert_eq!(
         item_count(&world, 3001, DINOSAUR_EGG),
         1,
@@ -769,11 +713,7 @@ fn quest_q00641_attack_sailren() {
         &mut world,
         &[(GAZKH_FRAGMENT, "q", true), (GAZKH, "key", false)],
     );
-    let mut rt = crate::data::npc_data::default_template(RAPTOR);
-    rt.type_name = "Monster".into();
-    rt.level = 78;
-    rt.base_hp_max = 100.0;
-    world.data.npc_data.insert_for_test(rt);
+    register_npc_hp(&mut world, RAPTOR, "Monster", 78, 100.0);
     let statue = NPC_OID;
     add_test_npc(&mut world, statue, STATUE, "Folk", 78, 100, 200, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
@@ -789,28 +729,11 @@ fn quest_q00641_attack_sailren() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> String {
-        drain(rx)
-            .iter()
-            .find_map(|p| {
-                if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
-                    decode_npc_html(p)
-                } else if p[0] == server_packets::opcodes::EX {
-                    let mut r = commons::network::PacketReader::new(&p[1..]);
-                    r.read_i16()?;
-                    r.read_i32()?;
-                    r.read_string()
-                } else {
-                    None
-                }
-            })
-            .unwrap_or_default()
-    };
 
     // Prereq: without The Name of Evil 2 complete, the statue shows 32109-0b
     // (no accept button to 32109-1).
     talk(&mut world, statue);
-    let html = grab(&mut rx);
+    let html = any_html(&mut rx);
     assert!(
         !html.contains("32109-1.html"),
         "no accept without prereq: {html}"
@@ -829,7 +752,7 @@ fn quest_q00641_attack_sailren() {
         qs.state = model::quest::state::COMPLETED;
     }
     talk(&mut world, statue);
-    let html = grab(&mut rx);
+    let html = any_html(&mut rx);
     // The 0a page (prereq met) leads on to 0c → the accept; 0b (unmet) does not.
     assert!(
         html.contains("32109-0c"),
@@ -904,11 +827,7 @@ fn quest_q00620_four_goblets() {
     items.push((RECIPE, "recipe", false));
     add_quest_items(&mut world, &items);
     for id in [TOMB_MOB, BOSSES[0], BOSSES[1], BOSSES[2], BOSSES[3]] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 78;
-        t.base_hp_max = 100.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 78, 100.0);
     }
     let nameless = NPC_OID;
     let wigoth2 = NPC_OID + 1;
@@ -1011,8 +930,6 @@ fn quest_q00620_four_goblets() {
 /// cap), and the first turn-in climbing from cond 1 to Mark of Alliance Lv1.
 #[test]
 fn quest_q00605_alliance_with_ketra_orcs() {
-    use crate::model::components::social::Quests;
-
     const WAHKAN: i32 = 31371;
     const SOLDIER: i32 = 7216; // Varka Badge - Soldier
     const KETRA_MARK1: i32 = 7211;
@@ -1030,10 +947,7 @@ fn quest_q00605_alliance_with_ketra_orcs() {
         ],
     );
     {
-        let mut t = crate::data::npc_data::default_template(RECRUIT);
-        t.type_name = "Monster".into();
-        t.level = 75;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, RECRUIT, "Monster", 75);
     }
     let wahkan = NPC_OID;
     let mob = NPC_OID + 1;
@@ -1046,12 +960,7 @@ fn quest_q00605_alliance_with_ketra_orcs() {
         .unwrap()
         .level = 74;
 
-    let started = |w: &World| -> bool {
-        w.objects
-            .get_component::<Quests>(&3001)
-            .and_then(|qc| qc.0.get(q))
-            .is_some_and(|qs| qs.state == model::quest::state::STARTED)
-    };
+    let started = |w: &World| quest_state(w, 3001, q) == Some(model::quest::state::STARTED);
     let event = |w: &mut World, e: &str| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{wahkan}_Quest {q} {e}")));
     };
@@ -1116,8 +1025,6 @@ fn quest_q00605_alliance_with_ketra_orcs() {
 /// player still holds a Ketra alliance mark.
 #[test]
 fn quest_q00611_varka_mirror_and_exclusion() {
-    use crate::model::components::social::Quests;
-
     const NARAN: i32 = 31378;
     const KETRA_BADGE_SOLDIER: i32 = 7226;
     const KETRA_MARK1: i32 = 7211; // an *enemy* (Ketra) mark blocks Varka
@@ -1135,10 +1042,7 @@ fn quest_q00611_varka_mirror_and_exclusion() {
         ],
     );
     {
-        let mut t = crate::data::npc_data::default_template(FOOTMAN);
-        t.type_name = "Monster".into();
-        t.level = 75;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, FOOTMAN, "Monster", 75);
     }
     let naran = NPC_OID;
     let mob = NPC_OID + 1;
@@ -1151,12 +1055,7 @@ fn quest_q00611_varka_mirror_and_exclusion() {
         .unwrap()
         .level = 74;
 
-    let started = |w: &World| -> bool {
-        w.objects
-            .get_component::<Quests>(&3001)
-            .and_then(|qc| qc.0.get(q))
-            .is_some_and(|qs| qs.state == model::quest::state::STARTED)
-    };
+    let started = |w: &World| quest_state(w, 3001, q) == Some(model::quest::state::STARTED);
     let event = |w: &mut World, e: &str| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{naran}_Quest {q} {e}")));
     };
@@ -1213,10 +1112,7 @@ fn quest_q00640_the_zero_hour() {
         &[(FANG, "Fang of Stakato", true), (ENRIA, "Enria", false)],
     );
     {
-        let mut t = crate::data::npc_data::default_template(STAKATO);
-        t.type_name = "Monster".into();
-        t.level = 67;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, STAKATO, "Monster", 67);
     }
     let kahman = NPC_OID;
     let mob = NPC_OID + 1;
@@ -1268,8 +1164,6 @@ fn quest_q00640_the_zero_hour() {
 /// flipping all five cards, and scoring a pair for its prize.
 #[test]
 fn quest_q00662_a_game_of_cards() {
-    use crate::model::components::social::Quests;
-
     const KLUMP: i32 = 30845;
     const RED_GEM: i32 = 8765;
     const BLOOD_QUEEN: i32 = 20142; // chip value 232
@@ -1286,10 +1180,7 @@ fn quest_q00662_a_game_of_cards() {
         ],
     );
     {
-        let mut t = crate::data::npc_data::default_template(BLOOD_QUEEN);
-        t.type_name = "Monster".into();
-        t.level = 63;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, BLOOD_QUEEN, "Monster", 63);
     }
     let klump = NPC_OID;
     let mob = NPC_OID + 1;
@@ -1305,14 +1196,7 @@ fn quest_q00662_a_game_of_cards() {
     let ev = |w: &mut World, e: &str| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{klump}_Quest {q} {e}")));
     };
-    let get_var = |w: &World, v: &str| -> i32 {
-        w.objects
-            .get_component::<Quests>(&3001)
-            .and_then(|qc| qc.0.get(q))
-            .and_then(|qs| qs.vars.get(v))
-            .and_then(|s| s.parse().ok())
-            .unwrap_or(0)
-    };
+    let get_var = |w: &World, v: &str| quest_var_int(w, 3001, q, v);
 
     // Accept.
     handle_request_bypass_to_server(
@@ -1415,15 +1299,7 @@ fn quest_q10866_punitive_operation_on_the_devil_isle() {
         adena + 13_136,
         "Nikia pays 13136 adena"
     );
-    assert!(
-        world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap()
-            .0[q]
-            .is_completed(),
-        "and the quest is over"
-    );
+    assert!(quest_completed(&world, 3001, q), "and the quest is over");
 
     // A player who *talked* to Rodemai but never accepted has a CREATED state,
     // so `has_qs()` is true and only the inner `isStarted()` stands between
@@ -1481,19 +1357,12 @@ fn quest_q11001_tombs_of_ancestors() {
         ],
     );
     for id in [20093, 20132] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 10;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 10);
     }
     add_test_npc(&mut world, NPC_OID, 30598, "Folk", 20, 100, 0, 0); // Newbie Guide
     add_test_npc(&mut world, NPC_OID + 1, 30283, "Folk", 20, 100, 0, 0); // Altran
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 10;
-        p.race = 0; // Human — the quest's `addCondRace`
-    }
+    set_level_race(&mut world, 3001, 10, 0); // Human — the quest's `addCondRace`
 
     // The first click creates the quest state (`getQuestState(player, true)`);
     // the button then starts it.
@@ -1524,9 +1393,7 @@ fn quest_q11001_tombs_of_ancestors() {
 
     // Ten Broken Swords with no Fangs must NOT advance.
     inject(&mut world, 3001, 0x1100_1002, 90203, 9);
-    add_test_npc(&mut world, NPC_OID + 2, 20093, "Monster", 10, 30, 0, 0);
-    world.force_roll(0); // roll(100)=0 < 89 → drops
-    npc::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    kill_mob(&mut world, NPC_OID + 2, 20093, 10, 0); // roll(100)=0 < 89 → drops
     assert_eq!(item_count(&world, 3001, 90203), 10, "tenth sword collected");
     assert_eq!(
         quest_cond(&world, 3001, q),
@@ -1536,9 +1403,7 @@ fn quest_q11001_tombs_of_ancestors() {
 
     // The tenth Fang closes the other half and now it advances.
     inject(&mut world, 3001, 0x1100_1003, 90202, 9);
-    add_test_npc(&mut world, NPC_OID + 3, 20132, "Monster", 10, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 3, 3001);
+    kill_mob(&mut world, NPC_OID + 3, 20132, 10, 0);
     assert_eq!(quest_cond(&world, 3001, q), Some(5), "both halves done");
 
     // Turn in: the weapon branch, and the swords deliberately survive it.
@@ -1552,15 +1417,7 @@ fn quest_q11001_tombs_of_ancestors() {
     assert_eq!(item_count(&world, 3001, 49039), 1, "novice necklace");
     assert_eq!(item_count(&world, 3001, 90200), 0, "pelts taken");
     assert_eq!(item_count(&world, 3001, 90202), 0, "fangs taken");
-    assert!(
-        world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap()
-            .0[q]
-            .is_completed(),
-        "quest complete"
-    );
+    assert!(quest_completed(&world, 3001, q), "quest complete");
 }
 
 /// **The uncapped stage variant drops on every kill, with no roll.**
@@ -1580,18 +1437,11 @@ fn quest_q11013_uncapped_stage_collects_past_the_requirement() {
         &mut world,
         &[(90237, "Elder's Note", false), (90238, "Wolf Tail", true)],
     );
-    let mut t = crate::data::npc_data::default_template(20456); // Ashen Wolf
-    t.type_name = "Monster".into();
-    t.level = 5;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20456, "Monster", 5);
     add_test_npc(&mut world, NPC_OID, 30600, "Folk", 20, 100, 0, 0);
     add_test_npc(&mut world, NPC_OID + 1, 30141, "Folk", 20, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 10;
-        p.race = 2; // Dark Elf
-    }
+    set_level_race(&mut world, 3001, 10, 2); // Dark Elf
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -1635,18 +1485,11 @@ fn quest_q11001_capped_stage_stops_at_the_requirement() {
         &mut world,
         &[(90199, "Hunter's Memo", false), (90200, "Wolf Pelt", true)],
     );
-    let mut t = crate::data::npc_data::default_template(20120); // Wolf
-    t.type_name = "Monster".into();
-    t.level = 5;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20120, "Monster", 5);
     add_test_npc(&mut world, NPC_OID, 30598, "Folk", 20, 100, 0, 0);
     add_test_npc(&mut world, NPC_OID + 1, 30283, "Folk", 20, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 10;
-        p.race = 0;
-    }
+    set_level_race(&mut world, 3001, 10, 0);
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -1663,9 +1506,7 @@ fn quest_q11001_capped_stage_stops_at_the_requirement() {
         &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 1)),
     );
     inject(&mut world, 3001, 0x1100_1100, 90200, 10);
-    add_test_npc(&mut world, NPC_OID + 10, 20120, "Monster", 5, 30, 0, 0);
-    world.force_roll(0); // would drop if the cap were gone
-    npc::npc_do_die(&mut world, NPC_OID + 10, 3001);
+    kill_mob(&mut world, NPC_OID + 10, 20120, 5, 0); // would drop if the cap were gone
     assert_eq!(
         item_count(&world, 3001, 90200),
         10,
@@ -1722,15 +1563,7 @@ fn quest_q11006_future_people_class_paths() {
         &bypass_body(&format!("npc_{}_Quest {q} 30010-02.html", NPC_OID + 1)),
     );
     assert_eq!(item_count(&world, 3001, 49087), 1, "Improved SoE paid");
-    assert!(
-        world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .unwrap()
-            .0[q]
-            .is_completed(),
-        "quest complete"
-    );
+    assert!(quest_completed(&world, 3001, q), "quest complete");
 }
 
 /// **Moon Knight stalls at cond 8, in Java too.**

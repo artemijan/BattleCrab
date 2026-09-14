@@ -215,14 +215,12 @@ fn freight_send_delivers_to_an_offline_character() {
     // The sender, with a second character (9902 "Alt") on the account.
     let chr = dummy_char(9901, "Sender");
     let bundle = Player::from_char(&world.data, &chr);
-    let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
-    let session = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![dummy_char(9901, "Sender"), dummy_char(9902, "Alt")])
-        .into_entering(bundle);
-    let (session, bundle) = session.into_ingame();
-    bundle.spawn_into(&mut world);
-    world.clients.insert(1, ClientSession::InGame(session));
+    let mut rx = ingame_bundle(
+        &mut world,
+        1,
+        vec![dummy_char(9901, "Sender"), dummy_char(9902, "Alt")],
+        bundle,
+    );
 
     // A freight manager in range (the send checks the last folk NPC).
     add_test_npc(&mut world, NPC_OID, 30001, "Warehouse", 70, 0, 0, 0);
@@ -313,14 +311,12 @@ fn freight_send_refuses_bad_items_and_strangers() {
     world.id_pool = 0x4500_0000..0x4500_0200;
     let chr = dummy_char(9903, "Sender");
     let bundle = Player::from_char(&world.data, &chr);
-    let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
-    let session = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![dummy_char(9903, "Sender"), dummy_char(9904, "Alt")])
-        .into_entering(bundle);
-    let (session, bundle) = session.into_ingame();
-    bundle.spawn_into(&mut world);
-    world.clients.insert(1, ClientSession::InGame(session));
+    let mut rx = ingame_bundle(
+        &mut world,
+        1,
+        vec![dummy_char(9903, "Sender"), dummy_char(9904, "Alt")],
+        bundle,
+    );
     add_test_npc(&mut world, NPC_OID, 30001, "Warehouse", 70, 0, 0, 0);
     world.objects.add_components(&9903, LastFolkNpc(NPC_OID));
 

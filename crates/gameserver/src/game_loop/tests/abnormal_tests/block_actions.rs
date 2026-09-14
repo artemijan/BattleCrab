@@ -248,11 +248,7 @@ fn a_stun_mid_swing_drops_the_hit_that_was_already_in_flight() {
 
 /// The object ids named by every `MagicSkillCanceled` in `packets`.
 fn canceled_ids(packets: &[Vec<u8>]) -> Vec<i32> {
-    packets
-        .iter()
-        .filter(|p| p.first() == Some(&server_packets::opcodes::MAGIC_SKILL_CANCELED))
-        .map(|p| i32::from_le_bytes([p[1], p[2], p[3], p[4]]))
-        .collect()
+    subject_ids(packets, server_packets::opcodes::MAGIC_SKILL_CANCELED)
 }
 
 /// A stun/sleep landing mid-cast has to stop the cast *animation*, not just the
@@ -445,12 +441,7 @@ fn raid_bosses_ignore_the_mute_interrupt() {
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
     // A raid-flagged NPC.
-    let mut t = crate::data::npc_data::default_template(20050);
-    t.type_name = "RaidBoss".into();
-    t.level = 40;
-    t.base_hp_max = 5000.0;
-    t.base_mp_max = 500.0;
-    world.data.npc_data.insert_for_test(t);
+    register_npc_vitals(&mut world, 20050, "RaidBoss", 40, 5000.0, 500.0);
     add_test_npc(&mut world, NPC_OID, 20050, "RaidBoss", 40, 100, 0, 0);
     assert!(
         world.data.npc_data.get(20050).is_some_and(|t| t.is_raid()),
@@ -489,11 +480,7 @@ fn raid_bosses_ignore_the_stun_interrupt() {
     let (mut world, _db, _l) = cc2_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
-    let mut t = crate::data::npc_data::default_template(20051);
-    t.type_name = "RaidBoss".into();
-    t.level = 40;
-    t.base_hp_max = 5000.0;
-    world.data.npc_data.insert_for_test(t);
+    register_npc_hp(&mut world, 20051, "RaidBoss", 40, 5000.0);
     let mut plain = crate::data::npc_data::default_template(20052);
     plain.level = 40;
     plain.base_hp_max = 5000.0;

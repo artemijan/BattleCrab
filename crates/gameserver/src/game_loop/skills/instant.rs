@@ -787,7 +787,7 @@ pub(super) fn unsummon(world: &mut World, ctx: &CastCtx, skill: &Skill, chance: 
     // `canStart`: the *effected* must be a summon. The port keys
     // ownership the other way (owner → `SummonRef`), so find the
     // owner by asking the target's own back-reference.
-    let Some(owner) = effects::servitor_owner_of(world, target_oid) else {
+    let Some(owner) = crate::game_loop::servitor::owner_of(world, target_oid) else {
         // Not a servitor — Java's `canStart` refuses outright.
         return;
     };
@@ -1375,11 +1375,9 @@ pub(super) fn target_cancel(world: &mut World, ctx: &CastCtx, skill: &Skill, cha
     // client's selection ring.
     if let Some(client_id) = helpers::client_for_player(world, target_oid) {
         crate::game_loop::combat::target::set_target(world, client_id, target_oid, None);
-    } else if let Some(t) = world
-        .objects
-        .get_component_mut::<crate::model::components::combat::TargetRef>(&target_oid)
-    {
-        t.0 = None; // NPC: no client to notify
+    } else {
+        // NPC: no client to notify.
+        crate::game_loop::combat::target::set_ref(world, target_oid, None);
     }
     // `abortAttack()` / `abortCast()`.
     world

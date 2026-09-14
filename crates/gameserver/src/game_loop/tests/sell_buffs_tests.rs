@@ -37,7 +37,6 @@ fn sell_world() -> (
     world.data.item_data.insert_for_test(adena);
 
     let mut skill = Skill {
-        self_continuous: false,
         id: BUFF,
         level: 1,
         name: "Wind Walk".into(),

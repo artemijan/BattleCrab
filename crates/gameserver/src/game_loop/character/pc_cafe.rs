@@ -201,10 +201,7 @@ pub(crate) fn give_point(world: &mut World, player_object_id: i32, exp: f64) {
     // No points from a peace/PVP/siege zone, from a jailed player, or from
     // someone who isn't really here.
     let in_zone = |kind: ZoneKind| {
-        world
-            .objects
-            .get_component::<crate::model::components::space::ZoneFlags>(&player_object_id)
-            .is_some_and(|f| f.contains(kind))
+        crate::game_loop::space::zones::has_zone_flag(world, player_object_id, kind)
     };
     use crate::data::zone_data::ZoneKind;
     if in_zone(ZoneKind::Peace) || in_zone(ZoneKind::Pvp) || in_zone(ZoneKind::Siege) {

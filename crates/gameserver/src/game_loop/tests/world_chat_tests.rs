@@ -304,10 +304,7 @@ fn the_daily_reset_is_gated_on_the_channel_being_enabled() {
 /// boot warning and a chat-banned player got no prohibition notice here.
 #[test]
 fn the_shipped_ban_chat_channels_list_includes_world() {
-    let cfg = crate::config::ChatFilterConfig::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let cfg = crate::config::ChatFilterConfig::load_from(crate::data::DIST_GAME);
     assert!(
         cfg.ban_chat_channels.contains(&ChatType::World),
         "the real General.ini's BanChatChannels must parse WORLD"

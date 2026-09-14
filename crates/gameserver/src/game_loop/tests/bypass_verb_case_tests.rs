@@ -300,18 +300,7 @@ fn territory_status_names_the_lord_of_an_owned_castle() {
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
     // The NPC sits at (0,0,0); `findNearestCastle` picks whichever that is.
     let castle_id = world.data.zone_data.nearest_castle_at(0, 0, 0).unwrap();
-    world.castles = vec![model::castle::Castle {
-        show_npc_crest: false,
-        id: castle_id,
-        name: "Giran".into(),
-        side: model::castle::CastleSide::Neutral,
-        ticket_buy_count: 0,
-        first_mid_victory: false,
-        time_registration_over: true,
-        siege_time_registration_end: 0,
-        siege_date: 0,
-        treasury: 0,
-    }];
+    world.castles = vec![castle_row(castle_id, "Giran")];
     let mut clan = Clan {
         id: 900,
         name: "Holders".into(),
@@ -337,17 +326,9 @@ fn territory_status_names_the_lord_of_an_owned_castle() {
         blood_alliance_count: 0,
     };
     clan.members.push(model::clan::ClanMember {
-        char_id: 4242,
-        name: "Lordy".into(),
         level: 80,
-        class_id: 0,
-        sex: 0,
-        race: 0,
         power_grade: 1,
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-        title: String::new(),
+        ..clan_member(4242, "Lordy")
     });
     world.clans.insert(900, clan);
     drain(&mut rx);

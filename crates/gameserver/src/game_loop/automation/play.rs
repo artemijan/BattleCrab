@@ -420,11 +420,7 @@ fn mode_allows(world: &World, player_oid: i32, other: i32, mode: i32) -> bool {
 
 /// Whether `other` is already engaged with somebody who is not this player.
 fn is_busy_with_someone_else(world: &World, other: i32, player_oid: i32) -> bool {
-    world
-        .objects
-        .get_component::<crate::model::components::combat::TargetRef>(&other)
-        .and_then(|t| t.0)
-        .is_some_and(|t| t != player_oid)
+    target::current(world, other).is_some_and(|t| t != player_oid)
 }
 
 fn target_still_valid(world: &World, player_oid: i32, target: i32, mode: i32) -> bool {

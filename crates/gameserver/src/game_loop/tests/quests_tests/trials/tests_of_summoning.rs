@@ -95,11 +95,7 @@ fn servitor_arcana_duel_round_trip() {
     st.base_hp_max = 400.0;
     st.collision_radius = 10.0;
     world.data.npc_data.insert_for_test(st);
-    let mut ot = crate::data::npc_data::default_template(OPPONENT);
-    ot.type_name = "Monster".into();
-    ot.level = 40;
-    ot.base_hp_max = 100_000.0;
-    world.data.npc_data.insert_for_test(ot);
+    register_npc_hp(&mut world, OPPONENT, "Monster", 40, 100_000.0);
 
     let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
     inject(&mut world, 3001, 0x0230_0000, STARTING, 1);
@@ -248,11 +244,7 @@ fn quest_q00230_test_of_the_summoner() {
     sv.collision_radius = 10.0;
     world.data.npc_data.insert_for_test(sv);
     for id in [PAKO, LETO, KARUL] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 40, 100_000.0);
     }
 
     let galatea = NPC_OID;
@@ -290,26 +282,9 @@ fn quest_q00230_test_of_the_summoner() {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
 
-    // Grab the first HTML from a talk, whether it went out as a `.html`
-    // (`NpcHtmlMessage`) or a `.htm` (`ExNpcQuestHtmlMessage`).
-    let grab_html = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> Option<String> {
-        drain(rx).iter().find_map(|p| {
-            if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
-                decode_npc_html(p)
-            } else if p[0] == server_packets::opcodes::EX {
-                let mut r = commons::network::PacketReader::new(&p[1..]);
-                r.read_i16()?; // ex opcode
-                r.read_i32()?; // npc oid
-                r.read_string()
-            } else {
-                None
-            }
-        })
-    };
-
     // --- Class / level gate on the start NPC. ---
     talk(&mut world, galatea);
-    let html = grab_html(&mut rx).expect("Galatea greets a Wizard");
+    let html = served_any_html(&mut rx).expect("Galatea greets a Wizard");
     // The 30634-03 offer page carries the "accept the trial" button (→30634-04).
     assert!(
         html.contains("30634-04.htm"),
@@ -322,7 +297,7 @@ fn quest_q00230_test_of_the_summoner() {
         .unwrap()
         .class_id = 10; // Human Fighter
     talk(&mut world, galatea);
-    let html = grab_html(&mut rx).unwrap();
+    let html = served_any_html(&mut rx).unwrap();
     assert!(
         !html.contains("30634-04.htm"),
         "a fighter is refused (no accept button): {html}"
@@ -361,9 +336,7 @@ fn quest_q00230_test_of_the_summoner() {
     let mut mob = NPC_OID + 30;
     let mut kill = |w: &mut World, npc_id: i32| {
         mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 110, 200, 0);
-        w.force_roll(0); // give_item_randomly roll_f64 → 0.0 ≤ chance
-        npc::npc_do_die(w, mob, 3001);
+        kill_mob_at(w, mob, npc_id, 40, 110, 200, 0); // give_item_randomly roll_f64 → 0.0 ≤ chance
     };
     kill(&mut world, LETO); // list1 held → Leto Lizardman Amulet drops
     assert!(
@@ -383,9 +356,7 @@ fn quest_q00230_test_of_the_summoner() {
     {
         let held = item_count(&world, 3001, LETO_AMULET);
         let far = NPC_OID + 90;
-        add_test_npc(&mut world, far, LETO, "Monster", 40, 5_000, 5_000, 0);
-        world.force_roll(0);
-        npc::npc_do_die(&mut world, far, 3001);
+        kill_mob_at(&mut world, far, LETO, 40, 5_000, 5_000, 0);
         assert_eq!(
             item_count(&world, 3001, LETO_AMULET),
             held,
@@ -412,7 +383,7 @@ fn quest_q00230_test_of_the_summoner() {
     // --- Summoner Almors: the offer needs an arcana; buying starts the duel. ---
     let _ = drain(&mut rx); // clear queued html from the prior turn-in
     ev(&mut world, almors, "30635-03.html"); // gated: shows the offer (arcana in hand)
-    let html = grab_html(&mut rx).expect("offer page");
+    let html = served_any_html(&mut rx).expect("offer page");
     assert!(
         html.contains("30635-04.htm") || html.contains("Almors"),
         "offer shown with an arcana in hand: {html}"
@@ -532,9 +503,8 @@ fn quest_q00230_test_of_the_summoner() {
         1,
         "Mark of Summoner awarded"
     );
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
+    assert!(
+        quest_completed(&world, 3001, q),
+        "one-time quest stays COMPLETED"
+    );
 }

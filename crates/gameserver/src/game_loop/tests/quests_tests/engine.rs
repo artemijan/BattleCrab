@@ -36,18 +36,7 @@ fn request_show_mini_map_opens_world_map() {
 fn map_castle_and_fortress_info_requests_answered() {
     let (mut world, ..) = cast_test_world();
     world.castles = (1..=9)
-        .map(|id| model::castle::Castle {
-            show_npc_crest: false,
-            id,
-            name: format!("Castle{id}"),
-            side: model::castle::CastleSide::Neutral,
-            ticket_buy_count: 0,
-            first_mid_victory: false,
-            time_registration_over: true,
-            siege_time_registration_end: 0,
-            siege_date: 0,
-            treasury: 0,
-        })
+        .map(|id| castle_row(id, &format!("Castle{id}")))
         .collect();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     drain(&mut a_rx);
@@ -559,10 +548,7 @@ fn quest_kill_credit_reaches_a_party_member() {
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(&mut world, &[(963, "Orcish Arrowhead", true)]);
-    let mut t = crate::data::npc_data::default_template(20361);
-    t.type_name = "Monster".into();
-    t.level = 11;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20361, "Monster", 11);
     add_test_npc(&mut world, NPC_OID, 30029, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0); // the killer, questless
     let _rx2 = ingame_player(&mut world, 2, 3005, 40, 0, 0); // the collector

@@ -306,21 +306,7 @@ fn the_attachable_item_list_returns_unequipped_non_quest_items_in_a_peace_zone()
 #[test]
 fn the_boot_load_installs_messages_attachments_and_the_name_table() {
     let (mut world, ..) = test_world();
-    let rows = vec![crate::db::ItemRow {
-        object_id: 7001,
-        item_id: 57,
-        count: 100,
-        enchant_level: 0,
-        loc: "MAIL".into(),
-        loc_data: 5,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    }];
+    let rows = vec![item_row_at(7001, 57, 100, "MAIL", 5)];
     crate::game_loop::mail::on_loaded(
         &mut world,
         vec![Message::new_player_mail(

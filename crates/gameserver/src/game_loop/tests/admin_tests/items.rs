@@ -162,21 +162,7 @@ fn admin_setew_enchants_equipped_weapon() {
     let mut gm_rx = ingame_player_access(&mut world, 1, 8101, 100);
     drain(&mut gm_rx);
     // Equip a weapon (item 1, the starter gloves aside — any weapon id) in RHand.
-    let weapon = crate::db::ItemRow {
-        object_id: 50000,
-        item_id: 1,
-        count: 1,
-        enchant_level: 0,
-        loc: "PAPERDOLL".into(),
-        loc_data: model::inventory::PaperdollSlot::RHand as i32,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    };
+    let weapon = item_row(50000, 1, 1, model::inventory::PaperdollSlot::RHand);
     world
         .objects
         .add_components(&8101, Inventory::from_rows(&[weapon]));

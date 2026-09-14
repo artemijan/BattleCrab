@@ -42,20 +42,15 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // missing/zero `npcId` simply yields no effect, matching how
         // every other arm handles unusable params.
         "Summon" => {
-            let int_param = |key: &str, d: i32| {
-                value_at(params, key, level)
-                    .and_then(|v| v.parse().ok())
-                    .unwrap_or(d)
-            };
-            let npc_id = int_param("npcId", 0);
+            let npc_id = cx.int_param("npcId", 0);
             if npc_id == 0 {
                 Vec::new()
             } else {
                 vec![skill::effects::SkillEffect::Summon {
                     npc_id,
-                    life_time: int_param("lifeTime", 0),
-                    consume_item_id: int_param("consumeItemId", 0),
-                    consume_item_count: int_param("consumeItemCount", 1) as i64,
+                    life_time: cx.int_param("lifeTime", 0),
+                    consume_item_id: cx.int_param("consumeItemId", 0),
+                    consume_item_count: cx.int_param("consumeItemCount", 1) as i64,
                 }]
             }
         }
@@ -74,9 +69,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // half reads neither and every monster carrier omits
         // them, which is why they default to 0.
         "CallPc" => vec![skill::effects::SkillEffect::CallPc {
-            item_id: value_at(params, "itemId", level)
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(0),
+            item_id: cx.int_param("itemId", 0),
             item_count: value_at(params, "itemCount", level)
                 .and_then(|v| v.parse().ok())
                 .unwrap_or(0),

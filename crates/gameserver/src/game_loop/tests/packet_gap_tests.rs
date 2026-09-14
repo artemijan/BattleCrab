@@ -55,22 +55,6 @@ fn a_skill_list_request_for_another_player_is_refused() {
     );
 }
 
-fn member(char_id: i32, name: &str) -> model::clan::ClanMember {
-    model::clan::ClanMember {
-        char_id,
-        name: name.into(),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    }
-}
-
 fn with_clan(world: &mut World, clan_id: i32, members: &[i32]) {
     world.clans.insert(
         clan_id,
@@ -81,10 +65,7 @@ fn with_clan(world: &mut World, clan_id: i32, members: &[i32]) {
             level: 0,
             reputation_score: 0,
             castle_id: 0,
-            members: members
-                .iter()
-                .map(|&o| member(o, &format!("P{o}")))
-                .collect(),
+            members: members.iter().map(|&o| clan_member_p(o)).collect(),
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,

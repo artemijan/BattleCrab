@@ -138,9 +138,7 @@ fn a_player_with_a_summon_is_refused() {
     let (mut world, mut rx) = tower_world();
     inventory::add_inventory_item(&mut world, PLAYER, 57, 1000).unwrap();
     // Park a servitor on the player through the same link the orders use.
-    let mut t = crate::data::npc_data::default_template(14799);
-    t.type_name = "Servitor".into();
-    world.data.npc_data.insert_for_test(t);
+    register_npc_kind(&mut world, 14799, "Servitor");
     crate::game_loop::servitor::summon_servitor(&mut world, PLAYER, 14799, 283, 0, 0, 0).unwrap();
     drain(&mut rx);
 

@@ -1,6 +1,5 @@
 //! Hate and target-me effects.
 
-use super::super::value_at;
 use super::effect::Cx;
 use crate::model::skill;
 use crate::model::stats::Stat;
@@ -19,6 +18,8 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         hp_percent,
     } = cx;
     let _ = (
+        params,
+        level,
         mode,
         groups,
         armor_condition,
@@ -38,9 +39,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             }]
         }
         "TargetCancel" => {
-            let chance = value_at(params, "chance", level)
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(100);
+            let chance = cx.int_param("chance", 100);
             vec![skill::effects::SkillEffect::TargetCancel { chance }]
         }
         // Aggression 28/18, Judgment 401, Tribunal 400: no params.
@@ -53,21 +52,15 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             }]
         }
         "DeleteHate" => {
-            let chance = value_at(params, "chance", level)
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(100);
+            let chance = cx.int_param("chance", 100);
             vec![skill::effects::SkillEffect::DeleteHate { chance }]
         }
         "DeleteHateOfMe" => {
-            let chance = value_at(params, "chance", level)
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(100);
+            let chance = cx.int_param("chance", 100);
             vec![skill::effects::SkillEffect::DeleteHateOfMe { chance }]
         }
         "RandomizeHate" => vec![skill::effects::SkillEffect::RandomizeHate {
-            chance: value_at(params, "chance", level)
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(100),
+            chance: cx.int_param("chance", 100),
         }],
         _ => return None,
     })

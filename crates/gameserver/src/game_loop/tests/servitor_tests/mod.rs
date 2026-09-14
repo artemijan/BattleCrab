@@ -40,6 +40,36 @@ const CID: u32 = 1;
 
 const PANTHER: i32 = 14799;
 
+/// Register a Summon skill for [`PANTHER`] under `skill_id` and teach it to
+/// [`OWNER`] — the two steps every relog fixture needs before it can summon.
+fn teach_summon_skill(world: &mut World, skill_id: i32) {
+    world.data.skill_data.insert_for_test(Skill {
+        id: skill_id,
+        level: 1,
+        effects: vec![SkillEffect::Summon {
+            npc_id: PANTHER,
+            life_time: 1200,
+            consume_item_id: 0,
+            consume_item_count: 0,
+        }],
+        ..Default::default()
+    });
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&OWNER)
+        .unwrap()
+        .0
+        .insert(skill_id, 1);
+}
+
+/// Add `skill_id` at level 1 to [`PANTHER`]'s template, so the servitor
+/// summoned from it can cast the skill.
+fn give_panther_skill(world: &mut World, skill_id: i32) {
+    let mut tpl = world.data.npc_data.get(PANTHER).unwrap().clone();
+    tpl.skill_list.push((skill_id, 1));
+    world.data.npc_data.insert_for_test(tpl);
+}
+
 /// A distinct object id for the sparring dummy.
 ///
 /// **Not `NPC_OID`.** A servitor is spawned through the runtime allocator,
@@ -189,7 +219,6 @@ fn register_food(world: &mut World, restores: i32) {
     world.data.item_data.insert_for_test(item);
 
     let skill = Skill {
-        self_continuous: false,
         id: WOLF_FOOD_SKILL,
         level: 1,
         effects: vec![SkillEffect::Feed {
@@ -353,4 +382,24 @@ fn hate_for(world: &World, summon_oid: i32, foe: i32) -> f64 {
         .and_then(|a| a.0.get(&foe))
         .map(|i| i.hate)
         .unwrap_or(0.0)
+}
+
+/// Servitor Wind Walk's shape: a flat run-speed increase on the summon, lasting
+/// `abnormal_time` seconds.
+fn servitor_wind_walk(abnormal_time: i32) -> Skill {
+    Skill {
+        id: 1144,
+        level: 1,
+        target_type: TargetType::Summon,
+        abnormal_time,
+        effects: vec![SkillEffect::StatModifier(
+            model::skill::effects::StatModifierEffect {
+                stat: Stat::RunSpeed,
+                mode: model::stats::StatModifierType::Diff,
+                amount: 50.0,
+                ..Default::default()
+            },
+        )],
+        ..Default::default()
+    }
 }

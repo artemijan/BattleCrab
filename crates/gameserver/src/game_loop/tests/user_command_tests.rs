@@ -136,16 +136,7 @@ fn clan_war_lists_exclude_mutual_wars() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .clan_id = 10;
-    let war = |a: i32, b: i32| ClanWar {
-        attacker_id: a,
-        attacked_id: b,
-        state: ClanWarState::Declaration,
-        winner_id: 0,
-        start_time: 0,
-        end_time: 0,
-        attacker_kills: 0,
-        attacked_kills: 0,
-    };
+    let war = |a: i32, b: i32| ClanWar::new(a, b, ClanWarState::Declaration, 0);
     world.clan_wars.push(war(10, 11)); // one-directional
     world.clan_wars.push(war(10, 12)); // …and declared back below
     world.clan_wars.push(war(12, 10));

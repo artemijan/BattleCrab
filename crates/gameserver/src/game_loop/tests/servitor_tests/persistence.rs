@@ -412,24 +412,7 @@ fn a_servitor_that_was_out_at_logout_comes_back() {
     let (mut world, _db, _l) = servitor_world();
     let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
     let summon_skill = 1111;
-    world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
-        id: summon_skill,
-        level: 1,
-        effects: vec![SkillEffect::Summon {
-            npc_id: PANTHER,
-            life_time: 1200,
-            consume_item_id: 0,
-            consume_item_count: 0,
-        }],
-        ..Default::default()
-    });
-    world
-        .objects
-        .get_component_mut::<SkillBook>(&OWNER)
-        .unwrap()
-        .0
-        .insert(summon_skill, 1);
+    teach_summon_skill(&mut world, summon_skill);
 
     let servitor = summon_servitor(&mut world, OWNER, PANTHER, summon_skill, 1200, 0, 0).unwrap();
     world

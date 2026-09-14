@@ -23,35 +23,10 @@ use crate::game_loop::{npc, quests};
 /// Put `item_id` straight into the RHand paperdoll. Bypasses `equip_item`,
 /// which would need full weapon templates for these quest items.
 fn equip_weapon_row(world: &mut World, player: i32, item_id: i32) {
-    let row = crate::db::ItemRow {
-        object_id: 90000,
-        item_id,
-        count: 1,
-        enchant_level: 0,
-        loc: "PAPERDOLL".into(),
-        loc_data: model::inventory::PaperdollSlot::RHand as i32,
-        custom_type1: 0,
-        custom_type2: 0,
-        mana_left: -1,
-        time: 0,
-        augment_mineral: 0,
-        augment_option1: 0,
-        augment_option2: 0,
-    };
+    let row = item_row(90000, item_id, 1, model::inventory::PaperdollSlot::RHand);
     world
         .objects
         .add_components(&player, Inventory::from_rows(&[row]));
-}
-
-/// Object ids of every live NPC with `npc_id`.
-fn npcs_of(world: &mut World, npc_id: i32) -> Vec<i32> {
-    let mut out = Vec::new();
-    world.objects.for_each_mut::<&model::npc::Npc>(|n| {
-        if n.npc_id == npc_id {
-            out.push(n.object_id);
-        }
-    });
-    out
 }
 
 fn quest_memo(world: &World, player: i32, quest: &str) -> i32 {

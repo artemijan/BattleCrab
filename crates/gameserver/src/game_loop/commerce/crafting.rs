@@ -1255,12 +1255,7 @@ pub(crate) fn handle_request_recipe_shop_manage_prev(world: &mut World, client_i
     let Some(player) = world.player_oid(client_id) else {
         return;
     };
-    let target = world
-        .objects
-        .get_component::<crate::model::components::combat::TargetRef>(&player)
-        .copied()
-        .unwrap_or_default()
-        .0;
+    let target = crate::game_loop::combat::target::current(world, player);
     // `isAlikeDead() || getTarget() == null || !getTarget().isPlayer()`.
     let target = target.filter(|t| world.objects.has_component::<crate::model::Player>(t));
     let Some(manufacturer) = target.filter(|_| !is_dead(world, player)) else {

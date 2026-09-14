@@ -84,7 +84,8 @@ fn an_unknown_quest_state_is_dropped_from_the_live_component() {
         );
 
         // …and only the True branch queues the row deletion.
-        let queued = std::iter::from_fn(|| db_rx.try_recv().ok())
+        let queued = drain_db(&mut db_rx)
+            .iter()
             .any(|c| matches!(c, crate::db::DbCommand::DeleteQuestRows { .. }));
         assert_eq!(
             queued, delete_rows,

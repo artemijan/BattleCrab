@@ -248,10 +248,7 @@ fn blessing_of_protection_blocks_the_pk_both_ways() {
         p.level = 30;
         p.reputation = -500; // chaotic
     }
-    {
-        let p = world.objects.get_component_mut::<Player>(&VICTIM).unwrap();
-        p.level = 15;
-    }
+    set_level(&mut world, VICTIM, 15);
     world.objects.add_components(
         &VICTIM,
         Buffs(vec![ActiveBuff {
@@ -328,16 +325,9 @@ fn war_deaths_never_drop_items() {
         .get_component_mut::<Player>(&KILLER)
         .unwrap()
         .clan_id = 20;
-    world.clan_wars.push(ClanWar {
-        attacker_id: 20,
-        attacked_id: 10,
-        state: ClanWarState::Mutual,
-        attacker_kills: 0,
-        attacked_kills: 0,
-        winner_id: 0,
-        start_time: 0,
-        end_time: 0,
-    });
+    world
+        .clan_wars
+        .push(ClanWar::new(20, 10, ClanWarState::Mutual, 0));
 
     // The gate returns before any drop logic — reaching it with a clean
     // victim proves the exemption (a panic-free no-op run).

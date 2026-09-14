@@ -83,16 +83,7 @@ impl Player {
         buffs.0.push(buff);
         // A removal/override means the maps must be rebuilt from the survivors
         // (can't just fold the new one in) — same as `remove_buff`.
-        mods.add.clear();
-        mods.mul.clear();
-        mods.by_move_type.clear();
-        mods.by_position.clear();
-        for b in &buffs.0 {
-            for effect in &b.effects {
-                apply_modifier(mods, effect);
-            }
-        }
-        self.recalculate_stats(data, base, mods, inventory, speeds, combat);
+        self.rebuild_modifiers(data, base, mods, inventory, buffs, speeds, combat);
         true
     }
 
@@ -112,6 +103,23 @@ impl Player {
         skill_id: i32,
     ) {
         buffs.0.retain(|b| b.skill_id != skill_id);
+        self.rebuild_modifiers(data, base, mods, inventory, buffs, speeds, combat);
+    }
+
+    /// Java `resetStats()` — refold the modifier maps from whatever buffs are
+    /// still up, then recompute. Both buff paths end here, and so does anything
+    /// that edits a live buff's effects in place: the maps cannot be patched
+    /// piecemeal without drifting under rounding.
+    pub fn rebuild_modifiers(
+        &self,
+        data: &GameData,
+        base: &BaseStats,
+        mods: &mut StatModifiers,
+        inventory: &Inventory,
+        buffs: &Buffs,
+        speeds: &mut Speeds,
+        combat: &mut CombatStats,
+    ) {
         mods.add.clear();
         mods.mul.clear();
         mods.by_move_type.clear();

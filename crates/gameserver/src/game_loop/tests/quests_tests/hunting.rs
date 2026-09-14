@@ -9,11 +9,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_test_npc(&mut world, NPC_OID, 30359, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 10;
-        p.race = 2; // Dark Elf
-    }
+    set_level_race(&mut world, 3001, 10, 2); // Dark Elf
     drain_db(&mut db_rx);
 
     // Accept (talk creates the CREATED state, the event starts it).
@@ -44,18 +40,14 @@ fn quest_q00320_chance_drops_and_adena_reward() {
 
     // Roll 0 → drop.
     let skel2 = NPC_OID + 2;
-    add_test_npc(&mut world, skel2, 20517, "Monster", 5, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, skel2, 3001);
+    kill_mob(&mut world, skel2, 20517, 5, 0);
     assert_eq!(count_of(&world, 809), 1);
     drain(&mut rx);
 
     // 9 bones banked, the 10th caps the collection: cond 2 + middle sound.
     inventory::add_inventory_item(&mut world, 3001, 809, 8).unwrap();
     let skel3 = NPC_OID + 3;
-    add_test_npc(&mut world, skel3, 20517, "Monster", 5, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, skel3, 3001);
+    kill_mob(&mut world, skel3, 20517, 5, 0);
     let pkts = drain(&mut rx);
     assert_eq!(count_of(&world, 809), 10);
     {
@@ -99,10 +91,7 @@ fn quest_q00320_chance_drops_and_adena_reward() {
 fn quest_q00303_collect_arrowheads_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(&mut world, &[(963, "Orcish Arrowhead", true)]);
-    let mut t = crate::data::npc_data::default_template(20361);
-    t.type_name = "Monster".into();
-    t.level = 11;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20361, "Monster", 11);
     add_test_npc(&mut world, NPC_OID, 30029, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -134,9 +123,7 @@ fn quest_q00303_collect_arrowheads_loop() {
     // Kill 10 marksmen with the 40% roll forced to hit each time.
     let mob = NPC_OID + 1;
     for i in 0..10 {
-        add_test_npc(&mut world, mob + i, 20361, "Monster", 11, 30, 0, 0);
-        world.force_roll(0); // roll_f64 → 0.0 ≤ 0.4
-        npc::npc_do_die(&mut world, mob + i, 3001);
+        kill_mob(&mut world, mob + i, 20361, 11, 0); // roll_f64 → 0.0 ≤ 0.4
     }
     assert_eq!(item_count(&world, 3001, 963), 10);
     assert_eq!(
@@ -178,19 +165,11 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
         ],
     );
     for id in [27020, 20040] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        t.base_hp_max = 1000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 20, 1000.0);
     }
     add_test_npc(&mut world, NPC_OID, 30155, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 20;
-        p.race = 1; // Elf
-    }
+    set_level_race(&mut world, 3001, 20, 1); // Elf
     drain_db(&mut db_rx);
 
     handle_request_bypass_to_server(
@@ -276,10 +255,7 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
 fn quest_q00300_leto_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(&mut world, &[(7139, "Bracelet of Lizardman", true)]);
-    let mut t = crate::data::npc_data::default_template(20577);
-    t.type_name = "Monster".into();
-    t.level = 36;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20577, "Monster", 36);
     add_test_npc(&mut world, NPC_OID, 30126, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -305,9 +281,7 @@ fn quest_q00300_leto_loop() {
 
     let mob = NPC_OID + 1;
     // Drop gate: a roll >= 360 (Leto Lizardman's chance) yields nothing.
-    add_test_npc(&mut world, mob, 20577, "Monster", 36, 30, 0, 0);
-    world.force_roll(360);
-    npc::npc_do_die(&mut world, mob, 3001);
+    kill_mob(&mut world, mob, 20577, 36, 360);
     assert_eq!(
         item_count(&world, 3001, 7139),
         0,
@@ -316,9 +290,7 @@ fn quest_q00300_leto_loop() {
 
     // 59 hits, still cond 1.
     for i in 1..=59 {
-        add_test_npc(&mut world, mob + i, 20577, "Monster", 36, 30, 0, 0);
-        world.force_roll(0);
-        npc::npc_do_die(&mut world, mob + i, 3001);
+        kill_mob(&mut world, mob + i, 20577, 36, 0);
     }
     assert_eq!(item_count(&world, 3001, 7139), 59);
     assert_eq!(
@@ -328,9 +300,7 @@ fn quest_q00300_leto_loop() {
     );
 
     // The 60th bracelet flips cond to 2.
-    add_test_npc(&mut world, mob + 60, 20577, "Monster", 36, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, mob + 60, 3001);
+    kill_mob(&mut world, mob + 60, 20577, 36, 0);
     assert_eq!(item_count(&world, 3001, 7139), 60);
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at exactly 60");
     drain(&mut rx);
@@ -451,10 +421,7 @@ fn quest_q00328_sense_for_business() {
         ],
     );
     for id in [20055, 20070] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 22;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 22);
     }
     add_test_npc(&mut world, NPC_OID, 30436, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -476,9 +443,7 @@ fn quest_q00328_sense_for_business() {
     );
     let mut m = NPC_OID + 1;
     let mut kill = |world: &mut World, sp: i32, roll: i32| {
-        add_test_npc(world, m, sp, "Monster", 22, 30, 0, 0);
-        world.force_roll(roll);
-        npc::npc_do_die(world, m, 3001);
+        kill_mob(world, m, sp, 22, roll);
         m += 1;
     };
     kill(&mut world, 20055, 60); // < 61 → carcass
@@ -517,10 +482,7 @@ fn quest_q00331_arrow_of_vengeance() {
             (1454, "Tooth", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20145);
-    t.type_name = "Monster".into();
-    t.level = 35;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20145, "Monster", 35);
     add_test_npc(&mut world, NPC_OID, 30125, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -539,12 +501,8 @@ fn quest_q00331_arrow_of_vengeance() {
         1,
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30125-03.htm")),
     );
-    add_test_npc(&mut world, NPC_OID + 1, 20145, "Monster", 35, 30, 0, 0);
-    world.force_roll(58); // < 59 → feather
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    add_test_npc(&mut world, NPC_OID + 2, 20145, "Monster", 35, 30, 0, 0);
-    world.force_roll(59); // ≥ 59 → nothing
-    npc::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 20145, 35, 58); // < 59 → feather
+    kill_mob(&mut world, NPC_OID + 2, 20145, 35, 59); // ≥ 59 → nothing
     assert_eq!(item_count(&world, 3001, 1452), 1);
     let a = item_count(&world, 3001, 57);
     handle_request_bypass_to_server(
@@ -567,10 +525,7 @@ fn quest_q00326_vanquish_remnants() {
             (1369, "Black Lion Mark", false),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20053);
-    t.type_name = "Monster".into();
-    t.level = 25;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20053, "Monster", 25);
     add_test_npc(&mut world, NPC_OID, 30435, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -589,9 +544,7 @@ fn quest_q00326_vanquish_remnants() {
         1,
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30435-03.htm")),
     );
-    add_test_npc(&mut world, NPC_OID + 1, 20053, "Monster", 25, 30, 0, 0);
-    world.force_roll(60); // < 61 → red badge
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 20053, 25, 60); // < 61 → red badge
     assert_eq!(item_count(&world, 3001, 1359), 1);
     // Push to 100 red badges to earn the Black Lion Mark.
     inject(&mut world, 3001, 0x6400_0000, 1359, 99);
@@ -624,10 +577,7 @@ fn quest_q00326_vanquish_remnants() {
 fn quest_q00319_scent_of_death() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(&mut world, &[(1045, "Zombie Skin", true)]);
-    let mut t = crate::data::npc_data::default_template(20015);
-    t.type_name = "Monster".into();
-    t.level = 13;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20015, "Monster", 13);
     add_test_npc(&mut world, NPC_OID, 30138, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -648,9 +598,7 @@ fn quest_q00319_scent_of_death() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // roll 8 (> 7) → a skin, and count 1 < 5 sets cond 2 (the quirk).
-    add_test_npc(&mut world, NPC_OID + 1, 20015, "Monster", 13, 30, 0, 0);
-    world.force_roll(8);
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 20015, 13, 8);
     assert_eq!(item_count(&world, 3001, 1045), 1);
     assert_eq!(
         quest_cond(&world, 3001, q),
@@ -658,9 +606,7 @@ fn quest_q00319_scent_of_death() {
         "cond 2 set below the target"
     );
     // roll 5 (≤ 7) → nothing.
-    add_test_npc(&mut world, NPC_OID + 2, 20015, "Monster", 13, 30, 0, 0);
-    world.force_roll(5);
-    npc::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    kill_mob(&mut world, NPC_OID + 2, 20015, 13, 5);
     assert_eq!(item_count(&world, 3001, 1045), 1, "roll ≤ 7 drops nothing");
     inject(&mut world, 3001, 0x7100_0000, 1045, 4);
     let a = item_count(&world, 3001, 57);
@@ -683,10 +629,7 @@ fn quest_q00329_curiosity_of_a_dwarf() {
             (1365, "Broken Heartstone", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20083);
-    t.type_name = "Monster".into();
-    t.level = 35;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20083, "Monster", 35);
     add_test_npc(&mut world, NPC_OID, 30437, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -737,10 +680,7 @@ fn quest_q00329_curiosity_of_a_dwarf() {
 fn quest_q00360_plunder_their_supplies() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(&mut world, &[(5872, "Supply Items", true)]);
-    let mut t = crate::data::npc_data::default_template(20666);
-    t.type_name = "Monster".into();
-    t.level = 55;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20666, "Monster", 55);
     add_test_npc(&mut world, NPC_OID, 30873, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -759,9 +699,7 @@ fn quest_q00360_plunder_their_supplies() {
         1,
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30873-04.htm")),
     );
-    add_test_npc(&mut world, NPC_OID + 1, 20666, "Monster", 55, 30, 0, 0);
-    world.force_roll(40); // < 50 → supply
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 20666, 55, 40); // < 50 → supply
     assert_eq!(item_count(&world, 3001, 5872), 1);
     inject(&mut world, 3001, 0x7200_0000, 5872, 499);
     let a = item_count(&world, 3001, 57);
@@ -786,10 +724,7 @@ fn quest_q00369_collector_of_jewels() {
         &[(5882, "Flare Shard", true), (5883, "Freezing Shard", true)],
     );
     // death_fire (20749): flare shard, chance 100, count 2.
-    let mut t = crate::data::npc_data::default_template(20749);
-    t.type_name = "Monster".into();
-    t.level = 30;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20749, "Monster", 30);
     add_test_npc(&mut world, NPC_OID, 30376, "Folk", 30, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -874,10 +809,7 @@ fn quest_q00358_illegitimate_child_of_the_goddess() {
         &[(5868, "Snake Scale", true), (4975, "Recipe", false)],
     );
     // Trives (20672) drops snake scales at 71%.
-    let mut t = crate::data::npc_data::default_template(20672);
-    t.type_name = "Monster".into();
-    t.level = 65;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20672, "Monster", 65);
     add_test_npc(&mut world, NPC_OID, 30862, "Folk", 60, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -899,9 +831,7 @@ fn quest_q00358_illegitimate_child_of_the_goddess() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // At 107 scales, one more kill tops to 108 (the cap) and flips cond → 2.
     inject(&mut world, 3001, 0x5868_0000, 5868, 107);
-    add_test_npc(&mut world, NPC_OID + 1, 20672, "Monster", 65, 30, 0, 0);
-    world.force_roll(0); // give_item_randomly roll_f64 (0.0 < 0.71) → hit
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 20672, 65, 0); // give_item_randomly roll_f64 (0.0 < 0.71) → hit
     assert_eq!(
         item_count(&world, 3001, 5868),
         108,
@@ -928,10 +858,7 @@ fn quest_q00354_conquest_of_alligator_island() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(&mut world, &[(5863, "Alligator Tooth", true)]);
     for id in [20804, 20808] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     add_test_npc(&mut world, NPC_OID, 30895, "Folk", 40, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -953,9 +880,7 @@ fn quest_q00354_conquest_of_alligator_island() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // crokian_lad (20804, 84%): one tooth.
-    add_test_npc(&mut world, NPC_OID + 1, 20804, "Monster", 40, 30, 0, 0);
-    world.force_roll(0); // roll_f64 (0.0 < 0.84) → hit
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 20804, 40, 0); // roll_f64 (0.0 < 0.84) → hit
     assert_eq!(
         item_count(&world, 3001, 5863),
         1,
@@ -995,10 +920,7 @@ fn quest_q00356_dig_up_the_sea_of_spores() {
             (5866, "Herbivorous Spore", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20558); // Rotting Tree → herb
-    t.type_name = "Monster".into();
-    t.level = 45;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20558, "Monster", 45);
     add_test_npc(&mut world, NPC_OID, 30717, "Folk", 45, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world
@@ -1022,9 +944,7 @@ fn quest_q00356_dig_up_the_sea_of_spores() {
     // herb to 100 with the other kind already full, so cond → 3.
     inject(&mut world, 3001, 0x5865_0000, 5865, 100);
     inject(&mut world, 3001, 0x5866_0000, 5866, 99);
-    add_test_npc(&mut world, NPC_OID + 1, 20558, "Monster", 45, 30, 0, 0);
-    world.force_roll(0); // roll_f64 (0.0 < 0.73) → hit
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 20558, 45, 0); // roll_f64 (0.0 < 0.73) → hit
     assert_eq!(
         item_count(&world, 3001, 5866),
         100,
@@ -1066,10 +986,7 @@ fn quest_q00355_family_honor() {
             (4351, "Ancient Statue Prototype", false),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20767); // timak_orc_troop_leader
-    t.type_name = "Monster".into();
-    t.level = 40;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20767, "Monster", 40);
     add_test_npc(&mut world, NPC_OID, 30181, "Folk", 40, 100, 0, 0); // Galibredo
     add_test_npc(&mut world, NPC_OID + 1, 30929, "Folk", 40, 100, 0, 0); // Patrin
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -1145,10 +1062,7 @@ fn quest_q00374_whisper_of_dreams_part1() {
         ],
     );
     for id in [20620, 20621] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 60;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 60);
     }
     add_test_npc(&mut world, NPC_OID, 30938, "Folk", 60, 100, 0, 0); // Vanutu
     add_test_npc(&mut world, NPC_OID + 1, 31044, "Folk", 60, 100, 0, 0); // Galman
@@ -1173,9 +1087,7 @@ fn quest_q00374_whisper_of_dreams_part1() {
     // 360 tooth + one Death Wave kill topping light to 360 → cond 2.
     inject(&mut world, 3001, 0x0374_0000, 5884, 360);
     inject(&mut world, 3001, 0x0374_0001, 5885, 359);
-    add_test_npc(&mut world, NPC_OID + 2, 20621, "Monster", 60, 30, 0, 0);
-    world.force_roll(0); // give_item_randomly(light) roll_f64 (0.0 < 0.9)
-    npc::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    kill_mob(&mut world, NPC_OID + 2, 20621, 60, 0); // give_item_randomly(light) roll_f64 (0.0 < 0.9)
     assert_eq!(item_count(&world, 3001, 5885), 360, "light topped to 360");
     assert_eq!(
         quest_cond(&world, 3001, q),
@@ -1244,10 +1156,7 @@ fn quest_q00306_crystal_of_fire_and_ice() {
         &[(1020, "Flame Shard", true), (1021, "Ice Shard", true)],
     );
     for id in [20109, 20110] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 20);
     }
     add_test_npc(&mut world, NPC_OID, 30004, "Folk", 20, 100, 0, 0); // Katerina
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -1269,17 +1178,13 @@ fn quest_q00306_crystal_of_fire_and_ice() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Chance is 1000/count > 1.0, so every kill drops a shard.
-    add_test_npc(&mut world, NPC_OID + 1, 20109, "Monster", 20, 30, 0, 0); // Salamander → flame
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 20109, 20, 0); // Salamander → flame
     assert_eq!(
         item_count(&world, 3001, 1020),
         1,
         "salamander always drops a flame shard"
     );
-    add_test_npc(&mut world, NPC_OID + 2, 20110, "Monster", 20, 30, 0, 0); // Undine → ice
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    kill_mob(&mut world, NPC_OID + 2, 20110, 20, 0); // Undine → ice
     assert_eq!(
         item_count(&world, 3001, 1021),
         1,
@@ -1319,10 +1224,7 @@ fn quest_q00375_whisper_of_dreams_part2() {
         ],
     );
     for id in [20628, 20629] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 65;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 65);
     }
     add_test_npc(&mut world, NPC_OID, 30938, "Folk", 65, 100, 0, 0); // Vanutu
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -1353,9 +1255,7 @@ fn quest_q00375_whisper_of_dreams_part2() {
     // 325 horns + one Limal kill topping blood to 325 → cond 2.
     inject(&mut world, 3001, 0x0375_0001, 5888, 325);
     inject(&mut world, 3001, 0x0375_0002, 5889, 324);
-    add_test_npc(&mut world, NPC_OID + 1, 20628, "Monster", 65, 30, 0, 0);
-    world.force_roll(0); // give_item_randomly(blood) roll_f64 (0.0 < 0.95)
-    npc::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    kill_mob(&mut world, NPC_OID + 1, 20628, 65, 0); // give_item_randomly(blood) roll_f64 (0.0 < 0.95)
     assert_eq!(item_count(&world, 3001, 5889), 325, "blood topped to 325");
     assert_eq!(
         quest_cond(&world, 3001, q),
@@ -1396,10 +1296,7 @@ fn quest_q00325_grim_collector() {
             (1358, "Complete Skeleton", true),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20026); // ladder: head/heart/liver
-    t.type_name = "Monster".into();
-    t.level = 20;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20026, "Monster", 20);
     add_test_npc(&mut world, NPC_OID, 30336, "Folk", 15, 100, 0, 0); // Curtiz
     add_test_npc(&mut world, NPC_OID + 1, 30342, "Folk", 15, 100, 0, 0); // Varsak
     add_test_npc(&mut world, NPC_OID + 2, 30434, "Folk", 15, 100, 0, 0); // Samed
@@ -1499,10 +1396,7 @@ fn quest_q00373_supplier_of_reagents() {
         ],
     );
     for id in [21111, 21066] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 60;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 60);
     }
     let wesley = NPC_OID;
     let urn = NPC_OID + 1;
@@ -1529,18 +1423,14 @@ fn quest_q00373_supplier_of_reagents() {
     assert_eq!(item_count(&world, 3001, 5904), 1, "mixing stone given");
     assert_eq!(item_count(&world, 3001, 6317), 1, "mixing manual given");
     // Pair drop: Lava Wyrm, roll(1000)=0 < 505 → Wyrm's Blood.
-    add_test_npc(&mut world, NPC_OID + 10, 21111, "Monster", 60, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 10, 3001);
+    kill_mob(&mut world, NPC_OID + 10, 21111, 60, 0);
     assert_eq!(
         item_count(&world, 3001, 6011),
         1,
         "Lava Wyrm drops Wyrm's Blood on a low roll"
     );
     // Single drop: Platinum Guardian Shaman, roll(1_000_000)=0 < 442000 → Reagent Box.
-    add_test_npc(&mut world, NPC_OID + 11, 21066, "Monster", 60, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 11, 3001);
+    kill_mob(&mut world, NPC_OID + 11, 21066, 60, 0);
     assert_eq!(
         item_count(&world, 3001, 6010),
         1,
@@ -1588,10 +1478,7 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
             (1874, "Oriharukon Ore", false),
         ],
     );
-    let mut t = crate::data::npc_data::default_template(20236); // Cave Servant, chance 0.58
-    t.type_name = "Monster".into();
-    t.level = 50;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 20236, "Monster", 50);
     let gilmore = NPC_OID;
     let kaien = NPC_OID + 1;
     add_test_npc(&mut world, gilmore, 30754, "Folk", 50, 100, 0, 0);
@@ -1615,9 +1502,7 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Kill a Cave Servant → an Article.
-    add_test_npc(&mut world, NPC_OID + 10, 20236, "Monster", 50, 30, 0, 0);
-    world.force_roll(0); // give_item_randomly roll_f64 (0.0 < 0.58)
-    npc::npc_do_die(&mut world, NPC_OID + 10, 3001);
+    kill_mob(&mut world, NPC_OID + 10, 20236, 50, 0); // give_item_randomly roll_f64 (0.0 < 0.58)
     assert_eq!(
         item_count(&world, 3001, 4269),
         1,
@@ -1724,11 +1609,7 @@ fn quest_q00350_enhance_your_weapon() {
         ],
     );
     {
-        let mut t = crate::data::npc_data::default_template(MOB);
-        t.type_name = "Monster".into();
-        t.level = 45;
-        t.base_hp_max = 1000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, MOB, "Monster", 45, 1000.0);
     }
     let rolento = NPC_OID;
     let mob = NPC_OID + 1;
@@ -1876,10 +1757,7 @@ fn quest_q00370_an_elder_sows_seeds() {
         ],
     );
     {
-        let mut t = crate::data::npc_data::default_template(ANT);
-        t.type_name = "Monster".into();
-        t.level = 30;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, ANT, "Monster", 30);
     }
     let casian = NPC_OID;
     let ant = NPC_OID + 1;
@@ -1901,14 +1779,7 @@ fn quest_q00370_an_elder_sows_seeds() {
         &bypass_body(&format!("npc_{casian}_Quest {q}")),
     );
     event(&mut world, "30612-04.htm"); // accept
-    assert!(
-        world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .and_then(|qc| qc.0.get(q))
-            .is_some_and(|qs| qs.state == model::quest::state::STARTED),
-        "started"
-    );
+    assert!(quest_started(&world, 3001, q), "started");
 
     // Kill an ant: the 9% roll succeeds and a page drops.
     world.force_roll(0); // roll(100)=0 < 9
@@ -1967,10 +1838,7 @@ fn quest_q00327_recover_the_farmland() {
         ],
     );
     {
-        let mut t = crate::data::npc_data::default_template(ARCHER);
-        t.type_name = "Monster".into();
-        t.level = 28;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, ARCHER, "Monster", 28);
     }
     let piotur = NPC_OID;
     let asha = NPC_OID + 1;
@@ -1997,14 +1865,7 @@ fn quest_q00327_recover_the_farmland() {
     // --- Accept via Piotur. ---
     talk(&mut world, piotur);
     ev(&mut world, piotur, "30597-03.htm");
-    assert!(
-        world
-            .objects
-            .get_component::<model::components::social::Quests>(&3001)
-            .and_then(|qc| qc.0.get(q))
-            .is_some_and(|qs| qs.state == model::quest::state::STARTED),
-        "started"
-    );
+    assert!(quest_started(&world, 3001, q), "started");
 
     // --- An Archer kill drops a Dog Tag, and (forced) a relic fragment. ---
     world.force_roll(0); // roll(100)=0 < 21 → a fragment drops
@@ -2096,10 +1957,7 @@ fn quest_q00348_an_arrogant_search() {
         ],
     );
     for id in [DRAKE, PLATINUM, EZEKIEL] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 62;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 62);
     }
     let hanellin = NPC_OID;
     let table = NPC_OID + 1;
@@ -2150,25 +2008,10 @@ fn quest_q00348_an_arrogant_search() {
 
     // Claudia Athebalt points the way: Java's `addRadar` on the Table of
     // Vision, which `Radar.addMarker` sends as a clear/show pair.
-    let radar = |pkts: &[Vec<u8>]| -> Vec<(i32, i32, i32, i32, i32)> {
-        pkts.iter()
-            .filter(|p| p[0] == 0xF1)
-            .map(|p| {
-                let mut r = commons::network::PacketReader::new(&p[1..]);
-                (
-                    r.read_i32().unwrap(),
-                    r.read_i32().unwrap(),
-                    r.read_i32().unwrap(),
-                    r.read_i32().unwrap(),
-                    r.read_i32().unwrap(),
-                )
-            })
-            .collect()
-    };
     drain(&mut rx);
     ev(&mut world, claudia, "31001-01.htm");
     assert_eq!(
-        radar(&drain(&mut rx)),
+        radar_markers(&drain(&mut rx)),
         vec![(2, 2, 120112, 30912, -3616), (0, 1, 120112, 30912, -3616),],
         "Claudia pins the Table of Vision"
     );
@@ -2178,7 +2021,7 @@ fn quest_q00348_an_arrogant_search() {
     // whole board rather than that one marker.
     ev(&mut world, table, "31646-01.htm");
     assert_eq!(
-        radar(&drain(&mut rx)),
+        radar_markers(&drain(&mut rx)),
         vec![(2, 2, 0, 0, 0)],
         "arriving clears the board"
     );
@@ -2269,10 +2112,7 @@ fn quest_q00333_hunt_of_the_black_lion() {
         ],
     );
     {
-        let mut t = crate::data::npc_data::default_template(NEER_CRAWLER);
-        t.type_name = "Monster".into();
-        t.level = 27;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, NEER_CRAWLER, "Monster", 27);
     }
     let sophya = NPC_OID;
     let undrias = NPC_OID + 1;

@@ -119,7 +119,7 @@ fn set_clan_level_updates_leader_pledge_class_and_rebroadcasts() {
 /// member logging in with the leader offline gets nothing.
 #[test]
 fn clan_advent_aura_tracks_leader_online_state() {
-    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::clan::Clan;
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     // The real 19009 lives in the dist skills the synthetic test data doesn't
@@ -134,19 +134,6 @@ fn clan_advent_aura_tracks_leader_online_state() {
     let _b = ingame_player(&mut world, 2, 3002, 0, 0, 0);
     drain_db(&mut db_rx);
     let clan_id = 0x3000_0001;
-    let cm = |id: i32| ClanMember {
-        char_id: id,
-        name: format!("P{id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     world.clans.insert(
         clan_id,
         Clan {
@@ -156,7 +143,7 @@ fn clan_advent_aura_tracks_leader_online_state() {
             level: 1,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![cm(3001), cm(3002)],
+            members: vec![clan_member_p(3001), clan_member_p(3002)],
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,
@@ -224,7 +211,7 @@ fn clan_advent_aura_tracks_leader_online_state() {
 /// `isClanLeader() || clan.getLeader().isOnline()`.
 #[test]
 fn the_profession_change_listener_honours_javas_leader_gate() {
-    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::clan::Clan;
 
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     world
@@ -236,19 +223,6 @@ fn the_profession_change_listener_honours_javas_leader_gate() {
     drain_db(&mut db_rx);
 
     let clan_id = 0x3000_0002;
-    let cm = |id: i32| ClanMember {
-        char_id: id,
-        name: format!("P{id}"),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     world.clans.insert(
         clan_id,
         Clan {
@@ -258,7 +232,7 @@ fn the_profession_change_listener_honours_javas_leader_gate() {
             level: 1,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![cm(3001), cm(3002)],
+            members: vec![clan_member_p(3001), clan_member_p(3002)],
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,

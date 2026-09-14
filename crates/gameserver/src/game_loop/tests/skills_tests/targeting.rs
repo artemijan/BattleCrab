@@ -659,14 +659,7 @@ fn enemy_not_targets_a_friendly_player() {
     chr.base_class_id = 10;
     chr.skills = vec![(1258, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
-    let (out_tx, mut a_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![])
-        .into_entering(bundle);
-    let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(&mut world);
-    world.clients.insert(1, ClientSession::InGame(session));
+    let mut a_rx = ingame_bundle(&mut world, 1, vec![], bundle);
     // `chr.cur_mp` gets clamped to the class's computed max MP at spawn (59
     // for a level-1 Mystic) — below level-1 Restore Life's 80 MP cost, so
     // bump it directly rather than fighting the clamp through `CharData`.

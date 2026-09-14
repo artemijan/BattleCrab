@@ -774,7 +774,7 @@ fn the_skill_power_stats_scale_finished_skill_damage() {
         world.clear_forced_rolls();
         world.force_rolls([50; 12]);
         effects::apply_skill_effects(world, CASTER, npc, &skill);
-        1_000_000.0 - pvit_npc_hp(world, npc)
+        1_000_000.0 - hp_of(world, npc)
     };
 
     let plain = measure(&mut world, POWER_STRIKE, None);
@@ -800,14 +800,6 @@ fn the_skill_power_stats_scale_finished_skill_damage() {
         (boosted_m - plain_m * 2.0).abs() < 1.0,
         "MAGICAL_SKILL_POWER ×2 doubles it ({plain_m} → {boosted_m})"
     );
-}
-
-fn pvit_npc_hp(world: &World, oid: i32) -> f64 {
-    world
-        .objects
-        .get_component::<Vitals>(&oid)
-        .map(|v| v.cur_hp)
-        .unwrap_or(0.0)
 }
 
 /// **A nuke carries the caster's random-damage spread**, exactly as a swing

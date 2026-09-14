@@ -61,10 +61,11 @@ pub(crate) fn on_action_request(world: &mut World, client_id: u32, player_oid: i
     }
     // `if (!isInsideZone(ZoneId.PEACE))` — no point telling someone standing
     // in town that the monsters can see them again.
-    let in_peace = world
-        .objects
-        .get_component::<crate::model::components::space::ZoneFlags>(&player_oid)
-        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
+    let in_peace = crate::game_loop::space::zones::has_zone_flag(
+        world,
+        player_oid,
+        crate::data::zone_data::ZoneKind::Peace,
+    );
     if !in_peace {
         send_sm_bare_to_client(
             world,

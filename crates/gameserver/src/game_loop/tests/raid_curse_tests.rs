@@ -17,11 +17,7 @@ const RAID_CURSE: i32 = 4215;
 fn curse_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for (id, kind) in [(BOSS_NPC, "RaidBoss"), (MOB_NPC, "Monster")] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = kind.into();
-        t.level = 20;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, kind, 20, 100_000.0);
     }
     for (id, effects) in [
         (
@@ -41,7 +37,6 @@ fn curse_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         ),
     ] {
         world.data.skill_data.insert_for_test(Skill {
-            self_continuous: false,
             id,
             level: 1,
             abnormal_time: 120,

@@ -12,11 +12,7 @@ const PLAYER: i32 = 9970;
 fn chaos_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     let (mut world, db, l) = combat_test_world();
     for (id, kind) in [(DOCTOR_CHAOS, "Folk"), (CHAOS_GOLEM, "GrandBoss")] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = kind.into();
-        t.level = 70;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, kind, 70, 100_000.0);
     }
     world.grand_bosses.insert(
         CHAOS_GOLEM,

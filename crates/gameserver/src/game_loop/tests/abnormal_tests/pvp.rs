@@ -24,21 +24,11 @@ fn pvp_damage_bonus_is_a_difference_of_multipliers_not_a_product() {
     assert_eq!(bonus(&world), 1.0, "no stats granted: no change");
 
     // Attacker +50 % PvP auto-attack damage.
-    if let Some(m) = world
-        .objects
-        .get_component_mut::<model::components::stats::StatModifiers>(&CASTER)
-    {
-        *m.mul.entry(Stat::PvpPhysicalAttackDamage).or_insert(1.0) *= 1.5;
-    }
+    stack_mul_modifier(&mut world, CASTER, Stat::PvpPhysicalAttackDamage, 1.5);
     assert_eq!(bonus(&world), 1.5, "attacker alone: 1 + (1.5 - 1)");
 
     // Victim +50 % PvP auto-attack *defence* — the two cancel exactly.
-    if let Some(m) = world
-        .objects
-        .get_component_mut::<model::components::stats::StatModifiers>(&victim)
-    {
-        *m.mul.entry(Stat::PvpPhysicalAttackDefence).or_insert(1.0) *= 1.5;
-    }
+    stack_mul_modifier(&mut world, victim, Stat::PvpPhysicalAttackDefence, 1.5);
     assert_eq!(
         bonus(&world),
         1.0,
@@ -64,12 +54,7 @@ fn the_pvp_bonus_reads_a_different_stat_pair_per_delivery() {
     magical.magic_type = 1;
 
     // Only the *magical skill* stat is granted.
-    if let Some(m) = world
-        .objects
-        .get_component_mut::<model::components::stats::StatModifiers>(&CASTER)
-    {
-        *m.mul.entry(Stat::PvpMagicalSkillDamage).or_insert(1.0) *= 1.5;
-    }
+    stack_mul_modifier(&mut world, CASTER, Stat::PvpMagicalSkillDamage, 1.5);
 
     let bonus = |world: &World, skill: Option<&Skill>| {
         effects::pvp_pve_bonus_for_test(world, CASTER, victim, skill)
@@ -96,9 +81,7 @@ fn the_pvp_bonus_reads_a_different_stat_pair_per_delivery() {
 fn the_pve_penalty_bites_on_high_level_mobs_and_spares_raids() {
     let (mut world, _db, _l) = cc2_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
-    if let Some(p) = world.objects.get_component_mut::<Player>(&CASTER) {
-        p.level = 78;
-    }
+    set_level(&mut world, CASTER, 78);
     let mob = NPC_OID;
     let boss = NPC_OID + 1;
     // Synthetic ids so the *level* is ours to set — `add_test_npc` honours its
@@ -148,24 +131,14 @@ fn the_pvp_bonus_actually_reaches_a_nukes_damage() {
         world.clear_forced_rolls();
         world.force_rolls([50; 12]);
         land(world, 9412, victim);
-        1_000_000.0
-            - world
-                .objects
-                .get_component::<Vitals>(&victim)
-                .map(|v| v.cur_hp)
-                .unwrap_or(0.0)
+        1_000_000.0 - hp_of(world, victim)
     };
 
     let plain = cast_once(&mut world);
     assert!(plain > 0.0, "the nuke lands for something: {plain}");
 
     // The *victim* takes a magical-skill PvP defence buff.
-    if let Some(m) = world
-        .objects
-        .get_component_mut::<model::components::stats::StatModifiers>(&victim)
-    {
-        *m.mul.entry(Stat::PvpMagicalSkillDefence).or_insert(1.0) *= 1.5;
-    }
+    stack_mul_modifier(&mut world, victim, Stat::PvpMagicalSkillDefence, 1.5);
     let defended = cast_once(&mut world);
 
     assert!(

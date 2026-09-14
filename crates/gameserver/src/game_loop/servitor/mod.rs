@@ -118,6 +118,18 @@ pub(crate) fn servitor_of(world: &World, owner_oid: i32) -> Option<i32> {
         .map(|_| oid)
 }
 
+/// The inverse of [`servitor_of`] — given a servitor, who owns it. The owner
+/// link lives on the servitor as `ServitorOf`, which is also what makes Java's
+/// `canStart` (`effected.isSummon()`) expressible: no component, not a
+/// servitor, no owner.
+pub(crate) fn owner_of(world: &World, servitor_oid: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<ServitorOf>(&servitor_oid)
+        .map(|s| s.owner_object_id)
+        .filter(|&owner| owner != 0)
+}
+
 /// `Summon.instant` — spawn a servitor for `owner_oid`.
 ///
 /// Java unsummons any existing servitors first (`player.getServitors().values()

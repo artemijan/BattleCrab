@@ -44,18 +44,8 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
 
     let mut data = GameData::for_test();
     data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![template]);
-    data.skill_trees.insert_for_test(
-        0,
-        crate::data::skill_tree::SkillLearn {
-            skill_id: 91,
-            skill_level: 1,
-            name: "Defense Aura".into(),
-            get_level: 5,
-            level_up_sp: 100,
-            auto_get: false,
-            required_items: Vec::new(),
-        },
-    );
+    data.skill_trees
+        .insert_for_test(0, skill_learn(91, 1, "Defense Aura", 5, 100));
     data.skill_data.insert_for_test(Skill {
         self_continuous: false,
         basic_property: model::skill::BasicProperty::None,
@@ -150,14 +140,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         bundle.combat.p_def
     );
 
-    let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel();
-    let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
-        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
-        .into_lobby(vec![])
-        .into_entering(bundle);
-    let (session, bundle) = s.into_ingame();
-    bundle.spawn_into(&mut world);
-    world.clients.insert(1, ClientSession::InGame(session));
+    let mut out_rx = ingame_bundle(&mut world, 1, vec![], bundle);
 
     // --- Learn: RequestAcquireSkill(id=91, level=1, type=CLASS). ---
     let mut w = PacketWriter::new();
@@ -414,7 +397,7 @@ fn buff_on_monster_shows_in_target_window() {
 
     let pkt = drain(&mut a_rx)
         .into_iter()
-        .find(|p| p.len() >= 13 && p[0] == 0xFE && p[1] == 0xE6 && p[2] == 0x00)
+        .find(|p| p.len() >= 13 && is_ex(p, 0x00E6))
         .expect("ExAbnormalStatusUpdateFromTarget sent to the observer");
     assert_eq!(
         i32::from_le_bytes(pkt[3..7].try_into().unwrap()),

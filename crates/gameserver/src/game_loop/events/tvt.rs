@@ -1003,10 +1003,11 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
     // `isInSiege() || isInsideZone(SIEGE)` — Java checks both, and they are not
     // the same question: the first is "a siege I take part in is running", the
     // second is "I am standing on castle ground" even in peacetime.
-    let in_siege_zone = world
-        .objects
-        .get_component::<crate::model::components::space::ZoneFlags>(&player)
-        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Siege));
+    let in_siege_zone = crate::game_loop::space::zones::has_zone_flag(
+        world,
+        player,
+        crate::data::zone_data::ZoneKind::Siege,
+    );
     if crate::game_loop::combat::pvp::is_in_siege(world, player) || in_siege_zone {
         helpers::send_message(world, client_id, "You cannot register while on a siege.");
         return false;

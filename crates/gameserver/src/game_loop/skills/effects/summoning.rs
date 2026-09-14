@@ -1,7 +1,6 @@
 //! Summoning-flavored instant effects: NPC/totem summons and the servitor
 //! betrayal flip, extracted from the `apply_skill_effects` match.
 
-use super::servitor_owner_of;
 use crate::game_loop::character::inventory;
 use crate::game_loop::helpers;
 use crate::game_loop::helpers::send_sm_to_player as send_sm_with;
@@ -95,7 +94,7 @@ pub(crate) fn summon_npc(
 /// *else's* pet. The `BETRAYED` flag (which stops it obeying and makes it
 /// auto-attackable) rides the landed buff; what happens here is the AI flip.
 pub(crate) fn betray(world: &mut World, caster_oid: i32, target_oid: i32) {
-    let Some(owner) = servitor_owner_of(world, target_oid) else {
+    let Some(owner) = crate::game_loop::servitor::owner_of(world, target_oid) else {
         return; // not a summon — Java's `canStart` refuses
     };
     if !world

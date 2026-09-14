@@ -35,7 +35,6 @@ use tracing::info;
 use crate::db;
 use crate::model::Player;
 use crate::model::components::commerce::{ManufactureStore, PrivateBuyStore, PrivateStore};
-use crate::model::components::space::ZoneFlags;
 use crate::network::server_packets as sp;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -120,10 +119,11 @@ pub(crate) fn can_enter_offline_mode(world: &World, object_id: i32) -> bool {
         _ => super::crafting::is_crafting(world, object_id),
     };
     if cfg.mode_in_peace_zone
-        && !world
-            .objects
-            .get_component::<ZoneFlags>(&object_id)
-            .is_some_and(|z| z.contains(crate::data::zone_data::ZoneKind::Peace))
+        && !crate::game_loop::space::zones::has_zone_flag(
+            world,
+            object_id,
+            crate::data::zone_data::ZoneKind::Peace,
+        )
     {
         can_set_shop = false;
     }

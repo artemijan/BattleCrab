@@ -968,8 +968,9 @@ fn protected_by_peace(world: &World, caster_oid: i32, candidate: i32) -> bool {
     {
         return false;
     }
-    world
-        .objects
-        .get_component::<crate::model::components::space::ZoneFlags>(&candidate)
-        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace))
+    crate::game_loop::space::zones::has_zone_flag(
+        world,
+        candidate,
+        crate::data::zone_data::ZoneKind::Peace,
+    )
 }

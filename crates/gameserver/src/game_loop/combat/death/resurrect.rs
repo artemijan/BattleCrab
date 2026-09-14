@@ -113,11 +113,8 @@ pub(crate) fn revive_request(
         .has_component::<crate::model::components::summons::PetOf>(&target_oid);
     let corpse_oid = target_oid;
     let target_oid = if is_pet {
-        match world
-            .objects
-            .get_component::<crate::model::components::summons::ServitorOf>(&corpse_oid)
-        {
-            Some(s) => s.owner_object_id,
+        match crate::game_loop::servitor::owner_of(world, corpse_oid) {
+            Some(owner) => owner,
             None => return,
         }
     } else {

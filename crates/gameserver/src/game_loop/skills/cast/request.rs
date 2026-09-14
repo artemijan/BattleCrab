@@ -339,14 +339,8 @@ pub(crate) fn use_magic_on(
     let Some(caster_pos) = maybe_position(world, object_id) else {
         return;
     };
-    let caster_target = forced_target.or_else(|| {
-        world
-            .objects
-            .get_component::<crate::model::components::combat::TargetRef>(&object_id)
-            .copied()
-            .unwrap_or_default()
-            .0
-    });
+    let caster_target =
+        forced_target.or_else(|| crate::game_loop::combat::target::current(world, object_id));
     // `PlayableAI.onIntentionCast`: a bad skill aimed at a playable runs the
     // Blessing of Protection pair before anything else about the cast.
     if skill.is_bad()

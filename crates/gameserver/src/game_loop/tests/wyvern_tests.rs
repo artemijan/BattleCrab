@@ -754,10 +754,7 @@ fn a_siege_zone_refuses_and_strips_mounts() {
     world.cfg.feature.allow_ride_mounts_during_siege = false;
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     // Give the strider a template so the mount's collision swap resolves.
-    let mut t = crate::data::npc_data::default_template(12526);
-    t.type_name = "Npc".into();
-    t.level = 55;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(&mut world, 12526, "Npc", 55);
 
     // Inside a live siege zone the mount is simply refused.
     world
@@ -810,10 +807,7 @@ fn a_siege_zone_refuses_and_strips_mounts() {
 
 /// A strider template with a feed row, so the mount feed clock has data.
 fn register_strider_with_feed(world: &mut World, max_meal: i32, normal: i32, battle: i32) {
-    let mut t = crate::data::npc_data::default_template(12526);
-    t.type_name = "Npc".into();
-    t.level = 55;
-    world.data.npc_data.insert_for_test(t);
+    register_npc(world, 12526, "Npc", 55);
 
     let mut levels = std::collections::HashMap::new();
     levels.insert(
@@ -911,7 +905,6 @@ fn mount_food_refills_the_riders_gauge() {
 
     // The food item's skill: `<effect name="Feed" normal=… ride=… wyvern=…/>`.
     let food = Skill {
-        self_continuous: false,
         id: 9100,
         level: 1,
         effects: vec![model::skill::effects::SkillEffect::Feed {

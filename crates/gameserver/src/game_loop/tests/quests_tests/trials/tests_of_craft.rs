@@ -15,10 +15,7 @@ fn quest_q00231_test_of_the_maestro() {
     items.push((2867, "Mark of Maestro", false));
     add_quest_items(&mut world, &items);
     for id in [27133, 20225, 20150] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     let lockirin = NPC_OID;
     let balanki = NPC_OID + 1;
@@ -156,10 +153,7 @@ fn quest_q00232_test_of_the_lord() {
     items.push((1341, "Bone Arrow", false));
     add_quest_items(&mut world, &items);
     for id in [20269, 20583, 20233, 20564, 20778] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     world
         .data
@@ -207,12 +201,7 @@ fn quest_q00232_test_of_the_lord() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 40;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, kakai);
     ev(&mut world, kakai, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -301,10 +290,7 @@ fn quest_q00233_test_of_the_war_spirit() {
     items.push((2879, "Mark of Warspirit", false));
     add_quest_items(&mut world, &items);
     for id in [20089, 20581, 27108, 20158, 20213, 20214, 20215, 20601] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 40;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 40);
     }
     let somak = NPC_OID;
     let racoy = NPC_OID + 1;
@@ -340,12 +326,7 @@ fn quest_q00233_test_of_the_war_spirit() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let mut mob = NPC_OID + 40;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 40, 40, 3001, 30, 0);
     talk(&mut world, somak);
     ev(&mut world, somak, "ACCEPT");
     assert_eq!(quest_cond(&world, 3001, q), Some(1));

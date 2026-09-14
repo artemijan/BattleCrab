@@ -13,20 +13,7 @@ fn admin_cursed_weapons_info_add_remove() {
     world.data.root = ROOT.to_string();
     // Boot-equivalent: load config, then build the runtime list (as net.rs does).
     world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
-    world.cursed_weapons = world
-        .data
-        .cursed_weapons
-        .weapons
-        .iter()
-        .cloned()
-        .map(|mut cw| {
-            cw.skill_max_level = (1..=100)
-                .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
-                .last()
-                .unwrap_or(1);
-            cw
-        })
-        .collect();
+    world.cursed_weapons = game_loop::items::cursed_weapon::from_config(&world.data);
     assert_eq!(
         world.cursed_weapons.len(),
         2,
@@ -191,20 +178,7 @@ fn cursed_weapon_panel_redraws_after_give_and_remove() {
     let (mut world, _db_tx, _db_rx, _link) = admin_world();
     world.data.root = ROOT.to_string();
     world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
-    world.cursed_weapons = world
-        .data
-        .cursed_weapons
-        .weapons
-        .iter()
-        .cloned()
-        .map(|mut cw| {
-            cw.skill_max_level = (1..=100)
-                .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
-                .last()
-                .unwrap_or(1);
-            cw
-        })
-        .collect();
+    world.cursed_weapons = game_loop::items::cursed_weapon::from_config(&world.data);
     world.id_pool = 0x3000_0000..0x3000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 7003, 100);
     drain(&mut rx);
@@ -294,20 +268,7 @@ fn cursed_weapon_skill_not_persisted_after_removal() {
     world.data.skill_data = dist::skills_owned();
     world.data.transforms = crate::data::TransformData::load_from(ROOT);
     world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
-    world.cursed_weapons = world
-        .data
-        .cursed_weapons
-        .weapons
-        .iter()
-        .cloned()
-        .map(|mut cw| {
-            cw.skill_max_level = (1..=100)
-                .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
-                .last()
-                .unwrap_or(1);
-            cw
-        })
-        .collect();
+    world.cursed_weapons = game_loop::items::cursed_weapon::from_config(&world.data);
     world.id_pool = 0x3000_0000..0x3000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 7009, 100);
     drain(&mut rx);

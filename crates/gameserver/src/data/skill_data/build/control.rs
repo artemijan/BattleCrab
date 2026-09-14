@@ -93,9 +93,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // which is every Confuse skill on this dist (only the two
         // `RandomizeHate` ones declare 80).
         "Confuse" => vec![skill::effects::SkillEffect::Confuse {
-            chance: value_at(params, "chance", level)
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(100),
+            chance: cx.int_param("chance", 100),
         }],
         "Betray" => vec![skill::effects::SkillEffect::Betray],
         // Fake Death 60. Two halves: the `FAKE_DEATH` flag and an
@@ -107,9 +105,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // did nothing at all.
         "FakeDeath" => vec![skill::effects::SkillEffect::FakeDeath {
             power: param("power").unwrap_or(0.0),
-            ticks: value_at(params, "ticks", level)
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(0),
+            ticks: cx.int_param("ticks", 0),
         }],
         "SilentMove" => vec![skill::effects::SkillEffect::SilentMove],
         "Bluff" => vec![skill::effects::SkillEffect::Bluff {

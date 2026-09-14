@@ -536,7 +536,6 @@ fn npc_view_skills_page_lists_the_npcs_skills() {
     let (mut world, ..) = admin_world();
     world.data.root = crate::data::DIST_GAME.to_string();
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 4045,
         level: 1,
         name: "Resist Shock".into(),

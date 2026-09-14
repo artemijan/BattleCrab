@@ -468,7 +468,6 @@ fn a_resurrection_outside_a_running_siege_is_untouched() {
 /// hold, at the dist's 20-minute duration.
 fn salvation_skill() -> Skill {
     Skill {
-        self_continuous: false,
         id: 1410,
         level: 1,
         target_type: TargetType::Self_,
@@ -552,10 +551,7 @@ fn salvation_spares_the_rest_of_the_buffs_through_death() {
 
     // An ordinary buff that does *not* survive death on its own.
     let haste = Skill {
-        self_continuous: false,
         id: 9430,
-        level: 1,
-        target_type: TargetType::Self_,
         abnormal_time: 1200,
         abnormal_type: "HASTE".into(),
         effects: vec![SkillEffect::StatModifier(

@@ -289,12 +289,12 @@ fn eval(
         skill::condition::SkillCondition::CanEscape => {
             ok(!super::abnormal::cannot_escape(world, caster))
         }
-        skill::condition::SkillCondition::InsideSiegeZone => {
-            ok(in_zone(world, caster, ZoneKind::Siege))
-        }
-        skill::condition::SkillCondition::NotInUnderwater => {
-            ok(!in_zone(world, caster, ZoneKind::Water))
-        }
+        skill::condition::SkillCondition::InsideSiegeZone => ok(
+            crate::game_loop::space::zones::has_zone_flag(world, caster, ZoneKind::Siege),
+        ),
+        skill::condition::SkillCondition::NotInUnderwater => ok(
+            !crate::game_loop::space::zones::has_zone_flag(world, caster, ZoneKind::Water),
+        ),
         skill::condition::SkillCondition::Mounted { kind } => {
             let want = match kind {
                 skill::MountKind::Strider => MOUNT_STRIDER,
@@ -411,10 +411,7 @@ fn eval(
         // condition is about.
         skill::condition::SkillCondition::TargetNpc { npc_ids } => {
             let actual = if is_player(world, caster) {
-                world
-                    .objects
-                    .get_component::<components::combat::TargetRef>(&caster)
-                    .and_then(|t| t.0)
+                crate::game_loop::combat::target::current(world, caster)
             } else {
                 Some(target)
             };
@@ -515,13 +512,6 @@ fn is_pet(world: &World, object_id: i32) -> bool {
 
 fn is_player(world: &World, object_id: i32) -> bool {
     object_id != 0 && world.objects.has_component::<Player>(&object_id)
-}
-
-fn in_zone(world: &World, object_id: i32, kind: ZoneKind) -> bool {
-    world
-        .objects
-        .get_component::<components::space::ZoneFlags>(&object_id)
-        .is_some_and(|f| f.contains(kind))
 }
 
 fn charges(world: &World, object_id: i32) -> i32 {
@@ -912,11 +902,7 @@ fn resurrection(world: &World, caster: i32, target: i32) -> Result<(), Refusal> 
     let request_holder = if helpers::player(world, target).is_some() {
         target
     } else {
-        world
-            .objects
-            .get_component::<components::summons::ServitorOf>(&target)
-            .map(|s| s.owner_object_id)
-            .ok_or(Refusal(None))?
+        crate::game_loop::servitor::owner_of(world, target).ok_or(Refusal(None))?
     };
 
     if !helpers::is_dead(world, target) {

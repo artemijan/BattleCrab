@@ -238,18 +238,11 @@ fn limit_hp_caps_how_far_a_heal_can_restore() {
             v.cur_hp = cur;
         }
     };
-    let hp = |world: &World| {
-        world
-            .objects
-            .get_component::<Vitals>(&CASTER)
-            .map(|v| v.cur_hp)
-            .unwrap_or(0.0)
-    };
 
     // Unlimited: a huge heal fills the pool.
     set_hp(&mut world, 100.0);
     land(&mut world, 9391, CASTER);
-    assert_eq!(hp(&world), 1000.0, "no cap → heal to full");
+    assert_eq!(hp_of(&world, CASTER), 1000.0, "no cap → heal to full");
 
     // Noblesse Harmony's `PER −30` → `mul` 0.7 on MAX_RECOVERABLE_HP.
     let mut mods = world
@@ -262,7 +255,7 @@ fn limit_hp_caps_how_far_a_heal_can_restore() {
     set_hp(&mut world, 100.0);
     land(&mut world, 9391, CASTER);
     assert_eq!(
-        hp(&world),
+        hp_of(&world, CASTER),
         700.0,
         "the same heal now stops at 70 % — the cap is the point of the skill"
     );
@@ -270,7 +263,11 @@ fn limit_hp_caps_how_far_a_heal_can_restore() {
     // Already above the cap: the heal restores nothing rather than draining.
     set_hp(&mut world, 900.0);
     land(&mut world, 9391, CASTER);
-    assert_eq!(hp(&world), 900.0, "over the cap, a heal is a no-op");
+    assert_eq!(
+        hp_of(&world, CASTER),
+        900.0,
+        "over the cap, a heal is a no-op"
+    );
 }
 
 /// `CpHealPercent` (Victories of Pa'agrio 1414 at 20 %) restores a share of
@@ -366,12 +363,7 @@ fn death_link_scales_with_the_casters_missing_hp() {
         world.clear_forced_rolls();
         world.force_rolls([50; 12]);
         land(world, 9401, NPC_OID);
-        1_000_000.0
-            - world
-                .objects
-                .get_component::<Vitals>(&NPC_OID)
-                .map(|v| v.cur_hp)
-                .unwrap_or(0.0)
+        1_000_000.0 - hp_of(world, NPC_OID)
     };
 
     let at_full = damage_at(&mut world, 1.0);
@@ -414,13 +406,6 @@ fn balance_life_averages_the_party_and_costs_the_healthy() {
 
     land(&mut world, 9406, CASTER);
 
-    let hp_of = |world: &World, oid: i32| {
-        world
-            .objects
-            .get_component::<Vitals>(&oid)
-            .map(|v| v.cur_hp)
-            .unwrap_or(0.0)
-    };
     assert_eq!(hp_of(&world, ally), 600.0, "the dying ally is pulled up");
     assert_eq!(
         hp_of(&world, CASTER),
@@ -470,13 +455,6 @@ fn balance_life_without_a_party_does_nothing() {
 
     land(&mut world, 9407, CASTER);
 
-    let hp_of = |world: &World, oid: i32| {
-        world
-            .objects
-            .get_component::<Vitals>(&oid)
-            .map(|v| v.cur_hp)
-            .unwrap_or(0.0)
-    };
     assert_eq!(
         hp_of(&world, CASTER),
         250.0,
@@ -519,16 +497,9 @@ fn an_elixir_restores_hp_but_never_a_raid_bosss() {
     land(&mut world, 9441, CASTER);
     land(&mut world, 9441, boss);
 
-    let hp = |world: &World, oid: i32| {
-        world
-            .objects
-            .get_component::<Vitals>(&oid)
-            .map(|v| v.cur_hp)
-            .unwrap_or(0.0)
-    };
-    assert_eq!(hp(&world, CASTER), 350.0, "a flat 250 restored");
+    assert_eq!(hp_of(&world, CASTER), 350.0, "a flat 250 restored");
     assert_eq!(
-        hp(&world, boss),
+        hp_of(&world, boss),
         100.0,
         "a raid boss is exempt — the clause `Heal` does not have"
     );
@@ -555,12 +526,7 @@ fn an_elixir_honours_the_recoverable_ceiling() {
         v.cur_hp = 100.0;
     }
     // Noblesse Harmony's shape: heals may only reach 70 % of the pool.
-    if let Some(m) = world
-        .objects
-        .get_component_mut::<model::components::stats::StatModifiers>(&CASTER)
-    {
-        *m.mul.entry(Stat::MaxRecoverableHp).or_insert(1.0) *= 0.7;
-    }
+    stack_mul_modifier(&mut world, CASTER, Stat::MaxRecoverableHp, 0.7);
 
     land(&mut world, 9442, CASTER);
 

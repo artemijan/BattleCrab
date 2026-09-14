@@ -89,14 +89,8 @@ fn unlocking_a_chest_depends_on_the_level_band() {
     add_test_npc(&mut world, in_band, 18265, "Chest", 25, 100, 0, 0);
     add_test_npc(&mut world, out_of_band, 18265, "Chest", 25, 150, 0, 0);
     let chest_level = effects::creature_level_for_test(&world, in_band);
-    let set_caster_level = |world: &mut World, level: i32| {
-        if let Some(p) = world.objects.get_component_mut::<Player>(&CASTER) {
-            p.level = level;
-        }
-    };
-
     // Five levels below the chest: inside the 6-level band, so it opens.
-    set_caster_level(&mut world, chest_level - 5);
+    set_level(&mut world, CASTER, chest_level - 5);
     land(&mut world, 9404, in_band);
     assert!(
         world
@@ -113,7 +107,7 @@ fn unlocking_a_chest_depends_on_the_level_band() {
     assert!(!npc.must_reward_exp_sp, "but pays no exp/sp");
 
     // Twenty levels below: outside the band, so it refuses and aggroes.
-    set_caster_level(&mut world, chest_level - 20);
+    set_level(&mut world, CASTER, chest_level - 20);
     land(&mut world, 9404, out_of_band);
     assert!(
         world
@@ -189,9 +183,7 @@ fn a_smashed_chest_and_an_unlocked_one_do_not_share_a_drop_table() {
 
     // Give 21801 a template and the redirect is visible: the *mechanism* is
     // what this asserts, independently of whether this dist ships the target.
-    let mut mimic = crate::data::npc_data::default_template(21801);
-    mimic.type_name = "Monster".into();
-    world.data.npc_data.insert_for_test(mimic);
+    register_npc_kind(&mut world, 21801, "Monster");
     assert_eq!(
         crate::game_loop::death::chest_drop_template_for_test(&world, chest, &template)
             .map(|t| t.id),
@@ -206,9 +198,7 @@ fn a_smashed_chest_and_an_unlocked_one_do_not_share_a_drop_table() {
         .map(|p| p.exp)
         .unwrap_or(0);
     let chest_level = effects::creature_level_for_test(&world, chest);
-    if let Some(p) = world.objects.get_component_mut::<Player>(&CASTER) {
-        p.level = chest_level;
-    }
+    set_level(&mut world, CASTER, chest_level);
     land(&mut world, 9405, chest);
     assert!(
         crate::game_loop::death::chest_drop_template_for_test(&world, chest, &template).is_none(),

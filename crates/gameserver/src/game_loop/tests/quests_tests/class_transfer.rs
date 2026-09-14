@@ -35,13 +35,7 @@ fn orc_change1_first_class_transfer() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30500, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 20;
-        p.race = 3; // Orc
-        p.class_id = 44; // Orc Fighter
-        p.base_class_id = 44;
-    }
+    set_level_race_class(&mut world, 3001, 20, 3, 44); // Orc, Orc Fighter
     inventory::add_inventory_item(&mut world, 3001, 1592, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -137,13 +131,7 @@ fn dwarf_warehouse_change1_first_class_transfer() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30498, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 20;
-        p.race = 4; // Dwarf
-        p.class_id = 53;
-        p.base_class_id = 53;
-    }
+    set_level_race_class(&mut world, 3001, 20, 4, 53); // Dwarf
     inventory::add_inventory_item(&mut world, 3001, 1642, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -193,13 +181,7 @@ fn dwarf_change1_refuses_below_level_20() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30499, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 19;
-        p.race = 4;
-        p.class_id = 53;
-        p.base_class_id = 53;
-    }
+    set_level_race_class(&mut world, 3001, 19, 4, 53);
     inventory::add_inventory_item(&mut world, 3001, 1635, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -249,13 +231,7 @@ fn dwarf_change1_refuses_without_the_proof_item() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30499, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 20;
-        p.race = 4;
-        p.class_id = 53;
-        p.base_class_id = 53;
-    }
+    set_level_race_class(&mut world, 3001, 20, 4, 53);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
@@ -299,17 +275,14 @@ fn dwarf_change1_html_pages_exist_in_dist() {
             // matrix, -10 the success page.
             for suffix in ["01", "05", "06", "07", "08", "09", "10", "11"] {
                 let path = format!("{DIST}{dir}/{npc}-{suffix}.htm");
-                assert!(
-                    std::path::Path::new(&path).exists(),
-                    "missing dist page {dir}/{npc}-{suffix}.htm"
-                );
+                assert!(ships(&path), "missing dist page {dir}/{npc}-{suffix}.htm");
             }
         }
         // Only the *first* NPC of each set ships a `-12` page; Java hard-codes
         // that one id for the fourth-class refusal regardless of who you are
         // talking to, which is why the port does the same.
         assert!(
-            std::path::Path::new(&format!("{DIST}{dir}/{extra}")).exists(),
+            ships(&format!("{DIST}{dir}/{extra}")),
             "missing fourth-class page {dir}/{extra}"
         );
     }
@@ -346,13 +319,7 @@ fn elf_human_fighter_change1_transfers_by_race() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30066, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 20;
-        p.race = 0; // Human
-        p.class_id = 0; // Fighter
-        p.base_class_id = 0;
-    }
+    set_level_race_class(&mut world, 3001, 20, 0, 0); // Human Fighter
     inventory::add_inventory_item(&mut world, 3001, 1145, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -417,13 +384,7 @@ fn elf_human_wizard_change1_elf_branch() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30037, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 20;
-        p.race = 1; // Elf
-        p.class_id = 25; // Elven Mage
-        p.base_class_id = 25;
-    }
+    set_level_race_class(&mut world, 3001, 20, 1, 25); // Elf, Elven Mage
     inventory::add_inventory_item(&mut world, 3001, 1235, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -467,23 +428,17 @@ fn elf_human_change1_html_pages_exist_in_dist() {
         for npc in npcs {
             for page in fixed {
                 let path = format!("{DIST}{dir}/{npc}-{page:02}.htm");
-                assert!(
-                    std::path::Path::new(&path).exists(),
-                    "missing {dir}/{npc}-{page:02}.htm"
-                );
+                assert!(ships(&path), "missing {dir}/{npc}-{page:02}.htm");
             }
             for first in firsts {
                 for p in *first..=(*first + 3) {
                     let path = format!("{DIST}{dir}/{npc}-{p}.htm");
-                    assert!(
-                        std::path::Path::new(&path).exists(),
-                        "missing {dir}/{npc}-{p}.htm"
-                    );
+                    assert!(ships(&path), "missing {dir}/{npc}-{p}.htm");
                 }
             }
         }
         assert!(
-            std::path::Path::new(&format!("{DIST}{dir}/{fourth}")).exists(),
+            ships(&format!("{DIST}{dir}/{fourth}")),
             "missing fourth-class page {dir}/{fourth}"
         );
     }
@@ -513,13 +468,7 @@ fn dark_elf_change1_transfers_by_row_index() {
         .insert_for_test("THIRD_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30290, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 20;
-        p.race = 2; // Dark Elf
-        p.class_id = 31; // Dark Fighter
-        p.base_class_id = 31;
-    }
+    set_level_race_class(&mut world, 3001, 20, 2, 31); // Dark Elf, Dark Fighter
     inventory::add_inventory_item(&mut world, 3001, 1244, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -551,13 +500,7 @@ fn dark_elf_change1_rejects_the_wrong_source_class() {
         .insert_for_test("FIRST_CLASS_GROUP", &[32, 35, 39, 42]);
     add_test_npc(&mut world, NPC_OID, 30290, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 20;
-        p.race = 2;
-        p.class_id = 38; // Dark MAGE asking for the fighter row
-        p.base_class_id = 38;
-    }
+    set_level_race_class(&mut world, 3001, 20, 2, 38); // Dark MAGE asking for the fighter row
     inventory::add_inventory_item(&mut world, 3001, 1244, 1);
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -626,17 +569,11 @@ fn dark_elf_change1_html_pages_exist_in_dist() {
     for npc in [30290, 30297, 30462] {
         for page in [1, 8, 31, 32, 33] {
             let path = format!("{DIST}{npc}-{page:02}.html");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {npc}-{page:02}.html"
-            );
+            assert!(ships(&path), "missing {npc}-{page:02}.html");
         }
         for page in 15..=30 {
             let path = format!("{DIST}{npc}-{page}.html");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {npc}-{page}.html"
-            );
+            assert!(ships(&path), "missing {npc}-{page}.html");
         }
     }
 }
@@ -710,15 +647,10 @@ fn first_class_transfer_talk_picks_the_page_by_race_and_progress() {
         // Compare against the actual dist page, run through the same strip the
         // cache applies — asserting "non-empty" would happily accept the
         // *wrong* page.
-        let want_path = format!(
-            "{}/../../dist/game/data/scripts/village_master/FirstClassTransferTalk/{npc_id}_{expected}.html",
-            env!("CARGO_MANIFEST_DIR")
+        let want = dist_page(
+            &format!("data/scripts/village_master/FirstClassTransferTalk/{npc_id}_{expected}.html"),
+            NPC_OID,
         );
-        let want = crate::data::htm_cache::strip_htm(
-            &std::fs::read_to_string(&want_path)
-                .unwrap_or_else(|_| panic!("dist page {want_path}")),
-        )
-        .replace("%objectId%", &NPC_OID.to_string());
         assert_eq!(
             html, want,
             "npc {npc_id} race {race} mage {is_mage} level {class_level}: wrong page (wanted {expected})"
@@ -750,14 +682,10 @@ fn first_class_transfer_talk_refuses_another_race() {
         .iter()
         .find_map(|p| decode_npc_html(p))
         .expect("a reply");
-    let want = crate::data::htm_cache::strip_htm(
-        &std::fs::read_to_string(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../dist/game/data/scripts/village_master/FirstClassTransferTalk/30520_no.html"
-        ))
-        .expect("dist page"),
-    )
-    .replace("%objectId%", &NPC_OID.to_string());
+    let want = dist_page(
+        "data/scripts/village_master/FirstClassTransferTalk/30520_no.html",
+        NPC_OID,
+    );
     assert_eq!(
         html, want,
         "a Human at a Dwarf headmaster gets the refusal page"
@@ -794,18 +722,15 @@ fn first_class_transfer_talk_pages_exist_in_dist() {
     for (npc, suffixes) in expected {
         for s in suffixes {
             let path = format!("{DIST}{npc}_{s}.html");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {npc}_{s}.html"
-            );
+            assert!(ships(&path), "missing {npc}_{s}.html");
         }
     }
     // And the asymmetry is real, not an accident of my table: the Human
     // fighter master genuinely ships no mystic page, which is why the script
     // must answer `no` there rather than inventing one.
-    assert!(!std::path::Path::new(&format!("{DIST}30026_mystic.html")).exists());
-    assert!(!std::path::Path::new(&format!("{DIST}30031_fighter.html")).exists());
-    assert!(!std::path::Path::new(&format!("{DIST}30520_mystic.html")).exists());
+    assert!(!ships(&format!("{DIST}30026_mystic.html")));
+    assert!(!ships(&format!("{DIST}30031_fighter.html")));
+    assert!(!ships(&format!("{DIST}30520_mystic.html")));
 }
 
 /// DwarfBlacksmithChange2: an Artisan with **all three** marks becomes a
@@ -836,13 +761,7 @@ fn dwarf_change2_second_class_transfer() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30512, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 40;
-        p.race = 4;
-        p.class_id = 56; // Artisan
-        p.base_class_id = 56;
-    }
+    set_level_race_class(&mut world, 3001, 40, 4, 56); // Artisan
     for id in [3119, 3238, 2867] {
         inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
@@ -892,13 +811,7 @@ fn dwarf_change2_requires_all_three_marks() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30512, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 40;
-        p.race = 4;
-        p.class_id = 56;
-        p.base_class_id = 56;
-    }
+    set_level_race_class(&mut world, 3001, 40, 4, 56);
     // Two of the three.
     inventory::add_inventory_item(&mut world, 3001, 3119, 1);
     inventory::add_inventory_item(&mut world, 3001, 3238, 1);
@@ -955,13 +868,7 @@ fn dwarf_change2_requires_level_40() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30511, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 39;
-        p.race = 4;
-        p.class_id = 54; // Scavenger
-        p.base_class_id = 54;
-    }
+    set_level_race_class(&mut world, 3001, 39, 4, 54); // Scavenger
     for id in [3119, 3238, 2809] {
         inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
@@ -1000,17 +907,11 @@ fn dwarf_change2_pages_exist_in_dist() {
     ] {
         for n in 1..=12 {
             let path = format!("{DIST}{dir}/{page_npc}-{n:02}.htm");
-            assert!(
-                std::path::Path::new(&path).exists(),
-                "missing {dir}/{page_npc}-{n:02}.htm"
-            );
+            assert!(ships(&path), "missing {dir}/{page_npc}-{n:02}.htm");
         }
         // And the other masters genuinely ship nothing of their own.
         let other = format!("{DIST}{dir}/30677-01.htm");
-        assert!(
-            !std::path::Path::new(&other).exists(),
-            "only the first NPC ships pages"
-        );
+        assert!(!ships(&other), "only the first NPC ships pages");
     }
 }
 
@@ -1043,13 +944,7 @@ fn orc_change2_transfer_pays_coupons() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30513, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 40;
-        p.race = 3;
-        p.class_id = 45; // Orc Raider
-        p.base_class_id = 45;
-    }
+    set_level_race_class(&mut world, 3001, 40, 3, 45); // Orc Raider
     for id in [2627, 3203, 3276] {
         inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
@@ -1095,13 +990,7 @@ fn dark_elf_change2_uses_row_index_and_pays_nothing() {
         .insert_for_test("THIRD_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30474, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 40;
-        p.race = 2; // Dark Elf
-        p.class_id = 32; // Palus Knight
-        p.base_class_id = 32;
-    }
+    set_level_race_class(&mut world, 3001, 40, 2, 32); // Dark Elf Palus Knight
     for id in [2633, 3172, 3307] {
         inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
@@ -1153,13 +1042,7 @@ fn change2_scripts_require_all_three_marks() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30513, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 40;
-        p.race = 3;
-        p.class_id = 45;
-        p.base_class_id = 45;
-    }
+    set_level_race_class(&mut world, 3001, 40, 3, 45);
     inventory::add_inventory_item(&mut world, 3001, 2627, 1); // one of three
     drain_db(&mut db_rx);
     drain(&mut rx);
@@ -1192,34 +1075,22 @@ fn change2_pages_exist_in_dist() {
     );
     for n in [1u32, 2, 6, 10, 17, 18, 19] {
         let p = format!("{DIST}OrcChange2/30513-{n:02}.htm");
-        assert!(
-            std::path::Path::new(&p).exists(),
-            "missing OrcChange2/30513-{n:02}.htm"
-        );
+        assert!(ships(&p), "missing OrcChange2/30513-{n:02}.htm");
     }
     for first in [20u32, 24, 28, 32] {
         for n in first..=(first + 3) {
             let p = format!("{DIST}OrcChange2/30513-{n}.htm");
-            assert!(
-                std::path::Path::new(&p).exists(),
-                "missing OrcChange2/30513-{n}.htm"
-            );
+            assert!(ships(&p), "missing OrcChange2/30513-{n}.htm");
         }
     }
     for n in [1u32, 8, 12, 19, 54, 55, 56] {
         let p = format!("{DIST}DarkElfChange2/30474-{n:02}.html");
-        assert!(
-            std::path::Path::new(&p).exists(),
-            "missing DarkElfChange2/30474-{n:02}.html"
-        );
+        assert!(ships(&p), "missing DarkElfChange2/30474-{n:02}.html");
     }
     for first in [26u32, 30, 34, 38, 42, 46, 50] {
         for n in first..=(first + 3) {
             let p = format!("{DIST}DarkElfChange2/30474-{n}.html");
-            assert!(
-                std::path::Path::new(&p).exists(),
-                "missing DarkElfChange2/30474-{n}.html"
-            );
+            assert!(ships(&p), "missing DarkElfChange2/30474-{n}.html");
         }
     }
 }
@@ -1257,13 +1128,7 @@ fn elf_human_change2_second_class_transfer() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30109, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 40;
-        p.race = 0;
-        p.class_id = 1; // Warrior
-        p.base_class_id = 1;
-    }
+    set_level_race_class(&mut world, 3001, 40, 0, 1); // Warrior
     for id in [2627, 2734, 2762] {
         inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
@@ -1315,13 +1180,7 @@ fn elf_human_change2_rejects_the_wrong_source_class() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30109, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 40;
-        p.race = 0;
-        p.class_id = 4; // Human Knight, holding exactly the Temple Knight marks
-        p.base_class_id = 4;
-    }
+    set_level_race_class(&mut world, 3001, 40, 0, 4); // Human Knight, holding exactly the Temple Knight marks
     for id in [2633, 3140, 2820] {
         inventory::add_inventory_item(&mut world, 3001, id, 1);
     }
@@ -1371,13 +1230,7 @@ fn elf_human_change2_requires_all_three_marks() {
         .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30120, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
-        p.level = 40;
-        p.race = 0;
-        p.class_id = 15; // Cleric
-        p.base_class_id = 15;
-    }
+    set_level_race_class(&mut world, 3001, 40, 0, 15); // Cleric
     for id in [2721, 2734] {
         inventory::add_inventory_item(&mut world, 3001, id, 1); // two of three
     }
@@ -1522,15 +1375,10 @@ fn elf_human_change2_talk_picks_the_class_list() {
             .iter()
             .find_map(|p| decode_npc_html(p))
             .unwrap_or_default();
-        let want_path = format!(
-            "{}/../../dist/game/data/scripts/village_master/{script}/{npc_id}-{expected:02}.htm",
-            env!("CARGO_MANIFEST_DIR")
+        let want = dist_page(
+            &format!("data/scripts/village_master/{script}/{npc_id}-{expected:02}.htm"),
+            NPC_OID,
         );
-        let want = crate::data::htm_cache::strip_htm(
-            &std::fs::read_to_string(&want_path)
-                .unwrap_or_else(|_| panic!("dist page {want_path}")),
-        )
-        .replace("%objectId%", &NPC_OID.to_string());
         assert_eq!(
             html, want,
             "{script} class {class_id}: wrong page (wanted {expected})"
@@ -1574,38 +1422,25 @@ fn elf_human_change2_pages_exist_in_dist() {
     for (script, npc, fixed, firsts, other) in sets {
         for n in fixed {
             let p = format!("{DIST}{script}/{npc}-{n:02}.htm");
-            assert!(
-                std::path::Path::new(&p).exists(),
-                "missing {script}/{npc}-{n:02}.htm"
-            );
+            assert!(ships(&p), "missing {script}/{npc}-{n:02}.htm");
         }
         for first in firsts {
             for n in *first..=(*first + 3) {
                 let p = format!("{DIST}{script}/{npc}-{n}.htm");
-                assert!(
-                    std::path::Path::new(&p).exists(),
-                    "missing {script}/{npc}-{n}.htm"
-                );
+                assert!(ships(&p), "missing {script}/{npc}-{n}.htm");
             }
         }
         let p = format!("{DIST}{script}/{other}-01.htm");
-        assert!(
-            !std::path::Path::new(&p).exists(),
-            "only {npc} ships {script} pages"
-        );
+        assert!(!ships(&p), "only {npc} ships {script} pages");
     }
 }
 
 /// AllianceMaster's dist page, run through the same strip the cache applies.
 fn alliance_page(name: &str) -> String {
-    let path = format!(
-        "{}/../../dist/game/data/scripts/village_master/AllianceMaster/{name}",
-        env!("CARGO_MANIFEST_DIR")
-    );
-    crate::data::htm_cache::strip_htm(
-        &std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("dist page {path}")),
+    dist_page(
+        &format!("data/scripts/village_master/AllianceMaster/{name}"),
+        NPC_OID,
     )
-    .replace("%objectId%", &NPC_OID.to_string())
 }
 
 /// Talking to any village master opens the alliance menu — with no clan check,
@@ -1695,13 +1530,10 @@ fn alliance_master_pages_exist_in_dist() {
     );
     for n in 1..=4 {
         let p = format!("{DIST}9001-{n:02}.htm");
-        assert!(std::path::Path::new(&p).exists(), "missing 9001-{n:02}.htm");
+        assert!(ships(&p), "missing 9001-{n:02}.htm");
     }
     for npc in [30026, 30031, 30913] {
         let p = format!("{DIST}{npc}-01.htm");
-        assert!(
-            !std::path::Path::new(&p).exists(),
-            "pages are 9001-*, not per-NPC"
-        );
+        assert!(!ships(&p), "pages are 9001-*, not per-NPC");
     }
 }

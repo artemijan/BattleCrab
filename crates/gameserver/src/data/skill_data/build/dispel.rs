@@ -64,9 +64,7 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             if dispel.is_empty() {
                 return Some(Vec::new());
             }
-            let rate = value_at(params, "rate", level)
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(100);
+            let rate = cx.int_param("rate", 100);
             vec![skill::effects::SkillEffect::DispelBySlotProbability { dispel, rate }]
         }
         "DispelBySlot" => match value_at(params, "dispel", level) {
@@ -99,12 +97,8 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
                 Some("ALL") => skill::effects::DispelSlot::All,
                 _ => skill::effects::DispelSlot::Buff,
             };
-            let rate = value_at(params, "rate", level)
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(0);
-            let max = value_at(params, "max", level)
-                .and_then(|v| v.parse::<i32>().ok())
-                .unwrap_or(0);
+            let rate = cx.int_param("rate", 0);
+            let max = cx.int_param("max", 0);
             vec![skill::effects::SkillEffect::DispelByCategory { slot, rate, max }]
         }
         "DispelAll" => vec![skill::effects::SkillEffect::DispelAll],

@@ -207,10 +207,7 @@ fn delevel_action_drops_one_level_for_a_fee() {
     world.cfg.community_board.enable_delevel = true;
     world.cfg.community_board.delevel_price = 100;
     let mut rx = ingame_player(&mut world, 1, 7010, 0, 0, 0);
-    {
-        let p = world.objects.get_component_mut::<Player>(&7010).unwrap();
-        p.level = 10;
-    }
+    set_level(&mut world, 7010, 10);
     drain(&mut rx);
 
     // Broke: refused before any level math.
@@ -233,10 +230,7 @@ fn delevel_action_drops_one_level_for_a_fee() {
     assert_eq!(item_count(&world, 7010, 57), 0, "the fee was taken");
 
     // At the floor: refused even with funds.
-    {
-        let p = world.objects.get_component_mut::<Player>(&7010).unwrap();
-        p.level = 1;
-    }
+    set_level(&mut world, 7010, 1);
     give_test_item(&mut world, 7010, 57, 100);
     handle_parse_command(&mut world, 1, "_bbsdelevel");
     assert_eq!(
@@ -604,7 +598,6 @@ use crate::data::item_data::ADENA_ID;
 use crate::game_loop::commerce::multisell;
 use crate::game_loop::commerce::multisell::handle_multi_sell_choose;
 use crate::game_loop::community_board;
-use crate::game_loop::siege::treasury;
 use crate::model::components::commerce::ActiveMultisell;
 use crate::model::inventory::Inventory;
 
@@ -798,18 +791,11 @@ fn npc_trace_marks_a_live_spawn() {
 
     handle_parse_command(&mut world, 1, "_bbs_npc_trace 12345");
     let pkts = drain(&mut rx);
-    let radars: Vec<_> = pkts
-        .iter()
-        .filter(|p| p[0] == server_packets::opcodes::RADAR_CONTROL)
-        .collect();
-    assert_eq!(radars.len(), 2, "addMarker sends two RadarControl packets");
-    // The marker carries the spawn coordinates (x=111 after the opcode + showRadar + type ints).
-    let mut r = commons::network::PacketReader::new(&radars[0][1..]);
-    let _show = r.read_i32().unwrap();
-    let _type = r.read_i32().unwrap();
-    assert_eq!(r.read_i32().unwrap(), 111, "marker x = spawn x");
-    assert_eq!(r.read_i32().unwrap(), 222, "marker y = spawn y");
-    assert_eq!(r.read_i32().unwrap(), 333, "marker z = spawn z");
+    let markers = radar_markers(&pkts);
+    assert_eq!(markers.len(), 2, "addMarker sends two RadarControl packets");
+    // The marker carries the spawn coordinates.
+    let (_show, _kind, x, y, z) = markers[0];
+    assert_eq!((x, y, z), (111, 222, 333), "marker = spawn position");
 }
 
 #[test]
@@ -975,17 +961,8 @@ fn a_multisell_can_charge_clan_reputation_and_refuses_in_javas_order() {
                     reputation_score: rep,
                     castle_id: 0,
                     members: vec![ClanMember {
-                        char_id: PLAYER,
-                        name: "P".into(),
                         level: 40,
-                        class_id: 0,
-                        sex: 0,
-                        race: 0,
-                        power_grade: 5,
-                        title: String::new(),
-                        pledge_type: 0,
-                        apprentice: 0,
-                        sponsor: 0,
+                        ..clan_member(PLAYER, "P")
                     }],
                     skills: Default::default(),
                     warehouse: Default::default(),
@@ -1100,19 +1077,7 @@ fn cb_test_clan(id: i32, name: &str, leader: i32, level: i32, castle_id: i32) ->
         level,
         reputation_score: 0,
         castle_id,
-        members: vec![model::clan::ClanMember {
-            char_id: leader,
-            name: format!("P{leader}"),
-            level: 1,
-            class_id: 0,
-            sex: 0,
-            race: 0,
-            power_grade: 5,
-            title: String::new(),
-            pledge_type: 0,
-            apprentice: 0,
-            sponsor: 0,
-        }],
+        members: vec![clan_member_p(leader)],
         skills: Default::default(),
         warehouse: Default::default(),
         char_penalty_expiry_time: 0,
@@ -1204,18 +1169,7 @@ fn region_board_renders_the_castles() {
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7001, 0, 0, 0);
     world.castles = (1..=9)
-        .map(|id| model::castle::Castle {
-            id,
-            name: format!("C{id}"),
-            side: treasury::CastleSide::Neutral,
-            show_npc_crest: false,
-            ticket_buy_count: 0,
-            first_mid_victory: false,
-            time_registration_over: true,
-            siege_date: 0,
-            siege_time_registration_end: 0,
-            treasury: 0,
-        })
+        .map(|id| castle_row(id, &format!("C{id}")))
         .collect();
     world
         .clans

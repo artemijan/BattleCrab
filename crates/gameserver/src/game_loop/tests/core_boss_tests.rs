@@ -16,11 +16,7 @@ fn core_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         (29008, "Monster"),
         (29011, "Monster"),
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = kind.into();
-        t.level = 50;
-        t.base_hp_max = 10_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, kind, 50, 10_000.0);
     }
     world.grand_bosses.insert(
         CORE,
@@ -39,24 +35,11 @@ fn core_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     (world, db, l)
 }
 
-fn count_of(world: &mut World, npc_id: i32) -> usize {
-    let mut n = 0;
-    world.objects.for_each_mut::<&model::npc::Npc>(|x| {
-        if x.npc_id == npc_id {
-            n += 1;
-        }
-    });
-    n
-}
-
 fn total_minions(world: &mut World) -> usize {
-    let mut n = 0;
-    world.objects.for_each_mut::<&model::npc::Npc>(|x| {
-        if crate::game_loop::core_boss::is_core_minion(x.npc_id) {
-            n += 1;
-        }
-    });
-    n
+    npc_oids_where(world, |n| {
+        crate::game_loop::core_boss::is_core_minion(n.npc_id)
+    })
+    .len()
 }
 
 /// **Core spawns three minions, not nineteen.** Java's `MINNION_SPAWNS` is a
@@ -70,7 +53,7 @@ fn core_spawns_three_minions_not_nineteen() {
 
     assert_eq!(total_minions(&mut world), 3, "one of each type, not 19");
     for id in [29007, 29008, 29011] {
-        assert_eq!(count_of(&mut world, id), 1, "exactly one npc {id}");
+        assert_eq!(npc_count(&mut world, id), 1, "exactly one npc {id}");
     }
 }
 
@@ -97,13 +80,13 @@ fn core_is_immobilized_but_can_still_act() {
 fn a_minion_killed_while_core_lives_respawns() {
     let (mut world, _db, _l) = core_world();
     crate::game_loop::core_boss::on_core_spawned(&mut world, CORE_OID);
-    assert_eq!(count_of(&mut world, DEATH_KNIGHT), 1);
+    assert_eq!(npc_count(&mut world, DEATH_KNIGHT), 1);
 
     crate::game_loop::core_boss::on_minion_killed(&mut world, DEATH_KNIGHT);
     crate::game_loop::core_boss::handle_minion_respawn(&mut world, DEATH_KNIGHT);
 
     assert_eq!(
-        count_of(&mut world, DEATH_KNIGHT),
+        npc_count(&mut world, DEATH_KNIGHT),
         2,
         "a replacement was placed"
     );
@@ -117,12 +100,12 @@ fn minions_do_not_respawn_once_core_is_dead() {
     crate::game_loop::core_boss::on_core_spawned(&mut world, CORE_OID);
     world.grand_bosses.get_mut(&CORE).unwrap().status = DEAD;
 
-    let before = count_of(&mut world, DEATH_KNIGHT);
+    let before = npc_count(&mut world, DEATH_KNIGHT);
     crate::game_loop::core_boss::on_minion_killed(&mut world, DEATH_KNIGHT);
     crate::game_loop::core_boss::handle_minion_respawn(&mut world, DEATH_KNIGHT);
 
     assert_eq!(
-        count_of(&mut world, DEATH_KNIGHT),
+        npc_count(&mut world, DEATH_KNIGHT),
         before,
         "no repopulating an empty lair"
     );
@@ -171,13 +154,7 @@ fn an_unrelated_npc_is_not_a_core_minion() {
 
 /// `NpcSay` is opcode 0x30 — the packet Core's lines ride on.
 fn count_npc_say(rx: &mut UnboundedReceiver<bytes::Bytes>) -> usize {
-    let mut n = 0;
-    while let Ok(p) = rx.try_recv() {
-        if p.first() == Some(&0x30) {
-            n += 1;
-        }
-    }
-    n
+    drain_count(rx, 0x30)
 }
 
 /// The **first** hit of a life plays both intro lines; later hits do not

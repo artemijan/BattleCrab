@@ -190,13 +190,7 @@ fn an_ordered_attack_targets_the_owners_target() {
         "the order was accepted"
     );
 
-    let hate = world
-        .objects
-        .get_component::<AggroList>(&oid)
-        .and_then(|a| a.0.get(&FOE))
-        .map(|i| i.hate)
-        .unwrap_or(0.0);
-    assert!(hate > 0.0, "the target is now hated");
+    assert!(hate_for(&world, oid, FOE) > 0.0, "the target is now hated");
     assert_eq!(
         world
             .objects
@@ -681,7 +675,6 @@ fn betray_turns_a_servitor_against_its_owner_and_it_stops_obeying() {
     let caster = OWNER + 1;
     let _c = ingame_player(&mut world, CID + 1, caster, 30, 0, 0);
     let betray = Skill {
-        self_continuous: false,
         id: 9420,
         level: 1,
         target_type: TargetType::EnemyOnly,
@@ -710,12 +703,7 @@ fn betray_turns_a_servitor_against_its_owner_and_it_stops_obeying() {
         "and it has turned on someone"
     );
     assert!(
-        world
-            .objects
-            .get_component::<AggroList>(&servitor)
-            .and_then(|a| a.0.get(&OWNER).map(|i| i.hate))
-            .unwrap_or(0.0)
-            > 0.0,
+        hate_for(&world, servitor, OWNER) > 0.0,
         "specifically its own owner"
     );
     // 3. It no longer obeys.

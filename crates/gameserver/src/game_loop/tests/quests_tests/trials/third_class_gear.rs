@@ -20,10 +20,7 @@ fn quest_q00235_mimirs_elixir() {
         ],
     );
     for id in [20965, 21090] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 75;
-        world.data.npc_data.insert_for_test(t);
+        register_npc(&mut world, id, "Monster", 75);
     }
     let ladd = NPC_OID;
     let joan = NPC_OID + 1;
@@ -55,9 +52,7 @@ fn quest_q00235_mimirs_elixir() {
     // Joan → cond 3, then a Sage Stone drop → cond 4.
     ev(&mut world, joan, "30718-03.htm");
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
-    add_test_npc(&mut world, NPC_OID + 10, 20965, "Monster", 75, 30, 0, 0);
-    world.force_roll(0); // roll(10) < 2 → Sage Stone
-    npc::npc_do_die(&mut world, NPC_OID + 10, 3001);
+    kill_mob(&mut world, NPC_OID + 10, 20965, 75, 0); // roll(10) < 2 → Sage Stone
     assert_eq!(item_count(&world, 3001, 6322), 1, "Sage Stone drops");
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
     // Joan forges True Gold (cond 4 → 5).
@@ -70,9 +65,7 @@ fn quest_q00235_mimirs_elixir() {
     assert_eq!(quest_cond(&world, 3001, q), Some(6));
     assert_eq!(item_count(&world, 3001, 5905), 1, "Mixing Stone received");
     // A Blood Fire drop → cond 7.
-    add_test_npc(&mut world, NPC_OID + 11, 21090, "Monster", 75, 30, 0, 0);
-    world.force_roll(0);
-    npc::npc_do_die(&mut world, NPC_OID + 11, 3001);
+    kill_mob(&mut world, NPC_OID + 11, 21090, 75, 0);
     assert_eq!(item_count(&world, 3001, 6318), 1, "Blood Fire drops");
     assert_eq!(quest_cond(&world, 3001, q), Some(7));
     // Mix at the Urn → Mimir's Elixir (cond 7 → 8), consuming silver/gold/fire.
@@ -158,11 +151,7 @@ fn quest_q00234_fates_whisper() {
 
     // Baium + the chest-dropping boss.
     for id in [BAIUM, BOSS_25035] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 80;
-        t.base_hp_max = 1_000_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 80, 1_000_000.0);
     }
 
     let reorin = NPC_OID;
@@ -201,24 +190,10 @@ fn quest_q00234_fates_whisper() {
     let talk = |w: &mut World, npc: i32| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
     };
-    let grab_html = |rx: &mut UnboundedReceiver<bytes::Bytes>| -> Option<String> {
-        drain(rx).iter().find_map(|p| {
-            if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
-                decode_npc_html(p)
-            } else if p[0] == server_packets::opcodes::EX {
-                let mut r = commons::network::PacketReader::new(&p[1..]);
-                r.read_i16()?;
-                r.read_i32()?;
-                r.read_string()
-            } else {
-                None
-            }
-        })
-    };
 
     // --- Level gate: below 75 is refused (the 31002-01 page has no start link). ---
     talk(&mut world, reorin);
-    let html = grab_html(&mut rx).expect("Reorin greeting");
+    let html = served_any_html(&mut rx).expect("Reorin greeting");
     assert!(
         !html.contains("31002-03.htm"),
         "no start offered below 75: {html}"
@@ -376,7 +351,7 @@ fn quest_q00234_fates_whisper() {
     // --- The weapon UI: select a B-grade, confirm, then upgrade to A-grade. ---
     let _ = drain(&mut rx); // clear the queued BGradeList page
     ev(&mut world, reorin, "selectBGrade_79");
-    let html = grab_html(&mut rx).expect("B-grade confirm page");
+    let html = served_any_html(&mut rx).expect("B-grade confirm page");
     assert!(
         html.contains("Sword of Damascus"),
         "%weaponname% substituted into 31002-13: {html}"
@@ -397,9 +372,8 @@ fn quest_q00234_fates_whisper() {
         1,
         "Star of Destiny awarded"
     );
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed(), "quest completes on the upgrade");
+    assert!(
+        quest_completed(&world, 3001, q),
+        "quest completes on the upgrade"
+    );
 }

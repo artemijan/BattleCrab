@@ -67,10 +67,7 @@ pub(crate) fn target_me(
     // `if (effected.getTarget() != effector) effected.setTarget(effector)` —
     // through the client-notifying setter so the selection ring actually
     // moves.
-    let already = world
-        .objects
-        .get_component::<crate::model::components::combat::TargetRef>(&target_oid)
-        .and_then(|t| t.0);
+    let already = crate::game_loop::combat::target::current(world, target_oid);
     if already != Some(caster_oid)
         && let Some(client_id) = helpers::client_for_player(world, target_oid)
     {

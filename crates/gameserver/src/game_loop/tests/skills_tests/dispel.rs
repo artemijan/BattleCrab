@@ -358,14 +358,7 @@ mod dispel_by_category {
 
         effects::apply_skill_effects(&mut world, 3001, npc_oid, &cancel);
 
-        let remaining: Vec<i32> = world
-            .objects
-            .get_component::<Buffs>(&npc_oid)
-            .unwrap()
-            .0
-            .iter()
-            .map(|b| b.skill_id)
-            .collect();
+        let remaining = all_buff_ids(&world, npc_oid);
         assert_eq!(
             remaining,
             vec![9001, 9002],
@@ -417,14 +410,7 @@ mod dispel_by_category {
 
         effects::apply_skill_effects(&mut world, 3001, npc_oid, &cleanse);
 
-        let remaining: Vec<i32> = world
-            .objects
-            .get_component::<Buffs>(&npc_oid)
-            .unwrap()
-            .0
-            .iter()
-            .map(|b| b.skill_id)
-            .collect();
+        let remaining = all_buff_ids(&world, npc_oid);
         assert_eq!(
             remaining,
             vec![9001],

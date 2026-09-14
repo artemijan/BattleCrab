@@ -51,11 +51,7 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
     let items: Vec<(i32, &str, bool)> = ids.iter().map(|&i| (i, "q", true)).collect();
     add_quest_items(&mut world, &items);
     for id in [MOB0, MOB1, MOB2, GUARDIAN, ARCHON_MINION, ARCHON_HALISHA] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 78;
-        t.base_hp_max = 100.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 78, 100.0);
     }
     let start = NPC_OID;
     add_test_npc(&mut world, start, START_NPC, "Folk", 78, 100, 200, 0);
@@ -70,12 +66,7 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{start}_Quest {q} {e}")));
     };
     let cond = |w: &World| quest_cond(w, 3001, q);
-    let mut mob = NPC_OID + 20;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 78, 110, 200, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 20, 78, 3001, 110, 200);
 
     // Accept.
     handle_request_bypass_to_server(
@@ -192,11 +183,10 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
         90,
         "transferred to Phoenix Knight (90)"
     );
-    let quests = world
-        .objects
-        .get_component::<model::components::social::Quests>(&3001)
-        .unwrap();
-    assert!(quests.0[q].is_completed(), "Saga completes on the transfer");
+    assert!(
+        quest_completed(&world, 3001, q),
+        "Saga completes on the transfer"
+    );
 }
 
 /// Drive one Saga through the full 20-cond ladder to the class transfer, keyed
@@ -225,11 +215,7 @@ fn run_fighter_saga(
     ids.push((REWARD_MARK, "mark", false));
     add_quest_items(&mut world, &ids);
     for id in [mob0, GUARDIAN, ARCHON_MINION, ARCHON_HALISHA] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = "Monster".into();
-        t.level = 78;
-        t.base_hp_max = 100.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, "Monster", 78, 100.0);
     }
     let start = NPC_OID;
     add_test_npc(&mut world, start, start_npc, "Folk", 78, 100, 200, 0);
@@ -244,12 +230,7 @@ fn run_fighter_saga(
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{start}_Quest {q} {e}")));
     };
     let cond = |w: &World| quest_cond(w, 3001, q);
-    let mut mob = NPC_OID + 20;
-    let mut kill = |w: &mut World, npc_id: i32| {
-        mob += 1;
-        add_test_npc(w, mob, npc_id, "Monster", 78, 110, 200, 0);
-        npc::npc_do_die(w, mob, 3001);
-    };
+    let mut kill = mob_killer(NPC_OID + 20, 78, 3001, 110, 200);
 
     handle_request_bypass_to_server(
         &mut world,
@@ -653,21 +634,7 @@ fn saga_shared_htmls_substitute_questname() {
         1,
         &bypass_body(&format!("npc_{start}_Quest Q00070_SagaOfThePhoenixKnight")),
     );
-    let html = drain(&mut rx)
-        .iter()
-        .find_map(|p| {
-            if p[0] == server_packets::opcodes::NPC_HTML_MESSAGE {
-                decode_npc_html(p)
-            } else if p[0] == server_packets::opcodes::EX {
-                let mut r = commons::network::PacketReader::new(&p[1..]);
-                r.read_i16()?;
-                r.read_i32()?;
-                r.read_string()
-            } else {
-                None
-            }
-        })
-        .expect("Saga intro html");
+    let html = served_any_html(&mut rx).expect("Saga intro html");
     // The generic 0-01.htm rendered, with %questname% replaced by Q70's name.
     assert!(
         html.contains("Quest Q00070_SagaOfThePhoenixKnight 0-1"),
@@ -692,11 +659,13 @@ fn saga_finale_boss_retreats_after_15_hits() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(&mut world, &[(I9, "q", true), (I10, "q", true)]);
     for id in [BOSS, COMPANION] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = if id == BOSS { "Monster" } else { "Folk" }.into();
-        t.level = 78;
-        t.base_hp_max = 100_000.0; // survives the 15 hits (it retreats, not dies)
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(
+            &mut world,
+            id,
+            if id == BOSS { "Monster" } else { "Folk" },
+            78,
+            100_000.0,
+        ); // survives the 15 hits (it retreats, not dies)
     }
     let start = NPC_OID;
     add_test_npc(&mut world, start, START, "Folk", 78, 100, 200, 0);
@@ -746,19 +715,7 @@ fn saga_finale_boss_retreats_after_15_hits() {
         1,
         &bypass_body(&format!("npc_{companion}_Quest {q}")),
     );
-    let before = drain(&mut rx)
-        .iter()
-        .find_map(|p| {
-            if p[0] == server_packets::opcodes::EX {
-                let mut r = commons::network::PacketReader::new(&p[1..]);
-                r.read_i16()?;
-                r.read_i32()?;
-                r.read_string()
-            } else {
-                None
-            }
-        })
-        .unwrap_or_default();
+    let before = any_html(&mut rx);
     assert!(
         !before.contains(" 4-2\""),
         "no reward before the boss retreats: {before}"
@@ -848,11 +805,13 @@ fn saga_finale_companion_taunt_cadence() {
 
     let (mut world, _db, _l) = quest_test_world();
     for id in [BOSS, COMPANION] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = if id == BOSS { "Monster" } else { "Folk" }.into();
-        t.level = 78;
-        t.base_hp_max = 100_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(
+            &mut world,
+            id,
+            if id == BOSS { "Monster" } else { "Folk" },
+            78,
+            100_000.0,
+        );
     }
     let start = NPC_OID;
     add_test_npc(&mut world, start, START, "Folk", 78, 100, 200, 0);

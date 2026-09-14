@@ -156,16 +156,11 @@ fn clan_master_dialog_gates_on_leadership() {
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
     drain(&mut rx);
 
-    let root = world.data.root.clone();
     let page = |name: &str| {
-        // The server serves htm through the cache, which strips comments and
-        // tabs/newlines exactly as Java's `HtmCache.loadFile` does — so the
-        // expectation has to go through the same transform, not the raw file.
-        let raw = std::fs::read_to_string(format!(
-            "{root}data/scripts/village_master/ClanMaster/{name}"
-        ))
-        .expect(name);
-        crate::data::htm_cache::strip_htm(&raw).replace("%objectId%", &NPC_OID.to_string())
+        dist_page(
+            &format!("data/scripts/village_master/ClanMaster/{name}"),
+            NPC_OID,
+        )
     };
 
     // Talk → the root menu (ClanMaster id -1 ⇒ plain NpcHtmlMessage).
@@ -211,19 +206,6 @@ fn clan_roster_notifications_and_chat() {
     // A clan with A (leader, online) and B — installed directly; invites
     // are deferred past G11.
     let clan_id = 5000;
-    let member = |char_id: i32, name: &str| model::clan::ClanMember {
-        char_id,
-        name: name.into(),
-        level: 1,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
-    };
     world.clans.insert(
         clan_id,
         Clan {
@@ -233,7 +215,7 @@ fn clan_roster_notifications_and_chat() {
             level: 0,
             reputation_score: 0,
             castle_id: 0,
-            members: vec![member(3001, "P3001"), member(3002, "P3002")],
+            members: vec![clan_member_p(3001), clan_member_p(3002)],
             skills: Default::default(),
             warehouse: Default::default(),
             char_penalty_expiry_time: 0,
@@ -393,19 +375,7 @@ fn clan_invite_guards_decline_and_accept() {
 
     // Clan full (level 1 main pledge caps at 15).
     for i in 0..14 {
-        let cm = model::clan::ClanMember {
-            char_id: 8000 + i,
-            name: format!("F{i}"),
-            level: 1,
-            class_id: 0,
-            sex: 0,
-            race: 0,
-            power_grade: 5,
-            title: String::new(),
-            pledge_type: 0,
-            apprentice: 0,
-            sponsor: 0,
-        };
+        let cm = clan_member(8000 + i, &format!("F{i}"));
         world.clans.get_mut(&5000).unwrap().members.push(cm);
     }
     clans::handle_request_join_pledge(&mut world, 1, &invite_body(3002, 0));
@@ -599,19 +569,7 @@ fn clan_withdraw_and_oust() {
         .get_mut(&5000)
         .unwrap()
         .members
-        .push(model::clan::ClanMember {
-            char_id: 3005,
-            name: "P3005".into(),
-            level: 1,
-            class_id: 0,
-            sex: 0,
-            race: 0,
-            power_grade: 5,
-            title: String::new(),
-            pledge_type: 0,
-            apprentice: 0,
-            sponsor: 0,
-        });
+        .push(clan_member_p(3005));
     clans::handle_request_oust_pledge_member(&mut world, 1, &oust_body("P3005"));
     assert!(world.clans[&5000].member(3005).is_none());
     assert!(
@@ -847,17 +805,8 @@ fn leaving_a_castle_owning_clan_takes_the_circlet() {
     let mut clan = castle_owning_clan(700);
     clan.castle_id = 1;
     clan.members.push(model::clan::ClanMember {
-        char_id: 3001,
-        name: "P3001".into(),
         level: 20,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
+        ..clan_member_p(3001)
     });
     world.clans.insert(700, clan);
 
@@ -889,17 +838,8 @@ fn the_circlet_survives_when_the_config_says_so() {
     let mut clan = castle_owning_clan(701);
     clan.castle_id = 1;
     clan.members.push(model::clan::ClanMember {
-        char_id: 3001,
-        name: "P3001".into(),
         level: 20,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
+        ..clan_member_p(3001)
     });
     world.clans.insert(701, clan);
 

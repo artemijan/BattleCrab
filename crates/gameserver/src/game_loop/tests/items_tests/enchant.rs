@@ -3,6 +3,46 @@
 
 use super::*;
 
+/// `RequestExAddEnchantScrollItem` — drop `scroll_oid` into the enchant window
+/// against `target_oid`.
+fn add_scroll_packet(scroll_oid: i32, target_oid: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(scroll_oid);
+    w.write_i32(target_oid);
+    ex_packet(
+        cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM,
+        &w.into_bytes(),
+    )
+}
+
+/// `RequestExTryToPutEnchantTargetItem` — name the item the scroll will hit.
+fn put_target_packet(target_oid: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(target_oid);
+    ex_packet(
+        cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM,
+        &w.into_bytes(),
+    )
+}
+
+/// `RequestEnchantItem` — the button press itself. `support_oid` is 0 unless a
+/// support item is sitting in the window.
+fn do_enchant_packet(target_oid: i32, support_oid: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_ENCHANT_ITEM);
+    w.write_i32(target_oid);
+    w.write_i32(support_oid);
+    w.into_bytes()
+}
+
+/// Everything a test does before pressing enchant: use the scroll to open the
+/// window, drop the scroll in, then the target item.
+fn arm_enchant(world: &mut World, scroll_oid: i32, target_oid: i32) {
+    on_packet(world, 1, use_item_packet(scroll_oid));
+    on_packet(world, 1, add_scroll_packet(scroll_oid, target_oid));
+    on_packet(world, 1, put_target_packet(target_oid));
+}
+
 /// Full enchant flow with real data: use scroll → add scroll → put target →
 /// enchant. Success bumps +1; a forced failure at +4 destroys the weapon and
 /// returns crystals.
@@ -35,67 +75,22 @@ fn enchant_scroll_success_and_failure() {
     let sword_oid = item_oid(&world, 9800, 69);
 
     // Use the scroll → opens the enchant request.
-    let use_item = {
-        let mut w = PacketWriter::new();
-        w.write_u8(cop::USE_ITEM);
-        w.write_i32(scroll_oid);
-        w.write_i32(0);
-        w.into_bytes()
-    };
-    on_packet(&mut world, 1, use_item);
+    on_packet(&mut world, 1, use_item_packet(scroll_oid));
     assert!(
         world.objects.has_component::<EnchantRequest>(&9800),
         "enchant window opened"
     );
 
-    let add_scroll = {
-        let mut w = PacketWriter::new();
-        w.write_i32(scroll_oid);
-        w.write_i32(sword_oid);
-        w.into_bytes()
-    };
-    on_packet(
-        &mut world,
-        1,
-        ex_packet(
-            cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM,
-            &add_scroll,
-        ),
-    );
-    let put_target = {
-        let mut w = PacketWriter::new();
-        w.write_i32(sword_oid);
-        w.into_bytes()
-    };
-    on_packet(
-        &mut world,
-        1,
-        ex_packet(
-            cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM,
-            &put_target,
-        ),
-    );
+    on_packet(&mut world, 1, add_scroll_packet(scroll_oid, sword_oid));
+    on_packet(&mut world, 1, put_target_packet(sword_oid));
 
     // +0 weapon is a guaranteed (100%) success → +1.
-    let do_enchant = |oid: i32| {
-        let mut w = PacketWriter::new();
-        w.write_u8(cop::REQUEST_ENCHANT_ITEM);
-        w.write_i32(oid);
-        w.write_i32(0);
-        w.into_bytes()
-    };
     // Java's anti-autoenchant guard punishes an Enchant pressed within 2 s of
     // the last window interaction, so the window has to age before the press.
     world.tick += 20;
     world.force_roll(0); // roll_f64 = 0.0 < 100
-    on_packet(&mut world, 1, do_enchant(sword_oid));
-    let level = |w: &World| {
-        w.objects
-            .get_component::<Inventory>(&9800)
-            .unwrap()
-            .by_object_id(sword_oid)
-            .map(|it| it.enchant_level)
-    };
+    on_packet(&mut world, 1, do_enchant_packet(sword_oid, 0));
+    let level = |w: &World| enchant_level(w, 9800, sword_oid);
     assert_eq!(level(&world), Some(1), "success: +0 → +1");
     assert_eq!(
         world
@@ -114,25 +109,11 @@ fn enchant_scroll_success_and_failure() {
         .get_component_mut::<Inventory>(&9800)
         .unwrap()
         .set_item_enchant(sword_oid, 4);
-    on_packet(
-        &mut world,
-        1,
-        ex_packet(
-            cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM,
-            &add_scroll,
-        ),
-    );
-    on_packet(
-        &mut world,
-        1,
-        ex_packet(
-            cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM,
-            &put_target,
-        ),
-    );
+    on_packet(&mut world, 1, add_scroll_packet(scroll_oid, sword_oid));
+    on_packet(&mut world, 1, put_target_packet(sword_oid));
     world.tick += 20;
     world.force_roll(900_000); // roll_f64 = 90.0 > 66.67 → fail
-    on_packet(&mut world, 1, do_enchant(sword_oid));
+    on_packet(&mut world, 1, do_enchant_packet(sword_oid, 0));
     let inv = world.objects.get_component::<Inventory>(&9800).unwrap();
     assert_eq!(inv.count_of(69), 0, "failed enchant destroyed the sword");
     let expected_crystals = (sword_cc - (sword_cc + 1) / 2).max(0) as i64;
@@ -151,10 +132,7 @@ fn enchant_support_item_bonus_and_consume() {
     use crate::model::inventory::Inventory;
     let (mut world, ..) = admin_world();
     world.data.item_data = dist::items_owned();
-    world.data.enchant = crate::data::EnchantData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.enchant = crate::data::EnchantData::load_from(crate::data::DIST_GAME);
     world.id_pool = 0x4000_0000..0x4000_0100;
     let mut rx = ingame_player_access(&mut world, 1, 9850, 0);
     drain(&mut rx);
@@ -176,41 +154,7 @@ fn enchant_support_item_bonus_and_consume() {
         .unwrap()
         .set_item_enchant(sword, 3);
 
-    let use_scroll = {
-        let mut w = PacketWriter::new();
-        w.write_u8(cop::USE_ITEM);
-        w.write_i32(scroll);
-        w.write_i32(0);
-        w.into_bytes()
-    };
-    on_packet(&mut world, 1, use_scroll);
-    let add_scroll = {
-        let mut w = PacketWriter::new();
-        w.write_i32(scroll);
-        w.write_i32(sword);
-        w.into_bytes()
-    };
-    on_packet(
-        &mut world,
-        1,
-        ex_packet(
-            cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM,
-            &add_scroll,
-        ),
-    );
-    let put_target = {
-        let mut w = PacketWriter::new();
-        w.write_i32(sword);
-        w.into_bytes()
-    };
-    on_packet(
-        &mut world,
-        1,
-        ex_packet(
-            cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM,
-            &put_target,
-        ),
-    );
+    arm_enchant(&mut world, scroll, sword);
     // Support: body is (supportObjId, enchantObjId).
     let put_support = {
         let mut w = PacketWriter::new();
@@ -240,14 +184,7 @@ fn enchant_support_item_bonus_and_consume() {
     // Age the window past Java's 2 s anti-autoenchant guard first.
     world.tick += 20;
     world.force_roll(800_000);
-    let enchant = {
-        let mut w = PacketWriter::new();
-        w.write_u8(cop::REQUEST_ENCHANT_ITEM);
-        w.write_i32(sword);
-        w.write_i32(support);
-        w.into_bytes()
-    };
-    on_packet(&mut world, 1, enchant);
+    on_packet(&mut world, 1, do_enchant_packet(sword, support));
 
     let inv = world.objects.get_component::<Inventory>(&9850).unwrap();
     let level = inv.by_object_id(sword).unwrap().enchant_level;
@@ -292,50 +229,10 @@ fn a_scroll_with_a_random_range_rolls_its_enchant_step() {
     inventory::add_inventory_item(&mut world, PLAYER, SWORD, 1).unwrap();
     let scroll_oid = item_oid(&world, PLAYER, SCROLL);
     let sword_oid = item_oid(&world, PLAYER, SWORD);
-    let level = |w: &World| {
-        w.objects
-            .get_component::<Inventory>(&PLAYER)
-            .unwrap()
-            .by_object_id(sword_oid)
-            .map(|it| it.enchant_level)
-            .unwrap()
-    };
+    let level = |w: &World| enchant_level(w, PLAYER, sword_oid).unwrap();
 
-    let arm = |world: &mut World| {
-        let mut w = PacketWriter::new();
-        w.write_u8(cop::USE_ITEM);
-        w.write_i32(scroll_oid);
-        w.write_i32(0);
-        on_packet(world, 1, w.into_bytes());
-        let mut w = PacketWriter::new();
-        w.write_i32(scroll_oid);
-        w.write_i32(sword_oid);
-        on_packet(
-            world,
-            1,
-            ex_packet(
-                cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM,
-                &w.into_bytes(),
-            ),
-        );
-        let mut w = PacketWriter::new();
-        w.write_i32(sword_oid);
-        on_packet(
-            world,
-            1,
-            ex_packet(
-                cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM,
-                &w.into_bytes(),
-            ),
-        );
-    };
-    let do_enchant = |world: &mut World| {
-        let mut w = PacketWriter::new();
-        w.write_u8(cop::REQUEST_ENCHANT_ITEM);
-        w.write_i32(sword_oid);
-        w.write_i32(0);
-        on_packet(world, 1, w.into_bytes());
-    };
+    let arm = |world: &mut World| arm_enchant(world, scroll_oid, sword_oid);
+    let do_enchant = |world: &mut World| on_packet(world, 1, do_enchant_packet(sword_oid, 0));
 
     // Roll order per attempt: the success check (`roll_f64`) consumes one
     // forced value, then the step roll consumes the next. `roll(3)` returns an
@@ -396,14 +293,7 @@ fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
     inventory::add_inventory_item(&mut world, PLAYER, 69, 1).unwrap();
     let scroll_oid = item_oid(&world, PLAYER, 955);
     let sword_oid = item_oid(&world, PLAYER, 69);
-    let level = |w: &World| {
-        w.objects
-            .get_component::<Inventory>(&PLAYER)
-            .unwrap()
-            .by_object_id(sword_oid)
-            .map(|it| it.enchant_level)
-            .unwrap()
-    };
+    let level = |w: &World| enchant_level(w, PLAYER, sword_oid).unwrap();
     let scrolls_left = |w: &World| {
         w.objects
             .get_component::<Inventory>(&PLAYER)
@@ -411,41 +301,8 @@ fn pressing_enchant_within_two_seconds_is_punished_and_costs_nothing() {
             .count_of(955)
     };
 
-    let arm = |world: &mut World| {
-        let mut w = PacketWriter::new();
-        w.write_u8(cop::USE_ITEM);
-        w.write_i32(scroll_oid);
-        w.write_i32(0);
-        on_packet(world, 1, w.into_bytes());
-        let mut w = PacketWriter::new();
-        w.write_i32(scroll_oid);
-        w.write_i32(sword_oid);
-        on_packet(
-            world,
-            1,
-            ex_packet(
-                cp::ex_opcodes::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM,
-                &w.into_bytes(),
-            ),
-        );
-        let mut w = PacketWriter::new();
-        w.write_i32(sword_oid);
-        on_packet(
-            world,
-            1,
-            ex_packet(
-                cp::ex_opcodes::REQUEST_EX_TRY_TO_PUT_ENCHANT_TARGET_ITEM,
-                &w.into_bytes(),
-            ),
-        );
-    };
-    let press = |world: &mut World| {
-        let mut w = PacketWriter::new();
-        w.write_u8(cop::REQUEST_ENCHANT_ITEM);
-        w.write_i32(sword_oid);
-        w.write_i32(0);
-        on_packet(world, 1, w.into_bytes());
-    };
+    let arm = |world: &mut World| arm_enchant(world, scroll_oid, sword_oid);
+    let press = |world: &mut World| on_packet(world, 1, do_enchant_packet(sword_oid, 0));
 
     // Straight from arming the window to pressing Enchant: 0 ticks elapsed.
     arm(&mut world);

@@ -3,7 +3,7 @@
 //! [`Player::apply_buff`] and `remove_buff` rebuild the modifier
 //! maps from scratch, so they need the player, their base stats, the modifier
 //! maps, the inventory, the buff list, and the speed and combat blocks — seven
-//! components plus [`GameData`]. Eight call sites across the game loop used to
+//! components plus [`GameData`]. Ten call sites across the game loop used to
 //! spell that `get_many_mut` tuple out in full, twenty-odd lines apiece, purely
 //! to reach a one-line buff call.
 //!
@@ -46,6 +46,20 @@ impl StatCtx<'_> {
             self.combat,
             buff,
         )
+    }
+
+    /// [`Player::rebuild_modifiers`] — for callers that edited a live buff's
+    /// effects in place and now need the maps refolded.
+    pub(crate) fn rebuild(&mut self) {
+        self.player.rebuild_modifiers(
+            self.data,
+            self.base,
+            self.mods,
+            self.inventory,
+            self.buffs,
+            self.speeds,
+            self.combat,
+        );
     }
 
     /// [`Player::remove_buff`] — a no-op when the skill isn't up.

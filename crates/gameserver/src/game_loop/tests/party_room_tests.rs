@@ -58,12 +58,6 @@ fn waiting_list_body(
     w.into_bytes()
 }
 
-fn set_level(world: &mut World, oid: i32, level: i32) {
-    if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
-        p.level = level;
-    }
-}
-
 fn open_board(world: &mut World, client_id: u32) {
     on_packet(
         world,

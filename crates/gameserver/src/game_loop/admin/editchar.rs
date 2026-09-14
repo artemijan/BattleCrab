@@ -94,10 +94,7 @@ pub(super) fn admin_fullfood(world: &mut World, client_id: u32, gm_object_id: i3
             return;
         };
         p.fed = p.max_fed;
-        world
-            .objects
-            .get_component::<components::summons::ServitorOf>(&pet_oid)
-            .map(|s| s.owner_object_id)
+        crate::game_loop::servitor::owner_of(world, pet_oid)
     };
 
     // Java `broadcastStatusUpdate()`. The food bar rides in `PetInfo`, not in a
@@ -693,10 +690,7 @@ pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args:
 /// The targeted summon's (npc_oid, owner_oid), if the target is one.
 fn targeted_summon(world: &World, object_id: i32) -> Option<(i32, i32)> {
     let target = target::current(world, object_id)?;
-    let owner = world
-        .objects
-        .get_component::<components::summons::ServitorOf>(&target)?
-        .owner_object_id;
+    let owner = crate::game_loop::servitor::owner_of(world, target)?;
     Some((target, owner))
 }
 

@@ -258,9 +258,7 @@ fn debug_panel_movement_toggle_draws_walk_line() {
         .x += 100;
     advance_ticks(&mut world, 3);
     assert!(
-        drain(&mut gm_rx).iter().any(|p| {
-            p[0] == 0xFE && p.len() > 2 && i16::from_le_bytes(p[1..3].try_into().unwrap()) == 0x11
-        }),
+        drain(&mut gm_rx).iter().any(|p| is_ex(p, 0x11)),
         "movement line drawn while walking"
     );
 }

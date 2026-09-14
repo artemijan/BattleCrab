@@ -7,7 +7,6 @@
 //! each change is followed by its `DbCommand` (the clan-warehouse discipline).
 
 use crate::game_loop::helpers::{send_sm_to_player as send_sm, send_to_player};
-use crate::model::components::space::ZoneFlags;
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::model::mail::MailListRow;
 use crate::network::server_packets::{self, MailListView, sm_ids};
@@ -38,10 +37,11 @@ pub(crate) use store::{
 
 /// `Player.isInsideZone(PEACE)` — several mail actions are peace-zone only.
 pub(crate) fn in_peace_zone(world: &World, object_id: i32) -> bool {
-    world
-        .objects
-        .get_component::<ZoneFlags>(&object_id)
-        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace))
+    crate::game_loop::space::zones::has_zone_flag(
+        world,
+        object_id,
+        crate::data::zone_data::ZoneKind::Peace,
+    )
 }
 
 /// Java's `if (!player.isInsideZone(ZoneId.PEACE)) { sendPacket(CANT_SEND_MAIL

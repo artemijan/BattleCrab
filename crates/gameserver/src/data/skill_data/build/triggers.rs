@@ -61,11 +61,6 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
         // Dance of Shadows 366. Only the params the reachable
         // content sets are read; the rest keep Java's defaults.
         "TriggerSkillByAttack" => {
-            let int_param = |key: &str, default: i32| {
-                value_at(params, key, level)
-                    .and_then(|v| v.parse().ok())
-                    .unwrap_or(default)
-            };
             let allow_weapons = value_at(params, "allowWeapons", level)
                 .filter(|v| !v.eq_ignore_ascii_case("ALL"))
                 .map(|v| {
@@ -77,16 +72,16 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
                         .fold(0u32, |acc, b| acc | b)
                 })
                 .unwrap_or(0);
-            let skill_id = int_param("skillId", 0);
+            let skill_id = cx.int_param("skillId", 0);
             // Java bails when the skill id or level is 0.
             if skill_id == 0 {
                 Vec::new()
             } else {
                 vec![skill::effects::SkillEffect::TriggerSkillByAttack {
-                    min_damage: int_param("minDamage", 1),
-                    chance: int_param("chance", 100),
+                    min_damage: cx.int_param("minDamage", 1),
+                    chance: cx.int_param("chance", 100),
                     skill_id,
-                    skill_level: int_param("skillLevel", 1),
+                    skill_level: cx.int_param("skillLevel", 1),
                     on_party: value_at(params, "targetType", level) == Some("MY_PARTY"),
                     is_critical: value_at(params, "isCritical", level) == Some("true"),
                     allow_weapons,

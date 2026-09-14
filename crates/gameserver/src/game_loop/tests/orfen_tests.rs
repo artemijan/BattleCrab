@@ -28,7 +28,6 @@ fn orfen_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     // is how the first draft of `riba_iren_heals_on_its_own_wounds` passed
     // while measuring nothing.
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: PARALYSIS,
         level: 1,
         abnormal_time: 60,
@@ -36,7 +35,6 @@ fn orfen_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         ..Default::default()
     });
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: ORFEN_HEAL,
         level: 1,
         magic_type: 1,

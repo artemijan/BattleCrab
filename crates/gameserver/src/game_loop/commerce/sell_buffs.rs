@@ -187,10 +187,11 @@ fn can_start(world: &World, client_id: u32, player_oid: i32) -> bool {
     // `isInsideZone(NO_STORE) || !isInsideZone(PEACE) || isJailed()` — all
     // three answer with the same line.
     let no_store = crate::game_loop::commerce::private_store::in_no_store_zone(world, player_oid);
-    let in_peace = world
-        .objects
-        .get_component::<crate::model::components::space::ZoneFlags>(&player_oid)
-        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Peace));
+    let in_peace = crate::game_loop::space::zones::has_zone_flag(
+        world,
+        player_oid,
+        crate::data::zone_data::ZoneKind::Peace,
+    );
     let jailed = world
         .objects
         .get_component::<Player>(&player_oid)

@@ -181,10 +181,7 @@ fn admin_kick_disconnects_target() {
 #[test]
 fn admin_add_exp_sp_grants_to_target() {
     let (mut world, ..) = admin_world();
-    world.data.experience = crate::data::ExperienceData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.experience = crate::data::ExperienceData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 7301, 100);
     world.objects.add_components(&7301, TargetRef(Some(7301)));
     drain(&mut gm_rx);
@@ -249,10 +246,7 @@ fn admin_character_info_by_name_sets_target() {
 #[test]
 fn admin_add_exp_sp_without_target_is_invalid() {
     let (mut world, ..) = admin_world();
-    world.data.experience = crate::data::ExperienceData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.experience = crate::data::ExperienceData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 7301, 100);
     let exp_before = world.objects.get_component::<Player>(&7301).unwrap().exp;
     drain(&mut gm_rx);
@@ -276,10 +270,7 @@ fn admin_add_exp_sp_without_target_is_invalid() {
 #[test]
 fn admin_set_and_add_level() {
     let (mut world, ..) = admin_world();
-    world.data.experience = crate::data::ExperienceData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.experience = crate::data::ExperienceData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 7305, 100);
     drain(&mut gm_rx);
 
@@ -306,10 +297,7 @@ fn admin_set_and_add_level() {
 #[test]
 fn admin_set_level_refuses_past_the_cap_and_clamps_at_it() {
     let (mut world, ..) = admin_world();
-    world.data.experience = crate::data::ExperienceData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data.experience = crate::data::ExperienceData::load_from(crate::data::DIST_GAME);
     let mut gm_rx = ingame_player_access(&mut world, 1, 7306, 100);
     on_packet(&mut world, 1, build_admin("set_level 20"));
     drain(&mut gm_rx);
@@ -588,9 +576,8 @@ fn admin_setclass_grants_advanced_class_skills() {
     world.cfg.character.auto_learn_skills = true;
     let mut gm_rx = ingame_player_access(&mut world, 1, 8703, 100);
     drain(&mut gm_rx);
-    if let Some(p) = world.objects.get_component_mut::<Player>(&8703) {
-        p.level = 40; // Warlord's 2nd-class skills gate at getLevel 40.
-    }
+    // Warlord's 2nd-class skills gate at getLevel 40.
+    set_level(&mut world, 8703, 40);
 
     on_packet(&mut world, 1, build_admin("setclass 3")); // Warlord (2nd class)
 

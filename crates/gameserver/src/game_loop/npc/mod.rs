@@ -47,6 +47,42 @@ pub const FIRST_NPC_OBJECT_ID: i32 = 0x4000_0000;
 /// (not 65536; kept as-is for parity).
 const RANDOM_HEADING_BOUND: i32 = 61794;
 
+/// Re-finalize a live NPC's stats from its buffs — the ECS side of
+/// [`crate::model::npc_stats::recompute_npc_stats_from_buffs`], which needs
+/// four components resolved together. A no-op when the NPC is gone or missing
+/// one of them, which is what both callers want: nothing to recompute.
+///
+/// `template` and `mods` are the caller's, because the two differ on exactly
+/// that: a buff landing re-reads the NPC's own champion/raid flags, while a
+/// raid minion's promotion recomputes off the plain template with the raid
+/// multipliers forced on. `objects` and `data` are taken apart rather than as
+/// `&mut World` so a caller can hold a template borrowed out of `data`.
+pub(crate) fn recompute_npc_stats(
+    objects: &mut crate::store::EntityStore,
+    data: &crate::data::GameData,
+    npc_oid: i32,
+    template: &crate::data::npc_data::NpcTemplate,
+    mods: crate::model::npc_stats::NpcStatMods,
+) {
+    if let Some((buffs, mut combat, mut speeds, mut vitals)) = objects.get_many_mut::<(
+        &crate::model::components::skills::Buffs,
+        &mut crate::model::components::stats::CombatStats,
+        &mut crate::model::components::stats::Speeds,
+        &mut crate::model::components::stats::Vitals,
+    )>(&npc_oid)
+    {
+        crate::model::npc_stats::recompute_npc_stats_from_buffs(
+            data,
+            template,
+            buffs,
+            mods,
+            &mut combat,
+            &mut speeds,
+            &mut vitals,
+        );
+    }
+}
+
 /// `NpcStat`'s finalizer outputs for a template — the finalizer *bases* that
 /// [`crate::model::npc_stats::npc_finalized_stats`] then folds passive template skills and
 /// buffs into (via `Stat.defaultValue`'s mul/add). Ports each Java finalizer:

@@ -16,23 +16,13 @@ fn antharas_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
         (BEHEMOTH, "Monster"),
         (TERASQUE, "Monster"),
     ] {
-        let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = kind.into();
-        t.level = 85;
-        t.base_hp_max = 10_000.0;
-        world.data.npc_data.insert_for_test(t);
+        register_npc_hp(&mut world, id, kind, 85, 10_000.0);
     }
     (world, db, l)
 }
 
 fn spawned(world: &mut World) -> usize {
-    let mut n = 0;
-    world.objects.for_each_mut::<&model::npc::Npc>(|x| {
-        if x.npc_id == BEHEMOTH || x.npc_id == TERASQUE {
-            n += 1;
-        }
-    });
-    n
+    npc_oids_where(world, |n| n.npc_id == BEHEMOTH || n.npc_id == TERASQUE).len()
 }
 
 fn state(world: &World) -> AntharasMinions {
@@ -146,16 +136,6 @@ fn a_full_lair_spawns_nothing_but_keeps_ticking() {
 // The entry cinematic (slice 17)
 // ---------------------------------------------------------------------------
 
-fn drain(rx: &mut UnboundedReceiver<bytes::Bytes>, opcode: u8) -> usize {
-    let mut n = 0;
-    while let Ok(p) = rx.try_recv() {
-        if p.first() == Some(&opcode) {
-            n += 1;
-        }
-    }
-    n
-}
-
 /// **Antharas chains, Valakas does not.** Each beat schedules exactly the next
 /// one, so at any moment only a single cinematic timer is pending — unlike
 /// Valakas, which arms all ten up front. Reusing the Valakas shape here would
@@ -184,7 +164,7 @@ fn each_beat_sends_a_shot_and_arms_the_next() {
 
     let before = world.scheduler.len();
     crate::game_loop::antharas::handle_cinematic_step(&mut world, ANTHARAS_OID, 0);
-    assert_eq!(drain(&mut rx, 0xD6), 1, "one camera shot");
+    assert_eq!(drain_count(&mut rx, 0xD6), 1, "one camera shot");
     assert_eq!(world.scheduler.len(), before + 1, "and the next beat armed");
 }
 
@@ -208,7 +188,7 @@ fn the_third_beat_forks_a_second_social() {
     // `SocialAction` is 0x27 — the roar goes out with the shot, not only the
     // deferred one 5.2 s later.
     assert_eq!(
-        drain(&mut rx, 0x27),
+        drain_count(&mut rx, 0x27),
         1,
         "the roar accompanied the camera shot"
     );
@@ -224,7 +204,7 @@ fn the_forked_social_fires_independently() {
 
     crate::game_loop::antharas::handle_social(&mut world, ANTHARAS_OID);
     assert_eq!(
-        drain(&mut rx, 0x27),
+        drain_count(&mut rx, 0x27),
         1,
         "the second social went out by itself"
     );
@@ -628,7 +608,6 @@ fn a_hit_makes_antharas_cast() {
         v.cur_mp = 10_000.0;
     }
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: ANTH_TAIL,
         level: 1,
         ..Default::default()
@@ -641,9 +620,7 @@ fn a_hit_makes_antharas_cast() {
     world.force_roll(0);
     crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, ATTACKER, 500, true);
 
-    let casts = std::iter::from_fn(|| rx.try_recv().ok())
-        .filter(|p| p.first() == Some(&0x48))
-        .count();
+    let casts = drain_count(&mut rx, 0x48); // MagicSkillUse
     assert_eq!(casts, 1, "the damage hook chose a skill and cast it");
 }
 
@@ -665,7 +642,6 @@ fn a_second_hit_mid_cast_starts_nothing() {
         v.cur_mp = 10_000.0;
     }
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: ANTH_TAIL,
         level: 1,
         hit_time: 5_000,
@@ -681,9 +657,7 @@ fn a_second_hit_mid_cast_starts_nothing() {
         world.force_roll(0);
     }
     crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, ATTACKER, 500, true);
-    let casts = std::iter::from_fn(|| rx.try_recv().ok())
-        .filter(|p| p.first() == Some(&0x48))
-        .count();
+    let casts = drain_count(&mut rx, 0x48); // MagicSkillUse
     assert_eq!(casts, 0, "still casting the first");
 }
 
@@ -1191,7 +1165,6 @@ fn antharas_heals_for_his_current_hp_band() {
         },
     );
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 4240,
         level: 1,
         ..Default::default()
@@ -1314,7 +1287,6 @@ fn a_strider_rider_is_hindered_by_antharas() {
         .unwrap()
         .mount_type = 1; // STRIDER
     world.data.skill_data.insert_for_test(Skill {
-        self_continuous: false,
         id: 4258,
         level: 1,
         ..Default::default()

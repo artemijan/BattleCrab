@@ -105,8 +105,7 @@ fn own_summon_interact_fires_summon_talk() {
     interact_with_npc(&mut world, 1, 3001, pet_oid);
     let pkts = drain(&mut rx);
     let said = pkts.iter().any(|p| {
-        p[0] == server_packets::opcodes::NPC_SAY
-            && p[1..5] == pet_oid.to_le_bytes()
+        is_for(p, server_packets::opcodes::NPC_SAY, pet_oid)
             && p.windows(4).any(|w| w == 42240i32.to_le_bytes())
     });
     assert!(said, "the Sin Eater grumbled string 42240 at its owner");

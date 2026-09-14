@@ -23,20 +23,7 @@ fn load_cursed_weapons(world: &mut World) {
     const ROOT: &str = crate::data::DIST_GAME;
     world.data.root = ROOT.to_string();
     world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
-    world.cursed_weapons = world
-        .data
-        .cursed_weapons
-        .weapons
-        .iter()
-        .cloned()
-        .map(|mut cw| {
-            cw.skill_max_level = (1..=100)
-                .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
-                .last()
-                .unwrap_or(1);
-            cw
-        })
-        .collect();
+    world.cursed_weapons = cursed_weapon::from_config(&world.data);
 }
 
 fn cw_idx(world: &World, item_id: i32) -> usize {
@@ -55,10 +42,7 @@ fn ground_item_count(world: &World) -> usize {
 /// `ExUserInfoEquipSlot` (Ex 0x156) in `packets` — the packet that actually
 /// paints the client's own paperdoll. `None` when no such packet was sent.
 fn equip_slot(packets: &[Vec<u8>], want: crate::enums::InventorySlot) -> Option<(i32, i32)> {
-    let pkt = packets
-        .iter()
-        .rev()
-        .find(|p| p.len() > 2 && p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0x156)?;
+    let pkt = packets.iter().rev().find(|p| is_ex(p, 0x156))?;
     // 1 (Ex) + 2 (sub) + 4 (object id) + 2 (slot count) + 5 (mask) = 14.
     let mut offset = 14usize;
     let mut found = None;
@@ -529,16 +513,12 @@ const SQUIRES_SWORD: i32 = 7816;
 /// its max level), transforms (301/302) and items (body parts for the equip
 /// gates).
 fn load_curse_data(world: &mut World) {
-    load_cursed_weapons(world);
     world.data.skill_data = dist::skills_owned();
     world.data.transforms = crate::data::TransformData::load_from(DIST);
     world.data.item_data = dist::items_owned();
-    for cw in &mut world.cursed_weapons {
-        cw.skill_max_level = (1..=100)
-            .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
-            .last()
-            .unwrap_or(1);
-    }
+    // After the skills, so the weapons resolve their real `skill_max_level`
+    // on the first pass.
+    load_cursed_weapons(world);
 }
 
 /// The object id of `item_id` in `owner`'s bag, but only when it is worn.

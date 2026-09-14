@@ -337,7 +337,7 @@ fn placing_a_bid_persists_it() {
 
     place_bid(&mut world, ONYX, 10, 5_000_000, 42);
 
-    let saved = std::iter::from_fn(|| db.try_recv().ok()).any(|c| {
+    let saved = drain_db(&mut db).iter().any(|c| {
         matches!(
             c,
             db::DbCommand::SaveClanHallBid {
@@ -525,17 +525,8 @@ fn the_owning_clan_hears_about_the_overdue_lease() {
 /// A roster entry for the broadcast tests.
 fn member(char_id: i32) -> model::clan::ClanMember {
     model::clan::ClanMember {
-        char_id,
-        name: format!("P{char_id}"),
         level: 20,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
+        ..clan_member_p(char_id)
     }
 }
 
@@ -1069,10 +1060,9 @@ fn a_manager_serves_its_item_buylist() {
     crate::game_loop::commerce::shop::show_buy_window(&mut world, 17, player, npc, 3544700);
 
     // The ExBuySellList packet (0xFE 0xB8) reaches the client.
-    let sent = std::iter::from_fn(|| rx.try_recv().ok()).collect::<Vec<_>>();
+    let sent = drain(&mut rx);
     assert!(
-        sent.iter()
-            .any(|p| p.first() == Some(&0xFE) && p.get(1) == Some(&0xB8)),
+        sent.iter().any(|p| is_ex(p, 0xB8)),
         "the buy window was sent"
     );
 }

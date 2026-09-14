@@ -16,17 +16,8 @@ fn clan_entry_queries() {
 
     let clan_id = 0x7000_0002;
     let cm = |id: i32| ClanMember {
-        char_id: id,
-        name: format!("P{id}"),
         level: 40,
-        class_id: 0,
-        sex: 0,
-        race: 0,
-        power_grade: 5,
-        title: String::new(),
-        pledge_type: 0,
-        apprentice: 0,
-        sponsor: 0,
+        ..clan_member_p(id)
     };
     world.clans.insert(
         clan_id,
@@ -61,7 +52,7 @@ fn clan_entry_queries() {
     let pkts = drain(&mut rx);
     let apply = pkts
         .iter()
-        .find(|p| p[0] == 0xFE && p[1] == 0x40 && p[2] == 0x01)
+        .find(|p| is_ex(p, 0x0140))
         .expect("ExPledgeRecruitApplyInfo");
     assert_eq!(&apply[3..7], &0i32.to_le_bytes());
 
@@ -70,7 +61,7 @@ fn clan_entry_queries() {
     let pkts = drain(&mut rx);
     let info = pkts
         .iter()
-        .find(|p| p[0] == 0xFE && p[1] == 0x3F && p[2] == 0x01)
+        .find(|p| is_ex(p, 0x013f))
         .expect("ExPledgeRecruitInfo");
     let mut r = commons::network::PacketReader::new(&info[3..]);
     assert_eq!(r.read_string().unwrap(), "Recruiters");
@@ -109,7 +100,7 @@ fn clan_recruit_board_search() {
     let pkts = drain(&mut rx);
     let page = pkts
         .iter()
-        .find(|p| p[0] == 0xFE && p[1] == 0x41 && p[2] == 0x01)
+        .find(|p| is_ex(p, 0x0141))
         .expect("ExPledgeRecruitBoardSearch");
     let mut r = commons::network::PacketReader::new(&page[3..]);
     assert_eq!(r.read_i32().unwrap(), 3); // current page echoed
@@ -212,7 +203,7 @@ fn recruit_board_register_update_remove_and_search() {
     let pkts = drain(&mut a_rx);
     let page = pkts
         .iter()
-        .find(|p| p[0] == 0xFE && p[1] == 0x41 && p[2] == 0x01)
+        .find(|p| is_ex(p, 0x0141))
         .expect("board search");
     let mut r = commons::network::PacketReader::new(&page[3..]);
     assert_eq!(r.read_i32().unwrap(), 1); // page
@@ -227,7 +218,7 @@ fn recruit_board_register_update_remove_and_search() {
     let pkts = drain(&mut a_rx);
     let detail = pkts
         .iter()
-        .find(|p| p[0] == 0xFE && p[1] == 0x42 && p[2] == 0x01)
+        .find(|p| is_ex(p, 0x0142))
         .expect("board detail");
     let mut r = commons::network::PacketReader::new(&detail[3..]);
     assert_eq!(r.read_i32().unwrap(), 5000);
@@ -238,7 +229,7 @@ fn recruit_board_register_update_remove_and_search() {
     clans::handle_request_pledge_recruit_apply_info(&world, 1);
     let apply = drain(&mut a_rx)
         .into_iter()
-        .find(|p| p[0] == 0xFE && p[1] == 0x40 && p[2] == 0x01)
+        .find(|p| is_ex(p, 0x0140))
         .expect("ExPledgeRecruitApplyInfo");
     assert_eq!(&apply[3..7], &1i32.to_le_bytes(), "ORDERED");
 
@@ -286,15 +277,11 @@ fn recruit_applicant_apply_and_accept() {
     );
     let b_pkts = drain(&mut b_rx);
     assert!(
-        b_pkts
-            .iter()
-            .any(|p| p[0] == 0xFE && p[1] == 0x40 && p[2] == 0x01),
+        b_pkts.iter().any(|p| is_ex(p, 0x0140)),
         "WAITING status ack"
     );
     assert!(
-        drain(&mut a_rx)
-            .iter()
-            .any(|p| p[0] == 0xFE && p[1] == 0x47 && p[2] == 0x01),
+        drain(&mut a_rx).iter().any(|p| is_ex(p, 0x0147)),
         "leader gets the alarm"
     );
     assert!(drain_db(&mut db_rx).iter().any(|c| matches!(
@@ -310,7 +297,7 @@ fn recruit_applicant_apply_and_accept() {
     clans::handle_request_pledge_waiting_applied(&world, 2);
     let applied = drain(&mut b_rx)
         .into_iter()
-        .find(|p| p[0] == 0xFE && p[1] == 0x43 && p[2] == 0x01)
+        .find(|p| is_ex(p, 0x0143))
         .expect("applied");
     let mut r = commons::network::PacketReader::new(&applied[3..]);
     assert_eq!(r.read_i32().unwrap(), 5000);
@@ -321,7 +308,7 @@ fn recruit_applicant_apply_and_accept() {
     clans::handle_request_pledge_waiting_list(&world, 1, &lb);
     let list = drain(&mut a_rx)
         .into_iter()
-        .find(|p| p[0] == 0xFE && p[1] == 0x44 && p[2] == 0x01)
+        .find(|p| is_ex(p, 0x0144))
         .expect("waiting list");
     let mut r = commons::network::PacketReader::new(&list[3..]);
     assert_eq!(r.read_i32().unwrap(), 1);
@@ -411,7 +398,7 @@ fn recruit_reject_and_draft_list_lifecycle() {
     clans::handle_request_pledge_draft_list_search(&world, 1, &search);
     let found = drain(&mut a_rx)
         .into_iter()
-        .find(|p| p[0] == 0xFE && p[1] == 0x46 && p[2] == 0x01)
+        .find(|p| is_ex(p, 0x0146))
         .expect("draft search");
     let mut r = commons::network::PacketReader::new(&found[3..]);
     assert_eq!(r.read_i32().unwrap(), 1);

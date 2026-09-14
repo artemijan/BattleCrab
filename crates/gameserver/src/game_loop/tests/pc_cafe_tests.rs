@@ -397,10 +397,7 @@ fn a_real_kill_pays_pa_points_even_with_vitality_off() {
 /// PremiumSystem.ini's `False`.)
 #[test]
 fn the_pc_cafe_block_is_read_from_the_dist_ini() {
-    let cfg = crate::config::premium::PremiumConfig::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    let cfg = crate::config::premium::PremiumConfig::load_from(crate::data::DIST_GAME);
     assert!(!cfg.pc_cafe_enabled, "PcCafeEnabled = False");
     assert!(cfg.pc_cafe_retail_like, "PcCafeRetailLike = True");
     assert!(cfg.pc_cafe_only_premium, "PcCafeOnlyPremium = True");

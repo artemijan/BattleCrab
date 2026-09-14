@@ -14,7 +14,6 @@ use crate::game_loop::commerce::multisell;
 use crate::model::components::skills::{Buffs, OptionSkills, OptionTriggers, SkillBook};
 use crate::model::skill::Skill;
 use crate::model::skill::effects::SkillEffect;
-use crate::model::skill::target::{AffectObject, AffectScope, OperateType, TargetType};
 
 const PLAYER: i32 = 8001;
 const CID: u32 = 1;
@@ -39,12 +38,7 @@ fn augment_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) {
     for id in [ACTIVE, PROC] {
         world.data.skill_data.insert_for_test(Skill {
             id,
-            level: 1,
             name: format!("Aug{id}"),
-            operate_type: OperateType::Active,
-            target_type: TargetType::Self_,
-            affect_scope: AffectScope::Single,
-            affect_object: AffectObject::All,
             is_continuous: true,
             abnormal_time: 60,
             abnormal_type: format!("AUG{id}"),

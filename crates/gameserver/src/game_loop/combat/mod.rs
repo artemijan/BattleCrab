@@ -430,11 +430,7 @@ pub(crate) fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
 /// is null, which leaves a plain monster at a flat 1.
 pub(crate) fn shots_bonus_of(world: &World, object_id: i32) -> f64 {
     use crate::model::components::stats::CombatStats;
-    use crate::model::components::summons::ServitorOf;
-    let owner = world
-        .objects
-        .get_component::<ServitorOf>(&object_id)
-        .map(|s| s.owner_object_id);
+    let owner = crate::game_loop::servitor::owner_of(world, object_id);
     let read = |oid: i32| {
         world
             .objects

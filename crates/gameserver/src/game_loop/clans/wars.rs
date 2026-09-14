@@ -294,16 +294,12 @@ pub(crate) fn handle_request_start_pledge_war(world: &mut World, client_id: u32,
     }
 
     // A fresh declaration.
-    let war = ClanWar {
-        attacker_id: clan_id,
-        attacked_id: target_id,
-        state: ClanWarState::BloodDeclaration,
-        winner_id: 0,
-        start_time: now_millis(),
-        end_time: 0,
-        attacker_kills: 0,
-        attacked_kills: 0,
-    };
+    let war = ClanWar::new(
+        clan_id,
+        target_id,
+        ClanWarState::BloodDeclaration,
+        now_millis(),
+    );
     store_war(world, &war);
     let timeout_ticks = (WAR_TIMEOUT_MS / MS_PER_TICK) as u64;
     world.scheduler.schedule(

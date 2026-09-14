@@ -195,12 +195,8 @@ pub(crate) fn handle_db_event(world: &mut World, event: DbEvent) {
             // overlay the persisted wielder state (Java `restore` →
             // `reActivate`). The default table is empty, so both usually
             // start inactive.
-            let mut weapons = world.data.cursed_weapons.weapons.clone();
+            let mut weapons = crate::game_loop::items::cursed_weapon::from_config(&world.data);
             for cw in &mut weapons {
-                cw.skill_max_level = (1..=100)
-                    .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
-                    .last()
-                    .unwrap_or(1);
                 if let Some(row) = rows.iter().find(|r| r.item_id == cw.item_id) {
                     cw.player_id = row.char_id;
                     cw.player_reputation = row.player_reputation;

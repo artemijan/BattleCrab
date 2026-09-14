@@ -9,7 +9,7 @@ use std::cell::RefCell;
 
 use super::super::{EFFECT_REGISTRY, LeveledValues, ParsedEffect, SkillGaps, value_at};
 use crate::model::skill;
-use crate::model::stats::{Stat, StatModifierType};
+use crate::model::stats::{Stat, StatModifierType, StatQualifier};
 
 /// Everything an effect arm reads: the effect's own `<params>` plus the two
 /// values derived from them before the match (`modifier_mode`, `hp_percent`)
@@ -32,6 +32,13 @@ impl Cx<'_> {
         value_at(self.params, key, self.level).and_then(|v| v.parse().ok())
     }
 
+    /// An integer `<key>`, or `default` when absent or unparseable.
+    pub(super) fn int_param(&self, key: &str, default: i32) -> i32 {
+        value_at(self.params, key, self.level)
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(default)
+    }
+
     pub(super) fn stat_mod(&self, stat: Stat, amount: f64) -> skill::effects::SkillEffect {
         skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
             stat,
@@ -43,6 +50,46 @@ impl Cx<'_> {
             two_handed: false,
             hp_percent: self.hp_percent,
         })
+    }
+
+    /// A modifier whose mode the handler fixes instead of reading `<mode>` —
+    /// Java's `AbstractStatPercentEffect` family and the move-type/position
+    /// stats. Keeps the effect's armor/weapon conditions, but never the
+    /// `<hpPercent>` gate [`Self::stat_mod`] carries.
+    pub(super) fn fixed_stat_mod(
+        &self,
+        stat: Stat,
+        mode: StatModifierType,
+        amount: f64,
+        qualifier: Option<StatQualifier>,
+    ) -> skill::effects::SkillEffect {
+        skill::effects::SkillEffect::StatModifier(skill::effects::StatModifierEffect {
+            stat,
+            mode,
+            amount,
+            armor_condition: *self.armor_condition,
+            weapon_condition: *self.weapon_condition,
+            qualifier,
+            ..Default::default()
+        })
+    }
+
+    /// Java's two-stat `AbstractStatEffect(params, mulStat, addStat)`: the
+    /// `<amount>` pumps `per` in `PER` mode and `diff` otherwise.
+    pub(super) fn stat_mod_by_mode(
+        &self,
+        per: Stat,
+        diff: Stat,
+    ) -> Vec<skill::effects::SkillEffect> {
+        let stat = if self.modifier_mode == StatModifierType::Per {
+            per
+        } else {
+            diff
+        };
+        self.param("amount")
+            .map(|amount| self.stat_mod(stat, amount))
+            .into_iter()
+            .collect()
     }
 }
 

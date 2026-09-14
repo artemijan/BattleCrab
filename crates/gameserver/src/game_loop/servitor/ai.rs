@@ -8,10 +8,10 @@ use super::pet_of;
 use super::servitor_of;
 use super::sync_pet_row;
 use super::unsummon_servitor;
+use crate::game_loop::combat::target;
+use crate::game_loop::npc::ai::force_attack_target;
 use crate::game_loop::space::position::maybe_position;
 use crate::game_loop::{helpers, skills};
-
-use crate::game_loop::npc::ai::force_attack_target;
 use crate::model::components::space::Position;
 use crate::model::components::summons::ServitorOf;
 use crate::network::server_packets;
@@ -83,11 +83,7 @@ pub(crate) fn servitor_follow_tick(world: &mut World, servitor_oid: i32) {
 /// The range is measured from the **owner**, not the summon
 /// (`player.calculateDistance3D(target)` in both handlers).
 pub(crate) fn summon_attack(world: &mut World, summon_oid: i32, target_oid: i32) -> bool {
-    let Some(owner_oid) = world
-        .objects
-        .get_component::<ServitorOf>(&summon_oid)
-        .map(|l| l.owner_object_id)
-    else {
+    let Some(owner_oid) = super::owner_of(world, summon_oid) else {
         return false;
     };
     let Some(distance) = crate::geo::distance::distance_3d(world, owner_oid, target_oid) else {
@@ -231,11 +227,7 @@ pub(crate) fn handle_servitor_action(
         "ServitorSkillUse" => use_servitor_skill(world, owner_oid, option),
         "ServitorAttack" => {
             // `player.getTarget()` — no target, nothing to order.
-            let Some(target_oid) = world
-                .objects
-                .get_component::<crate::model::components::combat::TargetRef>(&owner_oid)
-                .and_then(|t| t.0)
-            else {
+            let Some(target_oid) = target::current(world, owner_oid) else {
                 return;
             };
             servitor_attack(world, owner_oid, target_oid);
@@ -249,7 +241,7 @@ pub(crate) fn handle_servitor_action(
             let Some(servitor_oid) = servitor_of(world, owner_oid) else {
                 return;
             };
-            let Some(target_oid) = target_of(world, owner_oid) else {
+            let Some(target_oid) = target::current(world, owner_oid) else {
                 return;
             };
             if target_oid == servitor_oid
@@ -304,14 +296,6 @@ pub(crate) fn handle_servitor_action(
         // that would look like it worked.
         other => tracing::warn!("servitor action: no arm for handler {other}"),
     }
-}
-
-/// `player.getTarget()`.
-fn target_of(world: &World, owner_oid: i32) -> Option<i32> {
-    world
-        .objects
-        .get_component::<crate::model::components::combat::TargetRef>(&owner_oid)
-        .and_then(|t| t.0)
 }
 
 /// Java's shared "busy fighting" test for the two unsummon handlers:
@@ -379,7 +363,7 @@ pub(crate) fn handle_pet_action(
 
     match handler {
         "PetAttack" => {
-            let Some(target_oid) = target_of(world, owner_oid) else {
+            let Some(target_oid) = target::current(world, owner_oid) else {
                 return;
             };
             summon_attack(world, pet_oid, target_oid);
@@ -388,7 +372,7 @@ pub(crate) fn handle_pet_action(
             summon_stop(world, pet_oid);
         }
         "PetMove" => {
-            let Some(target_oid) = target_of(world, owner_oid) else {
+            let Some(target_oid) = target::current(world, owner_oid) else {
                 return;
             };
             if target_oid == pet_oid
@@ -458,7 +442,7 @@ fn use_pet_skill(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32
     use crate::network::server_packets::sm_ids;
 
     // Java checks the target *first*, before it even looks at the pet.
-    let Some(owner_target) = target_of(world, owner_oid) else {
+    let Some(owner_target) = target::current(world, owner_oid) else {
         return;
     };
     let (pet_level, owner_level) = (
@@ -567,11 +551,7 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
     } else if skill.target_type == crate::model::skill::target::TargetType::OwnerPet {
         owner_oid
     } else {
-        match world
-            .objects
-            .get_component::<crate::model::components::combat::TargetRef>(&owner_oid)
-            .and_then(|t| t.0)
-        {
+        match target::current(world, owner_oid) {
             Some(t) => t,
             None => {
                 helpers::send_sm_bare_to_player(world, owner_oid, sm_ids::INVALID_TARGET);

@@ -234,8 +234,7 @@ fn admin_hide_toggles_visibility() {
     assert!(
         drain(&mut obs_rx)
             .iter()
-            .any(|p| p[0] == server_packets::opcodes::DELETE_OBJECT
-                && i32::from_le_bytes([p[1], p[2], p[3], p[4]]) == 7901),
+            .any(|p| is_for(p, server_packets::opcodes::DELETE_OBJECT, 7901)),
         "observer got DeleteObject for the hidden GM"
     );
 
