@@ -718,7 +718,7 @@ pub(super) fn open_door(
     // Sepulchers). It is **not** vacuous for an item-cast unlock,
     // which skips the `BY_SKILL` gate entirely.
     // SKIP(off-chronicle): the fort half of Java's gate. Fort sieges are an
-    // explicit scope-out for this build (PORTING_STATUS.md), so "once forts
+    // explicit scope-out for this build (docs/SCOPE.md), so "once forts
     // exist" is not a milestone that can arrive — and the argument above
     // already shows the skill path is vacuous here regardless: none of the 34
     // `BY_SKILL` doors belongs to a fort.

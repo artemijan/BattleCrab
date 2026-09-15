@@ -34,8 +34,7 @@
 //!
 //! The distinct-key part is deliberate and is what keeps this useful in
 //! development: an unported bypass still announces itself exactly once per
-//! session, which is how the porting gaps in `docs/PORTING_STATUS.md` get
-//! found. The cap is what keeps it useless as an amplifier — a client that
+//! session, which is how an unported corner of the datapack gets found. The cap is what keeps it useless as an amplifier — a client that
 //! wants to write to the log gets [`PROBE_LOG_CAP`] lines and no more, for a
 //! bounded `PROBE_LOG_CAP * 8` bytes of state.
 //!

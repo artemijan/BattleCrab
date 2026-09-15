@@ -12,7 +12,7 @@
 //!   `Casting`, `Intent`) make those sweeps visit only the entities that
 //!   carry them.
 //! - By-id access stays O(1) through the index (`id → Entity → table row`).
-//! - The single-owner model from `CONCURRENCY_MODEL.md` is unchanged: the
+//! - The single-owner model from `THREADING_MODEL.md` is unchanged: the
 //!   store lives inside `World`, mutated by the game thread alone; object
 //!   ids (`i32`) remain the only key the game logic speaks — `Entity` never
 //!   leaves this module's API surface.

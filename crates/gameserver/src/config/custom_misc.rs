@@ -2,7 +2,7 @@
 //! because none of them is more than a handful of keys.
 //!
 //! Each is enabled on this dist and live in Java, which is what pulls it back
-//! inside the ROADMAP scope gate ("the Mobius `config/Custom/*` features are
+//! inside the scope gate (`docs/SCOPE.md`) ("the Mobius `config/Custom/*` features are
 //! out of scope **except any the operator explicitly enables**"). See
 //! `PLAN_G33_CUSTOM_INI_AUDIT.md` for the audit that found them.
 

@@ -1,7 +1,7 @@
 //! Port of `serverpackets/AbstractMaskPacket` — masked packets flag which
 //! component blocks are present with one bit per component, in **reversed**
 //! bit order: component mask 0 is the *high* bit (0x80) of byte 0. Getting
-//! this order wrong desyncs the client (see PROGRESS.md cross-cutting notes).
+//! this order wrong desyncs the client.
 
 /// Java `DEFAULT_FLAG_ARRAY`.
 pub const DEFAULT_FLAG_ARRAY: [u8; 8] = [0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01];

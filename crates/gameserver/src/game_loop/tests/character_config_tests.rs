@@ -1015,7 +1015,7 @@ fn fame_is_clamped_to_max_personal_fame_points() {
 }
 
 // ---------------------------------------------------------------------------
-// `MaximumPlayerLevel` — the level cap (PORTING_STATUS row 19)
+// `MaximumPlayerLevel` — the level cap (docs/SCOPE.md, "The level cap")
 // ---------------------------------------------------------------------------
 
 /// A world carrying the **real** experience table, since the level cap is a

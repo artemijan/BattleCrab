@@ -69,7 +69,7 @@ change is dropped.
 ## Advanced Headquarters takes half damage, not one and a half times
 
 - **Files:** `game_loop/combat/damage.rs` (the halving),
-  `model/components.rs` (`AdvancedHeadquarter`), `game_loop/siege.rs`
+  `model/components/` (`AdvancedHeadquarter`), `game_loop/siege/`
 - **Retail:** skill 326 "Build Advanced Headquarters" plants the same flag NPC
   (35062) as the basic skill 247, and `SiegeFlagStatus.reduceHp` reads:
 

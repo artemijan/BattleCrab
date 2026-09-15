@@ -13,9 +13,14 @@
 //! inventory as an assertion rather than a paragraph.
 //!
 //! **The Java side of the difference is not re-derived here.** It comes from a
-//! scan of the Java tree, which lives outside this repo; the command is in
-//! `docs/PORTING_STATUS.md`. What this test holds is the *port* side: that
-//! everything listed below is still absent.
+//! scan of the Java tree, which lives outside this repo:
+//!
+//! ```sh
+//! grep -rhoE '"(INSERT INTO|REPLACE INTO|UPDATE) [^"]*"' <java-root> --include='*.java'
+//! ```
+//!
+//! What this test holds is the *port* side: that everything listed below is
+//! still absent.
 
 use std::path::Path;
 
@@ -51,7 +56,7 @@ const UNWRITTEN_TABLES: &[(&str, &str)] = &[
     ("commission_items", "the commission house is post-Interlude"),
     (
         "fort",
-        "fortresses are off-chronicle per the ROADMAP scope gate",
+        "fortresses are off-chronicle per the scope gate (docs/SCOPE.md)",
     ),
     ("fort_doorupgrade", "fortresses — as above"),
     ("fortsiege_clans", "fortresses — as above"),

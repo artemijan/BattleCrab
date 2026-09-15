@@ -62,7 +62,7 @@ impl KarmaData {
     /// This port does neither: it keeps every row the file ships (1–99), and its
     /// own attainable cap is higher than Java's because `ExperienceData` reads
     /// `maxLevel` raw and nothing reads `MaximumPlayerLevel` at all (recorded
-    /// separately in PORTING_STATUS.md's measured gaps). Answering from the row
+    /// in `docs/SCOPE.md`, "The level cap"). Answering from the row
     /// the file actually declares is the only reading that keeps decay working
     /// across that whole range; falling back to the highest row below covers a
     /// level past the file's end.

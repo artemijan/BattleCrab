@@ -2,8 +2,8 @@
 //!
 //! **Every key this file ships is read or accounted for**: into a field below,
 //! or listed as dead in Java just under this note. `MaximumPlayerLevel` was the
-//! last hold-out and landed with the level cap (`docs/PORTING_STATUS.md`
-//! row 19).
+//! last hold-out and landed with the level cap (`docs/SCOPE.md`, "The level
+//! cap").
 //!
 //! # Parsed by Java and read by nothing
 //!

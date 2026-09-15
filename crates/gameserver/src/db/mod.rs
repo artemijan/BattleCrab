@@ -1,4 +1,4 @@
-//! The DB thread (CONCURRENCY_MODEL §2.4). A dedicated OS thread owns the SQLite
+//! The DB thread (THREADING_MODEL §1). A dedicated OS thread owns the SQLite
 //! pool; the game thread never blocks on the database — it sends [`DbCommand`]s
 //! and drains [`DbEvent`]s each tick. Character id allocation lives here too
 //! (a minimal `IdManager`).

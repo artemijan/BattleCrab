@@ -1,4 +1,4 @@
-//! The path-worker service (CONCURRENCY_MODEL §2.4): pathfinding runs off
+//! The path-worker service (THREADING_MODEL §1): pathfinding runs off
 //! the game thread on one dedicated worker that shares the read-only geodata
 //! (`Arc<GeoEngine>`). Java calls `CellPathFinding.findPath` synchronously
 //! inside `Creature.moveToLocation`; here the game thread sends a
