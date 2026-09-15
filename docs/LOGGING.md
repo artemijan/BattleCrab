@@ -182,6 +182,17 @@ command is echoed because the name is the whole point of the line, and it
 reaches a plain-text sink — so control characters are escaped (a newline would
 otherwise forge a line) and the echo is capped well below dialog length.
 
+**The line must say what arrived, not just that something did.** An opcode is a
+number, and on its own it cannot tell a port scanner apart from a real packet
+the server mis-framed — the `0xff` excerpt above was unreadable for exactly that
+reason. The opcode lines therefore carry the body that followed, hex-encoded and
+capped at `MAX_PAYLOAD_PREVIEW` bytes, with the packet's full length alongside
+so a truncated preview still says how much was cut. Hex rather than raw bytes
+for the same reason the bypass echo is escaped: it reaches a plain-text sink and
+must not be able to forge a line. The preview is deliberately **not** part of
+the dedupe key — one opcode stays one line however many different bodies it
+arrives with, or the per-connection cap becomes spendable on a single opcode.
+
 The same reasoning applies to any future line whose trigger is remote: ask who
 chooses the severity and who chooses the rate. If the answer to either is "the
 client", it belongs in `probes`.

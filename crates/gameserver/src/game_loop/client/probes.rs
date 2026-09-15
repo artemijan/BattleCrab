@@ -25,6 +25,13 @@
 //! One line per *distinct* unknown input per connection, up to
 //! [`PROBE_LOG_CAP`] distinct inputs, then one closing line and silence.
 //!
+//! An opcode line carries a hex preview of the body that followed it
+//! ([`payload`]). An opcode alone does not say what a client sent — `0xff` is
+//! not an opcode this chronicle defines, so the only way to tell a port
+//! scanner from a mis-framed real packet is to see the bytes. The preview is
+//! *not* part of the dedupe key: the same opcode with a different body stays
+//! one line, or a client could spend the whole cap on one opcode.
+//!
 //! The distinct-key part is deliberate and is what keeps this useful in
 //! development: an unported bypass still announces itself exactly once per
 //! session, which is how the porting gaps in `docs/PORTING_STATUS.md` get
@@ -56,14 +63,24 @@ pub const PROBE_LOG_CAP: usize = 32;
 /// dialog-sized.
 const MAX_ECHO: usize = 80;
 
+/// How many bytes of an unhandled packet's body are hex-dumped into its line.
+///
+/// Enough to identify what the packet actually was — an extended packet's
+/// sub-opcode, a string's length prefix, a leading int — without putting a
+/// client-sized frame in the log. The line already carries the full length, so
+/// what is lost to truncation is the tail, not the fact that there was one.
+const MAX_PAYLOAD_PREVIEW: usize = 16;
+
 /// What kind of unknown input this was — the log line's subject, and part of
 /// the dedupe key so opcode `0x32` and ex-opcode `0x0032` do not collide.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Probe<'a> {
-    /// An opcode with no arm in `dispatch::on_packet`.
-    Opcode(u8),
-    /// A `0xD0` sub-opcode with no arm in `dispatch::on_ex_packet`.
-    ExOpcode(u16),
+    /// An opcode with no arm in `dispatch::on_packet`, and the packet body
+    /// that followed it (logged as hex — see [`payload`]).
+    Opcode(u8, &'a [u8]),
+    /// A `0xD0` sub-opcode with no arm in `dispatch::on_ex_packet`, and the
+    /// body that followed the sub-opcode.
+    ExOpcode(u16, &'a [u8]),
     /// A `bypass -h` command the router has no branch for. Deduped on the
     /// leading verb, so `Foo 1` and `Foo 2` are one entry; the first sighting
     /// logs the whole command.
@@ -76,8 +93,8 @@ impl Probe<'_> {
     /// store client-sized keys.
     fn key(&self) -> u64 {
         match *self {
-            Probe::Opcode(op) => u64::from(op),
-            Probe::ExOpcode(sub) => 1 << 32 | u64::from(sub),
+            Probe::Opcode(op, _) => u64::from(op),
+            Probe::ExOpcode(sub, _) => 1 << 32 | u64::from(sub),
             Probe::Bypass(cmd) => {
                 let verb = cmd.split_whitespace().next().unwrap_or("");
                 2 << 32 | u64::from(fnv1a32(verb))
@@ -116,6 +133,33 @@ fn echo(s: &str) -> String {
     out
 }
 
+/// Render an unhandled packet's body for a log line: its length, then the
+/// first [`MAX_PAYLOAD_PREVIEW`] bytes in hex.
+///
+/// **Hex and not raw bytes** for the reason [`echo`] escapes its string — this
+/// is client-chosen content reaching a plain-text sink, and hex cannot forge a
+/// line. The length is outside the preview because it is the part that stays
+/// true when the preview is truncated: a one-byte packet and a 300-byte packet
+/// carrying the same opening bytes are different things.
+fn payload(body: &[u8]) -> String {
+    if body.is_empty() {
+        return "empty".to_string();
+    }
+    let mut out = String::with_capacity(MAX_PAYLOAD_PREVIEW * 3 + 16);
+    out.push_str(&format!("{} B [", body.len()));
+    for (i, b) in body.iter().take(MAX_PAYLOAD_PREVIEW).enumerate() {
+        if i > 0 {
+            out.push(' ');
+        }
+        out.push_str(&format!("{b:02x}"));
+    }
+    if body.len() > MAX_PAYLOAD_PREVIEW {
+        out.push_str(" …");
+    }
+    out.push(']');
+    out
+}
+
 /// Per-connection record of which unknown inputs have already been logged.
 ///
 /// Lives on `Session` (see the module docs) and is empty for every well-behaved
@@ -150,12 +194,15 @@ impl ProbeLog {
             return true;
         }
         match probe {
-            Probe::Opcode(op) => warn!(
-                "GameLoop: client {client_id} sent opcode 0x{op:02x}, unhandled (no dispatch arm)."
+            Probe::Opcode(op, body) => warn!(
+                "GameLoop: client {client_id} sent opcode 0x{op:02x}, unhandled (no dispatch \
+                 arm). Payload {}.",
+                payload(body)
             ),
-            Probe::ExOpcode(sub) => warn!(
+            Probe::ExOpcode(sub, body) => warn!(
                 "GameLoop: client {client_id} sent ex-opcode 0x{sub:04x}, unhandled (no dispatch \
-                 arm)."
+                 arm). Payload {}.",
+                payload(body)
             ),
             Probe::Bypass(cmd) => warn!(
                 "Bypass: client {client_id} sent unhandled bypass [{}].",
@@ -176,9 +223,9 @@ mod tests {
     #[test]
     fn a_repeated_probe_is_logged_once() {
         let mut log = ProbeLog::default();
-        assert!(log.report(1, Probe::Opcode(0xff)));
-        assert!(!log.report(1, Probe::Opcode(0xff)));
-        assert!(!log.report(1, Probe::Opcode(0xff)));
+        assert!(log.report(1, Probe::Opcode(0xff, &[])));
+        assert!(!log.report(1, Probe::Opcode(0xff, &[])));
+        assert!(!log.report(1, Probe::Opcode(0xff, &[])));
     }
 
     /// A *different* unknown input is still news — that is what keeps the
@@ -186,9 +233,9 @@ mod tests {
     #[test]
     fn distinct_probes_each_get_a_line() {
         let mut log = ProbeLog::default();
-        assert!(log.report(1, Probe::Opcode(0xff)));
-        assert!(log.report(1, Probe::Opcode(0xfe)));
-        assert!(log.report(1, Probe::ExOpcode(0x0032)));
+        assert!(log.report(1, Probe::Opcode(0xff, &[])));
+        assert!(log.report(1, Probe::Opcode(0xfe, &[])));
+        assert!(log.report(1, Probe::ExOpcode(0x0032, &[])));
     }
 
     /// Opcode `0x32` is `AttackRequest`; ex-opcode `0x0032` is unassigned in
@@ -196,8 +243,8 @@ mod tests {
     #[test]
     fn an_opcode_and_an_ex_opcode_with_the_same_number_are_different_probes() {
         let mut log = ProbeLog::default();
-        assert!(log.report(1, Probe::Opcode(0x32)));
-        assert!(log.report(1, Probe::ExOpcode(0x0032)));
+        assert!(log.report(1, Probe::Opcode(0x32, &[])));
+        assert!(log.report(1, Probe::ExOpcode(0x0032, &[])));
     }
 
     /// Bypasses dedupe on the verb, so a dialog looping `Foo 1`, `Foo 2`, …
@@ -219,15 +266,56 @@ mod tests {
         let mut log = ProbeLog::default();
         for op in 0..PROBE_LOG_CAP {
             assert!(
-                log.report(1, Probe::ExOpcode(op as u16)),
+                log.report(1, Probe::ExOpcode(op as u16, &[])),
                 "probe {op} is within the cap"
             );
         }
         // The one past the cap is the closing line…
-        assert!(log.report(1, Probe::ExOpcode(PROBE_LOG_CAP as u16)));
+        assert!(log.report(1, Probe::ExOpcode(PROBE_LOG_CAP as u16, &[])));
         // …and everything after it, new or repeated, is silent.
-        assert!(!log.report(1, Probe::ExOpcode(PROBE_LOG_CAP as u16 + 1)));
-        assert!(!log.report(1, Probe::Opcode(0xff)));
+        assert!(!log.report(1, Probe::ExOpcode(PROBE_LOG_CAP as u16 + 1, &[])));
+        assert!(!log.report(1, Probe::Opcode(0xff, &[])));
+    }
+
+    /// **The whole point of the payload preview.** An opcode with no arm says
+    /// only that the client sent something unknown; the bytes say *what*. This
+    /// is the shape an extended packet would have if one ever arrived under a
+    /// prefix we do not treat as one.
+    #[test]
+    fn the_payload_is_rendered_with_its_length_and_bytes() {
+        assert_eq!(payload(&[0x03, 0x00, 0x5c]), "3 B [03 00 5c]");
+    }
+
+    /// An empty body is named rather than rendered as an empty bracket pair —
+    /// "the client sent a bare opcode" is itself the diagnosis.
+    #[test]
+    fn an_empty_payload_says_so() {
+        assert_eq!(payload(&[]), "empty");
+    }
+
+    /// The preview is bounded like every other client-chosen string here, and
+    /// the *length* survives the truncation — that is what says how much was
+    /// cut.
+    #[test]
+    fn a_long_payload_is_truncated_but_still_reports_its_full_length() {
+        let body = vec![0xabu8; 300];
+        let shown = payload(&body);
+        assert!(shown.starts_with("300 B ["), "{shown}");
+        assert!(shown.ends_with(" …]"), "{shown}");
+        assert_eq!(shown.matches("ab").count(), MAX_PAYLOAD_PREVIEW);
+        // A body exactly at the limit is not marked as truncated.
+        assert!(!payload(&[0xabu8; MAX_PAYLOAD_PREVIEW]).contains('…'));
+    }
+
+    /// **The preview must not become a cap-spending lever.** A socket looping
+    /// one unknown opcode with a different body each time is still one line —
+    /// the body is logged, but it is not part of the dedupe key.
+    #[test]
+    fn the_payload_does_not_widen_the_dedupe_key() {
+        let mut log = ProbeLog::default();
+        assert!(log.report(1, Probe::Opcode(0xff, &[0x01])));
+        assert!(!log.report(1, Probe::Opcode(0xff, &[0x02])));
+        assert!(!log.report(1, Probe::Opcode(0xff, &[0x03, 0x04])));
     }
 
     /// The echoed command is client-controlled and reaches a plain-text sink,

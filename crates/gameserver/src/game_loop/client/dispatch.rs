@@ -604,7 +604,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // No arm claims it. Every opcode this chronicle defines has one, so
         // this is a client sending something else — bounded and warned rather
         // than logged per packet at `error!`, see `probes`.
-        _ => report_probe(world, client_id, Probe::Opcode(opcode)),
+        _ => report_probe(world, client_id, Probe::Opcode(opcode, body)),
     }
 }
 
@@ -1080,7 +1080,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                 session.send(body);
             }
         }
-        _ => report_probe(world, client_id, Probe::ExOpcode(sub)),
+        _ => report_probe(world, client_id, Probe::ExOpcode(sub, ex_body)),
     }
 }
 
