@@ -3,8 +3,8 @@
 //!
 //! The castle overlay carries live data: owner, tax, siege schedule and side.
 //! The **fortress** overlay is still the static all-unowned list, and that is
-//! not a deferral — fort sieges are an explicit scope-out (PORTING_STATUS.md's
-//! out-of-scope table: off-chronicle for this build), so no fort on this dist
+//! not a deferral — fort sieges are an explicit scope-out (`docs/SCOPE.md`:
+//! off-chronicle for this build), so no fort on this dist
 //! can ever have an owner. The wire shape matches a fresh Java DB.
 
 use commons::network::PacketWriter;

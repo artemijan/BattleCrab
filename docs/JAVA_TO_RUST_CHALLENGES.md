@@ -1,15 +1,16 @@
-# Java → Rust Migration Challenges: interlude_classic
+# Java → Rust: the challenges, and what was decided
 
-Analysis of `interlude_classic` (L2J Mobius, Java 22, ~3,400 core source files +
-1,131 runtime-compiled script files) for a 1:1 rewrite in Rust.
+Every place where the Java server (L2J Mobius, Java 22, ~3,400 core source files
++ 1,131 runtime-compiled script files) relies on a concept that has **no direct
+Rust equivalent** — how widespread each one is, the options that were on the
+table, and **the decision taken**.
 
-Goal of this document: enumerate every place where the Java codebase relies on a
-concept that has **no direct Rust equivalent**, quantify how widespread it is, and
-list candidate Rust approaches. Phase 2 = pick one approach per challenge.
+The port is finished, so the decisions below are history rather than proposals.
+They are kept because they are the reasoning behind choices the whole codebase
+now rests on, and because other documents and code comments cite them by number.
 
-Challenges are ordered by how much they will shape the Rust architecture.
-The first three are the ones that make a literal 1:1 translation impossible;
-everything else is mechanical or solvable locally.
+Challenges are ordered by how much they shaped the architecture. The first three
+are the ones that made a literal 1:1 translation impossible.
 
 ---
 
@@ -67,10 +68,14 @@ inheritance and default methods, but:
 | **C. Trait objects** | `trait Creature: WorldObject { ... }`, store `Box<dyn Creature>` | Feels like Java interfaces | Can't share fields; downcasting painful; doesn't solve overriding |
 | **D. ECS (specs/bevy_ecs/hecs)** | Entities + components (Position, Stats, PlayerData…) | Best long-term fit for a game server; kills challenge #2 too | Furthest from 1:1; big conceptual rewrite |
 
-For a "as close to Java as possible" rewrite: **A + B hybrid** — shared base
-structs embedded by composition, an enum for the kind/dispatch, and the
-`isPlayer()/asPlayer()` helpers reimplemented on that enum. This preserves the
-Java file/class layout almost exactly.
+> **DECIDED: composition, with an ECS as the storage engine (A + D).** There is
+> no inheritance and no `Box<dyn Creature>`. An object's data is split into
+> per-concern **components** (`model/components/`) attached to an entity;
+> behaviour that Java put in an override is a plain function in `game_loop/`
+> that takes `&mut World`, and `instanceof` becomes the presence of a component.
+> The Java file/class layout survives at the *module* level — a Java class still
+> predicts a Rust module name — but not as a type hierarchy. See
+> [THREADING_MODEL.md](THREADING_MODEL.md) §7.
 
 ---
 
@@ -111,7 +116,7 @@ be answered with a deliberate choice.
 > state lives in a `World` struct owned by one game thread; cross-object
 > references are `objectId` lookups (the game already has globally unique IDs —
 > `IUniqueId`). No `Arc<RwLock>` in game logic. Full design:
-> [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md).
+> [THREADING_MODEL.md](THREADING_MODEL.md).
 >
 > **Amendment (post-G9): the registries' storage engine is an ECS** — a
 > deliberately narrow slice of option D. `World.players`/`npcs` are
@@ -120,7 +125,7 @@ be answered with a deliberate choice.
 > (dense, cache-friendly) iteration for the per-tick systems *without*
 > abandoning 1:1 — references are still ids, handlers still see the same
 > HashMap-shaped API, and the single-owner rule is untouched. See
-> [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) §2.8.
+> [THREADING_MODEL.md](THREADING_MODEL.md) §7.
 
 ---
 
@@ -190,9 +195,13 @@ classloading tolerates can deadlock or panic with `OnceLock`.
 - **C.** Config as a `LazyLock<Config>` loaded once; live-reload (`//reload config`
   admin command exists) needs `RwLock` or `ArcSwap`.
 
-For 1:1: **A**, with awareness of init-order (Java's classloader resolved order
-implicitly; Rust needs an explicit startup sequence like `GameServer.java`'s
-constructor already has).
+> **DECIDED: B — one owning struct, no global singletons.** `World` owns the
+> managers, the parsed datapack (`World.data`) and the config (`World.cfg`), and
+> every handler receives `&mut World`. There is no `getInstance()` equivalent
+> and no `OnceLock` registry of game state, which falls out of the single-owner
+> threading decision in #5: a singleton would have to be `Sync`, and nothing
+> here needs to be. Boot order is explicit in `main.rs`, mirroring
+> `GameServer.java`'s constructor.
 
 ---
 
@@ -239,8 +248,8 @@ constructor already has).
 > replaced by the single-owner invariant — no locks in game logic at all.
 > The ~300 `ThreadPool.schedule` sites become a game-thread timer queue holding
 > object IDs; the periodic task managers become tick systems at the same rates.
-> Full design incl. analysis of the Java stack:
-> [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md).
+> Full design, incl. the inventory of the Java stack it replaced:
+> [THREADING_MODEL.md](THREADING_MODEL.md).
 
 ---
 
@@ -305,9 +314,8 @@ Java: JDBC with three drivers (MariaDB, PostgreSQL, SQLite — see `pom.xml`,
 recent "DB drivers support" commit), a `commons/database` connection factory,
 raw SQL strings with `PreparedStatement`, and DAO classes.
 
-Rust: **sqlx** with the SQLite driver (or `rusqlite` if we prefer a simple
-blocking API — a closer match to JDBC's style and a good fit since SQLite is
-in-process anyway). Raw SQL strings port 1:1. Watch out for: Java's `ResultSet`
+Rust: **sqlx** with the SQLite driver, and SeaORM above it — entities are
+generated from the DDL (see [DATABASE.md](DATABASE.md)) rather than hand-written. Watch out for: Java's `ResultSet`
 implicit type coercions, and connection-per-call patterns that need a pool.
 SQLite-only also simplifies concurrency: one writer at a time (WAL mode), which
 argues for a dedicated DB thread/queue rather than concurrent pool writes.
@@ -374,19 +382,20 @@ a 1:1 port if ignored:
 
 | # | Challenge | Severity | Must decide in phase 2 |
 |---|---|---|---|
-| 1 | Implementation inheritance (WorldObject tree, 1,350 extends) | 🔴 Architectural | composition+enum vs traits vs ECS |
-| 2 | GC'd cyclic shared mutable graph | ✅ Decided | ID-based registry, single-owner `World`, ECS-backed storage (`bevy_ecs`) — [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) |
+| 1 | Implementation inheritance (WorldObject tree, 1,350 extends) | ✅ Decided | composition + ECS component storage; no type hierarchy |
+| 2 | GC'd cyclic shared mutable graph | ✅ Decided | ID-based registry, single-owner `World`, ECS-backed storage (`bevy_ecs`) — [THREADING_MODEL.md](THREADING_MODEL.md) |
 | 3 | Runtime-compiled scripts (1,131 files) | ✅ Decided | compile into the binary as normal Rust source (own workspace crate) |
-| 5 | Reentrant locks, scheduled closures | ✅ Decided | single game thread + tokio network + service threads — [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) |
-| 4 | 176 mutable singletons | 🟠 High | OnceLock statics vs context struct |
-| 6 | Reflection/annotation registration | 🟡 Medium | macros vs explicit registration |
-| 9 | JDBC 3-driver DB layer | ✅ Decided | SQLite only; sqlx or rusqlite (crate choice pending) |
+| 5 | Reentrant locks, scheduled closures | ✅ Decided | single game thread + tokio network + service threads — [THREADING_MODEL.md](THREADING_MODEL.md) |
+| 4 | 176 mutable singletons | ✅ Decided | one owning `World`, no global state |
+| 6 | Reflection/annotation registration | ✅ Decided | explicit registration lists (`scripts::build_registry`) |
+| 9 | JDBC 3-driver DB layer | ✅ Decided | SQLite only, via sqlx + SeaORM |
 | 10 | Swing GUIs | ✅ Decided | dropped — headless server |
 | 7,8 | null → Option, exceptions → Result | 🟢 Mechanical | conventions only |
 | 11,12 | Libraries & semantics | 🟢 Mechanical | crate choices, overflow rule |
 
-Interdependency note: choices are coupled. Picking **2.B (ID-based registry)**
-makes **5** far easier (scheduled tasks capture IDs, not objects) and softens
-**1** (less need for shared base references). Picking **1.D/2.D (ECS)** solves
-1+2+5 together but abandons the 1:1 goal. This coupling is the main thing to
-settle in phase 2.
+Interdependency note, and the reason the answers converged: the choices are
+coupled. **2.B (ID-based registry)** makes **5** far easier — scheduled tasks
+capture ids, not objects — and softens **1** by removing the need for shared
+base references. The ECS in **1/2.D** then solved 1, 2 and 5 together. What it
+cost is the literal 1:1 type hierarchy; what it kept is the 1:1 *behaviour*,
+which is the property the port is actually judged on.

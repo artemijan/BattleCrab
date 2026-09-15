@@ -9,10 +9,10 @@ codebase, why game logic reads like straight-line code, and why the port could
 translate Java handlers one-for-one without inheriting Java's 275 `synchronized`
 blocks.
 
-This document describes the model **as built**. For the concept-level analysis
-of the Java implementation it replaces, see
-[CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md); for the object-graph decisions it
-rests on, [JAVA_TO_RUST_CHALLENGES.md](JAVA_TO_RUST_CHALLENGES.md).
+This document describes the model **as built**. The Java implementation it
+replaces is summarised in §3 and inventoried in the appendix; the object-graph
+decisions it rests on are in
+[JAVA_TO_RUST_CHALLENGES.md](JAVA_TO_RUST_CHALLENGES.md).
 
 ---
 
@@ -247,7 +247,7 @@ of this section.
 | **No locks in game logic** | No deadlocks, no lock ordering, no `Arc<Mutex<>>` noise. Handlers read like the Java they came from. |
 | **Deterministic ordering** | Systems run in the same order every tick. A whole class of Java races cannot occur, and reproducing a bug does not depend on thread interleaving. |
 | **Per-client packet ordering guaranteed** | Strictly more correct than Java, which loses ordering under load. |
-| **Tests are simple and fast** | A test builds a `World`, calls the system, asserts. No async runtime, no synchronization, no flakiness — which is how the suite reaches ~2,970 tests. |
+| **Tests are simple and fast** | A test builds a `World`, calls the system, asserts. No async runtime, no synchronization, no flakiness — which is how the suite reaches ~3,700 tests. |
 | **Parallelism where it pays** | Crypto, serialization, pathfinding and SQLite all run off the game thread, on all cores. |
 
 ### What it costs
@@ -279,9 +279,8 @@ inside each shard, so this is an evolution rather than a rewrite.
 
 **Do not build it until a profiler asks.** The tick-overrun warning and the
 `tick_busy_micros` headroom gauge are the triggers to watch — and the tick
-benchmarks (`cargo bench -p gameserver --features bench-api --bench tick`,
-PROGRESS "Perf round 2") measure each system in isolation against the full
-dist world, so a regression names its system before it ever shows up in the
+benchmarks (`cargo bench -p gameserver --features bench-api --bench tick`)
+measure each system in isolation against the full dist world, so a regression names its system before it ever shows up in the
 gauge.
 
 ---
@@ -307,6 +306,58 @@ functions called in the §2 order. Presence-based components (`Movement`,
 `Casting`, `Intent`) exist only while that state is active, so a sweep visits
 exactly the movers and casters rather than 34.9k idle NPCs.
 
-Details of the component split are in
-[CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) §2.8 and
-`crates/gameserver/src/store.rs`.
+The component split itself is `crates/gameserver/src/store.rs` (the
+`object_id → Entity` index; `Entity` never leaves that file) and
+`crates/gameserver/src/model/components/`.
+
+---
+
+## Appendix — the Java threading model this replaces
+
+Kept because every design choice above is a reaction to a row in these tables,
+and because a system here that ports a Java task manager has to match its rate.
+
+### Thread inventory of the running Java game server
+
+| Threads | Source | What runs there |
+|---|---|---|
+| AIO group, `max(2, cores−2)` | `ConnectionHandler` | socket I/O, decrypt, packet parse, encrypt, serialize |
+| Instant pool, `2 × cores` | `ThreadPool.INSTANT_POOL` | **client packet handlers — the game logic itself** |
+| Scheduled pool, `4 × cores` | `ThreadPool.SCHEDULED_POOL` | ~300 `schedule*` sites: cast completion, respawns, buff expiry, autosave |
+| High-priority scheduled pool, `scheduled/4` | `ThreadPool.HIGH_PRIORITY_SCHEDULED_POOL` | movement, AI think, attack ticks |
+| `GameTimeTaskManager` | dedicated thread, 100 ms loop | game-time ticks, day/night |
+| `LoginServerThread` | dedicated thread, blocking socket | game↔login link |
+| Swing EDT | `gameserver/ui` | the GUI — dropped, see [SCOPE.md](SCOPE.md) |
+
+Game logic therefore runs concurrently on four pools at once, guarded by 275
+`synchronized` sites, `ConcurrentHashMap`s and `volatile`s.
+
+### The task managers — Java is already tick-based, just multi-threaded
+
+`gameserver/taskmanager/*` is the discovery that shaped §2: per-creature work is
+**not** event-driven, it is fixed-rate sweeps over sharded sets. Each of these
+collapses into one system called from the single game loop at the same rate.
+
+| Task manager | Rate | Work |
+|---|---|---|
+| `MovementTaskManager` | 100 ms | `updatePosition()` over pools of ≤1000 moving creatures |
+| `AttackableThinkTaskManager` | 1 s | AI `onEvtThink()` for active monsters |
+| `CreatureAttackTaskManager` | 100 ms | attack hit/abort timing |
+| `CreatureFollowTaskManager` | 500/1000 ms | follow logic |
+| `AttackStanceTaskManager`, `PvpFlagTaskManager` | 1 s | combat stance timeout, PvP flag decay |
+| `DecayTaskManager`, `RespawnTaskManager`, `CreatureSeeTaskManager`, item timers, autosave | 1–10 s | corpse decay, respawns, aggro-range "see", item mana/lifetime |
+| `BuyListTaskManager` | 50 ms / 60 s | shop restock + persistence |
+
+### What the Java model does not guarantee
+
+Latent defects of that design, not features to preserve — each is answered by a
+rule in §4:
+
+- **No per-client packet ordering under load.** Two packets from one client can
+  execute concurrently or out of order.
+- **No inbound backpressure.** The instant pool's queue is unbounded.
+- **Races by design.** Creature sets are iterated while being mutated; stats are
+  read without locks. Tolerated because the JVM keeps them memory-safe.
+- **Reentrant-lock dependency.** Nested `synchronized` on one object is
+  everywhere (`doDie` → listeners → back into the creature) — which is precisely
+  what a per-object-lock port would have turned into deadlocks.

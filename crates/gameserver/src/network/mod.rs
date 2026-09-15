@@ -4,7 +4,7 @@
 //! `commons::network`); the cipher and packet set are game-specific. The
 //! connection task owns the cipher and the transport handshake
 //! (`ProtocolVersion` → `KeyPacket`); decrypted gameplay packets are forwarded
-//! to the game thread as [`NetEvent::Received`] (CONCURRENCY_MODEL §2.3).
+//! to the game thread as [`NetEvent::Received`] (THREADING_MODEL §1).
 
 pub mod cipher;
 pub mod client_packets;

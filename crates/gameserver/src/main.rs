@@ -1,6 +1,6 @@
 //! Port of `org.l2jmobius.gameserver.GameServer` — bootstrap in the same order
 //! (GUI dropped by decision #10; ThreadPool replaced by the game thread + tokio
-//! runtime per CONCURRENCY_MODEL). G0 boots config, DB, and the idle game loop;
+//! runtime per THREADING_MODEL). G0 boots config, DB, and the idle game loop;
 //! network/login-link/data subsystems slot into the same order in later
 //! milestones.
 

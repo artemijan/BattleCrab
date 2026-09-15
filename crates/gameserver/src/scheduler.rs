@@ -1,5 +1,5 @@
 //! One-shot timer scheduler — the Rust replacement for the ~300
-//! `ThreadPool.schedule(runnable, delay)` call sites (CONCURRENCY_MODEL §2.2).
+//! `ThreadPool.schedule(runnable, delay)` call sites (THREADING_MODEL §2).
 //!
 //! Entries are keyed by the tick they fire on and **capture object IDs, never
 //! references**. When a timer fires and its target is already gone, the task is

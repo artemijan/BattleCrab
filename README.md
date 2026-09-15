@@ -64,27 +64,26 @@ being recorded.
 **What the testing phase is.** No further subsystems are planned; the backlog is
 now defects. Work arrives one of three ways — someone plays
 [battlecrab.com](https://battlecrab.com) and reports something, a systematic
-sweep diffs one axis of the port against the Java tree (the formula, effect
-handler, targeting, roll, reward and persistence sweeps in
-[PORTING_STATUS.md](docs/PORTING_STATUS.md) are the pattern), or a
+sweep diffs one axis of the port (formulas, effect handlers, targeting, rolls,
+rewards, persistence) against the Java tree, or a
 [GitHub issue](https://github.com/artemijan/BattleCrab/issues) is filed — and
 leaves as a fix with a test that fails without it. Bug reports and reproduction
 steps are the most useful contribution right now.
 
-[docs/PORTING_STATUS.md](docs/PORTING_STATUS.md) is the record of what was
-ported, what is partial, and what is deliberately out of scope; it is a
-reference for the finished port rather than a plan for work ahead.
+What the server deliberately does *not* do — off-chronicle content, dropped
+subsystems, and how a deliberate gap is recorded so it cannot be forgotten — is
+[docs/SCOPE.md](docs/SCOPE.md).
 
 ## Documentation
 
 | | |
 |---|---|
-| **[Porting status](docs/PORTING_STATUS.md)** | What is ported, what is partial, what never will be — one table for the whole port |
-| **[Threading model](docs/THREADING_MODEL.md)** | How the server is threaded, why, and what it costs — with diagrams |
+| **[Threading model](docs/THREADING_MODEL.md)** | How the server is threaded, why single-owner rather than locks, and what it costs — with diagrams |
+| **[Java → Rust decisions](docs/JAVA_TO_RUST_CHALLENGES.md)** | Every place Java relies on something Rust lacks — inheritance, a GC'd object graph, runtime-compiled scripts — and what was decided |
 | **[Project layout](docs/PROJECT_LAYOUT.md)** | Where code lives, where new code goes, and the conventions |
+| **[Scope](docs/SCOPE.md)** | What this server deliberately does not do, and how a deliberate gap stays recorded |
 | **[Logging & audit](docs/LOGGING.md)** | Diagnostics that may drop, audit records that may not, metrics — where each lands and how to read it |
-| **[Progress journal](docs/PROGRESS.md)** | The dated record of what landed and what broke on the way |
-| [All documentation](docs/README.md) | Index, including the database, parity checklists and the dashboard design |
+| [All documentation](docs/README.md) | Index, including the database, security and the dashboard design |
 
 ## Architecture in one paragraph
 
@@ -279,7 +278,7 @@ All six commands are documented in
 
 ## Testing
 
-The suite runs under [cargo-nextest](https://nexte.st) — ~2,970 tests:
+The suite runs under [cargo-nextest](https://nexte.st) — ~3,700 tests:
 
 ```sh
 cargo install cargo-nextest --locked   # once
@@ -315,25 +314,17 @@ single filtered test, but prefer nextest for anything broad.
 
 `e2e_create::full_login_to_character_create` — the full path (login server →
 game server: create, relogin, restart, re-select, re-enter, logout, DB
-assertions) — runs green in the ordinary suite. It is one of the two tests
-above that need the untracked `interlude_classic.db` and self-skip without it;
-it carries no `#[ignore]`.
+assertions) — runs green in the ordinary suite. It is one of the two tests above
+that need the untracked `interlude_classic.db` and self-skip without it.
 
-It *was* broken (a 120 s timeout) from its introduction until 2026-08-06, and
-**both causes recorded over that time were wrong** — the paragraph that used to
-sit here blamed a `PlayFail` login bug that did not exist, and pointed at a
-`TODO(login-playauth)` marker that has since been retired. The real cause, from
-a per-packet trace, was that the post-restart `CharacterSelect` was silently
-swallowed by the **CharacterSelect flood protector** (`FloodProtector.ini`
-interval 30 ticks = 3 s; Java's `CharacterSelect.runImpl` returns without any
-reply inside the window, and the port mirrors it). The scripted client
-re-selected within ~2 s and blocked forever on a `CharSelected` that was never
-coming. Server behaviour was retail-faithful throughout; the fix was to wait the
-window out before re-selecting. The full account lives above the test.
-
-The lesson generalises past this one test: **a silent no-reply from the server
-is what a flood-protector rejection looks like** — check `flood::action_for_opcode`
-before suspecting the session machinery.
+It spent months timing out, and two recorded diagnoses were both wrong before a
+per-packet trace found the real one: the post-restart `CharacterSelect` was
+being swallowed by the **CharacterSelect flood protector** (`FloodProtector.ini`
+interval 30 ticks = 3 s), so the scripted client blocked forever on a
+`CharSelected` that was never coming. Server behaviour was retail-faithful
+throughout; the fix was to wait the window out. The lesson generalises: **a
+silent no-reply is what a flood-protector rejection looks like** — check
+`flood::action_for_opcode` before suspecting the session machinery.
 
 ## Linting & formatting
 

@@ -987,7 +987,7 @@ fn roll_spoil_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<
 /// `AutoLoot = True` this is the live path.
 pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count: i64) {
     if !world.cfg.character.auto_loot {
-        return; // ground-drop path unported (see PROGRESS G9 notes).
+        return; // ground-drop path unported.
     }
     let Some(changes) = inventory::add_inventory_item_changes(world, player_oid, item_id, count)
     else {

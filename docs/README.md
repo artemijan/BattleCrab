@@ -1,21 +1,18 @@
 # Documentation
 
-> **Where the project is.** The port is finished — every login milestone
-> (M0–M5) and every game milestone (G0–G34) landed, and the parity sweeps that
-> followed them are closed. The project is now in its **testing phase**: play
-> the server, find where it diverges from Java, fix it with a test that fails
-> without the fix. Nothing in this directory describes work still to be ported;
-> [PORTING_STATUS.md](PORTING_STATUS.md) is the record of what the port did,
-> not a plan.
+A 1:1 Rust port of the L2J Mobius Interlude Classic server. These documents
+explain **how it is built and why it was built that way**. They are not a
+backlog: the port is finished, and the work now is finding and fixing places
+where the server diverges from Java.
 
-## Start here
+## Architecture — why it looks like this
 
 | Document | What it answers |
 |---|---|
-| [PORTING_STATUS.md](PORTING_STATUS.md) | **What was ported, what is partial, what never will be.** One table for the whole port, plus the parity sweeps that audited it. |
-| [THREADING_MODEL.md](THREADING_MODEL.md) | How the server is threaded, why it was designed that way, and what it costs. |
-| [PROJECT_LAYOUT.md](PROJECT_LAYOUT.md) | Where code lives and where new code should go. Conventions. |
-| [PROGRESS.md](PROGRESS.md) | The dated journal — what landed, when, and what broke on the way. Long. |
+| [THREADING_MODEL.md](THREADING_MODEL.md) | How the server is threaded, why single-owner rather than locks, and what that costs. The Java model it replaces is in the appendix. |
+| [JAVA_TO_RUST_CHALLENGES.md](JAVA_TO_RUST_CHALLENGES.md) | Every place Java relies on something Rust does not have — inheritance, a GC'd object graph, runtime-compiled scripts — and the decision taken for each. The numbered decisions other docs cite. |
+| [PROJECT_LAYOUT.md](PROJECT_LAYOUT.md) | Where code lives, where new code goes, and the conventions that keep it there. |
+| [SCOPE.md](SCOPE.md) | What this server deliberately does **not** do, and how a deliberate gap is recorded so it cannot be silently forgotten. |
 
 ## Reference
 
@@ -23,36 +20,35 @@
 |---|---|
 | [DATABASE.md](DATABASE.md) | Fresh installs, adopting a live database, adding a migration, regenerating entities. |
 | [LOGGING.md](LOGGING.md) | Diagnostics (droppable), audit records (never dropped) and metrics: why they are separate, where each file lands, how to query them, and every config key. |
-| [CONCURRENCY_MODEL.md](CONCURRENCY_MODEL.md) | The long-form analysis behind the threading model: Java's thread inventory and task managers, construct-by-construct mapping, the ECS component split. |
-| [JAVA_TO_RUST_CHALLENGES.md](JAVA_TO_RUST_CHALLENGES.md) | Every place Java relies on something Rust does not have, and the decision taken for each. The numbered decisions other docs cite. |
-| [DASHBOARD.md](DASHBOARD.md) | Design of the web dashboard and its API. |
-| [CUSTOM_DIST_DEVIATIONS.md](CUSTOM_DIST_DEVIATIONS.md) | Where `dist/game/data` intentionally differs from upstream, by operator decision. |
-| [ROADMAP.md](ROADMAP.md) | The historical milestone breakdown (G14→G33) and the scope gate that defined what is out of scope. Superseded for *status* by PORTING_STATUS.md. |
+| [SECURITY.md](SECURITY.md) | The flood and abuse protection layers, and the one gap left open. |
+| [CUSTOM_DIST_DEVIATIONS.md](CUSTOM_DIST_DEVIATIONS.md) | Where `dist/game` intentionally differs from upstream, by operator decision — and the test that fails if one is reverted. |
+| [DASHBOARD.md](DASHBOARD.md) | Design of the web dashboard and its API. Code comments cite its section numbers. |
 
-## Parity checklists
+## When a document and the code disagree, the code wins
 
-Mechanical Java-file-against-Rust-module diffs, kept as evidence for the gates
-they closed:
+Prose about what remains has drifted into fiction here before, twice claiming
+work was outstanding that had already shipped. Two artefacts are enforced by
+tests rather than written by hand, and they are the ones to trust:
 
-- [LOGIN_SERVER_PARITY.md](LOGIN_SERVER_PARITY.md) — all 63 login-server files accounted for.
-- [PARITY_LOGIN_SERVER.md](PARITY_LOGIN_SERVER.md) — the M5 acceptance pass over the same tree, with fuller per-file notes. Overlaps the above; neither is a superset.
-- [PARITY_CHECKLIST_G33.md](PARITY_CHECKLIST_G33.md) — client-packet handlers diffed by opcode.
+- `deferral_markers_match_the_recorded_inventory` — the `TODO(<tag>)` inventory,
+  currently exactly one marker.
+- `unpersisted_state_matches_the_recorded_inventory` — what Java stores that this
+  server does not.
 
-## What happened to the plans
+Both live in `crates/tools/tests/`. See [SCOPE.md](SCOPE.md).
 
-This directory used to hold 172 `PLAN_*.md` documents, one per feature, written
-before the work and never rewritten after it. They are deleted; the
-[retired-plan index](PORTING_STATUS.md#retired-plans) lists every one with its
-milestone and the `git show` incantation to read it. What actually landed is in
-[PROGRESS.md](PROGRESS.md), which is dated and was written afterwards.
+## History
 
-## A note on trusting these files
+This directory used to hold a per-milestone progress journal, a porting-status
+table, a roadmap, parity checklists and 172 `PLAN_*.md` documents. They
+described a port that is now finished, and they are deleted rather than left to
+rot. Nothing is lost — each is one `git log` away:
 
-Prose about what remains has drifted into fiction twice here, both times
-claiming work was outstanding that had already shipped. When a document and the
-code disagree, the code wins. The `TODO(<tag>)` markers in the source are the
-one status artefact enforced by a test
-(`deferral_markers_match_the_recorded_inventory`, currently expecting exactly
-one: `TODO(antharas-cc)`) — prefer them to any sentence written by hand,
-including the ones in this directory. `DEFERRALS.md` used to inventory them and was deleted on 2026-08-07
-once the inventory emptied; `PORTING_STATUS.md` says how to read it out of git.
+```sh
+# find the commit that deleted a file, then read it at its last living revision
+git log --diff-filter=D --format=%H -1 -- docs/PROGRESS.md
+git show <sha>^:docs/PROGRESS.md
+```
+
+Code comments that cite a `PLAN_*.md` name are pointing at one of those retired
+plans; the name still identifies which one. Do not add new such references.

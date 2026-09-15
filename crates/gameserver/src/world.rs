@@ -1,6 +1,6 @@
 //! `org.l2jmobius.gameserver.model.World` — the single owner of all mutable
 //! game state. Exactly one thread (the game thread) ever touches it, so it holds
-//! no locks (CONCURRENCY_MODEL §2, challenge #2).
+//! no locks (THREADING_MODEL §1, challenge #2).
 //!
 //! Through G2 it carries the tick counter, the scheduler, the connected-client
 //! sessions, and the login-link bookkeeping. Object registries, the region grid,
@@ -115,7 +115,7 @@ pub struct RegionActivation {
 
 pub struct World {
     /// Monotonic tick counter (10 ticks/s). This *is* `GameTimeTaskManager` —
-    /// no dedicated game-time thread (CONCURRENCY_MODEL §2.4).
+    /// no dedicated game-time thread (THREADING_MODEL §1).
     pub tick: u64,
     pub scheduler: Scheduler,
     /// Connected clients keyed by network id, as type-state sessions (§3.1).

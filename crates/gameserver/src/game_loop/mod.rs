@@ -1,4 +1,4 @@
-//! The game thread and its 100 ms tick loop (CONCURRENCY_MODEL §2.2).
+//! The game thread and its 100 ms tick loop (THREADING_MODEL §2).
 //!
 //! Runs on one dedicated OS thread that owns [`World`]. The base tick is 100 ms,
 //! matching Java's `GameTimeTaskManager` and high-priority task-manager rate.
@@ -89,7 +89,7 @@ fn ground_item_store_period(world: &World) -> Option<u64> {
 }
 
 /// A tick that runs longer than this is the failure mode of the single-thread
-/// design, so it must be visible from day one (CONCURRENCY_MODEL §2.6 rule 4).
+/// design, so it must be visible from day one (THREADING_MODEL §4 rule 4).
 const TICK_OVERRUN_WARN: Duration = Duration::from_millis(50);
 
 /// How often the staggered autosave sweep runs — every 1 s (10 ticks), the same

@@ -1,5 +1,5 @@
 //! Per-connection tokio task + the acceptor. Replaces Async-mmocore's AIO
-//! read/write handlers (CONCURRENCY_MODEL §2.3).
+//! read/write handlers (THREADING_MODEL §1).
 //!
 //! One task per socket owns the [`GameClient`] transport state (and thus the
 //! cipher). It reads → decrypts → either answers the transport handshake

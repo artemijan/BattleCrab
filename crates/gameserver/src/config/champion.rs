@@ -8,7 +8,7 @@
 //! / HP-regen / exp / drop rates.
 //!
 //! **This dist ships `ChampionEnable = True`**, which is why the feature is
-//! ported at all — the ROADMAP files champion monsters under the Mobius
+//! ported at all — `docs/SCOPE.md` files champion monsters under the Mobius
 //! `config/Custom/*` block that is out of scope "except any the operator
 //! explicitly enables". The G33 `Custom/*.ini` audit found this one enabled.
 //!

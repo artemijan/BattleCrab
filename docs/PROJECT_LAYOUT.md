@@ -44,7 +44,7 @@ crates/gameserver/src/
 ├── data/              one module per data/xml/* loader — the datapack, read-only
 ├── model/             the domain types: Player, Npc, Clan, Skill, Item, Siege…
 ├── network/           packets, cipher, connection tasks
-│   ├── client_packets.rs     inbound opcode → typed struct
+│   ├── client_packets/       inbound opcode → typed struct
 │   └── server_packets/       one module per outbound packet family
 ├── game_loop/         the tick loop and every handler and system that runs on it
 ├── scripts/           compiled-in quest/AI scripts (Java's data/scripts/**.java)
@@ -61,7 +61,7 @@ crates/gameserver/src/
 | A domain type (a thing in the world) | `model/<thing>.rs` | Data + pure methods. No packet sends, no DB. |
 | Behaviour that runs on the game thread | `game_loop/<subsystem>.rs` | Handlers, tick systems, and the rules. This is where most porting lands. |
 | An outbound packet | `network/server_packets/<family>.rs` | Serialization only. |
-| An inbound packet | `network/client_packets.rs` + a handler in `game_loop/` | Parse in the first, act in the second. |
+| An inbound packet | `network/client_packets/` + a handler in `game_loop/` | Parse in the first, act in the second. |
 | A quest or NPC script | `scripts/<name>.rs` + register in `scripts::build_registry` | Mirrors the datapack script's name. |
 | A new table's row type | `crates/models/src/entity/` | See §3 — do not hand-write it. |
 | A query used by more than one binary | `crates/models/src/repo/` | See §3. |
@@ -121,7 +121,7 @@ deliberate departure. This is the single most useful convention in the repo:
 ```rust
 //! `org.l2jmobius.gameserver.model.World` — the single owner of all mutable
 //! game state. Exactly one thread (the game thread) ever touches it, so it
-//! holds no locks (CONCURRENCY_MODEL §2, challenge #2).
+//! holds no locks (THREADING_MODEL §1, challenge #2).
 ```
 
 ### Record every skipped behaviour at the site
@@ -133,17 +133,17 @@ Java side effect — that is how parity bugs like the missing
 `TargetUnselected`-on-visibility-drop happen.
 
 These markers are load-bearing, not litter: they are counted by
-`deferral_markers_match_the_recorded_inventory`, whose expected list is
-**empty** as of 2026-08-07. Adding a gap without recording it there fails the
-build; so does closing one without taking it off.
+`deferral_markers_match_the_recorded_inventory`, which currently expects exactly
+one (`TODO(antharas-cc)`). Adding a gap without recording it there fails the
+build; so does closing one without taking it off. See [SCOPE.md](SCOPE.md).
 
 ### `PLAN_*.md` in a comment means a retired plan
 
 Comments cite plan documents (`PLAN_G19_SYMBOLS.md`) that no longer exist as
 files — they were deleted once their work shipped. The name still identifies
-*which* plan, and [PORTING_STATUS.md](PORTING_STATUS.md#retired-plans) lists all
-172 with the `git show` command to read one. Do not add new such references;
-point at the code or at PROGRESS.md instead.
+*which* plan, and it is one `git log --diff-filter=D -- docs/<name>` away (see
+[README.md](README.md#history)). Do not add new such references; point at the
+code.
 
 ### Java side effects hide in overrides
 
@@ -164,7 +164,7 @@ method named at the call site. `Player.setTarget(null)` broadcasts
 ### Naming
 
 Rust module names follow the Java class they port, snake_cased
-(`SkillTreeData` → `data/skill_tree_data.rs`, `AttackableAI` → `game_loop/npc_ai.rs`).
+(`SkillTreeData` → `data/skill_tree.rs`, `AttackableAI` → `game_loop/npc/ai/`).
 Where a Rust module deliberately merges or splits Java classes, the header says
 which ones.
 

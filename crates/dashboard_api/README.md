@@ -3,7 +3,7 @@
 Web dashboard for the BattleCrab server: account registration, login, password/email management,
 and a read-only character list. Serves its own React SPA.
 
-Design and rationale: [`docs/PLAN_DASHBOARD.md`](../../docs/PLAN_DASHBOARD.md).
+Design and rationale: [`docs/DASHBOARD.md`](../../docs/DASHBOARD.md).
 
 ## Running it
 

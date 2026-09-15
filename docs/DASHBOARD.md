@@ -1,9 +1,10 @@
 # Web Dashboard — Technical Design
 
-Status: **D1–D2 implemented** on branch `feat/dashboard` (written 2026-07-21), then reworked onto
-**email identity** on `feat/dashboard-email-auth` (§15). `crates/dashboard_api` and `web/dashboard`
-exist and work end to end — register, log in, list characters, change password/email. §14 records
-exactly what is built, where the implementation deviated from this plan, and what is still stubbed.
+Status: **live in production.** `crates/dashboard_api` and `web/dashboard` are built and deployed —
+register, log in, list characters, change password/email, plus the admin panel (§16) and Turnstile
+bot protection (§17). This document is the design reference: code comments cite its section
+numbers, so the numbering is stable. §14 records where the implementation deviated from the
+original design and what remains unbuilt.
 
 Scope: a public web application for the BattleCrab L2 server offering account **registration**,
 **account management** (login, change password, email, view characters), and a
@@ -523,20 +524,14 @@ every deploy.
 
 ---
 
-## 11. Suggested slices
+## 11. Delivery
 
-Each slice should end compiling, tested, and independently deployable.
+Built and shipped in five slices (D1 skeleton → D2 auth → D3 email → D4 character list and server
+status → D5 landing page), each ending compiling, tested and independently deployable. D2's
+acceptance test was the one that mattered and it held: **a web-registered account logs into the
+real game client**, byte-identical to one the client created.
 
-| Slice | Content |
-| --- | --- |
-| **D1** | Crate skeleton: axum server, config, DB pool, health endpoint, error envelope, tracing. Bun SPA skeleton (`bun build` + `bun --hot`), embedded serving, and the CI build order from §9. |
-| **D2** | Registration + login + logout + `/auth/me`. Signed cookies, rate limiting. **Verify end-to-end that a web-registered account logs into the real game client** — this is the acceptance test for the whole design, and it should be done on day one of D2, not at the end. |
-| **D3** | Email: change-email with verification, forgot/reset password, change password. Stateless tokens (§5.4). |
-| **D4** | Character list + server status. Read-only projections. |
-| **D5** | Landing page content + styling pass. |
-
-D1–D4 is a complete, useful product: register, manage, and see your characters. The shop (§7) is a
-separate future effort gated on a storage decision.
+The coin shop (§7) remains the one deliberately unbuilt piece, gated on a storage decision.
 
 ---
 
@@ -573,23 +568,19 @@ separate future effort gated on a storage decision.
 
 ---
 
-## 13. Summary of recommendations
+## 13. The decisions in one place
 
-- New workspace crate **`crates/dashboard_api`**: axum + sqlx, reusing `commons` for hashing, DB,
-  and config. **One SQLite pool against the live game DB.**
-- **Two tables only**: `accounts` (write `password`/`email` only) and `characters` (read-only).
-  No new tables, no migrations, no schema changes anywhere.
+- **`crates/dashboard_api`**: axum + sqlx, reusing `commons` for hashing, DB and config. One SQLite
+  pool against the live game DB.
+- **Two tables only**: `accounts` (writes `password`/`email` only) and `characters` (read-only).
+  No new tables, no schema changes. This is the constraint every other decision falls out of.
 - **One password hash** — the game's SHA-1/Base64, used for web login too. A knowing compromise
-  (§5.2) that removes the need for a dual-hash and an account-claim flow; it makes rate limiting
+  (§5.2): it removes the need for a dual hash and an account-claim flow, and it makes rate limiting
   load-bearing rather than optional.
 - **Stateless auth**: signed cookies for sessions, HMAC tokens for reset and email verification —
   the reset token is bound to the current password hash, so it is single-use for free.
-- New **`web/dashboard`**: React 19 + TypeScript with **Bun for the entire JS toolchain** —
-  `bun install`, `bun build`, `bun test`, `bun --hot`. No Vite, no Node; embedded into the Rust
-  binary and served same-origin.
-- **The coin shop is deferred** (§7) — it needs a wallet, a queue, and idempotency, so it is the
-  moment to revisit both the single-DB decision and argon2, together.
-- Ship **D1–D5**; treat "a web-registered account logs into the real client" as D2's first task.
+- **`web/dashboard`**: React 19 + TypeScript, Bun for the whole JS toolchain. Embedded into the
+  Rust binary and served same-origin.
 
 ---
 

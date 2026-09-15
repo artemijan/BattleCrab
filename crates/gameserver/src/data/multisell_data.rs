@@ -354,7 +354,7 @@ fn parse_file(
 /// ingredient entries across `data/multisell`, none is underpriced. Ported
 /// anyway because the key is one key — an operator who edits a list, or flips
 /// `CorrectPrices` off, should get Java's behaviour in both loaders rather than
-/// in one. Re-derive with the command in `docs/PORTING_STATUS.md`.
+/// in one.
 fn correct_entry_price(entry: &mut MultisellEntry, items: &ItemData, list_id: i32) {
     let [ingredient] = entry.ingredients.as_slice() else {
         return;

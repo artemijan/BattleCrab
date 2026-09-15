@@ -11,11 +11,11 @@ Written 2026-08-04.
 | Per-connection packet rate | game `connection.rs` | one socket outrunning the 100 ms tick | `Security.ini` |
 | Failed-login IP ban | login `controller.rs` | password brute force (5 tries → 15 min) | `LoginServer.ini` |
 | Static IP ban list | login `ban_file.rs` | known-bad addresses | `banned_ip.cfg` |
-| Per-action rate limits | game `dispatch.rs` | a logged-in client spamming actions | `FloodProtector.ini` |
-| Punishments | game `punishment.rs` | repeat offenders (kick/ban/jail/chat-ban) | `FloodProtector.ini`, `//punishment` |
+| Per-action rate limits | game `client/dispatch.rs` | a logged-in client spamming actions | `FloodProtector.ini` |
+| Punishments | game `moderation/punishment.rs` | repeat offenders (kick/ban/jail/chat-ban) | `FloodProtector.ini`, `//punishment` |
 | Dualbox caps | game | multi-client abuse of events | `Custom/DualboxCheck.ini` |
-| Say filter | game `chat.rs` | listed words in any chat line | `General.ini` + `chatfilter.txt` |
-| Bot reporting | game `bot_report.rs` | players reporting suspected bots | `General.ini`, `BotReportPunishments.xml` |
+| Say filter | game `social/chat/` | listed words in any chat line | `General.ini` + `chatfilter.txt` |
+| Bot reporting | game `moderation/bot_report.rs` | players reporting suspected bots | `General.ini`, `BotReportPunishments.xml` |
 
 One known hole remains, inherited from Java and deliberate:
 

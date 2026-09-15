@@ -66,7 +66,7 @@ pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &
     // SKIP(fake-players): Java also has a fake-player branch here — recommending
     // a `fakePlayerTalkable` NPC decrements `rec_left` with no `rec_have` target
     // to credit. Not a gap: fake players are a Mobius `config/Custom/*` feature
-    // that ROADMAP.md scopes out except where the operator enables them, and
+    // that `docs/SCOPE.md` scopes out except where the operator enables them, and
     // this dist ships `Custom/FakePlayers.ini` with `EnableFakePlayers = False`.
     // The same skip is recorded for bot reporting in `bot_report.rs`. Reviving
     // it means porting `FakePlayerData`/`FakePlayerInfo` first, not adding a

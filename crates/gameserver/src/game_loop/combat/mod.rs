@@ -5,7 +5,7 @@
 //! `CreatureAttackTaskManager` → `onHitTimeNotDual` → `onHitTarget`), and the
 //! combat-stance tracker (`AttackStanceTaskManager`).
 //!
-//! Scope (see PROGRESS G9): melee swings only — bows/crossbows, dual-weapon
+//! Scope: melee swings only — bows/crossbows, dual-weapon
 //! split hits, polearm sweeps, soulshots, and shield blocks are all deferred
 //! (their formula terms are identity for the actors that exist). PvP
 //! auto-attack (force-attacking players) is deferred with the PvP-flag
