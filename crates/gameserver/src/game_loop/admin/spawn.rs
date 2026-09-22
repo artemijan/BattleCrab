@@ -20,22 +20,6 @@ use crate::model::components::space::Position;
 use crate::model::npc::Npc;
 use crate::world::World;
 
-/// Resolve a spawn-menu "Id/Name" token to an npc id. All-digit tokens are npc
-/// ids (Java `monsterId.matches("[0-9]*")`); anything else is a name — `_` maps
-/// to a space and lookup is case-insensitive (Java `getTemplateByName`). Returns
-/// `None` when the id/name is unknown (Java's null-template → `spawns.htm`).
-fn resolve_npc_id(world: &World, token: &str) -> Option<i32> {
-    if !token.is_empty() && token.bytes().all(|b| b.is_ascii_digit()) {
-        let id = token.parse::<i32>().ok()?;
-        return world.data.npc_data.get(id).map(|_| id);
-    }
-    world
-        .data
-        .npc_data
-        .get_by_name(&token.replace('_', " "))
-        .map(|t| t.id)
-}
-
 /// `AdminSpawn`'s `//spawn` / `//spawn_monster` / `//spawn_once
 /// <npcId> [count] [respawn]` (the main-menu "Spawn" button is
 /// `admin_spawn_monster $qbox`) — port of `AdminSpawn.spawnMonster`. A missing or
@@ -50,7 +34,8 @@ fn resolve_npc_id(world: &World, token: &str) -> Option<i32> {
 /// menu's "Id/Name" input relies on. Multi-word name search (Java's token-walk)
 /// is not ported: the menu passes a single underscore-joined token.
 pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let npc_id = args.first().and_then(|token| resolve_npc_id(world, token));
+    // Only the first token names the npc here — `count` and `respawn` follow it.
+    let npc_id = super::quick_box_npc_id(world, object_id, &args[..args.len().min(1)]);
     let Some(npc_id) = npc_id else {
         super::menu::show_admin_html(world, client_id, "spawns.htm");
         let token = args.first().copied().unwrap_or("");
@@ -250,9 +235,10 @@ fn all_npc_ids(world: &World) -> Vec<i32> {
 ///
 /// One narrowing remains: a spawn whose NPC is dead and already decayed has no
 /// entity here, so it is not listed, where Java's `Spawn` object outlives the
-/// NPC and appears with a null `getLastSpawn()`. NPC-name search (Java
-/// `getTemplateByName`) is not ported; like the other admin spawn commands this
-/// takes a numeric id only.
+/// NPC and appears with a null `getLastSpawn()`.
+///
+/// The npc itself comes from [`super::quick_box_npc_id`], so an empty quick box (or an
+/// unknown id/name) falls back to the GM's target.
 pub(super) fn admin_list_spawns(
     world: &mut World,
     client_id: u32,
@@ -264,24 +250,26 @@ pub(super) fn admin_list_spawns(
     // command and, if that isn't a number, resolves it through
     // `NpcData.getTemplateByName`. A GM typing "Goblin" into the menu's box got
     // the usage line here instead of a list (GitHub #4).
-    let tele_index = helpers::nth_arg::<i32>(args, 1);
-    let name_words = if tele_index.is_some() {
-        &args[..args.len() - 1]
-    } else {
-        args
+    //
+    // The optional tele index is the *trailing* numeric token, and only when
+    // words stand in front of it (`//list_spawns 20001 1`) — otherwise a bare
+    // `//list_spawns 20001` would teleport instead of listing. The one
+    // exception is `goSpawn`/`goPosition` fired on an empty quick box: the
+    // client sends `$qbox 1` either way, so the index arrives alone and the npc
+    // has to come from the target.
+    let trailing = args.last().and_then(|t| t.parse::<i32>().ok());
+    let (name_words, tele_index) = match trailing {
+        Some(idx) if args.len() > 1 => (&args[..args.len() - 1], Some(idx)),
+        Some(idx) if super::resolve_npc_id(world, args[0]).is_none() => (&args[..0], Some(idx)),
+        _ => (args, None),
     };
-    let npc_id = match helpers::nth_arg::<i32>(args, 0) {
-        Some(id) if name_words.len() <= 1 => Some(id),
-        _ => {
-            let name = name_words.join(" ");
-            world.data.npc_data.get_by_name(name.trim()).map(|t| t.id)
-        }
-    };
+    let npc_id = super::quick_box_npc_id(world, object_id, name_words);
     let Some(npc_id) = npc_id else {
         send_message(
             world,
             client_id,
-            "Command format is //list_spawns <npcId|npc_name> [tele_index]",
+            "Command format is //list_spawns <npcId|npc_name> [tele_index] \
+             (or target an NPC and leave it blank)",
         );
         return;
     };

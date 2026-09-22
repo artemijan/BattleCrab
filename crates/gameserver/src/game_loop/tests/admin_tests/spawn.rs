@@ -710,3 +710,112 @@ fn list_spawns_accepts_an_npc_name() {
         "and the spawn is listed: {texts:?}"
     );
 }
+
+/// **The quick box falls back to the target.** The main menu pastes `$qbox`
+/// into the bypass, so "ListSpwn" with an empty box reaches the handler with no
+/// argument at all — Java's usage line. With an NPC selected the GM means
+/// *that* NPC, so it stands in for the missing token.
+#[test]
+fn list_spawns_with_an_empty_quick_box_uses_the_target() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7207, 100);
+    drain(&mut gm_rx);
+
+    let npc_oid = NPC_OID + 63;
+    let npc_id = 90303;
+    add_test_npc(&mut world, npc_oid, npc_id, "Monster", 1, 150, 160, 0);
+    set_target(&mut world, 1, 7207, Some(npc_oid));
+    assert_eq!(current(&world, 7207), Some(npc_oid), "target selected");
+    drain(&mut gm_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("list_spawns"),
+        ]
+        .concat(),
+    );
+
+    let lines = drain(&mut gm_rx);
+    let texts: Vec<String> = lines
+        .iter()
+        .filter_map(|p| system_message_text(p))
+        .collect();
+    assert!(
+        texts.iter().any(|t| t.contains("150 160 0")),
+        "the targeted NPC's spawn is listed: {texts:?}"
+    );
+    assert!(
+        texts.iter().all(|t| !t.contains("Command format")),
+        "and no usage line: {texts:?}"
+    );
+}
+
+/// `goSpawn` on an empty quick box is `//list_spawns  1` — the tele index
+/// arrives as the *only* token. It is still an index, not an npc id (no
+/// template is numbered 1), so the npc comes from the target.
+#[test]
+fn gospawn_with_an_empty_quick_box_uses_the_target() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7208, 100);
+    drain(&mut gm_rx);
+
+    let npc_oid = NPC_OID + 64;
+    let npc_id = 90304;
+    add_test_npc(&mut world, npc_oid, npc_id, "Monster", 1, 250, 260, 0);
+    set_target(&mut world, 1, 7208, Some(npc_oid));
+    assert_eq!(current(&world, 7208), Some(npc_oid), "target selected");
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("list_spawns 1"),
+        ]
+        .concat(),
+    );
+
+    let pos = *world
+        .objects
+        .get_component::<crate::model::components::space::Position>(&7208)
+        .expect("gm position");
+    assert_eq!(
+        (pos.x, pos.y),
+        (250, 260),
+        "goSpawn on an empty box went to the target's spawn"
+    );
+}
+
+/// The same fallback on the "Spawn" button: an empty quick box with a mob
+/// selected spawns another of that mob.
+#[test]
+fn spawn_with_an_empty_quick_box_clones_the_target() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7209, 100);
+    drain(&mut gm_rx);
+
+    let npc_oid = NPC_OID + 65;
+    let npc_id = 90305;
+    add_test_npc(&mut world, npc_oid, npc_id, "Monster", 1, 350, 360, 0);
+    set_target(&mut world, 1, 7209, Some(npc_oid));
+    assert_eq!(current(&world, 7209), Some(npc_oid), "target selected");
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("spawn_monster"),
+        ]
+        .concat(),
+    );
+
+    assert_eq!(
+        world.npcs_by_id.get(&npc_id).map_or(0, Vec::len),
+        2,
+        "a second copy of the targeted mob was spawned"
+    );
+}
