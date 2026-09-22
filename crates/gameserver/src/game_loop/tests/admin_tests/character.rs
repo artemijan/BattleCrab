@@ -933,3 +933,38 @@ fn vitality_commands_report_the_outcome() {
         "the no-target refusal names the state too: {texts:?}"
     );
 }
+
+/// The main menu's "Find" button is `admin_find_character $qbox`. An empty box
+/// with a player targeted searches for *them*, the same quick-box fallback
+/// `//list_spawns` uses; with nothing targeted it still answers with Java's
+/// usage line and the full character list.
+#[test]
+fn find_character_with_an_empty_quick_box_uses_the_target() {
+    let (mut world, ..) = admin_world();
+    world.data.root = crate::data::DIST_GAME.to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7310, 100);
+    let _victim_rx = ingame_player_access(&mut world, 2, 7311, 0);
+    set_target(&mut world, 1, 7310, Some(7311));
+    assert_eq!(current(&world, 7310), Some(7311), "target selected");
+    drain(&mut gm_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("find_character"),
+        ]
+        .concat(),
+    );
+
+    let html = last_admin_html(&drain(&mut gm_rx)).expect("charfind page");
+    assert!(
+        html.contains("P7311"),
+        "the targeted player is the search result: {html}"
+    );
+    assert!(
+        !html.contains("P7310"),
+        "and only them — not the whole roster: {html}"
+    );
+}

@@ -319,8 +319,18 @@ pub(super) fn admin_character_list(world: &mut World, client_id: u32, args: &[&s
 
 /// `//find_character <name>` — case-insensitive substring match rendered as
 /// `charfind.htm` (Java `findCharacter`, capped at 20 rows).
-pub(super) fn admin_find_character(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(needle) = args.first().map(|s| s.to_lowercase()) else {
+///
+/// The main menu's "Find" button is `admin_find_character $qbox`, so an empty
+/// quick box arrives with no argument and [`super::quick_box_player_name`]
+/// stands the targeted player in for the missing name. With nothing targeted
+/// this keeps Java's usage line + full character list.
+pub(super) fn admin_find_character(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let Some(needle) = super::quick_box_player_name(world, object_id, args) else {
         // Java: empty name → usage sysmsg, then the full character list.
         send_message(world, client_id, "Usage: //find_character <character_name>");
         admin_character_list(world, client_id, &[]);

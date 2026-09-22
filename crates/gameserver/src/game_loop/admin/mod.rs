@@ -631,7 +631,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_character_list" | "admin_show_characters" => {
             admin_character_list(world, client_id, &args)
         }
-        "admin_find_character" => admin_find_character(world, client_id, &args),
+        "admin_find_character" => admin_find_character(world, client_id, object_id, &args),
         "admin_find_account" => admin_find_account(world, client_id, &args),
         "admin_edit_character" => admin_edit_character(world, client_id, object_id),
         "admin_changename" => admin_changename(world, client_id, object_id, &args),
@@ -1043,6 +1043,77 @@ fn show_effects_main_page(world: &mut World, client_id: u32, command: &str) {
 /// EditChar target = the current target if it's a player, else the GM.
 pub(super) fn target_player(world: &World, object_id: i32) -> i32 {
     target::current_player(world, object_id).unwrap_or(object_id)
+}
+
+// ---------------------------------------------------------------------------
+// Quick box
+//
+// `data/html/admin/main_menu.htm` carries one text field, `qbox`, and its
+// buttons paste it straight into the bypass (`admin_list_spawns $qbox`). An
+// empty box therefore reaches a handler as no argument at all, which Java
+// answers with a usage line. This port's convention instead reads the GM's
+// current target as the missing argument: with something selected, a menu
+// button pressed on an empty box means *that* object. The resolvers below are
+// the one place that convention lives, so every admin command taking an npc or
+// a character name behaves the same way.
+// ---------------------------------------------------------------------------
+
+/// Resolve an admin "Id/Name" token to an npc id. All-digit tokens are npc ids
+/// (Java `monsterId.matches("[0-9]*")`); anything else is a name — `_` maps to
+/// a space and lookup is case-insensitive (Java `getTemplateByName`). Returns
+/// `None` when the id/name is unknown (Java's null-template → `spawns.htm`).
+pub(super) fn resolve_npc_id(world: &World, token: &str) -> Option<i32> {
+    if !token.is_empty() && token.bytes().all(|b| b.is_ascii_digit()) {
+        let id = token.parse::<i32>().ok()?;
+        return world.data.npc_data.get(id).map(|_| id);
+    }
+    world
+        .data
+        .npc_data
+        .get_by_name(&token.replace('_', " "))
+        .map(|t| t.id)
+}
+
+/// The npc a quick-box command acts on: the `<npcId|name>` the GM typed, or —
+/// when they left the box empty — the npc they have targeted. An id or name no
+/// template matches falls back the same way, so a typo with a target selected
+/// still does something useful rather than nothing.
+///
+/// `words` is the id/name part of the command only — callers strip the trailing
+/// count/tele-index arguments first.
+pub(super) fn quick_box_npc_id(world: &World, object_id: i32, words: &[&str]) -> Option<i32> {
+    let typed = words.join(" ");
+    let typed = typed.trim();
+    if !typed.is_empty()
+        && let Some(id) = resolve_npc_id(world, typed)
+    {
+        return Some(id);
+    }
+    let target = target::current_npc(world, object_id)?;
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&target)
+        .map(|npc| npc.npc_id)
+}
+
+/// The character a quick-box command acts on: the name the GM typed, or — when
+/// they left the box empty — the name of the player they have targeted.
+/// Lowercased, since every caller matches case-insensitively.
+pub(super) fn quick_box_player_name(
+    world: &World,
+    object_id: i32,
+    words: &[&str],
+) -> Option<String> {
+    let typed = words.join(" ");
+    let typed = typed.trim();
+    if !typed.is_empty() {
+        return Some(typed.to_lowercase());
+    }
+    let target = target::current_player(world, object_id)?;
+    world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.to_lowercase())
 }
 
 /// Java `target.getName()` for the GM-audit record, with Java's `"no-target"`
