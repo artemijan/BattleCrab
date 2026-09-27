@@ -52,6 +52,24 @@ impl Gauge {
     pub fn get(&self) -> u64 {
         self.0.load(Ordering::Relaxed)
     }
+
+    /// Atomic `+1`, for gauges tracked as a running count (e.g. open
+    /// connections) rather than set wholesale on each observation. A
+    /// load-then-`set` from concurrent callers would lose updates; this does
+    /// not.
+    pub fn incr(&self) {
+        self.0.fetch_add(1, Ordering::Relaxed);
+    }
+
+    /// Atomic `-1`, saturating at zero so a mismatched close (or one racing
+    /// ahead of its matching open) cannot wrap the counter negative.
+    pub fn decr(&self) {
+        let _ = self
+            .0
+            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |v| {
+                Some(v.saturating_sub(1))
+            });
+    }
 }
 
 type Registry = Mutex<BTreeMap<String, Arc<AtomicU64>>>;
@@ -150,6 +168,25 @@ mod tests {
         assert_eq!(g.get(), 10);
         g.set(3);
         assert_eq!(g.get(), 3);
+    }
+
+    #[test]
+    fn gauge_incr_decr_track_a_running_count() {
+        let g = gauge("test_gauge_running_count");
+        g.set(0);
+        g.incr();
+        g.incr();
+        assert_eq!(g.get(), 2);
+        g.decr();
+        assert_eq!(g.get(), 1);
+    }
+
+    #[test]
+    fn gauge_decr_saturates_at_zero_rather_than_wrapping() {
+        let g = gauge("test_gauge_saturating");
+        g.set(0);
+        g.decr();
+        assert_eq!(g.get(), 0, "a decr below zero must not wrap to u64::MAX");
     }
 
     #[test]

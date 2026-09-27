@@ -24,7 +24,10 @@ use super::client_packets::opcodes as cop;
 use super::client_packets::session::ProtocolVersion;
 use super::game_client::GameClient;
 use super::server_packets::key_packet;
-use super::{ConnectionState, NetEvent, NetEventTx};
+use super::{
+    ConnectionState, NetEvent, NetEventTx, note_connection_closed, note_connection_opened,
+    note_inbound_frame, note_outbound_batch,
+};
 
 /// Frame payloads never exceed the 16-bit length header.
 const MAX_PAYLOAD: usize = u16::MAX as usize;
@@ -117,10 +120,12 @@ pub async fn accept_loop(listener: TcpListener, net_tx: NetEventTx, cfg: Arc<Net
                     let net_tx = net_tx.clone();
                     let cfg = cfg.clone();
                     let closed_tx = closed_tx.clone();
+                    note_connection_opened();
                     tokio::spawn(async move {
                         if let Err(e) = handle(stream, addr, client_id, net_tx, cfg).await {
                             debug!("client {client_id} ({addr}) ended: {e}");
                         }
+                        note_connection_closed();
                         let _ = closed_tx.send(addr.ip());
                     });
                 }
@@ -257,6 +262,10 @@ async fn handle(
             frame = read_frame(&mut read, MAX_PAYLOAD) => {
                 match frame {
                     Ok(Some(payload)) => {
+                        // Counted before the rate limiter: this is "what
+                        // arrived on the wire", not "what a handler saw" —
+                        // `game_loop::net::packets_handled` is that number.
+                        note_inbound_frame(payload.len());
                         // Charged before decryption: the cost this bounds is
                         // the work the frame is about to create, and a frame
                         // that fails to decode has already consumed a read.
@@ -304,6 +313,7 @@ async fn handle(
                         // body in the order it was sent.
                         out_batch.clear();
                         let mut body = first;
+                        let mut batched: u64 = 1;
                         loop {
                             // The packet arrives as shared, immutable `Bytes`
                             // (one broadcast, many recipients), so it is copied
@@ -328,6 +338,7 @@ async fn handle(
                                 Ok(next) => {
                                     out_depth.fetch_sub(1, Ordering::Relaxed);
                                     body = next;
+                                    batched += 1;
                                 }
                                 Err(_) => break,
                             }
@@ -338,6 +349,9 @@ async fn handle(
                         if let Err(e) = write.flush().await {
                             break Err(e);
                         }
+                        // One add per socket write, not per packet: `batched`
+                        // packets rode this one write_all.
+                        note_outbound_batch(batched, out_batch.len());
                         // Keep the steady-state buffer small: only a burst
                         // should hold a large allocation, and only until the
                         // next one.

@@ -24,6 +24,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _audit_guard =
         commons::audit::init(LOGIN_ROOT, &commons::audit::AuditConfig::load(LOGIN_ROOT));
 
+    // "How is the server doing" is a counter question, not a log question —
+    // the snapshot lands in the JSON log as one event per interval. Mirrors
+    // `gameserver::main` (`docs/LOGGING.md`'s gap: the login server had no
+    // metrics at all before this).
+    loginserver::metrics::register_metrics();
+    commons::metrics::spawn_reporter(
+        commons::logging::LoggingConfig::load(LOGIN_ROOT).metrics_interval_seconds,
+    );
+
     // Load Config (Java: Config.load(ServerMode.LOGIN)).
     let config = LoginConfig::load();
 
