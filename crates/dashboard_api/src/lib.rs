@@ -17,6 +17,7 @@ pub mod csrf;
 pub mod db;
 pub mod error;
 pub mod items;
+pub mod logsearch;
 pub mod mail;
 pub mod monitor;
 pub mod routes;

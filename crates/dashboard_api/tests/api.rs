@@ -27,6 +27,11 @@ fn test_config() -> DashboardConfig {
         metrics_database: String::new(),
         metrics_poll_seconds: 5,
         metrics_retention_days: 7,
+        // No log search in tests; its tests attach their own roots.
+        log_search_roots: String::new(),
+        log_search_max_bytes: 256 * 1024 * 1024,
+        log_search_timeout_ms: 3000,
+        log_search_concurrency: 2,
         bind_address: "127.0.0.1".into(),
         port: 0,
         public_base_url: "http://localhost".into(),
@@ -2659,4 +2664,302 @@ async fn host_samples_are_served_bucketed() {
     assert!(host["series"]["load1"][0].is_number());
     assert_eq!(host["aggregation"]["mem_available_bytes"], "min");
     assert!(host.get("intervalMs").is_none());
+}
+
+// ---------------------------------------------------------------------------
+// Log search (docs/MONITORING.md §6)
+// ---------------------------------------------------------------------------
+
+/// A scratch datapack root, removed on drop.
+struct ScratchRoot(std::path::PathBuf);
+
+impl ScratchRoot {
+    fn new(tag: &str) -> Self {
+        let dir = std::env::temp_dir().join(format!(
+            "dashboard-api-{tag}-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(dir.join("log/audit")).unwrap();
+        Self(dir)
+    }
+
+    fn slash(&self) -> String {
+        format!("{}/", self.0.display())
+    }
+}
+
+impl Drop for ScratchRoot {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+/// `test_app` with log search over `root` as `game_server`.
+async fn test_app_with_logs(
+    root: &ScratchRoot,
+    concurrency: usize,
+) -> (
+    axum::Router,
+    SqlitePool,
+    Arc<dashboard_api::logsearch::LogSearch>,
+) {
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
+        .await
+        .unwrap();
+    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    migration::Migrator::up(&db, None).await.unwrap();
+    let ls = Arc::new(dashboard_api::logsearch::LogSearch::new(
+        dashboard_api::logsearch::sources(&format!("game_server={}", root.0.display())).unwrap(),
+        dashboard_api::logsearch::Bounds {
+            max_bytes: 64 * 1024 * 1024,
+            deadline: std::time::Duration::from_secs(10),
+        },
+        concurrency,
+    ));
+    let state = Arc::new(App::new(db, test_config()).with_log_search(Some(ls.clone())));
+    (dashboard_api::app(state), pool, ls)
+}
+
+fn write_game_log(root: &ScratchRoot) {
+    let lines: String = (0..5)
+        .map(|i| {
+            format!(
+                "{{\"timestamp\":\"2026-08-14T0{i}:00:00Z\",\"level\":\"{}\",\"message\":\"event {i}\",\"target\":\"gameserver\"}}\n",
+                if i == 3 { "ERROR" } else { "INFO" }
+            )
+        })
+        .collect();
+    std::fs::write(root.0.join("log/game_server.2026-08-14.json"), lines).unwrap();
+    std::fs::write(
+        root.0.join("log/audit/chat.2026-08-14.ndjson"),
+        "{\"event\":\"say\",\"text\":\"hello from bob\",\"ip\":\"203.0.113.9\",\"ts\":\"2026-08-14T01:30:00Z\"}\n",
+    )
+    .unwrap();
+}
+
+const DAY: &str = "from=1786665600000&to=1786752000000"; // 2026-08-14, UTC
+
+#[tokio::test]
+async fn log_routes_are_admin_only_and_say_when_disabled() {
+    let root = ScratchRoot::new("logs-auth");
+    let (app, pool, _) = test_app_with_logs(&root, 2).await;
+    let player = verified_master(&pool, &app, "player@example.com").await;
+    for route in [
+        "/api/v1/admin/logs/streams".to_string(),
+        format!("/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}"),
+    ] {
+        let anonymous = app
+            .clone()
+            .oneshot(with_peer(
+                Request::builder().uri(&route).body(Body::empty()).unwrap(),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(anonymous.status(), StatusCode::UNAUTHORIZED, "{route}");
+        let ordinary = app
+            .clone()
+            .oneshot(get_with_cookie(&route, &player))
+            .await
+            .unwrap();
+        assert_eq!(ordinary.status(), StatusCode::FORBIDDEN, "{route}");
+    }
+
+    let (plain, pool) = test_app().await;
+    let admin = admin_master(&pool, &plain, "admin@example.com").await;
+    let disabled = plain
+        .oneshot(get_with_cookie("/api/v1/admin/logs/streams", &admin))
+        .await
+        .unwrap();
+    assert_eq!(disabled.status(), StatusCode::SERVICE_UNAVAILABLE);
+}
+
+#[tokio::test]
+async fn admins_list_streams_and_page_through_a_search() {
+    let root = ScratchRoot::new("logs-search");
+    write_game_log(&root);
+    let (app, pool, _) = test_app_with_logs(&root, 2).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+
+    let streams = body_json(
+        app.clone()
+            .oneshot(get_with_cookie("/api/v1/admin/logs/streams", &admin))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let names: Vec<&str> = streams["streams"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s["stream"].as_str().unwrap())
+        .collect();
+    assert_eq!(names, vec!["diagnostic", "audit:chat"]);
+    assert_eq!(streams["streams"][0]["oldest"], 1_786_665_600_000i64);
+
+    let first = body_json(
+        app.clone()
+            .oneshot(get_with_cookie(
+                &format!(
+                    "/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}&limit=2"
+                ),
+                &admin,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let msgs = |v: &serde_json::Value| -> Vec<String> {
+        v["hits"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|h| h["line"]["message"].as_str().unwrap().to_string())
+            .collect()
+    };
+    assert_eq!(msgs(&first), vec!["event 4", "event 3"]);
+    assert_eq!(first["stopped"], "limit");
+    assert_eq!(first["truncated"], false);
+    let cursor = first["cursor"].as_str().unwrap();
+
+    let rest = body_json(
+        app.clone()
+            .oneshot(get_with_cookie(
+                &format!(
+                    "/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}&cursor={cursor}"
+                ),
+                &admin,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(msgs(&rest), vec!["event 2", "event 1", "event 0"]);
+    assert!(rest["cursor"].is_null());
+
+    let errors = body_json(
+        app.clone()
+            .oneshot(get_with_cookie(
+                &format!(
+                    "/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}&level=warn"
+                ),
+                &admin,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(msgs(&errors), vec!["event 3"]);
+
+    let chat = body_json(
+        app.oneshot(get_with_cookie(
+            &format!("/api/v1/admin/logs/search?service=game_server&stream=audit:chat&{DAY}&q=BOB"),
+            &admin,
+        ))
+        .await
+        .unwrap(),
+    )
+    .await;
+    assert_eq!(chat["hits"][0]["line"]["text"], "hello from bob");
+}
+
+#[tokio::test]
+async fn every_search_is_attributed_in_gmaudit() {
+    let audit_root = ScratchRoot::new("logs-gmaudit");
+    let guard = commons::audit::init(
+        &audit_root.slash(),
+        &commons::audit::AuditConfig::load(&audit_root.slash()),
+    );
+    let root = ScratchRoot::new("logs-gmaudit-data");
+    write_game_log(&root);
+    let (app, pool, _) = test_app_with_logs(&root, 2).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    let response = app
+        .oneshot(get_with_cookie(
+            &format!("/api/v1/admin/logs/search?service=game_server&stream=audit:chat&{DAY}&q=bob"),
+            &admin,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    drop(guard); // flushes and joins the writer
+
+    let gmaudit = std::fs::read_dir(audit_root.0.join("log/audit"))
+        .unwrap()
+        .filter_map(Result::ok)
+        .find(|e| {
+            let name = e.file_name().into_string().unwrap();
+            name.starts_with("gmaudit.") && name != "gmaudit.ndjson"
+        })
+        .expect("a gmaudit file");
+    let record: serde_json::Value = serde_json::from_str(
+        std::fs::read_to_string(gmaudit.path())
+            .unwrap()
+            .lines()
+            .last()
+            .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(record["event"], "log_search");
+    assert_eq!(record["admin"], "admin@example.com");
+    assert_eq!(record["stream"], "audit:chat");
+    assert_eq!(record["q"], "bob");
+}
+
+#[tokio::test]
+async fn searches_past_the_concurrency_cap_are_refused_not_queued() {
+    let root = ScratchRoot::new("logs-busy");
+    write_game_log(&root);
+    let (app, pool, ls) = test_app_with_logs(&root, 1).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    let _held = ls.permits.clone().try_acquire_owned().unwrap();
+    let response = app
+        .oneshot(get_with_cookie(
+            &format!("/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}"),
+            &admin,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::TOO_MANY_REQUESTS);
+}
+
+#[tokio::test]
+async fn search_refuses_unknown_services_streams_and_bad_patterns() {
+    let root = ScratchRoot::new("logs-bad");
+    let (app, pool, _) = test_app_with_logs(&root, 2).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    for (query, status) in [
+        (
+            "service=login_server&stream=diagnostic",
+            StatusCode::NOT_FOUND,
+        ),
+        (
+            "service=game_server&stream=../../etc/passwd",
+            StatusCode::BAD_REQUEST,
+        ),
+        (
+            "service=game_server&stream=diagnostic&regex=true&q=(",
+            StatusCode::BAD_REQUEST,
+        ),
+        (
+            "service=game_server&stream=audit:chat&level=warn",
+            StatusCode::BAD_REQUEST,
+        ),
+        ("stream=diagnostic", StatusCode::BAD_REQUEST),
+    ] {
+        let response = app
+            .clone()
+            .oneshot(get_with_cookie(
+                &format!("/api/v1/admin/logs/search?{query}"),
+                &admin,
+            ))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), status, "{query}");
+    }
 }

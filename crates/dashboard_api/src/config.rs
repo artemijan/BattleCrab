@@ -117,6 +117,17 @@ pub struct DashboardConfig {
     /// `MetricsRetentionDays` — samples older than this are pruned hourly.
     pub metrics_retention_days: u64,
 
+    /// `LogSearchRoots` — `service=datapack_root` pairs, comma-separated. Each
+    /// root's own `Logging.ini` says where that service's files are
+    /// (`docs/MONITORING.md` §6). Empty disables log search (503).
+    pub log_search_roots: String,
+    /// `LogSearchMaxBytes` — bytes one search request may read.
+    pub log_search_max_bytes: u64,
+    /// `LogSearchTimeoutMs` — wall-clock budget of one search request.
+    pub log_search_timeout_ms: u64,
+    /// `LogSearchConcurrency` — searches running at once; more get a 429.
+    pub log_search_concurrency: usize,
+
     /// The API's own public origin (e.g. `https://api.battlecrab.com`).
     /// Only decides whether session cookies get the `Secure` flag.
     pub public_base_url: String,
@@ -276,6 +287,15 @@ impl DashboardConfig {
             metrics_database: p.get_string("MetricsDatabase", "metrics.db"),
             metrics_poll_seconds: p.get_int("MetricsPollSeconds", 5).max(1) as u64,
             metrics_retention_days: p.get_int("MetricsRetentionDays", 7).max(1) as u64,
+            // Relative to the working directory, like the `dist/game/` this
+            // binary already reads its own config and logging from.
+            log_search_roots: p.get_string(
+                "LogSearchRoots",
+                "game_server=dist/game,login_server=dist/login,dashboard_api=dist/game",
+            ),
+            log_search_max_bytes: p.get_long("LogSearchMaxBytes", 256 * 1024 * 1024).max(1) as u64,
+            log_search_timeout_ms: p.get_long("LogSearchTimeoutMs", 3000).max(1) as u64,
+            log_search_concurrency: p.get_int("LogSearchConcurrency", 2).max(1) as usize,
             database_max_connections: p.get_int("MaximumDatabaseConnections", 5).max(1) as u32,
 
             // Deliberately NOT p.get_string: the value must never be readable

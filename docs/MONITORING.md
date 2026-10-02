@@ -1,8 +1,9 @@
 # Per-server monitoring and log search — technical design
 
-Status: **P1–P3 shipped** (counters; per-server sampler and channel; `metrics.db`, poller and
-admin API). P4 (log search) and P5 (UI) are planned, not built. Code comments cite this document's section numbers, so the numbering is stable — when a
-section changes shape, bump its number's suffix rather than renumbering everything below it.
+Status: **P1–P4 shipped** (counters; per-server sampler and channel; `metrics.db`, poller and
+admin API; log search). P5 (UI) is planned, not built. Code comments cite this document's section
+numbers, so the numbering is stable — when a section changes shape, bump its number's suffix
+rather than renumbering everything below it.
 
 Scope: a monitoring section in the admin dashboard (`docs/DASHBOARD.md` §16), per server
 (login/game): inbound/outbound packets, connected clients, memory/CPU pressure, plus log search
@@ -208,46 +209,71 @@ client replaces it rather than appending. There's no SSE/WebSocket in v1: data o
 5 s anyway, and keeping the API stateless behind the Cloudflare Tunnel is worth more than shaving
 that latency.
 
-## 6. Log search (planned — P4)
+## 6. P4 (shipped): log search
 
-Admin-only (`require_admin`, DASHBOARD.md §16.2).
-
-**No client-supplied paths, by construction.** The request names a `service` enum
-(`game`/`login`/`dashboard`) and a `stream` enum (`diagnostic`/`error`/`audit:<category>`); the
-server maps those to a directory + filename prefix from config and enumerates with `read_dir`. A
-client string never reaches the filesystem, so traversal is unrepresentable rather than merely
-defended against.
-
-The scan:
-
-1. Rotation dates the filenames (`docs/LOGGING.md` §"Where the files are") — filter candidate
-   files by that date against the query range before opening anything.
-2. Reverse chunked scan, newest first — 256 KB backwards from EOF, split on `\n`, processed in
-   reverse.
-3. Byte-level prefilter (`memchr`, or the compiled `regex`) on the raw line before `serde_json`
-   ever runs — most lines are rejected without touching the parser.
-4. Bounds, all enforced: `max_bytes_scanned` (~256 MB), a wall-clock deadline (~3s), `limit ≤ 500`,
-   a concurrency semaphore of 2. Hitting a bound returns `truncated: true` plus a resumable cursor,
-   never a partial lie.
-5. `spawn_blocking` — this is blocking file I/O and must not sit on an axum worker.
-6. Each line comes back as a pass-through `serde_json::Value`, not a fixed DTO — span fields are
-   the point of the JSON format (`docs/LOGGING.md` §"Correlation spans") and a DTO would drop them.
-   `*_error.log` files are plain text, so the line type is `Structured(Value) | Raw(String)`.
-
-`regex` is already a dependency and is linear-time with no backtracking; `RegexBuilder::size_limit`
-caps it so it can't become a CPU bomb.
-
-**Audit logs contain chat and IPs.** Every search writes a `gmaudit` record — reading player chat
-is exactly the kind of action DASHBOARD.md §16.5 says needs attribution.
-
-FTS5 was considered and rejected for v1: it needs a second writer tailing files, roughly doubles
-storage, and rotation already gives the time index that makes the bounded scan fast. It's the
-named escape hatch if scans measure slow in practice.
+Admin-only (`require_admin`, DASHBOARD.md §16.2), under `/api/v1/admin/logs`
+(`crates/dashboard_api/src/logsearch/`, `routes/logs.rs`).
 
 ```
-GET /admin/logs/streams   → (service, stream) pairs + date coverage
+GET /admin/logs/streams
+  → {streams: [{service, stream, files, oldest, newestEnd}]}      only streams that have files
 GET /admin/logs/search?service&stream&from&to&q&regex&level&limit&cursor
+  → {service, stream, from, to, hits: [{file, offset, ts, line}], cursor, stopped, truncated,
+     scannedBytes, filesScanned, skippedOversized}
 ```
+
+**No client-supplied paths, by construction.** `service` must be a key of `LogSearchRoots`
+(else 404). `stream` must parse into a closed enum: `diagnostic`, `error`, or
+`audit:<category>` for one of `commons::audit::Category::ALL`. Each service's directories are
+resolved once at boot from its datapack's own `Logging.ini` (the dashboard's audit directory is
+`logsearch::DASHBOARD_AUDIT_DIR`, which `main` also uses), and the search enumerates that directory.
+The cursor carries a filename, but it's only ever *compared* against that enumeration, never joined
+onto a path, so traversal can't be expressed (tested with `../` and absolute names).
+
+The scan (`logsearch::search`):
+
+1. **Files by date.** Rotation dates the filenames (`<prefix>.<YYYY-MM-DD[-HH]>.<suffix>`, UTC).
+   Files whose span lies wholly outside the range are skipped without being opened. The undated
+   `<prefix>.<suffix>` is the "latest" symlink and is skipped, unless it's a real file, which is
+   what `Rotation = never` writes.
+2. **Reverse chunked read**, newest first (`logsearch::reverse`). The scan reads 256 KB backwards
+   from EOF (or from the cursor) and reassembles lines across chunk boundaries before matching.
+   Every line comes back whole and exactly once, so a pattern can't straddle a boundary; a test
+   runs every chunk size from 1 byte up. A line over 1 MB is skipped and counted
+   (`skippedOversized`) rather than buffered. Each file is read only up to its length at open,
+   because lines appended mid-scan are newer than anything being paged through.
+3. **Cheap checks before parsing.** The timestamp (`"timestamp":"` / `"ts":"` / the leading token
+   of a plain line) and the level are found by byte search, not by a JSON parse. An escaped `\"`
+   can't fake either key. Order per line: time window → level floor → pattern → JSON parse (only
+   for lines that will be returned). Once lines are 5 s older than `from` (the slack allows for
+   writer reordering), the whole search stops: everything further back is older still.
+4. **Bounds**, all enforced: `LogSearchMaxBytes` (256 MB) and `LogSearchTimeoutMs` (3 s) per
+   request; `limit` 1..=500 (default 100); `LogSearchConcurrency` (2) via a semaphore. A search
+   over the cap gets a 429 rather than a queue. Hitting the byte or time bound returns
+   `truncated: true` and a cursor; hitting `limit` returns `stopped: "limit"` and a cursor. Either
+   way the cursor resumes exactly after the last line consumed (tested: no gaps, no repeats,
+   including resuming a truncated scan to completion).
+5. `spawn_blocking`, holding the permit for the scan's duration.
+6. JSON lines come back as pass-through `serde_json::Value` (span fields intact). `_error.log`
+   lines come back as raw strings, and so does any JSON-stream line that fails to parse.
+
+`q` is literal and case-insensitive by default (`regex::escape`). With `regex=true` it's taken as
+written. `regex` is linear-time with no backtracking, and `size_limit`/`dfa_size_limit` (1 MB) stop
+a pattern from costing memory instead. A `level` floor is refused on audit streams, which have no
+level. A plain `_error.log` line without a stamp (a panic's continuation) is kept, because it
+belongs to the entry above it.
+
+Measured on a 191 MB, 1M-line synthetic day (release build, M-series laptop): a full-day literal
+search or a `level=error` search both take ~130 ms (~1.5 GB/s). A last-hour search stops after
+8 MB in 6 ms. The 256 MB default budget is therefore a bit over a day of dense logging per request.
+
+**Audit logs contain chat and IPs.** Every search, including each cursor page, writes a `gmaudit`
+record (`event: "log_search"`, admin, service, stream, `q`, regex flag, range) *before* the scan,
+so a search that is cut short is still on record.
+
+FTS5 was considered and rejected for v1: it needs a second writer tailing files and roughly
+doubles storage, while rotation already provides the time index that makes the bounded scan fast.
+It remains the escape hatch if scans measure slow in practice.
 
 ## 7. Configuration
 
@@ -263,8 +289,10 @@ directory, exactly like the game database's `URL`, not the cwd. In prod that's n
 `interlude_classic.db`; under `cargo run` it's `target/debug/metrics.db`. The absolute path is
 logged at boot. Both deploy scripts already exclude `*.db` from their rsyncs.
 
-Planned for P4: `LogSearchRoots`, `LogSearchMaxBytes`, `LogSearchTimeoutMs`,
-`LogSearchConcurrency`.
+**Shipped in P4**, also in `Dashboard.ini`: `LogSearchRoots`
+(`game_server=dist/game,login_server=dist/login,dashboard_api=dist/game`; relative to the working
+directory, like the `dist/game/` the dashboard already reads its config from; empty disables),
+`LogSearchMaxBytes` (256 MB), `LogSearchTimeoutMs` (3000) and `LogSearchConcurrency` (2).
 
 **Shipped in P2**: a new `config/Monitor.ini` in each datapack (`dist/game/`, `dist/login/`), read
 by `commons::monitor::MonitorConfig`, following the same pattern as `Logging.ini`. The keys are
@@ -280,7 +308,7 @@ rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change
 | **P1** | Packet/byte/connection counters on both servers; login server's first metrics at all | **Shipped** |
 | **P2** | `commons::monitor`: sampler, ring, loopback channel; wired into both `main.rs` | **Shipped** |
 | **P3** | `metrics.db`, poller, pruner, `services`/`series`/`host` endpoints | **Shipped** |
-| **P4** | Log search: registry, reverse scanner, endpoints, gmaudit record | Planned |
+| **P4** | Log search: registry, reverse scanner, endpoints, gmaudit record | **Shipped** |
 | **P5** | UI: charts + log viewer | Planned |
 
 ## 9. Open questions, recorded rather than decided

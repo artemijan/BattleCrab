@@ -18,6 +18,7 @@ base64.workspace = true
 regex.workspace = true
 # Host load average and disk free for server monitoring (`monitor::host`).
 libc.workspace = true
+memchr.workspace = true
 
 axum = { version = "0.8", features = ["macros"] }
 tower-http = { version = "0.6", features = ["compression-gzip", "trace", "cors"] }

@@ -97,6 +97,9 @@ libmimalloc-sys = { version = "0.1", features = ["extended"] }
 # `getrusage`/`sysconf` for the monitor sampler's process CPU and RSS
 # (docs/MONITORING.md §4). Already in the tree via tokio.
 libc = "0.2"
+# Byte search for the log-search prefilter and line splitting
+# (docs/MONITORING.md §6). Already in the tree via regex.
+memchr = "2"
 
 # Cargo's default release profile is `codegen-units = 16`, which blocks
 # cross-crate inlining between the 16 partitions of each crate. Benchmarked
