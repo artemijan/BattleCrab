@@ -91,44 +91,75 @@ impl Drop for GaugeHold {
     }
 }
 
-type Registry = Mutex<BTreeMap<String, Arc<AtomicU64>>>;
+/// What a series is, recorded at first registration. Consumers that work in
+/// intervals rather than instants ([`crate::monitor`]) need it: a counter's
+/// interval value is its delta, a gauge's is its current reading.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Kind {
+    Counter,
+    Gauge,
+}
+
+type Registry = Mutex<BTreeMap<String, (Kind, Arc<AtomicU64>)>>;
 
 fn registry() -> &'static Registry {
     static REGISTRY: OnceLock<Registry> = OnceLock::new();
     REGISTRY.get_or_init(|| Mutex::new(BTreeMap::new()))
 }
 
-fn slot(name: &str) -> Arc<AtomicU64> {
-    let mut map = match registry().lock() {
+fn lock_registry() -> std::sync::MutexGuard<'static, BTreeMap<String, (Kind, Arc<AtomicU64>)>> {
+    match registry().lock() {
         Ok(m) => m,
         // A poisoned registry must not take the server down over bookkeeping.
         Err(poisoned) => poisoned.into_inner(),
-    };
-    map.entry(name.to_string())
-        .or_insert_with(|| Arc::new(AtomicU64::new(0)))
+    }
+}
+
+/// The first registration of a name fixes its kind; a later `gauge()` for a
+/// name already registered as a counter (or the reverse) shares the slot and
+/// leaves the kind alone.
+fn slot(name: &str, kind: Kind) -> Arc<AtomicU64> {
+    lock_registry()
+        .entry(name.to_string())
+        .or_insert_with(|| (kind, Arc::new(AtomicU64::new(0))))
+        .1
         .clone()
 }
 
 /// Get-or-create. Hold the returned handle in a hot path rather than calling
 /// this per event — the lookup takes a lock, the handle does not.
 pub fn counter(name: &str) -> Counter {
-    Counter(slot(name))
+    Counter(slot(name, Kind::Counter))
 }
 
 /// Get-or-create, as [`counter`].
 pub fn gauge(name: &str) -> Gauge {
-    Gauge(slot(name))
+    Gauge(slot(name, Kind::Gauge))
+}
+
+/// One series' current value, with its kind.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Reading {
+    pub name: String,
+    pub kind: Kind,
+    pub value: u64,
+}
+
+/// Every metric, its kind and its current value, sorted by name.
+pub fn readings() -> Vec<Reading> {
+    lock_registry()
+        .iter()
+        .map(|(name, (kind, v))| Reading {
+            name: name.clone(),
+            kind: *kind,
+            value: v.load(Ordering::Relaxed),
+        })
+        .collect()
 }
 
 /// Every metric and its current value, sorted by name.
 pub fn snapshot() -> Vec<(String, u64)> {
-    let map = match registry().lock() {
-        Ok(m) => m,
-        Err(poisoned) => poisoned.into_inner(),
-    };
-    map.iter()
-        .map(|(k, v)| (k.clone(), v.load(Ordering::Relaxed)))
-        .collect()
+    readings().into_iter().map(|r| (r.name, r.value)).collect()
 }
 
 /// Emits the whole snapshot as one structured event every `interval_seconds`.
@@ -215,6 +246,19 @@ mod tests {
             panic!("connection task blew up");
         });
         assert_eq!(g.get(), 0, "unwinding must still run the decrement");
+    }
+
+    #[test]
+    fn readings_carry_the_kind_of_the_first_registration() {
+        counter("test_kind_counter").incr();
+        gauge("test_kind_gauge").set(7);
+        // Re-fetching under the other kind shares the slot, not the kind.
+        gauge("test_kind_counter");
+        let all = readings();
+        let find = |n: &str| all.iter().find(|r| r.name == n).cloned().unwrap();
+        assert_eq!(find("test_kind_counter").kind, Kind::Counter);
+        assert_eq!(find("test_kind_gauge").kind, Kind::Gauge);
+        assert_eq!(find("test_kind_gauge").value, 7);
     }
 
     #[test]

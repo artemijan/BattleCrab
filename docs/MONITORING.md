@@ -1,7 +1,7 @@
 # Per-server monitoring and log search — technical design
 
-Status: **P1 shipped** (wire-traffic counters on both servers). P2–P5 below are planned, not
-built. Code comments cite this document's section numbers, so the numbering is stable — when a
+Status: **P1–P2 shipped** (wire-traffic counters; per-server sampler and loopback channel).
+P3–P5 below are planned, not built. Code comments cite this document's section numbers, so the numbering is stable — when a
 section changes shape, bump its number's suffix rather than renumbering everything below it.
 
 Scope: a monitoring section in the admin dashboard (`docs/DASHBOARD.md` §16), per server
@@ -101,35 +101,57 @@ Retention: an hourly `DELETE FROM metric_sample WHERE ts < ?`. No `VACUUM`/`auto
 row count means freed pages get reused and the file plateaus, and `auto_vacuum` costs on every
 commit for no benefit here.
 
-## 4. CPU, memory, and the sampler (planned — P2)
+## 4. P2 (shipped): CPU, memory, and the sampler
 
-`commons::monitor` (new): a `std::thread` (mirrors `metrics::spawn_reporter`, not tokio) that every
-5s snapshots the registry, reads process CPU/RSS, diffs against `prev`, and pushes a `Sample` into
-a bounded ring (720 entries = 1 hour — covers a dashboard restart/deploy without a gap).
+`commons::monitor` (`crates/commons/src/monitor/`): a `std::thread` (like
+`metrics::spawn_reporter`, not tokio, so a busy runtime can't delay a sample) that every
+`SampleSeconds` reads the registry and the process's CPU/RSS, turns them into one interval
+`Sample`, and pushes it into a bounded ring (`RingSamples`, default 720 = 1 hour, which covers a
+dashboard restart/deploy without a gap).
 
-- **CPU**: `libc::getrusage(RUSAGE_SELF)` → `ru_utime + ru_stime` in microseconds. Portable
-  Linux/macOS, no `/proc` parsing, and on Linux already sums all threads.
-- **RSS**: `/proc/self/statm` field 2 × page size on Linux; `None` on macOS, stored as SQL `NULL`
-  — local dev shows memory as unavailable while prod (Linux) works. Not pulling in `sysinfo` for
-  parity; it's a large dependency tree for one number.
-- **Game-thread pressure**: `tick_busy_micros` is a gauge overwritten 50×/sample window, so
-  sampling it directly catches 1 tick in 50. Needs `tick_busy_micros_total` + `ticks` counters
-  (mean = ΔTotal/Δticks) and a `tick_overruns` counter incremented where `TICK_OVERRUN_WARN`
-  already fires in `game_loop/mod.rs` — mean hides spikes, overruns catch them.
-- **Heap**: mimalloc process stats, game server only.
+- **Interval values**: `commons::metrics` now records each series' `Kind` at first registration
+  (`metrics::readings()`). A counter's sample value is its delta since the previous sample; a
+  gauge's is its reading at sample time. The baseline is taken when the sampler starts, so the
+  first sample is a true rate, not a boot-time lump. A counter registered later counts from zero.
+- **CPU**: `libc::getrusage(RUSAGE_SELF)` → `ru_utime + ru_stime` in microseconds, diffed per
+  interval (`cpu_micros`). Works on Linux and macOS, no `/proc` parsing, and sums all threads.
+- **RSS**: `/proc/self/statm` field 2 × page size on Linux. `None` elsewhere, stored as SQL `NULL`,
+  so local macOS dev shows memory as unavailable while prod (Linux) reports it. No `sysinfo`: it
+  is a large dependency tree for one number.
+- **Game-thread pressure**: `tick_busy_micros` is a gauge overwritten every tick, so a 5s sample
+  catches 1 tick in 50. The game loop now also keeps `tick_busy_micros_total` and `ticks`
+  counters (mean busy = Δtotal / Δticks) and `tick_overruns`, incremented where
+  `TICK_OVERRUN_WARN` already fires. The mean hides spikes; the overrun count catches them.
+- **Heap**: game server only. `heap_bytes` is mimalloc's committed memory (`mi_process_info`,
+  via `libmimalloc-sys`'s `extended` feature), passed to `monitor::spawn` as a `HeapProbe`. The
+  login server runs on the system allocator and reports `null`.
 
-**Alignment matters**: stamp each sample at `floor(now / 5s)` so both servers land in the same
-bucket — otherwise a combined chart interleaves two series 2.5s apart.
+**Alignment**: the sampler sleeps to the next period boundary rather than for a fixed period, and
+stamps `ts = floor(now / period)`, so both servers land in the same buckets and the phase doesn't
+drift. `interval_ms` is the real monotonic elapsed time, so a stall shows up as a longer interval
+instead of an inflated rate. If the wall clock steps backwards (NTP) onto a bucket the ring already
+holds, that sample is skipped without advancing the baseline; the next one covers both intervals.
+P3 keys storage on `(service, ts)`, so a duplicate `ts` must never be emitted.
 
-The channel: a new loopback port per server (not an extension of `status_channel` — making 7778
-request-driven would need a read-timeout dance to stay backward compatible with "connect and
-read"). One line in, NDJSON out, close, same security model as `status_channel.rs` (loopback bind
-is the control; widening it publishes the same things that channel's doc comment warns about):
+**The channel**: a new loopback port per server (game `7779`, login `7780`), not an extension of
+`status_channel`. Making 7778 request-driven would need a read-timeout dance to stay backward
+compatible with "connect and read". One line in, NDJSON out, close. It uses the same security model
+as `status_channel.rs`: the loopback bind is the control.
 
 ```
 $ printf 'since 1759000000000\n' | nc 127.0.0.1 7779
-{"service":"game_server","ts":1759000005000,"interval_ms":5000,"packets_in":1204,…}
+{"cpu_micros":8120,"heap_bytes":48234496,"interval_ms":5000,"metrics":{"bytes_in":…,"packets_in":1204,…},"rss_bytes":…,"service":"game_server","ts":1759000005000}
 ```
+
+- `since <epoch_ms>` returns every buffered sample with `ts` strictly greater, oldest first, so a
+  poller passing back the last `ts` it stored never gets it twice. An empty line returns the
+  whole ring.
+- Registry series sit under `metrics`, not at the top level, so a counter can never collide with a
+  fixed field. The P3 poller maps known names to columns and the rest to `extra`.
+- Anything else gets one `{"error":…}` line. Requests are capped at 64 bytes and 2 s, so a silent
+  or flooding client can't hold a task or grow a buffer.
+- `InternalMonitorPort = 0` disables the sampler too: with nothing able to read the ring, there's no
+  point filling it. A bind failure is logged and the server boots anyway.
 
 ## 5. API surface (planned — P3)
 
@@ -188,7 +210,7 @@ GET /admin/logs/streams   → (service, stream) pairs + date coverage
 GET /admin/logs/search?service&stream&from&to&q&regex&level&limit&cursor
 ```
 
-## 7. Configuration (planned)
+## 7. Configuration (servers shipped; dashboard planned)
 
 `Dashboard.ini`: `MetricsDatabaseUrl`, `MonitorTargets`
 (`game_server=127.0.0.1:7779,login_server=127.0.0.1:7780`), `MetricsPollSeconds` (5),
@@ -199,17 +221,19 @@ GET /admin/logs/search?service&stream&from&to&q&regex&level&limit&cursor
 path resolves against the *executable's* directory, not the cwd (the same trap documented for the
 dev database in dashboard-api's local-dev notes).
 
-`LoginServer.ini` / game `Network.ini`: `InternalMonitorPort` (0 disables),
-`InternalMonitorBindAddress`, `MonitorServiceName`, `MonitorSampleSeconds`, `MonitorRingSamples`.
-Both `deploy.sh` and `deploy-dashboard.sh` write config on every deploy, so both need updating when
-this lands.
+**Shipped in P2**: a new `config/Monitor.ini` in each datapack (`dist/game/`, `dist/login/`), read
+by `commons::monitor::MonitorConfig`, following the same pattern as `Logging.ini`. The keys are
+`InternalMonitorBindAddress` (127.0.0.1), `InternalMonitorPort` (game 7779, login 7780; 0
+disables), `SampleSeconds` (5) and `RingSamples` (720). The service name isn't configurable: it's
+the same `game_server`/`login_server` string logging uses, passed by each `main.rs`. `deploy.sh`
+rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change.
 
 ## 8. Phasing
 
 | | Scope | Status |
 |---|---|---|
 | **P1** | Packet/byte/connection counters on both servers; login server's first metrics at all | **Shipped** |
-| **P2** | `commons::monitor`: sampler, ring, loopback channel; wired into both `main.rs` | Planned |
+| **P2** | `commons::monitor`: sampler, ring, loopback channel; wired into both `main.rs` | **Shipped** |
 | **P3** | `metrics.db`, poller, pruner, `services`/`series`/`host` endpoints | Planned |
 | **P4** | Log search: registry, reverse scanner, endpoints, gmaudit record | Planned |
 | **P5** | UI: charts + log viewer | Planned |

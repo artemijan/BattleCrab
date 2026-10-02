@@ -32,6 +32,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     commons::metrics::spawn_reporter(
         commons::logging::LoggingConfig::load(LOGIN_ROOT).metrics_interval_seconds,
     );
+    // The 5 s sampler + loopback channel the dashboard polls (Monitor.ini).
+    // No heap probe: the login server runs on the system allocator.
+    commons::monitor::spawn(
+        "login_server",
+        &commons::monitor::MonitorConfig::load(LOGIN_ROOT, 7780),
+        None,
+    )
+    .await;
 
     // Load Config (Java: Config.load(ServerMode.LOGIN)).
     let config = LoginConfig::load();
