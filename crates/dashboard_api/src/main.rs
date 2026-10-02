@@ -125,7 +125,10 @@ async fn main() {
         );
     }
 
-    let state = Arc::new(App::new(db, config));
+    // Never fatal: with monitoring unconfigured or broken the account
+    // features still serve, and `/admin/monitor` answers 503.
+    let monitor = dashboard_api::monitor::start(&config).await;
+    let state = Arc::new(App::new(db, config).with_monitor(monitor));
 
     if !state.mailer.is_enabled() {
         // Not fatal — the API is fully usable without it — but password reset

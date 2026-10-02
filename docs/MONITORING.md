@@ -1,7 +1,7 @@
 # Per-server monitoring and log search — technical design
 
-Status: **P1–P2 shipped** (wire-traffic counters; per-server sampler and loopback channel).
-P3–P5 below are planned, not built. Code comments cite this document's section numbers, so the numbering is stable — when a
+Status: **P1–P3 shipped** (counters; per-server sampler and channel; `metrics.db`, poller and
+admin API). P4 (log search) and P5 (UI) are planned, not built. Code comments cite this document's section numbers, so the numbering is stable — when a
 section changes shape, bump its number's suffix rather than renumbering everything below it.
 
 Scope: a monitoring section in the admin dashboard (`docs/DASHBOARD.md` §16), per server
@@ -57,49 +57,64 @@ Registered at boot (`register_metrics()` in each server's network module, called
 so every series reads `0` from the first snapshot instead of being *absent* until first traffic —
 the same reasoning `game_loop::net::register_metrics` already documented for `packets_handled`.
 
-## 3. Storage (planned — P3)
+## 3. P3 (shipped): storage
 
-Separate file, `metrics.db`, owned by the dashboard. It is **derived data** — losing it costs 7
-days of graphs and nothing else — which justifies lighter treatment than the game DB gets.
+A separate file, `metrics.db`, owned by the dashboard (`crates/dashboard_api/src/monitor/store.rs`).
+It's **derived data**: losing it costs 7 days of graphs and nothing else, which is why it gets
+lighter treatment than the game DB (WAL with `synchronous = NORMAL`, so a crash may drop the last
+few samples).
 
 ```sql
 CREATE TABLE metric_sample (
-  service      TEXT    NOT NULL,   -- 'game_server' | 'login_server' (matches logging's `service`)
-  ts           INTEGER NOT NULL,   -- epoch ms, floor-aligned to 5s
-  interval_ms  INTEGER NOT NULL,   -- real elapsed; keeps rates honest across a gap
-  packets_in   INTEGER NOT NULL,   -- deltas, not cumulative
-  packets_out  INTEGER NOT NULL,
-  bytes_in     INTEGER NOT NULL,
-  bytes_out    INTEGER NOT NULL,
-  connections_accepted INTEGER NOT NULL,
-  connections_open     INTEGER NOT NULL,  -- gauge, instantaneous
-  cpu_micros   INTEGER NOT NULL,   -- process CPU consumed during the interval
-  rss_bytes    INTEGER,            -- NULL where unavailable (macOS dev — see §4)
-  heap_bytes   INTEGER,            -- mimalloc, game only
-  tick_busy_micros_total INTEGER,  -- game only
-  tick_overruns          INTEGER,  -- game only
-  extra        TEXT,               -- JSON: registry metrics with no column yet
+  service     TEXT    NOT NULL,  -- 'game_server' | 'login_server' (matches logging's `service`)
+  ts          INTEGER NOT NULL,  -- epoch ms, floor-aligned to the sample period
+  started     INTEGER NOT NULL,  -- the server's sampler start: uptime, restart detection
+  interval_ms INTEGER NOT NULL,  -- real elapsed; keeps rates honest across a gap
+  cpu_micros, rss_bytes, heap_bytes,
+  packets_in, packets_out, bytes_in, bytes_out, connections_accepted, connections_open,
+  players_online, packets_handled, packets_dropped,
+  tick_busy_micros_total, ticks, tick_overruns       INTEGER,  -- NULL where a service lacks it
+  extra       TEXT,              -- JSON: registry series with no column yet
   PRIMARY KEY (service, ts)
 ) WITHOUT ROWID;
 ```
 
-Wide rows, not `(name, value)` tall: 7d × 17280 samples/service ≈ 30 MB for two services; tall
-would be ~10x the rows and every query would need pivoting. `extra` means a *new* counter is still
-recorded without a migration; promoting it to a column is optional and later. `WITHOUT ROWID` +
-`PRIMARY KEY (service, ts)` makes the clustered index the query pattern, so there's no second
-index to maintain per insert.
+The column list is generated from `store::COLUMNS`, which is also the whitelist the query API builds
+SQL from and the place each column's bucket aggregation is declared. Changes from the original
+plan: `started`, `ticks` (the mean busy time needs Δticks) and three game-loop series
+(`players_online`, `packets_handled`, `packets_dropped`). Value columns are nullable because the
+login server has no tick, heap or player series.
 
-Host-level pressure (`/proc/loadavg`, `MemAvailable`, disk free) goes in a separate `host_sample`
-table sampled by the dashboard itself — both servers share one host, and putting it in
-`metric_sample` would duplicate identical numbers per row.
+Wide rows, not `(name, value)` tall: 7d × 17280 samples/service ≈ 30 MB for two services. Tall
+rows would be ~10x the row count, and every query would need pivoting. `extra` means a *new*
+counter is recorded from day one without a migration, and promoting it to a column later loses no
+history. `WITHOUT ROWID` + `PRIMARY KEY (service, ts)` makes the clustered index match the query
+pattern, so there's no second index to maintain on each insert. Inserts are `OR IGNORE`, so an
+overlapping re-poll is harmless.
 
-Schema lives in a small `metrics_db::migrate()` inside `dashboard_api`
-(`CREATE TABLE IF NOT EXISTS` + `PRAGMA user_version`), **not** the `migration` crate — that crate
-is wired to the game DB and its `dist_parity` test; keeping the metrics DB independently droppable.
+Host-level pressure goes in a separate `host_sample` table sampled by the dashboard itself
+(`monitor/host.rs`): load average via `getloadavg(3)` (Linux and macOS), `MemTotal`/`MemAvailable`
+from `/proc/meminfo` (NULL off Linux), and total/free disk via `statvfs(3)` on the filesystem
+holding `metrics.db`. Both servers share one host, so per-service rows would repeat the same
+numbers.
 
-Retention: an hourly `DELETE FROM metric_sample WHERE ts < ?`. No `VACUUM`/`auto_vacuum` — steady
-row count means freed pages get reused and the file plateaus, and `auto_vacuum` costs on every
-commit for no benefit here.
+The schema lives in `MetricsDb::migrate()` (`CREATE TABLE IF NOT EXISTS` + `PRAGMA user_version`),
+**not** the `migration` crate. That crate is wired to the game DB and its `dist_parity` test, and
+this file must stay independently droppable.
+
+Retention: an hourly `DELETE … WHERE ts < now - MetricsRetentionDays` on both tables. No
+`VACUUM`/`auto_vacuum`: with a steady row count, freed pages get reused and the file plateaus, and
+`auto_vacuum` would cost on every commit for no benefit here.
+
+**The poller** (`monitor/mod.rs`) wakes 1.5 s after each period boundary, so the servers' boundary
+samples already exist. Each wake takes one host reading and then polls each target in turn with
+`since <newest stored ts>`. Resuming from the store rather than from memory means a dashboard
+restart backfills from the servers' rings. Each poll has a 3 s timeout and an 8 MB cap. A target
+whose lines name a different `service` is refused rather than stored, because that is two ports
+swapped in `MonitorTargets`, and storing it would put game traffic on the login charts. A failing
+target is logged once, when it starts failing, not on every poll. Nothing here is fatal to the
+dashboard: with `MonitorTargets` empty, or `metrics.db` unopenable, the account features still
+serve and `/admin/monitor` answers 503.
 
 ## 4. P2 (shipped): CPU, memory, and the sampler
 
@@ -153,20 +168,44 @@ $ printf 'since 1759000000000\n' | nc 127.0.0.1 7779
 - `InternalMonitorPort = 0` disables the sampler too: with nothing able to read the ring, there's no
   point filling it. A bind failure is logged and the server boots anyway.
 
-## 5. API surface (planned — P3)
+## 5. P3 (shipped): API surface
+
+Admin-only (`require_admin`), under `/api/v1/admin/monitor` (`routes/monitor.rs`). All three
+endpoints answer 503 `unavailable` when monitoring is off, so the SPA can tell "disabled" from
+"broken".
 
 ```
-GET /admin/monitor/services   → [{service, up, lastSampleTs, uptimeSeconds}]
+GET /admin/monitor/services
+  → {services: [{service, address, up, lastPollMs, lastSampleTs, startedMs, uptimeSeconds, lastError}],
+     pollSeconds, retentionDays}
 GET /admin/monitor/series?service&from&to&metrics&maxPoints
 GET /admin/monitor/host?from&to&maxPoints
+  → {service, from, to, bucketMs, aggregation: {name: sum|max|avg|min},
+     ts: [...], samples: [...], intervalMs: [...], series: {name: [...]}}
 ```
 
-Server-side downsampling is load-bearing, not an optimization: 7 days at 5s is 120,960 points,
-which kills the browser. `series` picks a bucket from `(to - from) / maxPoints` and returns ≤ ~500
-points via `GROUP BY ts / bucket_ms` (`SUM` for delta columns, `AVG`/`MAX` for gauges).
+- **Columnar** rather than an array of points: it's what a chart library consumes, and it doesn't
+  repeat every key on every point.
+- `from` is inclusive and `to` exclusive, both epoch ms. They default to the last hour. The range
+  is capped at retention + 1 day. `maxPoints` defaults to 500, with a maximum of 2000.
+- `metrics` is a comma list checked against the column whitelist. An unknown name is a 400 that
+  lists the valid ones. An unknown `service` is a 404.
+- **Aggregation**: delta columns are `sum`med; divide by the bucket's `intervalMs` for a rate (CPU
+  % = `cpu_micros / (intervalMs × 10)`). Gauges are `max`, because pressure is about the worst
+  moment and an average hides it. For host series, load is `avg`, and available memory and free
+  disk are `min`.
+- `samples` is each bucket's raw sample count. A bucket with fewer than expected is a gap (server or
+  dashboard down), which a chart should show rather than smooth over.
+- `uptimeSeconds` comes from the newest sample's `started` and is null while the target is down.
 
-Live view = poll `series?from=lastTs` every 5s. No SSE/WebSocket in v1 — data only arrives every
-5s anyway, and keeping the API stateless behind the Cloudflare Tunnel is worth more than shaving
+Server-side downsampling is load-bearing, not an optimization: 7 days at 5 s is 120,960 points per
+series. The bucket width is `ceil(range / (maxPoints − 1))`, rounded up to whole 5 s periods.
+Buckets are epoch-aligned, so a range touches one more bucket than `range / width`, and the `− 1`
+is what keeps the count ≤ `maxPoints` (a test sweeps a 7-day range across start offsets).
+
+Live view = poll `series?from=<last bucket ts>` every 5 s. That bucket is still filling, so the
+client replaces it rather than appending. There's no SSE/WebSocket in v1: data only arrives every
+5 s anyway, and keeping the API stateless behind the Cloudflare Tunnel is worth more than shaving
 that latency.
 
 ## 6. Log search (planned — P4)
@@ -210,16 +249,22 @@ GET /admin/logs/streams   → (service, stream) pairs + date coverage
 GET /admin/logs/search?service&stream&from&to&q&regex&level&limit&cursor
 ```
 
-## 7. Configuration (servers shipped; dashboard planned)
+## 7. Configuration
 
-`Dashboard.ini`: `MetricsDatabaseUrl`, `MonitorTargets`
-(`game_server=127.0.0.1:7779,login_server=127.0.0.1:7780`), `MetricsPollSeconds` (5),
-`MetricsRetentionDays` (7), `LogSearchRoots`, `LogSearchMaxBytes`, `LogSearchTimeoutMs`,
+**Shipped in P3**, in `Dashboard.ini`: `MonitorTargets`
+(`game_server=127.0.0.1:7779,login_server=127.0.0.1:7780`; empty disables, a malformed entry
+disables with an error at boot), `MetricsDatabase` (`metrics.db`), `MetricsPollSeconds` (5) and
+`MetricsRetentionDays` (7). The code defaults equal the shipped values. That matters because
+`deploy-dashboard.sh` seeds `Dashboard.ini` only when the remote has none, so an existing remote
+file never receives the new keys and runs on the defaults.
+
+⚠ `MetricsDatabase` is a plain path, and a relative one resolves against the *executable's*
+directory, exactly like the game database's `URL`, not the cwd. In prod that's next to
+`interlude_classic.db`; under `cargo run` it's `target/debug/metrics.db`. The absolute path is
+logged at boot. Both deploy scripts already exclude `*.db` from their rsyncs.
+
+Planned for P4: `LogSearchRoots`, `LogSearchMaxBytes`, `LogSearchTimeoutMs`,
 `LogSearchConcurrency`.
-
-⚠ `MetricsDatabaseUrl` must default to an absolute or datapack-relative path — a relative SQLite
-path resolves against the *executable's* directory, not the cwd (the same trap documented for the
-dev database in dashboard-api's local-dev notes).
 
 **Shipped in P2**: a new `config/Monitor.ini` in each datapack (`dist/game/`, `dist/login/`), read
 by `commons::monitor::MonitorConfig`, following the same pattern as `Logging.ini`. The keys are
@@ -234,7 +279,7 @@ rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change
 |---|---|---|
 | **P1** | Packet/byte/connection counters on both servers; login server's first metrics at all | **Shipped** |
 | **P2** | `commons::monitor`: sampler, ring, loopback channel; wired into both `main.rs` | **Shipped** |
-| **P3** | `metrics.db`, poller, pruner, `services`/`series`/`host` endpoints | Planned |
+| **P3** | `metrics.db`, poller, pruner, `services`/`series`/`host` endpoints | **Shipped** |
 | **P4** | Log search: registry, reverse scanner, endpoints, gmaudit record | Planned |
 | **P5** | UI: charts + log viewer | Planned |
 

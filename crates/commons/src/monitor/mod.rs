@@ -84,6 +84,9 @@ pub struct Sample {
     /// Wall-clock epoch ms, floor-aligned to the sample period, so both
     /// servers' samples for the same interval share a timestamp.
     pub ts_ms: u64,
+    /// When this process's sampler started, epoch ms. A poller reads uptime
+    /// from it, and a change between two samples means the server restarted.
+    pub started_ms: u64,
     /// Real elapsed time since the previous sample. Normally the period; more
     /// after a stall, which is what keeps a rate computed from it honest.
     pub interval_ms: u64,
@@ -106,6 +109,7 @@ impl Sample {
         let body = serde_json::json!({
             "service": service,
             "ts": self.ts_ms,
+            "started": self.started_ms,
             "interval_ms": self.interval_ms,
             "cpu_micros": self.cpu_micros,
             "rss_bytes": self.rss_bytes,
@@ -207,6 +211,7 @@ fn epoch_ms() -> u64 {
 /// The sampler's state between ticks.
 struct Sampler {
     period_ms: u64,
+    started_ms: u64,
     heap: Option<HeapProbe>,
     prev_counters: BTreeMap<String, u64>,
     prev_cpu: u64,
@@ -221,6 +226,7 @@ impl Sampler {
         interval_values(&mut prev_counters, crate::metrics::readings());
         Self {
             period_ms,
+            started_ms: epoch_ms(),
             heap,
             prev_counters,
             prev_cpu: process::cpu_micros(),
@@ -233,6 +239,7 @@ impl Sampler {
         let cpu = process::cpu_micros();
         let sample = Sample {
             ts_ms,
+            started_ms: self.started_ms,
             interval_ms: now.duration_since(self.prev_at).as_millis() as u64,
             cpu_micros: cpu.saturating_sub(self.prev_cpu),
             rss_bytes: process::rss_bytes(),
@@ -317,6 +324,7 @@ mod tests {
     fn sample(ts_ms: u64) -> Sample {
         Sample {
             ts_ms,
+            started_ms: 1,
             interval_ms: 5000,
             cpu_micros: 0,
             rss_bytes: None,
@@ -411,6 +419,7 @@ mod tests {
         let v: serde_json::Value = serde_json::from_str(&line).unwrap();
         assert_eq!(v["service"], "game_server");
         assert_eq!(v["ts"], 1_759_000_005_000u64);
+        assert_eq!(v["started"], 1);
         assert_eq!(v["rss_bytes"], 64u64 << 20);
         assert!(v["heap_bytes"].is_null());
         assert_eq!(v["metrics"]["packets_in"], 1204);

@@ -1,6 +1,7 @@
 pub mod account;
 pub mod admin;
 pub mod auth;
+pub mod monitor;
 pub mod status;
 
 use axum::Router;
@@ -17,6 +18,7 @@ pub fn api_router() -> Router<AppState> {
         .nest("/auth", auth::router())
         .nest("/account", account::router())
         .nest("/admin", admin::router())
+        .nest("/admin/monitor", monitor::router())
         .merge(status::router())
 }
 
@@ -185,6 +187,11 @@ mod tests {
             // `/server/status` reports offline, which is the correct answer
             // when nothing is running.
             status_channel_address: String::new(),
+            // No poller in tests; monitor tests attach one explicitly.
+            monitor_targets: String::new(),
+            metrics_database: String::new(),
+            metrics_poll_seconds: 5,
+            metrics_retention_days: 7,
             bind_address: "127.0.0.1".into(),
             port: 0,
             public_base_url: "http://localhost".into(),

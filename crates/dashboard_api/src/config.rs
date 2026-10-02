@@ -104,6 +104,19 @@ pub struct DashboardConfig {
     /// DB-derived count keeps ticking for a server that is gone.
     pub status_channel_address: String,
 
+    /// `MonitorTargets` — `service=host:port` pairs, comma-separated: the game
+    /// and login servers' monitor channels (`docs/MONITORING.md` §4). Empty
+    /// disables the poller, and the `/admin/monitor` endpoints answer 503.
+    pub monitor_targets: String,
+    /// `MetricsDatabase` — the dashboard-owned SQLite file samples are stored
+    /// in (§3). A relative path resolves against the *executable's* directory,
+    /// exactly like the game database's `URL` — not the working directory.
+    pub metrics_database: String,
+    /// `MetricsPollSeconds` — how often the monitor channels are polled.
+    pub metrics_poll_seconds: u64,
+    /// `MetricsRetentionDays` — samples older than this are pruned hourly.
+    pub metrics_retention_days: u64,
+
     /// The API's own public origin (e.g. `https://api.battlecrab.com`).
     /// Only decides whether session cookies get the `Secure` flag.
     pub public_base_url: String,
@@ -253,6 +266,16 @@ impl DashboardConfig {
                 "jdbc:sqlite:interlude_classic.db?journal_mode=WAL&busy_timeout=5000",
             ),
             status_channel_address: p.get_string("StatusChannelAddress", "127.0.0.1:7778"),
+            // Defaults match each server's `Monitor.ini` default port, so a
+            // remote `Dashboard.ini` seeded before these keys existed still
+            // polls the right places.
+            monitor_targets: p.get_string(
+                "MonitorTargets",
+                "game_server=127.0.0.1:7779,login_server=127.0.0.1:7780",
+            ),
+            metrics_database: p.get_string("MetricsDatabase", "metrics.db"),
+            metrics_poll_seconds: p.get_int("MetricsPollSeconds", 5).max(1) as u64,
+            metrics_retention_days: p.get_int("MetricsRetentionDays", 7).max(1) as u64,
             database_max_connections: p.get_int("MaximumDatabaseConnections", 5).max(1) as u32,
 
             // Deliberately NOT p.get_string: the value must never be readable

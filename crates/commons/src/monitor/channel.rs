@@ -4,7 +4,7 @@
 //!
 //! ```text
 //! $ printf 'since 1759000000000\n' | nc 127.0.0.1 7779
-//! {"service":"game_server","ts":1759000005000,"interval_ms":5000,…}
+//! {"service":"game_server","ts":1759000005000,"started":1758990000000,"interval_ms":5000,…}
 //! ```
 //!
 //! `since <epoch_ms>` returns every buffered sample stamped strictly after
@@ -110,6 +110,7 @@ mod tests {
     fn sample(ts_ms: u64) -> Sample {
         Sample {
             ts_ms,
+            started_ms: 1,
             interval_ms: 5000,
             cpu_micros: 1,
             rss_bytes: None,

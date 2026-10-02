@@ -34,6 +34,9 @@ pub struct App {
     /// Whether to mark cookies `Secure`. Off for plain-HTTP local dev, since a
     /// `Secure` cookie is silently dropped by the browser over http://.
     pub secure_cookies: bool,
+    /// Server monitoring (`docs/MONITORING.md`): the poller and `metrics.db`.
+    /// `None` when disabled; `/admin/monitor` then answers 503.
+    pub monitor: Option<Arc<crate::monitor::Monitor>>,
 }
 
 impl App {
@@ -72,6 +75,14 @@ impl App {
             forgot_limiter,
             turnstile,
             secure_cookies,
+            monitor: None,
         }
+    }
+
+    /// Attach a running monitor. Separate from [`App::new`] because opening
+    /// `metrics.db` is async and optional.
+    pub fn with_monitor(mut self, monitor: Option<Arc<crate::monitor::Monitor>>) -> Self {
+        self.monitor = monitor;
+        self
     }
 }

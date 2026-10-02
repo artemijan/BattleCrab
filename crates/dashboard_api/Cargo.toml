@@ -16,6 +16,8 @@ thiserror.workspace = true
 base64.workspace = true
 # Item-catalog extraction from the datapack's generated XML (see `items`).
 regex.workspace = true
+# Host load average and disk free for server monitoring (`monitor::host`).
+libc.workspace = true
 
 axum = { version = "0.8", features = ["macros"] }
 tower-http = { version = "0.6", features = ["compression-gzip", "trace", "cors"] }
