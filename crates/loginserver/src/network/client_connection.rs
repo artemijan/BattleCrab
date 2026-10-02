@@ -478,10 +478,10 @@ pub async fn accept_loop(ctx: Arc<LoginContext>, listener: tokio::net::TcpListen
                 let _ = stream.set_nodelay(true); // Java: TCP_NODELAY unless UseNagle
                 let ctx = ctx.clone();
                 let guard = guard.clone();
-                crate::metrics::note_connection_opened();
+                let open_slot = crate::metrics::note_connection_opened();
                 tokio::spawn(async move {
+                    let _open_slot = open_slot;
                     handle(ctx, stream, ip.clone()).await;
-                    crate::metrics::note_connection_closed();
                     guard.release(&ip).await;
                 });
             }

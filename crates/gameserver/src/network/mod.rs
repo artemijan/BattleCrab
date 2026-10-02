@@ -84,9 +84,9 @@ fn bytes_out() -> &'static commons::metrics::Counter {
     C.get_or_init(|| commons::metrics::counter("bytes_out"))
 }
 
-/// Accept-time counters. `connections_open` is a gauge tracked as an atomic
-/// counter with signed deltas via `add`/`sub` on the underlying handle, so it
-/// reads the live count rather than a lifetime total.
+/// Accept-time series. `connections_accepted` is the lifetime total;
+/// `connections_open` is the live count, held per connection task through
+/// [`commons::metrics::Gauge::hold`].
 fn connections_accepted() -> &'static commons::metrics::Counter {
     static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
     C.get_or_init(|| commons::metrics::counter("connections_accepted"))
@@ -97,9 +97,7 @@ fn connections_open() -> &'static commons::metrics::Gauge {
     G.get_or_init(|| commons::metrics::gauge("connections_open"))
 }
 
-pub(crate) use traffic::{
-    note_connection_closed, note_connection_opened, note_inbound_frame, note_outbound_batch,
-};
+pub(crate) use traffic::{note_connection_opened, note_inbound_frame, note_outbound_batch};
 
 /// Small wrapper module so `connection.rs` records traffic through named
 /// verbs instead of reaching into these statics directly — the counter names
@@ -114,20 +112,19 @@ mod traffic {
         super::bytes_in().add((payload_len + HEADER_SIZE) as u64);
     }
 
-    /// One coalesced write: `packet_count` frames batched into `wire_bytes`
-    /// bytes on the socket.
+    /// One socket write carrying `packet_count` frames in `wire_bytes` bytes
+    /// — a coalesced batch, or `1` for a frame written on its own.
     pub(crate) fn note_outbound_batch(packet_count: u64, wire_bytes: usize) {
         super::packets_out().add(packet_count);
         super::bytes_out().add(wire_bytes as u64);
     }
 
-    pub(crate) fn note_connection_opened() {
+    /// The returned guard is the connection's slot in `connections_open`;
+    /// the connection task owns it, so the count drops when the task ends
+    /// however it ends, including by panic.
+    pub(crate) fn note_connection_opened() -> commons::metrics::GaugeHold {
         super::connections_accepted().incr();
-        super::connections_open().incr();
-    }
-
-    pub(crate) fn note_connection_closed() {
-        super::connections_open().decr();
+        super::connections_open().hold()
     }
 }
 

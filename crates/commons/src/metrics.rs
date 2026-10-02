@@ -66,9 +66,28 @@ impl Gauge {
     pub fn decr(&self) {
         let _ = self
             .0
-            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |v| {
+            .try_update(Ordering::Relaxed, Ordering::Relaxed, |v| {
                 Some(v.saturating_sub(1))
             });
+    }
+
+    /// `+1` now, `-1` when the returned guard drops. For a count of live
+    /// things owned by a task: the decrement rides the guard, so a task that
+    /// panics or returns early still gives its slot back, which a `decr()`
+    /// at the end of the task body would not.
+    #[must_use = "the gauge is decremented when the guard drops"]
+    pub fn hold(&self) -> GaugeHold {
+        self.incr();
+        GaugeHold(self.clone())
+    }
+}
+
+/// Returned by [`Gauge::hold`]; decrements the gauge on drop.
+pub struct GaugeHold(Gauge);
+
+impl Drop for GaugeHold {
+    fn drop(&mut self) {
+        self.0.decr();
     }
 }
 
@@ -179,6 +198,23 @@ mod tests {
         assert_eq!(g.get(), 2);
         g.decr();
         assert_eq!(g.get(), 1);
+    }
+
+    #[test]
+    fn gauge_hold_gives_its_slot_back_even_on_panic() {
+        let g = gauge("test_gauge_hold");
+        g.set(0);
+        let held = g.hold();
+        assert_eq!(g.get(), 1);
+        drop(held);
+        assert_eq!(g.get(), 0);
+
+        let g2 = g.clone();
+        let _ = std::panic::catch_unwind(move || {
+            let _held = g2.hold();
+            panic!("connection task blew up");
+        });
+        assert_eq!(g.get(), 0, "unwinding must still run the decrement");
     }
 
     #[test]

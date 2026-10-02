@@ -38,10 +38,10 @@ Both servers now register the same six `commons::metrics` series (`crates/common
 |---|---|---|
 | `packets_in` | counter | Frames read off the socket, counted before decrypt/rate-limit — "what arrived on the wire". |
 | `bytes_in` | counter | Wire bytes for those frames, header included. |
-| `packets_out` | counter | Frames written to the socket. Game server counts per *coalesced batch write* (one add per `write_all`, not per broadcast recipient — see `network/connection.rs`'s outbound arm); login server counts per `send()` call, since it does not batch. |
+| `packets_out` | counter | Frames written to the socket, every frame counted. The game server coalesces a tick's frames into one `write_all` and records the batch with a single atomic add of its frame count (`network/connection.rs`'s outbound arm), plus the KeyPacket written outside that batch; the login server does not batch, so it counts per `send()`. |
 | `bytes_out` | counter | Wire bytes for those writes, header included. |
 | `connections_accepted` | counter | Lifetime total of accepted sockets. |
-| `connections_open` | gauge | Live count, `+1`/`-1` via the new `Gauge::incr`/`decr` (atomic `fetch_add`/saturating `fetch_update`, not load-then-`set` — the latter loses updates under concurrent connects/disconnects). |
+| `connections_open` | gauge | Live count. Each connection task owns a `Gauge::hold()` guard: `+1` on accept, `-1` when the guard drops, so a task that panics still gives its slot back. Both sides are atomic (`fetch_add` / saturating `try_update`); a load-then-`set` would lose updates under concurrent connects/disconnects. |
 
 `packets_in` vs. `game_loop::net::packets_handled` (game server only) is itself a signal: the gap
 between them is packets rejected by the rate limiter or lost to a decode failure.

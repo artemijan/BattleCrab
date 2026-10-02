@@ -56,13 +56,12 @@ pub fn note_outbound_frame(encrypted_len: usize) {
     bytes_out().add((encrypted_len + HEADER_SIZE) as u64);
 }
 
-pub fn note_connection_opened() {
+/// The returned guard is the connection's slot in `connections_open`; the
+/// connection task owns it, so the count drops when the task ends however it
+/// ends, including by panic.
+pub fn note_connection_opened() -> commons::metrics::GaugeHold {
     connections_accepted().incr();
-    connections_open().incr();
-}
-
-pub fn note_connection_closed() {
-    connections_open().decr();
+    connections_open().hold()
 }
 
 /// Registered at boot so every series reads `0` from the first snapshot
@@ -105,10 +104,11 @@ mod tests {
     #[test]
     fn connections_open_tracks_the_live_count() {
         let start = connections_open().get();
-        note_connection_opened();
-        note_connection_opened();
+        let a = note_connection_opened();
+        let b = note_connection_opened();
         assert_eq!(connections_open().get(), start + 2);
-        note_connection_closed();
+        drop(a);
         assert_eq!(connections_open().get(), start + 1);
+        drop(b);
     }
 }

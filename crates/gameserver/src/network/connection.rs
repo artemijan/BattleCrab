@@ -25,8 +25,8 @@ use super::client_packets::session::ProtocolVersion;
 use super::game_client::GameClient;
 use super::server_packets::key_packet;
 use super::{
-    ConnectionState, NetEvent, NetEventTx, note_connection_closed, note_connection_opened,
-    note_inbound_frame, note_outbound_batch,
+    ConnectionState, NetEvent, NetEventTx, note_connection_opened, note_inbound_frame,
+    note_outbound_batch,
 };
 
 /// Frame payloads never exceed the 16-bit length header.
@@ -120,12 +120,12 @@ pub async fn accept_loop(listener: TcpListener, net_tx: NetEventTx, cfg: Arc<Net
                     let net_tx = net_tx.clone();
                     let cfg = cfg.clone();
                     let closed_tx = closed_tx.clone();
-                    note_connection_opened();
+                    let open_slot = note_connection_opened();
                     tokio::spawn(async move {
+                        let _open_slot = open_slot;
                         if let Err(e) = handle(stream, addr, client_id, net_tx, cfg).await {
                             debug!("client {client_id} ({addr}) ended: {e}");
                         }
-                        note_connection_closed();
                         let _ = closed_tx.send(addr.ip());
                     });
                 }
@@ -465,7 +465,11 @@ async fn send<W: AsyncWrite + Unpin>(
     mut body: Vec<u8>,
 ) -> std::io::Result<()> {
     client.encrypt(&mut body);
-    write_frame(write, &body).await
+    write_frame(write, &body).await?;
+    // The KeyPacket path — written here, not through the outbound arm's
+    // batch, so it is counted here too.
+    note_outbound_batch(1, body.len() + HEADER_SIZE);
+    Ok(())
 }
 
 fn key8(key: &[u8; 16]) -> &[u8; 8] {
