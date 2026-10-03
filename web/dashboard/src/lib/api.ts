@@ -22,6 +22,8 @@ export type ApiErrorCode =
   | "captcha_required"
   | "captcha_failed"
   | "invalid_token"
+  /** A feature switched off server-side (monitoring, log search): 503. */
+  | "unavailable"
   | "internal";
 
 export class ApiError extends Error {
@@ -137,6 +139,97 @@ export type AdminAccountDetail = {
   master: AdminMasterSummary;
   gameAccounts: AdminGameAccount[];
   characters: Character[];
+};
+
+/* --------------------------- Monitoring types ---------------------------- */
+/* Shapes of /admin/monitor/* — docs/MONITORING.md §5. */
+
+export type MonitorService = "game_server" | "login_server";
+
+export type MonitorServiceStatus = {
+  service: MonitorService;
+  address: string;
+  /** The dashboard's last poll of this server succeeded. */
+  up: boolean;
+  lastPollMs: number | null;
+  lastSampleTs: number | null;
+  startedMs: number | null;
+  lastError: string | null;
+  /** Null while down. */
+  uptimeSeconds: number | null;
+};
+
+export type MonitorServices = {
+  services: MonitorServiceStatus[];
+  pollSeconds: number;
+  retentionDays: number;
+};
+
+/**
+ * Bucketed series, columnar: `ts[i]` pairs with `series[name][i]`. `sum`
+ * series are per-bucket totals (divide by `intervalMs` for a rate), `max`
+ * series the bucket's peak.
+ */
+export type MonitorSeries = {
+  from: number;
+  to: number;
+  bucketMs: number;
+  aggregation: Record<string, "sum" | "max" | "avg" | "min">;
+  ts: number[];
+  /** Raw samples per bucket — fewer than expected is a gap. */
+  samples: number[];
+  /** Absent on host series. */
+  intervalMs?: number[];
+  series: Record<string, Array<number | null>>;
+};
+
+/* --------------------------- Log search types ---------------------------- */
+/* Shapes of /admin/logs/* — docs/MONITORING.md §6. */
+
+export type LogStreamInfo = {
+  service: string;
+  /** `diagnostic`, `error`, or `audit:<category>`. */
+  stream: string;
+  files: number;
+  oldest: number | null;
+  newestEnd: number | null;
+};
+
+export type LogHit = {
+  file: string;
+  offset: number;
+  ts: number | null;
+  /** A parsed JSON line (diagnostic, audit) or a raw text line (`_error.log`). */
+  line: Record<string, unknown> | string;
+};
+
+export type LogSearchResult = {
+  service: string;
+  stream: string;
+  from: number;
+  to: number;
+  hits: LogHit[];
+  /** Present when there is more to read; pass back to continue. */
+  cursor: string | null;
+  stopped: "limit" | "maxBytes" | "deadline" | null;
+  /** The scan hit a time or size budget before covering the range. */
+  truncated: boolean;
+  scannedBytes: number;
+  filesScanned: string[];
+  skippedOversized: number;
+};
+
+export type LogSearchParams = {
+  service: string;
+  stream: string;
+  from: number;
+  to: number;
+  q: string;
+  regex: boolean;
+  /** Minimum level; omit for audit streams. */
+  level?: string;
+  limit?: number;
+  cursor?: string;
 };
 
 /**
@@ -279,5 +372,37 @@ export const api = {
 
     setGameAccountPassword: (login: string, password: string) =>
       post<void>(`/admin/game-accounts/${encodeURIComponent(login)}/password`, { password }),
+
+    monitor: {
+      services: () => request<MonitorServices>("/admin/monitor/services"),
+
+      series: (service: MonitorService, from: number, to: number, maxPoints: number) =>
+        request<MonitorSeries>(
+          `/admin/monitor/series?service=${service}&from=${from}&to=${to}&maxPoints=${maxPoints}`,
+        ),
+
+      host: (from: number, to: number, maxPoints: number) =>
+        request<MonitorSeries>(`/admin/monitor/host?from=${from}&to=${to}&maxPoints=${maxPoints}`),
+    },
+
+    logs: {
+      streams: () => request<{ streams: LogStreamInfo[] }>("/admin/logs/streams"),
+
+      /** Every call is recorded server-side in the gmaudit log. */
+      search: (p: LogSearchParams) => {
+        const qs = new URLSearchParams({
+          service: p.service,
+          stream: p.stream,
+          from: String(p.from),
+          to: String(p.to),
+          q: p.q,
+          regex: String(p.regex),
+        });
+        if (p.level) qs.set("level", p.level);
+        if (p.limit) qs.set("limit", String(p.limit));
+        if (p.cursor) qs.set("cursor", p.cursor);
+        return request<LogSearchResult>(`/admin/logs/search?${qs}`);
+      },
+    },
   },
 };

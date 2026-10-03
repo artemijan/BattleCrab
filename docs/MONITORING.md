@@ -1,7 +1,7 @@
 # Per-server monitoring and log search — technical design
 
-Status: **P1–P4 shipped** (counters; per-server sampler and channel; `metrics.db`, poller and
-admin API; log search). P5 (UI) is planned, not built. Code comments cite this document's section
+Status: **P1–P5 shipped** (counters; per-server sampler and channel; `metrics.db`, poller and
+admin API; log search; admin UI). Code comments cite this document's section
 numbers, so the numbering is stable — when a section changes shape, bump its number's suffix
 rather than renumbering everything below it.
 
@@ -275,6 +275,62 @@ FTS5 was considered and rejected for v1: it needs a second writer tailing files 
 doubles storage, while rotation already provides the time index that makes the bounded scan fast.
 It remains the escape hatch if scans measure slow in practice.
 
+## 6a. P5 (shipped): the admin UI
+
+Two pages under the dashboard's admin section (`web/dashboard`), reached from a new tab row
+(`components/AdminNav.tsx`: Accounts / Monitoring / Logs). The header keeps its single "Admin"
+entry.
+
+**`/admin/monitor`** (`pages/Monitoring.tsx`): a card per server (up/down, uptime or last sample,
+last poll error), then one tab per server plus Host, and 1h/6h/24h/7d ranges.
+- **Game server:** packets/s, bandwidth, open connections and players, new connections/s, CPU %
+  of one core, RSS and heap, mean tick time, and ticks over 50 ms.
+- **Login server:** the same minus the game-only series.
+- **Host:** load averages, available memory and free disk.
+
+Rates are computed client-side as each `sum` bucket over its own `intervalMs` (§5). Every chart
+refetches about once per bucket, never faster than the poll interval.
+
+**Charts are hand-rolled SVG** (`components/LineChart.tsx`, arithmetic in `lib/chart.ts`), the
+answer to §9 q4: no chart dependency, consistent with DASHBOARD.md §8.2.
+- **Rendering:** drawn at the container's measured pixel width (ResizeObserver) rather than
+  through a scaled viewBox, so strokes and labels stay crisp. Static: no transitions or filters,
+  within the mobile GPU budget.
+- **Axes:** the x axis is the *requested* range, so downtime at the edges shows as empty space.
+  The y axis starts at 0, since every series is a rate, count or size, and a floating baseline
+  turns noise into cliffs.
+- **Gaps:** a line breaks at missing buckets (`null`, or a time jump > 1.5 buckets) instead of
+  bridging an outage, and a lone sample renders as a dot.
+- **Interaction:** hover or touch snaps a crosshair to the nearest bucket, but only within one
+  bucket of the pointer, so a gap reads as a gap.
+- **Colour:** a theme-aware `--chart-*` palette, blue and amber first (distinguishable with
+  red-green colour blindness).
+
+**`/admin/logs`** (`pages/Logs.tsx`): the form has server, log (stream), time range, minimum
+level (disabled for audit streams, which have none) and text or regex. It also states up front
+that every search is recorded in the GM audit log.
+- **Paging:** results are an infinite list over the API cursor. A page cut short by the scan
+  budget shows an amber note and **Keep searching**, never anything that reads as the end of the
+  results.
+- **Rows:** a JSON line shows its time, level, target and message, with the remaining fields
+  inline; it expands to the full pretty-printed JSON. An `_error.log` line shows as raw monospace
+  text.
+- **No silent refetches:** searches never refetch in the background (each request is an audit
+  record).
+
+**Also fixed while building this:** `build.ts` now sets `publicPath: "/"`. Bun's default emits
+relative asset URLs (`./index-x.js`), so a hard refresh or direct link to any *nested* route
+(`/admin/accounts/:email` already, and now `/admin/monitor`) requested `/admin/index-x.js`. The
+SPA fallback returned `index.html` for it, and the page rendered blank. This happened on both the
+Rust host and Cloudflare. The new UI tests caught it, since they open nested routes directly.
+
+Tests: `tests/chart.test.ts` (ticks, gap-breaking paths, rates over real intervals, formatting)
+and `tests/monitoring.test.ts` (Playwright against the built bundle with a stubbed API). The
+Playwright tests cover drawing a data hole as two line runs, keeping game-only charts off the
+login tab, the 503 "disabled" message, the search request carrying the chosen filters, "Load
+older" sending the cursor back, the truncation note, audit streams never sending `level`, and
+the current admin tab, including account detail pages.
+
 ## 7. Configuration
 
 **Shipped in P3**, in `Dashboard.ini`: `MonitorTargets`
@@ -309,7 +365,7 @@ rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change
 | **P2** | `commons::monitor`: sampler, ring, loopback channel; wired into both `main.rs` | **Shipped** |
 | **P3** | `metrics.db`, poller, pruner, `services`/`series`/`host` endpoints | **Shipped** |
 | **P4** | Log search: registry, reverse scanner, endpoints, gmaudit record | **Shipped** |
-| **P5** | UI: charts + log viewer | Planned |
+| **P5** | UI: charts + log viewer | **Shipped** (§6a) |
 
 ## 9. Open questions, recorded rather than decided
 
@@ -322,7 +378,6 @@ rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change
    to carry log lines too.
 3. **Gaps when the dashboard is down.** The server-side ring (§4) covers deploys; a longer outage
    leaves a hole in the chart — the honest rendering, not an interpolated lie.
-4. **Frontend charting.** No chart library in `web/dashboard` today, and `docs/DASHBOARD.md` §8.2
-   shows a deliberate habit of minimizing dependencies. Hand-rolled SVG line charts fit that habit
-   and dodge the mobile GPU budget (`dashboard-local-dev` notes); a library is the faster path.
-   Decide before P5.
+4. **Frontend charting.** *Decided: hand-rolled SVG* (§6a). No chart library in `web/dashboard`,
+   in keeping with `docs/DASHBOARD.md` §8.2's habit of minimizing dependencies, and static SVG
+   stays inside the mobile GPU budget.

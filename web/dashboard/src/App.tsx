@@ -9,6 +9,8 @@ import { useAccount } from "./lib/session";
 import { ThemeProvider } from "./lib/theme";
 import { AccountPage } from "./pages/AccountPage";
 import { AdminAccountDetail, AdminAccounts } from "./pages/Admin";
+import { Logs } from "./pages/Logs";
+import { Monitoring } from "./pages/Monitoring";
 import { Login, Register } from "./pages/Auth";
 import { ForgotPassword, ResetPassword } from "./pages/PasswordReset";
 import { VerifyEmail } from "./pages/VerifyEmail";
@@ -20,8 +22,11 @@ const queryClient = new QueryClient({
       staleTime: 30_000,
       refetchOnWindowFocus: false,
       // A 401 means the session is gone; retrying just delays the redirect.
+      // `unavailable` is a feature switched off in the server's config, which
+      // no retry will change — retrying only delays saying so.
       retry: (failureCount, error) =>
-        !(error instanceof ApiError && error.status === 401) && failureCount < 2,
+        !(error instanceof ApiError && (error.status === 401 || error.code === "unavailable")) &&
+        failureCount < 2,
     },
   },
 });
@@ -125,6 +130,22 @@ function Shell() {
           element={
             <RequireAdmin>
               <AdminAccountDetail />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin/monitor"
+          element={
+            <RequireAdmin>
+              <Monitoring />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin/logs"
+          element={
+            <RequireAdmin>
+              <Logs />
             </RequireAdmin>
           }
         />

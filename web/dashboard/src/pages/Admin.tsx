@@ -24,6 +24,7 @@ import {
   type AdminSortKey,
   type Character,
 } from "../lib/api";
+import { AdminNav } from "../components/AdminNav";
 import { Alert, Button, Field, Panel, Spinner, cx } from "../components/ui";
 
 const PAGE_SIZE = 25;
@@ -122,6 +123,7 @@ export function AdminAccounts() {
 
   return (
     <div className="space-y-5 pb-6">
+      <AdminNav />
       <section className="animate-rise">
         <h1 className="text-3xl font-black tracking-tight">Accounts</h1>
         <p className="mt-1.5 text-(--text-muted)">
@@ -374,6 +376,7 @@ export function AdminAccountDetail() {
 
   return (
     <div className="space-y-5 pb-6">
+      <AdminNav />
       <section className="animate-rise">
         <Link to="/admin" className="text-sm text-(--text-muted) hover:text-(--text)">
           ← All accounts
