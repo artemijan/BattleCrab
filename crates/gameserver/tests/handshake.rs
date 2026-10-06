@@ -23,7 +23,12 @@ async fn start_server(
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
     let (net_tx, net_rx) = std::sync::mpsc::channel::<GameEvent>();
-    tokio::spawn(accept_loop(listener, NetEventTx(net_tx), Arc::new(cfg)));
+    tokio::spawn(accept_loop(
+        listener,
+        NetEventTx(net_tx),
+        Arc::new(cfg),
+        None,
+    ));
     (addr, net_rx)
 }
 
@@ -128,5 +133,54 @@ async fn rejects_wrong_protocol_and_closes() {
     assert!(
         eof.is_none(),
         "connection should be closed after wrong protocol"
+    );
+}
+
+/// A banned address is closed on accept, before the game thread hears of it;
+/// anyone else gets through as usual.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_banned_address_is_refused_on_accept() {
+    use migration::MigratorTrait;
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
+        .await
+        .unwrap();
+    let db = models::sea_orm::SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    migration::Migrator::up(&db, None).await.unwrap();
+
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let addr = listener.local_addr().unwrap();
+    let (net_tx, net_rx) = std::sync::mpsc::channel::<GameEvent>();
+    tokio::spawn(accept_loop(
+        listener,
+        NetEventTx(net_tx),
+        Arc::new(cfg()),
+        Some(db),
+    ));
+
+    // Not banned: connected as usual.
+    let _ok = TcpStream::connect(addr).await.unwrap();
+    let ev = net_rx.recv_timeout(Duration::from_secs(1)).unwrap();
+    assert!(matches!(ev, GameEvent::Net(NetEvent::Connected { .. })));
+
+    // `127.0.0.0` covers 127.*: refused and closed.
+    sqlx::query("INSERT INTO ip_bans (ip, expires_at) VALUES ('127.0.0.0', 0)")
+        .execute(&pool)
+        .await
+        .unwrap();
+    // Past `FastConnectionTime`, so the flood rule is not what refuses it.
+    tokio::time::sleep(Duration::from_millis(400)).await;
+    let mut refused = TcpStream::connect(addr).await.unwrap();
+    let closed = tokio::time::timeout(Duration::from_secs(2), read_frame(&mut refused, 65535))
+        .await
+        .expect("the server should close a banned connection");
+    assert!(
+        matches!(closed, Ok(None) | Err(_)),
+        "closed without a frame"
+    );
+    assert!(
+        net_rx.recv_timeout(Duration::from_millis(300)).is_err(),
+        "the game thread never hears of it"
     );
 }

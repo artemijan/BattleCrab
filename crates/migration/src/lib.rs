@@ -1,18 +1,18 @@
-//! Database migrations, as SeaORM Rust rather than the per-dialect `.sql` trees
-//! in `dist/db_installer`.
+//! Database migrations — the schema's only definition.
 //!
 //! Running them: `l2r-migrate up` (this crate's binary) — see docs/DATABASE.md.
 //!
-//! # Two properties worth keeping
+//! The baselines were transcribed from the Java installer's per-dialect `.sql`
+//! trees (`dist/db_installer`, since removed); column types came across
+//! verbatim, so the schema matches the one the Java server used.
 //!
-//! 1. **Idempotent.** Every baseline statement is `IF NOT EXISTS` and the
-//!    master-account rebuild checks for its own column first, so `up` against
-//!    the live production database records the migrations as applied and
-//!    changes nothing. That is how an existing deployment adopts this.
-//! 2. **Faithful.** Column types come across from the dist DDL verbatim, and
-//!    `tests/dist_parity.rs` compares the migrated schema against that DDL
-//!    column by column. The dist tree is authoritative; if the two disagree,
-//!    the migration is wrong.
+//! # A property worth keeping
+//!
+//! **Idempotent.** Every baseline statement is `IF NOT EXISTS` and the
+//! later rebuilds check for their own result first, so `up` against the live
+//! production database records the migrations as applied and changes nothing.
+//! That is how an existing deployment adopted this; `tests/idempotent.rs`
+//! keeps a second `up` a no-op.
 
 pub use sea_orm_migration::prelude::*;
 
@@ -20,6 +20,7 @@ mod m20260801_000001_baseline_login;
 mod m20260801_000002_baseline_game;
 mod m20260801_000003_master_accounts;
 mod m20260908_000001_grandboss_real_hp;
+mod m20261007_000001_ip_bans;
 
 pub struct Migrator;
 
@@ -31,6 +32,7 @@ impl MigratorTrait for Migrator {
             Box::new(m20260801_000002_baseline_game::Migration),
             Box::new(m20260801_000003_master_accounts::Migration),
             Box::new(m20260908_000001_grandboss_real_hp::Migration),
+            Box::new(m20261007_000001_ip_bans::Migration),
         ]
     }
 }

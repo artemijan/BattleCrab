@@ -4,7 +4,8 @@
 //! Each connection task holds a [`Registration`]: it puts the connection in
 //! the registry and takes it out again on drop, so a task that ends any way at
 //! all, panics included, leaves no stale row (the same reasoning as
-//! `metrics::LoginStage`). The task updates its row as the login progresses.
+//! `metrics::LoginStage`). The task updates its row as the login progresses,
+//! and watches it ([`Conn::kicked`]) for the dashboard's disconnect ([`kick`]).
 
 use std::collections::BTreeMap;
 use std::net::SocketAddr;
@@ -29,6 +30,9 @@ struct Entry {
     addr: SocketAddr,
     stats: ConnectionStats,
     info: Mutex<Info>,
+    /// Signalled by [`kick`]. A `Notify` keeps the permit when the task is
+    /// not waiting yet, so a kick that lands mid-packet is still seen.
+    kick: tokio::sync::Notify,
 }
 
 #[derive(Debug)]
@@ -72,6 +76,7 @@ impl Registration {
                 last_server: 0,
                 server_id: None,
             }),
+            kick: tokio::sync::Notify::new(),
         });
         lock(&REGISTRY).insert(entry.id, entry.clone());
         Self(entry)
@@ -91,6 +96,11 @@ impl Registration {
 impl Conn {
     pub fn stats(&self) -> &ConnectionStats {
         &self.0.stats
+    }
+
+    /// Resolves once the dashboard asked for this connection to be closed.
+    pub async fn kicked(&self) {
+        self.0.kick.notified().await
     }
 
     /// Past `RequestAuthLogin`: at the server list.
@@ -120,6 +130,19 @@ impl Drop for Registration {
 /// Outside a connection task (tests, the GS link) it counts nothing.
 pub fn note_outbound(wire_bytes: u64) {
     let _ = CURRENT.try_with(|entry| entry.stats.note_out(1, wire_bytes));
+}
+
+/// Asks connection `id` to close, if it is the one that opened at
+/// `connected_ms`. Its task sends the client a login failure and hangs up.
+pub fn kick(id: u64, connected_ms: u64) -> bool {
+    let entry = lock(&REGISTRY).get(&id).cloned();
+    match entry {
+        Some(entry) if entry.stats.connected_ms() == connected_ms => {
+            entry.kick.notify_one();
+            true
+        }
+        _ => false,
+    }
 }
 
 /// Every open connection, oldest first.
@@ -189,7 +212,17 @@ mod tests {
         conn.joining_game(1);
         assert_eq!(find(id).unwrap().stage, "joining_game");
 
+        // A kick for another connection's start is refused; the right one is
+        // remembered until the task next waits for it.
+        let started = r.connected_ms;
+        assert!(!kick(id, started + 1));
+        assert!(kick(id, started));
+        tokio::time::timeout(std::time::Duration::from_secs(1), conn.kicked())
+            .await
+            .expect("the kick was not delivered");
+
         drop(reg);
         assert!(find(id).is_none(), "dropping the registration unlists it");
+        assert!(!kick(id, started), "nothing to kick once it is gone");
     }
 }

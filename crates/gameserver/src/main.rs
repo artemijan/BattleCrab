@@ -10,7 +10,7 @@ use std::time::Instant;
 use gameserver::config::Config;
 use gameserver::data::GameData;
 use gameserver::db::{self, DbCommand};
-use gameserver::events::GameEvent;
+use gameserver::events::{GameEvent, MonitorRequest};
 use gameserver::game_loop::{self, GameThreadChannels, Shutdown};
 use gameserver::loginlink::{self, LoginLinkConfig};
 use gameserver::network::NetEventTx;
@@ -190,12 +190,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db_event_tx = db::EventTx(events_tx.clone());
     // The Audit page's live client list (`docs/MONITORING.md` §10): the
     // monitor channel asks the game thread, which owns the sessions.
-    let monitor_tx = events_tx.clone();
-    commons::monitor::clients::set_provider(move || {
-        let (tx, rx) = tokio::sync::oneshot::channel();
-        monitor_tx.send(GameEvent::Monitor(tx)).ok()?;
-        Some(rx)
-    });
+    let (list_tx, kick_tx) = (events_tx.clone(), events_tx.clone());
+    commons::monitor::clients::set_provider(
+        move || {
+            let (tx, rx) = tokio::sync::oneshot::channel();
+            list_tx
+                .send(GameEvent::Monitor(MonitorRequest::Clients(tx)))
+                .ok()?;
+            Some(rx)
+        },
+        move |id, connected_ms| {
+            let (reply, rx) = tokio::sync::oneshot::channel();
+            kick_tx
+                .send(GameEvent::Monitor(MonitorRequest::Kick {
+                    id,
+                    connected_ms,
+                    reply,
+                }))
+                .ok()?;
+            Some(rx)
+        },
+    );
     let path_event_tx = gameserver::geo::worker::PathEventTx(events_tx);
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel::<DbCommand>();
@@ -252,6 +267,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             path_cfg: config.geoengine.path.clone(),
             geoedit_path: config.geoengine.geoedit_path.clone(),
             max_characters_per_account: config.server.max_characters_number_per_account,
+            security: config.security.clone(),
             delete_days: config.character.delete_days,
             starting_adena: config.character.starting_adena,
             cfg: config.combat(),
@@ -293,7 +309,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         config.server.gameserver_hostname, config.server.port_game
     );
     let listener = TcpListener::bind(&bind).await?;
-    tokio::spawn(connection::accept_loop(listener, net_tx, net_cfg));
+    // Its own small pool: the acceptor reads `ip_bans` per connection, off the
+    // DB thread, which owns the game's writes.
+    let ban_db = match commons::db::connect(&config.server.database_url, 2).await {
+        Ok(db) => Some(db),
+        Err(e) => {
+            warn!("GameServer: IP bans will not be checked on connect — {e}");
+            None
+        }
+    };
+    tokio::spawn(connection::accept_loop(listener, net_tx, net_cfg, ban_db));
 
     info!(
         "GameServer: started in {} seconds. Listening on {bind}. Max online users: {}.",

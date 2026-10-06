@@ -158,6 +158,9 @@ pub(crate) fn apply_due_tasks(world: &mut World) {
                 queen_ant::handle_heal_tick(world, queen_oid);
             }
             ScheduledTask::TomaRelocate => area::relocate_toma(world),
+            ScheduledTask::AuthDeadline { client_id } => {
+                crate::game_loop::net::auth_guard::on_deadline(world, client_id);
+            }
             ScheduledTask::MammonRelocate { npc_id } => {
                 area::relocate_mammon(world, npc_id);
             }

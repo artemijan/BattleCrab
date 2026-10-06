@@ -3,8 +3,9 @@
  *
  * Pins down what `tsc` cannot see: both servers' clients land in one table, a
  * shared address is flagged and filters to its siblings, the details follow a
- * client and say so when it disconnects, and a server that could not answer
- * is named rather than silently missing.
+ * client and say so when it disconnects, a server that could not answer is
+ * named rather than silently missing, and the disconnect / ban controls send
+ * what the API expects.
  *
  * Requires a built frontend (`bun run build`) and Google Chrome. Skips with a
  * clear message rather than failing when either is missing.
@@ -12,7 +13,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import type { Browser } from "playwright";
 
-import type { ConnectedClient, ConnectedClients } from "../src/lib/api";
+import type { ConnectedClient, ConnectedClients, IpBans } from "../src/lib/api";
 
 const DIST = new URL("../dist", import.meta.url).pathname;
 const distBuilt = await Bun.file(`${DIST}/index.html`).exists();
@@ -60,24 +61,50 @@ function skip(): boolean {
 const ADMIN = { email: "admin@example.com", isVerified: true, isAdmin: true };
 const NOW = 1_759_000_000_000;
 
+type Sent = { method: string; path: string; body: unknown };
+type Answer = { status: number; body: unknown };
+
 /** Opens the Audit page with `/admin/monitor/clients` answered by `clients`
- *  (called once per request, so a test can change the answer over time). */
-async function open(clients: () => { status: number; body: unknown }) {
+ *  (called once per request, so a test can change the answer over time) and
+ *  `/admin/ip-bans` by `bans`. Every mutation lands in `sent` and is answered
+ *  by `mutate`, or 204. */
+async function open(
+  clients: () => Answer,
+  {
+    bans = () => ({ nowMs: NOW, bans: [] }),
+    mutate = () => ({ status: 204, body: null }),
+  }: { bans?: () => IpBans; mutate?: (sent: Sent) => Answer } = {},
+) {
   const page = await browser!.newPage({ viewport: { width: 1280, height: 1000 } });
+  const sent: Sent[] = [];
   await page.route("**/api/v1/**", (route) => {
-    const url = new URL(route.request().url());
+    const request = route.request();
+    const url = new URL(request.url());
     const json = (status: number, body: unknown) =>
-      route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
+      status === 204
+        ? route.fulfill({ status })
+        : route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
+    if (request.method() !== "GET") {
+      const s = {
+        method: request.method(),
+        path: decodeURIComponent(url.pathname.replace(/^\/api\/v1/, "")),
+        body: request.postData() ? JSON.parse(request.postData()!) : null,
+      };
+      sent.push(s);
+      const r = mutate(s);
+      return json(r.status, r.body);
+    }
     if (url.pathname.endsWith("/auth/me")) return json(200, ADMIN);
     if (url.pathname.endsWith("/admin/monitor/clients")) {
       const r = clients();
       return json(r.status, r.body);
     }
+    if (url.pathname.endsWith("/admin/ip-bans")) return json(200, bans());
     return json(404, { error: { code: "not_found", message: "unstubbed" } });
   });
   await page.goto(`http://localhost:${server!.port}/admin/audit`, { waitUntil: "load" });
   await page.waitForTimeout(500);
-  return page;
+  return Object.assign(page, { sent });
 }
 
 function client(over: Partial<ConnectedClient> & { id: number }): ConnectedClient {
@@ -166,9 +193,9 @@ describe("audit page", () => {
   test("lists both servers' clients and flags a shared address", async () => {
     if (skip()) return;
     const page = await open(() => ({ status: 200, body: payload([HERO, ALT, NEWCOMER]) }));
-    const rows = page.locator("tbody tr");
+    const rows = page.locator("table").first().locator("tbody tr");
     expect(await rows.count()).toBe(3);
-    const text = await page.locator("tbody").innerText();
+    const text = await page.locator("tbody").first().innerText();
     expect(text).toContain("In game");
     expect(text).toContain("Lobby");
     expect(text).toContain("Logging in");
@@ -191,13 +218,13 @@ describe("audit page", () => {
     await page.getByRole("button", { name: /^Lobby/ }).click();
     await page.waitForTimeout(200);
     expect(await page.locator("tbody tr").count()).toBe(1);
-    expect(await page.locator("tbody").innerText()).toContain("alice2");
+    expect(await page.locator("tbody").first().innerText()).toContain("alice2");
 
     await page.getByRole("button", { name: "Login", exact: true }).click();
     await page.waitForTimeout(200);
     // Switching server clears the status chip.
     expect(await page.locator("tbody tr").count()).toBe(1);
-    expect(await page.locator("tbody").innerText()).toContain("192.168.1.5");
+    expect(await page.locator("tbody").first().innerText()).toContain("192.168.1.5");
     await page.close();
   });
 
@@ -252,6 +279,134 @@ describe("audit page", () => {
       body: { error: { code: "unavailable", message: "server monitoring is disabled" } },
     }));
     expect(await page.getByRole("alert").innerText()).toContain("MonitorTargets is empty");
+    await page.close();
+  });
+
+  test("disconnect asks first, then names the connection to the API", async () => {
+    if (skip()) return;
+    const page = await open(() => ({ status: 200, body: payload([HERO, ALT]) }));
+    await page.getByRole("button", { name: "alice", exact: true }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("button", { name: "Disconnect", exact: true }).click();
+    expect(await dialog.innerText()).toContain("The character is saved and leaves the world");
+    expect(page.sent).toHaveLength(0);
+
+    await dialog.getByRole("button", { name: "Disconnect", exact: true }).click();
+    await dialog.getByText("Disconnected.").waitFor();
+    expect(page.sent).toEqual([
+      {
+        method: "POST",
+        path: "/admin/monitor/clients/disconnect",
+        body: {
+          service: "game_server",
+          id: 7,
+          connectedMs: NOW - 600_000,
+          ip: "10.0.0.1",
+          account: "alice",
+        },
+      },
+    ]);
+    await page.close();
+  });
+
+  test("ban from the details covers the address and disconnects", async () => {
+    if (skip()) return;
+    const page = await open(() => ({ status: 200, body: payload([HERO, ALT, NEWCOMER]) }), {
+      mutate: (s) => ({
+        status: 201,
+        body: {
+          ban: { ...(s.body as object), bannedBy: ADMIN.email, createdAt: NOW },
+          disconnected: 2,
+          disconnectErrors: [],
+        },
+      }),
+    });
+    await page.getByRole("button", { name: "alice", exact: true }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("button", { name: /Disconnect and ban IP/ }).click();
+    expect(await dialog.getByLabel("IP address").inputValue()).toBe("10.0.0.1");
+    // Hero and Alt share the address: both go.
+    expect(await dialog.innerText()).toContain("2 connections are on 10.0.0.1");
+
+    await dialog.getByLabel("Length").selectOption("1 day");
+    await dialog.getByLabel("Reason").fill("botting");
+    await dialog.getByRole("button", { name: "Ban and disconnect" }).click();
+    await dialog.getByText("disconnected 2 connections").waitFor();
+
+    expect(page.sent).toHaveLength(1);
+    const sent = page.sent[0]!;
+    expect(sent.method).toBe("POST");
+    expect(sent.path).toBe("/admin/ip-bans");
+    const body = sent.body as {
+      ip: string;
+      reason: string;
+      disconnect: boolean;
+      expiresAt: number;
+    };
+    expect(body).toMatchObject({ ip: "10.0.0.1", reason: "botting", disconnect: true });
+    // A day from the server's clock, which the login server will compare it
+    // against — not the viewer's.
+    expect(Math.abs(body.expiresAt - (NOW + 86_400_000))).toBeLessThan(60_000);
+    await page.close();
+  });
+
+  test("banned IPs are listed, edited and lifted", async () => {
+    if (skip()) return;
+    const bans: IpBans = {
+      nowMs: NOW,
+      bans: [
+        {
+          ip: "10.0.0.0",
+          expiresAt: null,
+          reason: "proxy range",
+          bannedBy: "admin@example.com",
+          createdAt: NOW - 86_400_000,
+        },
+        {
+          ip: "203.0.113.9",
+          expiresAt: NOW - 60_000,
+          reason: "",
+          bannedBy: "other@example.com",
+          createdAt: NOW - 2 * 86_400_000,
+        },
+      ],
+    };
+    const page = await open(() => ({ status: 200, body: payload([HERO, ALT]) }), {
+      bans: () => bans,
+      mutate: (s) =>
+        s.method === "PUT" ? { status: 200, body: s.body } : { status: 204, body: null },
+    });
+    const table = page.locator("table").nth(1);
+    const text = await table.innerText();
+    expect(text).toContain("10.0.0.0");
+    // `10.0.0.0` is the whole 10.* range, so it covers both connected clients.
+    expect(text).toContain("(10.*.*.*)");
+    expect(text).toContain("2 connected");
+    expect(text).toContain("Permanent");
+    expect(text).toContain("expired 1m 00s ago");
+    expect(text).toContain("proxy range");
+
+    const first = table.locator("tbody tr").first();
+    await first.getByRole("button", { name: "Edit" }).click();
+    expect(await page.getByLabel("Length").inputValue()).toBe("keep");
+    await page.getByLabel("IP address").fill("10.1.0.0");
+    await page.getByRole("button", { name: "Save" }).click();
+    await page.waitForTimeout(300);
+    expect(page.sent.at(-1)).toEqual({
+      method: "PUT",
+      path: "/admin/ip-bans/10.0.0.0",
+      body: { ip: "10.1.0.0", expiresAt: null, reason: "proxy range" },
+    });
+
+    const second = table.locator("tbody tr").nth(1);
+    await second.getByRole("button", { name: "Remove" }).click();
+    await second.getByRole("button", { name: "Lift" }).click();
+    await page.waitForTimeout(300);
+    expect(page.sent.at(-1)).toEqual({
+      method: "DELETE",
+      path: "/admin/ip-bans/203.0.113.9",
+      body: null,
+    });
     await page.close();
   });
 });

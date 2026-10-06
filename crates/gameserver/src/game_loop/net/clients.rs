@@ -1,6 +1,7 @@
-//! The game server's answer to the monitor channel's `clients` request
-//! (`docs/MONITORING.md` §10): one record per session in `world.clients`,
-//! built on the game thread, which owns them.
+//! The game server's answer to the monitor channel's `clients` and `kick`
+//! requests (`docs/MONITORING.md` §10): one record per session in
+//! `world.clients`, built on the game thread, which owns them; and the
+//! dashboard's "disconnect" button.
 //!
 //! The request arrives as a [`GameEvent::Monitor`](crate::events::GameEvent)
 //! and is answered in the same drain, so the dashboard pays one event's latency
@@ -9,6 +10,7 @@
 use commons::monitor::clients::ClientRecord;
 use serde_json::{Map, Value, json};
 
+use crate::events::MonitorRequest;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
 use crate::model::components;
@@ -16,12 +18,36 @@ use crate::network::client_packets::session::HardwareInfo;
 use crate::session::ClientSession;
 use crate::world::World;
 
-/// The reply channel a `clients` request carries.
-pub type ClientsReplyTx = tokio::sync::oneshot::Sender<Vec<ClientRecord>>;
-
-pub(crate) fn answer_clients(world: &World, reply: ClientsReplyTx) {
+pub(crate) fn answer(world: &mut World, request: MonitorRequest) {
     // The channel may have given up waiting; nothing to do about that here.
-    let _ = reply.send(client_records(world));
+    match request {
+        MonitorRequest::Clients(reply) => {
+            let _ = reply.send(client_records(world));
+        }
+        MonitorRequest::Kick {
+            id,
+            connected_ms,
+            reply,
+        } => {
+            let _ = reply.send(kick(world, id, connected_ms));
+        }
+    }
+}
+
+/// The dashboard's disconnect: the same teardown as a flood-protector kick.
+/// The dashboard records who asked for it in the GM audit log.
+pub(crate) fn kick(world: &mut World, id: u64, connected_ms: u64) -> bool {
+    let Ok(client_id) = u32::try_from(id) else {
+        return false;
+    };
+    let Some(session) = world.clients.get(&client_id) else {
+        return false;
+    };
+    if session.out().stats().connected_ms() != connected_ms {
+        return false;
+    }
+    crate::game_loop::helpers::kick_client(world, client_id);
+    true
 }
 
 pub(crate) fn client_records(world: &World) -> Vec<ClientRecord> {

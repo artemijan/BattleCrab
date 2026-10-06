@@ -60,3 +60,33 @@ fn every_session_is_listed_with_its_stage_and_who_it_is() {
     assert_eq!(character["position"]["x"], 10);
     assert!(in_game.connected_ms > 0);
 }
+
+#[test]
+fn a_kick_closes_only_the_connection_it_names() {
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    let _lobby = connect(&mut world, 1);
+    let _in_game = ingame_player(&mut world, 2, 2002, 10, 20, 30);
+    let connected =
+        |world: &World, id: u32| world.clients.get(&id).unwrap().out().stats().connected_ms();
+
+    // A stale list: the right id, but another connection's start.
+    let lobby_ms = connected(&world, 1);
+    assert!(!crate::game_loop::net::kick(&mut world, 1, lobby_ms + 1));
+    assert!(world.clients.contains_key(&1));
+    assert!(!crate::game_loop::net::kick(&mut world, 99, lobby_ms));
+
+    assert!(crate::game_loop::net::kick(&mut world, 1, lobby_ms));
+    assert!(!world.clients.contains_key(&1));
+
+    // In game: the full teardown, so the player leaves the world too.
+    let in_game_ms = connected(&world, 2);
+    assert!(crate::game_loop::net::kick(&mut world, 2, in_game_ms));
+    assert!(!world.clients.contains_key(&2));
+    assert!(world.player_oid(2).is_none());
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&2002)
+            .is_none()
+    );
+}

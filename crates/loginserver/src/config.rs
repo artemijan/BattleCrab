@@ -47,9 +47,8 @@ pub struct LoginConfig {
 }
 
 pub const LOGIN_CONFIG_FILE: &str = "dist/login/config/LoginServer.ini";
-pub const BANNED_IP_FILE: &str = "dist/login/banned_ip.cfg";
 
-/// The prefix the two paths above share: the login server addresses its files
+/// The prefix of the path above: the login server addresses its files
 /// from the *repository root*, not from inside `dist/login`, which is why the
 /// systemd unit sets `WorkingDirectory` to the deployment root. Anything else
 /// that has to sit beside `LoginServer.ini` — `Logging.ini`, the `log/`

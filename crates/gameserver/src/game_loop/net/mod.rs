@@ -7,15 +7,15 @@ use crate::events::GameEvent;
 use crate::session::ClientSession;
 use crate::world::World;
 
+pub(crate) mod auth_guard;
 pub mod broadcast;
 mod clients;
 mod db_events;
 mod persistence;
 mod session;
 
-pub use clients::ClientsReplyTx;
 #[cfg(test)]
-pub(crate) use clients::client_records;
+pub(crate) use clients::{client_records, kick};
 pub(crate) use db_events::handle_db_event;
 
 #[cfg(test)]
@@ -41,7 +41,7 @@ pub(crate) fn handle_game_event(world: &mut World, event: GameEvent) {
         GameEvent::Login(e) => handle_login_link_event(world, e),
         GameEvent::Db(e) => handle_db_event(world, e),
         GameEvent::Path(e) => super::space::position::handle_path_result(world, e),
-        GameEvent::Monitor(reply) => clients::answer_clients(world, reply),
+        GameEvent::Monitor(request) => clients::answer(world, request),
     }
 }
 

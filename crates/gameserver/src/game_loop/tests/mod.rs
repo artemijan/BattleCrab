@@ -61,6 +61,7 @@ mod area_scripts_tests;
 mod armor_set_tests;
 mod attribute_tests;
 mod augment_skill_tests;
+mod auth_guard_tests;
 mod auto_play_tests;
 mod auto_potions_tests;
 mod baby_pets_tests;

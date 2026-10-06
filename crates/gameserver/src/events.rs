@@ -29,10 +29,22 @@ pub enum GameEvent {
     Login(LoginLinkEvent),
     Db(DbEvent),
     Path(PathEvent),
-    /// The monitor channel asking for the live client list
-    /// (`docs/MONITORING.md` §10). Answered from the game thread, which owns
-    /// the sessions.
-    Monitor(crate::game_loop::net::ClientsReplyTx),
+    /// The monitor channel asking for the live client list, or to kick one
+    /// client (`docs/MONITORING.md` §10). Answered from the game thread, which
+    /// owns the sessions.
+    Monitor(MonitorRequest),
+}
+
+/// What the monitor channel asks of the game thread.
+pub enum MonitorRequest {
+    Clients(tokio::sync::oneshot::Sender<Vec<commons::monitor::clients::ClientRecord>>),
+    /// Close client `id` if it is the connection that opened at
+    /// `connected_ms`; answers whether it did.
+    Kick {
+        id: u64,
+        connected_ms: u64,
+        reply: tokio::sync::oneshot::Sender<bool>,
+    },
 }
 
 /// Sender side. Cloned into each service's typed facade; sends are

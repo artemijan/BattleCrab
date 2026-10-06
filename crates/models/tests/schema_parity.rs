@@ -1,9 +1,9 @@
 //! Every entity must agree with the schema the migrations build.
 //!
-//! The two are written from the same source (`dist/db_installer/sql/**`) but by
-//! different paths — one through `sea-orm-cli generate entity`, one through
-//! `tools/gen_migrations.py`. When they drift, the symptom in production is a
-//! decode error on a column nobody touched in months, so it is worth one test.
+//! The entities are generated from a migrated database, but nothing forces a
+//! regeneration after a migration changes a table. When they drift, the
+//! symptom in production is a decode error on a column nobody touched in
+//! months, so it is worth one test.
 //!
 //! What is checked, per table: the column sets match, and a column the entity
 //! calls non-nullable is `NOT NULL` in the database. Primary keys are exempt
@@ -173,6 +173,7 @@ async fn entities_match_the_migrated_schema() {
         grandboss_data,
         heroes,
         heroes_diary,
+        ip_bans,
         item_auction,
         item_auction_bid,
         item_elementals,

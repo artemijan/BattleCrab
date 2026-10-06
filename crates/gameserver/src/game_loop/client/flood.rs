@@ -31,7 +31,7 @@
 use crate::config::flood_protector::{
     FloodAction, FloodProtectorConfig, FloodProtectorsConfig, FloodPunishment,
 };
-use crate::game_loop::helpers::disconnect_player;
+use crate::game_loop::helpers::kick_client;
 use crate::model::Player;
 use crate::model::punishment::{PunishmentAffect, PunishmentType};
 use crate::network::client_packets::{ex_opcodes as exop, opcodes as cop};
@@ -311,7 +311,7 @@ fn apply_punishment(
     match punishment {
         FloodPunishment::Kick => {
             tracing::warn!("{type_name}: client {client_id} kicked for flooding");
-            kick(world, client_id);
+            kick_client(world, client_id);
         }
         FloodPunishment::Ban => {
             let Some(account) = world.clients.get(&client_id).and_then(|s| s.account()) else {
@@ -356,21 +356,6 @@ fn apply_punishment(
             );
         }
         FloodPunishment::None => {}
-    }
-}
-
-/// Java `Disconnection.of(client).defaultSequence(LeaveWorld)`, which works in
-/// every connection state. An in-game client goes through the full teardown
-/// (persist + despawn); anything earlier just gets the packet and has its
-/// session dropped, which closes the socket when the outbound sender goes.
-fn kick(world: &mut World, client_id: u32) {
-    match world.player_oid(client_id) {
-        Some(oid) => disconnect_player(world, oid),
-        None => {
-            if let Some(session) = world.clients.remove(&client_id) {
-                session.send(crate::network::server_packets::leave_world());
-            }
-        }
     }
 }
 

@@ -2,8 +2,8 @@
 //!
 //! Unlike samples, nothing here is buffered: a `clients` request on the
 //! monitor channel asks the server, right then, for one [`ClientRecord`] per
-//! open connection. Each server answers through the [`ClientsProvider`] it
-//! installs with [`set_provider`]. The game server's provider is a request
+//! open connection, and a `kick` request closes one of them. Each server
+//! answers through the [`Provider`] it installs with [`set_provider`]. The game server's provider is a request
 //! into the game loop (the session table belongs to the game thread). The
 //! login server's provider reads its own connection registry. A server that
 //! installs none answers with an error line.
@@ -139,49 +139,72 @@ pub struct ClientRecord {
 /// The answer to one `clients` request.
 pub type ClientsReply = tokio::sync::oneshot::Receiver<Vec<ClientRecord>>;
 
-/// Starts building a client list. `None` when the server can't answer at all
-/// (the game thread is gone).
-pub type ClientsProvider = Box<dyn Fn() -> Option<ClientsReply> + Send + Sync>;
+/// The answer to one `kick` request: whether that connection was open and is
+/// now being closed.
+pub type KickReply = tokio::sync::oneshot::Receiver<bool>;
+
+/// What a server installs to answer the channel's client requests. Each
+/// returns `None` when the server can't answer at all (the game thread is
+/// gone).
+pub struct Provider {
+    /// Starts building a client list.
+    pub list: Box<dyn Fn() -> Option<ClientsReply> + Send + Sync>,
+    /// Closes connection `id`, but only if it is the one that opened at
+    /// `connected_ms`: ids are reused across restarts, and a dashboard holding
+    /// a list from before one must not kick whoever has that id now.
+    pub kick: Box<dyn Fn(u64, u64) -> Option<KickReply> + Send + Sync>,
+}
 
 /// Where the channel looks for the provider. A slot rather than an argument to
 /// [`super::spawn`] because the game server starts its monitor before the game
 /// loop's channel exists.
 #[derive(Default)]
-pub struct ProviderSlot(OnceLock<ClientsProvider>);
+pub struct ProviderSlot(OnceLock<Provider>);
 
 impl ProviderSlot {
     pub const fn new() -> Self {
         Self(OnceLock::new())
     }
 
-    pub(crate) fn request(&self) -> Option<ClientsReply> {
-        (self.0.get()?)()
+    pub(crate) fn list(&self) -> Option<ClientsReply> {
+        (self.0.get()?.list)()
     }
 
-    fn set(&self, provider: ClientsProvider) -> bool {
+    pub(crate) fn kick(&self, id: u64, connected_ms: u64) -> Option<KickReply> {
+        (self.0.get()?.kick)(id, connected_ms)
+    }
+
+    fn set(&self, provider: Provider) -> bool {
         self.0.set(provider).is_ok()
     }
 
     #[cfg(test)]
-    pub(crate) fn set_for_test(&self, provider: ClientsProvider) -> bool {
+    pub(crate) fn set_for_test(&self, provider: Provider) -> bool {
         self.set(provider)
     }
 }
 
 pub(crate) static PROVIDER: ProviderSlot = ProviderSlot::new();
 
-/// Installs this process's client-list provider. The first call wins; a
-/// second is a wiring bug and is logged, not obeyed.
-pub fn set_provider(provider: impl Fn() -> Option<ClientsReply> + Send + Sync + 'static) {
-    if !PROVIDER.set(Box::new(provider)) {
+/// Installs this process's client provider. The first call wins; a second is
+/// a wiring bug and is logged, not obeyed.
+pub fn set_provider(
+    list: impl Fn() -> Option<ClientsReply> + Send + Sync + 'static,
+    kick: impl Fn(u64, u64) -> Option<KickReply> + Send + Sync + 'static,
+) {
+    let provider = Provider {
+        list: Box::new(list),
+        kick: Box::new(kick),
+    };
+    if !PROVIDER.set(provider) {
         tracing::warn!("monitor: a clients provider was already installed; ignoring another");
     }
 }
 
-/// A provider for a server that already has its list in hand.
-pub fn ready(records: Vec<ClientRecord>) -> Option<ClientsReply> {
+/// An answer a server already has in hand.
+pub fn ready<T>(value: T) -> Option<tokio::sync::oneshot::Receiver<T>> {
     let (tx, rx) = tokio::sync::oneshot::channel();
-    let _ = tx.send(records);
+    let _ = tx.send(value);
     Some(rx)
 }
 

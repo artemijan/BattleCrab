@@ -7,23 +7,13 @@ use std::time::Duration;
 
 use gameserver::db::{self, CreateResult, DbCommand, DbEvent, NewCharacter};
 
-/// The DB thread's `verify_schema` fingerprint requires both `characters` and
-/// `accounts`; the character-schema fixtures here build only the former, so add
-/// a stock `accounts` table (from the login installer SQL) before the thread
-/// starts — otherwise it exits immediately and every `recv` sees `Disconnected`.
-async fn add_accounts_table(url: &str) {
-    let sql = std::fs::read_to_string(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/login/accounts.sql"
-    ))
-    .unwrap();
+/// Builds the full schema in the temp database at `url`, the way production
+/// gets it: the migrations.
+async fn migrate(url: &str) {
+    use migration::MigratorTrait;
     let pool = commons::db::init(url, 1).await.unwrap();
-    for stmt in sql.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-        sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-            .execute(&pool)
-            .await
-            .unwrap();
-    }
+    let db = models::sea_orm::SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    migration::Migrator::up(&db, None).await.unwrap();
     pool.close().await;
 }
 
@@ -155,32 +145,17 @@ fn recv(rx: &std::sync::mpsc::Receiver<gameserver::events::GameEvent>) -> DbEven
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn create_persist_delete_restore() {
-    // Temp database with the stock characters schema.
+    // Temp database with the migrated schema.
     let dir = std::env::temp_dir().join(format!("l2r_g3_{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let schema = std::fs::read_to_string(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game/characters.sql"
-    ))
-    .unwrap();
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-            sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                .execute(&pool)
-                .await
-                .unwrap();
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     // Run the DB thread against it.
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,
@@ -312,38 +287,10 @@ async fn login_char_count_excludes_expired_deletions() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game"
-    );
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in [
-            "characters",
-            "items",
-            "character_skills",
-            "character_shortcuts",
-            "character_macroses",
-            "character_reco_bonus",
-            "character_quests",
-            "character_hennas",
-            "character_recipebook",
-            "character_variables",
-        ] {
-            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
-            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                    .execute(&pool)
-                    .await
-                    .unwrap();
-            }
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,
@@ -463,43 +410,10 @@ async fn shortcuts_and_macros_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game"
-    );
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        // `character_quests` is needed too: the memory-first flush reconciles
-        // every child table, so `store_player` always touches it (even with no
-        // quests, to delete any that were abandoned).
-        for table in [
-            "characters",
-            "items",
-            "item_variations",
-            "character_skills",
-            "character_skills_save",
-            "character_shortcuts",
-            "character_macroses",
-            "character_reco_bonus",
-            "character_quests",
-            "character_hennas",
-            "character_recipebook",
-            "character_variables",
-        ] {
-            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
-            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                    .execute(&pool)
-                    .await
-                    .unwrap();
-            }
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,
@@ -690,40 +604,10 @@ async fn friendships_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game"
-    );
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in [
-            "characters",
-            "items",
-            "item_variations",
-            "character_skills",
-            "character_skills_save",
-            "character_shortcuts",
-            "character_macroses",
-            "character_friends",
-            "character_reco_bonus",
-            "character_hennas",
-            "character_recipebook",
-            "character_variables",
-        ] {
-            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
-            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                    .execute(&pool)
-                    .await
-                    .unwrap();
-            }
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,
@@ -831,41 +715,10 @@ async fn quest_states_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game"
-    );
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in [
-            "characters",
-            "items",
-            "item_variations",
-            "character_skills",
-            "character_skills_save",
-            "character_shortcuts",
-            "character_macroses",
-            "character_friends",
-            "character_reco_bonus",
-            "character_quests",
-            "character_hennas",
-            "character_recipebook",
-            "character_variables",
-        ] {
-            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
-            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                    .execute(&pool)
-                    .await
-                    .unwrap();
-            }
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,
@@ -998,40 +851,10 @@ async fn recommendations_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game"
-    );
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in [
-            "characters",
-            "items",
-            "item_variations",
-            "character_skills",
-            "character_skills_save",
-            "character_shortcuts",
-            "character_macroses",
-            "character_reco_bonus",
-            "character_quests",
-            "character_hennas",
-            "character_recipebook",
-            "character_variables",
-        ] {
-            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
-            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                    .execute(&pool)
-                    .await
-                    .unwrap();
-            }
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,
@@ -1139,40 +962,10 @@ async fn skill_reuse_cooldowns_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game"
-    );
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in [
-            "characters",
-            "items",
-            "item_variations",
-            "character_skills",
-            "character_skills_save",
-            "character_shortcuts",
-            "character_macroses",
-            "character_reco_bonus",
-            "character_quests",
-            "character_hennas",
-            "character_recipebook",
-            "character_variables",
-        ] {
-            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
-            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                    .execute(&pool)
-                    .await
-                    .unwrap();
-            }
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,
@@ -1285,40 +1078,10 @@ async fn active_buffs_persist_with_frozen_countdown() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game"
-    );
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in [
-            "characters",
-            "items",
-            "item_variations",
-            "character_skills",
-            "character_skills_save",
-            "character_shortcuts",
-            "character_macroses",
-            "character_reco_bonus",
-            "character_quests",
-            "character_hennas",
-            "character_recipebook",
-            "character_variables",
-        ] {
-            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
-            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                    .execute(&pool)
-                    .await
-                    .unwrap();
-            }
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,
@@ -1443,43 +1206,10 @@ async fn pets_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game"
-    );
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in [
-            "characters",
-            "items",
-            "item_variations",
-            "character_skills",
-            "character_skills_save",
-            "character_shortcuts",
-            "character_macroses",
-            "character_reco_bonus",
-            "character_quests",
-            "character_hennas",
-            "character_recipebook",
-            "character_variables",
-            "pets",
-            "character_summons",
-            "character_summon_skills_save",
-        ] {
-            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
-            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                    .execute(&pool)
-                    .await
-                    .unwrap();
-            }
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,
@@ -1643,40 +1373,10 @@ async fn current_cp_persists() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game"
-    );
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in [
-            "characters",
-            "items",
-            "item_variations",
-            "character_skills",
-            "character_skills_save",
-            "character_shortcuts",
-            "character_macroses",
-            "character_reco_bonus",
-            "character_quests",
-            "character_hennas",
-            "character_recipebook",
-            "character_variables",
-        ] {
-            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
-            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                    .execute(&pool)
-                    .await
-                    .unwrap();
-            }
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,
@@ -1756,40 +1456,10 @@ async fn restorable_exp_survives_a_relog() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/db_installer/sql/sqlite/game"
-    );
-    {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in [
-            "characters",
-            "items",
-            "item_variations",
-            "character_skills",
-            "character_skills_save",
-            "character_shortcuts",
-            "character_macroses",
-            "character_reco_bonus",
-            "character_quests",
-            "character_hennas",
-            "character_recipebook",
-            "character_variables",
-        ] {
-            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
-            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
-                    .execute(&pool)
-                    .await
-                    .unwrap();
-            }
-        }
-        pool.close().await;
-    }
+    migrate(&url).await;
 
     let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (event_tx, event_rx) = std::sync::mpsc::channel();
-    add_accounts_table(&url).await;
     let handle = db::spawn(
         url.clone(),
         1,

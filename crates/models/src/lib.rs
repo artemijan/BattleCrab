@@ -3,8 +3,8 @@
 //!
 //! # What lives here
 //!
-//! * [`entity`] — one module per table in `dist/db_installer/sql/**`, generated
-//!   from that DDL (see docs/DATABASE.md) and re-typed by
+//! * [`entity`] — one module per table the migrations create, generated from
+//!   a migrated database (see docs/DATABASE.md) and re-typed by
 //!   `tools/normalize_entities.py`. Column names are kept verbatim
 //!   (`charId`, `accessLevel`, …): the schema is shared with the Java server
 //!   and is not ours to modernise.

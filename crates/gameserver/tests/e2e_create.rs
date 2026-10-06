@@ -293,6 +293,7 @@ async fn start_game(
             delete_days: 3,
             starting_adena: 100,
             cfg,
+            security: gameserver::config::SecurityConfig::default(),
         },
     );
 
@@ -330,7 +331,7 @@ async fn start_game(
         drop_packets: true,
         drop_packet_threshold: 2500,
     });
-    tokio::spawn(connection::accept_loop(listener, net_tx, net_cfg));
+    tokio::spawn(connection::accept_loop(listener, net_tx, net_cfg, None));
     addr
 }
 

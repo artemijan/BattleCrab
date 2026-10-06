@@ -4,8 +4,8 @@
 //! (`commons::monitor`). This module polls those rings over loopback, is the
 //! sole writer of `metrics.db`, samples host-level pressure, prunes past the
 //! retention window, and answers the `/admin/monitor` queries. It also asks
-//! the servers for their live client lists on demand (§10); those are never
-//! stored.
+//! the servers for their live client lists on demand (§10), which are never
+//! stored, and passes on the Audit page's disconnects.
 
 pub mod host;
 pub mod store;
@@ -94,6 +94,15 @@ pub struct ClientSource {
     pub service: String,
     pub up: bool,
     pub error: Option<String>,
+}
+
+/// What [`Monitor::kick_covered`] did.
+#[derive(Debug, Default)]
+pub struct KickSummary {
+    /// The connections it closed, as they were listed just before.
+    pub kicked: Vec<ClientRecord>,
+    /// Targets that could not be asked, or could not kick.
+    pub errors: Vec<String>,
 }
 
 pub struct Monitor {
@@ -275,6 +284,45 @@ impl Monitor {
         (clients, sources)
     }
 
+    /// Asks `service` to close connection `id`, the one that opened at
+    /// `connected_ms`. `Ok(false)` when it is not open (it already left);
+    /// `None` when `service` is not a target.
+    pub async fn kick(
+        &self,
+        service: &str,
+        id: u64,
+        connected_ms: u64,
+    ) -> Option<Result<bool, String>> {
+        let target = self.targets.iter().find(|t| t.service == service)?;
+        Some(kick(target, id, connected_ms).await)
+    }
+
+    /// Closes every open connection, on every target, whose address `ban`
+    /// covers (`models::repo::ip_bans::covering`). Asks for a fresh list
+    /// first, so it only kicks connections that exist now.
+    pub async fn kick_covered(&self, ban: &str) -> KickSummary {
+        let (clients, sources) = self.clients().await;
+        let mut summary = KickSummary {
+            errors: sources
+                .into_iter()
+                .filter_map(|s| s.error.map(|e| format!("{}: {e}", s.service)))
+                .collect(),
+            ..KickSummary::default()
+        };
+        for c in clients.iter().filter(|c| {
+            models::repo::ip_bans::covering(&c.ip)
+                .iter()
+                .any(|b| b == ban)
+        }) {
+            match self.kick(&c.service, c.id, c.connected_ms).await {
+                Some(Ok(true)) => summary.kicked.push(c.clone()),
+                Some(Ok(false)) | None => {}
+                Some(Err(e)) => summary.errors.push(format!("{}: {e}", c.service)),
+            }
+        }
+        summary
+    }
+
     /// One host reading, stamped on the current period boundary.
     pub async fn sample_host(&self) {
         let path = self.disk_path.clone();
@@ -351,6 +399,17 @@ async fn client_list(target: &Target) -> Result<Vec<ClientRecord>, String> {
         ));
     }
     Ok(parsed.clients)
+}
+
+async fn kick(target: &Target, id: u64, connected_ms: u64) -> Result<bool, String> {
+    let body = tokio::time::timeout(
+        POLL_TIMEOUT,
+        request(&target.address, &format!("kick {id} {connected_ms}")),
+    )
+    .await
+    .map_err(|_| "timed out".to_string())?
+    .map_err(|e| e.to_string())?;
+    wire::parse_kick(&body)
 }
 
 pub fn epoch_ms() -> i64 {

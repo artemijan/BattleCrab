@@ -2,7 +2,8 @@
 //! like the rest of `/admin`: every handler starts with `require_admin`.
 //!
 //! `/clients` is the Audit page's live connection list (§10), asked of the
-//! servers on each request and never stored.
+//! servers on each request and never stored; `/clients/disconnect` closes one
+//! of those connections.
 //!
 //! All of them answer 503 when monitoring is off (`MonitorTargets` empty, or
 //! `metrics.db` would not open), so the SPA can tell "disabled" from "broken".
@@ -10,7 +11,7 @@
 use std::sync::Arc;
 
 use axum::extract::{Query, State};
-use axum::http::HeaderMap;
+use axum::http::{HeaderMap, StatusCode};
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
 
@@ -33,6 +34,7 @@ pub fn router() -> Router<AppState> {
         .route("/series", axum::routing::get(series))
         .route("/host", axum::routing::get(host))
         .route("/clients", axum::routing::get(clients))
+        .route("/clients/disconnect", axum::routing::post(disconnect))
 }
 
 async fn monitor(app: &AppState, headers: &HeaderMap) -> ApiResult<Arc<Monitor>> {
@@ -247,6 +249,62 @@ async fn clients(
         clients,
         sources,
     }))
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DisconnectRequest {
+    pub service: String,
+    pub id: u64,
+    /// Names the connection together with `id`: a list from before a server
+    /// restart must not kick whoever holds that id now.
+    pub connected_ms: u64,
+    /// For the audit record only; the server goes by `id`.
+    #[serde(default)]
+    pub ip: Option<String>,
+    #[serde(default)]
+    pub account: Option<String>,
+}
+
+/// 204 when the connection was closed, 404 when it was already gone, 502 when
+/// the server could not be asked.
+async fn disconnect(
+    State(app): State<AppState>,
+    headers: HeaderMap,
+    Json(body): Json<DisconnectRequest>,
+) -> ApiResult<StatusCode> {
+    let actor = require_admin(&app, &headers).await?;
+    let m = app
+        .monitor
+        .clone()
+        .ok_or(ApiError::Unavailable("server monitoring is disabled"))?;
+    let kicked = m
+        .kick(&body.service, body.id, body.connected_ms)
+        .await
+        .ok_or(ApiError::NotFound)?
+        .map_err(|e| ApiError::Upstream(format!("{} did not answer: {e}", body.service)))?;
+    if !kicked {
+        return Err(ApiError::NotFound);
+    }
+    tracing::info!(
+        admin = %actor.subject(),
+        service = %body.service,
+        id = body.id,
+        "admin: disconnected a client"
+    );
+    commons::audit::record(
+        commons::audit::Category::GmAudit,
+        serde_json::json!({
+            "event": "disconnect_client",
+            "source": "dashboard",
+            "admin": actor.subject(),
+            "service": body.service,
+            "client_id": body.id,
+            "ip": body.ip,
+            "account": body.account,
+        }),
+    );
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[cfg(test)]

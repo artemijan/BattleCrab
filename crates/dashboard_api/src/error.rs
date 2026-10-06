@@ -77,6 +77,10 @@ pub enum ApiError {
     #[error("{0}")]
     Unavailable(&'static str),
 
+    /// A game or login server this request needed did not answer.
+    #[error("{0}")]
+    Upstream(String),
+
     #[error("internal error")]
     Internal(#[from] anyhow_lite::Error),
 }
@@ -134,6 +138,7 @@ impl ApiError {
             ApiError::CaptchaFailed => (StatusCode::FORBIDDEN, "captcha_failed"),
             ApiError::InvalidToken => (StatusCode::BAD_REQUEST, "invalid_token"),
             ApiError::Unavailable(_) => (StatusCode::SERVICE_UNAVAILABLE, "unavailable"),
+            ApiError::Upstream(_) => (StatusCode::BAD_GATEWAY, "upstream"),
             ApiError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "internal"),
         }
     }

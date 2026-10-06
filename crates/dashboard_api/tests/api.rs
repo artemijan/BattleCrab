@@ -2664,6 +2664,294 @@ async fn clients_are_merged_across_servers_and_a_bad_target_is_reported() {
     assert_eq!(sources[2]["up"], false, "nothing listens on port 1");
 }
 
+/// A server's monitor channel that lists `clients` and kicks whatever it is
+/// asked to whose id is in `kickable`. Returns its address and the request
+/// lines it saw.
+async fn fake_kicking_channel(
+    clients: String,
+    kickable: Vec<u64>,
+) -> (String, Arc<std::sync::Mutex<Vec<String>>>) {
+    use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let addr = listener.local_addr().unwrap().to_string();
+    let requests = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let seen = requests.clone();
+    tokio::spawn(async move {
+        while let Ok((stream, _)) = listener.accept().await {
+            let (read, mut write) = stream.into_split();
+            let mut line = String::new();
+            BufReader::new(read).read_line(&mut line).await.unwrap();
+            seen.lock().unwrap().push(line.clone());
+            let answer = match line.trim().strip_prefix("kick ") {
+                Some(rest) => {
+                    let id: u64 = rest.split_whitespace().next().unwrap().parse().unwrap();
+                    format!("{{\"kicked\":{}}}\n", kickable.contains(&id))
+                }
+                None => clients.clone(),
+            };
+            let _ = write.write_all(answer.as_bytes()).await;
+            let _ = write.shutdown().await;
+        }
+    });
+    (addr, requests)
+}
+
+fn request_with_cookie(
+    method: &str,
+    path: &str,
+    cookie: &str,
+    body: Option<serde_json::Value>,
+) -> Request<Body> {
+    with_peer(
+        Request::builder()
+            .method(method)
+            .uri(path)
+            .header(header::CONTENT_TYPE, "application/json")
+            .header("X-Requested-With", "XMLHttpRequest")
+            .header(header::COOKIE, cookie)
+            .body(body.map_or_else(Body::empty, |b| Body::from(b.to_string())))
+            .unwrap(),
+    )
+}
+
+#[tokio::test]
+async fn an_admin_disconnects_one_client_by_id_and_start() {
+    let (game, requests) = fake_kicking_channel(String::new(), vec![2]).await;
+    let (app, pool, _monitor) = test_app_with_monitor(&format!("game_server={game}")).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    let player = verified_master(&pool, &app, "player@example.com").await;
+    let disconnect = |cookie: &str, service: &str, id: u64| {
+        post_with_cookie(
+            "/api/v1/admin/monitor/clients/disconnect",
+            cookie,
+            serde_json::json!({ "service": service, "id": id, "connectedMs": 1_759_000_000_000i64 }),
+        )
+    };
+
+    let refused = app
+        .clone()
+        .oneshot(disconnect(&player, "game_server", 2))
+        .await
+        .unwrap();
+    assert_eq!(refused.status(), StatusCode::FORBIDDEN);
+
+    let ok = app
+        .clone()
+        .oneshot(disconnect(&admin, "game_server", 2))
+        .await
+        .unwrap();
+    assert_eq!(ok.status(), StatusCode::NO_CONTENT);
+    assert_eq!(
+        *requests.lock().unwrap(),
+        vec!["kick 2 1759000000000\n".to_string()]
+    );
+
+    let gone = app
+        .clone()
+        .oneshot(disconnect(&admin, "game_server", 3))
+        .await
+        .unwrap();
+    assert_eq!(gone.status(), StatusCode::NOT_FOUND, "already disconnected");
+    let unknown = app
+        .clone()
+        .oneshot(disconnect(&admin, "nope", 2))
+        .await
+        .unwrap();
+    assert_eq!(unknown.status(), StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn a_ban_with_disconnect_kicks_every_covered_client_on_every_server() {
+    let ip_client = |service: &str, id: u64, ip: &str| {
+        let mut record: serde_json::Value =
+            serde_json::from_str(&client_line(service, id, "lobby", None)).unwrap();
+        record["ip"] = ip.into();
+        format!("{record}\n")
+    };
+    let game_body = [
+        ip_client("game_server", 1, "10.1.2.7"),
+        ip_client("game_server", 2, "10.1.3.8"),
+    ]
+    .concat();
+    let (game, game_requests) = fake_kicking_channel(game_body, vec![1, 2]).await;
+    let (login, login_requests) =
+        fake_kicking_channel(ip_client("login_server", 5, "10.1.2.9"), vec![5]).await;
+    let (app, pool, _monitor) =
+        test_app_with_monitor(&format!("game_server={game},login_server={login}")).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+
+    // `10.1.2.0` is the 10.1.2.* subnet: ids 1 and 5, not 2.
+    let response = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/ip-bans",
+            &admin,
+            serde_json::json!({ "ip": "10.1.2.0", "reason": "bots", "disconnect": true }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::CREATED);
+    let body = body_json(response).await;
+    assert_eq!(body["disconnected"], 2, "{body}");
+    assert_eq!(body["disconnectErrors"], serde_json::json!([]));
+    assert_eq!(body["ban"]["ip"], "10.1.2.0");
+    assert_eq!(body["ban"]["expiresAt"], serde_json::Value::Null);
+    assert_eq!(body["ban"]["bannedBy"], "admin@example.com");
+
+    let kicks = |r: &Arc<std::sync::Mutex<Vec<String>>>| -> Vec<String> {
+        r.lock()
+            .unwrap()
+            .iter()
+            .filter(|l| l.starts_with("kick"))
+            .cloned()
+            .collect()
+    };
+    assert_eq!(kicks(&game_requests), vec!["kick 1 1759000000000\n"]);
+    assert_eq!(kicks(&login_requests), vec!["kick 5 1759000000000\n"]);
+
+    let (expires, reason): (i64, String) =
+        sqlx::query_as("SELECT expires_at, reason FROM ip_bans WHERE ip = '10.1.2.0'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!((expires, reason.as_str()), (0, "bots"));
+}
+
+#[tokio::test]
+async fn ip_bans_are_listed_edited_and_lifted() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    let player = verified_master(&pool, &app, "player@example.com").await;
+    let in_an_hour = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as i64
+        + 3_600_000;
+
+    let list = app
+        .clone()
+        .oneshot(get_with_cookie("/api/v1/admin/ip-bans", &player))
+        .await
+        .unwrap();
+    assert_eq!(list.status(), StatusCode::FORBIDDEN);
+
+    // No monitor: the ban still lands, and says nobody could be disconnected.
+    let created = body_json(
+        app.clone()
+            .oneshot(post_with_cookie(
+                "/api/v1/admin/ip-bans",
+                &admin,
+                serde_json::json!({ "ip": " 1.2.3.4 ", "expiresAt": in_an_hour, "disconnect": true }),
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(created["ban"]["ip"], "1.2.3.4");
+    assert_eq!(created["ban"]["expiresAt"], in_an_hour);
+    assert_eq!(created["disconnected"], 0);
+    assert_eq!(created["disconnectErrors"].as_array().unwrap().len(), 1);
+
+    let bad = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/ip-bans",
+            &admin,
+            serde_json::json!({ "ip": "1.2.3.*" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(bad.status(), StatusCode::BAD_REQUEST);
+    app.clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/ip-bans",
+            &admin,
+            serde_json::json!({ "ip": "5.6.7.8" }),
+        ))
+        .await
+        .unwrap();
+
+    // Edit: new address, made permanent, new reason.
+    let edited = app
+        .clone()
+        .oneshot(request_with_cookie(
+            "PUT",
+            "/api/v1/admin/ip-bans/1.2.3.4",
+            &admin,
+            Some(serde_json::json!({ "ip": "1.2.3.0", "expiresAt": null, "reason": "subnet" })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(edited.status(), StatusCode::OK);
+    let edited = body_json(edited).await;
+    assert_eq!(edited["ip"], "1.2.3.0");
+    assert_eq!(edited["expiresAt"], serde_json::Value::Null);
+
+    // Renaming onto another ban is refused rather than merging the two.
+    let clash = app
+        .clone()
+        .oneshot(request_with_cookie(
+            "PUT",
+            "/api/v1/admin/ip-bans/1.2.3.0",
+            &admin,
+            Some(serde_json::json!({ "ip": "5.6.7.8" })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(clash.status(), StatusCode::BAD_REQUEST);
+    let missing = app
+        .clone()
+        .oneshot(request_with_cookie(
+            "PUT",
+            "/api/v1/admin/ip-bans/9.9.9.9",
+            &admin,
+            Some(serde_json::json!({ "ip": "9.9.9.9" })),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(missing.status(), StatusCode::NOT_FOUND);
+
+    let list = body_json(
+        app.clone()
+            .oneshot(get_with_cookie("/api/v1/admin/ip-bans", &admin))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let ips: Vec<&str> = list["bans"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|b| b["ip"].as_str().unwrap())
+        .collect();
+    assert_eq!(ips.len(), 2);
+    assert!(ips.contains(&"1.2.3.0") && ips.contains(&"5.6.7.8"));
+    assert!(list["nowMs"].as_i64().unwrap() > 0);
+
+    let lifted = app
+        .clone()
+        .oneshot(request_with_cookie(
+            "DELETE",
+            "/api/v1/admin/ip-bans/1.2.3.0",
+            &admin,
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(lifted.status(), StatusCode::NO_CONTENT);
+    let again = app
+        .clone()
+        .oneshot(request_with_cookie(
+            "DELETE",
+            "/api/v1/admin/ip-bans/1.2.3.0",
+            &admin,
+            None,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(again.status(), StatusCode::NOT_FOUND);
+}
+
 #[tokio::test]
 async fn series_rejects_unknown_services_and_metrics() {
     let (app, pool, _monitor) = test_app_with_monitor("game_server=127.0.0.1:1").await;

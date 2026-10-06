@@ -33,6 +33,7 @@ pub(crate) fn handle_net_event(world: &mut World, event: NetEvent) {
                 client_id,
                 ClientSession::Connecting(Session::new(client_id, out, addr)),
             );
+            super::auth_guard::arm(world, client_id);
             debug!(
                 "GameLoop: client {client_id} connected from {addr} ({} online).",
                 world.clients.len()

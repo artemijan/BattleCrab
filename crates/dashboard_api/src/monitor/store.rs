@@ -5,8 +5,7 @@
 //! hourly pruning would otherwise contend with the game servers for one lock.
 //!
 //! Schema lives here, not in the `migration` crate — that crate is wired to
-//! the game database and its `dist_parity` test, and this file must stay
-//! droppable on its own.
+//! the game database, and this file must stay droppable on its own.
 
 use std::collections::BTreeMap;
 use std::path::Path;

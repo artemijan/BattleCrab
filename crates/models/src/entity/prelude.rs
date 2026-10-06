@@ -72,6 +72,7 @@ pub use super::global_variables::Entity as GlobalVariables;
 pub use super::grandboss_data::Entity as GrandbossData;
 pub use super::heroes::Entity as Heroes;
 pub use super::heroes_diary::Entity as HeroesDiary;
+pub use super::ip_bans::Entity as IpBans;
 pub use super::item_auction::Entity as ItemAuction;
 pub use super::item_auction_bid::Entity as ItemAuctionBid;
 pub use super::item_elementals::Entity as ItemElementals;

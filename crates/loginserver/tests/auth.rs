@@ -1,5 +1,6 @@
 //! M3 acceptance: RequestAuthLogin against SQLite — auto-create, wrong
-//! password, temp/permanent bans, double login, failed-attempt IP ban.
+//! password, temp/permanent bans, double login, failed-attempt IP ban, and
+//! the dashboard's `ip_bans` list.
 
 mod common;
 
@@ -127,7 +128,30 @@ async fn failed_attempts_ban_ip() {
 
     // IP now banned: next connection gets LoginFail(REASON_NOT_AUTHED) instead
     // of Init, under the static first-packet encryption.
-    let stream = tokio::net::TcpStream::connect(server.addr).await.unwrap();
+    assert_refused(server.addr).await;
+
+    // On the ban list in the database, so it survives a restart and shows on
+    // the dashboard — for `LoginBlockAfterBan` from now.
+    let (expires_at, banned_by, reason): (i64, String, String) =
+        sqlx::query_as("SELECT expires_at, banned_by, reason FROM ip_bans WHERE ip = '127.0.0.1'")
+            .fetch_one(&server.pool)
+            .await
+            .expect("the ban is stored");
+    assert_eq!(banned_by, "login_server");
+    assert_eq!(reason, "automatic: 2 wrong passwords");
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as i64;
+    let block = i64::from(test_config().login_block_after_ban) * 1000;
+    assert!(
+        expires_at > now && expires_at <= now + block,
+        "{expires_at}"
+    );
+}
+
+async fn assert_refused(addr: std::net::SocketAddr) {
+    let stream = tokio::net::TcpStream::connect(addr).await.unwrap();
     let (mut read, _write) = stream.into_split();
     let mut first = commons::network::read_frame(&mut read, 8192)
         .await
@@ -137,4 +161,39 @@ async fn failed_attempts_ban_ip() {
     common::dec_xor_pass(&mut first);
     assert_eq!(first[0], 0x01, "LoginFail opcode");
     assert_eq!(first[1], 0x06, "REASON_NOT_AUTHED");
+}
+
+/// The dashboard writes `ip_bans`; the login server reads it per connection,
+/// so a row takes effect on the next connect with no reload.
+#[tokio::test]
+async fn an_ip_bans_row_refuses_the_address_until_it_expires() {
+    let server = start_server(test_config()).await;
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as i64;
+
+    // Expired: no effect.
+    sqlx::query("INSERT INTO ip_bans (ip, expires_at) VALUES ('127.0.0.0', ?)")
+        .bind(now - 1000)
+        .execute(&server.pool)
+        .await
+        .unwrap();
+    let (_c, reply) = login(server.addr, "subnet", "pw").await;
+    assert_eq!(reply[0], 0x03, "an expired ban lets the client in");
+
+    // In force, on the subnet: refused.
+    sqlx::query("UPDATE ip_bans SET expires_at = ?")
+        .bind(now + 60_000)
+        .execute(&server.pool)
+        .await
+        .unwrap();
+    assert_refused(server.addr).await;
+
+    // Permanent works the same way.
+    sqlx::query("UPDATE ip_bans SET expires_at = 0")
+        .execute(&server.pool)
+        .await
+        .unwrap();
+    assert_refused(server.addr).await;
 }

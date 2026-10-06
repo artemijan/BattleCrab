@@ -17,7 +17,10 @@
 //!   put in flight between two ticks, and
 //! * per-IP accept-time limits, which are Java's own `FloodProtectedListener`
 //!   rules (upstream applies them only to the game-server↔login link, never to
-//!   players) with its `LoginServer.ini` values as the defaults.
+//!   players) with its `LoginServer.ini` values as the defaults, and
+//! * an authentication deadline: a connection that has not authenticated
+//!   within a few seconds is dropped, and an address that keeps doing it is
+//!   put on the IP ban list (`game_loop::net::auth_guard`).
 //!
 //! Everything here can be turned off; the defaults are deliberately far above
 //! any legitimate client.
@@ -51,6 +54,19 @@ pub struct SecurityConfig {
     /// magnitude of headroom, because this is a transport backstop and not a
     /// gameplay rule — `FloodProtector.ini` is where per-action limits belong.
     pub max_packets_per_second: u32,
+
+    /// Milliseconds a new connection has to authenticate (`AuthLogin`
+    /// confirmed by the login server) before it is dropped. `0` disables the
+    /// deadline, and with it the strikes below.
+    pub unauthenticated_timeout_ms: u64,
+    /// Dropped-for-silence connections from one address, within
+    /// `unauthenticated_strike_window_ms`, that put the address on the IP ban
+    /// list. `0` drops but never bans.
+    pub unauthenticated_strikes_before_ban: u32,
+    /// How far back strikes count.
+    pub unauthenticated_strike_window_ms: u64,
+    /// Length of the automatic ban, in minutes; `0` is permanent.
+    pub unauthenticated_ban_minutes: i64,
 }
 
 impl Default for SecurityConfig {
@@ -63,6 +79,10 @@ impl Default for SecurityConfig {
             fast_connection_time: 350,
             enable_packet_rate_limit: true,
             max_packets_per_second: 300,
+            unauthenticated_timeout_ms: 5_000,
+            unauthenticated_strikes_before_ban: 5,
+            unauthenticated_strike_window_ms: 10 * 60_000,
+            unauthenticated_ban_minutes: 0,
         }
     }
 }
@@ -91,6 +111,27 @@ impl SecurityConfig {
             max_packets_per_second: p
                 .get_int("MaxPacketsPerSecond", d.max_packets_per_second as i32)
                 .max(0) as u32,
+            unauthenticated_timeout_ms: p
+                .get_long(
+                    "UnauthenticatedTimeout",
+                    d.unauthenticated_timeout_ms as i64,
+                )
+                .max(0) as u64,
+            unauthenticated_strikes_before_ban: p
+                .get_int(
+                    "UnauthenticatedStrikesBeforeBan",
+                    d.unauthenticated_strikes_before_ban as i32,
+                )
+                .max(0) as u32,
+            unauthenticated_strike_window_ms: p
+                .get_long(
+                    "UnauthenticatedStrikeWindow",
+                    d.unauthenticated_strike_window_ms as i64,
+                )
+                .max(0) as u64,
+            unauthenticated_ban_minutes: p
+                .get_long("UnauthenticatedBanMinutes", d.unauthenticated_ban_minutes)
+                .max(0),
         }
     }
 }
@@ -113,6 +154,11 @@ mod tests {
         assert_eq!(cfg.fast_connection_limit, 15);
         assert_eq!(cfg.normal_connection_time, 700);
         assert_eq!(cfg.fast_connection_time, 350);
+        // Five seconds to authenticate; five misses in ten minutes bans.
+        assert_eq!(cfg.unauthenticated_timeout_ms, 5_000);
+        assert_eq!(cfg.unauthenticated_strikes_before_ban, 5);
+        assert_eq!(cfg.unauthenticated_strike_window_ms, 600_000);
+        assert_eq!(cfg.unauthenticated_ban_minutes, 0);
     }
 
     #[test]

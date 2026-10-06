@@ -1,7 +1,6 @@
 //! Login server library — exposed for integration tests; the binary in
 //! `main.rs` is a thin wrapper.
 
-pub mod ban_file;
 pub mod clients;
 pub mod config;
 pub mod context;

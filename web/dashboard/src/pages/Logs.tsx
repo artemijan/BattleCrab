@@ -10,18 +10,10 @@
  * streams hold player chat and IP addresses; the page says so up front.
  */
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import {
-  type ReactNode,
-  type SelectHTMLAttributes,
-  type SubmitEvent,
-  useEffect,
-  useId,
-  useMemo,
-  useState,
-} from "react";
+import { type SubmitEvent, useEffect, useMemo, useState } from "react";
 
 import { AdminNav } from "../components/AdminNav";
-import { Alert, Button, Field, Panel, Spinner, cx } from "../components/ui";
+import { Alert, Button, Field, LabeledSelect, Panel, Spinner, cx } from "../components/ui";
 import { ApiError, api, type LogHit, type LogSearchParams } from "../lib/api";
 import { formatBytes } from "../lib/chart";
 
@@ -57,31 +49,6 @@ function errorText(error: unknown): string {
   }
   return error instanceof ApiError ? error.message : "Something went wrong.";
 }
-
-/** A select with a real `<label for>`: wrapping the select in its label
- *  would fold the selected option's text into the control's accessible name
- *  ("Log Diagnostic log"). */
-function LabeledSelect({
-  label,
-  children,
-  ...rest
-}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; children: ReactNode }) {
-  const id = useId();
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-(--text-muted)">
-        {label}
-      </label>
-      <select id={id} className={selectClass} {...rest}>
-        {children}
-      </select>
-    </div>
-  );
-}
-
-const selectClass =
-  "w-full rounded-xl border border-(--field-border) bg-(--field-bg) px-3 py-2.5 text-base text-(--text) " +
-  "outline-none focus:shadow-[0_0_0_3px_var(--surface-ring)] sm:text-sm";
 
 export function Logs() {
   const streams = useQuery({

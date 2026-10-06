@@ -95,10 +95,6 @@ pub enum Msg {
         ip: String,
         reply: oneshot::Sender<bool>,
     },
-    AddBan {
-        ip: String,
-        duration_ms: i64,
-    },
     TryAuthLogin {
         login: String,
         password: String,
@@ -200,7 +196,6 @@ struct Controller {
     db: DatabaseConnection,
     authed_clients: HashMap<String, AuthedEntry>,
     failed_login_attempts: HashMap<String, i32>,
-    banned_ips: HashMap<String, i64>,
     gs: gs_table::GameServerTable,
     /// `LoginServer._loginStatus` — global override (STATUS_NORMAL default).
     login_status: i32,
@@ -222,7 +217,6 @@ pub fn spawn(
         db,
         authed_clients: HashMap::new(),
         failed_login_attempts: HashMap::new(),
-        banned_ips: HashMap::new(),
         gs,
         login_status: gs_table::server_status::STATUS_NORMAL,
     };
@@ -245,16 +239,6 @@ impl ControllerHandle {
             })
             .await;
         rx.await.unwrap_or(false)
-    }
-
-    pub async fn add_ban(&self, ip: &str, duration_ms: i64) {
-        let _ = self
-            .tx
-            .send(Msg::AddBan {
-                ip: ip.to_string(),
-                duration_ms,
-            })
-            .await;
     }
 
     pub async fn try_auth_login(
@@ -492,9 +476,8 @@ impl Controller {
     async fn handle(&mut self, msg: Msg) {
         match msg {
             Msg::IsBanned { ip, reply } => {
-                let _ = reply.send(self.is_banned_address(&ip));
+                let _ = reply.send(self.is_banned_address(&ip).await);
             }
-            Msg::AddBan { ip, duration_ms } => self.add_ban_for_address(ip, duration_ms),
             Msg::TryAuthLogin {
                 login,
                 password,
@@ -643,9 +626,16 @@ impl Controller {
                     &ban_time.to_string(),
                 )
                 .await;
-                // Java quirk kept 1:1: the *absolute* ban-end timestamp is
-                // passed as a duration to addBanForAddress.
-                self.add_ban_for_address(ip, ban_time);
+                // Java passes the *absolute* ban-end timestamp to
+                // addBanForAddress as a duration, which bans for decades. The
+                // ban list shows its end date now, so it gets the end the game
+                // server asked for. An end already past bans nothing.
+                let now = util::now_millis();
+                if ban_time <= 0 || ban_time > now {
+                    let reason = format!("temp ban of account {account} from a game server");
+                    self.add_ban_for_address(&ip, ban_time.max(0), &reason)
+                        .await;
+                }
             }
             Msg::ChangePassword {
                 account,
@@ -970,13 +960,13 @@ impl Controller {
         let mut info = dao::select_account_info(&self.db, &login, now).await;
         match &info {
             Some(acc) if !acc.check_pass_hash(&hash) => {
-                self.record_failed_login_attempt(&ip);
+                self.record_failed_login_attempt(&ip).await;
                 return AuthOutcome::AccessFailed;
             }
             Some(_) => self.clear_failed_login_attempts(&ip),
             None => {
                 if !self.settings.auto_create_accounts {
-                    self.record_failed_login_attempt(&ip);
+                    self.record_failed_login_attempt(&ip).await;
                     return AuthOutcome::AccessFailed;
                 }
                 if let Err(e) =
@@ -1071,15 +1061,23 @@ impl Controller {
         }
     }
 
-    fn record_failed_login_attempt(&mut self, ip: &str) {
+    async fn record_failed_login_attempt(&mut self, ip: &str) {
         let attempts = self
             .failed_login_attempts
             .entry(ip.to_string())
             .or_insert(0);
         *attempts += 1;
         if *attempts >= self.settings.login_try_before_ban {
-            self.add_ban_for_address(ip.to_string(), self.settings.login_block_after_ban_ms);
+            let count = *attempts;
             self.failed_login_attempts.remove(ip);
+            let block = self.settings.login_block_after_ban_ms;
+            let expires_at = if block > 0 {
+                util::now_millis() + block
+            } else {
+                0
+            };
+            let reason = format!("automatic: {count} wrong passwords");
+            self.add_ban_for_address(ip, expires_at, &reason).await;
             warn!("Added banned address {ip}! Too many login attempts.");
         }
     }
@@ -1088,34 +1086,37 @@ impl Controller {
         self.failed_login_attempts.remove(ip);
     }
 
-    fn add_ban_for_address(&mut self, ip: String, duration_ms: i64) {
-        let expiry = if duration_ms > 0 {
-            util::now_millis() + duration_ms
-        } else {
-            i64::MAX
-        };
-        self.banned_ips.entry(ip).or_insert(expiry);
+    /// `addBanForAddress`, onto the IP ban list (`ip_bans`) so it outlives a
+    /// restart and shows on the dashboard. `expires_at` is epoch ms, `0` for
+    /// permanent. Never shortens a ban already in force on the address.
+    async fn add_ban_for_address(&self, ip: &str, expires_at: i64, reason: &str) {
+        let now = util::now_millis();
+        if let Err(e) = models::repo::ip_bans::ban_at_least(
+            &self.db,
+            ip,
+            expires_at,
+            reason,
+            "login_server",
+            now,
+        )
+        .await
+        {
+            warn!("Could not ban {ip}: {e}");
+        }
     }
 
-    /// `isBannedAddress`: exact match, then the .0 / .0.0 / .0.0.0 subnet forms.
-    fn is_banned_address(&mut self, ip: &str) -> bool {
-        let parts: Vec<&str> = ip.split('.').collect();
-        let mut candidates = vec![ip.to_string()];
-        if parts.len() == 4 {
-            candidates.push(format!("{}.{}.{}.0", parts[0], parts[1], parts[2]));
-            candidates.push(format!("{}.{}.0.0", parts[0], parts[1]));
-            candidates.push(format!("{}.0.0.0", parts[0]));
-        }
-        for candidate in candidates {
-            if let Some(&expiry) = self.banned_ips.get(&candidate) {
-                if expiry > 0 && expiry < util::now_millis() {
-                    self.banned_ips.remove(&candidate);
-                    info!("Removed expired ip address ban {candidate}.");
-                    return false;
-                }
-                return true;
+    /// `isBannedAddress`, against `ip_bans` (exact match, then the .0 / .0.0 /
+    /// .0.0.0 ranges). Read per connection, so a ban placed anywhere — the
+    /// dashboard, the game server — applies here at once. A database error
+    /// lets the client through: the ban list is not worth taking logins down
+    /// over.
+    async fn is_banned_address(&self, ip: &str) -> bool {
+        match models::repo::ip_bans::active_for(&self.db, ip, util::now_millis()).await {
+            Ok(ban) => ban.is_some(),
+            Err(e) => {
+                warn!("Could not check {ip} against ip_bans: {e}");
+                false
             }
         }
-        false
     }
 }

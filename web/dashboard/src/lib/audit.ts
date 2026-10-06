@@ -163,3 +163,46 @@ export function formatSince(ms: number): string {
   if (m > 0) return `${m}m ${String(sec).padStart(2, "0")}s`;
   return `${sec}s`;
 }
+
+/* --------------------------------- IP bans -------------------------------- */
+
+/** Every ban entry that would cover `ip` — the server's rule
+ *  (`models::repo::ip_bans::covering`, after Java's `isBannedAddress`): the address
+ *  itself, then its `.0`, `.0.0` and `.0.0.0` ranges. */
+export function banEntriesCovering(ip: string): string[] {
+  const parts = ip.split(".");
+  if (parts.length !== 4) return [ip];
+  const [a, b, c] = parts;
+  return [ip, `${a}.${b}.${c}.0`, `${a}.${b}.0.0`, `${a}.0.0.0`];
+}
+
+/** Whether a ban on `ban` refuses (and, placed with "disconnect", kicks) `ip`. */
+export function banCovers(ban: string, ip: string): boolean {
+  return banEntriesCovering(ip).includes(ban);
+}
+
+/** What a ban on `ban` covers, in words: "10.1.2.*" for `10.1.2.0`. */
+export function banScope(ban: string): string {
+  const parts = ban.split(".");
+  if (parts.length !== 4 || parts[3] !== "0") return ban;
+  let keep = 3;
+  while (keep > 1 && parts[keep - 1] === "0") keep--;
+  return [...parts.slice(0, keep), ...Array(4 - keep).fill("*")].join(".");
+}
+
+/** Ban lengths offered by the forms; `null` is permanent. */
+export const BAN_DURATIONS: Array<{ label: string; ms: number | null }> = [
+  { label: "1 hour", ms: 3_600_000 },
+  { label: "1 day", ms: 86_400_000 },
+  { label: "7 days", ms: 7 * 86_400_000 },
+  { label: "30 days", ms: 30 * 86_400_000 },
+  { label: "Permanent", ms: null },
+];
+
+/** "Permanent", "in 3h 12m", or "expired 2d 4h ago". */
+export function formatExpiry(expiresAt: number | null, now: number): string {
+  if (expiresAt === null) return "Permanent";
+  return expiresAt > now
+    ? `in ${formatSince(expiresAt - now)}`
+    : `expired ${formatSince(now - expiresAt)} ago`;
+}

@@ -128,8 +128,8 @@ holding `metrics.db`. Both servers share one host, so per-service rows would rep
 numbers.
 
 The schema lives in `MetricsDb::migrate()` (`CREATE TABLE IF NOT EXISTS` + `PRAGMA user_version`),
-**not** the `migration` crate. That crate is wired to the game DB and its `dist_parity` test, and
-this file must stay independently droppable.
+**not** the `migration` crate. That crate is wired to the game DB, and this file must stay
+independently droppable.
 
 Retention: an hourly `DELETE … WHERE ts < now - MetricsRetentionDays` on both tables. No
 `VACUUM`/`auto_vacuum`: with a steady row count, freed pages get reused and the file plateaus, and
@@ -425,13 +425,14 @@ $ printf 'clients\n' | nc 127.0.0.1 7779
 {"service":"game_server","id":12,"ip":"203.0.113.9","port":51234,"connectedMs":…,"stage":"in_game","account":"alice","character":"Hero","hwid":null,"traffic":{"packetsIn":…,"bytesIn":…,"packetsOut":…,"bytesOut":…,"lastPacketMs":…},"details":{…}}
 ```
 
-A server answers through the `ClientsProvider` it installs with `clients::set_provider`. It's a slot
-rather than a `monitor::spawn` argument because the game server starts its monitor before its game
-loop's channel exists. A server with no provider gets an error line, and so does a provider that
-doesn't answer within 2 s.
+A server answers through the `Provider` it installs with `clients::set_provider` (a list function
+and a kick function, see "Disconnect and IP bans" below). It's a slot rather than a
+`monitor::spawn` argument because the game server starts its monitor before its game loop's
+channel exists. A server with no provider gets an error line, and so does a provider that doesn't
+answer within 2 s.
 
 - **Game server.** The sessions belong to the game thread, so the provider sends
-  `GameEvent::Monitor(oneshot)` into the unified event channel, and the game thread answers in
+  `GameEvent::Monitor(MonitorRequest)` into the unified event channel, and the game thread answers in
   the same drain (`game_loop::net::clients`). It costs nothing while nobody is looking, and it
   adds no lock for the game thread to take.
 - **Login server.** Each connection task holds a `clients::Registration`, which adds a row to a
@@ -503,3 +504,85 @@ Tests: `commons` (request grammar, a provider's records stamped with the service
 on drop), `dashboard_api` `clients_are_merged_across_servers_and_a_bad_target_is_reported`, and
 on the frontend `tests/audit-lib.test.ts` and `tests/audit.test.ts` (Playwright).
 
+### Disconnect and IP bans
+
+The details dialog has two actions, **Disconnect** and **Disconnect and ban IP…**, and the page
+ends with a **Banned IPs** section listing every ban, with add, edit and remove.
+
+**Disconnect** is a third channel request, `kick <id> <connectedMs>`, answered with one
+`{"kicked":true|false}` line. `false` means no such connection is open. The connect time is part of
+the name because ids restart with the process: a list from before a restart must not kick
+whoever holds that id now. On the game server the request goes into the game loop
+(`MonitorRequest::Kick`) and takes the flood protector's kick path (`helpers::kick_client`):
+an in-world character is saved and despawned, and anything earlier just loses its session. On the
+login server the registry row carries a `Notify`; the connection task selects on it, sends
+`LoginFail(ACCESS_FAILED)` and hangs up, freeing the account like any other disconnect.
+
+This makes the channel able to change something, not just read. The control is unchanged: the
+loopback bind. Widening `InternalMonitorBindAddress` now also lets anyone who can reach the port
+disconnect players.
+
+**IP bans** live in the `ip_bans` table (`ip`, `expires_at` in epoch ms with `0` for permanent,
+`reason`, `banned_by`, `created_at`; migration `m20261007_000001_ip_bans`). It replaced the
+boot-time `banned_ip.cfg` and the login server's in-memory list, both gone, so every ban survives
+a restart. **Both servers read it on every new connection**, so an edit needs no reload. The game
+server checks it in each accepted connection's task, before the game thread hears of the
+connection. On either server, a database error lets the client through rather than refusing
+everyone. Matching is Java's `isBannedAddress` rule, kept in one place in
+`models::repo::ip_bans::covering`: a ban covers its address, and trailing `.0` octets make a range,
+so `10.1.2.0` is 10.1.2.\* and `10.0.0.0` is all of 10.\*. Expired rows stay in the table and are
+shown as expired until someone removes them.
+
+Besides the dashboard, the servers write it themselves, with `banned_by` naming the server. They
+use `ban_at_least`, which never shortens a ban already in force, so a 15-minute automatic ban
+can't cut a permanent one down:
+
+- **Login server** (`login_server`): `LoginTryBeforeBan` wrong passwords from one address ban it for
+  `LoginBlockAfterBan`. The counter itself stays in memory. A game server's `RequestTempBan` bans
+  the reported address until the account's ban ends. Java passed that end timestamp as a
+  *duration*, which banned the address for decades; the list shows its end date, so it now gets
+  the real one.
+- **Game server** (`game_server`): the **authentication deadline** (`game_loop::net::auth_guard`,
+  configured in `Security.ini`). A game connection that hasn't authenticated within
+  `UnauthenticatedTimeout` (5 s) is dropped. If it never sent `AuthLogin`, that counts as a strike
+  against its address. `UnauthenticatedStrikesBeforeBan` (5) strikes within
+  `UnauthenticatedStrikeWindow` (10 min) ban the address for `UnauthenticatedBanMinutes` (0 means
+  permanent). A client that did send its credentials and is still waiting on the login server is
+  dropped without a strike, so a login-server outage can't ban real players.
+
+The Audit page shows these as "Login server (automatic)" and "Game server (automatic)".
+
+A ban refuses new connections only. Connections already open stay open, which is why "Disconnect
+and ban" and the add form's "disconnect everyone it covers now" also kick, on both servers, every
+connection the ban covers.
+
+**API** (admin-only, every change recorded in gmaudit with the acting admin):
+- `POST /admin/monitor/clients/disconnect` `{service, id, connectedMs, ip?, account?}` → 204, or
+  404 when the connection already left, or 502 when the server didn't answer. `ip` and `account`
+  are only for the audit record.
+- `GET /admin/ip-bans` → `{nowMs, bans: [{ip, expiresAt, reason, bannedBy, createdAt}]}`, newest
+  first. `expiresAt` is `null` for a permanent ban.
+- `POST /admin/ip-bans` `{ip, expiresAt?, reason?, disconnect?}` → 201
+  `{ban, disconnected, disconnectErrors}`. It replaces any ban already on that address. With
+  `disconnect`, it fetches a fresh client list and kicks every covered connection. A server that
+  couldn't be asked lands in `disconnectErrors`, and so does monitoring being off; the ban is
+  stored either way.
+- `PUT /admin/ip-bans/{ip}` `{ip, expiresAt?, reason?}` rewrites a ban, including its address.
+  It returns 404 for no such ban, and 400 when the new address already has its own ban.
+- `DELETE /admin/ip-bans/{ip}` → 204, or 404.
+
+The address must parse as an IP and is stored normalized. A timed ban must end in the future, and
+the reason is capped at 255 characters. The page computes expiry times from the dashboard's clock
+(`nowMs`), because the login server compares against that clock and not the viewer's.
+
+Tests: `commons` (the `kick` grammar and answers), `monitor_clients_tests`
+(`a_kick_closes_only_the_connection_it_names`), `loginserver::clients` (a kick for the wrong
+connect time is refused, and the right one is delivered), loginserver `tests/auth.rs`
+(`an_ip_bans_row_refuses_the_address_until_it_expires`, and the failed-password and temp bans
+landing in `ip_bans`), `models/tests/ip_bans.rs` (an automatic ban never shortens one in force),
+gameserver `tests/handshake.rs`
+(`a_banned_address_is_refused_on_accept`) and `game_loop::tests::auth_guard_tests` (the
+deadline, the strike exemptions, the ban on the fifth strike), `dashboard_api` (disconnect, ban with
+disconnect across two servers, list/edit/lift, validation), and on the frontend
+`tests/audit-lib.test.ts` (coverage rule, scope, expiry) and `tests/audit.test.ts` (the three
+flows against a stubbed API).

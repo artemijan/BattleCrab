@@ -24,6 +24,8 @@ export type ApiErrorCode =
   | "invalid_token"
   /** A feature switched off server-side (monitoring, log search): 503. */
   | "unavailable"
+  /** A game or login server the request needed did not answer: 502. */
+  | "upstream"
   | "internal";
 
 export class ApiError extends Error {
@@ -274,6 +276,38 @@ export type ConnectedClients = {
   sources: ClientSource[];
 };
 
+/* ----------------------------- IP ban types ------------------------------ */
+/* Shapes of /admin/ip-bans — docs/MONITORING.md §10. */
+
+export type IpBan = {
+  /** An address; trailing `.0` octets make it a range (10.1.2.0 = 10.1.2.*). */
+  ip: string;
+  /** Epoch ms; null for a permanent ban. */
+  expiresAt: number | null;
+  reason: string;
+  /** The admin's master address, or the server that placed an automatic
+   *  ban: `login_server` (wrong passwords, a game server's temp ban) or
+   *  `game_server` (connections that kept failing to authenticate). */
+  bannedBy: string;
+  createdAt: number;
+};
+
+export type IpBans = {
+  /** The dashboard's clock, to tell expired bans from active ones. */
+  nowMs: number;
+  bans: IpBan[];
+};
+
+export type IpBanInput = { ip: string; expiresAt: number | null; reason: string };
+
+export type IpBanCreated = {
+  ban: IpBan;
+  /** Connections closed because the ban was placed with `disconnect`. */
+  disconnected: number;
+  /** Servers that could not be asked to disconnect, with why. */
+  disconnectErrors: string[];
+};
+
 /* --------------------------- Log search types ---------------------------- */
 /* Shapes of /admin/logs/* — docs/MONITORING.md §6. */
 
@@ -374,6 +408,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 const post = <T>(path: string, body: unknown) =>
   request<T>(path, { method: "POST", body: JSON.stringify(body) });
+
+const put = <T>(path: string, body: unknown) =>
+  request<T>(path, { method: "PUT", body: JSON.stringify(body) });
+
+const del = <T>(path: string) => request<T>(path, { method: "DELETE" });
 
 export const api = {
   register: (email: string, password: string, captchaToken: string | null) =>
@@ -476,6 +515,31 @@ export const api = {
         request<MonitorSeries>(`/admin/monitor/host?from=${from}&to=${to}&maxPoints=${maxPoints}`),
 
       clients: () => request<ConnectedClients>("/admin/monitor/clients"),
+
+      /** Closes one connection; 404 when it already left. Recorded in gmaudit. */
+      disconnect: (c: ConnectedClient) =>
+        post<void>("/admin/monitor/clients/disconnect", {
+          service: c.service,
+          id: c.id,
+          connectedMs: c.connectedMs,
+          ip: c.ip,
+          account: c.account,
+        }),
+    },
+
+    /** The login server's IP ban list. Every change is recorded in gmaudit. */
+    ipBans: {
+      list: () => request<IpBans>("/admin/ip-bans"),
+
+      /** Bans `ip` (replacing a ban already on it); with `disconnect`, also
+       *  closes every connection it covers, on both servers. */
+      create: (ban: IpBanInput, disconnect: boolean) =>
+        post<IpBanCreated>("/admin/ip-bans", { ...ban, disconnect }),
+
+      update: (ip: string, ban: IpBanInput) =>
+        put<IpBan>(`/admin/ip-bans/${encodeURIComponent(ip)}`, ban),
+
+      remove: (ip: string) => del<void>(`/admin/ip-bans/${encodeURIComponent(ip)}`),
     },
 
     logs: {

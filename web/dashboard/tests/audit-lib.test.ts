@@ -2,7 +2,15 @@
 import { describe, expect, test } from "bun:test";
 
 import type { ConnectedClient } from "../src/lib/api";
-import { formatSince, matches, sharedCounts, sortClients } from "../src/lib/audit";
+import {
+  banCovers,
+  banScope,
+  formatExpiry,
+  formatSince,
+  matches,
+  sharedCounts,
+  sortClients,
+} from "../src/lib/audit";
 
 function client(over: Partial<ConnectedClient> & { id: number }): ConnectedClient {
   return {
@@ -80,4 +88,31 @@ test("formatSince", () => {
   expect(formatSince(245_000)).toBe("4m 05s");
   expect(formatSince(3 * 3_600_000 + 12 * 60_000)).toBe("3h 12m");
   expect(formatSince(2 * 86_400_000 + 4 * 3_600_000)).toBe("2d 4h");
+});
+
+describe("ip bans", () => {
+  test("a ban covers its address and the ranges its trailing zeros make", () => {
+    expect(banCovers("10.1.2.3", "10.1.2.3")).toBe(true);
+    expect(banCovers("10.1.2.0", "10.1.2.3")).toBe(true);
+    expect(banCovers("10.1.0.0", "10.1.2.3")).toBe(true);
+    expect(banCovers("10.0.0.0", "10.1.2.3")).toBe(true);
+    expect(banCovers("10.1.3.0", "10.1.2.3")).toBe(false);
+    expect(banCovers("10.1.2.4", "10.1.2.3")).toBe(false);
+    expect(banCovers("::1", "::1")).toBe(true);
+  });
+
+  test("the scope reads the way the server matches it", () => {
+    expect(banScope("10.1.2.3")).toBe("10.1.2.3");
+    expect(banScope("10.1.2.0")).toBe("10.1.2.*");
+    expect(banScope("10.1.0.0")).toBe("10.1.*.*");
+    // `10.0.0.0` is 10.*, not 10.0.0.*: the widest form wins.
+    expect(banScope("10.0.0.0")).toBe("10.*.*.*");
+    expect(banScope("::1")).toBe("::1");
+  });
+
+  test("expiry reads as permanent, upcoming or past", () => {
+    expect(formatExpiry(null, 0)).toBe("Permanent");
+    expect(formatExpiry(3_600_000, 0)).toBe("in 1h 0m");
+    expect(formatExpiry(0, 90_000)).toBe("expired 1m 30s ago");
+  });
 });

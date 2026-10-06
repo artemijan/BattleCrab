@@ -85,13 +85,23 @@ struct ForeignConnection {
 /// Plus the per-IP accept rules Java keeps in `FloodProtectedListener` (which
 /// upstream wires only to the game-server↔login listener, never to players).
 ///
+/// `bans` is the database the IP ban list (`ip_bans`) is read from, once per
+/// accepted connection — the same check the login server makes, so a ban
+/// placed on the dashboard or by the authentication deadline
+/// (`game_loop::net::auth_guard`) applies here at once. `None` skips it.
+///
 /// The per-address table is owned **solely by this task** and connections
 /// report their close over a channel, rather than sharing a `Mutex`: the game
 /// server deliberately holds exactly one lock process-wide
 /// (`geo::GeoEngine::nswe_overrides`), which is the standing argument for not
 /// needing Java's deadlock detector, and a second lock would cost that argument
 /// for no benefit here.
-pub async fn accept_loop(listener: TcpListener, net_tx: NetEventTx, cfg: Arc<NetworkConfig>) {
+pub async fn accept_loop(
+    listener: TcpListener,
+    net_tx: NetEventTx,
+    cfg: Arc<NetworkConfig>,
+    bans: Option<models::sea_orm::DatabaseConnection>,
+) {
     static NEXT_ID: AtomicU32 = AtomicU32::new(1);
     let (closed_tx, mut closed_rx) = tokio::sync::mpsc::unbounded_channel::<IpAddr>();
     let mut per_ip: HashMap<IpAddr, ForeignConnection> = HashMap::new();
@@ -121,9 +131,18 @@ pub async fn accept_loop(listener: TcpListener, net_tx: NetEventTx, cfg: Arc<Net
                     let net_tx = net_tx.clone();
                     let cfg = cfg.clone();
                     let closed_tx = closed_tx.clone();
-                    let open_slot = note_connection_opened();
+                    let bans = bans.clone();
                     tokio::spawn(async move {
-                        let _open_slot = open_slot;
+                        // In the connection's own task, so a slow lookup
+                        // holds up this connection and not the acceptor.
+                        if let Some(db) = &bans
+                            && is_banned(db, addr.ip()).await
+                        {
+                            debug!("GameServer: refused {addr} — the address is banned");
+                            let _ = closed_tx.send(addr.ip());
+                            return;
+                        }
+                        let _open_slot = note_connection_opened();
                         if let Err(e) = handle(stream, addr, client_id, net_tx, cfg).await {
                             debug!("client {client_id} ({addr}) ended: {e}");
                         }
@@ -134,6 +153,20 @@ pub async fn accept_loop(listener: TcpListener, net_tx: NetEventTx, cfg: Arc<Net
                     warn!("GameServer: accept error: {e}");
                 }
             },
+        }
+    }
+}
+
+/// Whether `ip_bans` covers `ip` right now. A database error lets the client
+/// through, as on the login server: the ban list is not worth refusing every
+/// player over.
+async fn is_banned(db: &models::sea_orm::DatabaseConnection, ip: IpAddr) -> bool {
+    match models::repo::ip_bans::active_for(db, &ip.to_string(), commons::util::now_millis()).await
+    {
+        Ok(ban) => ban.is_some(),
+        Err(e) => {
+            warn!("GameServer: could not check {ip} against ip_bans: {e}");
+            false
         }
     }
 }
