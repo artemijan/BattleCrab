@@ -43,6 +43,10 @@ pub struct OutboundTx {
     /// Packets sent and not yet dequeued by the connection task (which owns
     /// the decrement side) — Java `Client._estimateQueueSize`.
     depth: std::sync::Arc<std::sync::atomic::AtomicUsize>,
+    /// This connection's own traffic and start time, for the dashboard's
+    /// client list (`docs/MONITORING.md` §10). Here because this handle is
+    /// the one piece of the connection every session state already carries.
+    stats: std::sync::Arc<commons::monitor::clients::ConnectionStats>,
     drop_packets: bool,
     drop_threshold: usize,
 }
@@ -103,20 +107,28 @@ pub(crate) use traffic::{note_connection_opened, note_inbound_frame, note_outbou
 /// verbs instead of reaching into these statics directly — the counter names
 /// above stay this module's business.
 mod traffic {
+    use commons::monitor::clients::ConnectionStats;
     use commons::network::HEADER_SIZE;
 
     /// One frame received off the socket, counted before decryption or rate
     /// limiting — this is "what arrived on the wire", not "what a handler saw".
-    pub(crate) fn note_inbound_frame(payload_len: usize) {
+    pub(crate) fn note_inbound_frame(conn: &ConnectionStats, payload_len: usize) {
+        let wire = (payload_len + HEADER_SIZE) as u64;
         super::packets_in().incr();
-        super::bytes_in().add((payload_len + HEADER_SIZE) as u64);
+        super::bytes_in().add(wire);
+        conn.note_in(wire);
     }
 
     /// One socket write carrying `packet_count` frames in `wire_bytes` bytes
     /// — a coalesced batch, or `1` for a frame written on its own.
-    pub(crate) fn note_outbound_batch(packet_count: u64, wire_bytes: usize) {
+    pub(crate) fn note_outbound_batch(
+        conn: &ConnectionStats,
+        packet_count: u64,
+        wire_bytes: usize,
+    ) {
         super::packets_out().add(packet_count);
         super::bytes_out().add(wire_bytes as u64);
+        conn.note_out(packet_count, wire_bytes as u64);
     }
 
     /// The returned guard is the connection's slot in `connections_open`;
@@ -149,6 +161,7 @@ impl OutboundTx {
         Self {
             tx,
             depth: std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0)),
+            stats: std::sync::Arc::default(),
             drop_packets,
             drop_threshold,
         }
@@ -157,6 +170,15 @@ impl OutboundTx {
     /// The counter the connection task decrements as it dequeues.
     pub fn depth_handle(&self) -> std::sync::Arc<std::sync::atomic::AtomicUsize> {
         self.depth.clone()
+    }
+
+    /// The connection's traffic counters, which the connection task bumps.
+    pub fn stats_handle(&self) -> std::sync::Arc<commons::monitor::clients::ConnectionStats> {
+        self.stats.clone()
+    }
+
+    pub fn stats(&self) -> &commons::monitor::clients::ConnectionStats {
+        &self.stats
     }
 
     /// Queue one packet body, or drop it under pressure. A send to a closed

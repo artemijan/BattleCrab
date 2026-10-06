@@ -2477,10 +2477,11 @@ fn monitor_line(service: &str, ts: u64, packets_in: u64, connections_open: u64) 
     .to_json_line(service)
 }
 
-const MONITOR_ROUTES: [&str; 3] = [
+const MONITOR_ROUTES: [&str; 4] = [
     "/api/v1/admin/monitor/services",
     "/api/v1/admin/monitor/series?service=game_server",
     "/api/v1/admin/monitor/host",
+    "/api/v1/admin/monitor/clients",
 ];
 
 #[tokio::test]
@@ -2597,6 +2598,70 @@ async fn polled_samples_are_stored_and_served_bucketed() {
     );
     assert_eq!(series["aggregation"]["packets_in"], "sum");
     assert_eq!(series["aggregation"]["connections_open"], "max");
+}
+
+/// A `clients` line as a server's monitor channel writes it.
+fn client_line(service: &str, id: u64, stage: &str, account: Option<&str>) -> String {
+    let record = commons::monitor::clients::ClientRecord {
+        service: service.to_string(),
+        id,
+        ip: "10.0.0.7".into(),
+        port: 51234,
+        connected_ms: 1_759_000_000_000,
+        stage: stage.into(),
+        account: account.map(str::to_string),
+        character: None,
+        hwid: None,
+        traffic: commons::monitor::clients::Traffic::default(),
+        details: serde_json::Map::new(),
+    };
+    format!("{}\n", serde_json::to_string(&record).unwrap())
+}
+
+#[tokio::test]
+async fn clients_are_merged_across_servers_and_a_bad_target_is_reported() {
+    let game_body = [
+        client_line("game_server", 1, "lobby", Some("alice")),
+        client_line("game_server", 2, "in_game", Some("bob")),
+    ]
+    .concat();
+    let (game, game_requests) = fake_monitor_channel(game_body).await;
+    // Ports swapped in MonitorTargets: the "login" port answers as the game.
+    let (swapped, _) = fake_monitor_channel(client_line("game_server", 9, "lobby", None)).await;
+    let (app, pool, _monitor) = test_app_with_monitor(&format!(
+        "game_server={game},login_server={swapped},other=127.0.0.1:1"
+    ))
+    .await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+
+    let response = body_json(
+        app.clone()
+            .oneshot(get_with_cookie("/api/v1/admin/monitor/clients", &admin))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(
+        *game_requests.lock().unwrap(),
+        vec!["clients\n".to_string()]
+    );
+    let clients = response["clients"].as_array().unwrap();
+    assert_eq!(clients.len(), 2, "only the game server's rows: {response}");
+    assert_eq!(clients[1]["account"], "bob");
+    assert_eq!(clients[1]["connectedMs"], 1_759_000_000_000i64);
+    assert!(response["nowMs"].as_i64().unwrap() > 0);
+
+    let sources = response["sources"].as_array().unwrap();
+    assert_eq!(sources[0]["service"], "game_server");
+    assert_eq!(sources[0]["up"], true);
+    assert_eq!(sources[1]["up"], false);
+    assert!(
+        sources[1]["error"]
+            .as_str()
+            .unwrap()
+            .contains("MonitorTargets")
+    );
+    assert_eq!(sources[2]["up"], false, "nothing listens on port 1");
 }
 
 #[tokio::test]

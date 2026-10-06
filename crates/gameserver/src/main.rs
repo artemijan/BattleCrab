@@ -188,6 +188,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let net_tx = NetEventTx(events_tx.clone());
     let login_tx = loginlink::EventTx(events_tx.clone());
     let db_event_tx = db::EventTx(events_tx.clone());
+    // The Audit page's live client list (`docs/MONITORING.md` §10): the
+    // monitor channel asks the game thread, which owns the sessions.
+    let monitor_tx = events_tx.clone();
+    commons::monitor::clients::set_provider(move || {
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        monitor_tx.send(GameEvent::Monitor(tx)).ok()?;
+        Some(rx)
+    });
     let path_event_tx = gameserver::geo::worker::PathEventTx(events_tx);
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel::<DbCommand>();

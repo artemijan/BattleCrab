@@ -477,6 +477,9 @@ impl EventLabel {
             GameEvent::Login(_) => EventLabel::Login,
             GameEvent::Db(_) => EventLabel::Db,
             GameEvent::Path(_) => EventLabel::Path,
+            // A dashboard request, not a service; counted with the network
+            // events since it arrives over a socket like they do.
+            GameEvent::Monitor(_) => EventLabel::Net("monitor"),
         }
     }
 

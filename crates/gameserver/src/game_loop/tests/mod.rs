@@ -140,6 +140,7 @@ mod misc_tests;
 mod mob_leash_tests;
 mod moderation_ip_tests;
 mod modifier_parity_tests;
+mod monitor_clients_tests;
 mod monster_race_tests;
 mod move_type_tests;
 mod movement_tests;

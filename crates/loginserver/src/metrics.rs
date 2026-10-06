@@ -10,6 +10,7 @@
 //! server's connection task does — one `send()` call is one frame — so
 //! `packets_out` is simpler here: one `note_outbound_frame` per send.
 
+use commons::monitor::clients::ConnectionStats;
 use commons::network::HEADER_SIZE;
 
 fn packets_in() -> &'static commons::metrics::Counter {
@@ -81,16 +82,22 @@ impl LoginStage {
 
 /// One frame read off the socket, counted before decrypt — "what arrived on
 /// the wire", regardless of what `dispatch` later makes of it.
-pub fn note_inbound_frame(payload_len: usize) {
+pub fn note_inbound_frame(conn: &ConnectionStats, payload_len: usize) {
+    let wire = (payload_len + HEADER_SIZE) as u64;
     packets_in().incr();
-    bytes_in().add((payload_len + HEADER_SIZE) as u64);
+    bytes_in().add(wire);
+    conn.note_in(wire);
 }
 
 /// One frame handed to `write_frame`, counted after encryption (the encrypted
 /// body is what actually goes on the wire).
 pub fn note_outbound_frame(encrypted_len: usize) {
+    let wire = (encrypted_len + HEADER_SIZE) as u64;
     packets_out().incr();
-    bytes_out().add((encrypted_len + HEADER_SIZE) as u64);
+    bytes_out().add(wire);
+    // The connection's own count: `send` has no session to hand, so the
+    // connection task's registration is found through a task-local.
+    crate::clients::note_outbound(wire);
 }
 
 /// The returned guard is the connection's slot in `connections_open`; the
@@ -126,9 +133,11 @@ mod tests {
         // test runs alongside others touching the same series.
         let before_in = packets_in().get();
         let before_bytes_in = bytes_in().get();
-        note_inbound_frame(10);
+        let conn = ConnectionStats::new();
+        note_inbound_frame(&conn, 10);
         assert_eq!(packets_in().get(), before_in + 1);
         assert_eq!(bytes_in().get(), before_bytes_in + 10 + HEADER_SIZE as u64);
+        assert_eq!(conn.traffic().bytes_in, 10 + HEADER_SIZE as u64);
 
         let before_out = packets_out().get();
         let before_bytes_out = bytes_out().get();

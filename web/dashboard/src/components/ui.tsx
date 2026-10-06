@@ -186,3 +186,33 @@ export function Alert({ kind, children }: { kind: "error" | "success"; children:
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/* StatusBadge                                                                */
+/* -------------------------------------------------------------------------- */
+
+export function StatusBadge({
+  kind,
+  children,
+}: {
+  kind: "ok" | "info" | "warn" | "bad" | "neutral";
+  children: ReactNode;
+}) {
+  const styles = {
+    ok: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300",
+    info: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
+    warn: "bg-amber-500/15 text-amber-600 dark:text-amber-300",
+    bad: "bg-red-500/15 text-red-600 dark:text-red-300",
+    neutral: "bg-(--surface-strong) text-(--text-muted)",
+  } as const;
+  return (
+    <span
+      className={cx(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium whitespace-nowrap",
+        styles[kind],
+      )}
+    >
+      {children}
+    </span>
+  );
+}

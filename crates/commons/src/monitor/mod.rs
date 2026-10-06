@@ -13,6 +13,7 @@
 //! a restart is simply counts since start.
 
 mod channel;
+pub mod clients;
 pub mod process;
 
 use std::collections::{BTreeMap, VecDeque};
@@ -306,7 +307,12 @@ pub async fn spawn(service: &'static str, cfg: &MonitorConfig, heap: Option<Heap
         "Monitor channel: listening on {bind} ({}s samples, {} kept).",
         cfg.sample_seconds, cfg.ring_samples
     );
-    tokio::spawn(channel::accept_loop(listener, service, ring));
+    tokio::spawn(channel::accept_loop(
+        listener,
+        service,
+        ring,
+        &clients::PROVIDER,
+    ));
 }
 
 #[cfg(test)]

@@ -39,9 +39,21 @@ pub struct ClientSession {
     pub joined_gs: bool,
     /// This connection's slot in the `sessions_*` stage gauges.
     pub stage: crate::metrics::LoginStage,
+    /// This connection's row in the dashboard's client list.
+    pub conn: crate::clients::Conn,
 }
 
 pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
+    // Listed for the dashboard (`docs/MONITORING.md` §10) until this returns.
+    let addr = stream
+        .peer_addr()
+        .unwrap_or_else(|_| std::net::SocketAddr::from(([0, 0, 0, 0], 0)));
+    let registration = crate::clients::Registration::new(addr);
+    let conn = registration.conn();
+    registration.scope(serve(ctx, stream, ip, conn)).await;
+}
+
+async fn serve(ctx: Arc<LoginContext>, stream: TcpStream, ip: String, conn: crate::clients::Conn) {
     let (mut read, mut write) = stream.into_split();
 
     let mut session = ClientSession {
@@ -56,6 +68,7 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
         last_server: 1,
         joined_gs: false,
         stage: crate::metrics::LoginStage::handshaking(),
+        conn,
     };
     let mut encryption = LoginEncryption::new(&session.blowfish_key);
     // LoginController.purge: the whole login session may last at most
@@ -92,7 +105,7 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
             frame = tokio::time::timeout_at(session_deadline, read_frame(&mut read, MAX_PAYLOAD)) => {
                 match frame {
                     Ok(Ok(Some(payload))) => {
-                        note_inbound_frame(payload.len());
+                        note_inbound_frame(session.conn.stats(), payload.len());
                         payload
                     }
                     _ => break, // EOF, IO error, or login timeout
@@ -272,6 +285,7 @@ async fn dispatch(
                     .await
                 {
                     session.joined_gs = true;
+                    session.conn.joining_game(server_id);
                     send(write, encryption, server_packets::play_ok(&key)).await?;
                     Ok(true)
                 } else {
@@ -377,6 +391,7 @@ async fn finish_auth(
             session.last_server = last_server;
             session.state = ConnectionState::AuthedLogin;
             session.stage = crate::metrics::LoginStage::logged_in();
+            session.conn.logged_in(&user, access_level, last_server);
             if ctx.config.show_licence {
                 send(write, encryption, server_packets::login_ok(&key)).await?;
             } else {

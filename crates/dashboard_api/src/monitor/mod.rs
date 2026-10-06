@@ -3,7 +3,9 @@
 //! Each game/login server samples itself into an in-memory ring
 //! (`commons::monitor`). This module polls those rings over loopback, is the
 //! sole writer of `metrics.db`, samples host-level pressure, prunes past the
-//! retention window, and answers the `/admin/monitor` queries.
+//! retention window, and answers the `/admin/monitor` queries. It also asks
+//! the servers for their live client lists on demand (§10); those are never
+//! stored.
 
 pub mod host;
 pub mod store;
@@ -16,6 +18,8 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+use commons::monitor::clients::ClientRecord;
 
 use crate::config::DashboardConfig;
 use store::MetricsDb;
@@ -81,6 +85,15 @@ pub struct TargetStatus {
     /// When the server's sampler started, from its newest sample.
     pub started_ms: Option<i64>,
     pub last_error: Option<String>,
+}
+
+/// How one target answered a client-list request.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClientSource {
+    pub service: String,
+    pub up: bool,
+    pub error: Option<String>,
 }
 
 pub struct Monitor {
@@ -185,10 +198,13 @@ impl Monitor {
             .await
             .map_err(|e| format!("metrics db: {e}"))?
             .unwrap_or(0);
-        let body = tokio::time::timeout(POLL_TIMEOUT, fetch(&target.address, since))
-            .await
-            .map_err(|_| "timed out".to_string())?
-            .map_err(|e| e.to_string())?;
+        let body = tokio::time::timeout(
+            POLL_TIMEOUT,
+            request(&target.address, &format!("since {since}")),
+        )
+        .await
+        .map_err(|_| "timed out".to_string())?
+        .map_err(|e| e.to_string())?;
         let parsed = wire::parse_body(&body);
         if let Some(e) = parsed.error {
             return Err(format!("channel refused the request: {e}"));
@@ -218,6 +234,45 @@ impl Monitor {
             .iter()
             .max_by_key(|s| s.ts)
             .map(|s| (s.ts, s.started)))
+    }
+
+    /// Every target's live client list, asked of all targets at once. A
+    /// target that can't answer is reported in its [`ClientSource`] and
+    /// contributes no rows; the others still do.
+    pub async fn clients(&self) -> (Vec<ClientRecord>, Vec<ClientSource>) {
+        let mut asks = tokio::task::JoinSet::new();
+        for (i, target) in self.targets.iter().cloned().enumerate() {
+            asks.spawn(async move { (i, client_list(&target).await) });
+        }
+        let mut answers = Vec::with_capacity(self.targets.len());
+        while let Some(joined) = asks.join_next().await {
+            if let Ok(answer) = joined {
+                answers.push(answer);
+            }
+        }
+        // MonitorTargets order, whichever answered first.
+        answers.sort_by_key(|(i, _)| *i);
+        let mut clients = Vec::new();
+        let mut sources = Vec::with_capacity(answers.len());
+        for (i, answer) in answers {
+            let service = self.targets[i].service.clone();
+            match answer {
+                Ok(records) => {
+                    clients.extend(records);
+                    sources.push(ClientSource {
+                        service,
+                        up: true,
+                        error: None,
+                    });
+                }
+                Err(e) => sources.push(ClientSource {
+                    service,
+                    up: false,
+                    error: Some(e),
+                }),
+            }
+        }
+        (clients, sources)
     }
 
     /// One host reading, stamped on the current period boundary.
@@ -262,15 +317,40 @@ impl Monitor {
     }
 }
 
-/// One request on the monitor channel: `since <ts>` in, body out.
-async fn fetch(address: &str, since: i64) -> std::io::Result<String> {
+/// One request on the monitor channel: a line in, the body out.
+async fn request(address: &str, line: &str) -> std::io::Result<String> {
     let mut stream = tokio::net::TcpStream::connect(address).await?;
-    stream
-        .write_all(format!("since {since}\n").as_bytes())
-        .await?;
+    stream.write_all(format!("{line}\n").as_bytes()).await?;
     let mut buf = Vec::new();
     stream.take(MAX_POLL_BYTES).read_to_end(&mut buf).await?;
     String::from_utf8(buf).map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+}
+
+/// One target's `clients` answer. A target answering as another service is
+/// refused for the same reason [`Monitor::poll`] refuses its samples.
+async fn client_list(target: &Target) -> Result<Vec<ClientRecord>, String> {
+    let body = tokio::time::timeout(POLL_TIMEOUT, request(&target.address, "clients"))
+        .await
+        .map_err(|_| "timed out".to_string())?
+        .map_err(|e| e.to_string())?;
+    let parsed = wire::parse_clients(&body);
+    if let Some(e) = parsed.error {
+        return Err(format!("channel refused the request: {e}"));
+    }
+    if parsed.malformed > 0 {
+        tracing::warn!(
+            "monitor: {} sent {} unparseable client line(s)",
+            target.service,
+            parsed.malformed
+        );
+    }
+    if let Some(other) = parsed.clients.iter().find(|c| c.service != target.service) {
+        return Err(format!(
+            "answered as service {:?}, expected {:?} — check MonitorTargets",
+            other.service, target.service
+        ));
+    }
+    Ok(parsed.clients)
 }
 
 pub fn epoch_ms() -> i64 {

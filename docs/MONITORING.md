@@ -1,7 +1,7 @@
 # Per-server monitoring and log search — technical design
 
-Status: **P1–P5 shipped** (counters; per-server sampler and channel; `metrics.db`, poller and
-admin API; log search; admin UI). Code comments cite this document's section
+Status: **P1–P6 shipped** (counters; per-server sampler and channel; `metrics.db`, poller and
+admin API; log search; admin UI; live client list). Code comments cite this document's section
 numbers, so the numbering is stable — when a section changes shape, bump its number's suffix
 rather than renumbering everything below it.
 
@@ -306,7 +306,7 @@ It remains the escape hatch if scans measure slow in practice.
 ## 6a. P5 (shipped): the admin UI
 
 Two pages under the dashboard's admin section (`web/dashboard`), reached from a new tab row
-(`components/AdminNav.tsx`: Accounts / Monitoring / Logs). The header keeps its single "Admin"
+(`components/AdminNav.tsx`: Accounts / Monitoring / Audit / Logs, Audit added by §10). The header keeps its single "Admin"
 entry.
 
 **`/admin/monitor`** (`pages/Monitoring.tsx`): a card per server (up/down, uptime or last sample,
@@ -394,6 +394,7 @@ rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change
 | **P3** | `metrics.db`, poller, pruner, `services`/`series`/`host` endpoints | **Shipped** |
 | **P4** | Log search: registry, reverse scanner, endpoints, gmaudit record | **Shipped** |
 | **P5** | UI: charts + log viewer | **Shipped** (§6a) |
+| **P6** | Live client list: `clients` channel request, endpoint, Audit page | **Shipped** (§10) |
 
 ## 9. Open questions, recorded rather than decided
 
@@ -409,3 +410,96 @@ rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change
 4. **Frontend charting.** *Decided: hand-rolled SVG* (§6a). No chart library in `web/dashboard`,
    in keeping with `docs/DASHBOARD.md` §8.2's habit of minimizing dependencies, and static SVG
    stays inside the mobile GPU budget.
+
+## 10. P6 (shipped): the live client list (Audit page)
+
+Every connection open right now, on both servers, with who it is and how far it got. Unlike §3–§5
+nothing is stored: the dashboard asks each server whenever the page asks the dashboard.
+
+**On the channel**, a second request: `clients` returns one `ClientRecord` line per open
+connection and closes (`commons::monitor::clients`). The record is camelCase, unlike a sample line,
+because the dashboard passes it to the browser unchanged:
+
+```
+$ printf 'clients\n' | nc 127.0.0.1 7779
+{"service":"game_server","id":12,"ip":"203.0.113.9","port":51234,"connectedMs":…,"stage":"in_game","account":"alice","character":"Hero","hwid":null,"traffic":{"packetsIn":…,"bytesIn":…,"packetsOut":…,"bytesOut":…,"lastPacketMs":…},"details":{…}}
+```
+
+A server answers through the `ClientsProvider` it installs with `clients::set_provider`. It's a slot
+rather than a `monitor::spawn` argument because the game server starts its monitor before its game
+loop's channel exists. A server with no provider gets an error line, and so does a provider that
+doesn't answer within 2 s.
+
+- **Game server.** The sessions belong to the game thread, so the provider sends
+  `GameEvent::Monitor(oneshot)` into the unified event channel, and the game thread answers in
+  the same drain (`game_loop::net::clients`). It costs nothing while nobody is looking, and it
+  adds no lock for the game thread to take.
+- **Login server.** Each connection task holds a `clients::Registration`, which adds a row to a
+  registry and removes it on drop, so a panicking task leaves nothing behind (the `LoginStage`
+  reasoning). The session updates the row on auth and on `PlayOk`.
+
+**Per-connection traffic** is `ConnectionStats`: atomics bumped at the same call sites as the
+server-wide `packets_in`/`bytes_in`/`packets_out`/`bytes_out` (§2), so the two always agree. It
+also records the last inbound frame's time and the connect time. On the game server it lives on
+`OutboundTx`, the one per-connection handle every session state already carries. On the login
+server, `send` reaches it through a task-local set by `Registration::scope`, so the 14 send sites
+don't each take another argument.
+
+**Stages**, the same split as the §2 gauges:
+
+| `stage` | Server | Shown as |
+|---|---|---|
+| `handshaking` | login | Logging in |
+| `logged_in` | login | Server list |
+| `joining_game` | login | Joining game (`PlayOk` sent; the client is about to leave for the game server) |
+| `authenticating` | game | Authenticating (`Connecting` + `Authenticated`) |
+| `lobby` | game | Lobby |
+| `entering` | game | Entering world |
+| `in_game` | game | In game |
+
+**`details`** carries server-specific extras. On the game server: the protocol version, the
+`RequestHardWareInfo` report (CPU, GPU and driver, Windows version), the lobby's character list,
+and for an in-world character roughly what `//charinfo` shows: level, class, race, clan, access
+level, hero/noble, PvP/PK, reputation, HP/MP/CP and position. On the login server: the access
+level, the last server and the server the client is joining.
+
+**HWID** is the MAC address from `RequestHardWareInfo`, the same key HWID punishments match on
+(G31). The stock Interlude client never sends that packet, so expect `null` unless a protection
+layer adds it. The login protocol has no hardware fingerprint at all. A client's own MAC can't be
+seen from the server's side of a TCP connection, so there's no other source for it.
+
+**API**: `GET /admin/monitor/clients` → `{nowMs, clients: [...], sources: [{service, up, error}]}`.
+It's admin-only, and 503 when monitoring is off, like the other `/admin/monitor` routes. All
+targets are asked in parallel, each with the 3 s poll timeout. A target that fails, or answers as
+another service (ports swapped in `MonitorTargets`, as in §3), is reported in `sources` and
+contributes no rows. `nowMs` is the dashboard's clock, so the page measures durations against the
+clock that stamped `connectedMs` rather than the viewer's. **No gmaudit record per request**: the
+page refreshes every 5 s, and a line per refresh would bury the GM audit log. Log search (§6)
+audits because each search is a deliberate act; opening this page is closer to opening
+Monitoring.
+
+**`/admin/audit`** (`pages/Audit.tsx`, arithmetic in `lib/audit.ts`):
+- **Table:** server, status, account, character, IP, connected, last packet, HWID. Every column
+  sorts, and IPv4 sorts numerically.
+- **Filters:** search (IP, account, character or HWID), a server switch, and status chips with
+  counts.
+- **Shared addresses:** an IP or HWID shared by several *game-server* connections gets a "×N"
+  marker that filters the list down to them. Login rows are left out of the count, because every
+  player passes through the login server on the way in.
+- **Details:** a row opens a dialog with the connection (address, connect time, last packet,
+  traffic and average rate, protocol), the account (with a "find owner" link to
+  `/admin?q=<account>`, which the Accounts page now reads), the character, the lobby list, the
+  hardware report, and other connections from the same IP. The dialog follows the client across
+  refreshes. Once the client is gone, it says so and keeps the last data seen.
+- **Missing servers:** a server that didn't answer is named above the table, so its players don't
+  look disconnected.
+
+Class and race names come from `lib/classes.ts`. The server sends ids only, as it does for the
+account page's characters.
+
+Tests: `commons` (request grammar, a provider's records stamped with the service, the timeout),
+`game_loop::tests::monitor_clients_tests` (stages, lobby list, hardware, character),
+`loginserver::clients` (register, stage changes, outbound counted only inside the scope, unlisted
+on drop), `dashboard_api` `clients_are_merged_across_servers_and_a_bad_target_is_reported`, and
+on the frontend `tests/audit-lib.test.ts` and `tests/audit.test.ts` (Playwright).
+

@@ -1,8 +1,10 @@
 //! The monitor channel's line format, as the dashboard reads it — the other
-//! half of `commons::monitor::Sample::to_json_line` (`docs/MONITORING.md` §4).
+//! half of `commons::monitor::Sample::to_json_line` (`docs/MONITORING.md` §4),
+//! and of the channel's `clients` lines (§10).
 
 use std::collections::BTreeMap;
 
+use commons::monitor::clients::ClientRecord;
 use serde::Deserialize;
 
 /// One sample line. Fields the sampler always writes are required, so a line
@@ -37,16 +39,42 @@ pub fn parse_body(body: &str) -> Parsed {
     for line in body.lines().filter(|l| !l.trim().is_empty()) {
         match serde_json::from_str::<WireSample>(line) {
             Ok(s) => out.samples.push(s),
-            Err(_) => match serde_json::from_str::<serde_json::Value>(line)
-                .ok()
-                .and_then(|v| v.get("error").and_then(|e| e.as_str()).map(String::from))
-            {
+            Err(_) => match error_of(line) {
                 Some(e) => out.error = Some(e),
                 None => out.malformed += 1,
             },
         }
     }
     out
+}
+
+/// What a `clients` response body held (§10).
+#[derive(Debug, Default)]
+pub struct ParsedClients {
+    pub clients: Vec<ClientRecord>,
+    pub error: Option<String>,
+    pub malformed: usize,
+}
+
+pub fn parse_clients(body: &str) -> ParsedClients {
+    let mut out = ParsedClients::default();
+    for line in body.lines().filter(|l| !l.trim().is_empty()) {
+        match serde_json::from_str::<ClientRecord>(line) {
+            Ok(c) => out.clients.push(c),
+            Err(_) => match error_of(line) {
+                Some(e) => out.error = Some(e),
+                None => out.malformed += 1,
+            },
+        }
+    }
+    out
+}
+
+/// The message of a channel `{"error":…}` line.
+fn error_of(line: &str) -> Option<String> {
+    serde_json::from_str::<serde_json::Value>(line)
+        .ok()
+        .and_then(|v| v.get("error").and_then(|e| e.as_str()).map(String::from))
 }
 
 #[cfg(test)]
