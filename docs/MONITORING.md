@@ -32,8 +32,7 @@ start".
 ## 2. P1 (shipped): the counters themselves
 
 Both servers now register the same six `commons::metrics` series (`crates/commons/src/metrics.rs`
-— counters/gauges, snapshotted to one JSON log line per `MetricsIntervalSeconds`, same mechanism
-`docs/LOGGING.md` §"Metrics" already documents):
+— counters/gauges, `docs/LOGGING.md` §"Metrics"):
 
 | Series | Kind | Meaning |
 |---|---|---|
@@ -64,6 +63,11 @@ On the login server a connection holds a `metrics::LoginStage` guard that is swa
 the two stages always sum to `connections_open`. On the game server, stage changes also happen on
 DB and login-link replies, not only on network events, so `game_loop::net::refresh_session_gauges`
 recounts `world.clients` once per tick. They sum to the sessions the game thread knows about.
+
+Both servers also register `audit_written` (records the audit writer put on disk) and
+`audit_blocked` (times a caller waited on a full audit queue, `docs/LOGGING.md` §"Why audit records are not allowed to drop"),
+charted together as "Audit records". `audit_blocked` should stay at zero; anything else means the
+never-drop audit sink is stalling server threads.
 
 `packets_in` vs. `game_loop::net::packets_handled` (game server only) is itself a signal: the gap
 between them is packets rejected by the rate limiter or lost to a decode failure.
@@ -147,8 +151,8 @@ serve and `/admin/monitor` answers 503.
 
 ## 4. P2 (shipped): CPU, memory, and the sampler
 
-`commons::monitor` (`crates/commons/src/monitor/`): a `std::thread` (like
-`metrics::spawn_reporter`, not tokio, so a busy runtime can't delay a sample) that every
+`commons::monitor` (`crates/commons/src/monitor/`): a `std::thread` (not
+tokio, so a busy runtime can't delay a sample) that every
 `SampleSeconds` reads the registry and the process's CPU/RSS, turns them into one interval
 `Sample`, and pushes it into a bounded ring (`RingSamples`, default 720 = 1 hour, which covers a
 dashboard restart/deploy without a gap).

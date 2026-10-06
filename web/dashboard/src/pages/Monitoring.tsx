@@ -448,6 +448,30 @@ function ServiceCharts({ data, game }: { data: MonitorSeries; game: boolean }) {
           ]}
         />
       )}
+      {/* `audit_blocked` should be a flat zero: the audit sink never drops,
+          so a full queue stalls the caller instead, and this is where that
+          cost shows. */}
+      <LineChart
+        title="Audit records"
+        {...p}
+        format={perSec(formatCount)}
+        lines={[
+          {
+            label: "Written",
+            values: rate("audit_written"),
+            color: C1,
+            description:
+              "Audit records (chat, items, enchants, GM commands, logins) written to disk per second.",
+          },
+          {
+            label: "Stalls",
+            values: rate("audit_blocked"),
+            color: C2,
+            description:
+              "Times per second a server thread had to wait because the audit queue was full. Should stay at zero.",
+          },
+        ]}
+      />
     </div>
   );
 }

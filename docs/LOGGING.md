@@ -8,7 +8,7 @@ split and only then gets to configuration.
 |---|---|---|---|
 | *What happened to this player?* | Diagnostic log — `commons::logging` | **Yes, on purpose** | 14 days |
 | *What did this account do, months ago?* | Audit records — `commons::audit` | **Never** | 180 days |
-| *How is the server doing right now?* | Metrics — `commons::metrics` | n/a | one line per interval |
+| *How is the server doing right now?* | Metrics — `commons::metrics`, charted on the dashboard | n/a | 7 days (dashboard store) |
 
 ## Why diagnostics are allowed to drop
 
@@ -42,8 +42,8 @@ for.
 So the audit sink inverts every diagnostic trade: a full queue makes the caller
 **wait** rather than dropping, and the writer thread is joined on shutdown.
 Audit volume is a rounding error next to diagnostics, so in practice the queue
-never fills; if it ever does, the metrics snapshot reports it as
-`audit_blocked`.
+never fills; if it ever does, the `audit_blocked` counter shows it on the
+dashboard's monitoring page.
 
 ### Why files rather than the game database
 
@@ -215,8 +215,7 @@ join key between the two.
 
 ### `config/Logging.ini` — the sink
 
-Verbosity, rotation, retention, buffer depth, the audit sink and the metrics
-interval. `RUST_LOG` overrides `Level` entirely, which is the intended way to
+Verbosity, rotation, retention, buffer depth and the audit sink. `RUST_LOG` overrides `Level` entirely, which is the intended way to
 debug a running server without editing the datapack:
 
 ```bash
@@ -269,10 +268,13 @@ switch for them either.
 
 ## Metrics
 
-Counters and gauges, emitted as one structured `metrics` log event per interval
-(`MetricsIntervalSeconds`). One event rather than one per metric, so a single
-line is a complete picture at that instant, and it lands in the JSON log where a
-shipper or `jq` can graph it with no endpoint to secure.
+Counters and gauges in a name-keyed registry (`commons::metrics`). They are
+**not** written to the log: `commons::monitor` samples the registry every 5 s
+into an in-memory ring, and the dashboard polls it and charts the history
+(`docs/MONITORING.md`). The log used to carry a once-a-minute `metrics`
+snapshot event (`MetricsIntervalSeconds`); that was removed once the charts
+covered it, so a stale `MetricsIntervalSeconds` key in an old `Logging.ini` is
+ignored.
 
 ```rust
 metrics::counter("packets_handled").incr();
@@ -283,10 +285,12 @@ Looking a metric up by name takes the registry lock, so hot paths hold the
 handle in a `OnceLock` rather than re-fetching per event — after the first call
 it is a relaxed atomic add and nothing else.
 
-Currently registered: `packets_handled`, `players_online`, `packets_dropped`
-(outbound drop policy, THREADING_MODEL §4 rule 3), `tick_busy_micros` (the
-game tick's busy time — headroom against the 100 000 µs budget), plus
-`audit_written` and `audit_blocked` on every snapshot.
+The full list of series is in `docs/MONITORING.md`. Among them:
+`packets_handled`, `players_online`, `packets_dropped` (outbound drop policy,
+THREADING_MODEL §4 rule 3), `tick_busy_micros` (the game tick's busy time —
+headroom against the 100 000 µs budget), and `audit_written` /
+`audit_blocked` (records written, and times a caller waited on a full audit
+queue).
 
 ## Deployment
 

@@ -6,11 +6,10 @@
 //! problem [`crate::logging`] then has to shed. A counter costs one relaxed
 //! atomic add and stays one number no matter how often it fires.
 //!
-//! Deliberately tiny: an atomic per metric, a name-keyed registry, and a
-//! reporter that emits the whole set as one structured log event on an
-//! interval. That event lands in the JSON diagnostic file like anything else,
-//! so a log shipper or `jq` can graph it with no extra plumbing and no metrics
-//! endpoint to secure.
+//! Deliberately tiny: an atomic per metric and a name-keyed registry. Nothing
+//! here writes anywhere — [`crate::monitor`] samples [`readings`] into its
+//! ring, and the dashboard's monitoring page charts them
+//! (`docs/MONITORING.md`).
 //!
 //! ```ignore
 //! metrics::counter("packets_handled").incr();
@@ -20,7 +19,6 @@
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
-use std::time::Duration;
 
 /// A monotonically increasing count.
 #[derive(Clone)]
@@ -157,44 +155,6 @@ pub fn readings() -> Vec<Reading> {
         .collect()
 }
 
-/// Every metric and its current value, sorted by name.
-pub fn snapshot() -> Vec<(String, u64)> {
-    readings().into_iter().map(|r| (r.name, r.value)).collect()
-}
-
-/// Emits the whole snapshot as one structured event every `interval_seconds`.
-///
-/// One event rather than one per metric, so a single log line is a complete
-/// picture at that instant. `0` disables the reporter.
-pub fn spawn_reporter(interval_seconds: u64) {
-    if interval_seconds == 0 {
-        return;
-    }
-    let _ = std::thread::Builder::new()
-        .name("metrics-reporter".to_string())
-        .spawn(move || {
-            loop {
-                std::thread::sleep(Duration::from_secs(interval_seconds));
-                let values = snapshot();
-                if values.is_empty() {
-                    continue;
-                }
-                // Audit sink health rides along: a non-zero `blocked` is the
-                // visible cost of never dropping a record.
-                let json: serde_json::Map<String, serde_json::Value> = values
-                    .into_iter()
-                    .map(|(k, v)| (k, serde_json::Value::from(v)))
-                    .collect();
-                tracing::info!(
-                    metrics = %serde_json::Value::Object(json),
-                    audit_written = crate::audit::written_count(),
-                    audit_blocked = crate::audit::blocked_count(),
-                    "metrics"
-                );
-            }
-        });
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -270,9 +230,8 @@ mod tests {
     }
 
     #[test]
-    fn snapshot_includes_registered_names() {
-        counter("test_snapshot_metric").incr();
-        let names: Vec<String> = snapshot().into_iter().map(|(k, _)| k).collect();
-        assert!(names.iter().any(|n| n == "test_snapshot_metric"));
+    fn readings_include_registered_names() {
+        counter("test_readings_metric").incr();
+        assert!(readings().iter().any(|r| r.name == "test_readings_metric"));
     }
 }

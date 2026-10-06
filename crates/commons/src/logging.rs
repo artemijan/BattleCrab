@@ -70,9 +70,6 @@ pub struct LoggingConfig {
     pub error_file_enable: bool,
     /// How often to report dropped lines. `0` disables the reporter.
     pub drop_report_seconds: u64,
-    /// How often to emit the [`crate::metrics`] snapshot as one structured log
-    /// event. `0` disables it.
-    pub metrics_interval_seconds: u64,
 }
 
 impl Default for LoggingConfig {
@@ -89,7 +86,6 @@ impl Default for LoggingConfig {
             buffered_lines: 131_072,
             error_file_enable: true,
             drop_report_seconds: 60,
-            metrics_interval_seconds: 60,
         }
     }
 }
@@ -126,9 +122,6 @@ impl LoggingConfig {
             error_file_enable: p.get_bool("ErrorFileEnable", d.error_file_enable),
             drop_report_seconds: p
                 .get_int("DropReportSeconds", d.drop_report_seconds as i32)
-                .max(0) as u64,
-            metrics_interval_seconds: p
-                .get_int("MetricsIntervalSeconds", d.metrics_interval_seconds as i32)
                 .max(0) as u64,
         }
     }
