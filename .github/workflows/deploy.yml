@@ -1,5 +1,5 @@
-# CI/CD: every push to main goes build -> test -> deploy; pull requests run
-# build + test only.
+# Deploy: every push to main goes build -> test (ci.yml) -> deploy. Pull
+# requests never trigger this workflow; they run ci.yml alone.
 #
 # The deploy job needs a GitHub Environment named "production" carrying the
 # deploy.env variables (see deploy.env.example) as individual secrets and/or
@@ -13,12 +13,10 @@
 # The deploy scripts are the same ones used for manual deploys from a
 # workstation; CI only reconstructs deploy.env and the SSH key, then runs them.
 
-name: CI/CD
+name: Deploy
 
 on:
   push:
-    branches: [main]
-  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -28,56 +26,14 @@ env:
 jobs:
   build-test:
     name: Build & test
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    steps:
-      - uses: actions/checkout@v7
-
-      # Caches compiled dependencies (not workspace crates) keyed on
-      # Cargo.lock; cache-on-failure keeps the warm cache even when tests fail,
-      # so a fix-up push doesn't recompile the world.
-      - uses: Swatinem/rust-cache@v2
-        with:
-          cache-on-failure: true
-
-      - name: Install cargo-nextest
-        uses: taiki-e/install-action@v2
-        with:
-          tool: nextest
-
-      - name: Build
-        run: cargo build --workspace --locked
-
-      - name: Test
-        run: cargo nextest run --workspace --locked --profile ci
-
-      - name: Upload test report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: junit
-          path: target/nextest/ci/junit.xml
-          if-no-files-found: ignore
-
-      - uses: oven-sh/setup-bun@v2
-
-      - name: Cache bun packages
-        uses: actions/cache@v6
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('web/dashboard/bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
-
-      - name: Dashboard SPA typecheck
-        working-directory: web/dashboard
-        run: |
-          bun install --frozen-lockfile
-          bun run typecheck
+    uses: ./.github/workflows/ci.yml
 
   deploy:
     name: Deploy
     needs: build-test
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    # A manual run started from another branch still builds and tests, but
+    # only main ships.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment:

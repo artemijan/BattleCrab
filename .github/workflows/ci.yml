@@ -1,0 +1,63 @@
+# CI: build + test. Runs on its own for pull requests (and on demand), and is
+# called by deploy.yml as the gate in front of every production deploy — so
+# the checks a PR shows are exactly the ones main must pass to ship.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-test:
+    name: Build & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+
+      # Caches compiled dependencies (not workspace crates) keyed on
+      # Cargo.lock; cache-on-failure keeps the warm cache even when tests fail,
+      # so a fix-up push doesn't recompile the world.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: nextest
+
+      - name: Build
+        run: cargo build --workspace --locked
+
+      - name: Test
+        run: cargo nextest run --workspace --locked --profile ci
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: junit
+          path: target/nextest/ci/junit.xml
+          if-no-files-found: ignore
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Cache bun packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('web/dashboard/bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Dashboard SPA typecheck
+        working-directory: web/dashboard
+        run: |
+          bun install --frozen-lockfile
+          bun run typecheck
