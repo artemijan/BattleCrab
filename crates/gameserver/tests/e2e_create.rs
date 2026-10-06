@@ -21,6 +21,26 @@ const STATIC_BLOWFISH_KEY: [u8; 16] = [
     0x6b, 0x60, 0xcb, 0x5b, 0x82, 0xce, 0x90, 0xb1, 0xcc, 0x2b, 0x6c, 0x55, 0x6c, 0x6c, 0x6c, 0x6c,
 ];
 
+/// A fresh database in its own temp directory, built by the migrations — the
+/// same schema production gets from `l2r-migrate up`. Returns its URL and
+/// the directory, for the test to remove when it is done.
+///
+/// Not a copy of the untracked runtime `interlude_classic.db`: that made the
+/// test skip on a fresh clone or CI, and fail whenever someone's local copy was
+/// stale or empty, with an error that pointed nowhere near the cause.
+async fn migrated_db_url(tag: &str) -> (String, std::path::PathBuf) {
+    let dir = std::env::temp_dir().join(format!("l2r_{tag}_{}", std::process::id()));
+    // A leftover from an earlier run with the same pid would already be
+    // migrated; start clean so the test always sees exactly the migrations.
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let url = format!("jdbc:sqlite:{}", dir.join("c.db").display());
+    let db = commons::db::connect(&url, 1).await.unwrap();
+    migration::Migrator::up(&db, None).await.unwrap();
+    db.close().await.unwrap();
+    (url, dir)
+}
+
 /// The login side of this test gets the real schema, from the migrations.
 async fn setup_login_schema(db: &sea_orm::DatabaseConnection) {
     migration::Migrator::up(db, None).await.unwrap();
@@ -456,33 +476,11 @@ fn u16str(s: &str) -> Vec<u8> {
 // re-selecting inside the window — first by sleeping it out, now by turning
 // that one protector slot off in `start_game` (the sleep was 3.2 s on the
 // suite's longest test).
-//
-// Note the test self-skips unless the untracked `interlude_classic.db` is
-// present, so a fresh checkout / CI runs it as a no-op.
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn full_login_to_character_create() {
-    // The runtime DB is an untracked working-tree file. A fixed `../../` finds
-    // it only from the main checkout — from a git worktree (this repo's normal
-    // workflow) it resolves to the worktree root and the test silently skipped.
-    // Walking up the ancestors finds the checkout's copy, so a worktree run
-    // gets the same coverage; only a fresh clone skips. Guard before the global
-    // cwd change so a skipped run leaves the process cwd untouched.
-    let Some(src) = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .ancestors()
-        .map(|d| d.join("interlude_classic.db"))
-        .find(|p| p.exists())
-    else {
-        eprintln!("skipping full_login_to_character_create: no interlude_classic.db found");
-        return;
-    };
+    // A fresh game database with the real schema, from the migrations.
+    let (db_url, dir) = migrated_db_url("e2e").await;
     std::env::set_current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game")).unwrap();
-
-    // Fresh characters DB copied from the real one.
-    let dir = std::env::temp_dir().join(format!("l2r_e2e_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("c.db");
-    std::fs::copy(src, &db_path).unwrap();
-    let db_url = format!("jdbc:sqlite:{}", db_path.display());
 
     let (login_addr, gs_addr) = start_login().await;
     let game_addr = start_game(gs_addr, db_url.clone(), {
@@ -951,21 +949,8 @@ fn parse_sm(pkt: &[u8]) -> (i16, Vec<i32>, Vec<i64>, Vec<String>) {
 #[tokio::test]
 #[ignore = "scratch in-game harness, run explicitly"]
 async fn drop_check() {
-    let Some(src) = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .ancestors()
-        .map(|d| d.join("interlude_classic.db"))
-        .find(|p| p.exists())
-    else {
-        eprintln!("skipping drop_check: no interlude_classic.db found");
-        return;
-    };
+    let (db_url, dir) = migrated_db_url("drop").await;
     std::env::set_current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game")).unwrap();
-
-    let dir = std::env::temp_dir().join(format!("l2r_drop_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("c.db");
-    std::fs::copy(&src, &db_path).unwrap();
-    let db_url = format!("jdbc:sqlite:{}", db_path.display());
 
     let (login_addr, gs_addr) = start_login().await;
     // The **dist** config: DropMaxOccurrences = 1, adena's per-id ×50/×30, and
