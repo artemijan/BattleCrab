@@ -814,18 +814,8 @@ fn knows(world: &World, skill_id: i32, who: i32) -> bool {
 /// characters schema and report success (the "can't create" report).
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn character_create_inserts_into_real_schema() {
-    // Copy of the real database so we exercise its exact schema. The runtime DB
-    // is an untracked working-tree file — see `real_db_path`, which finds the
-    // checkout's copy even from a worktree; only a fresh clone skips.
-    let Some(src) = real_db_path() else {
-        eprintln!("skipping character_create_inserts_into_real_schema: no interlude_classic.db");
-        return;
-    };
-    let dir = std::env::temp_dir().join(format!("l2r_create_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("c.db");
-    std::fs::copy(src, &db_path).expect("copy real db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    // The real schema, from the migrations.
+    let (url, dir) = migrated_db_url("create").await;
 
     let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_event_tx, db_event_rx) = std::sync::mpsc::channel();
@@ -3259,19 +3249,25 @@ fn teleporter_world(adena: i64) -> (World, UnboundedReceiver<bytes::Bytes>) {
     (world, rx)
 }
 
-/// Locate the untracked runtime database.
+/// A fresh database in its own temp directory, built by the migrations — the
+/// same schema production gets from `l2r-migrate up`. Returns its URL and
+/// the directory, for the test to remove when it is done.
 ///
-/// **Not a fixed `../../`**: from a git worktree that resolves to the
-/// worktree root, where the file does not exist, so these tests silently
-/// skipped in every worktree — which is this repo's normal workflow. Walking
-/// up the ancestors finds the real checkout's copy, so a worktree run gets the
-/// same coverage as `main`. Still `None` on a genuinely fresh clone, which is
-/// the case the skip exists for.
-pub(crate) fn real_db_path() -> Option<std::path::PathBuf> {
-    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .ancestors()
-        .map(|d| d.join("interlude_classic.db"))
-        .find(|p| p.exists())
+/// Not a copy of the untracked runtime `interlude_classic.db`: that made the
+/// test skip on a fresh clone or CI, and fail whenever someone's local copy was
+/// stale or empty, with an error that pointed nowhere near the cause.
+pub(crate) async fn migrated_db_url(tag: &str) -> (String, std::path::PathBuf) {
+    use migration::MigratorTrait;
+    let dir = std::env::temp_dir().join(format!("l2r_{tag}_{}", std::process::id()));
+    // A leftover from an earlier run with the same pid would already be
+    // migrated; start clean so the test always sees exactly the migrations.
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    let url = format!("jdbc:sqlite:{}", dir.join("c.db").display());
+    let db = commons::db::connect(&url, 1).await.unwrap();
+    migration::Migrator::up(&db, None).await.unwrap();
+    db.close().await.unwrap();
+    (url, dir)
 }
 
 /// Switch off a caster's random-damage spread (`Stat.RANDOM_DAMAGE`, 10 on
