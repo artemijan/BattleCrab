@@ -89,6 +89,17 @@ enum-ordinalize = { version = "4.4.2", default-features = false, features = ["de
 # Replaces the system allocator in the game server. The game thread is
 # allocation-heavy and single-threaded, which is exactly mimalloc's shape.
 mimalloc = "0.1"
+# `extended` exposes `mi_process_info`, which the game server's monitor sampler
+# reads for heap usage (docs/MONITORING.md §4). `mimalloc` keeps its own
+# `libmimalloc_sys` private, so the sys crate is named directly; it is the same
+# crate `mimalloc` already builds.
+libmimalloc-sys = { version = "0.1", features = ["extended"] }
+# `getrusage`/`sysconf` for the monitor sampler's process CPU and RSS
+# (docs/MONITORING.md §4). Already in the tree via tokio.
+libc = "0.2"
+# Byte search for the log-search prefilter and line splitting
+# (docs/MONITORING.md §6). Already in the tree via regex.
+memchr = "2"
 
 # Cargo's default release profile is `codegen-units = 16`, which blocks
 # cross-crate inlining between the 16 partitions of each crate. Benchmarked

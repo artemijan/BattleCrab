@@ -104,6 +104,25 @@ pub(crate) fn tick_busy_micros() -> &'static commons::metrics::Gauge {
     G.get_or_init(|| commons::metrics::gauge("tick_busy_micros"))
 }
 
+/// Cumulative busy µs and tick count. `tick_busy_micros` is overwritten every
+/// tick, so a 5 s monitor sample reads 1 tick in 50; the mean over a sample is
+/// Δ`tick_busy_micros_total` / Δ`ticks` instead (`docs/MONITORING.md` §4).
+pub(crate) fn tick_busy_micros_total() -> &'static commons::metrics::Counter {
+    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
+    C.get_or_init(|| commons::metrics::counter("tick_busy_micros_total"))
+}
+
+pub(crate) fn ticks() -> &'static commons::metrics::Counter {
+    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
+    C.get_or_init(|| commons::metrics::counter("ticks"))
+}
+
+/// Ticks over [`TICK_OVERRUN_WARN`]. A mean hides spikes; this catches them.
+pub(crate) fn tick_overruns() -> &'static commons::metrics::Counter {
+    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
+    C.get_or_init(|| commons::metrics::counter("tick_overruns"))
+}
+
 /// Signal shared with the async side (ctrl-c / scheduled restart) to stop the
 /// loop after the current tick finishes.
 #[derive(Clone, Default)]
@@ -354,7 +373,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // makes headroom (busy µs against the 100 000 µs budget) graphable.
         let busy = event_work + boundary_start.elapsed();
         tick_busy_micros().set(busy.as_micros() as u64);
+        tick_busy_micros_total().add(busy.as_micros() as u64);
+        ticks().incr();
         if busy > TICK_OVERRUN_WARN {
+            tick_overruns().incr();
             timings.sort_by_key(|b| std::cmp::Reverse(b.1));
             let slowest = timings
                 .iter()

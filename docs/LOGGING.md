@@ -124,15 +124,17 @@ journalctl -u l2-gameserver -f
 | | diagnostics | panic hook | audit records | metrics | spans |
 |---|---|---|---|---|---|
 | game server | ✓ | ✓ | 6 categories | ✓ | ✓ per packet |
-| login server | ✓ | ✓ | accounting (every auth attempt) | — | — |
+| login server | ✓ | ✓ | accounting (every auth attempt) | ✓ | — |
 | dashboard API | ✓ | ✓ | accounting + gmaudit (account lifecycle) | — | — |
 | launcher, migration | plain `fmt()` | — | — | — | — |
 
 The gaps are deliberate, not oversights:
 
-- **Metrics on login and dashboard.** Both are request/response services whose
-  load is visible from the outside; the game server is the one with a tick
-  budget to protect. Add counters there when there is a question they answer.
+- **Metrics on the dashboard.** It is a request/response service whose load is
+  visible from the outside; the game server is the one with a tick budget to
+  protect. Add counters there when there is a question they answer. (The login
+  server got wire-traffic counters — see below — as part of the per-server
+  monitoring work; docs/MONITORING.md.)
 - **Spans outside the game server.** The game server's span exists because a
   packet is a unit of work with no other identity. HTTP requests already have
   one, and axum carries it.

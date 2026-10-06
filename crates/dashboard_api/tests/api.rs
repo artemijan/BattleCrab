@@ -22,6 +22,16 @@ fn test_config() -> DashboardConfig {
     DashboardConfig {
         // No status channel in tests — the probe reports offline.
         status_channel_address: String::new(),
+        // No poller in tests; monitor tests attach one explicitly.
+        monitor_targets: String::new(),
+        metrics_database: String::new(),
+        metrics_poll_seconds: 5,
+        metrics_retention_days: 7,
+        // No log search in tests; its tests attach their own roots.
+        log_search_roots: String::new(),
+        log_search_max_bytes: 256 * 1024 * 1024,
+        log_search_timeout_ms: 3000,
+        log_search_concurrency: 2,
         bind_address: "127.0.0.1".into(),
         port: 0,
         public_base_url: "http://localhost".into(),
@@ -2394,4 +2404,562 @@ async fn the_cf_header_separates_rate_limit_buckets() {
         .await
         .unwrap();
     assert_eq!(other.status(), StatusCode::CREATED);
+}
+
+// ---------------------------------------------------------------------------
+// Server monitoring (docs/MONITORING.md §5)
+// ---------------------------------------------------------------------------
+
+/// `test_app` with a monitor attached: an in-memory `metrics.db` and the
+/// given targets. Nothing polls on its own; tests call `Monitor::poll`.
+async fn test_app_with_monitor(
+    targets: &str,
+) -> (
+    axum::Router,
+    SqlitePool,
+    Arc<dashboard_api::monitor::Monitor>,
+) {
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
+        .await
+        .unwrap();
+    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    migration::Migrator::up(&db, None).await.unwrap();
+    let monitor = Arc::new(dashboard_api::monitor::Monitor::new(
+        dashboard_api::monitor::store::MetricsDb::in_memory()
+            .await
+            .unwrap(),
+        dashboard_api::monitor::parse_targets(targets).unwrap(),
+        5,
+        7,
+        std::env::temp_dir(),
+    ));
+    let state = Arc::new(App::new(db, test_config()).with_monitor(Some(monitor.clone())));
+    (dashboard_api::app(state), pool, monitor)
+}
+
+/// Stand in for a server's monitor channel: record each request line, answer
+/// with `body`. Returns the address and the recorded requests.
+async fn fake_monitor_channel(body: String) -> (String, Arc<std::sync::Mutex<Vec<String>>>) {
+    use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let addr = listener.local_addr().unwrap().to_string();
+    let requests = Arc::new(std::sync::Mutex::new(Vec::new()));
+    let seen = requests.clone();
+    tokio::spawn(async move {
+        while let Ok((stream, _)) = listener.accept().await {
+            let (read, mut write) = stream.into_split();
+            let mut line = String::new();
+            BufReader::new(read).read_line(&mut line).await.unwrap();
+            seen.lock().unwrap().push(line);
+            let _ = write.write_all(body.as_bytes()).await;
+            let _ = write.shutdown().await;
+        }
+    });
+    (addr, requests)
+}
+
+/// A sample line exactly as `commons::monitor` writes it.
+fn monitor_line(service: &str, ts: u64, packets_in: u64, connections_open: u64) -> String {
+    let mut metrics = std::collections::BTreeMap::new();
+    metrics.insert("packets_in".to_string(), packets_in);
+    metrics.insert("connections_open".to_string(), connections_open);
+    commons::monitor::Sample {
+        ts_ms: ts,
+        started_ms: 1_000,
+        interval_ms: 5000,
+        cpu_micros: 2500,
+        rss_bytes: Some(64 << 20),
+        heap_bytes: None,
+        metrics,
+    }
+    .to_json_line(service)
+}
+
+const MONITOR_ROUTES: [&str; 3] = [
+    "/api/v1/admin/monitor/services",
+    "/api/v1/admin/monitor/series?service=game_server",
+    "/api/v1/admin/monitor/host",
+];
+
+#[tokio::test]
+async fn monitor_routes_are_admin_only() {
+    let (app, pool, _monitor) = test_app_with_monitor("game_server=127.0.0.1:1").await;
+    let player = verified_master(&pool, &app, "player@example.com").await;
+    for route in MONITOR_ROUTES {
+        let anonymous = app
+            .clone()
+            .oneshot(with_peer(
+                Request::builder().uri(route).body(Body::empty()).unwrap(),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(anonymous.status(), StatusCode::UNAUTHORIZED, "{route}");
+        let ordinary = app
+            .clone()
+            .oneshot(get_with_cookie(route, &player))
+            .await
+            .unwrap();
+        assert_eq!(ordinary.status(), StatusCode::FORBIDDEN, "{route}");
+    }
+}
+
+#[tokio::test]
+async fn monitor_routes_say_disabled_rather_than_not_found() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    for route in MONITOR_ROUTES {
+        let response = app
+            .clone()
+            .oneshot(get_with_cookie(route, &admin))
+            .await
+            .unwrap();
+        assert_eq!(
+            response.status(),
+            StatusCode::SERVICE_UNAVAILABLE,
+            "{route}"
+        );
+        assert_eq!(body_json(response).await["error"]["code"], "unavailable");
+    }
+}
+
+#[tokio::test]
+async fn polled_samples_are_stored_and_served_bucketed() {
+    let body = [
+        monitor_line("game_server", 1_759_000_000_000, 10, 3),
+        monitor_line("game_server", 1_759_000_005_000, 20, 5),
+        monitor_line("game_server", 1_759_000_010_000, 30, 4),
+    ]
+    .concat();
+    let (addr, requests) = fake_monitor_channel(body).await;
+    let (app, pool, monitor) =
+        test_app_with_monitor(&format!("game_server={addr},login_server=127.0.0.1:1")).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+
+    let targets = dashboard_api::monitor::parse_targets(&format!(
+        "game_server={addr},login_server=127.0.0.1:1"
+    ))
+    .unwrap();
+    for t in &targets {
+        monitor.poll(t).await;
+    }
+    // Second poll resumes from the newest stored sample.
+    monitor.poll(&targets[0]).await;
+    assert_eq!(
+        *requests.lock().unwrap(),
+        vec!["since 0\n".to_string(), "since 1759000010000\n".to_string()]
+    );
+
+    let services = body_json(
+        app.clone()
+            .oneshot(get_with_cookie("/api/v1/admin/monitor/services", &admin))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let game = &services["services"][0];
+    assert_eq!(game["service"], "game_server");
+    assert_eq!(game["up"], true);
+    assert_eq!(game["lastSampleTs"], 1_759_000_010_000i64);
+    assert!(game["uptimeSeconds"].as_i64().unwrap() > 0);
+    let login = &services["services"][1];
+    assert_eq!(login["up"], false, "nothing listens on port 1");
+    assert!(login["lastError"].is_string());
+    assert!(login["uptimeSeconds"].is_null());
+
+    let series = body_json(
+        app.clone()
+            .oneshot(get_with_cookie(
+                "/api/v1/admin/monitor/series?service=game_server\
+                 &from=1759000000000&to=1759000015000&maxPoints=2\
+                 &metrics=packets_in,connections_open",
+                &admin,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(series["bucketMs"], 15_000);
+    assert_eq!(
+        series["ts"],
+        serde_json::json!([1_758_999_990_000i64, 1_759_000_005_000i64])
+    );
+    assert_eq!(series["samples"], serde_json::json!([1, 2]));
+    assert_eq!(series["intervalMs"], serde_json::json!([5000, 10000]));
+    assert_eq!(
+        series["series"]["packets_in"],
+        serde_json::json!([10.0, 50.0])
+    );
+    assert_eq!(
+        series["series"]["connections_open"],
+        serde_json::json!([3.0, 5.0])
+    );
+    assert_eq!(series["aggregation"]["packets_in"], "sum");
+    assert_eq!(series["aggregation"]["connections_open"], "max");
+}
+
+#[tokio::test]
+async fn series_rejects_unknown_services_and_metrics() {
+    let (app, pool, _monitor) = test_app_with_monitor("game_server=127.0.0.1:1").await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    let unknown_service = app
+        .clone()
+        .oneshot(get_with_cookie(
+            "/api/v1/admin/monitor/series?service=dashboard_api",
+            &admin,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(unknown_service.status(), StatusCode::NOT_FOUND);
+    let unknown_metric = app
+        .clone()
+        .oneshot(get_with_cookie(
+            "/api/v1/admin/monitor/series?service=game_server&metrics=password",
+            &admin,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(unknown_metric.status(), StatusCode::BAD_REQUEST);
+    let missing = app
+        .oneshot(get_with_cookie("/api/v1/admin/monitor/series", &admin))
+        .await
+        .unwrap();
+    assert_eq!(missing.status(), StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
+async fn a_target_answering_as_another_service_is_refused_not_stored() {
+    // Ports swapped in MonitorTargets: the "login" port is the game server.
+    let (addr, _) = fake_monitor_channel(monitor_line("game_server", 5000, 1, 1)).await;
+    let (_app, _pool, monitor) = test_app_with_monitor(&format!("login_server={addr}")).await;
+    let target =
+        &dashboard_api::monitor::parse_targets(&format!("login_server={addr}")).unwrap()[0];
+    monitor.poll(target).await;
+    let status = &monitor.statuses()[0];
+    assert!(!status.up);
+    assert!(
+        status
+            .last_error
+            .as_deref()
+            .unwrap()
+            .contains("check MonitorTargets")
+    );
+    assert_eq!(monitor.db.last_ts("login_server").await.unwrap(), None);
+    assert_eq!(monitor.db.last_ts("game_server").await.unwrap(), None);
+}
+
+#[tokio::test]
+async fn host_samples_are_served_bucketed() {
+    let (app, pool, monitor) = test_app_with_monitor("game_server=127.0.0.1:1").await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    monitor.sample_host().await;
+    let host = body_json(
+        app.oneshot(get_with_cookie("/api/v1/admin/monitor/host", &admin))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(host["samples"], serde_json::json!([1]));
+    assert!(host["series"]["load1"][0].is_number());
+    assert_eq!(host["aggregation"]["mem_available_bytes"], "min");
+    assert!(host.get("intervalMs").is_none());
+}
+
+// ---------------------------------------------------------------------------
+// Log search (docs/MONITORING.md §6)
+// ---------------------------------------------------------------------------
+
+/// A scratch datapack root, removed on drop.
+struct ScratchRoot(std::path::PathBuf);
+
+impl ScratchRoot {
+    fn new(tag: &str) -> Self {
+        let dir = std::env::temp_dir().join(format!(
+            "dashboard-api-{tag}-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(dir.join("log/audit")).unwrap();
+        Self(dir)
+    }
+
+    fn slash(&self) -> String {
+        format!("{}/", self.0.display())
+    }
+}
+
+impl Drop for ScratchRoot {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.0);
+    }
+}
+
+/// `test_app` with log search over `root` as `game_server`.
+async fn test_app_with_logs(
+    root: &ScratchRoot,
+    concurrency: usize,
+) -> (
+    axum::Router,
+    SqlitePool,
+    Arc<dashboard_api::logsearch::LogSearch>,
+) {
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
+        .await
+        .unwrap();
+    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    migration::Migrator::up(&db, None).await.unwrap();
+    let ls = Arc::new(dashboard_api::logsearch::LogSearch::new(
+        dashboard_api::logsearch::sources(&format!("game_server={}", root.0.display())).unwrap(),
+        dashboard_api::logsearch::Bounds {
+            max_bytes: 64 * 1024 * 1024,
+            deadline: std::time::Duration::from_secs(10),
+        },
+        concurrency,
+    ));
+    let state = Arc::new(App::new(db, test_config()).with_log_search(Some(ls.clone())));
+    (dashboard_api::app(state), pool, ls)
+}
+
+fn write_game_log(root: &ScratchRoot) {
+    let lines: String = (0..5)
+        .map(|i| {
+            format!(
+                "{{\"timestamp\":\"2026-08-14T0{i}:00:00Z\",\"level\":\"{}\",\"message\":\"event {i}\",\"target\":\"gameserver\"}}\n",
+                if i == 3 { "ERROR" } else { "INFO" }
+            )
+        })
+        .collect();
+    std::fs::write(root.0.join("log/game_server.2026-08-14.json"), lines).unwrap();
+    std::fs::write(
+        root.0.join("log/audit/chat.2026-08-14.ndjson"),
+        "{\"event\":\"say\",\"text\":\"hello from bob\",\"ip\":\"203.0.113.9\",\"ts\":\"2026-08-14T01:30:00Z\"}\n",
+    )
+    .unwrap();
+}
+
+const DAY: &str = "from=1786665600000&to=1786752000000"; // 2026-08-14, UTC
+
+#[tokio::test]
+async fn log_routes_are_admin_only_and_say_when_disabled() {
+    let root = ScratchRoot::new("logs-auth");
+    let (app, pool, _) = test_app_with_logs(&root, 2).await;
+    let player = verified_master(&pool, &app, "player@example.com").await;
+    for route in [
+        "/api/v1/admin/logs/streams".to_string(),
+        format!("/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}"),
+    ] {
+        let anonymous = app
+            .clone()
+            .oneshot(with_peer(
+                Request::builder().uri(&route).body(Body::empty()).unwrap(),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(anonymous.status(), StatusCode::UNAUTHORIZED, "{route}");
+        let ordinary = app
+            .clone()
+            .oneshot(get_with_cookie(&route, &player))
+            .await
+            .unwrap();
+        assert_eq!(ordinary.status(), StatusCode::FORBIDDEN, "{route}");
+    }
+
+    let (plain, pool) = test_app().await;
+    let admin = admin_master(&pool, &plain, "admin@example.com").await;
+    let disabled = plain
+        .oneshot(get_with_cookie("/api/v1/admin/logs/streams", &admin))
+        .await
+        .unwrap();
+    assert_eq!(disabled.status(), StatusCode::SERVICE_UNAVAILABLE);
+}
+
+#[tokio::test]
+async fn admins_list_streams_and_page_through_a_search() {
+    let root = ScratchRoot::new("logs-search");
+    write_game_log(&root);
+    let (app, pool, _) = test_app_with_logs(&root, 2).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+
+    let streams = body_json(
+        app.clone()
+            .oneshot(get_with_cookie("/api/v1/admin/logs/streams", &admin))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let names: Vec<&str> = streams["streams"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|s| s["stream"].as_str().unwrap())
+        .collect();
+    assert_eq!(names, vec!["diagnostic", "audit:chat"]);
+    assert_eq!(streams["streams"][0]["oldest"], 1_786_665_600_000i64);
+
+    let first = body_json(
+        app.clone()
+            .oneshot(get_with_cookie(
+                &format!(
+                    "/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}&limit=2"
+                ),
+                &admin,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    let msgs = |v: &serde_json::Value| -> Vec<String> {
+        v["hits"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|h| h["line"]["message"].as_str().unwrap().to_string())
+            .collect()
+    };
+    assert_eq!(msgs(&first), vec!["event 4", "event 3"]);
+    assert_eq!(first["stopped"], "limit");
+    assert_eq!(first["truncated"], false);
+    let cursor = first["cursor"].as_str().unwrap();
+
+    let rest = body_json(
+        app.clone()
+            .oneshot(get_with_cookie(
+                &format!(
+                    "/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}&cursor={cursor}"
+                ),
+                &admin,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(msgs(&rest), vec!["event 2", "event 1", "event 0"]);
+    assert!(rest["cursor"].is_null());
+
+    let errors = body_json(
+        app.clone()
+            .oneshot(get_with_cookie(
+                &format!(
+                    "/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}&level=warn"
+                ),
+                &admin,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(msgs(&errors), vec!["event 3"]);
+
+    let chat = body_json(
+        app.oneshot(get_with_cookie(
+            &format!("/api/v1/admin/logs/search?service=game_server&stream=audit:chat&{DAY}&q=BOB"),
+            &admin,
+        ))
+        .await
+        .unwrap(),
+    )
+    .await;
+    assert_eq!(chat["hits"][0]["line"]["text"], "hello from bob");
+}
+
+#[tokio::test]
+async fn every_search_is_attributed_in_gmaudit() {
+    let audit_root = ScratchRoot::new("logs-gmaudit");
+    let guard = commons::audit::init(
+        &audit_root.slash(),
+        &commons::audit::AuditConfig::load(&audit_root.slash()),
+    );
+    let root = ScratchRoot::new("logs-gmaudit-data");
+    write_game_log(&root);
+    let (app, pool, _) = test_app_with_logs(&root, 2).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    let response = app
+        .oneshot(get_with_cookie(
+            &format!("/api/v1/admin/logs/search?service=game_server&stream=audit:chat&{DAY}&q=bob"),
+            &admin,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    drop(guard); // flushes and joins the writer
+
+    let gmaudit = std::fs::read_dir(audit_root.0.join("log/audit"))
+        .unwrap()
+        .filter_map(Result::ok)
+        .find(|e| {
+            let name = e.file_name().into_string().unwrap();
+            name.starts_with("gmaudit.") && name != "gmaudit.ndjson"
+        })
+        .expect("a gmaudit file");
+    let record: serde_json::Value = serde_json::from_str(
+        std::fs::read_to_string(gmaudit.path())
+            .unwrap()
+            .lines()
+            .last()
+            .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(record["event"], "log_search");
+    assert_eq!(record["admin"], "admin@example.com");
+    assert_eq!(record["stream"], "audit:chat");
+    assert_eq!(record["q"], "bob");
+}
+
+#[tokio::test]
+async fn searches_past_the_concurrency_cap_are_refused_not_queued() {
+    let root = ScratchRoot::new("logs-busy");
+    write_game_log(&root);
+    let (app, pool, ls) = test_app_with_logs(&root, 1).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    let _held = ls.permits.clone().try_acquire_owned().unwrap();
+    let response = app
+        .oneshot(get_with_cookie(
+            &format!("/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}"),
+            &admin,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::TOO_MANY_REQUESTS);
+}
+
+#[tokio::test]
+async fn search_refuses_unknown_services_streams_and_bad_patterns() {
+    let root = ScratchRoot::new("logs-bad");
+    let (app, pool, _) = test_app_with_logs(&root, 2).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    for (query, status) in [
+        (
+            "service=login_server&stream=diagnostic",
+            StatusCode::NOT_FOUND,
+        ),
+        (
+            "service=game_server&stream=../../etc/passwd",
+            StatusCode::BAD_REQUEST,
+        ),
+        (
+            "service=game_server&stream=diagnostic&regex=true&q=(",
+            StatusCode::BAD_REQUEST,
+        ),
+        (
+            "service=game_server&stream=audit:chat&level=warn",
+            StatusCode::BAD_REQUEST,
+        ),
+        ("stream=diagnostic", StatusCode::BAD_REQUEST),
+    ] {
+        let response = app
+            .clone()
+            .oneshot(get_with_cookie(
+                &format!("/api/v1/admin/logs/search?{query}"),
+                &admin,
+            ))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), status, "{query}");
+    }
 }

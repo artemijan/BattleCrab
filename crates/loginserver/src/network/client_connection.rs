@@ -17,6 +17,7 @@ use tracing::{debug, info};
 use crate::context::LoginContext;
 use crate::controller::AuthOutcome;
 use crate::enums::{AccountKickedReason, ConnectionState, LoginFailReason, PlayFailReason};
+use crate::metrics::note_inbound_frame;
 use crate::network::encryption::LoginEncryption;
 use crate::network::server_packets;
 use crate::session::SessionKey;
@@ -87,7 +88,10 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
         let mut payload = tokio::select! {
             frame = tokio::time::timeout_at(session_deadline, read_frame(&mut read, MAX_PAYLOAD)) => {
                 match frame {
-                    Ok(Ok(Some(payload))) => payload,
+                    Ok(Ok(Some(payload))) => {
+                        note_inbound_frame(payload.len());
+                        payload
+                    }
                     _ => break, // EOF, IO error, or login timeout
                 }
             }
@@ -422,6 +426,7 @@ pub async fn send(
     body: Vec<u8>,
 ) -> std::io::Result<()> {
     let encrypted = encryption.encrypt(body);
+    crate::metrics::note_outbound_frame(encrypted.len());
     write_frame(write, &encrypted).await
 }
 
@@ -473,7 +478,9 @@ pub async fn accept_loop(ctx: Arc<LoginContext>, listener: tokio::net::TcpListen
                 let _ = stream.set_nodelay(true); // Java: TCP_NODELAY unless UseNagle
                 let ctx = ctx.clone();
                 let guard = guard.clone();
+                let open_slot = crate::metrics::note_connection_opened();
                 tokio::spawn(async move {
+                    let _open_slot = open_slot;
                     handle(ctx, stream, ip.clone()).await;
                     guard.release(&ip).await;
                 });

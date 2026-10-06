@@ -61,5 +61,8 @@ pub fn register_metrics() {
     packets_handled();
     players_online().set(0);
     super::tick_busy_micros().set(0);
+    super::tick_busy_micros_total();
+    super::ticks();
+    super::tick_overruns();
     crate::network::register_metrics();
 }

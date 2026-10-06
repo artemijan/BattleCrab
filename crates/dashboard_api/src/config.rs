@@ -104,6 +104,30 @@ pub struct DashboardConfig {
     /// DB-derived count keeps ticking for a server that is gone.
     pub status_channel_address: String,
 
+    /// `MonitorTargets` — `service=host:port` pairs, comma-separated: the game
+    /// and login servers' monitor channels (`docs/MONITORING.md` §4). Empty
+    /// disables the poller, and the `/admin/monitor` endpoints answer 503.
+    pub monitor_targets: String,
+    /// `MetricsDatabase` — the dashboard-owned SQLite file samples are stored
+    /// in (§3). A relative path resolves against the *executable's* directory,
+    /// exactly like the game database's `URL` — not the working directory.
+    pub metrics_database: String,
+    /// `MetricsPollSeconds` — how often the monitor channels are polled.
+    pub metrics_poll_seconds: u64,
+    /// `MetricsRetentionDays` — samples older than this are pruned hourly.
+    pub metrics_retention_days: u64,
+
+    /// `LogSearchRoots` — `service=datapack_root` pairs, comma-separated. Each
+    /// root's own `Logging.ini` says where that service's files are
+    /// (`docs/MONITORING.md` §6). Empty disables log search (503).
+    pub log_search_roots: String,
+    /// `LogSearchMaxBytes` — bytes one search request may read.
+    pub log_search_max_bytes: u64,
+    /// `LogSearchTimeoutMs` — wall-clock budget of one search request.
+    pub log_search_timeout_ms: u64,
+    /// `LogSearchConcurrency` — searches running at once; more get a 429.
+    pub log_search_concurrency: usize,
+
     /// The API's own public origin (e.g. `https://api.battlecrab.com`).
     /// Only decides whether session cookies get the `Secure` flag.
     pub public_base_url: String,
@@ -253,6 +277,25 @@ impl DashboardConfig {
                 "jdbc:sqlite:interlude_classic.db?journal_mode=WAL&busy_timeout=5000",
             ),
             status_channel_address: p.get_string("StatusChannelAddress", "127.0.0.1:7778"),
+            // Defaults match each server's `Monitor.ini` default port, so a
+            // remote `Dashboard.ini` seeded before these keys existed still
+            // polls the right places.
+            monitor_targets: p.get_string(
+                "MonitorTargets",
+                "game_server=127.0.0.1:7779,login_server=127.0.0.1:7780",
+            ),
+            metrics_database: p.get_string("MetricsDatabase", "metrics.db"),
+            metrics_poll_seconds: p.get_int("MetricsPollSeconds", 5).max(1) as u64,
+            metrics_retention_days: p.get_int("MetricsRetentionDays", 7).max(1) as u64,
+            // Relative to the working directory, like the `dist/game/` this
+            // binary already reads its own config and logging from.
+            log_search_roots: p.get_string(
+                "LogSearchRoots",
+                "game_server=dist/game,login_server=dist/login,dashboard_api=dist/game",
+            ),
+            log_search_max_bytes: p.get_long("LogSearchMaxBytes", 256 * 1024 * 1024).max(1) as u64,
+            log_search_timeout_ms: p.get_long("LogSearchTimeoutMs", 3000).max(1) as u64,
+            log_search_concurrency: p.get_int("LogSearchConcurrency", 2).max(1) as usize,
             database_max_connections: p.get_int("MaximumDatabaseConnections", 5).max(1) as u32,
 
             // Deliberately NOT p.get_string: the value must never be readable

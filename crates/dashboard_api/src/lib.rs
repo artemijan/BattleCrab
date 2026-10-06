@@ -6,8 +6,9 @@
 //!   requires it; web login verifies the same hash (§3.1, §5.2).
 //! - `characters` is read-only — live character state is memory-first in the
 //!   game server and any write would be clobbered by autosave (§3.2).
-//! - No tables of our own: sessions are signed cookies and reset/verify links
-//!   are signed tokens (§5.3, §5.4).
+//! - No tables of our own in the game database: sessions are signed cookies and
+//!   reset/verify links are signed tokens (§5.3, §5.4). Server-monitoring
+//!   samples live in a separate, dashboard-owned `metrics.db` (`monitor`).
 
 pub mod auth;
 pub mod config;
@@ -16,7 +17,9 @@ pub mod csrf;
 pub mod db;
 pub mod error;
 pub mod items;
+pub mod logsearch;
 pub mod mail;
+pub mod monitor;
 pub mod routes;
 pub mod state;
 pub mod turnstile;

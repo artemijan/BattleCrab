@@ -25,7 +25,7 @@ async fn main() {
     // sweeps deleting each other's rotated files. Overridden here rather than in
     // `Logging.ini` because both services read that same file.
     let mut audit_config = commons::audit::AuditConfig::load("dist/game/");
-    audit_config.directory = "log/audit-dashboard".to_string();
+    audit_config.directory = dashboard_api::logsearch::DASHBOARD_AUDIT_DIR.to_string();
     let _audit_guard = commons::audit::init("dist/game/", &audit_config);
 
     let config = DashboardConfig::load();
@@ -125,7 +125,10 @@ async fn main() {
         );
     }
 
-    let state = Arc::new(App::new(db, config));
+    // Never fatal: with monitoring unconfigured or broken the account
+    // features still serve, and `/admin/monitor` answers 503.
+    let monitor = dashboard_api::monitor::start(&config).await;
+    let state = Arc::new(App::new(db, config).with_monitor(monitor));
 
     if !state.mailer.is_enabled() {
         // Not fatal — the API is fully usable without it — but password reset

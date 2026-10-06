@@ -34,6 +34,12 @@ pub struct App {
     /// Whether to mark cookies `Secure`. Off for plain-HTTP local dev, since a
     /// `Secure` cookie is silently dropped by the browser over http://.
     pub secure_cookies: bool,
+    /// Server monitoring (`docs/MONITORING.md`): the poller and `metrics.db`.
+    /// `None` when disabled; `/admin/monitor` then answers 503.
+    pub monitor: Option<Arc<crate::monitor::Monitor>>,
+    /// Log search (`docs/MONITORING.md` §6). `None` when `LogSearchRoots` is
+    /// empty or malformed; `/admin/logs` then answers 503.
+    pub log_search: Option<Arc<crate::logsearch::LogSearch>>,
 }
 
 impl App {
@@ -60,6 +66,7 @@ impl App {
         let turnstile = TurnstileVerifier::from_config(&config);
         let secure_cookies = config.public_base_url.starts_with("https://");
         let items = crate::items::Catalog::load(&config.game_data_dir);
+        let log_search = crate::logsearch::LogSearch::from_config(&config);
         Self {
             db,
             config,
@@ -72,6 +79,21 @@ impl App {
             forgot_limiter,
             turnstile,
             secure_cookies,
+            monitor: None,
+            log_search,
         }
+    }
+
+    /// Attach a running monitor. Separate from [`App::new`] because opening
+    /// `metrics.db` is async and optional.
+    /// Replace log search — for tests pointing it at a scratch directory.
+    pub fn with_log_search(mut self, log_search: Option<Arc<crate::logsearch::LogSearch>>) -> Self {
+        self.log_search = log_search;
+        self
+    }
+
+    pub fn with_monitor(mut self, monitor: Option<Arc<crate::monitor::Monitor>>) -> Self {
+        self.monitor = monitor;
+        self
     }
 }

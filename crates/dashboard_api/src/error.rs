@@ -71,6 +71,12 @@ pub enum ApiError {
     #[error("this link is invalid or has expired")]
     InvalidToken,
 
+    /// A feature that is switched off or could not start — server
+    /// monitoring when `MonitorTargets` is empty. 503 rather than 404, so a
+    /// client can tell "off" from "no such route".
+    #[error("{0}")]
+    Unavailable(&'static str),
+
     #[error("internal error")]
     Internal(#[from] anyhow_lite::Error),
 }
@@ -127,6 +133,7 @@ impl ApiError {
             ApiError::CaptchaRequired => (StatusCode::TOO_MANY_REQUESTS, "captcha_required"),
             ApiError::CaptchaFailed => (StatusCode::FORBIDDEN, "captcha_failed"),
             ApiError::InvalidToken => (StatusCode::BAD_REQUEST, "invalid_token"),
+            ApiError::Unavailable(_) => (StatusCode::SERVICE_UNAVAILABLE, "unavailable"),
             ApiError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "internal"),
         }
     }

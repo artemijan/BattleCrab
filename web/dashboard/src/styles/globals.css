@@ -63,6 +63,15 @@
 
   --field-bg: rgba(255, 255, 255, 0.75);
   --field-border: rgba(0, 87, 183, 0.18);
+
+  /* Monitoring charts (components/LineChart). Distinct hues rather than
+     shades of brand blue: two lines on one chart must read apart at a
+     glance, including for red-green colour blindness (blue/amber first). */
+  --chart-1: #0057b7;
+  --chart-2: #d97706;
+  --chart-3: #059669;
+  --chart-4: #7c3aed;
+  --chart-grid: rgba(0, 44, 92, 0.08);
 }
 
 :root[data-theme="dark"] {
@@ -85,6 +94,12 @@
 
   --field-bg: rgba(255, 255, 255, 0.05);
   --field-border: rgba(255, 255, 255, 0.14);
+
+  --chart-1: #74a6ff;
+  --chart-2: #fbbf24;
+  --chart-3: #34d399;
+  --chart-4: #c4b5fd;
+  --chart-grid: rgba(255, 255, 255, 0.07);
 }
 
 /* ---------------------------------------------------------------------------

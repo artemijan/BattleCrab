@@ -47,6 +47,13 @@ const result = await Bun.build({
   },
   // Content-hashed asset names, so everything except index.html can be cached
   // immutably (the cache headers in crates/dashboard_api/src/web.rs rely on it).
+  // Absolute asset URLs. Bun's default is relative ("./index-x.js"), which
+  // resolves against the page's path: a hard refresh or direct link to any
+  // nested route (/admin/accounts/:email, /admin/monitor) then asked for
+  // /admin/index-x.js, got index.html back through the SPA fallback, and
+  // rendered a blank page. The SPA is always served from the site root, by
+  // both the Rust binary and Cloudflare.
+  publicPath: "/",
   naming: {
     entry: "[dir]/[name].[ext]",
     chunk: "[name]-[hash].[ext]",

@@ -26,6 +26,30 @@ use tracing::{info, warn};
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
+/// The monitor sampler's heap reading (`docs/MONITORING.md` §4): mimalloc's
+/// committed memory. Precise on Windows, and on Linux/macOS the read/write
+/// memory mimalloc has reserved — which is the number that tracks a leak or a
+/// burst, as opposed to RSS, which also counts code, stacks and the mmapped
+/// geodata.
+fn heap_bytes() -> Option<u64> {
+    let mut current_commit: usize = 0;
+    // SAFETY: mimalloc checks every out-pointer for NULL and writes only
+    // through the non-NULL one, which points at a live local.
+    unsafe {
+        libmimalloc_sys::mi_process_info(
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+            &mut current_commit,
+            std::ptr::null_mut(),
+            std::ptr::null_mut(),
+        );
+    }
+    Some(current_commit as u64)
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Where the datapack lives, as a path *prefix*. The process deliberately
@@ -59,6 +83,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     commons::metrics::spawn_reporter(
         commons::logging::LoggingConfig::load(&datapack_root).metrics_interval_seconds,
     );
+    // The 5 s sampler + loopback channel the dashboard polls (Monitor.ini).
+    // Started right after registration so its baseline predates any traffic.
+    commons::monitor::spawn(
+        "game_server",
+        &commons::monitor::MonitorConfig::load(&datapack_root, 7779),
+        Some(heap_bytes),
+    )
+    .await;
 
     let server_load_start = Instant::now();
 
