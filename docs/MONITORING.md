@@ -44,6 +44,27 @@ Both servers now register the same six `commons::metrics` series (`crates/common
 | `connections_accepted` | counter | Lifetime total of accepted sockets. |
 | `connections_open` | gauge | Live count. Each connection task owns a `Gauge::hold()` guard: `+1` on accept, `-1` when the guard drops, so a task that panics still gives its slot back. Both sides are atomic (`fetch_add` / saturating `try_update`); a load-then-`set` would lose updates under concurrent connects/disconnects. |
 
+### Connection stages
+
+`connections_open` alone can't tell a player in the world from a client sitting at character
+select, or a socket that never finished logging in. Each server also breaks its open connections
+down by stage. These are all gauges:
+
+| Series | Server | Meaning |
+|---|---|---|
+| `sessions_handshaking` | login | Before a successful `RequestAuthLogin`: key exchange, GameGuard, the login form. |
+| `sessions_logged_in` | login | Past auth, at the server list. The connection closes once the client leaves for the game server. |
+| `sessions_authenticating` | game | `ClientSession::Connecting` + `Authenticated`: protocol / session-key check not finished. |
+| `sessions_lobby` | game | `InLobby`: character select, including players who restarted out of the world. |
+| `sessions_entering` | game | `Entering`: a character picked, loading into the world. |
+| `players_online` | game | `InGame` only. **Before this split it counted every game-server session**, so its history over-reports. |
+| `offline_traders` | game | Unattended private stores. In the world, but they hold no connection. |
+
+On the login server a connection holds a `metrics::LoginStage` guard that is swapped on auth, so
+the two stages always sum to `connections_open`. On the game server, stage changes also happen on
+DB and login-link replies, not only on network events, so `game_loop::net::refresh_session_gauges`
+recounts `world.clients` once per tick. They sum to the sessions the game thread knows about.
+
 `packets_in` vs. `game_loop::net::packets_handled` (game server only) is itself a signal: the gap
 between them is packets rejected by the rate limiter or lost to a decode failure.
 
@@ -73,7 +94,9 @@ CREATE TABLE metric_sample (
   interval_ms INTEGER NOT NULL,  -- real elapsed; keeps rates honest across a gap
   cpu_micros, rss_bytes, heap_bytes,
   packets_in, packets_out, bytes_in, bytes_out, connections_accepted, connections_open,
-  players_online, packets_handled, packets_dropped,
+  sessions_handshaking, sessions_logged_in,          -- login only
+  sessions_authenticating, sessions_lobby, sessions_entering,
+  players_online, offline_traders, packets_handled, packets_dropped,
   tick_busy_micros_total, ticks, tick_overruns       INTEGER,  -- NULL where a service lacks it
   extra       TEXT,              -- JSON: registry series with no column yet
   PRIMARY KEY (service, ts)
@@ -85,6 +108,11 @@ SQL from and the place each column's bucket aggregation is declared. Changes fro
 plan: `started`, `ticks` (the mean busy time needs Δticks) and three game-loop series
 (`players_online`, `packets_handled`, `packets_dropped`). Value columns are nullable because the
 login server has no tick, heap or player series.
+
+A store created before a column was promoted gets it on open: `add_missing_columns` compares
+`COLUMNS` with `pragma_table_info` and runs `ALTER TABLE … ADD COLUMN` for any that are missing.
+This is additive and idempotent, so it doesn't need a `user_version` step. Older rows read NULL in
+the new column. If the series was being recorded, its value is still in their `extra`.
 
 Wide rows, not `(name, value)` tall: 7d × 17280 samples/service ≈ 30 MB for two services. Tall
 rows would be ~10x the row count, and every query would need pivoting. `extra` means a *new*

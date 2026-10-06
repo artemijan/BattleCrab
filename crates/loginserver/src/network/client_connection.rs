@@ -37,6 +37,8 @@ pub struct ClientSession {
     pub access_level: i32,
     pub last_server: i32,
     pub joined_gs: bool,
+    /// This connection's slot in the `sessions_*` stage gauges.
+    pub stage: crate::metrics::LoginStage,
 }
 
 pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
@@ -53,6 +55,7 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
         access_level: 0,
         last_server: 1,
         joined_gs: false,
+        stage: crate::metrics::LoginStage::handshaking(),
     };
     let mut encryption = LoginEncryption::new(&session.blowfish_key);
     // LoginController.purge: the whole login session may last at most
@@ -373,6 +376,7 @@ async fn finish_auth(
             session.access_level = access_level;
             session.last_server = last_server;
             session.state = ConnectionState::AuthedLogin;
+            session.stage = crate::metrics::LoginStage::logged_in();
             if ctx.config.show_licence {
                 send(write, encryption, server_packets::login_ok(&key)).await?;
             } else {

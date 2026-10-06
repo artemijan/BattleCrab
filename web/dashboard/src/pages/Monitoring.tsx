@@ -52,6 +52,8 @@ const MAX_POINTS = 360;
 const C1 = "var(--chart-1)";
 const C2 = "var(--chart-2)";
 const C3 = "var(--chart-3)";
+const C4 = "var(--chart-4)";
+const C5 = "var(--chart-5)";
 
 const perSec = (f: (v: number) => string) => (v: number) => `${f(v)}/s`;
 const percent = (v: number) => `${formatCount(v)}%`;
@@ -229,10 +231,65 @@ function ServiceCharts({ data, game }: { data: MonitorSeries; game: boolean }) {
   const rate = (name: string) => perSecond(col(data, name), interval);
   const p = chartProps(data);
 
-  const connections: ChartLine[] = [
-    { label: "Open", values: col(data, "connections_open"), color: C1 },
-  ];
-  if (game) connections.push({ label: "Players", values: col(data, "players_online"), color: C2 });
+  const open: ChartLine = {
+    label: "Open",
+    values: col(data, "connections_open"),
+    color: C1,
+    description: game
+      ? "TCP connections to the game server right now, in any stage. The stages beside it add up to this."
+      : "TCP connections to the login server right now. Handshaking + Logged in add up to this.",
+  };
+  // Where each open connection is in its lifecycle. A client goes
+  // login server → (closes) → game server, so a player who just pressed
+  // "Play" shows up on the game server's chart, not here.
+  const connections: ChartLine[] = game
+    ? [
+        open,
+        {
+          label: "Logging in",
+          values: col(data, "sessions_authenticating"),
+          color: C2,
+          description:
+            "Connected to the game server but not yet past the protocol and session-key check with the login server. Should be momentary; a steady count here is stalled or non-game clients.",
+        },
+        {
+          label: "Character select",
+          values: col(data, "sessions_lobby"),
+          color: C4,
+          description:
+            "Authenticated accounts sitting at the character-selection screen, including players who restarted out of the world. No character is in the world yet.",
+        },
+        {
+          label: "Entering world",
+          values: col(data, "sessions_entering"),
+          color: C5,
+          description:
+            "A character was picked and is being loaded into the world. Should be momentary.",
+        },
+        {
+          label: "In game",
+          values: col(data, "players_online"),
+          color: C3,
+          description: "Characters actually in the world with a live connection.",
+        },
+      ]
+    : [
+        open,
+        {
+          label: "Handshaking",
+          values: col(data, "sessions_handshaking"),
+          color: C2,
+          description:
+            "Connected to the login server but not logged in yet: key exchange, GameGuard, or the login form.",
+        },
+        {
+          label: "Logged in",
+          values: col(data, "sessions_logged_in"),
+          color: C3,
+          description:
+            "Logged in and looking at the server list. The connection closes once the client moves on to the game server, or after 5 minutes at most.",
+        },
+      ];
 
   return (
     <div className="grid gap-3 lg:grid-cols-2">
@@ -241,8 +298,21 @@ function ServiceCharts({ data, game }: { data: MonitorSeries; game: boolean }) {
         {...p}
         format={perSec(formatCount)}
         lines={[
-          { label: "In", values: rate("packets_in"), color: C1 },
-          { label: "Out", values: rate("packets_out"), color: C2 },
+          {
+            label: "In",
+            values: rate("packets_in"),
+            color: C1,
+            description:
+              "Client packets received per second, counted off the socket before decryption or rate limiting.",
+          },
+          {
+            label: "Out",
+            values: rate("packets_out"),
+            color: C2,
+            description: game
+              ? "Socket writes per second. The game server batches a tick's packets for one client into one write, so this is lower than the packets actually sent."
+              : "Packets sent to clients per second.",
+          },
         ]}
       />
       <LineChart
@@ -250,8 +320,18 @@ function ServiceCharts({ data, game }: { data: MonitorSeries; game: boolean }) {
         {...p}
         format={perSec(formatBytes)}
         lines={[
-          { label: "In", values: rate("bytes_in"), color: C1 },
-          { label: "Out", values: rate("bytes_out"), color: C2 },
+          {
+            label: "In",
+            values: rate("bytes_in"),
+            color: C1,
+            description: "Bytes received from clients per second, packet headers included.",
+          },
+          {
+            label: "Out",
+            values: rate("bytes_out"),
+            color: C2,
+            description: "Bytes sent to clients per second, packet headers included.",
+          },
         ]}
       />
       <LineChart title="Connections" {...p} format={formatCount} lines={connections} />
@@ -262,27 +342,77 @@ function ServiceCharts({ data, game }: { data: MonitorSeries; game: boolean }) {
         title="New connections"
         {...p}
         format={perSec(formatCount)}
-        lines={[{ label: "Accepted", values: rate("connections_accepted"), color: C3 }]}
+        lines={[
+          {
+            label: "Accepted",
+            values: rate("connections_accepted"),
+            color: C3,
+            description:
+              "New TCP connections accepted per second. A spike with flat open connections is a connect flood.",
+          },
+        ]}
       />
+      {game && (
+        <LineChart
+          title="Players in world"
+          {...p}
+          format={formatCount}
+          lines={[
+            {
+              label: "In game",
+              values: col(data, "players_online"),
+              color: C3,
+              description: "Characters in the world with a live connection.",
+            },
+            {
+              label: "Offline shops",
+              values: col(data, "offline_traders"),
+              color: C4,
+              description:
+                "Characters left in the world as unattended private stores after their owner disconnected. They hold no connection.",
+            },
+          ]}
+        />
+      )}
       <LineChart
         title="CPU (% of one core)"
         {...p}
         format={percent}
-        lines={[{ label: "CPU", values: cpuPercent(col(data, "cpu_micros"), interval), color: C1 }]}
+        lines={[
+          {
+            label: "CPU",
+            values: cpuPercent(col(data, "cpu_micros"), interval),
+            color: C1,
+            description:
+              "Process CPU time (user + system) as a share of one core. Above 100% means more than one core busy.",
+          },
+        ]}
       />
       <LineChart
         title="Memory (peak)"
         {...p}
         format={formatBytes}
         note="Memory is reported on Linux only."
-        lines={
-          game
+        lines={[
+          {
+            label: "RSS",
+            values: col(data, "rss_bytes"),
+            color: C1,
+            description:
+              "Resident memory of the process: everything in RAM, including code, stacks and mapped data files. Peak per bucket.",
+          },
+          ...(game
             ? [
-                { label: "RSS", values: col(data, "rss_bytes"), color: C1 },
-                { label: "Heap", values: col(data, "heap_bytes"), color: C2 },
+                {
+                  label: "Heap",
+                  values: col(data, "heap_bytes"),
+                  color: C2,
+                  description:
+                    "Memory the allocator has committed for heap objects. Tracks leaks and bursts better than RSS. Peak per bucket.",
+                },
               ]
-            : [{ label: "RSS", values: col(data, "rss_bytes"), color: C1 }]
-        }
+            : []),
+        ]}
       />
       {game && (
         <LineChart
@@ -294,6 +424,8 @@ function ServiceCharts({ data, game }: { data: MonitorSeries; game: boolean }) {
               label: "Mean tick",
               values: ratio(col(data, "tick_busy_micros_total"), col(data, "ticks"), 1 / 1000),
               color: C1,
+              description:
+                "Average time the game thread spent working per 100 ms tick (idle waiting excluded). Near 100 ms the server falls behind.",
             },
           ]}
         />
@@ -305,7 +437,15 @@ function ServiceCharts({ data, game }: { data: MonitorSeries; game: boolean }) {
           title="Game loop — ticks over 50 ms"
           {...p}
           format={formatCount}
-          lines={[{ label: "Overruns", values: col(data, "tick_overruns"), color: C2 }]}
+          lines={[
+            {
+              label: "Overruns",
+              values: col(data, "tick_overruns"),
+              color: C2,
+              description:
+                "Ticks in this bucket that took over 50 ms. Each one also logs a warning naming the slowest steps.",
+            },
+          ]}
         />
       )}
     </div>
@@ -321,9 +461,25 @@ function HostCharts({ data }: { data: MonitorSeries }) {
         {...p}
         format={formatCount}
         lines={[
-          { label: "1m", values: col(data, "load1"), color: C1 },
-          { label: "5m", values: col(data, "load5"), color: C2 },
-          { label: "15m", values: col(data, "load15"), color: C3 },
+          {
+            label: "1m",
+            values: col(data, "load1"),
+            color: C1,
+            description:
+              "Runnable processes averaged over the last minute. Compare with the core count: above it, work is queuing.",
+          },
+          {
+            label: "5m",
+            values: col(data, "load5"),
+            color: C2,
+            description: "Load average over the last 5 minutes.",
+          },
+          {
+            label: "15m",
+            values: col(data, "load15"),
+            color: C3,
+            description: "Load average over the last 15 minutes.",
+          },
         ]}
       />
       <LineChart
@@ -332,8 +488,19 @@ function HostCharts({ data }: { data: MonitorSeries }) {
         format={formatBytes}
         note="Host memory is reported on Linux only."
         lines={[
-          { label: "Available", values: col(data, "mem_available_bytes"), color: C1 },
-          { label: "Total", values: col(data, "mem_total_bytes"), color: C3 },
+          {
+            label: "Available",
+            values: col(data, "mem_available_bytes"),
+            color: C1,
+            description:
+              "Memory the host can give to new work without swapping (MemAvailable). Lowest point per bucket.",
+          },
+          {
+            label: "Total",
+            values: col(data, "mem_total_bytes"),
+            color: C3,
+            description: "Total physical memory on the host.",
+          },
         ]}
       />
       <LineChart
@@ -341,8 +508,19 @@ function HostCharts({ data }: { data: MonitorSeries }) {
         {...p}
         format={formatBytes}
         lines={[
-          { label: "Free", values: col(data, "disk_free_bytes"), color: C1 },
-          { label: "Total", values: col(data, "disk_total_bytes"), color: C3 },
+          {
+            label: "Free",
+            values: col(data, "disk_free_bytes"),
+            color: C1,
+            description:
+              "Free space on the disk holding the server files. Lowest point per bucket.",
+          },
+          {
+            label: "Total",
+            values: col(data, "disk_total_bytes"),
+            color: C3,
+            description: "Size of that disk.",
+          },
         ]}
       />
     </div>

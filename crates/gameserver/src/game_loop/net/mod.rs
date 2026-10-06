@@ -4,6 +4,7 @@
 
 use crate::events::GameEvent;
 
+use crate::session::ClientSession;
 use crate::world::World;
 
 pub mod broadcast;
@@ -47,10 +48,60 @@ fn packets_handled() -> &'static commons::metrics::Counter {
     C.get_or_init(|| commons::metrics::counter("packets_handled"))
 }
 
-/// Players currently connected, refreshed as connections come and go.
-fn players_online() -> &'static commons::metrics::Gauge {
-    static G: std::sync::OnceLock<commons::metrics::Gauge> = std::sync::OnceLock::new();
-    G.get_or_init(|| commons::metrics::gauge("players_online"))
+/// Game-server sessions by lifecycle stage, refreshed once per tick by
+/// [`refresh_session_gauges`]. Together they sum to the sessions the game
+/// thread knows about; `connections_open` can briefly exceed that between
+/// accept and the game thread's `Connected` event.
+///
+/// - `sessions_authenticating`: `Connecting` + `Authenticated` — socket open,
+///   protocol / session-key check with the login server not finished yet.
+/// - `sessions_lobby`: `InLobby` — at the character-selection screen.
+/// - `sessions_entering`: `Entering` — a character picked, loading into the
+///   world.
+/// - `players_online`: `InGame` — a character actually in the world.
+///
+/// `offline_traders` is not a session at all: shops left standing after their
+/// owner disconnected, counted separately because they are in the world but
+/// hold no connection.
+struct SessionGauges {
+    authenticating: commons::metrics::Gauge,
+    lobby: commons::metrics::Gauge,
+    entering: commons::metrics::Gauge,
+    in_game: commons::metrics::Gauge,
+    offline_traders: commons::metrics::Gauge,
+}
+
+fn session_gauges() -> &'static SessionGauges {
+    static G: std::sync::OnceLock<SessionGauges> = std::sync::OnceLock::new();
+    G.get_or_init(|| SessionGauges {
+        authenticating: commons::metrics::gauge("sessions_authenticating"),
+        lobby: commons::metrics::gauge("sessions_lobby"),
+        entering: commons::metrics::gauge("sessions_entering"),
+        in_game: commons::metrics::gauge("players_online"),
+        offline_traders: commons::metrics::gauge("offline_traders"),
+    })
+}
+
+/// Recounts [`SessionGauges`] from `world.clients`. Per tick rather than at
+/// each transition: stages also change on DB replies and login-link answers,
+/// not just network events, and one pass over the client table is cheaper
+/// than keeping a dozen transition sites honest.
+pub(crate) fn refresh_session_gauges(world: &World) {
+    let (mut authenticating, mut lobby, mut entering, mut in_game) = (0u64, 0u64, 0u64, 0u64);
+    for c in world.clients.values() {
+        match c {
+            ClientSession::Connecting(_) | ClientSession::Authenticated(_) => authenticating += 1,
+            ClientSession::InLobby(_) => lobby += 1,
+            ClientSession::Entering(_) => entering += 1,
+            ClientSession::InGame(_) => in_game += 1,
+        }
+    }
+    let g = session_gauges();
+    g.authenticating.set(authenticating);
+    g.lobby.set(lobby);
+    g.entering.set(entering);
+    g.in_game.set(in_game);
+    g.offline_traders.set(world.offline_traders.len() as u64);
 }
 
 /// Registers the metrics above at boot so they read `0` from the first snapshot
@@ -59,7 +110,16 @@ fn players_online() -> &'static commons::metrics::Gauge {
 /// state worth being able to see.
 pub fn register_metrics() {
     packets_handled();
-    players_online().set(0);
+    let g = session_gauges();
+    for gauge in [
+        &g.authenticating,
+        &g.lobby,
+        &g.entering,
+        &g.in_game,
+        &g.offline_traders,
+    ] {
+        gauge.set(0);
+    }
     super::tick_busy_micros().set(0);
     super::tick_busy_micros_total();
     super::ticks();

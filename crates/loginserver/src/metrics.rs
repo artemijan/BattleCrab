@@ -42,6 +42,43 @@ fn connections_open() -> &'static commons::metrics::Gauge {
     G.get_or_init(|| commons::metrics::gauge("connections_open"))
 }
 
+/// Where each open connection is in the login flow. A connection holds exactly
+/// one of these at a time ([`LoginStage`]), so together they sum to
+/// `connections_open`: `sessions_handshaking` is everyone before a successful
+/// `RequestAuthLogin` (key exchange, GameGuard, the login form),
+/// `sessions_logged_in` everyone past it, looking at the server list. After
+/// `PlayOk` the client leaves for the game server and the connection closes.
+fn sessions_handshaking() -> &'static commons::metrics::Gauge {
+    static G: std::sync::OnceLock<commons::metrics::Gauge> = std::sync::OnceLock::new();
+    G.get_or_init(|| commons::metrics::gauge("sessions_handshaking"))
+}
+
+fn sessions_logged_in() -> &'static commons::metrics::Gauge {
+    static G: std::sync::OnceLock<commons::metrics::Gauge> = std::sync::OnceLock::new();
+    G.get_or_init(|| commons::metrics::gauge("sessions_logged_in"))
+}
+
+/// A connection's slot in the stage gauges above. Owned by the session, so
+/// the slot is given back when the connection task ends, however it ends.
+pub struct LoginStage {
+    _slot: commons::metrics::GaugeHold,
+}
+
+impl LoginStage {
+    pub fn handshaking() -> Self {
+        Self {
+            _slot: sessions_handshaking().hold(),
+        }
+    }
+
+    /// The handshake slot is released when the caller overwrites it with this.
+    pub fn logged_in() -> Self {
+        Self {
+            _slot: sessions_logged_in().hold(),
+        }
+    }
+}
+
 /// One frame read off the socket, counted before decrypt — "what arrived on
 /// the wire", regardless of what `dispatch` later makes of it.
 pub fn note_inbound_frame(payload_len: usize) {
@@ -74,6 +111,8 @@ pub fn register_metrics() {
     bytes_out();
     connections_accepted();
     connections_open().set(0);
+    sessions_handshaking().set(0);
+    sessions_logged_in().set(0);
 }
 
 #[cfg(test)]
@@ -99,6 +138,19 @@ mod tests {
             bytes_out().get(),
             before_bytes_out + 20 + HEADER_SIZE as u64
         );
+    }
+
+    #[test]
+    fn a_connection_holds_one_stage_at_a_time() {
+        let (hs, li) = (sessions_handshaking().get(), sessions_logged_in().get());
+        let mut session = (LoginStage::handshaking(),);
+        assert_eq!(sessions_handshaking().get(), hs + 1);
+        // How `client_connection` moves a session on: overwrite in place.
+        session.0 = LoginStage::logged_in();
+        assert_eq!(sessions_handshaking().get(), hs);
+        assert_eq!(sessions_logged_in().get(), li + 1);
+        drop(session);
+        assert_eq!(sessions_logged_in().get(), li);
     }
 
     #[test]
