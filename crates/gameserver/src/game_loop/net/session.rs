@@ -3,7 +3,6 @@
 
 use super::henna_rows;
 use super::packets_handled;
-use super::players_online;
 use super::reuses_to_save;
 use super::store_and_remove_player;
 use crate::db;
@@ -104,7 +103,6 @@ pub(crate) fn handle_net_event(world: &mut World, event: NetEvent) {
             on_disconnect(world, client_id);
         }
     }
-    players_online().set(world.clients.len() as u64);
 }
 
 /// Port of `Player.canLogout`: refuse a restart/logout while the player is

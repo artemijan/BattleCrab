@@ -62,8 +62,15 @@ pub const COLUMNS: &[Column] = &[
     col("bytes_out", Agg::Sum, true),
     col("connections_accepted", Agg::Sum, true),
     col("connections_open", Agg::Max, true),
+    // Login server only — NULL on the game server's rows.
+    col("sessions_handshaking", Agg::Max, true),
+    col("sessions_logged_in", Agg::Max, true),
     // Game server only — NULL on the login server's rows.
+    col("sessions_authenticating", Agg::Max, true),
+    col("sessions_lobby", Agg::Max, true),
+    col("sessions_entering", Agg::Max, true),
     col("players_online", Agg::Max, true),
+    col("offline_traders", Agg::Max, true),
     col("packets_handled", Agg::Sum, true),
     col("packets_dropped", Agg::Sum, true),
     col("tick_busy_micros_total", Agg::Sum, true),
@@ -185,6 +192,28 @@ impl MetricsDb {
             )))
             .execute(&self.pool)
             .await?;
+        }
+        self.add_missing_columns().await
+    }
+
+    /// Promoting a series to a [`COLUMNS`] entry adds a column to a store
+    /// created before it. Additive and idempotent, so it runs on every open
+    /// rather than as a numbered step; older rows read NULL there (their
+    /// value, if any, is still in `extra`).
+    async fn add_missing_columns(&self) -> Result<(), sqlx::Error> {
+        let existing: Vec<String> =
+            sqlx::query_scalar("SELECT name FROM pragma_table_info('metric_sample')")
+                .fetch_all(&self.pool)
+                .await?;
+        for c in COLUMNS {
+            if !existing.iter().any(|e| e == c.name) {
+                sqlx::raw_sql(AssertSqlSafe(format!(
+                    "ALTER TABLE metric_sample ADD COLUMN {} INTEGER",
+                    c.name
+                )))
+                .execute(&self.pool)
+                .await?;
+            }
         }
         Ok(())
     }
@@ -404,6 +433,30 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(v, SCHEMA_VERSION);
+    }
+
+    #[tokio::test]
+    async fn opening_an_older_store_adds_promoted_columns() {
+        let db = MetricsDb::in_memory().await.unwrap();
+        sqlx::raw_sql("ALTER TABLE metric_sample DROP COLUMN sessions_lobby")
+            .execute(&db.pool)
+            .await
+            .unwrap();
+        db.migrate().await.unwrap();
+        db.insert_samples(&[sample("game_server", 5000, &[("sessions_lobby", 3)])])
+            .await
+            .unwrap();
+        let b = db
+            .series(
+                "game_server",
+                0,
+                10_000,
+                10_000,
+                &[column("sessions_lobby").unwrap()],
+            )
+            .await
+            .unwrap();
+        assert_eq!(b.series["sessions_lobby"], vec![Some(3.0)]);
     }
 
     #[tokio::test]

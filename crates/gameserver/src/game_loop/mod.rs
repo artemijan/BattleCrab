@@ -364,6 +364,8 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         // records here, where the config gate and the owning player exist.
         // Every tick: a record that waits is a record that a crash loses.
         timed!("item_audit", inventory::drain_item_audit(&mut world));
+        // Monitoring: sessions per lifecycle stage (login / lobby / in game).
+        timed!("session_gauges", net::refresh_session_gauges(&world));
         // 4. Flush outbound packets / DB commands — added in G3+.
 
         // The tick's *busy* time: event handling (waiting excluded) plus the

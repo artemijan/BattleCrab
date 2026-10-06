@@ -22,13 +22,16 @@ import {
   seriesMax,
   timeTicks,
 } from "../lib/chart";
-import { Panel } from "./ui";
+import { Panel, cx } from "./ui";
 
 export type ChartLine = {
   label: string;
   values: Array<number | null>;
   /** A CSS color; the `--chart-*` tokens follow the theme. */
   color: string;
+  /** What the line measures — shown when its legend entry is hovered,
+   *  focused or tapped. */
+  description?: string;
 };
 
 const HEIGHT = 168;
@@ -76,7 +79,11 @@ export function LineChart({
 }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
+  // The legend entry whose description is showing. Hover for a mouse, focus
+  // for a keyboard, tap to toggle on touch (no hover there).
+  const [explained, setExplained] = useState<number | null>(null);
   const titleId = useId();
+  const explainId = useId();
 
   const plotW = Math.max(0, width - M.left - M.right);
   const plotH = HEIGHT - M.top - M.bottom;
@@ -118,9 +125,37 @@ export function LineChart({
         </h3>
         <ul className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-(--text-muted)">
           {lines.map((l, i) => (
-            <li key={l.label} className="inline-flex items-center gap-1.5">
+            <li
+              key={l.label}
+              className={cx(
+                "inline-flex items-center gap-1.5",
+                l.description && "cursor-help rounded outline-offset-2",
+              )}
+              {...(l.description
+                ? {
+                    tabIndex: 0,
+                    "aria-describedby": explained === i ? explainId : undefined,
+                    onPointerEnter: (e: PointerEvent<HTMLLIElement>) => {
+                      if (e.pointerType === "mouse") setExplained(i);
+                    },
+                    onPointerLeave: (e: PointerEvent<HTMLLIElement>) => {
+                      if (e.pointerType === "mouse") setExplained(null);
+                    },
+                    onClick: () => setExplained((cur) => (cur === i ? null : i)),
+                    onFocus: () => setExplained(i),
+                    onBlur: () => setExplained(null),
+                  }
+                : {})}
+            >
               <span aria-hidden className="size-2 rounded-full" style={{ background: l.color }} />
-              {l.label}
+              <span
+                className={cx(
+                  l.description &&
+                    "underline decoration-dotted decoration-(--text-faint) underline-offset-2",
+                )}
+              >
+                {l.label}
+              </span>
               <span className="font-medium text-(--text) tabular-nums">
                 {latest[i] === null ? "—" : format(latest[i]!)}
               </span>
@@ -207,6 +242,27 @@ export function LineChart({
               />
             )}
           </svg>
+        )}
+
+        {explained !== null && lines[explained]?.description && (
+          // Over the plot rather than beside the legend entry: full panel
+          // width never clips at a screen edge, whichever entry it is.
+          <div
+            id={explainId}
+            role="tooltip"
+            className="pointer-events-none absolute inset-x-0 top-0 z-20 rounded-lg border
+              border-(--surface-border) bg-(--surface-strong) px-3 py-2 text-xs shadow-md backdrop-blur-md"
+          >
+            <p className="mb-0.5 flex items-center gap-1.5 font-semibold">
+              <span
+                aria-hidden
+                className="size-2 rounded-full"
+                style={{ background: lines[explained].color }}
+              />
+              {lines[explained].label}
+            </p>
+            <p className="text-(--text-muted)">{lines[explained].description}</p>
+          </div>
         )}
 
         {!hasData && (

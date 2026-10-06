@@ -135,6 +135,12 @@ function series(url: URL) {
       bytes_out: col(6e7),
       connections_open: col(12),
       players_online: col(9),
+      sessions_authenticating: col(1),
+      sessions_lobby: col(2),
+      sessions_entering: col(0),
+      offline_traders: col(4),
+      sessions_handshaking: col(3),
+      sessions_logged_in: col(5),
       connections_accepted: col(30),
       cpu_micros: col(30_000_000),
       rss_bytes: col(512 * 1024 * 1024),
@@ -189,8 +195,34 @@ describe("monitoring page", () => {
 
     expect(requests.some((u) => u.searchParams.get("service") === "login_server")).toBe(true);
     expect(titles.some((t) => t.startsWith("Game loop"))).toBe(false);
-    expect(legend).not.toContain("Players");
+    expect(titles).not.toContain("Players in world");
+    expect(legend).not.toContain("Character select");
     expect(legend).not.toContain("Heap");
+    expect(legend).toContain("Handshaking");
+    expect(legend).toContain("Logged in");
+  });
+
+  test("a legend entry explains its line on hover and on keyboard focus", async () => {
+    if (skip()) return;
+    const { page } = await open("/admin/monitor", {
+      "/admin/monitor/services": () => SERVICES,
+      "/admin/monitor/series": series,
+    });
+    const tip = page.getByRole("tooltip");
+    expect(await tip.count()).toBe(0);
+
+    await page.getByRole("listitem").filter({ hasText: "Character select" }).hover();
+    const hovered = (await tip.textContent()) ?? "";
+    await page.mouse.move(0, 0);
+    const afterLeave = await tip.count();
+
+    await page.getByRole("listitem").filter({ hasText: "Offline shops" }).focus();
+    const focused = (await tip.textContent()) ?? "";
+    await page.close();
+
+    expect(hovered).toContain("character-selection screen");
+    expect(afterLeave).toBe(0);
+    expect(focused).toContain("unattended private stores");
   });
 
   test("monitoring disabled server-side says so instead of showing empty charts", async () => {
