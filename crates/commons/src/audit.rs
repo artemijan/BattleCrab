@@ -40,7 +40,6 @@
 use std::collections::HashMap;
 use std::io::Write;
 use std::sync::OnceLock;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::mpsc::{SyncSender, TrySendError, sync_channel};
 use std::thread::JoinHandle;
 
@@ -163,18 +162,17 @@ static SINK: OnceLock<Sink> = OnceLock::new();
 
 /// Counts how many times a caller had to wait for the writer. Non-zero means
 /// the queue filled — worth surfacing, because the cost of never dropping is
-/// paid here rather than in lost records.
-static BLOCKED: AtomicU64 = AtomicU64::new(0);
-
-/// Number of records written since start, for the metrics endpoint.
-static WRITTEN: AtomicU64 = AtomicU64::new(0);
-
-pub fn blocked_count() -> u64 {
-    BLOCKED.load(Ordering::Relaxed)
+/// paid here rather than in lost records. Charted by the dashboard's
+/// monitoring page, like every other registered metric.
+fn blocked() -> &'static crate::metrics::Counter {
+    static C: OnceLock<crate::metrics::Counter> = OnceLock::new();
+    C.get_or_init(|| crate::metrics::counter("audit_blocked"))
 }
 
-pub fn written_count() -> u64 {
-    WRITTEN.load(Ordering::Relaxed)
+/// Records written to disk since start.
+fn written() -> &'static crate::metrics::Counter {
+    static C: OnceLock<crate::metrics::Counter> = OnceLock::new();
+    C.get_or_init(|| crate::metrics::counter("audit_written"))
 }
 
 /// Joins the writer thread on drop so queued records reach disk.
@@ -205,6 +203,10 @@ pub fn init(root: &str, config: &AuditConfig) -> AuditGuard {
         tracing::info!("audit: disabled by AuditEnable");
         return AuditGuard { handle: None };
     }
+    // Registered up front so both series read `0` from the first sample
+    // rather than appearing only once something happens.
+    written();
+    blocked();
 
     let relative_dir = format!("{root}{}", config.directory);
     if let Err(e) = std::fs::create_dir_all(&relative_dir) {
@@ -249,7 +251,7 @@ pub fn init(root: &str, config: &AuditConfig) -> AuditGuard {
                 if let Err(e) = writeln!(file, "{line}") {
                     tracing::error!("audit: write to {} failed: {e}", category.file_stem());
                 } else {
-                    WRITTEN.fetch_add(1, Ordering::Relaxed);
+                    written().incr();
                 }
             }
             // Drain whatever is still queued behind the shutdown marker.
@@ -289,7 +291,7 @@ pub fn record(category: Category, mut value: Value) {
     match sink.tx.try_send(Msg::Line(category, line)) {
         Ok(()) => {}
         Err(TrySendError::Full(msg)) => {
-            BLOCKED.fetch_add(1, Ordering::Relaxed);
+            blocked().incr();
             // Deliberately blocking. Dropping here would silently lose exactly
             // the record someone will ask for later.
             let _ = sink.tx.send(msg);

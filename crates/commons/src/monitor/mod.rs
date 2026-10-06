@@ -252,9 +252,8 @@ impl Sampler {
         sample
     }
 
-    /// Runs forever on its own thread — a plain `std::thread`, like
-    /// [`crate::metrics::spawn_reporter`], so a busy tokio runtime cannot
-    /// delay a sample.
+    /// Runs forever on its own thread — a plain `std::thread`, so a busy
+    /// tokio runtime cannot delay a sample.
     fn run(mut self, ring: Arc<Ring>) {
         loop {
             std::thread::sleep(Duration::from_millis(until_next_boundary(
