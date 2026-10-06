@@ -1,6 +1,6 @@
 //! The monitor channel's line format, as the dashboard reads it — the other
 //! half of `commons::monitor::Sample::to_json_line` (`docs/MONITORING.md` §4),
-//! and of the channel's `clients` lines (§10).
+//! and of the channel's `clients` and `kick` lines (§10).
 
 use std::collections::BTreeMap;
 
@@ -70,6 +70,18 @@ pub fn parse_clients(body: &str) -> ParsedClients {
     out
 }
 
+/// A `kick` response (§10): `Ok(kicked)`, or the channel's error.
+pub fn parse_kick(body: &str) -> Result<bool, String> {
+    let line = body.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
+    if let Some(e) = error_of(line) {
+        return Err(format!("channel refused the request: {e}"));
+    }
+    serde_json::from_str::<serde_json::Value>(line)
+        .ok()
+        .and_then(|v| v.get("kicked").and_then(|k| k.as_bool()))
+        .ok_or_else(|| "unexpected answer to a kick".to_string())
+}
+
 /// The message of a channel `{"error":…}` line.
 fn error_of(line: &str) -> Option<String> {
     serde_json::from_str::<serde_json::Value>(line)
@@ -120,5 +132,17 @@ mod tests {
         assert_eq!(parsed.samples.len(), 2);
         assert_eq!(parsed.malformed, 2);
         assert_eq!(parsed.error.as_deref(), Some("expected `since <epoch_ms>`"));
+    }
+
+    #[test]
+    fn a_kick_answer_is_a_flag_or_the_channels_error() {
+        assert_eq!(parse_kick("{\"kicked\":true}\n"), Ok(true));
+        assert_eq!(parse_kick("{\"kicked\":false}\n"), Ok(false));
+        assert!(
+            parse_kick("{\"error\":\"nope\"}\n")
+                .unwrap_err()
+                .contains("nope")
+        );
+        assert!(parse_kick("").is_err());
     }
 }

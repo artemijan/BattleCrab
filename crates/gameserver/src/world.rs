@@ -86,6 +86,29 @@ pub struct LoginState {
     pub ready: Option<tokio::sync::oneshot::Sender<()>>,
 }
 
+/// The authentication deadline's state (`game_loop::net::auth_guard`):
+/// `Security.ini`'s settings and the recent strikes per address.
+pub struct AuthGuard {
+    pub cfg: crate::config::SecurityConfig,
+    /// Address → epoch ms of each recent strike, oldest first.
+    pub strikes: HashMap<std::net::IpAddr, Vec<i64>>,
+}
+
+impl Default for AuthGuard {
+    /// Off: the game loop installs `Security.ini` at start. A test world keeps
+    /// it off, so a fixture session left unauthenticated is not dropped
+    /// halfway through a test that runs the clock.
+    fn default() -> Self {
+        Self {
+            cfg: crate::config::SecurityConfig {
+                unauthenticated_timeout_ms: 0,
+                ..Default::default()
+            },
+            strikes: HashMap::new(),
+        }
+    }
+}
+
 impl LoginState {
     fn new(link: CommandTx) -> Self {
         Self {
@@ -246,6 +269,9 @@ pub struct World {
     /// creation (loot) allocates from here synchronously.
     pub id_pool: std::ops::Range<i64>,
     pub login: LoginState,
+    /// Drops connections that do not authenticate in time, and bans the
+    /// addresses that keep doing it.
+    pub auth_guard: AuthGuard,
     /// `Config.MAX_CHARACTERS_NUMBER_PER_ACCOUNT`, needed by `CharSelectionInfo`.
     pub max_characters_per_account: i32,
     /// `Config.DELETE_DAYS`: 0 = delete immediately, else mark with a timer.
@@ -651,6 +677,7 @@ impl World {
             next_npc_object_id: crate::game_loop::npc::FIRST_NPC_OBJECT_ID,
             id_pool: 0..0,
             login: LoginState::new(link),
+            auth_guard: AuthGuard::default(),
             max_characters_per_account,
             delete_days,
             starting_adena,

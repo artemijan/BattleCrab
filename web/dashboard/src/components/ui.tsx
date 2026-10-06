@@ -1,4 +1,9 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
+import type {
+  ButtonHTMLAttributes,
+  InputHTMLAttributes,
+  ReactNode,
+  SelectHTMLAttributes,
+} from "react";
 import { forwardRef, useId } from "react";
 
 export function cx(...parts: Array<string | false | null | undefined>): string {
@@ -166,6 +171,35 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
     </div>
   );
 });
+
+/* -------------------------------------------------------------------------- */
+/* LabeledSelect                                                              */
+/* -------------------------------------------------------------------------- */
+
+/** A select with a real `<label for>`: wrapping the select in its label
+ *  would fold the selected option's text into the control's accessible name
+ *  ("Log Diagnostic log"). */
+export function LabeledSelect({
+  label,
+  children,
+  ...rest
+}: SelectHTMLAttributes<HTMLSelectElement> & { label: string; children: ReactNode }) {
+  const id = useId();
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-medium text-(--text-muted)">
+        {label}
+      </label>
+      <select id={id} className={selectClass} {...rest}>
+        {children}
+      </select>
+    </div>
+  );
+}
+
+const selectClass =
+  "w-full rounded-xl border border-(--field-border) bg-(--field-bg) px-3 py-2.5 text-base text-(--text) " +
+  "outline-none focus:shadow-[0_0_0_3px_var(--surface-ring)] sm:text-sm";
 
 /* -------------------------------------------------------------------------- */
 /* Alert                                                                      */

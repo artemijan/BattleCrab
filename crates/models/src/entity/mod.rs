@@ -76,6 +76,7 @@ pub mod global_variables;
 pub mod grandboss_data;
 pub mod heroes;
 pub mod heroes_diary;
+pub mod ip_bans;
 pub mod item_auction;
 pub mod item_auction_bid;
 pub mod item_elementals;

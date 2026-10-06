@@ -170,6 +170,21 @@ pub(crate) fn disconnect_player(world: &mut World, target: i32) {
         session.send(server_packets::leave_world());
     }
 }
+
+/// Java `Disconnection.of(client).defaultSequence(LeaveWorld)`, which works in
+/// every connection state. An in-game client goes through the full teardown
+/// (persist + despawn); anything earlier just gets the packet and has its
+/// session dropped, which closes the socket when the outbound sender goes.
+pub(crate) fn kick_client(world: &mut World, client_id: u32) {
+    match world.player_oid(client_id) {
+        Some(oid) => disconnect_player(world, oid),
+        None => {
+            if let Some(session) = world.clients.remove(&client_id) {
+                session.send(server_packets::leave_world());
+            }
+        }
+    }
+}
 /// Java `client.sendPacket(ActionFailed.STATIC_PACKET)` — the bare "I am not
 /// doing that" reply, and the single most-sent packet in the port.
 ///

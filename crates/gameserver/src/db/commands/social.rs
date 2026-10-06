@@ -325,6 +325,15 @@ pub(super) async fn delete_punishment(db: &DatabaseConnection, id: i32) {
     warn_err(entity::punishments::Entity::delete_by_id(id).exec(db).await);
 }
 
+pub(super) async fn ban_ip(db: &DatabaseConnection, ip: &str, expires_at: i64, reason: &str) {
+    let now = commons::util::now_millis();
+    warn_err(
+        models::repo::ip_bans::ban_at_least(db, ip, expires_at, reason, "game_server", now)
+            .await
+            .map(|_| ()),
+    );
+}
+
 pub(super) async fn store_petition_feedback(
     db: &DatabaseConnection,
     char_name: String,

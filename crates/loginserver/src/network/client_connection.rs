@@ -117,6 +117,18 @@ async fn serve(ctx: Arc<LoginContext>, stream: TcpStream, ip: String, conn: crat
                 session.account = None;
                 break;
             }
+            // The dashboard's disconnect. The account, if any, is freed below
+            // like on any other hang-up.
+            () = session.conn.kicked() => {
+                info!("Client {} disconnected from the dashboard", session.ip);
+                let _ = send(
+                    &mut write,
+                    &mut encryption,
+                    server_packets::login_fail(LoginFailReason::ReasonAccessFailed),
+                )
+                .await;
+                break;
+            }
         };
 
         if !encryption.decrypt(&mut payload) {

@@ -165,6 +165,8 @@ pub struct GameThreadChannels {
     pub delete_days: i32,
     pub starting_adena: i64,
     pub cfg: crate::config::CombatConfig,
+    /// `Security.ini`, for the authentication deadline.
+    pub security: crate::config::SecurityConfig,
 }
 
 /// Spawn the game thread. Returns its join handle so `main` can wait for the
@@ -192,6 +194,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         delete_days,
         starting_adena,
         cfg,
+        security,
     } = ch;
     let mut world = World::new(
         link_tx,
@@ -208,6 +211,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     world.path_cfg = path_cfg;
     world.geoedit_path = geoedit_path;
     world.cfg = cfg;
+    world.auth_guard.cfg = security;
     // Java seeds `LoginServerThread._maxPlayer` from `MaximumOnlineUsers` when
     // the thread is built; `//server_login`'s page prints it back, and
     // `//server_max_player` overwrites it.

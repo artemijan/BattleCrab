@@ -13,7 +13,7 @@ FROM alpine:3.20 AS runtime
 RUN addgroup -S app_grp && adduser -S app -G app_grp
 USER app
 WORKDIR /home/app
-# Same layout the binary expects: dist/login/config, dist/login/data, banned_ip.cfg.
+# Same layout the binary expects: dist/login/config, dist/login/data.
 ADD --chown=app:app_grp dist ./dist
 COPY --chown=app:app_grp --from=builder /build/target/release/loginserver loginserver
 EXPOSE 2106

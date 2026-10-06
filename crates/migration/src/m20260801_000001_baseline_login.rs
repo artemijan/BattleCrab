@@ -1,10 +1,9 @@
 //! Baseline: the four login-server tables.
 //!
-//! Transcribed from `dist/db_installer/sql/sqlite/**` by
-//! `tools/gen_migrations.py` — do not hand-edit. Column types are passed
-//! through verbatim (`MEDIUMINT`, `TINYINT`, …) so the schema matches the one
-//! the Java installer produces; `crates/migration/tests/dist_parity.rs` proves
-//! it column by column.
+//! Transcribed from the Java installer's SQLite DDL (`dist/db_installer`, since
+//! removed). Column types are passed through verbatim (`MEDIUMINT`, `TINYINT`,
+//! …) so the schema matches the one the Java installer produced. Applied
+//! databases depend on it: change the schema with a new migration, not here.
 //!
 //! Every statement is `IF NOT EXISTS`, which is what lets `l2r-migrate up`
 //! adopt the live production database: it records the migration as applied

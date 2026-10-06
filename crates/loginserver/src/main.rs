@@ -37,9 +37,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .await;
     // The Audit page's live client list (`docs/MONITORING.md` §10).
-    commons::monitor::clients::set_provider(|| {
-        commons::monitor::clients::ready(loginserver::clients::records())
-    });
+    commons::monitor::clients::set_provider(
+        || commons::monitor::clients::ready(loginserver::clients::records()),
+        |id, connected_ms| {
+            commons::monitor::clients::ready(loginserver::clients::kick(id, connected_ms))
+        },
+    );
 
     // Load Config (Java: Config.load(ServerMode.LOGIN)).
     let config = LoginConfig::load();
@@ -71,8 +74,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let gs_bind = format!("{}:{}", gs_host, config.game_server_login_port);
     let ctx = Arc::new(LoginContext::new(config, db, controller.clone()));
-
-    loginserver::ban_file::load(&controller).await;
 
     // GameServerListener.
     let gs_listener = tokio::net::TcpListener::bind(&gs_bind).await?;

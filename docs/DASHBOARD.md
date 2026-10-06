@@ -255,8 +255,9 @@ URL and sets WAL + `busy_timeout`).
 - Enforce it structurally: put these queries in a module with no write helpers, and expose them
   through a narrow projection type rather than a row struct mirroring the whole table.
 
-**Everything else in the DB: untouched.** No new tables, no schema migrations, no
-`dist/db_installer` changes. The crate ships without a `migrations/` directory in v1.
+**Everything else in the DB: untouched.** The crate ships no migrations of its own;
+schema changes go through `crates/migration` like everyone else's (`ip_bans`, for the
+Audit page, is one).
 
 ### 5.6 What must never leave the API
 
@@ -734,8 +735,7 @@ the table has no primary key, which is fine because every query keys on `login` 
 Master-account uniqueness is a *partial* constraint — unique on `email` **where `login IS NULL`**,
 since game accounts deliberately share their master's address. sqlite and postgresql express this
 as a partial unique index (`accounts_master_email`). **MariaDB cannot**, and enforces it only in
-the application; the note in `dist/db_installer/sql/mariadb/login/accounts.sql` records this. The
-dashboard runs on SQLite today, so nothing depends on the MariaDB gap right now — but a future
+the application. The dashboard runs on SQLite today, so nothing depends on the MariaDB gap right now — but a future
 MariaDB deployment would need a `BEFORE INSERT` trigger or a generated-column index.
 
 ### 15.4 Sessions and tokens

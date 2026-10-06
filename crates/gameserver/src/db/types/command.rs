@@ -811,6 +811,15 @@ pub enum DbCommand {
     DeletePunishment {
         id: i32,
     },
+    /// Put an address on the IP ban list (`ip_bans`), which both servers
+    /// check on every new connection — the authentication deadline's
+    /// automatic ban (`game_loop::net::auth_guard`). `expires_at` is epoch ms,
+    /// `0` for permanent.
+    BanIp {
+        ip: String,
+        expires_at: i64,
+        reason: String,
+    },
     /// Insert a petition-feedback row (Java `RequestPetitionFeedback`, G31) — the
     /// only petition state that persists. `rate` is 0-4.
     StorePetitionFeedback {

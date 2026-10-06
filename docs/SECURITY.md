@@ -9,8 +9,9 @@ Written 2026-08-04.
 |---|---|---|---|
 | Per-IP accept rules | both listeners of both servers | connection floods from one address | `Security.ini` (game), `LoginServer.ini` (login) |
 | Per-connection packet rate | game `connection.rs` | one socket outrunning the 100 ms tick | `Security.ini` |
-| Failed-login IP ban | login `controller.rs` | password brute force (5 tries → 15 min) | `LoginServer.ini` |
-| Static IP ban list | login `ban_file.rs` | known-bad addresses | `banned_ip.cfg` |
+| Failed-login IP ban | login `controller.rs`, onto the IP ban list | password brute force (5 tries → 15 min) | `LoginServer.ini` |
+| Authentication deadline | game `game_loop/net/auth_guard.rs` | sockets that connect and never log in (5 s, then dropped; 5 strikes in 10 min → IP ban) | `Security.ini` |
+| IP ban list | `ip_bans` table, checked on connect by login `controller.rs` and game `connection.rs` | known-bad addresses; filled by admins, failed logins, game-server temp bans and the authentication deadline; survives restarts | dashboard Audit page |
 | Per-action rate limits | game `client/dispatch.rs` | a logged-in client spamming actions | `FloodProtector.ini` |
 | Punishments | game `moderation/punishment.rs` | repeat offenders (kick/ban/jail/chat-ban) | `FloodProtector.ini`, `//punishment` |
 | Dualbox caps | game | multi-client abuse of events | `Custom/DualboxCheck.ini` |

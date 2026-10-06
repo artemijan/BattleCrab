@@ -8,9 +8,9 @@ database belongs beside the binaries, and one URL string is correct for the
 login server, the game server, the dashboard and the migration tool alike.
 
 The schema is defined by the migrations in `crates/migration`, written with
-SeaORM/sea-query. They are a transcription of `dist/db_installer/sql/sqlite/**`,
-which stays the authoritative source; `crates/migration/tests/dist_parity.rs`
-compares the two column by column on every test run.
+SeaORM/sea-query, and nothing else. The baselines were transcribed from the Java
+installer's SQL (`dist/db_installer`), which has since been removed: the
+migrations are the only source of the schema now.
 
 ## Applying migrations
 
@@ -42,7 +42,7 @@ l2r-migrate reset   --yes -u …    # roll all the way back
 l2r-migrate up -u jdbc:sqlite:interlude_classic.db
 ```
 
-That creates all 100 tables and their indexes. Add the one row the login server
+That creates all 101 tables and their indexes. Add the one row the login server
 needs to know about a game server — either through the server's own
 registration handshake, or by hand:
 
@@ -64,8 +64,8 @@ Every baseline statement is `CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT
 EXISTS`, and the master-account migration checks for its own column before
 touching anything. So `up` on a provisioned database creates the
 `seaql_migrations` bookkeeping table, records the three migrations as applied,
-and changes nothing else. `dist_parity.rs::up_is_idempotent_on_an_existing_database`
-is the test that keeps it that way.
+and changes nothing else. `crates/migration/tests/idempotent.rs` checks that a
+second `up` is a no-op.
 
 A database still on the pre-dashboard `accounts` shape (login as a NOT NULL
 primary key) is the one case where `up` does rewrite a table: migration
@@ -78,9 +78,9 @@ that is what a dashboard master account is. Take the backup first.
    `Migration` struct implementing `MigrationTrait` (copy the shape of
    `m20260801_000003_master_accounts.rs`).
 2. Register it in `Migrator::migrations()` in `crates/migration/src/lib.rs`.
-3. Mirror the change into `dist/db_installer/sql/**` — that tree is the
-   specification, and `dist_parity` fails until the two agree.
-4. Regenerate the entities (below) and run `cargo nextest run -p migration -p models`.
+3. Regenerate the entities (below), or write the new one in the same shape, and
+   run `cargo nextest run -p migration -p models`. `models/tests/schema_parity.rs`
+   fails if an entity and the migrated table disagree.
 
 **SQLite caveat:** before 3.35 there is no `DROP COLUMN`, and there has never
 been an `ALTER COLUMN`. Anything beyond adding a column or an index means the
@@ -97,9 +97,7 @@ generated, not hand-written — the type fixes live in
 ```bash
 # 1. a throwaway database with the current schema
 rm -f /tmp/schema.db
-for f in dist/db_installer/sql/sqlite/login/*.sql dist/db_installer/sql/sqlite/game/*.sql; do
-    sqlite3 /tmp/schema.db < "$f"
-done
+cargo run -p migration -- up -u sqlite:///tmp/schema.db
 
 # 2. generate, then re-type from the declared column types
 cargo install sea-orm-cli --version 2.0.0        # once
@@ -120,8 +118,8 @@ instead, and applies the handful of overrides that the DDL cannot express:
   sqlx 0.9 refuses to read a float out of a value SQLite filed as INTEGER —
   which is what happens whenever the HP lands on a whole number.
 * Sixteen tables declare no primary key; SeaORM needs one, so the script
-  supplies a logical key per table. This changes no schema — migrations come
-  from the DDL, not from entities.
+  supplies a logical key per table. This changes no schema — entities are
+  generated from the migrated database, never the other way round.
 * `accounts` keys off SQLite's implicit `rowid`, because its `login` is nullable
   (a NULL login marks a dashboard master account).
 
@@ -137,6 +135,6 @@ services and restore the copy. Note that rolling back
 
 ## Which tables are in use
 
-All 100 are created; the Rust server currently reads or writes 57 of them. The
+All 101 are created; the Rust server currently reads or writes 57 of them. The
 rest belong to features that are not ported yet (forums, offline trade, instance
 timers, …) and exist so that porting one of them needs no schema work.

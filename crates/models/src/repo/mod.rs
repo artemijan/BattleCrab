@@ -12,3 +12,4 @@
 pub mod account_data;
 pub mod accounts;
 pub mod gameservers;
+pub mod ip_bans;

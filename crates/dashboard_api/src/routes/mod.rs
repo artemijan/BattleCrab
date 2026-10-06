@@ -1,6 +1,7 @@
 pub mod account;
 pub mod admin;
 pub mod auth;
+pub mod ip_bans;
 pub mod logs;
 pub mod monitor;
 pub mod status;
@@ -20,6 +21,7 @@ pub fn api_router() -> Router<AppState> {
         .nest("/account", account::router())
         .nest("/admin", admin::router())
         .nest("/admin/monitor", monitor::router())
+        .nest("/admin/ip-bans", ip_bans::router())
         .nest("/admin/logs", logs::router())
         .merge(status::router())
 }

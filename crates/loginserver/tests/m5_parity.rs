@@ -246,6 +246,18 @@ async fn temp_ban_writes_account_data_and_bans_ip() {
     common::dec_xor_pass(&mut first);
     assert_eq!(first[0], 0x01, "LoginFail opcode");
     assert_eq!(first[1], 0x06, "REASON_NOT_AUTHED — IP banned by temp ban");
+
+    // Stored on the ban list, ending when the game server said the account's
+    // ban ends (Java would have banned the address for decades).
+    let (expires_at, banned_by): (i64, String) =
+        sqlx::query_as("SELECT expires_at, banned_by FROM ip_bans")
+            .fetch_one(&server.pool)
+            .await
+            .expect("the IP ban is stored");
+    assert_eq!(
+        (expires_at, banned_by.as_str()),
+        (ban_until, "login_server")
+    );
 }
 
 #[tokio::test]

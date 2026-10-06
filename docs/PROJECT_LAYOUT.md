@@ -82,13 +82,13 @@ that only works if the model layer does not try to reach sideways.
 Three layers, and the boundaries are strict:
 
 ```
-crates/models/src/entity/   one module per table, GENERATED from the SQL DDL
+crates/models/src/entity/   one module per table, GENERATED from the migrated schema
 crates/models/src/repo/     table-level queries with more than one consumer
 crates/gameserver/src/db/    the DB thread + domain aggregates (store_player, …)
 ```
 
-- **Entities are generated, not written.** They come from the DDL in
-  `dist/db_installer/sql/**` via sea-orm-codegen and a normalizer script; see
+- **Entities are generated, not written.** They come from a database built by
+  the migrations, via sea-orm-codegen and a normalizer script; see
   [DATABASE.md](DATABASE.md) for the regeneration procedure. Column names stay
   verbatim — `charId`, `accessLevel` — because the schema is shared with the
   Java server and is not ours to modernise.

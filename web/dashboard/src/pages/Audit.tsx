@@ -5,15 +5,29 @@
  * The list is asked of the servers on each refresh, not stored: a client that
  * left between two refreshes simply isn't in the next one. Clicking a row
  * opens its details, which keep following the client while it stays
- * connected and say so once it is gone.
+ * connected and say so once it is gone, and from which an admin can
+ * disconnect it or ban its address. The IP ban list sits below the table.
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { AdminNav } from "../components/AdminNav";
-import { Alert, Field, Panel, Spinner, StatusBadge, cx } from "../components/ui";
-import { ApiError, type ConnectedClient, type ConnectedClients, api } from "../lib/api";
+import {
+  BanForm,
+  IpBansSection,
+  createdSummary,
+  errorMessage,
+  useInvalidateAudit,
+} from "../components/IpBans";
+import { Alert, Button, Field, Panel, Spinner, StatusBadge, cx } from "../components/ui";
+import {
+  ApiError,
+  type ConnectedClient,
+  type ConnectedClients,
+  type IpBanInput,
+  api,
+} from "../lib/api";
 import {
   FIRST_DIR,
   SERVICE_LABEL,
@@ -225,6 +239,8 @@ export function Audit() {
           </p>
         </>
       )}
+
+      <IpBansSection clients={clients} />
 
       {selected && (
         <ClientDialog
@@ -478,6 +494,13 @@ function ClientDialog({
               This client has disconnected. Below is the last thing seen of it.
             </p>
           )}
+          <ClientActions
+            key={clientKey(c)}
+            c={c}
+            live={live !== undefined}
+            clients={clients}
+            now={now}
+          />
           <ConnectionSection c={c} now={now} />
           <AccountSection c={c} />
           <CharacterSection c={c} />
@@ -511,6 +534,126 @@ function ClientDialog({
       </div>
     </dialog>
   );
+}
+
+/**
+ * Disconnect, or disconnect and ban the address. Both close the connection
+ * the same way: a game-server client in the world is saved and logged out
+ * cleanly, anyone earlier is dropped. The ban covers every connection on the
+ * address (or range), on both servers.
+ */
+function ClientActions({
+  c,
+  live,
+  clients,
+  now,
+}: {
+  c: ConnectedClient;
+  live: boolean;
+  clients: ConnectedClient[];
+  now: number;
+}) {
+  const invalidate = useInvalidateAudit();
+  const [mode, setMode] = useState<"idle" | "disconnect" | "ban">("idle");
+  const [done, setDone] = useState<ReactNode>(null);
+
+  const disconnect = useMutation({
+    mutationFn: () => api.admin.monitor.disconnect(c),
+    onSuccess: () => {
+      setMode("idle");
+      setDone("Disconnected.");
+      return invalidate();
+    },
+  });
+  const ban = useMutation({
+    mutationFn: (input: IpBanInput) => api.admin.ipBans.create(input, true),
+    onSuccess: (created) => {
+      setMode("idle");
+      setDone(createdSummary(created, true));
+      return invalidate();
+    },
+  });
+
+  if (done) return <Alert kind="success">{done}</Alert>;
+  if (!live) return null;
+
+  if (mode === "disconnect") {
+    return (
+      <div className="space-y-2 rounded-xl border border-(--surface-border) p-3">
+        {disconnect.isError && <Alert kind="error">{disconnectError(disconnect.error)}</Alert>}
+        <p>
+          Close this connection?{" "}
+          <span className="text-(--text-muted)">
+            {c.stage === "in_game" ? "The character is saved and leaves the world. " : ""}
+            Nothing stops them from logging back in.
+          </span>
+        </p>
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            loading={disconnect.isPending}
+            onClick={() => disconnect.mutate()}
+            className="px-3 py-2 text-xs text-red-500 dark:text-red-400"
+          >
+            Disconnect
+          </Button>
+          <Button variant="ghost" onClick={() => setMode("idle")} className="px-3 py-2 text-xs">
+            Cancel
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "ban") {
+    return (
+      <div className="rounded-xl border border-(--surface-border) p-3">
+        <BanForm
+          initial={{ ip: c.ip }}
+          disconnect="always"
+          submitLabel="Ban and disconnect"
+          pending={ban.isPending}
+          error={ban.error}
+          now={now}
+          clients={clients}
+          onSubmit={(input) => ban.mutate(input)}
+          onCancel={() => setMode("idle")}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Button
+        variant="ghost"
+        onClick={() => {
+          disconnect.reset();
+          setMode("disconnect");
+        }}
+        className="px-3 py-2 text-xs"
+      >
+        Disconnect
+      </Button>
+      <Button
+        variant="ghost"
+        onClick={() => {
+          ban.reset();
+          setMode("ban");
+        }}
+        className="px-3 py-2 text-xs text-red-500 dark:text-red-400"
+      >
+        Disconnect and ban IP…
+      </Button>
+    </div>
+  );
+}
+
+function disconnectError(error: unknown): string {
+  if (error instanceof ApiError && error.status === 404) {
+    return "This client has already disconnected.";
+  }
+  return errorMessage(error);
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {

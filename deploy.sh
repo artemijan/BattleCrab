@@ -154,8 +154,9 @@ remote sed -i 's/^LoginHost[[:space:]]*=.*/LoginHost = 127.0.0.1/' \
     "$REMOTE_PATH/dist/game/config/Server.ini"
 
 if ! remote test -f "$REMOTE_PATH/interlude_classic.db"; then
-    echo "    NOTE: no interlude_classic.db found at $REMOTE_PATH — first boot needs a"
-    echo "    database provisioned (see dist/db_installer/dumps/) before login will work."
+    echo "    NOTE: no interlude_classic.db found at $REMOTE_PATH — create it with"
+    echo "    \`l2r-migrate up -u jdbc:sqlite:$REMOTE_PATH/interlude_classic.db\` (docs/DATABASE.md)"
+    echo "    before login will work."
 fi
 
 # --- systemd units -------------------------------------------------------------

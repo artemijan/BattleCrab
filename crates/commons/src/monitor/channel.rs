@@ -10,12 +10,15 @@
 //! `since <epoch_ms>` returns every buffered sample stamped strictly after
 //! that instant, oldest first; an empty line returns the whole ring.
 //! `clients` returns one [`ClientRecord`] line per open connection, as of now
-//! (§10). Anything else gets one `{"error":…}` line and a close.
+//! (§10). `kick <id> <connected_ms>` closes that connection and answers one
+//! `{"kicked":true|false}` line — `false` when no such connection is open.
+//! Anything else gets one `{"error":…}` line and a close.
 //!
 //! Same security model as the login server's status channel: it binds to
 //! loopback by default and that bind is the control. Widening
 //! `InternalMonitorBindAddress` publishes traffic volumes, process memory and
-//! every connected player's address to anyone who can reach the port.
+//! every connected player's address to anyone who can reach the port — and
+//! lets them disconnect any player.
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -27,13 +30,14 @@ use tracing::warn;
 use super::Ring;
 use super::clients::{ClientRecord, ProviderSlot};
 
-/// A request is `since ` plus at most 20 digits; anything longer is not one.
+/// The longest request is `kick ` plus two numbers of at most 20 digits each;
+/// anything longer is not one.
 const MAX_REQUEST_BYTES: u64 = 64;
 
 /// A client that connects and says nothing must not hold a task forever.
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(2);
 
-/// How long a `clients` request waits for the server to build its list. The
+/// How long a `clients` or `kick` request waits for the server to answer. The
 /// game server answers from the game loop, which drains its events every tick;
 /// a loop stuck for this long has bigger problems than the Audit page.
 #[cfg(not(test))]
@@ -45,6 +49,7 @@ const CLIENTS_TIMEOUT: Duration = Duration::from_millis(50);
 enum Request {
     Since(u64),
     Clients,
+    Kick { id: u64, connected_ms: u64 },
 }
 
 /// Serve the channel until the process exits. Errors are logged and dropped:
@@ -99,7 +104,7 @@ async fn respond(line: &str, service: &str, ring: &Ring, clients: &ProviderSlot)
             .iter()
             .map(|s| s.to_json_line(service))
             .collect(),
-        Some(Request::Clients) => match clients.request() {
+        Some(Request::Clients) => match clients.list() {
             None => error_line("this server does not list clients"),
             Some(reply) => match tokio::time::timeout(CLIENTS_TIMEOUT, reply).await {
                 Ok(Ok(records)) => client_lines(service, records),
@@ -107,7 +112,15 @@ async fn respond(line: &str, service: &str, ring: &Ring, clients: &ProviderSlot)
                 Err(_) => error_line("timed out building the client list"),
             },
         },
-        None => error_line("expected `since <epoch_ms>` or `clients`"),
+        Some(Request::Kick { id, connected_ms }) => match clients.kick(id, connected_ms) {
+            None => error_line("this server does not kick clients"),
+            Some(reply) => match tokio::time::timeout(CLIENTS_TIMEOUT, reply).await {
+                Ok(Ok(kicked)) => format!("{}\n", serde_json::json!({ "kicked": kicked })),
+                Ok(Err(_)) => error_line("the server dropped the kick request"),
+                Err(_) => error_line("timed out kicking the client"),
+            },
+        },
+        None => error_line("expected `since <epoch_ms>`, `clients` or `kick <id> <connected_ms>`"),
     }
 }
 
@@ -123,7 +136,8 @@ fn client_lines(service: &str, records: Vec<ClientRecord>) -> String {
 }
 
 /// `since <ms>` → `Since(ms)`; an empty line → `Since(0)` (everything);
-/// `clients` → `Clients`; anything else → `None`.
+/// `clients` → `Clients`; `kick <id> <connected_ms>` → `Kick`; anything
+/// else → `None`.
 fn parse_request(line: &str) -> Option<Request> {
     let line = line.trim();
     if line.is_empty() {
@@ -131,6 +145,15 @@ fn parse_request(line: &str) -> Option<Request> {
     }
     if line == "clients" {
         return Some(Request::Clients);
+    }
+    if let Some(rest) = line.strip_prefix("kick ") {
+        let mut parts = rest.split_whitespace();
+        let id = parts.next()?.parse().ok()?;
+        let connected_ms = parts.next()?.parse().ok()?;
+        return parts
+            .next()
+            .is_none()
+            .then_some(Request::Kick { id, connected_ms });
     }
     let rest = line.strip_prefix("since")?;
     if !rest.starts_with(char::is_whitespace) {
@@ -173,6 +196,17 @@ mod tests {
         assert_eq!(parse_request(""), Some(Request::Since(0)));
         assert_eq!(parse_request("clients\n"), Some(Request::Clients));
         assert_eq!(parse_request("clients 1"), None);
+        assert_eq!(
+            parse_request("kick 7 1759000000000\n"),
+            Some(Request::Kick {
+                id: 7,
+                connected_ms: 1_759_000_000_000
+            })
+        );
+        assert_eq!(parse_request("kick 7"), None);
+        assert_eq!(parse_request("kick 7 1 2"), None);
+        assert_eq!(parse_request("kick -7 1"), None);
+        assert_eq!(parse_request("kick7 1"), None);
         assert_eq!(parse_request("since"), None);
         assert_eq!(parse_request("since42"), None);
         assert_eq!(parse_request("since -1"), None);
@@ -242,7 +276,7 @@ mod tests {
 
     #[tokio::test]
     async fn clients_are_served_stamped_with_the_service() {
-        use super::super::clients::{ClientsReply, Traffic, ready};
+        use super::super::clients::{ClientsReply, Provider, Traffic, ready};
         let slot = no_provider();
         let provider = || -> Option<ClientsReply> {
             ready(vec![ClientRecord {
@@ -271,21 +305,31 @@ mod tests {
         // No provider yet: an error line, not a hang.
         assert!(ask(addr, b"clients\n").await.contains("\"error\""));
 
-        assert!(slot.set_for_test(Box::new(provider)));
+        assert!(slot.set_for_test(Provider {
+            list: Box::new(provider),
+            kick: Box::new(|id, connected_ms| ready(id == 3 && connected_ms == 1)),
+        }));
         let out = ask(addr, b"clients\n").await;
         let record: ClientRecord = serde_json::from_str(out.trim()).unwrap();
         assert_eq!((record.service.as_str(), record.id), ("game_server", 3));
+
+        assert_eq!(ask(addr, b"kick 3 1\n").await, "{\"kicked\":true}\n");
+        // Same id, another connection: refused, not kicked.
+        assert_eq!(ask(addr, b"kick 3 2\n").await, "{\"kicked\":false}\n");
     }
 
     #[tokio::test]
     async fn a_provider_that_never_answers_times_out_with_an_error() {
         let slot = no_provider();
         // The sender is leaked, so the reply never resolves and never errors.
-        assert!(slot.set_for_test(Box::new(|| {
-            let (tx, rx) = tokio::sync::oneshot::channel();
-            std::mem::forget(tx);
-            Some(rx)
-        })));
+        assert!(slot.set_for_test(super::super::clients::Provider {
+            list: Box::new(|| {
+                let (tx, rx) = tokio::sync::oneshot::channel();
+                std::mem::forget(tx);
+                Some(rx)
+            }),
+            kick: Box::new(|_, _| None),
+        }));
         let out = respond("clients", "game_server", &Ring::new(1), slot).await;
         assert!(out.contains("timed out"), "got {out:?}");
     }

@@ -721,6 +721,11 @@ pub(crate) async fn run(
                 .await
             }
             DbCommand::DeletePunishment { id } => social::delete_punishment(&db, id).await,
+            DbCommand::BanIp {
+                ip,
+                expires_at,
+                reason,
+            } => social::ban_ip(&db, &ip, expires_at, &reason).await,
             DbCommand::StorePetitionFeedback {
                 char_name,
                 gm_name,

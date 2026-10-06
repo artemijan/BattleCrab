@@ -19,9 +19,10 @@ pub(crate) use lookup::{
     reuses_mut, set_player_var, set_player_var_int, unset_player_var, update_admin_flags,
 };
 pub(crate) use send::{
-    announce_to_all_online, disconnect_player, send_action_failed, send_etc_status_update,
-    send_message, send_sm_and_action_failed, send_sm_bare_to_client, send_sm_bare_to_player,
-    send_sm_to_client, send_sm_to_player, send_to_client, send_to_player, skill_list_packet,
+    announce_to_all_online, disconnect_player, kick_client, send_action_failed,
+    send_etc_status_update, send_message, send_sm_and_action_failed, send_sm_bare_to_client,
+    send_sm_bare_to_player, send_sm_to_client, send_sm_to_player, send_to_client, send_to_player,
+    skill_list_packet,
 };
 pub(crate) use vitals::{
     absorb_into_hp, hp_fraction, hp_pair, in_zone, is_dead, is_friend, recalculate_player_stats,

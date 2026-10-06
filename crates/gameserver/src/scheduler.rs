@@ -587,6 +587,11 @@ pub enum ScheduledTask {
     /// him at one of his three haunts (Java `RESPAWN_TOMA`); reschedules
     /// itself.
     TomaRelocate,
+    /// A new connection's authentication deadline (`Security.ini`
+    /// `UnauthenticatedTimeout`): drop it if it is still unauthenticated.
+    AuthDeadline {
+        client_id: u32,
+    },
     /// `ai/others/Mammons`: the 30-minute `RESPAWN_MERCHANT` / `_BLACKSMITH` /
     /// `_PRIEST` beat — delete the script's copy of that Mammon and place it at
     /// another haunt. Reschedules itself; `npc_id` says which merchant.

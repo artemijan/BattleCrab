@@ -1,12 +1,14 @@
-//! Data access against the live game SQLite DB — one pool, three tables.
+//! Data access against the live game SQLite DB — one pool, four tables.
 //!
 //! `accounts` is writable in exactly two columns for players — plus, for the
 //! admin surface only, `accessLevel` restricted to values ≤ 0 (see `admin`).
-//! `characters` and `items` are read-only. See DASHBOARD.md §5.5 and §16.
+//! `characters` and `items` are read-only. `ip_bans` is admin-only and belongs
+//! to the dashboard (see `ip_bans`). See DASHBOARD.md §5.5 and §16.
 
 pub mod accounts;
 pub mod admin;
 pub mod characters;
+pub mod ip_bans;
 pub mod items;
 
 use std::path::PathBuf;
