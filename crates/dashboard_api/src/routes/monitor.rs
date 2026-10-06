@@ -1,7 +1,10 @@
 //! `/admin/monitor` — per-server metrics (`docs/MONITORING.md` §5). Admin-only,
 //! like the rest of `/admin`: every handler starts with `require_admin`.
 //!
-//! All three answer 503 when monitoring is off (`MonitorTargets` empty, or
+//! `/clients` is the Audit page's live connection list (§10), asked of the
+//! servers on each request and never stored.
+//!
+//! All of them answer 503 when monitoring is off (`MonitorTargets` empty, or
 //! `metrics.db` would not open), so the SPA can tell "disabled" from "broken".
 
 use std::sync::Arc;
@@ -29,6 +32,7 @@ pub fn router() -> Router<AppState> {
         .route("/services", axum::routing::get(services))
         .route("/series", axum::routing::get(series))
         .route("/host", axum::routing::get(host))
+        .route("/clients", axum::routing::get(clients))
 }
 
 async fn monitor(app: &AppState, headers: &HeaderMap) -> ApiResult<Arc<Monitor>> {
@@ -217,6 +221,31 @@ async fn host(
         bucket_ms: w.bucket_ms,
         aggregation: store::HOST_COLUMNS.iter().copied().collect(),
         buckets,
+    }))
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ClientsResponse {
+    /// The dashboard's clock, so the page measures durations against the
+    /// same clock that stamped `connectedMs`, not the viewer's.
+    now_ms: i64,
+    clients: Vec<commons::monitor::clients::ClientRecord>,
+    sources: Vec<monitor::ClientSource>,
+}
+
+/// No audit record per request: the page refreshes this every few seconds,
+/// and a line per refresh would bury the GM audit log.
+async fn clients(
+    State(app): State<AppState>,
+    headers: HeaderMap,
+) -> ApiResult<Json<ClientsResponse>> {
+    let m = monitor(&app, &headers).await?;
+    let (clients, sources) = m.clients().await;
+    Ok(Json(ClientsResponse {
+        now_ms: monitor::epoch_ms(),
+        clients,
+        sources,
     }))
 }
 

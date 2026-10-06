@@ -13,6 +13,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::{Duration, Instant};
 
+use commons::monitor::clients::ConnectionStats;
 use commons::network::{HEADER_SIZE, read_frame, write_frame};
 use tokio::io::{AsyncWrite, AsyncWriteExt};
 use tokio::net::TcpListener;
@@ -234,6 +235,7 @@ async fn handle(
     // The decrement side of the queue-depth estimate; the game thread's sends
     // increment it inside `OutboundTx::send`.
     let out_depth = out.depth_handle();
+    let stats = out.stats_handle();
     // The inbound in-flight bound (`MAX_PACKETS_IN_FLIGHT`): each forwarded
     // packet carries a permit the game thread releases by dropping the event.
     let in_flight = Arc::new(tokio::sync::Semaphore::new(MAX_PACKETS_IN_FLIGHT));
@@ -265,7 +267,7 @@ async fn handle(
                         // Counted before the rate limiter: this is "what
                         // arrived on the wire", not "what a handler saw" —
                         // `game_loop::net::packets_handled` is that number.
-                        note_inbound_frame(payload.len());
+                        note_inbound_frame(&stats, payload.len());
                         // Charged before decryption: the cost this bounds is
                         // the work the frame is about to create, and a frame
                         // that fails to decode has already consumed a read.
@@ -286,7 +288,7 @@ async fn handle(
                         }
                         // Errors break the loop (not `?`) so the Disconnected
                         // cleanup below always runs.
-                        match on_packet(&mut client, &mut write, &net_tx, &cfg, &in_flight, body).await {
+                        match on_packet(&mut client, &mut write, &stats, &net_tx, &cfg, &in_flight, body).await {
                             Ok(true) => {}
                             Ok(false) => break Ok(()), // clean close requested by a handler
                             Err(e) => break Err(e),
@@ -351,7 +353,7 @@ async fn handle(
                         }
                         // One add per socket write, not per packet: `batched`
                         // packets rode this one write_all.
-                        note_outbound_batch(batched, out_batch.len());
+                        note_outbound_batch(&stats, batched, out_batch.len());
                         // Keep the steady-state buffer small: only a burst
                         // should hold a large allocation, and only until the
                         // next one.
@@ -375,6 +377,7 @@ async fn handle(
 async fn on_packet<W: AsyncWrite + Unpin>(
     client: &mut GameClient,
     write: &mut W,
+    stats: &ConnectionStats,
     net_tx: &NetEventTx,
     cfg: &NetworkConfig,
     in_flight: &Arc<tokio::sync::Semaphore>,
@@ -399,6 +402,7 @@ async fn on_packet<W: AsyncWrite + Unpin>(
                 send(
                     client,
                     write,
+                    stats,
                     key_packet(
                         key8(&key),
                         0,
@@ -416,6 +420,7 @@ async fn on_packet<W: AsyncWrite + Unpin>(
             send(
                 client,
                 write,
+                stats,
                 key_packet(
                     key8(&key),
                     1,
@@ -462,13 +467,14 @@ async fn on_packet<W: AsyncWrite + Unpin>(
 async fn send<W: AsyncWrite + Unpin>(
     client: &mut GameClient,
     write: &mut W,
+    stats: &ConnectionStats,
     mut body: Vec<u8>,
 ) -> std::io::Result<()> {
     client.encrypt(&mut body);
     write_frame(write, &body).await?;
     // The KeyPacket path — written here, not through the outbound arm's
     // batch, so it is counted here too.
-    note_outbound_batch(1, body.len() + HEADER_SIZE);
+    note_outbound_batch(stats, 1, body.len() + HEADER_SIZE);
     Ok(())
 }
 

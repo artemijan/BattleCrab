@@ -183,6 +183,97 @@ export type MonitorSeries = {
   series: Record<string, Array<number | null>>;
 };
 
+/* ----------------------------- Audit types ------------------------------ */
+/* Shape of /admin/monitor/clients — docs/MONITORING.md §10. */
+
+/** Login: handshaking → logged_in → joining_game. Game: authenticating →
+ *  lobby → entering → in_game. Unknown keys render as-is. */
+export type ClientStage =
+  | "handshaking"
+  | "logged_in"
+  | "joining_game"
+  | "authenticating"
+  | "lobby"
+  | "entering"
+  | "in_game";
+
+export type ClientTraffic = {
+  packetsIn: number;
+  bytesIn: number;
+  packetsOut: number;
+  bytesOut: number;
+  /** Epoch ms of the client's last packet; null before its first. */
+  lastPacketMs: number | null;
+};
+
+/** One open connection. `details` is server-specific; see `ClientDetails`. */
+export type ConnectedClient = {
+  service: MonitorService;
+  /** Unique per server process; pair with `service` for a key. */
+  id: number;
+  ip: string;
+  port: number;
+  connectedMs: number;
+  stage: ClientStage | string;
+  account: string | null;
+  character: string | null;
+  /** The MAC address from RequestHardWareInfo — null when never reported. */
+  hwid: string | null;
+  traffic: ClientTraffic;
+  details: ClientDetails;
+};
+
+type Gauge = { cur: number; max: number };
+
+export type ClientDetails = {
+  /** Game server. */
+  protocolVersion?: number;
+  hardware?: {
+    cpu: string;
+    cpuSpeedMhz: number;
+    cpuCores: number;
+    gpu: string;
+    gpuDriver: string;
+    windows: string;
+  };
+  lobbyCharacters?: Array<{ name: string; level: number; classId: number }>;
+  character?: {
+    objectId: number;
+    name: string;
+    title: string;
+    level: number;
+    classId: number;
+    baseClassId: number;
+    race: number;
+    clan: string | null;
+    accessLevel: number;
+    hero: boolean;
+    noble: boolean;
+    reputation: number;
+    pvpKills: number;
+    pkKills: number;
+    position: { x: number; y: number; z: number } | null;
+    hp: Gauge | null;
+    mp: Gauge | null;
+    cp: Gauge | null;
+    dead: boolean;
+  };
+  /** Login server. */
+  accessLevel?: number;
+  lastServer?: number;
+  joiningServer?: number;
+};
+
+export type ClientSource = { service: MonitorService; up: boolean; error: string | null };
+
+export type ConnectedClients = {
+  /** The dashboard's clock when it answered; durations are measured from it. */
+  nowMs: number;
+  clients: ConnectedClient[];
+  /** One per monitored server, in MonitorTargets order. */
+  sources: ClientSource[];
+};
+
 /* --------------------------- Log search types ---------------------------- */
 /* Shapes of /admin/logs/* — docs/MONITORING.md §6. */
 
@@ -383,6 +474,8 @@ export const api = {
 
       host: (from: number, to: number, maxPoints: number) =>
         request<MonitorSeries>(`/admin/monitor/host?from=${from}&to=${to}&maxPoints=${maxPoints}`),
+
+      clients: () => request<ConnectedClients>("/admin/monitor/clients"),
     },
 
     logs: {

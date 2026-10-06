@@ -9,6 +9,7 @@ import { useAccount } from "./lib/session";
 import { ThemeProvider } from "./lib/theme";
 import { AccountPage } from "./pages/AccountPage";
 import { AdminAccountDetail, AdminAccounts } from "./pages/Admin";
+import { Audit } from "./pages/Audit";
 import { Logs } from "./pages/Logs";
 import { Monitoring } from "./pages/Monitoring";
 import { Login, Register } from "./pages/Auth";
@@ -138,6 +139,14 @@ function Shell() {
           element={
             <RequireAdmin>
               <Monitoring />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin/audit"
+          element={
+            <RequireAdmin>
+              <Audit />
             </RequireAdmin>
           }
         />

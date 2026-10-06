@@ -21,6 +21,11 @@ const SECTIONS = [
     label: "Monitoring",
     active: (path: string) => path.startsWith("/admin/monitor"),
   },
+  {
+    to: "/admin/audit",
+    label: "Audit",
+    active: (path: string) => path.startsWith("/admin/audit"),
+  },
   { to: "/admin/logs", label: "Logs", active: (path: string) => path.startsWith("/admin/logs") },
 ] as const;
 

@@ -29,6 +29,10 @@ pub enum GameEvent {
     Login(LoginLinkEvent),
     Db(DbEvent),
     Path(PathEvent),
+    /// The monitor channel asking for the live client list
+    /// (`docs/MONITORING.md` §10). Answered from the game thread, which owns
+    /// the sessions.
+    Monitor(crate::game_loop::net::ClientsReplyTx),
 }
 
 /// Sender side. Cloned into each service's typed facade; sends are

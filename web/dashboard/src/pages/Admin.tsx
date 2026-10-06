@@ -12,8 +12,8 @@
  *   so they are displayed and nothing more.
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, type SubmitEvent, type ReactNode } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useState, type SubmitEvent } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import {
   ApiError,
@@ -25,7 +25,7 @@ import {
   type Character,
 } from "../lib/api";
 import { AdminNav } from "../components/AdminNav";
-import { Alert, Button, Field, Panel, Spinner, cx } from "../components/ui";
+import { Alert, Button, Field, Panel, Spinner, StatusBadge, cx } from "../components/ui";
 
 const PAGE_SIZE = 25;
 
@@ -47,24 +47,6 @@ function errorMessage(error: unknown): string {
 /* -------------------------------------------------------------------------- */
 /* Shared bits                                                                */
 /* -------------------------------------------------------------------------- */
-
-function StatusBadge({ kind, children }: { kind: "ok" | "warn" | "bad"; children: ReactNode }) {
-  const styles = {
-    ok: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300",
-    warn: "bg-amber-500/15 text-amber-600 dark:text-amber-300",
-    bad: "bg-red-500/15 text-red-600 dark:text-red-300",
-  } as const;
-  return (
-    <span
-      className={cx(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium",
-        styles[kind],
-      )}
-    >
-      {children}
-    </span>
-  );
-}
 
 function MasterBadges({ master }: { master: AdminMasterSummary }) {
   return (
@@ -94,7 +76,10 @@ const COLUMNS: Array<{ key: AdminSortKey; label: string; firstDir: AdminSortDir 
 
 export function AdminAccounts() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
+  // `?q=` pre-fills the search: the Audit page links here to find the owner
+  // of a connected game account.
+  const [params] = useSearchParams();
+  const [query, setQuery] = useState(() => params.get("q") ?? "");
   const [offset, setOffset] = useState(0);
   const [sort, setSort] = useState<AdminSortKey>("created");
   const [dir, setDir] = useState<AdminSortDir>("desc");

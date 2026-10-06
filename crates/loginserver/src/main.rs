@@ -40,6 +40,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         None,
     )
     .await;
+    // The Audit page's live client list (`docs/MONITORING.md` §10).
+    commons::monitor::clients::set_provider(|| {
+        commons::monitor::clients::ready(loginserver::clients::records())
+    });
 
     // Load Config (Java: Config.load(ServerMode.LOGIN)).
     let config = LoginConfig::load();

@@ -1507,6 +1507,7 @@ dependencies = [
  "rand_distr",
  "rsa",
  "sea-orm",
+ "serde",
  "serde_json",
  "sha1",
  "sqlx",

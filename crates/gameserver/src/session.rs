@@ -343,6 +343,18 @@ impl ClientSession {
         }
     }
 
+    /// The connection's outbound handle, which also carries its traffic
+    /// counters.
+    pub fn out(&self) -> &OutboundTx {
+        match self {
+            ClientSession::Connecting(s) => &s.out,
+            ClientSession::Authenticated(s) => &s.out,
+            ClientSession::InLobby(s) => &s.out,
+            ClientSession::Entering(s) => &s.out,
+            ClientSession::InGame(s) => &s.out,
+        }
+    }
+
     /// The connection's flood protectors (Java `GameClient.getFloodProtectors`),
     /// available in every state — `CharacterSelect` is rate-limited from the
     /// lobby, long before a player exists.

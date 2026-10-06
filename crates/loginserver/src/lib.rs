@@ -2,6 +2,7 @@
 //! `main.rs` is a thin wrapper.
 
 pub mod ban_file;
+pub mod clients;
 pub mod config;
 pub mod context;
 pub mod controller;
