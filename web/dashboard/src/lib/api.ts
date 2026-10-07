@@ -176,12 +176,11 @@ export type MonitorSeries = {
   from: number;
   to: number;
   bucketMs: number;
-  aggregation: Record<string, "sum" | "max" | "avg" | "min">;
+  aggregation: Record<string, "sum" | "max">;
   ts: number[];
   /** Raw samples per bucket — fewer than expected is a gap. */
   samples: number[];
-  /** Absent on host series. */
-  intervalMs?: number[];
+  intervalMs: number[];
   series: Record<string, Array<number | null>>;
 };
 
@@ -510,9 +509,6 @@ export const api = {
         request<MonitorSeries>(
           `/admin/monitor/series?service=${service}&from=${from}&to=${to}&maxPoints=${maxPoints}`,
         ),
-
-      host: (from: number, to: number, maxPoints: number) =>
-        request<MonitorSeries>(`/admin/monitor/host?from=${from}&to=${to}&maxPoints=${maxPoints}`),
 
       clients: () => request<ConnectedClients>("/admin/monitor/clients"),
 

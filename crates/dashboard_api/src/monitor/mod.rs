@@ -2,12 +2,11 @@
 //!
 //! Each game/login server samples itself into an in-memory ring
 //! (`commons::monitor`). This module polls those rings over loopback, is the
-//! sole writer of `metrics.db`, samples host-level pressure, prunes past the
-//! retention window, and answers the `/admin/monitor` queries. It also asks
+//! sole writer of `metrics.db`, prunes past the retention window, and answers
+//! the `/admin/monitor` queries. It also asks
 //! the servers for their live client lists on demand (§10), which are never
 //! stored, and passes on the Audit page's disconnects.
 
-pub mod host;
 pub mod store;
 pub mod wire;
 
@@ -111,8 +110,6 @@ pub struct Monitor {
     status: Mutex<BTreeMap<String, TargetStatus>>,
     pub poll_seconds: u64,
     pub retention_days: u64,
-    /// Where host disk-free is measured: the metrics database's location.
-    disk_path: PathBuf,
 }
 
 impl Monitor {
@@ -121,7 +118,6 @@ impl Monitor {
         targets: Vec<Target>,
         poll_seconds: u64,
         retention_days: u64,
-        disk_path: PathBuf,
     ) -> Self {
         let status = targets
             .iter()
@@ -142,7 +138,6 @@ impl Monitor {
             status: Mutex::new(status),
             poll_seconds: poll_seconds.max(1),
             retention_days,
-            disk_path,
         }
     }
 
@@ -323,18 +318,6 @@ impl Monitor {
         summary
     }
 
-    /// One host reading, stamped on the current period boundary.
-    pub async fn sample_host(&self) {
-        let path = self.disk_path.clone();
-        let reading = tokio::task::spawn_blocking(move || host::read(&path))
-            .await
-            .unwrap_or_default();
-        let ts = align_down(epoch_ms(), self.poll_seconds as i64 * 1000);
-        if let Err(e) = self.db.insert_host(ts, &reading).await {
-            tracing::warn!("monitor: storing host sample failed: {e}");
-        }
-    }
-
     pub async fn prune(&self) {
         let cutoff = epoch_ms() - self.retention_days as i64 * 86_400_000;
         match self.db.prune(cutoff).await {
@@ -353,7 +336,6 @@ impl Monitor {
             let wait = (period_ms - now % period_ms + POLL_OFFSET_MS) % period_ms;
             tokio::time::sleep(Duration::from_millis(wait.max(1))).await;
 
-            self.sample_host().await;
             for target in &self.targets {
                 self.poll(target).await;
             }
@@ -419,10 +401,6 @@ pub fn epoch_ms() -> i64 {
         .unwrap_or(0)
 }
 
-fn align_down(ms: i64, period_ms: i64) -> i64 {
-    ms - ms.rem_euclid(period_ms)
-}
-
 /// The bucket width for a `range_ms` query returning at most `max_points`.
 ///
 /// Buckets are epoch-aligned, so a range generally touches one more bucket
@@ -482,7 +460,6 @@ pub async fn start(config: &DashboardConfig) -> Option<Arc<Monitor>> {
         targets,
         config.metrics_poll_seconds,
         config.metrics_retention_days,
-        path,
     ));
     tokio::spawn(monitor.clone().run());
     Some(monitor)

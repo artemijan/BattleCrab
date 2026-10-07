@@ -1939,7 +1939,6 @@ dependencies = [
  "hmac 0.12.1",
  "http-body-util",
  "lettre",
- "libc",
  "memchr",
  "migration",
  "mime_guess",

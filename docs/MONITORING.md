@@ -125,22 +125,24 @@ history. `WITHOUT ROWID` + `PRIMARY KEY (service, ts)` makes the clustered index
 pattern, so there's no second index to maintain on each insert. Inserts are `OR IGNORE`, so an
 overlapping re-poll is harmless.
 
-Host-level pressure goes in a separate `host_sample` table sampled by the dashboard itself
-(`monitor/host.rs`): load average via `getloadavg(3)` (Linux and macOS), `MemTotal`/`MemAvailable`
-from `/proc/meminfo` (NULL off Linux), and total/free disk via `statvfs(3)` on the filesystem
-holding `metrics.db`. Both servers share one host, so per-service rows would repeat the same
-numbers.
+Machine-level metrics (load, available memory, free disk) are **not** collected here. They were,
+for a while: the dashboard sampled its own host into a `host_sample` table. That was only right
+while the dashboard and both servers shared one machine. Once login and game run on separate
+machines, the dashboard's host is the wrong one to show. Per-machine metrics with alerting are what
+a host monitor (node_exporter + Prometheus/Grafana, Netdata, the VPS provider's graphs) already
+does well. This store keeps to what only the servers can see: their own processes. Schema v2 drops
+`host_sample` from existing files.
 
 The schema lives in `MetricsDb::migrate()` (`CREATE TABLE IF NOT EXISTS` + `PRAGMA user_version`),
 **not** the `migration` crate. That crate is wired to the game DB, and this file must stay
 independently droppable.
 
-Retention: an hourly `DELETE … WHERE ts < now - MetricsRetentionDays` on both tables. No
+Retention: an hourly `DELETE … WHERE ts < now - MetricsRetentionDays`. No
 `VACUUM`/`auto_vacuum`: with a steady row count, freed pages get reused and the file plateaus, and
 `auto_vacuum` would cost on every commit for no benefit here.
 
 **The poller** (`monitor/mod.rs`) wakes 1.5 s after each period boundary, so the servers' boundary
-samples already exist. Each wake takes one host reading and then polls each target in turn with
+samples already exist. Each wake polls each target in turn with
 `since <newest stored ts>`. Resuming from the store rather than from memory means a dashboard
 restart backfills from the servers' rings. Each poll has a 3 s timeout and an 8 MB cap. A target
 whose lines name a different `service` is refused rather than stored, because that is two ports
@@ -203,7 +205,7 @@ $ printf 'since 1759000000000\n' | nc 127.0.0.1 7779
 
 ## 5. P3 (shipped): API surface
 
-Admin-only (`require_admin`), under `/api/v1/admin/monitor` (`routes/monitor.rs`). All three
+Admin-only (`require_admin`), under `/api/v1/admin/monitor` (`routes/monitor.rs`). Both
 endpoints answer 503 `unavailable` when monitoring is off, so the SPA can tell "disabled" from
 "broken".
 
@@ -212,7 +214,6 @@ GET /admin/monitor/services
   → {services: [{service, address, up, lastPollMs, lastSampleTs, startedMs, uptimeSeconds, lastError}],
      pollSeconds, retentionDays}
 GET /admin/monitor/series?service&from&to&metrics&maxPoints
-GET /admin/monitor/host?from&to&maxPoints
   → {service, from, to, bucketMs, aggregation: {name: sum|max|avg|min},
      ts: [...], samples: [...], intervalMs: [...], series: {name: [...]}}
 ```
@@ -225,8 +226,7 @@ GET /admin/monitor/host?from&to&maxPoints
   lists the valid ones. An unknown `service` is a 404.
 - **Aggregation**: delta columns are `sum`med; divide by the bucket's `intervalMs` for a rate (CPU
   % = `cpu_micros / (intervalMs × 10)`). Gauges are `max`, because pressure is about the worst
-  moment and an average hides it. For host series, load is `avg`, and available memory and free
-  disk are `min`.
+  moment and an average hides it.
 - `samples` is each bucket's raw sample count. A bucket with fewer than expected is a gap (server or
   dashboard down), which a chart should show rather than smooth over.
 - `uptimeSeconds` comes from the newest sample's `started` and is null while the target is down.
@@ -314,11 +314,10 @@ Two pages under the dashboard's admin section (`web/dashboard`), reached from a 
 entry.
 
 **`/admin/monitor`** (`pages/Monitoring.tsx`): a card per server (up/down, uptime or last sample,
-last poll error), then one tab per server plus Host, and 1h/6h/24h/7d ranges.
+last poll error), then one tab per server, and 1h/6h/24h/7d ranges.
 - **Game server:** packets/s, bandwidth, open connections and players, new connections/s, CPU %
   of one core, RSS and heap, mean tick time, and ticks over 50 ms.
 - **Login server:** the same minus the game-only series.
-- **Host:** load averages, available memory and free disk.
 
 Rates are computed client-side as each `sum` bucket over its own `intervalMs` (§5). Every chart
 refetches about once per bucket, never faster than the poll interval.
@@ -395,7 +394,7 @@ rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change
 |---|---|---|
 | **P1** | Packet/byte/connection counters on both servers; login server's first metrics at all | **Shipped** |
 | **P2** | `commons::monitor`: sampler, ring, loopback channel; wired into both `main.rs` | **Shipped** |
-| **P3** | `metrics.db`, poller, pruner, `services`/`series`/`host` endpoints | **Shipped** |
+| **P3** | `metrics.db`, poller, pruner, `services`/`series` endpoints (a `host` endpoint shipped too, retired in schema v2, §3) | **Shipped** |
 | **P4** | Log search: registry, reverse scanner, endpoints, gmaudit record | **Shipped** |
 | **P5** | UI: charts + log viewer | **Shipped** (§6a) |
 | **P6** | Live client list: `clients` channel request, endpoint, Audit page | **Shipped** (§10) |
@@ -414,6 +413,11 @@ rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change
 4. **Frontend charting.** *Decided: hand-rolled SVG* (§6a). No chart library in `web/dashboard`,
    in keeping with `docs/DASHBOARD.md` §8.2's habit of minimizing dependencies, and static SVG
    stays inside the mobile GPU budget.
+5. **Login and game on separate machines.** The channel binds loopback and has no authentication
+   (§4); the bind is the only control, and since §10 it can disconnect players. A server on
+   another machine therefore shows as down. Options when this is needed: an SSH tunnel or a VPN
+   (WireGuard/Tailscale), with no code change, or a shared token on the channel that is
+   required whenever the bind is not loopback. Log search (q2) has the same problem.
 
 ## 10. P6 (shipped): the live client list (Audit page)
 

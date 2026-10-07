@@ -2433,7 +2433,6 @@ async fn test_app_with_monitor(
         dashboard_api::monitor::parse_targets(targets).unwrap(),
         5,
         7,
-        std::env::temp_dir(),
     ));
     let state = Arc::new(App::new(db, test_config()).with_monitor(Some(monitor.clone())));
     (dashboard_api::app(state), pool, monitor)
@@ -2477,10 +2476,9 @@ fn monitor_line(service: &str, ts: u64, packets_in: u64, connections_open: u64) 
     .to_json_line(service)
 }
 
-const MONITOR_ROUTES: [&str; 4] = [
+const MONITOR_ROUTES: [&str; 3] = [
     "/api/v1/admin/monitor/services",
     "/api/v1/admin/monitor/series?service=game_server",
-    "/api/v1/admin/monitor/host",
     "/api/v1/admin/monitor/clients",
 ];
 
@@ -3000,23 +2998,6 @@ async fn a_target_answering_as_another_service_is_refused_not_stored() {
     );
     assert_eq!(monitor.db.last_ts("login_server").await.unwrap(), None);
     assert_eq!(monitor.db.last_ts("game_server").await.unwrap(), None);
-}
-
-#[tokio::test]
-async fn host_samples_are_served_bucketed() {
-    let (app, pool, monitor) = test_app_with_monitor("game_server=127.0.0.1:1").await;
-    let admin = admin_master(&pool, &app, "admin@example.com").await;
-    monitor.sample_host().await;
-    let host = body_json(
-        app.oneshot(get_with_cookie("/api/v1/admin/monitor/host", &admin))
-            .await
-            .unwrap(),
-    )
-    .await;
-    assert_eq!(host["samples"], serde_json::json!([1]));
-    assert!(host["series"]["load1"][0].is_number());
-    assert_eq!(host["aggregation"]["mem_available_bytes"], "min");
-    assert!(host.get("intervalMs").is_none());
 }
 
 // ---------------------------------------------------------------------------
