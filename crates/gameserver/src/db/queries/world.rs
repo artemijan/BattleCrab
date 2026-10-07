@@ -9,7 +9,7 @@ use models::entity;
 use models::sea_orm::ActiveValue::Set;
 use models::sea_orm::DatabaseConnection;
 use models::sea_orm::{ColumnTrait, EntityTrait, QueryOrder, QuerySelect, TransactionTrait};
-use tracing::warn;
+use tracing::{error, warn};
 
 /// One `npc_respawns` row — a raid boss's persisted state.
 #[derive(Debug, Clone, Copy)]
@@ -56,27 +56,32 @@ pub(crate) async fn load_npc_respawns(db: &DatabaseConnection) -> Vec<NpcRespawn
 /// world-object type, so the next free id must clear the high-water mark of
 /// every table that stores one — not just `characters` (a fresh id here that
 /// collides with an existing `items.object_id` fails its INSERT silently).
+///
+/// Both id columns are `INTEGER`, so their `MAX` decodes as `i32` — PostgreSQL
+/// refuses it as `i64`. A failure is logged loudly rather than read as "no
+/// rows": counting from [`FIRST_OID`] again would hand out ids that existing
+/// characters and items already hold.
 pub(crate) async fn load_next_id(db: &DatabaseConnection) -> i64 {
-    let max_char = entity::characters::Entity::find()
-        .select_only()
-        .column_as(entity::characters::Column::CharId.max(), "m")
-        .into_tuple::<Option<i64>>()
-        .one(db)
-        .await
-        .ok()
-        .flatten()
-        .flatten()
-        .unwrap_or(0);
-    let max_item = entity::items::Entity::find()
-        .select_only()
-        .column_as(entity::items::Column::ObjectId.max(), "m")
-        .into_tuple::<Option<i64>>()
-        .one(db)
-        .await
-        .ok()
-        .flatten()
-        .flatten()
-        .unwrap_or(0);
+    async fn max_of<E: EntityTrait>(db: &DatabaseConnection, col: E::Column, what: &str) -> i64 {
+        match E::find()
+            .select_only()
+            .column_as(col.max(), "m")
+            .into_tuple::<Option<i32>>()
+            .one(db)
+            .await
+        {
+            Ok(max) => max.flatten().map_or(0, i64::from),
+            Err(e) => {
+                error!("load_next_id: cannot read the highest {what} id: {e}");
+                0
+            }
+        }
+    }
+    let max_char =
+        max_of::<entity::characters::Entity>(db, entity::characters::Column::CharId, "character")
+            .await;
+    let max_item =
+        max_of::<entity::items::Entity>(db, entity::items::Column::ObjectId, "item").await;
     (max_char.max(max_item) + 1).max(FIRST_OID)
 }
 /// `GrandBossManager.init` — every `grandboss_data` row.

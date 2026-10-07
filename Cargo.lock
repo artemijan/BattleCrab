@@ -4145,6 +4145,7 @@ dependencies = [
 name = "models"
 version = "0.1.0"
 dependencies = [
+ "commons",
  "migration",
  "sea-orm",
  "tokio",

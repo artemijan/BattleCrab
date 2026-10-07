@@ -18,7 +18,7 @@
 //! dependency tree is not the place to grow an argument parser.
 
 use migration::{Migrator, MigratorTrait};
-use sea_orm_migration::sea_orm::{DatabaseConnection, SqlxSqliteConnector};
+use sea_orm_migration::sea_orm::DatabaseConnection;
 
 const USAGE: &str = "\
 usage: l2r-migrate <up|down|status|fresh|refresh|reset> [-n STEPS] [-u URL] [--yes]
@@ -31,7 +31,9 @@ usage: l2r-migrate <up|down|status|fresh|refresh|reset> [-n STEPS] [-u URL] [--y
   reset     roll back everything                        (requires --yes)
 
   -n STEPS  how many migrations to apply/roll back (default: all)
-  -u URL    database URL; defaults to $DATABASE_URL. `jdbc:sqlite:` accepted.
+  -u URL    database URL; defaults to $DATABASE_URL. `jdbc:sqlite:` and
+            `jdbc:postgresql:` accepted; a PostgreSQL password may come from
+            $L2_DATABASE_PASSWORD instead of the URL.
   --yes     confirm a destructive command
 ";
 
@@ -70,10 +72,12 @@ fn parse_args() -> Result<Args, String> {
 
 async fn connect(url: &str) -> Result<DatabaseConnection, String> {
     // Goes through `commons::db` rather than `Database::connect` so the CLI and
-    // the servers agree on how a URL is read: the JDBC prefix, `journal_mode`
-    // and `busy_timeout` parameters, and executable-relative paths.
-    let pool = commons::db::init(url, 1).await.map_err(|e| e.to_string())?;
-    Ok(SqlxSqliteConnector::from_sqlx_sqlite_pool(pool))
+    // the servers agree on how a URL is read: the JDBC prefix, SQLite's
+    // `journal_mode` and `busy_timeout` parameters, executable-relative paths,
+    // and a PostgreSQL password from the environment.
+    commons::db::connect(url, 1)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 #[tokio::main]

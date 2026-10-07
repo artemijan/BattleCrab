@@ -124,6 +124,12 @@ set_ini "$LOGIN_HOST" "$REMOTE_PATH/dist/login/config/LoginServer.ini" InternalS
 set_ini "$LOGIN_HOST" "$REMOTE_PATH/dist/login/config/Monitor.ini" InternalMonitorBindAddress "$LOGIN_CHANNEL_ADDRESS"
 set_ini "$GAME_HOST" "$REMOTE_PATH/dist/game/config/Monitor.ini" InternalMonitorBindAddress "$GAME_CHANNEL_ADDRESS"
 
+echo "==> Writing the database password file"
+deploy_database_env "$LOGIN_HOST"
+if [[ "$GAME_MACHINE" != "$LOGIN_MACHINE" ]]; then
+    deploy_database_env "$GAME_HOST"
+fi
+
 if [[ -n "$DB_IS_SQLITE" ]] && ! on "$LOGIN_HOST" test -f "$REMOTE_PATH/interlude_classic.db"; then
     echo "    NOTE: no interlude_classic.db found at $REMOTE_PATH — create it with"
     echo "    \`l2r-migrate up -u jdbc:sqlite:$REMOTE_PATH/interlude_classic.db\` (docs/DATABASE.md)"
@@ -144,6 +150,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=$REMOTE_USER
+EnvironmentFile=-$REMOTE_PATH/$DATABASE_ENV_FILE_NAME
 WorkingDirectory=$REMOTE_PATH
 ExecStart=$REMOTE_PATH/loginserver
 Restart=on-failure
@@ -166,6 +173,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=$REMOTE_USER
+EnvironmentFile=-$REMOTE_PATH/$DATABASE_ENV_FILE_NAME
 WorkingDirectory=$REMOTE_PATH/dist/game
 ExecStart=$REMOTE_PATH/gameserver
 Restart=on-failure
@@ -209,7 +217,11 @@ on "$LOGIN_HOST" sudo systemctl stop l2-loginserver.service
 if [[ -z "$DB_IS_SQLITE" ]]; then
     # A database server: no file to copy. Back it up with its own tools.
     echo "==> Applying database migrations ($LOGIN_HOST)"
-    if ! on "$LOGIN_HOST" "$REMOTE_PATH/l2r-migrate" up -u "$DB_URL"; then
+    # The password is read from the file on the remote side, never put on a
+    # command line where `ps` would show it.
+    # shellcheck disable=SC2016
+    if ! on "$LOGIN_HOST" sh -c 'set -a; . "$1"; set +a; exec "$2" up -u "$3"' _ \
+        "$REMOTE_PATH/$DATABASE_ENV_FILE_NAME" "$REMOTE_PATH/l2r-migrate" "$DB_URL"; then
         echo "" >&2
         echo "error: migration failed. Both services are STOPPED and were not started." >&2
         echo "       Each migration is applied in a transaction; verify the database before" >&2

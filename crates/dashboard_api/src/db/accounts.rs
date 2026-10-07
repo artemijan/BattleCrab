@@ -20,9 +20,10 @@
 
 use models::entity::accounts::{ActiveModel, Column, Entity, Model};
 use models::sea_orm::ActiveValue::Set;
-use models::sea_orm::sea_query::Expr;
+use models::sea_orm::sea_query::{Expr, ExprTrait, Func};
 use models::sea_orm::{
-    ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, QueryOrder, SqlErr,
+    ColumnTrait, ConnectionTrait, DatabaseBackend, DatabaseConnection, DbErr, EntityTrait,
+    PaginatorTrait, QueryFilter, QueryOrder, SqlErr, Statement, TransactionTrait,
 };
 
 use crate::error::{ApiError, ApiResult};
@@ -63,14 +64,14 @@ fn to_account(model: Model) -> Account {
     }
 }
 
-/// `email = ? COLLATE NOCASE`.
+/// `lower(email) = lower(?)` — the address, case-insensitively.
 ///
 /// Addresses are normalised to lowercase on the way in, but rows written before
-/// that rule existed — and rows the game server wrote — are not, so the
-/// collation stays. SeaORM's expression builder cannot attach a collation,
-/// hence the custom fragment; the value is still bound, not interpolated.
+/// that rule existed — and rows the game server wrote — are not, so the match
+/// ignores case. Spelled with `lower()` rather than SQLite's `COLLATE NOCASE`,
+/// which PostgreSQL does not have; for ASCII the two agree.
 pub(crate) fn email_eq(email: &str) -> Expr {
-    Expr::cust_with_values("email = ? COLLATE NOCASE", [email])
+    Expr::expr(Func::lower(Expr::col(Column::Email))).eq(email.to_lowercase())
 }
 
 /// Logins are matched case-insensitively and stored lowercase, matching
@@ -161,8 +162,9 @@ pub async fn create_master(
 /// dashboard-created row is indistinguishable from one the game made.
 ///
 /// `max_per_master` caps how many a single master may own. The count and the
-/// insert share one transaction because SQLite would otherwise happily let two
-/// concurrent requests both read `max - 1` and both insert.
+/// insert share one transaction that no other create for the same master can
+/// interleave with — otherwise two concurrent requests could both read
+/// `max - 1` and both insert.
 pub async fn create_game_account(
     db: &DatabaseConnection,
     master_email: &str,
@@ -173,7 +175,82 @@ pub async fn create_game_account(
     let login = normalize_login(login);
     let email = normalize_email(master_email);
     let now_millis = crate::auth::now_unix() * 1000;
+    match db.get_database_backend() {
+        DatabaseBackend::Postgres => {
+            create_game_account_postgres(
+                db,
+                login,
+                email,
+                password_hash,
+                now_millis,
+                max_per_master,
+            )
+            .await
+        }
+        _ => {
+            create_game_account_sqlite(db, login, email, password_hash, now_millis, max_per_master)
+                .await
+        }
+    }
+}
 
+/// PostgreSQL: a transaction-scoped advisory lock on the address serialises
+/// creates for one master, without blocking anyone else's.
+async fn create_game_account_postgres(
+    db: &DatabaseConnection,
+    login: String,
+    email: String,
+    password_hash: &str,
+    now_millis: i64,
+    max_per_master: usize,
+) -> ApiResult<()> {
+    let txn = db.begin().await?;
+    txn.execute_raw(Statement::from_sql_and_values(
+        DatabaseBackend::Postgres,
+        "SELECT pg_advisory_xact_lock(hashtext($1))",
+        [email.clone().into()],
+    ))
+    .await?;
+
+    let existing = Entity::find()
+        .filter(Column::Login.is_not_null())
+        .filter(email_eq(&email))
+        .count(&txn)
+        .await?;
+    if existing as usize >= max_per_master {
+        return Err(ApiError::TooManyGameAccounts(max_per_master));
+    }
+
+    let row = ActiveModel {
+        login: Set(Some(login)),
+        password: Set(Some(password_hash.to_string())),
+        email: Set(Some(email)),
+        is_verified: Set(None),
+        lastactive: Set(now_millis),
+        access_level: Set(0),
+        last_ip: Set(None),
+        ..Default::default()
+    };
+    match Entity::insert(row).exec_without_returning(&txn).await {
+        Ok(_) => {}
+        // A login taken by *anyone*, including another master's game account
+        // — the column is globally unique, as the login server needs.
+        Err(e) if is_unique_violation(&e) => return Err(ApiError::LoginTaken),
+        Err(e) => return Err(e.into()),
+    }
+    txn.commit().await?;
+    Ok(())
+}
+
+/// SQLite: `BEGIN IMMEDIATE` takes the write lock up front.
+async fn create_game_account_sqlite(
+    db: &DatabaseConnection,
+    login: String,
+    email: String,
+    password_hash: &str,
+    now_millis: i64,
+    max_per_master: usize,
+) -> ApiResult<()> {
     // `BEGIN IMMEDIATE` takes the write lock up front, so the count cannot be
     // read against a snapshot another writer is already invalidating. SeaORM's
     // `begin()` is always DEFERRED — under which the losing request fails with

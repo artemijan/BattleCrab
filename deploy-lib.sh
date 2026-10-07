@@ -261,7 +261,8 @@ deploy_check_database() {
             echo "error: the services are on more than one machine, but the database is SQLite" >&2
             echo "       ($DB_URL): one file on one disk, which they can only share on one machine" >&2
             echo "       — SQLite over a network filesystem is not safe. Point URL in" >&2
-            echo "       LoginServer.ini, Server.ini and Dashboard.ini at a database server first." >&2
+            echo "       LoginServer.ini, Server.ini and Dashboard.ini at PostgreSQL first" >&2
+            echo "       (docs/DATABASE.md)." >&2
             exit 1
         fi
     fi
@@ -284,4 +285,31 @@ deploy_print_topology() {
     echo "    game -> login link    $GS_LINK_ADDRESS:$LOGIN_LINK_PORT"
     echo "    dashboard -> login    $LOGIN_CHANNEL_ADDRESS:$LOGIN_MONITOR_PORT (monitor), $LOGIN_CHANNEL_ADDRESS:$LOGIN_STATUS_PORT (status)"
     echo "    dashboard -> game     $GAME_CHANNEL_ADDRESS:$GAME_MONITOR_PORT (monitor)"
+}
+
+# --- Database password ----------------------------------------------------------
+# A PostgreSQL password does not go in an .ini (they are committed). It comes
+# from DATABASE_PASSWORD in deploy.env and reaches the servers as
+# L2_DATABASE_PASSWORD (commons::db::PASSWORD_ENV), from a chmod-600 file the
+# units load. Written on every deploy — empty when unset — so a removed
+# password does not linger.
+DATABASE_ENV_FILE_NAME=database.env
+
+# `deploy_database_env HOST` writes $REMOTE_PATH/database.env on HOST.
+deploy_database_env() {
+    local host="$1" tmp
+    case "${DATABASE_PASSWORD:-}" in
+        *"'"*)
+            echo "error: DATABASE_PASSWORD contains a single quote, which the env-file writer cannot escape." >&2
+            exit 1
+            ;;
+    esac
+    tmp="$(mktemp)"
+    if [[ -n "${DATABASE_PASSWORD:-}" ]]; then
+        printf "L2_DATABASE_PASSWORD='%s'\n" "$DATABASE_PASSWORD" >"$tmp"
+    fi
+    on "$host" touch "$REMOTE_PATH/$DATABASE_ENV_FILE_NAME"
+    on "$host" chmod 600 "$REMOTE_PATH/$DATABASE_ENV_FILE_NAME"
+    push "$host" --chmod=600 "$tmp" "$REMOTE_PATH/$DATABASE_ENV_FILE_NAME" >/dev/null
+    rm -f "$tmp"
 }

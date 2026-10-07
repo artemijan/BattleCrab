@@ -54,7 +54,7 @@ Facts verified against the current tree (not assumed):
 | Fact | Evidence |
 | --- | --- |
 | Passwords are `Base64(SHA1(password))` | `crates/commons/src/crypt/password.rs` — `hash_password()`, with the known-vector test `"test"` → `qUqP5cyxm6YcTAhz05Hph5gvu9M=` |
-| Login and game share **one SQLite file** | `interlude_classic.db` at repo root; `crates/commons/src/db.rs` is SQLite-only, WAL, `busy_timeout` |
+| Login and game share **one database** | `interlude_classic.db` (SQLite, WAL, `busy_timeout`) by default, or PostgreSQL — `crates/commons/src/db.rs` picks by URL (DATABASE.md) |
 | `accounts` already has an `email` column | `accounts(login, password, email, created_time, lastactive, accessLevel, lastIP, lastServer, …)` |
 | Account creation on-the-fly already exists | `crates/loginserver/src/dao.rs` — `INSERT INTO accounts (login, password, lastactive, accessLevel, lastIP)` |
 | Password change already exists server-side | `crates/loginserver/src/controller.rs::change_password` — verifies old hash, writes new |

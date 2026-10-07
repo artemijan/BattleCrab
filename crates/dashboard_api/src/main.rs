@@ -58,7 +58,10 @@ async fn main() {
 
     match &absolute {
         Some(path) => tracing::info!("opening database {}", path.display()),
-        None => tracing::info!("opening database {}", config.database_url),
+        None => tracing::info!(
+            "opening database {}",
+            commons::db::redact(&config.database_url)
+        ),
     }
 
     // Refuse to create one. If the file is absent the URL is wrong.
@@ -91,7 +94,7 @@ async fn main() {
     // The file existing is not enough — it may be an empty database created by
     // an earlier misconfigured run, which is exactly what produces a stream of
     // "no such table: characters" 500s rather than a startup failure.
-    match dashboard_api::db::missing_tables(&db).await {
+    match commons::db::missing_tables(&db, &dashboard_api::db::REQUIRED_TABLES).await {
         Ok(missing) if !missing.is_empty() => {
             eprintln!(
                 "FATAL: database is missing required table(s): {}\n  {}\n\n\
@@ -103,7 +106,7 @@ async fn main() {
                 absolute
                     .as_ref()
                     .map(|p| p.display().to_string())
-                    .unwrap_or_else(|| config.database_url.clone()),
+                    .unwrap_or_else(|| commons::db::redact(&config.database_url)),
             );
             std::process::exit(1);
         }

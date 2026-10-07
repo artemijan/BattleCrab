@@ -281,6 +281,9 @@ env_line() {
 }
 
 env_line DASHBOARD_SESSION_SECRET "$DASHBOARD_SESSION_SECRET"
+if [[ -n "${DATABASE_PASSWORD:-}" ]]; then
+    env_line L2_DATABASE_PASSWORD "$DATABASE_PASSWORD"
+fi
 
 if [[ -n "$DASHBOARD_TURNSTILE_SECRET" ]]; then
     echo "    captcha ENABLED (Turnstile)"

@@ -31,6 +31,23 @@ jobs:
     name: Build & test
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    # The suite runs twice: on SQLite, and on this PostgreSQL through
+    # L2R_TEST_DATABASE_URL (commons::db::testing), so neither backend can
+    # drift from the other unnoticed.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: l2
+          POSTGRES_PASSWORD: l2
+          POSTGRES_DB: l2
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U l2"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v7
 
@@ -51,6 +68,11 @@ jobs:
 
       - name: Test
         run: cargo nextest run --workspace --locked --profile ci
+
+      - name: Test on PostgreSQL
+        env:
+          L2R_TEST_DATABASE_URL: postgres://l2:l2@localhost:5432/l2
+        run: cargo nextest run --workspace --locked
 
       - name: Upload test report
         if: always()
@@ -111,6 +133,7 @@ jobs:
           TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY || secrets.TURNSTILE_SITE_KEY }}
           DASHBOARD_TURNSTILE_SECRET: ${{ secrets.DASHBOARD_TURNSTILE_SECRET }}
           DASHBOARD_SESSION_SECRET: ${{ secrets.DASHBOARD_SESSION_SECRET }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           DASHBOARD_SMTP_HOST: ${{ vars.DASHBOARD_SMTP_HOST || secrets.DASHBOARD_SMTP_HOST }}
           DASHBOARD_SMTP_USERNAME: ${{ vars.DASHBOARD_SMTP_USERNAME || secrets.DASHBOARD_SMTP_USERNAME }}
           DASHBOARD_SMTP_PASSWORD: ${{ secrets.DASHBOARD_SMTP_PASSWORD }}
@@ -144,7 +167,7 @@ jobs:
           chmod 600 deploy.env
           for v in REMOTE_HOST REMOTE_USER REMOTE_PATH SSH_PORT TARGET_TRIPLE \
                    LOGIN_HOST GAME_HOST DASHBOARD_HOST \
-                   LOGIN_PRIVATE_ADDRESS GAME_PRIVATE_ADDRESS \
+                   LOGIN_PRIVATE_ADDRESS GAME_PRIVATE_ADDRESS DATABASE_PASSWORD \
                    TURNSTILE_SITE_KEY DASHBOARD_TURNSTILE_SECRET \
                    DASHBOARD_SESSION_SECRET DASHBOARD_SMTP_HOST \
                    DASHBOARD_SMTP_USERNAME DASHBOARD_SMTP_PASSWORD \

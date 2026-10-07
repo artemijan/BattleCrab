@@ -27,16 +27,18 @@ rustc-hash = "2"
 # from `commons::db` and the one inside a `DatabaseConnection` become different
 # types (docs/PLAN_ORM_MIGRATION.md §2). Raw sqlx survives only until the last
 # hand-written query is ported.
-sqlx = { version = "0.9.0", default-features = false, features = ["runtime-tokio", "sqlite", "macros"] }
+sqlx = { version = "0.9.0", default-features = false, features = ["runtime-tokio", "sqlite", "postgres", "macros"] }
 # The ORM. `default-features = false` drops the chrono/uuid/decimal value types
 # the schema does not use — every column here is an integer, real or text.
 sea-orm = { version = "2.0", default-features = false, features = [
     "sqlx-sqlite",
+    "sqlx-postgres",
     "runtime-tokio",
     "macros",
 ] }
 sea-orm-migration = { version = "2.0", default-features = false, features = [
     "sqlx-sqlite",
+    "sqlx-postgres",
     "runtime-tokio",
 ] }
 blowfish = "0.10.0"

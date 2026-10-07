@@ -22,23 +22,18 @@ const STATIC_BLOWFISH_KEY: [u8; 16] = [
 ];
 
 /// A fresh database in its own temp directory, built by the migrations — the
-/// same schema production gets from `l2r-migrate up`. Returns its URL and
-/// the directory, for the test to remove when it is done.
+/// same schema production gets from `l2r-migrate up`: SQLite, or PostgreSQL
+/// under `L2R_TEST_DATABASE_URL`. The test removes it when it is done.
 ///
 /// Not a copy of the untracked runtime `interlude_classic.db`: that made the
 /// test skip on a fresh clone or CI, and fail whenever someone's local copy was
 /// stale or empty, with an error that pointed nowhere near the cause.
-async fn migrated_db_url(tag: &str) -> (String, std::path::PathBuf) {
-    let dir = std::env::temp_dir().join(format!("l2r_{tag}_{}", std::process::id()));
-    // A leftover from an earlier run with the same pid would already be
-    // migrated; start clean so the test always sees exactly the migrations.
-    let _ = std::fs::remove_dir_all(&dir);
-    std::fs::create_dir_all(&dir).unwrap();
-    let url = format!("jdbc:sqlite:{}", dir.join("c.db").display());
-    let db = commons::db::connect(&url, 1).await.unwrap();
+async fn migrated_db(tag: &str) -> commons::db::testing::TestDb {
+    let test_db = commons::db::testing::TestDb::new(tag).await;
+    let db = commons::db::connect(&test_db.url, 1).await.unwrap();
     migration::Migrator::up(&db, None).await.unwrap();
     db.close().await.unwrap();
-    (url, dir)
+    test_db
 }
 
 /// The login side of this test gets the real schema, from the migrations.
@@ -479,7 +474,8 @@ fn u16str(s: &str) -> Vec<u8> {
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
 async fn full_login_to_character_create() {
     // A fresh game database with the real schema, from the migrations.
-    let (db_url, dir) = migrated_db_url("e2e").await;
+    let test_db = migrated_db("e2e").await;
+    let db_url = test_db.url.clone();
     std::env::set_current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game")).unwrap();
 
     let (login_addr, gs_addr) = start_login().await;
@@ -860,29 +856,33 @@ async fn full_login_to_character_create() {
     // The Mystic's 7 initial skills were written to character_skills: the class
     // tree's 5 level-1 autoGet skills plus the common tree's Lucky + Common Craft
     // (Java getCompleteClassSkillTree unions in Commons.xml at creation).
-    let check = commons::db::init(&db_url, 1).await.unwrap();
-    let skill_count: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM character_skills WHERE charId = (SELECT charId FROM characters WHERE char_name = ?)",
-    )
-    .bind(&name)
-    .fetch_one(&check)
-    .await
-    .unwrap();
+    use models::entity::{character_skills, characters};
+    use sea_orm::{ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
+    let check = commons::db::connect(&db_url, 1).await.unwrap();
+    let stored = characters::Entity::find()
+        .filter(characters::Column::CharName.eq(name.as_str()))
+        .one(&check)
+        .await
+        .unwrap()
+        .expect("the created character");
+    let skill_count = character_skills::Entity::find()
+        .filter(character_skills::Column::CharId.eq(stored.char_id))
+        .count(&check)
+        .await
+        .unwrap();
     assert_eq!(skill_count, 7, "Human Mystic should start with 7 skills");
 
     // The logout stored the character (storeCharBase + updateOnlineStatus):
     // marked offline with a fresh lastAccess.
-    let (online, last_access): (i64, i64) =
-        sqlx::query_as("SELECT online, lastAccess FROM characters WHERE char_name = ?")
-            .bind(&name)
-            .fetch_one(&check)
-            .await
-            .unwrap();
-    assert_eq!(online, 0, "character marked offline after logout");
-    assert!(last_access > 0, "lastAccess written on logout");
-    check.close().await;
+    assert_eq!(
+        stored.online,
+        Some(0),
+        "character marked offline after logout"
+    );
+    assert!(stored.last_access > 0, "lastAccess written on logout");
+    check.close().await.unwrap();
 
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 // ---------------------------------------------------------------------------
@@ -949,7 +949,8 @@ fn parse_sm(pkt: &[u8]) -> (i16, Vec<i32>, Vec<i64>, Vec<String>) {
 #[tokio::test]
 #[ignore = "scratch in-game harness, run explicitly"]
 async fn drop_check() {
-    let (db_url, dir) = migrated_db_url("drop").await;
+    let test_db = migrated_db("drop").await;
+    let db_url = test_db.url.clone();
     std::env::set_current_dir(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game")).unwrap();
 
     let (login_addr, gs_addr) = start_login().await;
@@ -1004,14 +1005,18 @@ async fn drop_check() {
 
     // GM rights, so the scripted client can spawn and kill on command.
     {
-        let pool = commons::db::init(&db_url, 1).await.unwrap();
-        sqlx::query(sqlx::AssertSqlSafe(
-            "UPDATE characters SET accesslevel = 100".to_string(),
-        ))
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool.close().await;
+        use sea_orm::EntityTrait;
+        use sea_orm::sea_query::Expr;
+        let db = commons::db::connect(&db_url, 1).await.unwrap();
+        models::entity::characters::Entity::update_many()
+            .col_expr(
+                models::entity::characters::Column::Accesslevel,
+                Expr::value(100),
+            )
+            .exec(&db)
+            .await
+            .unwrap();
+        db.close().await.unwrap();
     }
 
     let (lo1, lo2, po1, po2) = do_login(login_addr, &account, "pw").await;
@@ -1150,5 +1155,5 @@ async fn drop_check() {
     println!("both together in  {both}");
     println!("nothing at all in {nothing}");
     println!("items: {items_seen:?}");
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }

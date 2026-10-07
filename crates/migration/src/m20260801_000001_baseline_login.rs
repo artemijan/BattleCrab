@@ -2,7 +2,8 @@
 //!
 //! Transcribed from the Java installer's SQLite DDL (`dist/db_installer`, since
 //! removed). Column types are passed through verbatim (`MEDIUMINT`, `TINYINT`,
-//! …) so the schema matches the one the Java installer produced. Applied
+//! …) on SQLite, so the schema matches the one the Java installer produced; on
+//! PostgreSQL `crate::dialect` maps each to the type its entity reads. Applied
 //! databases depend on it: change the schema with a new migration, not here.
 //!
 //! Every statement is `IF NOT EXISTS`, which is what lets `l2r-migrate up`
@@ -10,7 +11,9 @@
 //! without touching a single existing table.
 
 use sea_orm_migration::prelude::*;
-use sea_orm_migration::sea_orm::ConnectionTrait;
+
+use crate::dialect::{dflt, master_email_index, ty};
+use sea_orm_migration::sea_orm::{ConnectionTrait, DatabaseBackend};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -44,102 +47,115 @@ impl MigrationTrait for Migration {
 }
 
 /// `accounts`
+///
+/// The entity's key is `rowid`. SQLite gives every table one implicitly;
+/// PostgreSQL has none, so there it is a real `SERIAL` column.
 async fn create_accounts(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
+    let mut table = Table::create();
+    if manager.get_database_backend() == DatabaseBackend::Postgres {
+        table.col(
+            ColumnDef::new(Alias::new("rowid"))
+                .integer()
+                .not_null()
+                .auto_increment()
+                .primary_key(),
+        );
+    }
     manager
         .create_table(
-            Table::create()
+            table
                 .table(Alias::new("accounts"))
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("login"))
-                        .custom(Alias::new("VARCHAR(45)"))
+                        .custom(ty(manager, "VARCHAR(45)"))
                         .null()
-                        .default(Expr::cust("NULL"))
+                        .default(dflt(manager, "NULL"))
                         .unique_key(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("password"))
-                        .custom(Alias::new("VARCHAR(45)"))
+                        .custom(ty(manager, "VARCHAR(45)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("email"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("is_verified"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("created_time"))
-                        .custom(Alias::new("timestamp"))
+                        .custom(ty(manager, "timestamp"))
                         .not_null()
-                        .default(Expr::cust("CURRENT_TIMESTAMP")),
+                        .default(dflt(manager, "CURRENT_TIMESTAMP")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lastactive"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("accessLevel"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lastIP"))
-                        .custom(Alias::new("CHAR(15)"))
+                        .custom(ty(manager, "CHAR(15)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lastServer"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("1")),
+                        .default(dflt(manager, "1")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("pcIp"))
-                        .custom(Alias::new("char(15)"))
+                        .custom(ty(manager, "char(15)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("hop1"))
-                        .custom(Alias::new("char(15)"))
+                        .custom(ty(manager, "char(15)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("hop2"))
-                        .custom(Alias::new("char(15)"))
+                        .custom(ty(manager, "char(15)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("hop3"))
-                        .custom(Alias::new("char(15)"))
+                        .custom(ty(manager, "char(15)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("hop4"))
-                        .custom(Alias::new("char(15)"))
+                        .custom(ty(manager, "char(15)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .to_owned(),
         )
         .await?;
     manager
         .get_connection()
-        .execute_unprepared("CREATE UNIQUE INDEX IF NOT EXISTS `accounts_master_email` ON `accounts` (`email` COLLATE NOCASE) WHERE `login` IS NULL")
+        .execute_unprepared(master_email_index(manager))
         .await?;
     Ok(())
 }
@@ -153,19 +169,19 @@ async fn create_account_data(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("account_name"))
-                        .custom(Alias::new("VARCHAR(45)"))
+                        .custom(ty(manager, "VARCHAR(45)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("var"))
-                        .custom(Alias::new("VARCHAR(20)"))
+                        .custom(ty(manager, "VARCHAR(20)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("value"))
-                        .custom(Alias::new("VARCHAR(255)"))
+                        .custom(ty(manager, "VARCHAR(255)"))
                         .null(),
                 )
                 .primary_key(
@@ -188,19 +204,19 @@ async fn create_accounts_ipauth(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("login"))
-                        .custom(Alias::new("varchar(45)"))
+                        .custom(ty(manager, "varchar(45)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ip"))
-                        .custom(Alias::new("char(15)"))
+                        .custom(ty(manager, "char(15)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .null()
-                        .default(Expr::cust("'allow'")),
+                        .default(dflt(manager, "'allow'")),
                 )
                 .to_owned(),
         )
@@ -217,21 +233,21 @@ async fn create_gameservers(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("server_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("hexid"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("host"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .primary_key(Index::create().col(Alias::new("server_id")))
                 .to_owned(),

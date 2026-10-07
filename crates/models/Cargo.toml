@@ -10,6 +10,7 @@ sea-orm.workspace = true
 
 [dev-dependencies]
 migration = { path = "../migration" }
+commons = { path = "../commons" }
 tokio.workspace = true
 
 [lints]

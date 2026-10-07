@@ -12,8 +12,8 @@ use models::sea_orm::ActiveValue::Set;
 use models::sea_orm::ActiveValue::Unchanged;
 use models::sea_orm::DatabaseConnection;
 use models::sea_orm::DbErr;
-use models::sea_orm::sea_query::Expr;
 use models::sea_orm::sea_query::OnConflict;
+use models::sea_orm::sea_query::{Expr, ExprTrait, Func};
 use models::sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, TransactionTrait,
 };
@@ -114,14 +114,14 @@ async fn upsert_macro(db: &DatabaseConnection, char_id: i32, m: &crate::model::s
 }
 /// Case-insensitive character-name existence check (`getIdByName`).
 pub(crate) async fn name_exists(db: &DatabaseConnection, name: &str) -> bool {
-    // `COLLATE NOCASE` is the point of this query — two characters may not
-    // differ only by case — and sea-query cannot attach a collation, so the
-    // comparison stays a bound custom expression.
+    // Case-insensitivity is the point of this query — two characters may not
+    // differ only by case. `lower()` rather than SQLite's `COLLATE NOCASE`,
+    // which PostgreSQL lacks; for ASCII names the two agree.
     entity::characters::Entity::find()
-        .filter(Expr::cust_with_values(
-            "char_name = ? COLLATE NOCASE",
-            [name],
-        ))
+        .filter(
+            Expr::expr(Func::lower(Expr::col(entity::characters::Column::CharName)))
+                .eq(name.to_lowercase()),
+        )
         .count(db)
         .await
         .unwrap_or(0)

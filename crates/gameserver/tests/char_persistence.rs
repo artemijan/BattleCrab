@@ -1,5 +1,6 @@
 //! G3 persistence test: drive the real DB thread through
-//! create → load → mark-delete → restore against a temp SQLite database using
+//! create → load → mark-delete → restore against a temp database (SQLite, or
+//! PostgreSQL under `L2R_TEST_DATABASE_URL`) using
 //! the stock `characters` schema. This is the heart of the G3 gate
 //! ("create a character, it persists, delete works").
 
@@ -11,10 +12,9 @@ use gameserver::db::{self, CreateResult, DbCommand, DbEvent, NewCharacter};
 /// gets it: the migrations.
 async fn migrate(url: &str) {
     use migration::MigratorTrait;
-    let pool = commons::db::init(url, 1).await.unwrap();
-    let db = models::sea_orm::SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    let db = commons::db::connect(url, 1).await.unwrap();
     migration::Migrator::up(&db, None).await.unwrap();
-    pool.close().await;
+    db.close().await.unwrap();
 }
 
 fn new_char(name: &str) -> NewCharacter {
@@ -146,10 +146,8 @@ fn recv(rx: &std::sync::mpsc::Receiver<gameserver::events::GameEvent>) -> DbEven
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn create_persist_delete_restore() {
     // Temp database with the migrated schema.
-    let dir = std::env::temp_dir().join(format!("l2r_g3_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("g3").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -272,7 +270,7 @@ async fn create_persist_delete_restore() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 /// The login server-select char count (`CountCharacters` → `ReplyCharacters`)
@@ -282,10 +280,8 @@ async fn create_persist_delete_restore() {
 /// an expired-deletion row lingered (no GS load had purged it yet).
 #[tokio::test]
 async fn login_char_count_excludes_expired_deletions() {
-    let dir = std::env::temp_dir().join(format!("l2r_charcount_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("charcount").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -341,14 +337,17 @@ async fn login_char_count_excludes_expired_deletions() {
         .unwrap();
     recv(&event_rx); // CharactersLoaded (Pending kept — still counting down)
     {
-        let pool = commons::db::init(&url, 1).await.unwrap();
-        sqlx::query("UPDATE characters SET deletetime=? WHERE charId=?")
-            .bind(1_i64)
-            .bind(id_of("Doomed"))
-            .execute(&pool)
+        use models::entity::characters::{Column, Entity};
+        use models::sea_orm::sea_query::Expr;
+        use models::sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+        let db = commons::db::connect(&url, 1).await.unwrap();
+        Entity::update_many()
+            .col_expr(Column::Deletetime, Expr::value(1_i64))
+            .filter(Column::CharId.eq(id_of("Doomed")))
+            .exec(&db)
             .await
             .unwrap();
-        pool.close().await;
+        db.close().await.unwrap();
     }
 
     // The login count: 3 rows → 2 (Doomed purged), 1 pending-deletion timestamp.
@@ -394,7 +393,7 @@ async fn login_char_count_excludes_expired_deletions() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 /// G9.6: initial shortcuts/macros persist at creation (ITEM entries resolved
@@ -405,10 +404,8 @@ async fn login_char_count_excludes_expired_deletions() {
 async fn shortcuts_and_macros_persist() {
     use gameserver::model::shortcut::{Macro, MacroCmd, MacroType, ShortcutType};
 
-    let dir = std::env::temp_dir().join(format!("l2r_g96_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("g96").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -591,7 +588,7 @@ async fn shortcuts_and_macros_persist() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 /// G10: friendship rows round-trip — the pair insert writes both directions,
@@ -599,10 +596,8 @@ async fn shortcuts_and_macros_persist() {
 /// removes both rows.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn friendships_persist() {
-    let dir = std::env::temp_dir().join(format!("l2r_g10_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("g10").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -700,7 +695,7 @@ async fn friendships_persist() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 /// G11: quest-state rows persist and reload through the real DB thread —
@@ -710,10 +705,8 @@ async fn friendships_persist() {
 async fn quest_states_persist() {
     use gameserver::model::quest::{QuestState, state};
 
-    let dir = std::env::temp_dir().join(format!("l2r_g11_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("g11").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -837,7 +830,7 @@ async fn quest_states_persist() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 /// Recommendations round-trip through `character_reco_bonus` (Java
@@ -846,10 +839,8 @@ async fn quest_states_persist() {
 /// counts.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn recommendations_persist() {
-    let dir = std::env::temp_dir().join(format!("l2r_reco_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("reco").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -948,7 +939,7 @@ async fn recommendations_persist() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 /// G13.9: skill reuse cooldowns round-trip through `character_skills_save`
@@ -957,10 +948,8 @@ async fn recommendations_persist() {
 /// filtered out; and a flush with no cooldowns clears the table.
 #[tokio::test]
 async fn skill_reuse_cooldowns_persist() {
-    let dir = std::env::temp_dir().join(format!("l2r_g139_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("g139").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -1061,7 +1050,7 @@ async fn skill_reuse_cooldowns_persist() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 /// Active buffs round-trip through `character_skills_save` (Java
@@ -1073,10 +1062,8 @@ async fn skill_reuse_cooldowns_persist() {
 /// kind bleeding into the other's load.
 #[tokio::test]
 async fn active_buffs_persist_with_frozen_countdown() {
-    let dir = std::env::temp_dir().join(format!("l2r_buffsave_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("buffsave").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -1190,7 +1177,7 @@ async fn active_buffs_persist_with_frozen_countdown() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 /// G29: a pet row round-trips through the real `pets` table — written by the
@@ -1201,10 +1188,8 @@ async fn active_buffs_persist_with_frozen_countdown() {
 /// name or bind-order mistake shows up here rather than in production.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn pets_persist() {
-    let dir = std::env::temp_dir().join(format!("l2r_g29pets_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("g29pets").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -1359,7 +1344,7 @@ async fn pets_persist() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 /// Current CP round-trips through `characters.curCp` (Java `storeCharBase`
@@ -1368,10 +1353,8 @@ async fn pets_persist() {
 /// next login.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn current_cp_persists() {
-    let dir = std::env::temp_dir().join(format!("l2r_cp_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("cp").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -1441,7 +1424,7 @@ async fn current_cp_persists() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 /// **`characters.expBeforeDeath` survives the relog.** Java writes it in
@@ -1451,10 +1434,8 @@ async fn current_cp_persists() {
 /// logout threw it away and the resurrection restored nothing.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn restorable_exp_survives_a_relog() {
-    let dir = std::env::temp_dir().join(format!("l2r_rexp_{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let db_path = dir.join("test.db");
-    let url = format!("jdbc:sqlite:{}", db_path.display());
+    let test_db = commons::db::testing::TestDb::new("rexp").await;
+    let url = test_db.url.clone();
 
     migrate(&url).await;
 
@@ -1530,5 +1511,97 @@ async fn restorable_exp_survives_a_relog() {
         .await
         .unwrap()
         .unwrap();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
+}
+
+/// Starts a DB thread on `url` and returns it with its first id block — the
+/// one it hands the game thread unprompted at boot.
+fn boot_db_thread(
+    url: &str,
+) -> (
+    tokio::sync::mpsc::UnboundedSender<DbCommand>,
+    std::sync::mpsc::Receiver<gameserver::events::GameEvent>,
+    std::thread::JoinHandle<()>,
+    i64,
+) {
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    let handle = db::spawn(
+        url.to_string(),
+        1,
+        7,
+        false,
+        db::GroundItemBootConfig {
+            save_dropped_item: false,
+            clear_dropped_item_table: false,
+            empty_dropped_item_table_after_load: false,
+        },
+        cmd_rx,
+        db::EventTx(event_tx),
+    );
+    let start = loop {
+        let gameserver::events::GameEvent::Db(event) = event_rx
+            .recv_timeout(Duration::from_secs(5))
+            .expect("db event")
+        else {
+            unreachable!("the DB thread only sends DB events");
+        };
+        if let DbEvent::IdBlock { start, .. } = event {
+            break start;
+        }
+    };
+    (cmd_tx, event_rx, handle, start)
+}
+
+/// After a restart, object ids must resume above every id already stored.
+/// The high-water mark comes from `MAX(charId)` / `MAX(object_id)`; on
+/// PostgreSQL an `INTEGER`'s `MAX` decoded as `i64` failed, read as "no rows",
+/// and ids restarted from the bottom — onto existing characters and items.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn ids_resume_above_the_stored_ones_after_a_restart() {
+    let test_db = commons::db::testing::TestDb::new("nextid").await;
+    let url = test_db.url.clone();
+    migrate(&url).await;
+
+    let (cmd_tx, event_rx, handle, _) = boot_db_thread(&url);
+    let mut hero = new_char("Hero");
+    hero.items = vec![db::NewItem {
+        item_id: 57,
+        count: 100,
+        paperdoll_index: None,
+    }];
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 1,
+            data: hero,
+        })
+        .unwrap();
+    assert!(matches!(
+        recv(&event_rx),
+        DbEvent::CharacterCreated {
+            result: CreateResult::Ok,
+            ..
+        }
+    ));
+    let char_id = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => chars[0].object_id,
+        _ => panic!("expected CharactersLoaded"),
+    };
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
+
+    let (cmd_tx, _event_rx, handle, start) = boot_db_thread(&url);
+    assert!(
+        start > i64::from(char_id) + 1,
+        "ids restart at {start}, but character {char_id} and its item already hold ids"
+    );
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
+    test_db.remove().await;
 }

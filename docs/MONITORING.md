@@ -449,7 +449,8 @@ rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change
    disk) are left to an external host monitor (§3). The deploy scripts take a host per service
    (`LOGIN_HOST`, `GAME_HOST`, `DASHBOARD_HOST`), tell co-located services apart by
    `/etc/machine-id`, and write every address above from that topology (`deploy-lib.sh`). A
-   split still needs a database server, which the scripts check: SQLite is one machine's file.
+   split needs PostgreSQL (`docs/DATABASE.md`), which the scripts check: SQLite is one machine's
+   file.
 
 ## 10. P6 (shipped): the live client list (Audit page)
 

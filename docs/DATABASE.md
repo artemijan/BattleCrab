@@ -1,9 +1,10 @@
 # Database
 
-One SQLite file holds both the login and the game schema. The servers open it
-through `commons::db`, which accepts the JDBC-style URL the `.ini` files already
-carry (`jdbc:sqlite:interlude_classic.db?journal_mode=WAL&busy_timeout=5000`)
-and resolves a **relative path against the executable's directory** — so the
+One database holds both the login and the game schema: an SQLite file by
+default, or PostgreSQL ([below](#postgresql)). The servers open it through
+`commons::db`, which accepts the JDBC-style URL the `.ini` files already carry
+(`jdbc:sqlite:interlude_classic.db?journal_mode=WAL&busy_timeout=5000`) and
+resolves a **relative SQLite path against the executable's directory** — so the
 database belongs beside the binaries, and one URL string is correct for the
 login server, the game server, the dashboard and the migration tool alike.
 
@@ -138,3 +139,77 @@ services and restore the copy. Note that rolling back
 All 101 are created; the Rust server currently reads or writes 57 of them. The
 rest belong to features that are not ported yet (forums, offline trade, instance
 timers, …) and exist so that porting one of them needs no schema work.
+
+## PostgreSQL
+
+SQLite is one file on one disk, so the login server, game server and dashboard
+must share a machine. PostgreSQL lifts that: point all three at one server and
+they can run anywhere on the private network (`docs/MONITORING.md` §9 q5; the
+deploy scripts take a host per service).
+
+```ini
+# LoginServer.ini, Server.ini and Dashboard.ini — the same value in all three
+URL = jdbc:postgresql://10.0.0.9:5432/l2?user=l2
+```
+
+`postgres://` and `postgresql://` URLs work too. The **password** does not go in
+the URL — every `.ini` is committed. Set `L2_DATABASE_PASSWORD` in the
+environment instead (`commons::db::PASSWORD_ENV`); a password in the URL still
+wins if one is there. The deploy scripts install it from `DATABASE_PASSWORD` in
+`deploy.env` into a chmod-600 file each service's unit loads. Logs and error
+messages show the URL with any password masked.
+
+Create the database (empty) and apply the migrations as for SQLite:
+
+```bash
+createdb -U postgres -O l2 l2
+L2_DATABASE_PASSWORD=… l2r-migrate up -u 'jdbc:postgresql://10.0.0.9:5432/l2?user=l2'
+```
+
+### How the schema is translated
+
+The baselines keep the Java installer's MySQL-flavoured column types. On SQLite
+they pass through verbatim; on PostgreSQL `crates/migration/src/dialect.rs` maps
+each to the type its entity reads (`INTEGER` for `i32`, `BIGINT` for `i64`,
+`TEXT` for a timestamp the entity reads as a `String`, `VARCHAR` for `CHAR` —
+which PostgreSQL would pad with spaces — and so on), because PostgreSQL's driver
+will not decode across types the way SQLite does. `models/tests/postgres_schema.rs`
+checks every column of every entity against the migrated schema.
+
+What else differs, and why it is safe:
+
+- **`accounts.rowid`** is SQLite's implicit row id; on PostgreSQL it is a real
+  `SERIAL` column.
+- **The repair migrations** (`master_accounts`, `grandboss_real_hp`) rebuild
+  SQLite tables that predate them. A PostgreSQL database is built in the final
+  shape by the baselines, so on PostgreSQL they only add the master-email index
+  (as `lower(email)`, PostgreSQL having no `COLLATE NOCASE`).
+- **Case-insensitive matches** (emails, character names) are spelled
+  `lower(x) = lower(?)` in code, which both backends read alike for ASCII.
+- **No prepared-statement cache** on PostgreSQL: sqlx keys it by SQL text, and
+  the game binds integer literals of either width for one column (a character's
+  `deletetime` is set from an `i64` and cleared with `0`). A cached statement
+  reused with the other width fails the write — silently, where the caller only
+  logs. Uncached, each statement is prepared with the types actually bound.
+
+### Testing against PostgreSQL
+
+Every test that needs a database gets it from `commons::db::testing::TestDb`:
+an SQLite temp file by default, or a scratch database (created, then dropped) on
+the server `L2R_TEST_DATABASE_URL` names. The whole suite runs on either:
+
+```bash
+docker run -d --name l2r-pg -e POSTGRES_USER=l2 -e POSTGRES_PASSWORD=l2 -p 55432:5432 postgres:17-alpine
+L2R_TEST_DATABASE_URL=postgres://l2:l2@localhost:55432/l2 cargo nextest run --workspace
+```
+
+CI does both runs.
+
+### Moving an existing SQLite database
+
+There is no tool for it yet. The schema is the same table by table, so a copy is
+`l2r-migrate up` on the empty PostgreSQL database, then the rows of each table
+(e.g. `pgloader` with `data only`, or a CSV export per table) — but test it on a
+copy first: SQLite will have stored any value in any column, and PostgreSQL will
+refuse the ones that do not fit the column's type.
+

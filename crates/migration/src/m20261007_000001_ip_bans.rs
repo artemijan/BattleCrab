@@ -5,6 +5,8 @@
 
 use sea_orm_migration::prelude::*;
 
+use crate::dialect::{dflt, ty};
+
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
@@ -18,32 +20,32 @@ impl MigrationTrait for Migration {
                     .if_not_exists()
                     .col(
                         ColumnDef::new(Alias::new("ip"))
-                            .custom(Alias::new("VARCHAR(45)"))
+                            .custom(ty(manager, "VARCHAR(45)"))
                             .not_null(),
                     )
                     .col(
                         ColumnDef::new(Alias::new("expires_at"))
-                            .custom(Alias::new("bigint"))
+                            .custom(ty(manager, "bigint"))
                             .not_null()
-                            .default(Expr::cust("'0'")),
+                            .default(dflt(manager, "'0'")),
                     )
                     .col(
                         ColumnDef::new(Alias::new("reason"))
-                            .custom(Alias::new("VARCHAR(255)"))
+                            .custom(ty(manager, "VARCHAR(255)"))
                             .not_null()
-                            .default(Expr::cust("''")),
+                            .default(dflt(manager, "''")),
                     )
                     .col(
                         ColumnDef::new(Alias::new("banned_by"))
-                            .custom(Alias::new("VARCHAR(255)"))
+                            .custom(ty(manager, "VARCHAR(255)"))
                             .not_null()
-                            .default(Expr::cust("''")),
+                            .default(dflt(manager, "''")),
                     )
                     .col(
                         ColumnDef::new(Alias::new("created_at"))
-                            .custom(Alias::new("bigint"))
+                            .custom(ty(manager, "bigint"))
                             .not_null()
-                            .default(Expr::cust("'0'")),
+                            .default(dflt(manager, "'0'")),
                     )
                     .primary_key(Index::create().col(Alias::new("ip")))
                     .to_owned(),

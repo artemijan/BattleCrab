@@ -816,7 +816,8 @@ fn knows(world: &World, skill_id: i32, who: i32) -> bool {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn character_create_inserts_into_real_schema() {
     // The real schema, from the migrations.
-    let (url, dir) = migrated_db_url("create").await;
+    let test_db = migrated_db("create").await;
+    let url = test_db.url.clone();
 
     let (db_tx, db_cmd_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_event_tx, db_event_rx) = std::sync::mpsc::channel();
@@ -945,7 +946,7 @@ async fn character_create_inserts_into_real_schema() {
         .await
         .unwrap()
         .ok();
-    let _ = std::fs::remove_dir_all(&dir);
+    test_db.remove().await;
 }
 
 fn magic_skill_use_body(magic_id: i32, ctrl: bool) -> Vec<u8> {
@@ -3250,25 +3251,20 @@ fn teleporter_world(adena: i64) -> (World, UnboundedReceiver<bytes::Bytes>) {
     (world, rx)
 }
 
-/// A fresh database in its own temp directory, built by the migrations — the
-/// same schema production gets from `l2r-migrate up`. Returns its URL and
-/// the directory, for the test to remove when it is done.
+/// A fresh database built by the migrations — the same schema production gets
+/// from `l2r-migrate up`: SQLite, or PostgreSQL under `L2R_TEST_DATABASE_URL`.
+/// The test removes it when it is done.
 ///
 /// Not a copy of the untracked runtime `interlude_classic.db`: that made the
 /// test skip on a fresh clone or CI, and fail whenever someone's local copy was
 /// stale or empty, with an error that pointed nowhere near the cause.
-pub(crate) async fn migrated_db_url(tag: &str) -> (String, std::path::PathBuf) {
+pub(crate) async fn migrated_db(tag: &str) -> commons::db::testing::TestDb {
     use migration::MigratorTrait;
-    let dir = std::env::temp_dir().join(format!("l2r_{tag}_{}", std::process::id()));
-    // A leftover from an earlier run with the same pid would already be
-    // migrated; start clean so the test always sees exactly the migrations.
-    let _ = std::fs::remove_dir_all(&dir);
-    std::fs::create_dir_all(&dir).unwrap();
-    let url = format!("jdbc:sqlite:{}", dir.join("c.db").display());
-    let db = commons::db::connect(&url, 1).await.unwrap();
+    let test_db = commons::db::testing::TestDb::new(tag).await;
+    let db = commons::db::connect(&test_db.url, 1).await.unwrap();
     migration::Migrator::up(&db, None).await.unwrap();
     db.close().await.unwrap();
-    (url, dir)
+    test_db
 }
 
 /// Switch off a caster's random-damage spread (`Stat.RANDOM_DAMAGE`, 10 on

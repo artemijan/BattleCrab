@@ -309,6 +309,11 @@ In Rust everything becomes `Option<T>`, which is strictly better but means:
 > **DECIDED: SQLite only (for now).** MariaDB/PostgreSQL support is dropped from
 > the initial port; the schema/SQL is written against SQLite. If multi-driver
 > support returns later, `sqlx`'s `Any` driver covers all three original backends.
+>
+> **Revised (2026-10): SQLite and PostgreSQL.** PostgreSQL came back so the
+> login server, game server and dashboard can run on separate machines. It goes
+> through SeaORM's own PostgreSQL connector rather than `Any`, chosen by the URL
+> (`commons::db`); MariaDB stays dropped. See [DATABASE.md](DATABASE.md#postgresql).
 
 Java: JDBC with three drivers (MariaDB, PostgreSQL, SQLite — see `pom.xml`,
 recent "DB drivers support" commit), a `commons/database` connection factory,
@@ -388,7 +393,7 @@ a 1:1 port if ignored:
 | 5 | Reentrant locks, scheduled closures | ✅ Decided | single game thread + tokio network + service threads — [THREADING_MODEL.md](THREADING_MODEL.md) |
 | 4 | 176 mutable singletons | ✅ Decided | one owning `World`, no global state |
 | 6 | Reflection/annotation registration | ✅ Decided | explicit registration lists (`scripts::build_registry`) |
-| 9 | JDBC 3-driver DB layer | ✅ Decided | SQLite only, via sqlx + SeaORM |
+| 9 | JDBC 3-driver DB layer | ✅ Decided | SQLite and PostgreSQL, via sqlx + SeaORM |
 | 10 | Swing GUIs | ✅ Decided | dropped — headless server |
 | 7,8 | null → Option, exceptions → Result | 🟢 Mechanical | conventions only |
 | 11,12 | Libraries & semantics | 🟢 Mechanical | crate choices, overflow rule |

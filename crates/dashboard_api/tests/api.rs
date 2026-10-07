@@ -13,10 +13,11 @@ use axum::http::{Request, StatusCode, header};
 use dashboard_api::config::DashboardConfig;
 use dashboard_api::state::App;
 use http_body_util::BodyExt;
-use migration::MigratorTrait;
-use models::sea_orm::{DatabaseConnection, SqlxSqliteConnector};
-use sqlx::SqlitePool;
+use models::sea_orm::DatabaseConnection;
 use tower::ServiceExt;
+
+mod sql;
+use sql::{TestPool, q, scalar};
 
 fn test_config() -> DashboardConfig {
     DashboardConfig {
@@ -67,15 +68,9 @@ fn test_config() -> DashboardConfig {
     }
 }
 
-async fn test_app() -> (axum::Router, SqlitePool) {
-    // One connection: a second one would open its own empty `:memory:`.
-    let pool = sqlx::sqlite::SqlitePoolOptions::new()
-        .max_connections(1)
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
-    migration::Migrator::up(&db, None).await.unwrap();
+async fn test_app() -> (axum::Router, TestPool) {
+    let pool = TestPool::migrated().await;
+    let db: DatabaseConnection = pool.db.clone();
 
     let state = Arc::new(App::new(db, test_config()));
     (dashboard_api::app(state), pool)
@@ -83,14 +78,9 @@ async fn test_app() -> (axum::Router, SqlitePool) {
 
 /// `test_app`, but with `/server/status` pointed at `channel` (a `host:port`
 /// running something that speaks the login server's status line).
-async fn test_app_with_status_channel(channel: &str) -> (axum::Router, SqlitePool) {
-    let pool = sqlx::sqlite::SqlitePoolOptions::new()
-        .max_connections(1)
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
-    migration::Migrator::up(&db, None).await.unwrap();
+async fn test_app_with_status_channel(channel: &str) -> (axum::Router, TestPool) {
+    let pool = TestPool::migrated().await;
+    let db: DatabaseConnection = pool.db.clone();
     let mut config = test_config();
     config.status_channel_address = channel.to_string();
     let state = Arc::new(App::new(db, config));
@@ -114,9 +104,9 @@ async fn fake_status_channel(line: &'static str) -> String {
 
 /// Adds a game account under a master address — the row the dashboard will
 /// create in a later milestone, and the only thing `characters` can hang off.
-async fn add_game_account(pool: &SqlitePool, email: &str, login: &str) {
-    sqlx::query(
-        "INSERT INTO accounts (login, password, email, is_verified, lastactive, accessLevel)
+async fn add_game_account(pool: &TestPool, email: &str, login: &str) {
+    q(
+        "INSERT INTO accounts (login, password, email, is_verified, lastactive, \"accessLevel\")
          VALUES (?, 'x', ?, NULL, 0, 0)",
     )
     .bind(login)
@@ -168,7 +158,7 @@ fn post_with_cookie(path: &str, cookie: &str, body: serde_json::Value) -> Reques
 /// state for these tests is "verified", not "just registered". The column is
 /// set directly rather than through the link — the link itself has its own test
 /// (`a_master_account_starts_unverified_and_the_link_verifies_it`).
-async fn verified_master(pool: &SqlitePool, app: &axum::Router, email: &str) -> String {
+async fn verified_master(pool: &TestPool, app: &axum::Router, email: &str) -> String {
     let registered = app
         .clone()
         .oneshot(post(
@@ -179,7 +169,7 @@ async fn verified_master(pool: &SqlitePool, app: &axum::Router, email: &str) -> 
         .unwrap();
     assert_eq!(registered.status(), StatusCode::CREATED);
 
-    sqlx::query("UPDATE accounts SET is_verified = 1 WHERE login IS NULL AND email = ?")
+    q("UPDATE accounts SET is_verified = 1 WHERE login IS NULL AND email = ?")
         .bind(email)
         .execute(pool)
         .await
@@ -191,9 +181,9 @@ async fn verified_master(pool: &SqlitePool, app: &axum::Router, email: &str) -> 
 /// A verified master promoted to admin the only way that exists: a direct
 /// `accessLevel` write, as an operator with DB access would do it. There is
 /// deliberately no API path to reach this state.
-async fn admin_master(pool: &SqlitePool, app: &axum::Router, email: &str) -> String {
+async fn admin_master(pool: &TestPool, app: &axum::Router, email: &str) -> String {
     let cookie = verified_master(pool, app, email).await;
-    sqlx::query("UPDATE accounts SET accessLevel = 100 WHERE login IS NULL AND email = ?")
+    q("UPDATE accounts SET \"accessLevel\" = 100 WHERE login IS NULL AND email = ?")
         .bind(email)
         .execute(pool)
         .await
@@ -249,8 +239,8 @@ async fn register_stores_the_hash_the_game_client_expects() {
     //
     // `login` must be NULL and the address stored lowercased: that pair is what
     // marks the row a master account rather than something the game can see.
-    let (login, email, password, is_verified): (Option<String>, String, String, Option<i64>) =
-        sqlx::query_as("SELECT login, email, password, is_verified FROM accounts")
+    let (login, email, password, is_verified): (Option<String>, String, String, Option<i32>) =
+        q("SELECT login, email, password, is_verified FROM accounts")
             .fetch_one(&pool)
             .await
             .unwrap();
@@ -267,8 +257,8 @@ async fn a_game_account_cannot_sign_into_the_dashboard() {
     // A game account carrying the same address as a master must never satisfy
     // the dashboard login — otherwise a leaked sub-account password would open
     // the owner's dashboard.
-    sqlx::query(
-        "INSERT INTO accounts (login, password, email, is_verified, lastactive, accessLevel)
+    q(
+        "INSERT INTO accounts (login, password, email, is_verified, lastactive, \"accessLevel\")
          VALUES ('alice', ?, 'alice@example.com', NULL, 0, 0)",
     )
     .bind(commons::crypt::hash_password("correct-horse"))
@@ -330,8 +320,8 @@ async fn register_then_login_then_read_characters() {
     // Characters hang off a *game* account, which is linked to the master by
     // the shared address.
     add_game_account(&pool, "alice@example.com", "alice1").await;
-    sqlx::query(
-        "INSERT INTO characters (account_name, charId, char_name, level, sex, race, classid, online, onlinetime, lastAccess)
+    q(
+        "INSERT INTO characters (account_name, \"charId\", char_name, level, sex, race, classid, online, onlinetime, \"lastAccess\")
          VALUES ('alice1', 1, 'Shen', 42, 0, 1, 10, 1, 3600, 100)",
     )
     .execute(&pool)
@@ -377,8 +367,8 @@ async fn characters_are_scoped_to_the_session_account() {
             .unwrap();
     }
     add_game_account(&pool, "alice@example.com", "alice1").await;
-    sqlx::query(
-        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess)
+    q(
+        "INSERT INTO characters (account_name, \"charId\", char_name, level, \"lastAccess\")
          VALUES ('alice1', 1, 'AliceChar', 10, 1)",
     )
     .execute(&pool)
@@ -418,8 +408,8 @@ async fn deleted_characters_are_hidden() {
         .await
         .unwrap();
     add_game_account(&pool, "alice@example.com", "alice1").await;
-    sqlx::query(
-        "INSERT INTO characters (account_name, charId, char_name, level, deletetime, lastAccess)
+    q(
+        "INSERT INTO characters (account_name, \"charId\", char_name, level, deletetime, \"lastAccess\")
          VALUES ('alice1', 1, 'Doomed', 10, 999999, 1)",
     )
     .execute(&pool)
@@ -461,8 +451,8 @@ async fn characters_from_every_game_account_are_listed_together() {
     add_game_account(&pool, "alice@example.com", "alice1").await;
     add_game_account(&pool, "alice@example.com", "alice2").await;
     add_game_account(&pool, "mallory@example.com", "mallory1").await;
-    sqlx::query(
-        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess) VALUES
+    q(
+        "INSERT INTO characters (account_name, \"charId\", char_name, level, \"lastAccess\") VALUES
          ('alice1', 1, 'First', 10, 200),
          ('alice2', 2, 'Second', 20, 100),
          ('mallory1', 3, 'NotYours', 30, 300)",
@@ -503,8 +493,8 @@ async fn character_items_split_by_location_with_worn_gear_first() {
     let (app, pool) = test_app().await;
     let cookie = verified_master(&pool, &app, "alice@example.com").await;
     add_game_account(&pool, "alice@example.com", "alice1").await;
-    sqlx::query(
-        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess)
+    q(
+        "INSERT INTO characters (account_name, \"charId\", char_name, level, \"lastAccess\")
          VALUES ('alice1', 1, 'Shen', 42, 100)",
     )
     .execute(&pool)
@@ -512,7 +502,7 @@ async fn character_items_split_by_location_with_worn_gear_first() {
     .unwrap();
     // A worn weapon, adena in the bag, and a warehoused stack — plus another
     // character's row that must not bleed in.
-    sqlx::query(
+    q(
         "INSERT INTO items (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, mana_left, time) VALUES
          (1, 101, 57, 25000, 0, 'INVENTORY', 0, -1, 0),
          (1, 102, 12000, 1, 7, 'PAPERDOLL', 5, -1, 0),
@@ -561,8 +551,8 @@ async fn character_items_of_someone_elses_character_are_not_found() {
     let (app, pool) = test_app().await;
     let cookie = verified_master(&pool, &app, "alice@example.com").await;
     add_game_account(&pool, "mallory@example.com", "mallory1").await;
-    sqlx::query(
-        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess)
+    q(
+        "INSERT INTO characters (account_name, \"charId\", char_name, level, \"lastAccess\")
          VALUES ('mallory1', 3, 'NotYours', 30, 300)",
     )
     .execute(&pool)
@@ -606,12 +596,10 @@ async fn a_game_account_is_created_under_the_masters_address() {
     // back to the master, the login is what the game matches on, and a
     // non-NULL is_verified would make this row look like a second identity.
     let (login, email, password, is_verified): (String, String, String, Option<i64>) =
-        sqlx::query_as(
-            "SELECT login, email, password, is_verified FROM accounts WHERE login IS NOT NULL",
-        )
-        .fetch_one(&pool)
-        .await
-        .unwrap();
+        q("SELECT login, email, password, is_verified FROM accounts WHERE login IS NOT NULL")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
     assert_eq!(login, "alice1", "logins are stored lowercased");
     assert_eq!(email, "alice@example.com");
     assert_eq!(
@@ -720,7 +708,7 @@ async fn a_login_taken_by_another_master_is_refused_and_left_untouched() {
 
     // Still Mallory's, with Mallory's password.
     let (email, password): (String, String) =
-        sqlx::query_as("SELECT email, password FROM accounts WHERE login = 'taken'")
+        q("SELECT email, password FROM accounts WHERE login = 'taken'")
             .fetch_one(&pool)
             .await
             .unwrap();
@@ -765,12 +753,11 @@ async fn game_accounts_are_capped_per_master() {
     );
 
     // The refusal must not have written the row anyway.
-    let (count,): (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM accounts WHERE email = 'alice@example.com' AND login IS NOT NULL",
-    )
-    .fetch_one(&pool)
-    .await
-    .unwrap();
+    let (count,): (i64,) =
+        q("SELECT COUNT(*) FROM accounts WHERE email = 'alice@example.com' AND login IS NOT NULL")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
     assert_eq!(count, 3);
 }
 
@@ -810,7 +797,7 @@ async fn game_account_credentials_are_validated() {
         assert_eq!(response.status(), StatusCode::BAD_REQUEST, "{why}");
     }
 
-    let (count,): (i64,) = sqlx::query_as("SELECT COUNT(*) FROM accounts WHERE login IS NOT NULL")
+    let (count,): (i64,) = q("SELECT COUNT(*) FROM accounts WHERE login IS NOT NULL")
         .fetch_one(&pool)
         .await
         .unwrap();
@@ -849,11 +836,10 @@ async fn a_master_account_starts_unverified_and_the_link_verifies_it() {
         .unwrap();
     assert_eq!(verified.status(), StatusCode::NO_CONTENT);
 
-    let is_verified: Option<i64> =
-        sqlx::query_scalar("SELECT is_verified FROM accounts WHERE login IS NULL")
-            .fetch_one(&pool)
-            .await
-            .unwrap();
+    let is_verified: Option<i32> = scalar("SELECT is_verified FROM accounts WHERE login IS NULL")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
     assert_eq!(is_verified, Some(1));
 
     let me = app
@@ -887,7 +873,7 @@ async fn there_is_no_change_email_endpoint() {
     );
 
     // And nothing moved.
-    let (email,): (String,) = sqlx::query_as("SELECT email FROM accounts WHERE login IS NULL")
+    let (email,): (String,) = q("SELECT email FROM accounts WHERE login IS NULL")
         .fetch_one(&pool)
         .await
         .unwrap();
@@ -1144,8 +1130,8 @@ async fn unknown_api_routes_404_instead_of_returning_the_spa() {
 #[tokio::test]
 async fn server_status_ignores_stale_online_rows_when_the_server_is_unreachable() {
     let (app, pool) = test_app().await; // no status channel configured
-    sqlx::query(
-        "INSERT INTO characters (account_name, charId, char_name, online, lastAccess)
+    q(
+        "INSERT INTO characters (account_name, \"charId\", char_name, online, \"lastAccess\")
          VALUES ('alice', 1, 'A', 1, 1), ('bob', 2, 'B', 0, 1)",
     )
     .execute(&pool)
@@ -1569,8 +1555,8 @@ async fn an_admin_lists_master_accounts_with_counts() {
 
     add_game_account(&pool, "alice@example.com", "alice1").await;
     add_game_account(&pool, "alice@example.com", "alice2").await;
-    sqlx::query(
-        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess) VALUES
+    q(
+        "INSERT INTO characters (account_name, \"charId\", char_name, level, \"lastAccess\") VALUES
          ('alice1', 1, 'Shen', 42, 1), ('alice2', 2, 'Mira', 7, 2)",
     )
     .execute(&pool)
@@ -1613,8 +1599,8 @@ async fn admin_account_detail_shows_game_accounts_and_characters() {
     let admin = admin_master(&pool, &app, "admin@example.com").await;
     verified_master(&pool, &app, "alice@example.com").await;
     add_game_account(&pool, "alice@example.com", "alice1").await;
-    sqlx::query(
-        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess)
+    q(
+        "INSERT INTO characters (account_name, \"charId\", char_name, level, \"lastAccess\")
          VALUES ('alice1', 1, 'Shen', 42, 1)",
     )
     .execute(&pool)
@@ -1668,7 +1654,7 @@ async fn an_admin_can_ban_and_unban_a_game_account() {
         .unwrap();
     assert_eq!(banned.status(), StatusCode::NO_CONTENT);
 
-    let level: i32 = sqlx::query_scalar("SELECT accessLevel FROM accounts WHERE login = 'alice1'")
+    let level: i32 = scalar("SELECT \"accessLevel\" FROM accounts WHERE login = 'alice1'")
         .fetch_one(&pool)
         .await
         .unwrap();
@@ -1687,7 +1673,7 @@ async fn an_admin_can_ban_and_unban_a_game_account() {
         .unwrap();
     assert_eq!(unbanned.status(), StatusCode::NO_CONTENT);
 
-    let level: i32 = sqlx::query_scalar("SELECT accessLevel FROM accounts WHERE login = 'alice1'")
+    let level: i32 = scalar("SELECT \"accessLevel\" FROM accounts WHERE login = 'alice1'")
         .fetch_one(&pool)
         .await
         .unwrap();
@@ -1724,12 +1710,11 @@ async fn the_admin_api_never_raises_an_access_level() {
         );
     }
 
-    let levels: Vec<(i32,)> = sqlx::query_as(
-        "SELECT accessLevel FROM accounts WHERE email = 'alice@example.com' COLLATE NOCASE",
-    )
-    .fetch_all(&pool)
-    .await
-    .unwrap();
+    let levels: Vec<(i32,)> =
+        q("SELECT \"accessLevel\" FROM accounts WHERE lower(email) = 'alice@example.com'")
+            .fetch_all(&pool)
+            .await
+            .unwrap();
     assert!(
         levels.iter().all(|(l,)| *l == 0),
         "nothing may have been promoted: {levels:?}"
@@ -1761,11 +1746,10 @@ async fn an_admin_cannot_touch_a_peer_or_themself() {
         );
     }
 
-    let levels: Vec<(i32,)> =
-        sqlx::query_as("SELECT accessLevel FROM accounts WHERE login IS NULL")
-            .fetch_all(&pool)
-            .await
-            .unwrap();
+    let levels: Vec<(i32,)> = q("SELECT \"accessLevel\" FROM accounts WHERE login IS NULL")
+        .fetch_all(&pool)
+        .await
+        .unwrap();
     assert!(
         levels.iter().all(|(l,)| *l == 100),
         "both admins must be untouched: {levels:?}"
@@ -1843,7 +1827,7 @@ async fn an_admin_resets_a_game_account_password() {
         .unwrap();
     assert_eq!(reset.status(), StatusCode::NO_CONTENT);
 
-    let hash: String = sqlx::query_scalar("SELECT password FROM accounts WHERE login = 'alice1'")
+    let hash: String = scalar("SELECT password FROM accounts WHERE login = 'alice1'")
         .fetch_one(&pool)
         .await
         .unwrap();
@@ -1894,7 +1878,7 @@ async fn an_admin_can_force_verify_a_master() {
         .unwrap();
     assert_eq!(verified.status(), StatusCode::NO_CONTENT);
 
-    let is_verified: Option<i64> = sqlx::query_scalar(
+    let is_verified: Option<i32> = scalar(
         "SELECT is_verified FROM accounts WHERE login IS NULL AND email = 'alice@example.com'",
     )
     .fetch_one(&pool)
@@ -1910,8 +1894,8 @@ async fn game_account_search_reaches_masterless_rows() {
     let (app, pool) = test_app().await;
     let admin = admin_master(&pool, &app, "admin@example.com").await;
 
-    sqlx::query(
-        "INSERT INTO accounts (login, password, email, is_verified, lastactive, accessLevel)
+    q(
+        "INSERT INTO accounts (login, password, email, is_verified, lastactive, \"accessLevel\")
          VALUES ('orphan1', 'x', NULL, NULL, 0, 0)",
     )
     .execute(&pool)
@@ -1940,8 +1924,8 @@ async fn the_master_list_sorts_by_whitelisted_columns() {
 
     // bob owns the only characters, so characters-desc puts him first.
     add_game_account(&pool, "bob@example.com", "bobgame").await;
-    sqlx::query(
-        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess) VALUES
+    q(
+        "INSERT INTO characters (account_name, \"charId\", char_name, level, \"lastAccess\") VALUES
          ('bobgame', 1, 'Kai', 30, 1), ('bobgame', 2, 'Rin', 12, 2)",
     )
     .execute(&pool)
@@ -2024,7 +2008,7 @@ async fn an_admin_creates_a_gm_game_account_at_their_own_level() {
     // The new row copies the actor's accessLevel — that is the whole point —
     // and lands under the actor's own master address.
     let (level, email): (i32, String) =
-        sqlx::query_as("SELECT accessLevel, email FROM accounts WHERE login = 'gmalt'")
+        q("SELECT \"accessLevel\", email FROM accounts WHERE login = 'gmalt'")
             .fetch_one(&pool)
             .await
             .unwrap();
@@ -2035,7 +2019,7 @@ async fn an_admin_creates_a_gm_game_account_at_their_own_level() {
     assert_eq!(email, "admin@example.com");
 
     // And the password hash is the game's own scheme, usable in the client.
-    let hash: String = sqlx::query_scalar("SELECT password FROM accounts WHERE login = 'gmalt'")
+    let hash: String = scalar("SELECT password FROM accounts WHERE login = 'gmalt'")
         .fetch_one(&pool)
         .await
         .unwrap();
@@ -2131,15 +2115,10 @@ async fn fake_siteverify() -> String {
 /// `test_app`, but with the captcha verifier enabled and pointed at a fake
 /// siteverify. The default `test_config` leaves the secret empty, so every
 /// other test runs captcha-free.
-async fn test_app_with_turnstile() -> (axum::Router, SqlitePool) {
+async fn test_app_with_turnstile() -> (axum::Router, TestPool) {
     let url = fake_siteverify().await;
-    let pool = sqlx::sqlite::SqlitePoolOptions::new()
-        .max_connections(1)
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
-    migration::Migrator::up(&db, None).await.unwrap();
+    let pool = TestPool::migrated().await;
+    let db: DatabaseConnection = pool.db.clone();
     let mut state = App::new(db, test_config());
     state.turnstile = dashboard_api::turnstile::TurnstileVerifier::for_tests("secret", &url);
     (dashboard_api::app(Arc::new(state)), pool)
@@ -2414,18 +2393,9 @@ async fn the_cf_header_separates_rate_limit_buckets() {
 /// given targets. Nothing polls on its own; tests call `Monitor::poll`.
 async fn test_app_with_monitor(
     targets: &str,
-) -> (
-    axum::Router,
-    SqlitePool,
-    Arc<dashboard_api::monitor::Monitor>,
-) {
-    let pool = sqlx::sqlite::SqlitePoolOptions::new()
-        .max_connections(1)
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
-    migration::Migrator::up(&db, None).await.unwrap();
+) -> (axum::Router, TestPool, Arc<dashboard_api::monitor::Monitor>) {
+    let pool = TestPool::migrated().await;
+    let db: DatabaseConnection = pool.db.clone();
     let monitor = Arc::new(dashboard_api::monitor::Monitor::new(
         dashboard_api::monitor::store::MetricsDb::in_memory()
             .await
@@ -2808,7 +2778,7 @@ async fn a_ban_with_disconnect_kicks_every_covered_client_on_every_server() {
     assert_eq!(kicks(&login_requests), vec!["kick 5 1759000000000\n"]);
 
     let (expires, reason): (i64, String) =
-        sqlx::query_as("SELECT expires_at, reason FROM ip_bans WHERE ip = '10.1.2.0'")
+        q("SELECT expires_at, reason FROM ip_bans WHERE ip = '10.1.2.0'")
             .fetch_one(&pool)
             .await
             .unwrap();
@@ -3040,7 +3010,7 @@ async fn test_app_with_logs(
     concurrency: usize,
 ) -> (
     axum::Router,
-    SqlitePool,
+    TestPool,
     Arc<dashboard_api::logsearch::LogSearch>,
 ) {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -3065,16 +3035,11 @@ async fn test_app_with_logs_at(
     targets: &str,
 ) -> (
     axum::Router,
-    SqlitePool,
+    TestPool,
     Arc<dashboard_api::logsearch::LogSearch>,
 ) {
-    let pool = sqlx::sqlite::SqlitePoolOptions::new()
-        .max_connections(1)
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
-    migration::Migrator::up(&db, None).await.unwrap();
+    let pool = TestPool::migrated().await;
+    let db: DatabaseConnection = pool.db.clone();
     let monitor = Arc::new(dashboard_api::monitor::Monitor::new(
         dashboard_api::monitor::store::MetricsDb::in_memory()
             .await
