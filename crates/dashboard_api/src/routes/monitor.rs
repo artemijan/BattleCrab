@@ -214,7 +214,7 @@ struct ClientsResponse {
     /// same clock that stamped `connectedMs`, not the viewer's.
     now_ms: i64,
     clients: Vec<commons::monitor::clients::ClientRecord>,
-    sources: Vec<monitor::ClientSource>,
+    sources: Vec<monitor::TargetAnswer>,
 }
 
 /// No audit record per request: the page refreshes this every few seconds,

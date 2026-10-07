@@ -1,9 +1,13 @@
-//! Log search over the servers' own files — `docs/MONITORING.md` §6 (P4).
+//! Log search over a service's own files — `docs/MONITORING.md` §6 (P4).
 //!
-//! **No client-supplied paths, by construction.** A request names a service
-//! (one of `LogSearchRoots`' keys) and a [`Stream`] (a closed enum). The
-//! server maps those to a directory and a filename prefix it derived itself
-//! at boot, and enumerates that directory. A cursor carries a filename, but
+//! Each service searches its own files, on its own machine: the game and
+//! login servers answer `logs` requests on their monitor channel
+//! (`crate::monitor`), and the dashboard searches its own logs in-process.
+//! Nothing reads another machine's disk.
+//!
+//! **No client-supplied paths, by construction.** A request names a
+//! [`Stream`] (a closed enum). The service maps it to a directory and a
+//! filename prefix it derived itself at boot, and enumerates that directory. A cursor carries a filename, but
 //! it is only ever *compared* against that enumeration, never joined onto a
 //! path — so traversal is unrepresentable rather than defended against.
 //!
@@ -20,14 +24,31 @@ use std::path::PathBuf;
 use std::time::{Duration, Instant};
 
 use base64::Engine;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-use commons::audit::Category;
+use crate::audit::Category;
 use reverse::ReverseLines;
 
-/// Where the dashboard writes its own audit records. Shared with `main`,
-/// which sets it, so search finds them where they are.
-pub const DASHBOARD_AUDIT_DIR: &str = "log/audit-dashboard";
+/// Most results one request may return.
+pub const MAX_LIMIT: usize = 500;
+
+/// Longer than any sensible search; a cap so a pattern cannot be a payload.
+pub const MAX_QUERY_LEN: usize = 512;
+
+/// Compiled-program and lazy-DFA caps: `regex` is linear-time, and these
+/// keep a pathological pattern from costing memory instead.
+const REGEX_SIZE_LIMIT: usize = 1 << 20;
+
+/// Matching line bytes one response may carry. Results stop there as at
+/// `limit`, with a cursor, so a page of very long lines can't become a
+/// response nobody should be sending over a socket.
+pub const MAX_HIT_BYTES: usize = 8 << 20;
+
+/// Ceilings on what a request may ask for. The asker sets its own budget
+/// (`LogSearchMaxBytes`, `LogSearchTimeoutMs`); the service that runs the scan
+/// still caps it, since the scan costs that service's machine.
+pub const MAX_SCAN_BYTES: u64 = 1 << 30;
+pub const MAX_DEADLINE: Duration = Duration::from_secs(30);
 
 /// Lines a little older than `from` may sit after newer ones: lines are
 /// stamped on the emitting thread and written by one writer thread, so the
@@ -99,6 +120,29 @@ pub struct Source {
 }
 
 impl Source {
+    /// The service's files under `root` (a datapack root, as a path prefix
+    /// like `logging::init` takes): the log directory from its
+    /// `Logging.ini`, and `audit_dir`, which is where its audit sink writes.
+    pub fn resolve(service: &str, root: &str, audit_dir: &str) -> Self {
+        let root_slash = if root.is_empty() || root.ends_with('/') {
+            root.to_string()
+        } else {
+            format!("{root}/")
+        };
+        let logging = crate::logging::LoggingConfig::load(&root_slash);
+        Self {
+            service: service.to_string(),
+            log_dir: PathBuf::from(format!("{root_slash}{}", logging.directory)),
+            audit_dir: PathBuf::from(format!("{root_slash}{audit_dir}")),
+        }
+    }
+
+    /// A server's files, audit directory from its own `Logging.ini`.
+    pub fn of_server(service: &str, root: &str) -> Self {
+        let audit = crate::audit::AuditConfig::load(root);
+        Self::resolve(service, root, &audit.directory)
+    }
+
     fn locate(&self, stream: Stream) -> (PathBuf, String, &'static str) {
         match stream {
             Stream::Diagnostic => (self.log_dir.clone(), self.service.clone(), "json"),
@@ -156,44 +200,6 @@ pub struct LogFile {
     pub name: String,
     /// `[start, end)` epoch ms the filename's date covers.
     pub span: (i64, i64),
-}
-
-/// Parses `LogSearchRoots` (`service=datapack_root,…`) into sources. Each
-/// service's directories come from its root's `Logging.ini`; the dashboard's
-/// own audit directory is the override `main` applies, not the ini's.
-pub fn sources(raw: &str) -> Result<Vec<Source>, String> {
-    let mut out: Vec<Source> = Vec::new();
-    for entry in raw.split(',').map(str::trim).filter(|e| !e.is_empty()) {
-        let (service, root) = entry
-            .split_once('=')
-            .map(|(s, r)| (s.trim(), r.trim()))
-            .filter(|(s, r)| {
-                !s.is_empty()
-                    && !r.is_empty()
-                    && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
-            })
-            .ok_or_else(|| format!("LogSearchRoots entry {entry:?} is not service=path"))?;
-        if out.iter().any(|s| s.service == service) {
-            return Err(format!("LogSearchRoots names {service:?} twice"));
-        }
-        let root_slash = if root.ends_with('/') {
-            root.to_string()
-        } else {
-            format!("{root}/")
-        };
-        let logging = commons::logging::LoggingConfig::load(&root_slash);
-        let audit_dir = if service == "dashboard_api" {
-            DASHBOARD_AUDIT_DIR.to_string()
-        } else {
-            commons::audit::AuditConfig::load(&root_slash).directory
-        };
-        out.push(Source {
-            service: service.to_string(),
-            log_dir: PathBuf::from(root).join(logging.directory),
-            audit_dir: PathBuf::from(root).join(audit_dir),
-        });
-    }
-    Ok(out)
 }
 
 /// Minimum-level filter. Ordered so `>=` means "at least as severe".
@@ -262,6 +268,98 @@ pub struct Bounds {
     pub deadline: Duration,
 }
 
+/// A search as it travels: what the dashboard's `/admin/logs/search` resolved
+/// its defaults to, sent as-is over a monitor channel or validated in-process.
+/// [`SearchRequest::validate`] is the one check both paths run.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchRequest {
+    pub stream: String,
+    pub from: i64,
+    pub to: i64,
+    #[serde(default)]
+    pub q: String,
+    /// `q` is a regular expression rather than literal text.
+    #[serde(default)]
+    pub regex: bool,
+    /// Minimum level (`warn` = WARN and ERROR). Not for audit streams.
+    pub level: Option<String>,
+    pub limit: usize,
+    pub cursor: Option<String>,
+    /// The asker's budget; capped at [`MAX_SCAN_BYTES`] and [`MAX_DEADLINE`].
+    pub max_bytes: u64,
+    pub timeout_ms: u64,
+}
+
+impl SearchRequest {
+    /// Everything about a request that can be refused before a file is
+    /// touched. The message is the client's to read.
+    pub fn validate(&self) -> Result<(Query, Bounds), String> {
+        let stream = Stream::parse(&self.stream).ok_or_else(|| {
+            format!(
+                "unknown stream {:?}; valid: diagnostic, error, audit:<category>",
+                self.stream
+            )
+        })?;
+        if self.from >= self.to {
+            return Err("`from` must be before `to`".into());
+        }
+        let level = match self.level.as_deref().filter(|l| !l.is_empty()) {
+            None => None,
+            Some(_) if !stream.has_level() => {
+                return Err("audit records have no level; drop `level`".into());
+            }
+            Some(l) => {
+                Some(Level::parse(l).ok_or("`level` must be trace, debug, info, warn or error")?)
+            }
+        };
+        if !(1..=MAX_LIMIT).contains(&self.limit) {
+            return Err(format!("`limit` must be between 1 and {MAX_LIMIT}"));
+        }
+        let cursor = match self.cursor.as_deref().filter(|c| !c.is_empty()) {
+            None => None,
+            Some(c) => Some(Cursor::decode(c).ok_or("invalid `cursor`")?),
+        };
+        let query = Query {
+            stream,
+            from: self.from,
+            to: self.to,
+            pattern: compile(&self.q, self.regex)?,
+            level,
+            limit: self.limit,
+            cursor,
+        };
+        let bounds = Bounds {
+            max_bytes: self.max_bytes.clamp(1, MAX_SCAN_BYTES),
+            deadline: Duration::from_millis(self.timeout_ms.max(1)).min(MAX_DEADLINE),
+        };
+        Ok((query, bounds))
+    }
+}
+
+/// A literal `q` matches case-insensitively, as a search box is expected to;
+/// a regex is taken as written (`(?i)` opts back in).
+pub fn compile(q: &str, regex: bool) -> Result<Option<regex::bytes::Regex>, String> {
+    if q.is_empty() {
+        return Ok(None);
+    }
+    if q.len() > MAX_QUERY_LEN {
+        return Err(format!("`q` is limited to {MAX_QUERY_LEN} bytes"));
+    }
+    let pattern = if regex {
+        q.to_string()
+    } else {
+        regex::escape(q)
+    };
+    regex::bytes::RegexBuilder::new(&pattern)
+        .case_insensitive(!regex)
+        .size_limit(REGEX_SIZE_LIMIT)
+        .dfa_size_limit(REGEX_SIZE_LIMIT)
+        .build()
+        .map(Some)
+        .map_err(|e| format!("invalid regex: {e}"))
+}
+
 /// A matching line. JSON streams come back parsed, as a pass-through value —
 /// span fields are the point of the format and a fixed DTO would drop them.
 #[derive(Debug, Serialize)]
@@ -282,7 +380,8 @@ pub enum Line {
 #[derive(Debug, Serialize, PartialEq, Eq, Clone, Copy)]
 #[serde(rename_all = "camelCase")]
 pub enum StopReason {
-    /// `limit` results found; more may follow from the cursor.
+    /// `limit` results (or [`MAX_HIT_BYTES`] of them) found; more may follow
+    /// from the cursor.
     Limit,
     /// `LogSearchMaxBytes` read.
     MaxBytes,
@@ -366,6 +465,7 @@ pub fn search(source: &Source, q: &Query, bounds: &Bounds) -> Outcome {
         None => 0,
     };
     let json = q.stream.is_json();
+    let mut hit_bytes = 0usize;
 
     'files: for file in &files[start_index..] {
         // Rotation dates the filenames: skip files wholly outside the range
@@ -442,6 +542,7 @@ pub fn search(source: &Source, q: &Query, bounds: &Bounds) -> Outcome {
             {
                 continue;
             }
+            hit_bytes += bytes.len();
             let text = String::from_utf8_lossy(&bytes).into_owned();
             let line = if json {
                 match serde_json::from_str::<serde_json::Value>(&text) {
@@ -457,7 +558,7 @@ pub fn search(source: &Source, q: &Query, bounds: &Bounds) -> Outcome {
                 ts,
                 line,
             });
-            if out.hits.len() >= q.limit {
+            if out.hits.len() >= q.limit || hit_bytes >= MAX_HIT_BYTES {
                 out.scanned_bytes += lines.bytes_read;
                 out.skipped_oversized += lines.skipped_oversized;
                 out.stopped = Some(StopReason::Limit);
@@ -485,65 +586,9 @@ fn resume<R>(file: &LogFile, lines: &ReverseLines<R>, end: u64) -> String {
     .encode()
 }
 
-/// Everything a search request needs that outlives it: the sources resolved
-/// at boot, the per-request bounds, and the concurrency cap.
-pub struct LogSearch {
-    pub sources: Vec<Source>,
-    pub bounds: Bounds,
-    /// One permit per running search. Scans are cheap per line but not per
-    /// request, and each one holds a blocking-pool thread.
-    pub permits: std::sync::Arc<tokio::sync::Semaphore>,
-}
-
-impl LogSearch {
-    pub fn new(sources: Vec<Source>, bounds: Bounds, concurrency: usize) -> Self {
-        Self {
-            sources,
-            bounds,
-            permits: std::sync::Arc::new(tokio::sync::Semaphore::new(concurrency.max(1))),
-        }
-    }
-
-    /// `None` (with a log line saying why) when `LogSearchRoots` is empty or
-    /// malformed. Never fatal: the rest of the dashboard serves either way.
-    pub fn from_config(config: &crate::config::DashboardConfig) -> Option<std::sync::Arc<Self>> {
-        let sources = match sources(&config.log_search_roots) {
-            Ok(s) if s.is_empty() => {
-                tracing::info!("log search: disabled (LogSearchRoots is empty)");
-                return None;
-            }
-            Ok(s) => s,
-            Err(e) => {
-                tracing::error!("log search: disabled — {e}");
-                return None;
-            }
-        };
-        tracing::info!(
-            "log search: {}",
-            sources
-                .iter()
-                .map(|s| format!("{} in {}", s.service, s.log_dir.display()))
-                .collect::<Vec<_>>()
-                .join(", ")
-        );
-        Some(std::sync::Arc::new(Self::new(
-            sources,
-            Bounds {
-                max_bytes: config.log_search_max_bytes,
-                deadline: Duration::from_millis(config.log_search_timeout_ms),
-            },
-            config.log_search_concurrency,
-        )))
-    }
-
-    pub fn source(&self, service: &str) -> Option<&Source> {
-        self.sources.iter().find(|s| s.service == service)
-    }
-}
-
 /// What `/admin/logs/streams` lists: a stream that has files, and the dates
 /// they cover.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct StreamInfo {
     pub service: String,

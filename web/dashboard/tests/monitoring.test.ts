@@ -258,6 +258,10 @@ const STREAMS = {
     { service: "game_server", stream: "audit:chat", files: 1, oldest: 0, newestEnd: 1 },
     { service: "login_server", stream: "error", files: 1, oldest: 0, newestEnd: 1 },
   ],
+  sources: [
+    { service: "game_server", up: true, error: null },
+    { service: "login_server", up: true, error: null },
+  ],
 };
 
 function hit(i: number) {
@@ -329,6 +333,25 @@ describe("logs page", () => {
     expect(afterOlder.indexOf("event 2")).toBeLessThan(afterOlder.indexOf("event 3"));
     expect(afterOlder).toContain("older lines have not been searched yet");
     expect(keepSearching).toBe(1);
+  });
+
+  test("a server that did not answer is named, not silently missing", async () => {
+    if (skip()) return;
+    const { page } = await open("/admin/logs", {
+      "/admin/logs/streams": () => ({
+        streams: STREAMS.streams.filter((s) => s.service === "game_server"),
+        sources: [
+          { service: "game_server", up: true, error: null },
+          { service: "login_server", up: false, error: "Connection refused (os error 61)" },
+        ],
+      }),
+    });
+    await page.waitForTimeout(300);
+    const status = (await page.textContent("main")) ?? "";
+    await page.close();
+    expect(status).toContain("Login server did not answer");
+    expect(status).toContain("Connection refused");
+    expect(status).not.toContain("Game server did not answer");
   });
 
   test("audit streams disable the level filter and never send one", async () => {

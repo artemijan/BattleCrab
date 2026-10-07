@@ -197,7 +197,7 @@ mod tests {
             metrics_poll_seconds: 5,
             metrics_retention_days: 7,
             // No log search in tests; its tests attach their own roots.
-            log_search_roots: String::new(),
+            log_search_enabled: false,
             log_search_max_bytes: 256 * 1024 * 1024,
             log_search_timeout_ms: 3000,
             log_search_concurrency: 2,

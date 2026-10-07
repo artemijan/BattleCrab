@@ -10,7 +10,7 @@ impl Root {
     fn new() -> Self {
         static N: AtomicU64 = AtomicU64::new(0);
         let dir = std::env::temp_dir().join(format!(
-            "dashboard-logsearch-{}-{}",
+            "commons-logsearch-{}-{}",
             std::process::id(),
             N.fetch_add(1, Ordering::Relaxed)
         ));
@@ -420,16 +420,112 @@ fn streams_are_a_closed_set() {
 }
 
 #[test]
-fn sources_derive_directories_from_each_root() {
-    let s = sources("game_server=dist/game, dashboard_api=dist/game").unwrap();
-    assert_eq!(s[0].log_dir, Path::new("dist/game").join("log"));
-    assert_eq!(s[0].audit_dir, Path::new("dist/game").join("log/audit"));
-    assert_eq!(
-        s[1].audit_dir,
-        Path::new("dist/game").join(DASHBOARD_AUDIT_DIR)
+fn a_source_derives_its_directories_from_the_root() {
+    let s = Source::resolve("game_server", "dist/game", "log/audit");
+    assert_eq!(s.log_dir, Path::new("dist/game/log"));
+    assert_eq!(s.audit_dir, Path::new("dist/game/log/audit"));
+    let d = Source::resolve("dashboard_api", "dist/game/", "log/audit-dashboard");
+    assert_eq!(d.log_dir, Path::new("dist/game/log"));
+    assert_eq!(d.audit_dir, Path::new("dist/game/log/audit-dashboard"));
+}
+
+fn request(stream: &str) -> SearchRequest {
+    SearchRequest {
+        stream: stream.into(),
+        from: 0,
+        to: 1_000,
+        q: String::new(),
+        regex: false,
+        level: None,
+        limit: 100,
+        cursor: None,
+        max_bytes: 1 << 20,
+        timeout_ms: 1_000,
+    }
+}
+
+#[test]
+fn literal_text_is_escaped_and_case_insensitive() {
+    let p = compile("a.b (c)", false).unwrap().unwrap();
+    assert!(p.is_match(b"xx A.B (C) yy"));
+    assert!(!p.is_match(b"aXb (c)"), "the dot is literal");
+    let r = compile("a.b", true).unwrap().unwrap();
+    assert!(r.is_match(b"aXb"));
+    assert!(!r.is_match(b"AXB"), "a regex is taken as written");
+}
+
+#[test]
+fn hostile_or_malformed_requests_are_refused_up_front() {
+    assert!(compile("(", true).is_err());
+    assert!(compile(&"a".repeat(MAX_QUERY_LEN + 1), false).is_err());
+    // Compiles to far more than the cap: refused, not built.
+    assert!(compile(r"\w{1000}\w{1000}\w{1000}", true).is_err());
+
+    assert!(request("audit:../../etc").validate().is_err());
+    let mut audit_level = request("audit:chat");
+    audit_level.level = Some("warn".into());
+    assert!(audit_level.validate().is_err());
+    let mut bad_level = request("diagnostic");
+    bad_level.level = Some("loud".into());
+    assert!(bad_level.validate().is_err());
+    let mut big = request("diagnostic");
+    big.limit = MAX_LIMIT + 1;
+    assert!(big.validate().is_err());
+    let mut zero = request("diagnostic");
+    zero.limit = 0;
+    assert!(zero.validate().is_err());
+    let mut inverted = request("diagnostic");
+    (inverted.from, inverted.to) = (10, 5);
+    assert!(inverted.validate().is_err());
+    let mut cursor = request("diagnostic");
+    cursor.cursor = Some("not base64!".into());
+    assert!(cursor.validate().is_err());
+}
+
+#[test]
+fn a_budget_asked_for_is_capped_by_the_service_running_the_scan() {
+    let mut greedy = request("diagnostic");
+    greedy.max_bytes = u64::MAX;
+    greedy.timeout_ms = u64::MAX;
+    let (_, bounds) = greedy.validate().unwrap();
+    assert_eq!(bounds.max_bytes, MAX_SCAN_BYTES);
+    assert_eq!(bounds.deadline, MAX_DEADLINE);
+    let (_, modest) = request("diagnostic").validate().unwrap();
+    assert_eq!(modest.max_bytes, 1 << 20);
+    assert_eq!(modest.deadline, Duration::from_millis(1_000));
+}
+
+#[test]
+fn a_page_of_long_lines_stops_at_the_byte_cap_with_a_cursor() {
+    let root = Root::new();
+    let filler = "x".repeat(reverse::MAX_LINE - 200);
+    let lines: String = (0..10)
+        .map(|i| {
+            diag(
+                &format!("2026-08-14T0{i}:00:00Z"),
+                "INFO",
+                &format!("{i} {filler}"),
+            )
+        })
+        .collect();
+    root.write("log/game_server.2026-08-14.json", &lines);
+    let q = query(
+        Stream::Diagnostic,
+        "2026-08-14T00:00:00Z",
+        "2026-08-15T00:00:00Z",
     );
-    assert!(sources("").unwrap().is_empty());
-    assert!(sources("game_server").is_err());
-    assert!(sources("../x=dist/game").is_err());
-    assert!(sources("a=x,a=y").is_err());
+    let first = search(&root.source(), &q, &wide());
+    let per_line = lines.len() / 10;
+    assert_eq!(first.hits.len(), MAX_HIT_BYTES.div_ceil(per_line));
+    assert_eq!(first.stopped, Some(StopReason::Limit));
+    assert!(!first.truncated, "a full page, not a budget cut");
+    let rest = search(
+        &root.source(),
+        &Query {
+            cursor: Cursor::decode(first.cursor.as_deref().unwrap()),
+            ..q
+        },
+        &wide(),
+    );
+    assert_eq!(first.hits.len() + rest.hits.len(), 10);
 }

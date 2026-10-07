@@ -28,7 +28,7 @@ fn test_config() -> DashboardConfig {
         metrics_poll_seconds: 5,
         metrics_retention_days: 7,
         // No log search in tests; its tests attach their own roots.
-        log_search_roots: String::new(),
+        log_search_enabled: false,
         log_search_max_bytes: 256 * 1024 * 1024,
         log_search_timeout_ms: 3000,
         log_search_concurrency: 2,
@@ -3032,10 +3032,37 @@ impl Drop for ScratchRoot {
     }
 }
 
-/// `test_app` with log search over `root` as `game_server`.
+/// `test_app` with log search: `root`'s files are the game server's,
+/// searched by a real monitor channel the dashboard reaches over TCP, and
+/// `root`'s `dashboard_api` files are the dashboard's own, searched in-process.
 async fn test_app_with_logs(
     root: &ScratchRoot,
     concurrency: usize,
+) -> (
+    axum::Router,
+    SqlitePool,
+    Arc<dashboard_api::logsearch::LogSearch>,
+) {
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let addr = listener.local_addr().unwrap();
+    tokio::spawn(commons::monitor::serve(
+        listener,
+        "game_server",
+        Some(commons::logsearch::Source::resolve(
+            "game_server",
+            &root.slash(),
+            "log/audit",
+        )),
+    ));
+    test_app_with_logs_at(root, concurrency, &format!("game_server={addr}")).await
+}
+
+/// [`test_app_with_logs`] with `targets` as `MonitorTargets`, for targets
+/// that are down or misbehave.
+async fn test_app_with_logs_at(
+    root: &ScratchRoot,
+    concurrency: usize,
+    targets: &str,
 ) -> (
     axum::Router,
     SqlitePool,
@@ -3048,15 +3075,31 @@ async fn test_app_with_logs(
         .unwrap();
     let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
     migration::Migrator::up(&db, None).await.unwrap();
+    let monitor = Arc::new(dashboard_api::monitor::Monitor::new(
+        dashboard_api::monitor::store::MetricsDb::in_memory()
+            .await
+            .unwrap(),
+        dashboard_api::monitor::parse_targets(targets).unwrap(),
+        5,
+        7,
+    ));
     let ls = Arc::new(dashboard_api::logsearch::LogSearch::new(
-        dashboard_api::logsearch::sources(&format!("game_server={}", root.0.display())).unwrap(),
-        dashboard_api::logsearch::Bounds {
+        commons::logsearch::Source::resolve(
+            "dashboard_api",
+            &root.slash(),
+            dashboard_api::logsearch::DASHBOARD_AUDIT_DIR,
+        ),
+        commons::logsearch::Bounds {
             max_bytes: 64 * 1024 * 1024,
             deadline: std::time::Duration::from_secs(10),
         },
         concurrency,
     ));
-    let state = Arc::new(App::new(db, test_config()).with_log_search(Some(ls.clone())));
+    let state = Arc::new(
+        App::new(db, test_config())
+            .with_log_search(Some(ls.clone()))
+            .with_monitor(Some(monitor)),
+    );
     (dashboard_api::app(state), pool, ls)
 }
 
@@ -3073,6 +3116,12 @@ fn write_game_log(root: &ScratchRoot) {
     std::fs::write(
         root.0.join("log/audit/chat.2026-08-14.ndjson"),
         "{\"event\":\"say\",\"text\":\"hello from bob\",\"ip\":\"203.0.113.9\",\"ts\":\"2026-08-14T01:30:00Z\"}\n",
+    )
+    .unwrap();
+    // The dashboard writes beside the game server, under its own prefix.
+    std::fs::write(
+        root.0.join("log/dashboard_api.2026-08-14.json"),
+        "{\"timestamp\":\"2026-08-14T06:00:00Z\",\"level\":\"INFO\",\"message\":\"dashboard up\"}\n",
     )
     .unwrap();
 }
@@ -3127,14 +3176,27 @@ async fn admins_list_streams_and_page_through_a_search() {
             .unwrap(),
     )
     .await;
-    let names: Vec<&str> = streams["streams"]
+    let names: Vec<(&str, &str)> = streams["streams"]
         .as_array()
         .unwrap()
         .iter()
-        .map(|s| s["stream"].as_str().unwrap())
+        .map(|s| {
+            (
+                s["service"].as_str().unwrap(),
+                s["stream"].as_str().unwrap(),
+            )
+        })
         .collect();
-    assert_eq!(names, vec!["diagnostic", "audit:chat"]);
+    assert_eq!(
+        names,
+        vec![
+            ("game_server", "diagnostic"),
+            ("game_server", "audit:chat"),
+            ("dashboard_api", "diagnostic"),
+        ]
+    );
     assert_eq!(streams["streams"][0]["oldest"], 1_786_665_600_000i64);
+    assert_eq!(streams["sources"][0]["up"], true);
 
     let first = body_json(
         app.clone()
@@ -3191,15 +3253,63 @@ async fn admins_list_streams_and_page_through_a_search() {
     assert_eq!(msgs(&errors), vec!["event 3"]);
 
     let chat = body_json(
+        app.clone()
+            .oneshot(get_with_cookie(
+                &format!(
+                    "/api/v1/admin/logs/search?service=game_server&stream=audit:chat&{DAY}&q=BOB"
+                ),
+                &admin,
+            ))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(chat["hits"][0]["line"]["text"], "hello from bob");
+    assert_eq!(chat["service"], "game_server");
+    assert_eq!(chat["stream"], "audit:chat");
+
+    // The dashboard's own log, searched here rather than over a channel.
+    let own = body_json(
         app.oneshot(get_with_cookie(
-            &format!("/api/v1/admin/logs/search?service=game_server&stream=audit:chat&{DAY}&q=BOB"),
+            &format!("/api/v1/admin/logs/search?service=dashboard_api&stream=diagnostic&{DAY}"),
             &admin,
         ))
         .await
         .unwrap(),
     )
     .await;
-    assert_eq!(chat["hits"][0]["line"]["text"], "hello from bob");
+    assert_eq!(msgs(&own), vec!["dashboard up"]);
+}
+
+#[tokio::test]
+async fn a_server_that_is_down_is_named_not_mistaken_for_one_without_logs() {
+    let root = ScratchRoot::new("logs-down");
+    write_game_log(&root);
+    // Nothing listens on port 1.
+    let (app, pool, _) = test_app_with_logs_at(&root, 2, "game_server=127.0.0.1:1").await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+
+    let streams = body_json(
+        app.clone()
+            .oneshot(get_with_cookie("/api/v1/admin/logs/streams", &admin))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(streams["sources"][0]["service"], "game_server");
+    assert_eq!(streams["sources"][0]["up"], false);
+    assert!(streams["sources"][0]["error"].is_string());
+    // The dashboard's own logs are still listed.
+    assert_eq!(streams["streams"][0]["service"], "dashboard_api");
+
+    let search = app
+        .oneshot(get_with_cookie(
+            &format!("/api/v1/admin/logs/search?service=game_server&stream=diagnostic&{DAY}"),
+            &admin,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(search.status(), StatusCode::BAD_GATEWAY);
 }
 
 #[tokio::test]
@@ -3296,4 +3406,61 @@ async fn search_refuses_unknown_services_streams_and_bad_patterns() {
             .unwrap();
         assert_eq!(response.status(), status, "{query}");
     }
+}
+
+#[tokio::test]
+async fn logs_from_a_target_answering_as_another_service_are_refused() {
+    let root = ScratchRoot::new("logs-swapped");
+    write_game_log(&root);
+    // Ports swapped in MonitorTargets: the "login" port is the game server.
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let addr = listener.local_addr().unwrap();
+    tokio::spawn(commons::monitor::serve(
+        listener,
+        "game_server",
+        Some(commons::logsearch::Source::resolve(
+            "game_server",
+            &root.slash(),
+            "log/audit",
+        )),
+    ));
+    let (app, pool, _) = test_app_with_logs_at(&root, 2, &format!("login_server={addr}")).await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+
+    let streams = body_json(
+        app.clone()
+            .oneshot(get_with_cookie("/api/v1/admin/logs/streams", &admin))
+            .await
+            .unwrap(),
+    )
+    .await;
+    assert_eq!(streams["sources"][0]["up"], false);
+    assert!(
+        streams["sources"][0]["error"]
+            .as_str()
+            .unwrap()
+            .contains("check MonitorTargets")
+    );
+    assert!(
+        streams["streams"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|s| s["service"] == "dashboard_api"),
+        "the game server's streams must not be listed as the login server's"
+    );
+
+    let search = app
+        .oneshot(get_with_cookie(
+            &format!("/api/v1/admin/logs/search?service=login_server&stream=diagnostic&{DAY}"),
+            &admin,
+        ))
+        .await
+        .unwrap();
+    assert_eq!(search.status(), StatusCode::BAD_GATEWAY);
+    let body = body_json(search).await;
+    assert!(
+        body.to_string().contains("check MonitorTargets"),
+        "got {body}"
+    );
 }

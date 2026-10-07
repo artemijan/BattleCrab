@@ -273,15 +273,27 @@ impl Sampler {
     }
 }
 
-/// Start the sampler and its loopback channel, if `InternalMonitorPort` is
-/// non-zero. `service` is the same name logging uses (`game_server`,
-/// `login_server`) and is stamped on every line served.
+/// Start the sampler and its channel, if `InternalMonitorPort` is non-zero.
+/// `service` is the same name logging uses (`game_server`, `login_server`)
+/// and is stamped on every line served. `logs` is where this server writes
+/// its own logs, which the channel's `logs` requests search (§6).
 ///
 /// A bind failure is logged and swallowed, as for the login server's status
 /// channel: a server must not fail to boot over a monitoring port.
-pub async fn spawn(service: &'static str, cfg: &MonitorConfig, heap: Option<HeapProbe>) {
+pub async fn spawn(
+    service: &'static str,
+    cfg: &MonitorConfig,
+    heap: Option<HeapProbe>,
+    logs: crate::logsearch::Source,
+) {
     if cfg.port == 0 {
         info!("Monitor channel: disabled (InternalMonitorPort = 0).");
+        return;
+    }
+    if let Err(e) = crate::network::internal::check_bind(&cfg.bind_address, cfg.port) {
+        warn!(
+            "Monitor channel: refusing InternalMonitorBindAddress — {e}. Monitoring unavailable."
+        );
         return;
     }
     let bind = format!("{}:{}", cfg.bind_address, cfg.port);
@@ -308,10 +320,23 @@ pub async fn spawn(service: &'static str, cfg: &MonitorConfig, heap: Option<Heap
     );
     tokio::spawn(channel::accept_loop(
         listener,
-        service,
-        ring,
-        &clients::PROVIDER,
+        channel::Channel::new(service, ring, &clients::PROVIDER, Some(logs)),
     ));
+}
+
+/// The channel alone, with no sampler behind it: an empty ring, this
+/// process's client provider, and `logs`. For tests in other crates that need
+/// a real channel to talk to. Runs until the process exits.
+pub async fn serve(
+    listener: TcpListener,
+    service: &'static str,
+    logs: Option<crate::logsearch::Source>,
+) {
+    channel::accept_loop(
+        listener,
+        channel::Channel::new(service, Arc::new(Ring::new(1)), &clients::PROVIDER, logs),
+    )
+    .await;
 }
 
 #[cfg(test)]

@@ -2,6 +2,7 @@
 //! buffer helpers. Shared by the login server and, later, the game server.
 
 mod framing;
+pub mod internal;
 mod packet;
 
 pub use framing::{HEADER_SIZE, frame_into, read_frame, write_frame};

@@ -14,8 +14,9 @@ over the existing NDJSON files. Retention: 7 days at 5s granularity for metrics.
 ## 1. The shaping decision: pull, with a ring buffer
 
 Each server samples **itself** every 5s into an in-memory ring; `dashboard_api` polls each server
-over a loopback channel (mirroring `loginserver::status_channel`, DASHBOARD.md §16.6's "planned
-game-server control channel") and is the **sole writer** to a dedicated `metrics.db`.
+over an internal channel on loopback or a private network (mirroring `loginserver::status_channel`,
+DASHBOARD.md §16.6's "planned game-server control channel") and is the **sole writer** to a
+dedicated `metrics.db`.
 
 | Alternative | Why not |
 |---|---|
@@ -183,10 +184,18 @@ instead of an inflated rate. If the wall clock steps backwards (NTP) onto a buck
 holds, that sample is skipped without advancing the baseline; the next one covers both intervals.
 P3 keys storage on `(service, ts)`, so a duplicate `ts` must never be emitted.
 
-**The channel**: a new loopback port per server (game `7779`, login `7780`), not an extension of
+**The channel**: a new port per server (game `7779`, login `7780`), not an extension of
 `status_channel`. Making 7778 request-driven would need a read-timeout dance to stay backward
 compatible with "connect and read". One line in, NDJSON out, close. It uses the same security model
-as `status_channel.rs`: the loopback bind is the control.
+as `status_channel.rs`: the bind address is the control, and the network behind it is trusted.
+
+**Bind rule** (`commons::network::internal::check_bind`, applied to this channel and to the login
+status channel): the address must be loopback (the default) or private — `10/8`, `172.16/12`,
+`192.168/16`, `100.64/10` (Tailscale), `fc00::/7`. A hostname is resolved and every address it
+gives must pass. `0.0.0.0`, `::` and public addresses are refused: the channel stays off and the
+server logs why, but boots. That is what lets the servers sit on other machines than the dashboard
+(bind the machine's private address, point `MonitorTargets` at it) without a typo in an ini ever
+exposing an unauthenticated port that can list players' IPs, read the logs and kick.
 
 ```
 $ printf 'since 1759000000000\n' | nc 127.0.0.1 7779
@@ -198,8 +207,11 @@ $ printf 'since 1759000000000\n' | nc 127.0.0.1 7779
   whole ring.
 - Registry series sit under `metrics`, not at the top level, so a counter can never collide with a
   fixed field. The P3 poller maps known names to columns and the rest to `extra`.
-- Anything else gets one `{"error":…}` line. Requests are capped at 64 bytes and 2 s, so a silent
-  or flooding client can't hold a task or grow a buffer.
+- `clients` and `kick` serve the Audit page (§10); `logs streams` and `logs search <json>` serve log
+  search (§6).
+- Anything else gets one `{"error":…}` line. Requests are capped at 8 KB (a `logs search` line with
+  a 512-byte pattern, JSON-escaped, plus a cursor) and 2 s, so a silent or flooding client can't
+  hold a task or grow a buffer.
 - `InternalMonitorPort = 0` disables the sampler too: with nothing able to read the ring, there's no
   point filling it. A bind failure is logged and the server boots anyway.
 
@@ -243,22 +255,37 @@ that latency.
 
 ## 6. P4 (shipped): log search
 
-Admin-only (`require_admin`, DASHBOARD.md §16.2), under `/api/v1/admin/logs`
-(`crates/dashboard_api/src/logsearch/`, `routes/logs.rs`).
+Admin-only (`require_admin`, DASHBOARD.md §16.2), under `/api/v1/admin/logs` (`routes/logs.rs`).
+
+**Each service searches its own files, on its own machine.** The scanner is
+`commons::logsearch`. The game and login servers run it when the dashboard asks over their monitor
+channel (§4): `logs streams` answers one `StreamInfo` line per stream, and `logs search <json>`
+takes a `SearchRequest` and answers one `Outcome` line, which the dashboard passes on as it came.
+The dashboard searches only its own logs, in-process (`dashboard_api::logsearch`). Nothing reads
+another process's directory, so the servers can run on other machines, and the mapping from
+service to files lives with the service that writes them (each server builds its `Source` from its
+own `Logging.ini` at boot), not in the dashboard's config.
+
+A request is validated twice by the same function, `SearchRequest::validate`: by the dashboard,
+for a clear 400, and by the server, which does not take the asker's word for it. The dashboard
+sends its own budget (`LogSearchMaxBytes`, `LogSearchTimeoutMs`); the server caps it at 1 GB and
+30 s, since the scan costs its machine. Its reply timeout is that deadline plus 5 s.
 
 ```
 GET /admin/logs/streams
-  → {streams: [{service, stream, files, oldest, newestEnd}]}      only streams that have files
+  → {streams: [{service, stream, files, oldest, newestEnd}],       only streams that have files
+     sources: [{service, up, error}]}       one per MonitorTargets server; a down one lists nothing
 GET /admin/logs/search?service&stream&from&to&q&regex&level&limit&cursor
   → {service, stream, from, to, hits: [{file, offset, ts, line}], cursor, stopped, truncated,
      scannedBytes, filesScanned, skippedOversized}
 ```
 
-**No client-supplied paths, by construction.** `service` must be a key of `LogSearchRoots`
-(else 404). `stream` must parse into a closed enum: `diagnostic`, `error`, or
-`audit:<category>` for one of `commons::audit::Category::ALL`. Each service's directories are
+**No client-supplied paths, by construction.** `service` must be `dashboard_api` or a
+`MonitorTargets` service (else 404). `stream` must parse into a closed enum: `diagnostic`, `error`,
+or `audit:<category>` for one of `commons::audit::Category::ALL`. Each service's directories are
 resolved once at boot from its datapack's own `Logging.ini` (the dashboard's audit directory is
-`logsearch::DASHBOARD_AUDIT_DIR`, which `main` also uses), and the search enumerates that directory.
+`dashboard_api::logsearch::DASHBOARD_AUDIT_DIR`, which `main` also uses), and the search enumerates
+that directory.
 The cursor carries a filename, but it's only ever *compared* against that enumeration, never joined
 onto a path, so traversal can't be expressed (tested with `../` and absolute names).
 
@@ -280,8 +307,10 @@ The scan (`logsearch::search`):
    for lines that will be returned). Once lines are 5 s older than `from` (the slack allows for
    writer reordering), the whole search stops: everything further back is older still.
 4. **Bounds**, all enforced: `LogSearchMaxBytes` (256 MB) and `LogSearchTimeoutMs` (3 s) per
-   request; `limit` 1..=500 (default 100); `LogSearchConcurrency` (2) via a semaphore. A search
-   over the cap gets a 429 rather than a queue. Hitting the byte or time bound returns
+   request; `limit` 1..=500 (default 100), and at most 8 MB of matching lines per response
+   (`MAX_HIT_BYTES`, stopping like `limit`); `LogSearchConcurrency` (2) via a semaphore on the
+   dashboard, covering local and remote searches alike, plus 2 per server. A search over the cap
+   gets a 429 rather than a queue; a server that can't answer is a 502 naming it. Hitting the byte or time bound returns
    `truncated: true` and a cursor; hitting `limit` returns `stopped: "limit"` and a cursor. Either
    way the cursor resumes exactly after the last line consumed (tested: no gaps, no repeats,
    including resuming a truncated scan to completion).
@@ -376,10 +405,11 @@ directory, exactly like the game database's `URL`, not the cwd. In prod that's n
 `interlude_classic.db`; under `cargo run` it's `target/debug/metrics.db`. The absolute path is
 logged at boot. Both deploy scripts already exclude `*.db` from their rsyncs.
 
-**Shipped in P4**, also in `Dashboard.ini`: `LogSearchRoots`
-(`game_server=dist/game,login_server=dist/login,dashboard_api=dist/game`; relative to the working
-directory, like the `dist/game/` the dashboard already reads its config from; empty disables),
-`LogSearchMaxBytes` (256 MB), `LogSearchTimeoutMs` (3000) and `LogSearchConcurrency` (2).
+**Shipped in P4**, also in `Dashboard.ini`: `LogSearchEnabled` (`True`; `False` makes
+`/admin/logs` answer 503), `LogSearchMaxBytes` (256 MB), `LogSearchTimeoutMs` (3000) and
+`LogSearchConcurrency` (2). P4 first shipped `LogSearchRoots` (`service=datapack_root` pairs the
+dashboard read files from); it went when each server started searching its own files, and an old
+`Dashboard.ini` that still sets it is ignored.
 
 **Shipped in P2**: a new `config/Monitor.ini` in each datapack (`dist/game/`, `dist/login/`), read
 by `commons::monitor::MonitorConfig`, following the same pattern as `Logging.ini`. The keys are
@@ -405,19 +435,18 @@ rsyncs `dist/{game,login}/` whole, so the new file deploys with no script change
    alternative — raw for 24h + 1-minute rollups for the rest of the week — is ~1/12 the storage and
    makes long-range queries trivial, at the cost of losing 5s resolution past a day. Revisit if
    `metrics.db` size or query latency becomes a problem.
-2. **Log search assumes co-location.** It reads files on the local disk `dashboard_api` runs on.
-   Both deploy scripts target one host today; if that changes, log search needs the monitor channel
-   to carry log lines too.
+2. **Log search assumes co-location.** *Resolved:* each server searches its own files when asked
+   over its monitor channel (§6), so the dashboard reads no other machine's disk.
 3. **Gaps when the dashboard is down.** The server-side ring (§4) covers deploys; a longer outage
    leaves a hole in the chart — the honest rendering, not an interpolated lie.
 4. **Frontend charting.** *Decided: hand-rolled SVG* (§6a). No chart library in `web/dashboard`,
    in keeping with `docs/DASHBOARD.md` §8.2's habit of minimizing dependencies, and static SVG
    stays inside the mobile GPU budget.
-5. **Login and game on separate machines.** The channel binds loopback and has no authentication
-   (§4); the bind is the only control, and since §10 it can disconnect players. A server on
-   another machine therefore shows as down. Options when this is needed: an SSH tunnel or a VPN
-   (WireGuard/Tailscale), with no code change, or a shared token on the channel that is
-   required whenever the bind is not loopback. Log search (q2) has the same problem.
+5. **Login and game on separate machines.** *Resolved* for a trusted private network: every
+   channel between the dashboard and the servers may bind a private-network address, and
+   nothing wider (§4's bind rule). Metrics, the client list, kicks, status and log search then
+   all work across machines with configuration alone. Machine-level metrics (load, memory,
+   disk) are left to an external host monitor (§3). The deploy scripts still target one host.
 
 ## 10. P6 (shipped): the live client list (Audit page)
 
@@ -527,8 +556,8 @@ login server the registry row carries a `Notify`; the connection task selects on
 `LoginFail(ACCESS_FAILED)` and hangs up, freeing the account like any other disconnect.
 
 This makes the channel able to change something, not just read. The control is unchanged: the
-loopback bind. Widening `InternalMonitorBindAddress` now also lets anyone who can reach the port
-disconnect players.
+bind address, which may be loopback or a private network and nothing wider (§4). Anyone who can
+reach the port can disconnect players.
 
 **IP bans** live in the `ip_bans` table (`ip`, `expires_at` in epoch ms with `0` for permanent,
 `reason`, `banned_by`, `created_at`; migration `m20261007_000001_ip_bans`). It replaced the

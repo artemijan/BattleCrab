@@ -26,10 +26,10 @@
 //!
 //! The listener binds to **loopback by default**, which the kernel enforces:
 //! nothing off-host can reach it whatever the firewall says. That is the actual
-//! security control. `InternalStatusBindAddress` can widen it, and the config
-//! comment says plainly that doing so publishes account counts and server
-//! topology to anyone who can reach the port — at which point the operator owns
-//! putting a control in front of it.
+//! security control. `InternalStatusBindAddress` can widen it to a private
+//! network, for a dashboard on another machine, but never further:
+//! `commons::network::internal::check_bind` refuses the wildcard and public
+//! addresses, so the channel can't end up facing the internet.
 //!
 //! # The protocol
 //!
@@ -110,6 +110,13 @@ pub async fn spawn(ctx: Arc<LoginContext>) {
     let cfg = &ctx.config;
     if cfg.internal_status_port == 0 {
         info!("Status channel: disabled (InternalStatusPort = 0).");
+        return;
+    }
+    if let Err(e) = commons::network::internal::check_bind(
+        &cfg.internal_status_bind_address,
+        cfg.internal_status_port,
+    ) {
+        warn!("Status channel: refusing InternalStatusBindAddress — {e}. Status unavailable.");
         return;
     }
     let bind = format!(

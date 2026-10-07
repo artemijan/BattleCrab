@@ -27,6 +27,9 @@ serde_json.workspace = true
 time.workspace = true
 thiserror.workspace = true
 libc.workspace = true
+# Log search (`logsearch`): the pattern matcher and the per-line field scan.
+regex.workspace = true
+memchr.workspace = true
 
 [lints]
 workspace = true
