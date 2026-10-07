@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Builds and deploys dashboard_api to the same host as deploy.sh, as a systemd
-# service (start-on-boot, graceful SIGTERM with a 30s grace period, logs to a
-# per-service file).
+# Builds and deploys dashboard_api to DASHBOARD_HOST (default REMOTE_HOST, the
+# same host as deploy.sh), as a systemd service (start-on-boot, graceful SIGTERM
+# with a 30s grace period, logs to a per-service file).
 #
 # This is the BACKEND half only. The site itself is deployed separately by
 # deploy-web.sh, to Cloudflare Pages — no frontend files are copied to this
@@ -9,9 +9,13 @@
 # the binary (rust-embed), so api.battlecrab.com keeps serving a working copy as
 # a fallback; the canonical site is the Cloudflare one.
 #
-# Shares deploy.env with deploy.sh — same REMOTE_HOST / REMOTE_USER /
-# REMOTE_PATH / SSH_* / TARGET_TRIPLE. This script is committed and holds no
-# secrets; every credential comes from deploy.env (gitignored — see
+# Shares deploy.env and deploy-lib.sh with deploy.sh — the same hosts, REMOTE_USER
+# / REMOTE_PATH / SSH_* / TARGET_TRIPLE, and the same topology: MonitorTargets
+# and StatusChannelAddress are written from where the servers run, loopback
+# when they share this machine, their private address when they don't. On a
+# machine without the game server, the slice of dist/game the dashboard reads
+# (config/, data/stats/items/) is synced too. This script is committed and
+# holds no secrets; every credential comes from deploy.env (gitignored — see
 # deploy.env.example). See the DASHBOARD_* block below for the extra variables.
 #
 # Cross-compilation uses cargo-zigbuild (https://github.com/rust-cross/cargo-zigbuild):
@@ -39,19 +43,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-ENV_FILE="${1:-$SCRIPT_DIR/deploy.env}"
-if [[ ! -f "$ENV_FILE" ]]; then
-    echo "error: env file not found: $ENV_FILE" >&2
-    echo "create it with REMOTE_HOST, REMOTE_USER, REMOTE_PATH (see deploy.sh header) before deploying." >&2
-    exit 1
-fi
-# shellcheck disable=SC1090
-source "$ENV_FILE"
-
-: "${REMOTE_HOST:?REMOTE_HOST must be set in $ENV_FILE}"
-: "${REMOTE_USER:?REMOTE_USER must be set in $ENV_FILE}"
-: "${REMOTE_PATH:?REMOTE_PATH must be set in $ENV_FILE}"
-SSH_PORT="${SSH_PORT:-22}"
+# shellcheck source=deploy-lib.sh
+source "$SCRIPT_DIR/deploy-lib.sh"
+deploy_load_env "${1:-}"
 
 # --- Dashboard settings (all overridable from deploy.env) ---------------------
 # These are written into the remote Dashboard.ini on every deploy, so the
@@ -139,23 +133,8 @@ CLOUDFLARE_TUNNEL_TOKEN="${CLOUDFLARE_TUNNEL_TOKEN:-}"
 # deliberately want the port exposed on the host's public interface.
 DASHBOARD_BIND_ADDRESS="${DASHBOARD_BIND_ADDRESS:-127.0.0.1}"
 
-SSH_OPTS=(-p "$SSH_PORT")
-RSYNC_SSH="ssh -p $SSH_PORT"
-if [[ -n "${SSH_KEY:-}" ]]; then
-    SSH_OPTS+=(-i "${SSH_KEY/#\~/$HOME}")
-    RSYNC_SSH="$RSYNC_SSH -i ${SSH_KEY/#\~/$HOME}"
-fi
-
-remote() {
-    # ssh flattens argv into a single string with plain spaces before handing it
-    # to the remote shell, so any arg containing a space (the sed scripts below)
-    # gets word-split remotely unless we re-quote it here.
-    local cmd
-    printf -v cmd '%q ' "$@"
-    ssh "${SSH_OPTS[@]}" "$REMOTE_USER@$REMOTE_HOST" "$cmd"
-}
-
-echo "==> Target: $REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH"
+deploy_resolve_topology
+deploy_print_topology
 echo "==> API $DASHBOARD_PUBLIC_URL (port $DASHBOARD_PORT)  site $DASHBOARD_SITE_URL"
 
 # --- Guard: deploy.sh must not clobber Dashboard.ini --------------------------
@@ -189,25 +168,10 @@ if [[ ${#DASHBOARD_SESSION_SECRET} -lt 32 ]]; then
 fi
 
 # --- Remote prerequisites -----------------------------------------------------
-if ! remote command -v rsync >/dev/null 2>&1; then
-    echo "==> rsync not found on remote, installing"
-    remote sudo apt-get update -qq
-    remote sudo apt-get install -y rsync
-fi
+deploy_require_rsync "$DASHBOARD_HOST"
 
 # --- Resolve target triple ----------------------------------------------------
-if [[ -z "${TARGET_TRIPLE:-}" ]]; then
-    remote_arch="$(remote uname -m)"
-    case "$remote_arch" in
-        x86_64) TARGET_TRIPLE=x86_64-unknown-linux-gnu ;;
-        aarch64 | arm64) TARGET_TRIPLE=aarch64-unknown-linux-gnu ;;
-        *)
-            echo "error: cannot map remote arch '$remote_arch' to a Rust target triple; set TARGET_TRIPLE in $ENV_FILE" >&2
-            exit 1
-            ;;
-    esac
-    echo "==> Detected remote arch $remote_arch -> $TARGET_TRIPLE"
-fi
+deploy_resolve_triple "$DASHBOARD_HOST"
 
 if ! rustup target list --installed | grep -qx "$TARGET_TRIPLE"; then
     echo "error: rustup target $TARGET_TRIPLE not installed. Run: rustup target add $TARGET_TRIPLE" >&2
@@ -252,14 +216,27 @@ BIN_DIR="target/$TARGET_TRIPLE/release"
 
 # --- Remote layout ------------------------------------------------------------
 echo "==> Ensuring remote directories"
-remote mkdir -p "$REMOTE_PATH/dist/game/config" "$REMOTE_PATH/dist/game/log"
+on "$DASHBOARD_HOST" mkdir -p "$REMOTE_PATH/dist/game/config" "$REMOTE_PATH/dist/game/log"
+
+# On the game server's machine, deploy.sh has synced dist/game already. Anywhere
+# else, sync what the dashboard reads of it: its config (Dashboard.ini excepted,
+# which is seeded below and then kept) and the item XML its catalog is built
+# from — not the rest of the datapack, which is over a gigabyte.
+if [[ "$DASHBOARD_MACHINE" != "$GAME_MACHINE" ]]; then
+    echo "==> Syncing dist/game/config and the item data (no game server on this machine)"
+    on "$DASHBOARD_HOST" mkdir -p "$REMOTE_PATH/dist/game/data/stats/items"
+    push "$DASHBOARD_HOST" \
+        --exclude='Dashboard.ini' --exclude='ipconfig.xml' \
+        dist/game/config/ "$REMOTE_PATH/dist/game/config/"
+    push "$DASHBOARD_HOST" --delete \
+        dist/game/data/stats/items/ "$REMOTE_PATH/dist/game/data/stats/items/"
+fi
 
 # --- Sync binary --------------------------------------------------------------
 # rsync's temp-file-then-rename means the running service keeps executing the
 # old (now-unlinked) inode until it is restarted below — safe to sync live.
 echo "==> Syncing dashboard_api"
-rsync -avz -e "$RSYNC_SSH" "$BIN_DIR/dashboard_api" \
-    "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/"
+push "$DASHBOARD_HOST" "$BIN_DIR/dashboard_api" "$REMOTE_PATH/"
 
 # --- Session secret -----------------------------------------------------------
 # Written to a chmod-600 env file loaded by the systemd unit — never into
@@ -267,8 +244,8 @@ rsync -avz -e "$RSYNC_SSH" "$BIN_DIR/dashboard_api" \
 echo "==> Writing session secret to $DASHBOARD_ENV_FILE"
 # Create and lock down the file *before* writing, so the value is never even
 # briefly readable by other users on the host.
-remote touch "$DASHBOARD_ENV_FILE"
-remote chmod 600 "$DASHBOARD_ENV_FILE"
+on "$DASHBOARD_HOST" touch "$DASHBOARD_ENV_FILE"
+on "$DASHBOARD_HOST" chmod 600 "$DASHBOARD_ENV_FILE"
 # Single-quoted on the remote side so values cannot be word-split or
 # glob-expanded by the remote shell. Written in one shot (> then >>) so the
 # file is never left half-populated if the connection drops mid-way.
@@ -334,46 +311,50 @@ else
     echo
 fi
 
-rsync -avz --chmod=600 -e "$RSYNC_SSH" "$TMP_ENV" \
-    "$REMOTE_USER@$REMOTE_HOST:$DASHBOARD_ENV_FILE"
-remote chmod 600 "$DASHBOARD_ENV_FILE"
+push "$DASHBOARD_HOST" --chmod=600 "$TMP_ENV" "$DASHBOARD_ENV_FILE"
+on "$DASHBOARD_HOST" chmod 600 "$DASHBOARD_ENV_FILE"
 rm -f "$TMP_ENV"
 
 # --- Config -------------------------------------------------------------------
 # Seed the file only if absent, then force the deployment-specific keys.
-if ! remote test -f "$REMOTE_PATH/dist/game/config/Dashboard.ini"; then
-    echo "==> No Dashboard.ini on remote yet, seeding from local template"
-    rsync -avz -e "$RSYNC_SSH" dist/game/config/Dashboard.ini \
-        "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/dist/game/config/Dashboard.ini"
+if ! on "$DASHBOARD_HOST" test -f "$REMOTE_PATH/dist/game/config/Dashboard.ini"; then
+    echo "==> No Dashboard.ini on $DASHBOARD_HOST yet, seeding from local template"
+    push "$DASHBOARD_HOST" dist/game/config/Dashboard.ini "$REMOTE_PATH/dist/game/config/Dashboard.ini"
 fi
 
 echo "==> Applying deployment settings to remote Dashboard.ini"
-remote sed -i "s|^BindAddress[[:space:]]*=.*|BindAddress = $DASHBOARD_BIND_ADDRESS|" \
+on "$DASHBOARD_HOST" sed -i "s|^BindAddress[[:space:]]*=.*|BindAddress = $DASHBOARD_BIND_ADDRESS|" \
     "$REMOTE_PATH/dist/game/config/Dashboard.ini"
-remote sed -i "s|^Port[[:space:]]*=.*|Port = $DASHBOARD_PORT|" \
+on "$DASHBOARD_HOST" sed -i "s|^Port[[:space:]]*=.*|Port = $DASHBOARD_PORT|" \
     "$REMOTE_PATH/dist/game/config/Dashboard.ini"
-remote sed -i "s|^PublicBaseUrl[[:space:]]*=.*|PublicBaseUrl = $DASHBOARD_PUBLIC_URL|" \
+on "$DASHBOARD_HOST" sed -i "s|^PublicBaseUrl[[:space:]]*=.*|PublicBaseUrl = $DASHBOARD_PUBLIC_URL|" \
     "$REMOTE_PATH/dist/game/config/Dashboard.ini"
-remote sed -i "s|^SiteBaseUrl[[:space:]]*=.*|SiteBaseUrl = $DASHBOARD_SITE_URL|" \
+on "$DASHBOARD_HOST" sed -i "s|^SiteBaseUrl[[:space:]]*=.*|SiteBaseUrl = $DASHBOARD_SITE_URL|" \
     "$REMOTE_PATH/dist/game/config/Dashboard.ini"
-remote sed -i "s|^AllowedOrigins[[:space:]]*=.*|AllowedOrigins = $DASHBOARD_ALLOWED_ORIGINS|" \
+on "$DASHBOARD_HOST" sed -i "s|^AllowedOrigins[[:space:]]*=.*|AllowedOrigins = $DASHBOARD_ALLOWED_ORIGINS|" \
     "$REMOTE_PATH/dist/game/config/Dashboard.ini"
+# Where the servers' channels are, from the topology: written every deploy, so
+# moving a server to another machine needs no hand edit here.
+DASHBOARD_INI="$REMOTE_PATH/dist/game/config/Dashboard.ini"
+set_ini "$DASHBOARD_HOST" "$DASHBOARD_INI" MonitorTargets \
+    "game_server=$GAME_CHANNEL_ADDRESS:$GAME_MONITOR_PORT,login_server=$LOGIN_CHANNEL_ADDRESS:$LOGIN_MONITOR_PORT"
+set_ini "$DASHBOARD_HOST" "$DASHBOARD_INI" StatusChannelAddress "$LOGIN_CHANNEL_ADDRESS:$LOGIN_STATUS_PORT"
 # No Smtp* seds: SMTP is environment-only now (written to $DASHBOARD_ENV_FILE
 # above). Strip any stale keys a previously deployed ini still carries, so the
 # server stops logging "it is IGNORED" errors about them.
-remote sed -i "/^Smtp\(Host\|Port\|From\|Username\|Password\|User\)[[:space:]]*=/d" \
+on "$DASHBOARD_HOST" sed -i "/^Smtp\(Host\|Port\|From\|Username\|Password\|User\)[[:space:]]*=/d" \
     "$REMOTE_PATH/dist/game/config/Dashboard.ini"
 
 # Belt and braces: the server ignores a SessionSecret key in the ini, but its
 # presence means one may have been committed at some point.
-if remote grep -q '^SessionSecret' "$REMOTE_PATH/dist/game/config/Dashboard.ini" 2>/dev/null; then
+if on "$DASHBOARD_HOST" grep -q '^SessionSecret' "$REMOTE_PATH/dist/game/config/Dashboard.ini" 2>/dev/null; then
     echo "    NOTE: remote Dashboard.ini still contains a SessionSecret key. It is ignored;"
     echo "    remove it, and rotate the value if it was ever committed to git."
 fi
 
 # The dashboard opens the same SQLite file as the login/game servers and will
 # refuse to start if it is missing, rather than creating an empty one.
-if ! remote test -f "$REMOTE_PATH/interlude_classic.db"; then
+if [[ -n "$DB_IS_SQLITE" ]] && ! on "$DASHBOARD_HOST" test -f "$REMOTE_PATH/interlude_classic.db"; then
     echo
     echo "    WARNING: no interlude_classic.db at $REMOTE_PATH."
     echo "    dashboard_api will refuse to start — it must open the SAME database as the"
@@ -420,15 +401,14 @@ StandardError=append:$REMOTE_PATH/dist/game/log/dashboard.log
 WantedBy=multi-user.target
 EOF
 
-rsync -avz -e "$RSYNC_SSH" "$TMP_UNIT_DIR/l2-dashboard.service" \
-    "$REMOTE_USER@$REMOTE_HOST:/tmp/"
-remote sudo mv /tmp/l2-dashboard.service /etc/systemd/system/
-remote sudo systemctl daemon-reload
-remote sudo systemctl enable l2-dashboard.service
+push "$DASHBOARD_HOST" "$TMP_UNIT_DIR/l2-dashboard.service" /tmp/
+on "$DASHBOARD_HOST" sudo mv /tmp/l2-dashboard.service /etc/systemd/system/
+on "$DASHBOARD_HOST" sudo systemctl daemon-reload
+on "$DASHBOARD_HOST" sudo systemctl enable l2-dashboard.service
 
 # --- Restart ------------------------------------------------------------------
 echo "==> Restarting l2-dashboard"
-remote sudo systemctl restart l2-dashboard.service
+on "$DASHBOARD_HOST" sudo systemctl restart l2-dashboard.service
 
 # --- Health check -------------------------------------------------------------
 # The service can exit *after* systemctl returns success (bad config, missing
@@ -437,7 +417,7 @@ echo "==> Health check"
 health_ok=""
 for _ in 1 2 3 4 5; do
     sleep 1
-    if remote curl -fsS --max-time 3 "http://127.0.0.1:$DASHBOARD_PORT/api/v1/health" >/dev/null 2>&1; then
+    if on "$DASHBOARD_HOST" curl -fsS --max-time 3 "http://127.0.0.1:$DASHBOARD_PORT/api/v1/health" >/dev/null 2>&1; then
         health_ok=1
         break
     fi
@@ -448,8 +428,8 @@ if [[ -n "$health_ok" ]]; then
 else
     echo "    FAILED — no response from http://127.0.0.1:$DASHBOARD_PORT/api/v1/health" >&2
     echo "    Recent log:" >&2
-    remote tail -n 20 "$REMOTE_PATH/dist/game/log/dashboard.log" >&2 || true
-    remote sudo systemctl --no-pager --lines=10 status l2-dashboard.service >&2 || true
+    on "$DASHBOARD_HOST" tail -n 20 "$REMOTE_PATH/dist/game/log/dashboard.log" >&2 || true
+    on "$DASHBOARD_HOST" sudo systemctl --no-pager --lines=10 status l2-dashboard.service >&2 || true
     exit 1
 fi
 
@@ -457,7 +437,7 @@ fi
 # Installed after the health check, so the tunnel is only ever pointed at an
 # API that is already answering locally.
 if [[ -n "$CLOUDFLARE_TUNNEL_TOKEN" ]]; then
-    if ! remote command -v cloudflared >/dev/null 2>&1; then
+    if ! on "$DASHBOARD_HOST" command -v cloudflared >/dev/null 2>&1; then
         echo "==> Installing cloudflared"
         case "$TARGET_TRIPLE" in
             x86_64-*) cf_arch=amd64 ;;
@@ -467,26 +447,26 @@ if [[ -n "$CLOUDFLARE_TUNNEL_TOKEN" ]]; then
                 exit 1
                 ;;
         esac
-        remote curl -fsSL -o /tmp/cloudflared.deb \
+        on "$DASHBOARD_HOST" curl -fsSL -o /tmp/cloudflared.deb \
             "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${cf_arch}.deb"
-        remote sudo dpkg -i /tmp/cloudflared.deb
-        remote rm -f /tmp/cloudflared.deb
+        on "$DASHBOARD_HOST" sudo dpkg -i /tmp/cloudflared.deb
+        on "$DASHBOARD_HOST" rm -f /tmp/cloudflared.deb
     fi
 
     # Reinstall rather than reuse: the token is the whole configuration, and
     # this is the only way to guarantee the running tunnel matches the token in
     # this script. The uninstall is a no-op on a first deploy.
     echo "==> Installing cloudflared service"
-    remote sudo cloudflared service uninstall >/dev/null 2>&1 || true
-    remote sudo cloudflared service install "$CLOUDFLARE_TUNNEL_TOKEN"
-    remote sudo systemctl enable --now cloudflared
+    on "$DASHBOARD_HOST" sudo cloudflared service uninstall >/dev/null 2>&1 || true
+    on "$DASHBOARD_HOST" sudo cloudflared service install "$CLOUDFLARE_TUNNEL_TOKEN"
+    on "$DASHBOARD_HOST" sudo systemctl enable --now cloudflared
 
     sleep 3
-    if remote systemctl is-active --quiet cloudflared; then
+    if on "$DASHBOARD_HOST" systemctl is-active --quiet cloudflared; then
         echo "    cloudflared is running"
     else
         echo "    WARNING: cloudflared is not active. Recent log:" >&2
-        remote sudo journalctl -u cloudflared --no-pager --lines=15 >&2 || true
+        on "$DASHBOARD_HOST" sudo journalctl -u cloudflared --no-pager --lines=15 >&2 || true
     fi
 
     # End-to-end check through Cloudflare. Warn rather than fail: the public
@@ -516,7 +496,7 @@ else
 fi
 
 echo "==> Status"
-remote sudo systemctl --no-pager --lines=5 status l2-dashboard.service || true
+on "$DASHBOARD_HOST" sudo systemctl --no-pager --lines=5 status l2-dashboard.service || true
 
 echo "==> Done. Logs: $REMOTE_PATH/dist/game/log/dashboard.log"
 echo "    Listening on $DASHBOARD_BIND_ADDRESS:$DASHBOARD_PORT"
