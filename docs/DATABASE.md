@@ -1,7 +1,8 @@
 # Database
 
-One database holds both the login and the game schema: an SQLite file by
-default, or PostgreSQL ([below](#postgresql)). The servers open it through
+One database holds both the login and the game schema. **SQLite is the default**
+and needs no setup; PostgreSQL is supported as an alternative backend for those
+who prefer a database server ([below](#postgresql)). The servers open it through
 `commons::db`, which accepts the JDBC-style URL the `.ini` files already carry
 (`jdbc:sqlite:interlude_classic.db?journal_mode=WAL&busy_timeout=5000`) and
 resolves a **relative SQLite path against the executable's directory** — so the
@@ -142,10 +143,15 @@ timers, …) and exist so that porting one of them needs no schema work.
 
 ## PostgreSQL
 
-SQLite is one file on one disk, so the login server, game server and dashboard
-must share a machine. PostgreSQL lifts that: point all three at one server and
-they can run anywhere on the private network (`docs/MONITORING.md` §9 q5; the
-deploy scripts take a host per service).
+An alternative to the default SQLite file, for anyone who would rather run the
+game on a database server — to use existing PostgreSQL infrastructure, its
+backup and replication tooling, or its admin tools. Everything works the same on
+either backend, and both are tested in CI.
+
+One thing only PostgreSQL allows: SQLite is one file on one disk, so with it the
+login server, game server and dashboard share a machine. Pointed at one
+PostgreSQL server, they can run on separate machines on a private network
+(`docs/MONITORING.md` §9 q5; the deploy scripts take a host per service).
 
 ```ini
 # LoginServer.ini, Server.ini and Dashboard.ini — the same value in all three

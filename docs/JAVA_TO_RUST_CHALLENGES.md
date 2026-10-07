@@ -310,9 +310,10 @@ In Rust everything becomes `Option<T>`, which is strictly better but means:
 > the initial port; the schema/SQL is written against SQLite. If multi-driver
 > support returns later, `sqlx`'s `Any` driver covers all three original backends.
 >
-> **Revised (2026-10): SQLite and PostgreSQL.** PostgreSQL came back so the
-> login server, game server and dashboard can run on separate machines. It goes
-> through SeaORM's own PostgreSQL connector rather than `Any`, chosen by the URL
+> **Revised (2026-10): SQLite by default, PostgreSQL as an alternative.**
+> PostgreSQL came back as an option for those who prefer a database server
+> (it also lets the services run on separate machines). It goes through
+> SeaORM's own PostgreSQL connector rather than `Any`, chosen by the URL
 > (`commons::db`); MariaDB stays dropped. See [DATABASE.md](DATABASE.md#postgresql).
 
 Java: JDBC with three drivers (MariaDB, PostgreSQL, SQLite — see `pom.xml`,

@@ -7,8 +7,9 @@
 //! `postgres://` URLs, so one `URL` line in each `.ini` decides the backend for
 //! every binary.
 //!
-//! SQLite is one file on one machine; PostgreSQL is what lets the login server,
-//! game server and dashboard run on different machines.
+//! SQLite is the default. PostgreSQL is an alternative backend for those who
+//! prefer a database server — and the one that lets the login server, game
+//! server and dashboard run on different machines, which one SQLite file cannot.
 //!
 //! A PostgreSQL password does not belong in a committed `.ini`: when the URL
 //! carries none, [`PASSWORD_ENV`] supplies it.
