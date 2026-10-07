@@ -179,8 +179,7 @@ they pass through verbatim; on PostgreSQL `crates/migration/src/dialect.rs` maps
 each to the type its entity reads (`INTEGER` for `i32`, `BIGINT` for `i64`,
 `TEXT` for a timestamp the entity reads as a `String`, `VARCHAR` for `CHAR` —
 which PostgreSQL would pad with spaces — and so on), because PostgreSQL's driver
-will not decode across types the way SQLite does. `models/tests/postgres_schema.rs`
-checks every column of every entity against the migrated schema.
+will not decode across types the way SQLite does.
 
 What else differs, and why it is safe:
 

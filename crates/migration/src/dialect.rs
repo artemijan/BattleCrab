@@ -8,8 +8,7 @@
 //! PostgreSQL rejects several of them outright, and its driver is strict where
 //! SQLite is loose: an `i32` field cannot read a `BIGINT`, an `i64` cannot read
 //! an `INTEGER`, and a `String` cannot read a `TIMESTAMP`. So on PostgreSQL each
-//! type maps to the one the entities read it as (`crates/models`), which
-//! `models/tests/postgres_schema.rs` checks column by column:
+//! type maps to the one the entities read it as (`crates/models`):
 //!
 //! | declared                                  | PostgreSQL         | entity    |
 //! |-------------------------------------------|--------------------|-----------|
