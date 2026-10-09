@@ -78,14 +78,14 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
 
     // `pkt.shift` is deliberately dropped — Java's `AttackRequest._attackId`
     // ("0 for simple click 1 for shift-click") is read and never used.
-    start_attack_intent(world, client_id, object_id, pkt.object_id);
+    attack_intent(world, client_id, object_id, pkt.object_id, true);
 }
 
 /// Shared entry for "the player wants to auto-attack this target" (from
 /// `AttackRequest` or the second `Action` click): monsters, siege
 /// towers/flags/guards and siege gates, plus flagged players. Clean players
-/// need Ctrl (enforced client-side) and plain folk aren't attackable without
-/// the karma system. Out of reach the click starts a chase
+/// need Ctrl (enforced client-side); plain folk only through the forced
+/// `AttackRequest` path (`AltAttackableNpcs`). Out of reach the click starts a chase
 /// (`player_attack_think` → `maybe_move_to_pawn`).
 ///
 /// There is **no `dontMove` for melee**: `AttackRequest` reads the shift byte
@@ -98,6 +98,20 @@ pub(crate) fn start_attack_intent(
     client_id: u32,
     object_id: i32,
     target_object_id: i32,
+) {
+    attack_intent(world, client_id, object_id, target_object_id, false);
+}
+
+/// [`start_attack_intent`] with `forced` set for `AttackRequest` — Java's
+/// `onForcedAttack`, which (unlike the click path) lets a non-auto-attackable
+/// NPC be engaged when it `canBeAttacked()` or the attacker's access level
+/// has `allowPeaceAttack` (see [`super::target::npc_can_be_attacked`]).
+fn attack_intent(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    target_object_id: i32,
+    forced: bool,
 ) {
     // `PlayableAI.onIntentionAttack`'s very first line: `if
     // (getActingPlayer().isSitting()) return;`. A seated player never engages,
@@ -159,9 +173,11 @@ pub(crate) fn start_attack_intent(
     } else {
         // NPCs: monsters (auto-attackable template) — plus siege towers/flags,
         // which combatants tear down during a siege, and the stationed guards,
-        // which attackers (anyone but a defender) may attack. Other folk aren't
-        // attackable without the karma system.
-        let attackable = super::target::is_auto_attackable(world, object_id, target_object_id);
+        // which attackers (anyone but a defender) may attack. Anything else
+        // needs a forced attack (Ctrl) and passes `Creature.onForcedAttack`'s
+        // `!target.canBeAttacked() && !allowPeaceAttack` refusal.
+        let attackable = super::target::is_auto_attackable(world, object_id, target_object_id)
+            || (forced && forced_npc_attack_allowed(world, object_id, target_object_id));
         if !attackable || target_dead {
             helpers::send_action_failed(world, client_id);
             return;
@@ -173,6 +189,23 @@ pub(crate) fn start_attack_intent(
     );
     // Think immediately — first swing shouldn't wait for the next tick.
     player_attack_think(world, object_id);
+}
+
+/// `Creature.onForcedAttack`'s NPC gate: the target `canBeAttacked()`
+/// (`AltAttackableNpcs` for plain folk), or the attacker's access level has
+/// `allowPeaceAttack`. An `Artefact` overrides `onForcedAttack` to do nothing,
+/// so it stays refused either way.
+fn forced_npc_attack_allowed(world: &World, attacker_oid: i32, target_oid: i32) -> bool {
+    if crate::game_loop::npc::npc_template(world, target_oid)
+        .is_some_and(|t| t.type_name == "Artefact")
+    {
+        return false;
+    }
+    super::target::npc_can_be_attacked(world, target_oid)
+        || world
+            .objects
+            .get_component::<crate::model::Player>(&attacker_oid)
+            .is_some_and(|p| p.access_level_def(&world.data).allow_peace_attack)
 }
 
 /// `setIntention(AI_INTENTION_ATTACK, target)` from a *finished cast* — the

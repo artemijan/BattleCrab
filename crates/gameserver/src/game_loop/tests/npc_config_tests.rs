@@ -1,8 +1,10 @@
 //! `NPC.ini`'s last unread keys (row 14).
 //!
 //! Thirteen keys were parsed and five of them wired to a consumer that already
-//! existed. These tests hold the five to Java's behaviour, and the config test
-//! at the bottom holds the parse itself to the shipped file — the eight inert
+//! existed (`AltAttackableNpcs` came later — its tests live with the forced
+//! attack in `combat_tests::attack`). These tests hold the five to Java's
+//! behaviour, and the config test at the bottom holds the parse itself to the
+//! shipped file — the seven inert
 //! ones have no observable behaviour to pin at their shipped values (see the
 //! field docs in [`crate::config::npc`]), so what matters for them is that the
 //! numbers are read correctly.
@@ -320,9 +322,10 @@ fn the_thirteen_npc_keys_parse_to_the_shipped_values() {
         c.raid_max_respawn_multiplier, 1.0,
         "RaidMaxRespawnMultiplier"
     );
-    // The four inert ones, at the values that make them inert.
+    // Shipped off (retail: on) — a Ctrl-attack on folk needs allowPeaceAttack.
+    assert!(!c.alt_attackable_npcs, "AltAttackableNpcs");
+    // The three inert ones, at the values that make them inert.
     assert!(c.alt_mob_agro_in_peace_zone, "AltMobAgroInPeaceZone");
-    assert!(c.alt_attackable_npcs, "AltAttackableNpcs");
     assert!(
         !c.attackables_camp_player_corpses,
         "AttackablesCampPlayerCorpses"

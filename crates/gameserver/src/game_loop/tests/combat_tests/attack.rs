@@ -368,3 +368,47 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
         "victim damage message"
     );
 }
+
+/// `Creature.onForcedAttack`'s `!target.canBeAttacked() && !allowPeaceAttack`
+/// gate on a Ctrl-attack at a plain NPC: `Npc.canBeAttacked()` is
+/// `AltAttackableNpcs`, so a teleporter is engaged with it on and refused with
+/// it off — unless the attacker's access level has `allowPeaceAttack`.
+#[test]
+fn forced_attack_on_folk_follows_alt_attackable_npcs() {
+    use crate::model::components::combat::Intent;
+    let (mut world, ..) = admin_world();
+    add_test_npc(&mut world, NPC_OID, 30080, "Teleporter", 70, 30, 0, 0);
+    let _user = ingame_player_access(&mut world, 1, 3001, 0);
+    let _gm = ingame_player_access(&mut world, 2, 3002, 100);
+    assert!(world.data.admin.access_level(100).allow_peace_attack);
+
+    let attacks = |world: &mut World, cid: u32, oid: i32| {
+        world.objects.remove_component::<Intent>(&oid);
+        handle_attack_request(world, cid, &attack_request_body(NPC_OID));
+        world.objects.has_component::<Intent>(&oid)
+    };
+
+    world.cfg.npc.alt_attackable_npcs = true;
+    assert!(attacks(&mut world, 1, 3001), "AltAttackableNpcs = True");
+
+    world.cfg.npc.alt_attackable_npcs = false;
+    assert!(!attacks(&mut world, 1, 3001), "AltAttackableNpcs = False");
+    assert!(
+        attacks(&mut world, 2, 3002),
+        "allowPeaceAttack overrides it"
+    );
+}
+
+/// An `Artefact` refuses a forced attack whatever the config or access level
+/// (Java's `Artefact.onForcedAttack` is a no-op).
+#[test]
+fn forced_attack_never_reaches_an_artefact() {
+    use crate::model::components::combat::Intent;
+    let (mut world, ..) = admin_world();
+    add_test_npc(&mut world, NPC_OID, 35063, "Artefact", 80, 30, 0, 0);
+    let _gm = ingame_player_access(&mut world, 2, 3002, 100);
+    world.cfg.npc.alt_attackable_npcs = true;
+
+    handle_attack_request(&mut world, 2, &attack_request_body(NPC_OID));
+    assert!(!world.objects.has_component::<Intent>(&3002));
+}

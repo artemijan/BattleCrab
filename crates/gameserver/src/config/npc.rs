@@ -160,7 +160,8 @@ pub struct NpcConfig {
     /// `CorpseConsumeSkillAllowedTimeBeforeDecay` (ms) — a corpse this close
     /// to decaying is too old to sweep or harvest.
     pub corpse_consume_skill_allowed_time_before_decay: i32,
-    // The four below are **parsed and inert at the shipped values**, the same
+    // `AltAttackableNpcs` (second below) is wired — see its doc. The other
+    // three are **parsed and inert at the shipped values**, the same
     // way `PvpConfig`'s anti-feed block is: each guards a Java branch that
     // does nothing at the value this dist ships, so the port already agrees
     // with it. They are carried so the values are visible and so a change of
@@ -172,10 +173,13 @@ pub struct NpcConfig {
     /// mobs aggro everywhere. The port has no peace-zone aggro gate, which is
     /// that same behaviour.
     pub alt_mob_agro_in_peace_zone: bool,
-    /// `AltAttackableNpcs` — **True**. It feeds `Npc.canBeAttacked()`, not
+    /// `AltAttackableNpcs` — **False** on this dist (Java/retail default
+    /// `True`). It feeds `Npc.canBeAttacked()`, not
     /// `isAttackable()`, and the one caller is `Creature.onForcedAttack`'s
     /// `!target.canBeAttacked() && !allowPeaceAttack` refusal — so with it on
-    /// that refusal never fires for an NPC.
+    /// that refusal never fires for an NPC. Read by
+    /// `combat::target::npc_can_be_attacked` on the Ctrl-attack path; skills
+    /// never consult it (Java's `Enemy.java` doesn't either).
     pub alt_attackable_npcs: bool,
     /// `AttackablesCampPlayerCorpses` — **False**: `AttackableAI:486` folds
     /// `(target.isPlayer() && !ATTACKABLES_CAMP_PLAYER_CORPSES &&
