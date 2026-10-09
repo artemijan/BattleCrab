@@ -356,18 +356,12 @@ pub struct GeneralConfig {
     /// audit does not re-derive it; deliberately unused, like the eight dead
     /// `Character.ini` keys named in `config::character`'s header.
     pub custom_teleport_table: bool,
-    /// `HtmCache` (dist **False**, Java default `true`) — whether the whole
-    /// `html/` tree is parsed into memory at boot.
-    ///
-    /// **False is the lazy branch, and lazy is exactly what this port does.**
-    /// `data::htm_cache`'s header used to frame per-interaction reading as a
-    /// deliberate deviation from Java, which is true only against
-    /// `HtmCache = True`; on this dist Java logs *"Cache[HTML]: Running lazy
-    /// cache"* and reads the same way. So the port already implements the
-    /// configured branch, and the field exists to say which branch that is —
-    /// the eager one is not implemented and would change more than caching
-    /// (`Npc.getHtmlPath` treats the cache as the existence oracle, so a file
-    /// added after boot becomes invisible).
+    /// `HtmCache` (dist **True**, an operator deviation — upstream ships
+    /// False; Java default `true`) — whether every `data/` html is loaded at
+    /// boot. True keeps dialog opens off the disk entirely; the cache is then
+    /// the existence oracle, so a file added after boot is invisible until
+    /// `//reload html`. False is Java's lazy branch: read on first request,
+    /// remember the hit. See `data::htm_cache`.
     pub htm_cache: bool,
     /// `CheckHtmlEncoding` (dist **True**) — warn at load when an html file is
     /// not pure ASCII. Diagnostics only; Java exempts `data/lang`.
@@ -913,6 +907,19 @@ mod tests {
              out impersonally unless an operator edits it"
         );
         assert!(g.correct_prices, "CorrectPrices=True");
+    }
+
+    /// `HtmCache = True` is an operator deviation (CUSTOM_DIST_DEVIATIONS.md):
+    /// upstream ships the lazy branch, which reads html from disk on the game
+    /// thread. A re-sync from upstream would silently put the reads back.
+    #[test]
+    fn dist_preloads_the_html_cache() {
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/config/General.ini"
+        );
+        let g = GeneralConfig::from_parser(&PropertiesParser::load(path));
+        assert!(g.htm_cache, "HtmCache=True");
     }
 
     /// The real dist `General.ini` values (the GM block near the top of the
