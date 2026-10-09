@@ -71,6 +71,31 @@ pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i
         || crate::game_loop::siege::attackable_siege_guard(world, target_oid, attacker_oid)
 }
 
+/// Java `WorldObject.canBeAttacked()` for an NPC target — the gate
+/// `Creature.onForcedAttack` checks on a Ctrl-attack:
+/// `!target.canBeAttacked() && !getAccessLevel().allowPeaceAttack()` refuses.
+///
+/// - `Attackable` subtree (monsters, guards, defenders, …) → always `true`.
+/// - `Tower` → only while its castle's siege runs, which
+///   [`is_auto_attackable`] already answers, so `false` here.
+/// - `Artefact` → `false`.
+/// - Every other NPC (`Npc.canBeAttacked`) → `AltAttackableNpcs`.
+///
+/// Only the forced melee path consults this; Java's skill target handlers
+/// (`Enemy.java`: `isAutoAttackable || forceUse`) never do.
+pub(crate) fn npc_can_be_attacked(world: &World, target_oid: i32) -> bool {
+    let Some(t) = npc_template(world, target_oid) else {
+        return false;
+    };
+    if t.is_attackable_class() {
+        return true;
+    }
+    match t.type_name.as_str() {
+        "ControlTower" | "FlameTower" | "Artefact" => false,
+        _ => world.cfg.npc.alt_attackable_npcs,
+    }
+}
+
 /// `Npc.canInteract(player)`: 3D distance vs `INTERACTION_DISTANCE` between two
 /// world objects, plus the seated refusal. Shared by the interact path here and
 /// the bypass router (Java re-checks it on every `npc_…` bypass).
