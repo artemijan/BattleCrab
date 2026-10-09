@@ -156,6 +156,11 @@ async fn rebuild(manager: &SchemaManager<'_>, ty: &str, cast: &str) -> Result<()
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        // A repair of SQLite storage classes. PostgreSQL databases are built
+        // by the baseline with `DOUBLE PRECISION` from the start.
+        if manager.get_database_backend() != DatabaseBackend::Sqlite {
+            return Ok(());
+        }
         let Some(ty) = hp_column_type(manager).await? else {
             return Ok(()); // no table yet — the baseline builds it as `double`
         };
@@ -168,6 +173,9 @@ impl MigrationTrait for Migration {
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        if manager.get_database_backend() != DatabaseBackend::Sqlite {
+            return Ok(());
+        }
         let Some(ty) = hp_column_type(manager).await? else {
             return Ok(());
         };

@@ -176,12 +176,11 @@ export type MonitorSeries = {
   from: number;
   to: number;
   bucketMs: number;
-  aggregation: Record<string, "sum" | "max" | "avg" | "min">;
+  aggregation: Record<string, "sum" | "max">;
   ts: number[];
   /** Raw samples per bucket — fewer than expected is a gap. */
   samples: number[];
-  /** Absent on host series. */
-  intervalMs?: number[];
+  intervalMs: number[];
   series: Record<string, Array<number | null>>;
 };
 
@@ -266,14 +265,15 @@ export type ClientDetails = {
   joiningServer?: number;
 };
 
-export type ClientSource = { service: MonitorService; up: boolean; error: string | null };
+/** How one server answered a request the dashboard asked of every server. */
+export type TargetAnswer = { service: MonitorService; up: boolean; error: string | null };
 
 export type ConnectedClients = {
   /** The dashboard's clock when it answered; durations are measured from it. */
   nowMs: number;
   clients: ConnectedClient[];
   /** One per monitored server, in MonitorTargets order. */
-  sources: ClientSource[];
+  sources: TargetAnswer[];
 };
 
 /* ----------------------------- IP ban types ------------------------------ */
@@ -318,6 +318,14 @@ export type LogStreamInfo = {
   files: number;
   oldest: number | null;
   newestEnd: number | null;
+};
+
+export type LogStreams = {
+  /** The servers' streams, listed by each server over its monitor channel,
+   *  then the dashboard's own. */
+  streams: LogStreamInfo[];
+  /** One per monitored server; one that is down lists no streams. */
+  sources: TargetAnswer[];
 };
 
 export type LogHit = {
@@ -511,9 +519,6 @@ export const api = {
           `/admin/monitor/series?service=${service}&from=${from}&to=${to}&maxPoints=${maxPoints}`,
         ),
 
-      host: (from: number, to: number, maxPoints: number) =>
-        request<MonitorSeries>(`/admin/monitor/host?from=${from}&to=${to}&maxPoints=${maxPoints}`),
-
       clients: () => request<ConnectedClients>("/admin/monitor/clients"),
 
       /** Closes one connection; 404 when it already left. Recorded in gmaudit. */
@@ -543,7 +548,7 @@ export const api = {
     },
 
     logs: {
-      streams: () => request<{ streams: LogStreamInfo[] }>("/admin/logs/streams"),
+      streams: () => request<LogStreams>("/admin/logs/streams"),
 
       /** Every call is recorded server-side in the gmaudit log. */
       search: (p: LogSearchParams) => {

@@ -80,12 +80,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // "How is the server doing" is a counter question, not a log question —
     // the sampler below charts these on the dashboard.
     game_loop::register_metrics();
-    // The 5 s sampler + loopback channel the dashboard polls (Monitor.ini).
-    // Started right after registration so its baseline predates any traffic.
+    // The 5 s sampler + channel the dashboard polls (Monitor.ini), which also
+    // searches this server's logs for it. Started right after registration so
+    // its baseline predates any traffic.
     commons::monitor::spawn(
         "game_server",
         &commons::monitor::MonitorConfig::load(&datapack_root, 7779),
         Some(heap_bytes),
+        commons::logsearch::Source::of_server("game_server", &datapack_root),
     )
     .await;
 

@@ -8,7 +8,8 @@
 # Plus one extra secret that is not a deploy.env variable:
 #
 #   DEPLOY_SSH_KEY   Private key (OpenSSH PEM, the whole file including the
-#                    BEGIN/END lines) authorized for REMOTE_USER@REMOTE_HOST.
+#                    BEGIN/END lines) authorized for REMOTE_USER on every host
+#                    (REMOTE_HOST, or LOGIN_HOST / GAME_HOST / DASHBOARD_HOST).
 #
 # The deploy scripts are the same ones used for manual deploys from a
 # workstation; CI only reconstructs deploy.env and the SSH key, then runs them.
@@ -30,6 +31,23 @@ jobs:
     name: Build & test
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    # The suite runs twice: on SQLite, and on this PostgreSQL through
+    # L2R_TEST_DATABASE_URL (commons::db::testing), so neither backend can
+    # drift from the other unnoticed.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: l2
+          POSTGRES_PASSWORD: l2
+          POSTGRES_DB: l2
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U l2"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v7
 
@@ -50,6 +68,11 @@ jobs:
 
       - name: Test
         run: cargo nextest run --workspace --locked --profile ci
+
+      - name: Test on PostgreSQL
+        env:
+          L2R_TEST_DATABASE_URL: postgres://l2:l2@localhost:5432/l2
+        run: cargo nextest run --workspace --locked
 
       - name: Upload test report
         if: always()
@@ -98,6 +121,11 @@ jobs:
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           REMOTE_HOST: ${{ vars.REMOTE_HOST || secrets.REMOTE_HOST }}
+          LOGIN_HOST: ${{ vars.LOGIN_HOST || secrets.LOGIN_HOST }}
+          GAME_HOST: ${{ vars.GAME_HOST || secrets.GAME_HOST }}
+          DASHBOARD_HOST: ${{ vars.DASHBOARD_HOST || secrets.DASHBOARD_HOST }}
+          LOGIN_PRIVATE_ADDRESS: ${{ vars.LOGIN_PRIVATE_ADDRESS || secrets.LOGIN_PRIVATE_ADDRESS }}
+          GAME_PRIVATE_ADDRESS: ${{ vars.GAME_PRIVATE_ADDRESS || secrets.GAME_PRIVATE_ADDRESS }}
           REMOTE_USER: ${{ vars.REMOTE_USER || secrets.REMOTE_USER }}
           REMOTE_PATH: ${{ vars.REMOTE_PATH || secrets.REMOTE_PATH }}
           SSH_PORT: ${{ vars.SSH_PORT || secrets.SSH_PORT }}
@@ -105,6 +133,7 @@ jobs:
           TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY || secrets.TURNSTILE_SITE_KEY }}
           DASHBOARD_TURNSTILE_SECRET: ${{ secrets.DASHBOARD_TURNSTILE_SECRET }}
           DASHBOARD_SESSION_SECRET: ${{ secrets.DASHBOARD_SESSION_SECRET }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           DASHBOARD_SMTP_HOST: ${{ vars.DASHBOARD_SMTP_HOST || secrets.DASHBOARD_SMTP_HOST }}
           DASHBOARD_SMTP_USERNAME: ${{ vars.DASHBOARD_SMTP_USERNAME || secrets.DASHBOARD_SMTP_USERNAME }}
           DASHBOARD_SMTP_PASSWORD: ${{ secrets.DASHBOARD_SMTP_PASSWORD }}
@@ -113,7 +142,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           # Fail fast, by name, on anything the deploy scripts hard-require.
-          for required in DEPLOY_SSH_KEY REMOTE_HOST REMOTE_USER REMOTE_PATH \
+          for required in DEPLOY_SSH_KEY REMOTE_USER REMOTE_PATH \
                           DASHBOARD_SESSION_SECRET CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
             if [[ -z "${!required}" ]]; then
               echo "::error::$required is not set on the 'production' environment" \
@@ -121,12 +150,24 @@ jobs:
               exit 1
             fi
           done
+          # Each service's host defaults to REMOTE_HOST.
+          HOSTS=()
+          for h in LOGIN_HOST GAME_HOST DASHBOARD_HOST; do
+            host="${!h:-$REMOTE_HOST}"
+            if [[ -z "$host" ]]; then
+              echo "::error::$h is not set and there is no REMOTE_HOST to default it to."
+              exit 1
+            fi
+            [[ " ${HOSTS[*]} " == *" $host "* ]] || HOSTS+=("$host")
+          done
           # Assemble deploy.env for the deploy scripts to source, skipping
           # unset optionals. Values are single-quoted so nothing is
           # word-split or glob-expanded when sourced.
           : > deploy.env
           chmod 600 deploy.env
           for v in REMOTE_HOST REMOTE_USER REMOTE_PATH SSH_PORT TARGET_TRIPLE \
+                   LOGIN_HOST GAME_HOST DASHBOARD_HOST \
+                   LOGIN_PRIVATE_ADDRESS GAME_PRIVATE_ADDRESS DATABASE_PASSWORD \
                    TURNSTILE_SITE_KEY DASHBOARD_TURNSTILE_SECRET \
                    DASHBOARD_SESSION_SECRET DASHBOARD_SMTP_HOST \
                    DASHBOARD_SMTP_USERNAME DASHBOARD_SMTP_PASSWORD \
@@ -143,23 +184,25 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          # Pin the host key so the first ssh call cannot be MITM'd or stall on
-          # an interactive prompt. Retried, because a single scan can drop on
-          # runner egress hiccups — and under `bash -e` that used to fail the
-          # whole step with no message at all.
-          for attempt in 1 2 3; do
-            ssh-keyscan -T 10 -p "${SSH_PORT:-22}" -H "$REMOTE_HOST" > /tmp/hostkeys || true
-            [[ -s /tmp/hostkeys ]] && break
-            echo "ssh-keyscan attempt $attempt got no keys, retrying in 5s..."
-            sleep 5
+          # Pin each host's key so the first ssh call cannot be MITM'd or stall
+          # on an interactive prompt. Retried, because a single scan can drop
+          # on runner egress hiccups — and under `bash -e` that used to fail
+          # the whole step with no message at all.
+          for host in "${HOSTS[@]}"; do
+            for attempt in 1 2 3; do
+              ssh-keyscan -T 10 -p "${SSH_PORT:-22}" -H "$host" > /tmp/hostkeys || true
+              [[ -s /tmp/hostkeys ]] && break
+              echo "ssh-keyscan of $host attempt $attempt got no keys, retrying in 5s..."
+              sleep 5
+            done
+            if [[ ! -s /tmp/hostkeys ]]; then
+              echo "::error::ssh-keyscan got no host keys from $host:${SSH_PORT:-22}" \
+                   "after 3 attempts — check that the server's firewall allows SSH" \
+                   "from GitHub-hosted runner IPs, not just your own."
+              exit 1
+            fi
+            cat /tmp/hostkeys >> ~/.ssh/known_hosts
           done
-          if [[ ! -s /tmp/hostkeys ]]; then
-            echo "::error::ssh-keyscan got no host keys from $REMOTE_HOST:${SSH_PORT:-22}" \
-                 "after 3 attempts — check that the server's firewall allows SSH" \
-                 "from GitHub-hosted runner IPs, not just your own."
-            exit 1
-          fi
-          cat /tmp/hostkeys >> ~/.ssh/known_hosts
 
       # Separate cache from build-test (rust-cache keys on the job id): this
       # job compiles release artifacts for the zigbuild cross target, which

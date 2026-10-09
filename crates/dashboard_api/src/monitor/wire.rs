@@ -1,9 +1,11 @@
 //! The monitor channel's line format, as the dashboard reads it — the other
 //! half of `commons::monitor::Sample::to_json_line` (`docs/MONITORING.md` §4),
-//! and of the channel's `clients` and `kick` lines (§10).
+//! of the channel's `clients` and `kick` lines (§10), and of its `logs` lines
+//! (§6).
 
 use std::collections::BTreeMap;
 
+use commons::logsearch::StreamInfo;
 use commons::monitor::clients::ClientRecord;
 use serde::Deserialize;
 
@@ -82,6 +84,34 @@ pub fn parse_kick(body: &str) -> Result<bool, String> {
         .ok_or_else(|| "unexpected answer to a kick".to_string())
 }
 
+/// A `logs streams` answer: one line per stream, or the channel's error. A
+/// line that is neither fails the whole answer — a listing with holes in it
+/// would read as streams that don't exist.
+pub fn parse_streams(body: &str) -> Result<Vec<StreamInfo>, String> {
+    body.lines()
+        .filter(|l| !l.trim().is_empty())
+        .map(|line| {
+            serde_json::from_str::<StreamInfo>(line).map_err(|_| match error_of(line) {
+                Some(e) => format!("channel refused the request: {e}"),
+                None => "unexpected answer to `logs streams`".to_string(),
+            })
+        })
+        .collect()
+}
+
+/// A `logs search` answer: the server's one `Outcome` line, kept as an object
+/// to pass on, or the channel's error.
+pub fn parse_search(body: &str) -> Result<serde_json::Map<String, serde_json::Value>, String> {
+    let line = body.lines().find(|l| !l.trim().is_empty()).unwrap_or("");
+    if let Some(e) = error_of(line) {
+        return Err(format!("channel refused the request: {e}"));
+    }
+    match serde_json::from_str::<serde_json::Value>(line) {
+        Ok(serde_json::Value::Object(outcome)) if outcome.contains_key("hits") => Ok(outcome),
+        _ => Err("unexpected answer to `logs search`".to_string()),
+    }
+}
+
 /// The message of a channel `{"error":…}` line.
 fn error_of(line: &str) -> Option<String> {
     serde_json::from_str::<serde_json::Value>(line)
@@ -144,5 +174,35 @@ mod tests {
                 .contains("nope")
         );
         assert!(parse_kick("").is_err());
+    }
+
+    #[test]
+    fn log_answers_are_the_servers_lines_or_its_error() {
+        let info = StreamInfo {
+            service: "login_server".into(),
+            stream: "diagnostic".into(),
+            files: 2,
+            oldest: Some(1),
+            newest_end: Some(2),
+        };
+        let body = format!("{}\n", serde_json::to_string(&info).unwrap());
+        assert_eq!(parse_streams(&body), Ok(vec![info]));
+        assert_eq!(parse_streams(""), Ok(vec![]));
+        assert!(
+            parse_streams("{\"error\":\"nope\"}\n")
+                .unwrap_err()
+                .contains("nope")
+        );
+        assert!(parse_streams("garbage\n").is_err());
+
+        let outcome = parse_search("{\"hits\":[],\"cursor\":null,\"truncated\":false}\n").unwrap();
+        assert_eq!(outcome["hits"], serde_json::json!([]));
+        assert!(
+            parse_search("{\"error\":\"invalid regex\"}\n")
+                .unwrap_err()
+                .contains("invalid regex")
+        );
+        assert!(parse_search("{\"kicked\":true}\n").is_err());
+        assert!(parse_search("").is_err());
     }
 }

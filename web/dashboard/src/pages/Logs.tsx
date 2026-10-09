@@ -14,7 +14,7 @@ import { type SubmitEvent, useEffect, useMemo, useState } from "react";
 
 import { AdminNav } from "../components/AdminNav";
 import { Alert, Button, Field, LabeledSelect, Panel, Spinner, cx } from "../components/ui";
-import { ApiError, api, type LogHit, type LogSearchParams } from "../lib/api";
+import { ApiError, api, type LogHit, type LogSearchParams, type TargetAnswer } from "../lib/api";
 import { formatBytes } from "../lib/chart";
 
 const RANGES = [
@@ -42,7 +42,7 @@ function streamLabel(stream: string): string {
 
 function errorText(error: unknown): string {
   if (error instanceof ApiError && error.code === "unavailable") {
-    return "Log search is disabled on this dashboard (LogSearchRoots is empty).";
+    return "Log search is disabled on this dashboard (LogSearchEnabled is off).";
   }
   if (error instanceof ApiError && error.code === "rate_limited") {
     return "Too many searches are running right now — try again in a moment.";
@@ -129,6 +129,8 @@ export function Logs() {
           GM audit log under your account.
         </p>
       </section>
+
+      <DownServers sources={streams.data?.sources ?? []} />
 
       {streams.isError ? (
         <Alert kind="error">{errorText(streams.error)}</Alert>
@@ -328,6 +330,27 @@ function HitRow({ hit }: { hit: LogHit }) {
           {JSON.stringify(line, null, 2)}
         </pre>
       )}
+    </div>
+  );
+}
+
+/** Each server searches its own files, so one that is down lists nothing;
+ *  say so, rather than let it look like a server with no logs. */
+function DownServers({ sources }: { sources: TargetAnswer[] }) {
+  const down = sources.filter((s) => !s.up);
+  if (down.length === 0) return null;
+  return (
+    <div
+      role="status"
+      className="space-y-1 rounded-xl border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm
+                 text-amber-700 dark:text-amber-300"
+    >
+      {down.map((s) => (
+        <p key={s.service}>
+          <span className="font-semibold">{SERVICE_LABELS[s.service] ?? s.service}</span> did not
+          answer, so its logs are not listed{s.error ? `: ${s.error}` : "."}
+        </p>
+      ))}
     </div>
   );
 }

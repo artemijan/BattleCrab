@@ -4,7 +4,8 @@
 //!
 //! The baselines were transcribed from the Java installer's per-dialect `.sql`
 //! trees (`dist/db_installer`, since removed); column types came across
-//! verbatim, so the schema matches the one the Java server used.
+//! verbatim on SQLite, so the schema matches the one the Java server used, and
+//! are mapped per column on PostgreSQL (`dialect`).
 //!
 //! # A property worth keeping
 //!
@@ -16,6 +17,7 @@
 
 pub use sea_orm_migration::prelude::*;
 
+mod dialect;
 mod m20260801_000001_baseline_login;
 mod m20260801_000002_baseline_game;
 mod m20260801_000003_master_accounts;

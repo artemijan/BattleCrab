@@ -18,12 +18,8 @@ async fn auto_create_and_login_ok() {
     assert!(ok1 != 0 || ok2 != 0, "session key should be random");
 
     // Account was created with the Java password hash.
-    let (password,): (String,) =
-        sqlx::query_as("SELECT password FROM accounts WHERE login = 'newuser'")
-            .fetch_one(&server.pool)
-            .await
-            .unwrap();
-    assert_eq!(password, hash_password("secret"));
+    let password = common::account(&server.db, "newuser").await.password;
+    assert_eq!(password, Some(hash_password("secret")));
 }
 
 #[tokio::test]
@@ -51,11 +47,7 @@ async fn no_autocreate_rejects_unknown_account() {
 #[tokio::test]
 async fn banned_account_gets_account_kicked() {
     let server = start_server(test_config()).await;
-    sqlx::query("INSERT INTO accounts (login, password, accessLevel) VALUES ('banned', ?, -100)")
-        .bind(hash_password("pw"))
-        .execute(&server.pool)
-        .await
-        .unwrap();
+    common::insert_account(&server.db, "banned", &hash_password("pw"), -100).await;
 
     let (_c, reply) = login(server.addr, "banned", "pw").await;
     assert_eq!(reply[0], 0x02, "AccountKicked opcode");
@@ -69,22 +61,14 @@ async fn banned_account_gets_account_kicked() {
 #[tokio::test]
 async fn temp_ban_via_account_data() {
     let server = start_server(test_config()).await;
-    sqlx::query("INSERT INTO accounts (login, password, accessLevel) VALUES ('tempban', ?, 0)")
-        .bind(hash_password("pw"))
-        .execute(&server.pool)
-        .await
-        .unwrap();
+    common::insert_account(&server.db, "tempban", &hash_password("pw"), 0).await;
     // ban_temp in the future → accessLevel reads as -1.
     let future = (std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_millis() as i64)
         + 3_600_000;
-    sqlx::query("INSERT INTO account_data VALUES ('tempban', 'ban_temp', ?)")
-        .bind(future.to_string())
-        .execute(&server.pool)
-        .await
-        .unwrap();
+    common::insert_account_data(&server.db, "tempban", "ban_temp", &future.to_string()).await;
 
     let (_c, reply) = login(server.addr, "tempban", "pw").await;
     assert_eq!(reply[0], 0x02, "AccountKicked opcode");
@@ -132,11 +116,9 @@ async fn failed_attempts_ban_ip() {
 
     // On the ban list in the database, so it survives a restart and shows on
     // the dashboard — for `LoginBlockAfterBan` from now.
-    let (expires_at, banned_by, reason): (i64, String, String) =
-        sqlx::query_as("SELECT expires_at, banned_by, reason FROM ip_bans WHERE ip = '127.0.0.1'")
-            .fetch_one(&server.pool)
-            .await
-            .expect("the ban is stored");
+    let ban = common::only_ip_ban(&server.db).await;
+    assert_eq!(ban.ip, "127.0.0.1");
+    let (expires_at, banned_by, reason) = (ban.expires_at, ban.banned_by, ban.reason);
     assert_eq!(banned_by, "login_server");
     assert_eq!(reason, "automatic: 2 wrong passwords");
     let now = std::time::SystemTime::now()
@@ -174,26 +156,15 @@ async fn an_ip_bans_row_refuses_the_address_until_it_expires() {
         .as_millis() as i64;
 
     // Expired: no effect.
-    sqlx::query("INSERT INTO ip_bans (ip, expires_at) VALUES ('127.0.0.0', ?)")
-        .bind(now - 1000)
-        .execute(&server.pool)
-        .await
-        .unwrap();
+    common::insert_ip_ban(&server.db, "127.0.0.0", now - 1000).await;
     let (_c, reply) = login(server.addr, "subnet", "pw").await;
     assert_eq!(reply[0], 0x03, "an expired ban lets the client in");
 
     // In force, on the subnet: refused.
-    sqlx::query("UPDATE ip_bans SET expires_at = ?")
-        .bind(now + 60_000)
-        .execute(&server.pool)
-        .await
-        .unwrap();
+    common::set_ip_ban_expiry(&server.db, now + 60_000).await;
     assert_refused(server.addr).await;
 
     // Permanent works the same way.
-    sqlx::query("UPDATE ip_bans SET expires_at = 0")
-        .execute(&server.pool)
-        .await
-        .unwrap();
+    common::set_ip_ban_expiry(&server.db, 0).await;
     assert_refused(server.addr).await;
 }

@@ -12,27 +12,40 @@
 //! `clients` returns one [`ClientRecord`] line per open connection, as of now
 //! (§10). `kick <id> <connected_ms>` closes that connection and answers one
 //! `{"kicked":true|false}` line — `false` when no such connection is open.
+//! `logs streams` lists this server's log streams, one
+//! [`StreamInfo`](crate::logsearch::StreamInfo) line each, and
+//! `logs search <json>` runs one [`SearchRequest`] over this server's own files
+//! and answers with one [`Outcome`](crate::logsearch::Outcome) line (§6).
 //! Anything else gets one `{"error":…}` line and a close.
 //!
 //! Same security model as the login server's status channel: it binds to
-//! loopback by default and that bind is the control. Widening
-//! `InternalMonitorBindAddress` publishes traffic volumes, process memory and
-//! every connected player's address to anyone who can reach the port — and
-//! lets them disconnect any player.
+//! loopback by default and that bind is the control. `InternalMonitorBindAddress`
+//! may name a private-network address, for a dashboard on another machine,
+//! and nothing wider (`crate::network::internal`): whoever can reach the port
+//! sees traffic volumes, process memory, every connected player's address and
+//! the server's logs, and can disconnect any player.
 
 use std::sync::Arc;
 use std::time::Duration;
 
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpListener;
+use tokio::sync::Semaphore;
 use tracing::warn;
 
 use super::Ring;
 use super::clients::{ClientRecord, ProviderSlot};
+use crate::logsearch::{self, SearchRequest, Source};
 
-/// The longest request is `kick ` plus two numbers of at most 20 digits each;
-/// anything longer is not one.
-const MAX_REQUEST_BYTES: u64 = 64;
+/// The longest request is `logs search` with its JSON: a pattern of at most
+/// `logsearch::MAX_QUERY_LEN` bytes, which JSON escaping can grow several
+/// times over, plus a cursor. Anything longer is not one.
+const MAX_REQUEST_BYTES: u64 = 8 * 1024;
+
+/// Log searches this server runs at once. Each holds a blocking thread and
+/// reads this machine's disk; the dashboard caps its own too
+/// (`LogSearchConcurrency`), so this only matters if something else asks.
+const SEARCH_CONCURRENCY: usize = 2;
 
 /// A client that connects and says nothing must not hold a task forever.
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(2);
@@ -50,16 +63,42 @@ enum Request {
     Since(u64),
     Clients,
     Kick { id: u64, connected_ms: u64 },
+    LogStreams,
+    LogSearch(Box<SearchRequest>),
+}
+
+/// What one server's channel answers from.
+pub(crate) struct Channel {
+    /// The server's logging name, stamped on every line served.
+    pub service: &'static str,
+    pub ring: Arc<Ring>,
+    pub clients: &'static ProviderSlot,
+    /// This server's own log files. `None` answers `logs` requests with an
+    /// error line.
+    pub logs: Option<Arc<Source>>,
+    searches: Arc<Semaphore>,
+}
+
+impl Channel {
+    pub fn new(
+        service: &'static str,
+        ring: Arc<Ring>,
+        clients: &'static ProviderSlot,
+        logs: Option<Source>,
+    ) -> Arc<Self> {
+        Arc::new(Self {
+            service,
+            ring,
+            clients,
+            logs: logs.map(Arc::new),
+            searches: Arc::new(Semaphore::new(SEARCH_CONCURRENCY)),
+        })
+    }
 }
 
 /// Serve the channel until the process exits. Errors are logged and dropped:
 /// a monitoring endpoint must never be able to take its server down with it.
-pub(crate) async fn accept_loop(
-    listener: TcpListener,
-    service: &'static str,
-    ring: Arc<Ring>,
-    clients: &'static ProviderSlot,
-) {
+pub(crate) async fn accept_loop(listener: TcpListener, channel: Arc<Channel>) {
     loop {
         let (stream, peer) = match listener.accept().await {
             Ok(pair) => pair,
@@ -68,11 +107,11 @@ pub(crate) async fn accept_loop(
                 continue;
             }
         };
-        let ring = ring.clone();
+        let channel = channel.clone();
         tokio::spawn(async move {
             let (read, mut write) = stream.into_split();
             let response = match tokio::time::timeout(REQUEST_TIMEOUT, read_request(read)).await {
-                Ok(Some(line)) => respond(&line, service, &ring, clients).await,
+                Ok(Some(line)) => respond(&line, &channel).await,
                 Ok(None) => error_line("unreadable request"),
                 Err(_) => error_line("timed out waiting for a request line"),
             };
@@ -97,9 +136,11 @@ async fn read_request<R: tokio::io::AsyncRead + Unpin>(read: R) -> Option<String
 }
 
 /// What the channel writes back for one request line.
-async fn respond(line: &str, service: &str, ring: &Ring, clients: &ProviderSlot) -> String {
+async fn respond(line: &str, channel: &Channel) -> String {
+    let (service, clients) = (channel.service, channel.clients);
     match parse_request(line) {
-        Some(Request::Since(since)) => ring
+        Some(Request::Since(since)) => channel
+            .ring
             .since(since)
             .iter()
             .map(|s| s.to_json_line(service))
@@ -120,7 +161,61 @@ async fn respond(line: &str, service: &str, ring: &Ring, clients: &ProviderSlot)
                 Err(_) => error_line("timed out kicking the client"),
             },
         },
-        None => error_line("expected `since <epoch_ms>`, `clients` or `kick <id> <connected_ms>`"),
+        Some(Request::LogStreams) => match &channel.logs {
+            None => error_line("this server does not search its logs"),
+            Some(source) => {
+                let source = source.clone();
+                match tokio::task::spawn_blocking(move || source.streams()).await {
+                    Ok(streams) => streams
+                        .iter()
+                        .filter_map(|s| serde_json::to_string(s).ok())
+                        .map(|line| line + "\n")
+                        .collect(),
+                    Err(_) => error_line("listing the log streams failed"),
+                }
+            }
+        },
+        Some(Request::LogSearch(request)) => match &channel.logs {
+            None => error_line("this server does not search its logs"),
+            Some(source) => search_logs(service, source.clone(), &request, &channel.searches).await,
+        },
+        None => error_line(
+            "expected `since <epoch_ms>`, `clients`, `kick <id> <connected_ms>`, \
+             `logs streams` or `logs search <json>`",
+        ),
+    }
+}
+
+/// One `logs search`: validated here too, since the dashboard is not the only
+/// thing that could connect, then run on a blocking thread. The answer is
+/// stamped with `service`, like every other line served, so an asker can tell
+/// it reached the server it meant to.
+async fn search_logs(
+    service: &str,
+    source: Arc<Source>,
+    request: &SearchRequest,
+    permits: &Arc<Semaphore>,
+) -> String {
+    let (query, bounds) = match request.validate() {
+        Ok(v) => v,
+        Err(e) => return error_line(&e),
+    };
+    // Refuse rather than queue, as the dashboard does: a queued search would
+    // hold the asker's connection open past any useful wait.
+    let Ok(permit) = permits.clone().try_acquire_owned() else {
+        return error_line("too many log searches are running; try again shortly");
+    };
+    let outcome = tokio::task::spawn_blocking(move || {
+        let _permit = permit;
+        logsearch::search(&source, &query, &bounds)
+    })
+    .await;
+    match outcome.ok().and_then(|o| serde_json::to_value(o).ok()) {
+        Some(serde_json::Value::Object(mut line)) => {
+            line.insert("service".into(), service.into());
+            serde_json::Value::Object(line).to_string() + "\n"
+        }
+        _ => error_line("the log search failed"),
     }
 }
 
@@ -136,8 +231,9 @@ fn client_lines(service: &str, records: Vec<ClientRecord>) -> String {
 }
 
 /// `since <ms>` → `Since(ms)`; an empty line → `Since(0)` (everything);
-/// `clients` → `Clients`; `kick <id> <connected_ms>` → `Kick`; anything
-/// else → `None`.
+/// `clients` → `Clients`; `kick <id> <connected_ms>` → `Kick`;
+/// `logs streams` → `LogStreams`; `logs search <json>` → `LogSearch`;
+/// anything else → `None`.
 fn parse_request(line: &str) -> Option<Request> {
     let line = line.trim();
     if line.is_empty() {
@@ -145,6 +241,14 @@ fn parse_request(line: &str) -> Option<Request> {
     }
     if line == "clients" {
         return Some(Request::Clients);
+    }
+    if line == "logs streams" {
+        return Some(Request::LogStreams);
+    }
+    if let Some(json) = line.strip_prefix("logs search ") {
+        return serde_json::from_str(json)
+            .ok()
+            .map(|r| Request::LogSearch(Box::new(r)));
     }
     if let Some(rest) = line.strip_prefix("kick ") {
         let mut parts = rest.split_whitespace();
@@ -212,12 +316,25 @@ mod tests {
         assert_eq!(parse_request("since -1"), None);
         assert_eq!(parse_request("since 1 2"), None);
         assert_eq!(parse_request("GET / HTTP/1.1"), None);
+        assert_eq!(parse_request("logs streams\n"), Some(Request::LogStreams));
+        assert_eq!(parse_request("logs"), None);
+        assert_eq!(parse_request("logs search"), None);
+        assert_eq!(parse_request("logs search {}"), None, "fields are required");
+        let Some(Request::LogSearch(r)) = parse_request(
+            "logs search {\"stream\":\"diagnostic\",\"from\":1,\"to\":2,\"limit\":5,\"maxBytes\":9,\"timeoutMs\":3}\n",
+        ) else {
+            panic!("a search request");
+        };
+        assert_eq!(
+            (r.stream.as_str(), r.limit, r.q.as_str()),
+            ("diagnostic", 5, "")
+        );
     }
 
     #[tokio::test]
     async fn an_oversized_request_is_cut_at_the_limit_and_refused() {
         let mut huge = b"since ".to_vec();
-        huge.extend([b'9'; 4096]);
+        huge.extend([b'9'; 3 * MAX_REQUEST_BYTES as usize]);
         let line = read_request(huge.as_slice()).await.unwrap();
         assert_eq!(line.len() as u64, MAX_REQUEST_BYTES);
         assert_eq!(parse_request(&line), None);
@@ -243,7 +360,10 @@ mod tests {
         }
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
         let addr = listener.local_addr().unwrap();
-        tokio::spawn(accept_loop(listener, "game_server", ring, no_provider()));
+        tokio::spawn(accept_loop(
+            listener,
+            Channel::new("game_server", ring, no_provider(), None),
+        ));
 
         let out = ask(addr, b"since 5000\n").await;
         let ts: Vec<u64> = out
@@ -266,7 +386,10 @@ mod tests {
         ring.push(sample(5000));
         let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
         let addr = listener.local_addr().unwrap();
-        tokio::spawn(accept_loop(listener, "login_server", ring, no_provider()));
+        tokio::spawn(accept_loop(
+            listener,
+            Channel::new("login_server", ring, no_provider(), None),
+        ));
 
         let bad = ask(addr, b"hello\n").await;
         assert!(bad.contains("\"error\""), "got {bad:?}");
@@ -297,9 +420,7 @@ mod tests {
         let addr = listener.local_addr().unwrap();
         tokio::spawn(accept_loop(
             listener,
-            "game_server",
-            Arc::new(Ring::new(1)),
-            slot,
+            Channel::new("game_server", Arc::new(Ring::new(1)), slot, None),
         ));
 
         // No provider yet: an error line, not a hang.
@@ -330,7 +451,86 @@ mod tests {
             }),
             kick: Box::new(|_, _| None),
         }));
-        let out = respond("clients", "game_server", &Ring::new(1), slot).await;
+        let channel = Channel::new("game_server", Arc::new(Ring::new(1)), slot, None);
+        let out = respond("clients", &channel).await;
         assert!(out.contains("timed out"), "got {out:?}");
+    }
+
+    #[tokio::test]
+    async fn logs_are_listed_and_searched_on_the_server_that_wrote_them() {
+        let dir = std::env::temp_dir().join(format!(
+            "commons-channel-logs-{}-{}",
+            std::process::id(),
+            super::super::epoch_ms()
+        ));
+        std::fs::create_dir_all(dir.join("log/audit")).unwrap();
+        std::fs::write(
+            dir.join("log/game_server.2026-08-14.json"),
+            "{\"timestamp\":\"2026-08-14T01:00:00Z\",\"level\":\"INFO\",\"message\":\"one\"}\n\
+             {\"timestamp\":\"2026-08-14T02:00:00Z\",\"level\":\"WARN\",\"message\":\"two\"}\n",
+        )
+        .unwrap();
+        let source = Source {
+            service: "game_server".into(),
+            log_dir: dir.join("log"),
+            audit_dir: dir.join("log/audit"),
+        };
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        tokio::spawn(accept_loop(
+            listener,
+            Channel::new(
+                "game_server",
+                Arc::new(Ring::new(1)),
+                no_provider(),
+                Some(source),
+            ),
+        ));
+
+        let streams = ask(addr, b"logs streams\n").await;
+        let info: logsearch::StreamInfo = serde_json::from_str(streams.trim()).unwrap();
+        assert_eq!(
+            (info.service.as_str(), info.stream.as_str()),
+            ("game_server", "diagnostic")
+        );
+
+        // 2026-08-14 UTC, as epoch ms.
+        let request = |extra: &str| {
+            format!(
+                "logs search {{\"stream\":\"diagnostic\",\"from\":1786665600000,\"to\":1786752000000,\
+                 \"limit\":10,\"maxBytes\":1048576,\"timeoutMs\":2000{extra}}}\n"
+            )
+        };
+        let out = ask(addr, request("").as_bytes()).await;
+        let outcome: serde_json::Value = serde_json::from_str(out.trim()).unwrap();
+        let messages: Vec<&str> = outcome["hits"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|h| h["line"]["message"].as_str().unwrap())
+            .collect();
+        assert_eq!(messages, vec!["two", "one"]);
+        assert_eq!(outcome["service"], "game_server");
+
+        let warn = ask(addr, request(",\"level\":\"warn\"").as_bytes()).await;
+        assert!(
+            warn.contains("\"two\"") && !warn.contains("\"one\""),
+            "got {warn:?}"
+        );
+
+        let bad = ask(addr, request(",\"q\":\"(\",\"regex\":true").as_bytes()).await;
+        assert!(bad.contains("invalid regex"), "got {bad:?}");
+
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[tokio::test]
+    async fn a_server_without_log_access_says_so() {
+        let channel = Channel::new("login_server", Arc::new(Ring::new(1)), no_provider(), None);
+        assert!(
+            respond("logs streams", &channel)
+                .await
+                .contains("does not search")
+        );
     }
 }

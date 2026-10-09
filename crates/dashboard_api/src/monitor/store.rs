@@ -15,7 +15,6 @@ use std::time::Duration;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions, SqliteSynchronous};
 use sqlx::{AssertSqlSafe, Row, SqlitePool};
 
-use super::host::HostReading;
 use super::wire::WireSample;
 
 /// How a column folds into a bucket.
@@ -81,20 +80,7 @@ pub fn column(name: &str) -> Option<&'static Column> {
     COLUMNS.iter().find(|c| c.name == name)
 }
 
-/// Host-level series (`host_sample`), sampled by the dashboard itself: both
-/// servers share one host, so per-service rows would repeat the same numbers.
-pub const HOST_COLUMNS: &[(&str, &str)] = &[
-    ("load1", "avg"),
-    ("load5", "avg"),
-    ("load15", "avg"),
-    ("mem_total_bytes", "max"),
-    // The bucket's tightest moment, like a gauge's peak.
-    ("mem_available_bytes", "min"),
-    ("disk_total_bytes", "max"),
-    ("disk_free_bytes", "min"),
-];
-
-const SCHEMA_VERSION: i64 = 1;
+const SCHEMA_VERSION: i64 = 2;
 
 fn schema_v1() -> String {
     let metric_cols: String = COLUMNS
@@ -109,19 +95,14 @@ fn schema_v1() -> String {
   interval_ms INTEGER NOT NULL,
 {metric_cols}  extra       TEXT,
   PRIMARY KEY (service, ts)
-) WITHOUT ROWID;
-CREATE TABLE IF NOT EXISTS host_sample (
-  ts                  INTEGER PRIMARY KEY,
-  load1               REAL,
-  load5               REAL,
-  load15              REAL,
-  mem_total_bytes     INTEGER,
-  mem_available_bytes INTEGER,
-  disk_total_bytes    INTEGER,
-  disk_free_bytes     INTEGER
 ) WITHOUT ROWID;"
     )
 }
+
+/// v2 retired the dashboard's own host sampling: machine-level load, memory
+/// and disk belong to an external host monitor, which sees every machine
+/// rather than just the dashboard's.
+const SCHEMA_V2: &str = "DROP TABLE IF EXISTS host_sample;";
 
 /// One bucketed query result, columnar: `ts[i]` pairs with `series[name][i]`.
 #[derive(Debug, Default, PartialEq, serde::Serialize)]
@@ -132,8 +113,7 @@ pub struct Buckets {
     /// gap (server or dashboard down), which a chart should show, not smooth.
     pub samples: Vec<i64>,
     /// Summed real elapsed time per bucket; divide a `Sum` series by it for a
-    /// rate. Empty for host buckets, which have no interval.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    /// rate.
     pub interval_ms: Vec<i64>,
     pub series: BTreeMap<String, Vec<Option<f64>>>,
 }
@@ -186,6 +166,11 @@ impl MetricsDb {
             sqlx::raw_sql(AssertSqlSafe(schema_v1()))
                 .execute(&self.pool)
                 .await?;
+        }
+        if version < 2 {
+            sqlx::raw_sql(SCHEMA_V2).execute(&self.pool).await?;
+        }
+        if version < SCHEMA_VERSION {
             sqlx::raw_sql(AssertSqlSafe(format!(
                 "PRAGMA user_version = {SCHEMA_VERSION}"
             )))
@@ -271,38 +256,14 @@ impl MetricsDb {
         Ok(stored)
     }
 
-    pub async fn insert_host(&self, ts: i64, h: &HostReading) -> Result<(), sqlx::Error> {
-        sqlx::query(
-            "INSERT OR IGNORE INTO host_sample (ts, load1, load5, load15, mem_total_bytes, \
-             mem_available_bytes, disk_total_bytes, disk_free_bytes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        )
-        .bind(ts)
-        .bind(h.load.map(|l| l[0]))
-        .bind(h.load.map(|l| l[1]))
-        .bind(h.load.map(|l| l[2]))
-        .bind(h.mem_total_bytes)
-        .bind(h.mem_available_bytes)
-        .bind(h.disk_total_bytes)
-        .bind(h.disk_free_bytes)
-        .execute(&self.pool)
-        .await?;
-        Ok(())
-    }
-
     /// Deletes everything stamped before `before_ms`. No `VACUUM`: the row
     /// count is steady, so freed pages are reused and the file plateaus.
     pub async fn prune(&self, before_ms: i64) -> Result<u64, sqlx::Error> {
-        let a = sqlx::query("DELETE FROM metric_sample WHERE ts < ?")
+        Ok(sqlx::query("DELETE FROM metric_sample WHERE ts < ?")
             .bind(before_ms)
             .execute(&self.pool)
             .await?
-            .rows_affected();
-        let b = sqlx::query("DELETE FROM host_sample WHERE ts < ?")
-            .bind(before_ms)
-            .execute(&self.pool)
-            .await?
-            .rows_affected();
-        Ok(a + b)
+            .rows_affected())
     }
 
     /// `service`'s samples in `[from, to)`, folded into `bucket_ms` buckets
@@ -359,40 +320,6 @@ impl MetricsDb {
         Ok(out)
     }
 
-    /// Host samples in `[from, to)`, bucketed like [`Self::series`].
-    pub async fn host(&self, from: i64, to: i64, bucket_ms: i64) -> Result<Buckets, sqlx::Error> {
-        let aggs: String = HOST_COLUMNS
-            .iter()
-            // CAST: SQLite returns MAX/MIN over an INTEGER column as INTEGER
-            // but AVG as REAL; one type lets one decoder read them all.
-            .map(|(name, f)| format!(", CAST({}({name}) AS REAL)", f.to_ascii_uppercase()))
-            .collect();
-        let sql = format!(
-            "SELECT (ts / ?1) * ?1 AS bucket, COUNT(*){aggs} FROM host_sample \
-             WHERE ts >= ?2 AND ts < ?3 GROUP BY bucket ORDER BY bucket"
-        );
-        let rows = sqlx::query(AssertSqlSafe(sql))
-            .bind(bucket_ms)
-            .bind(from)
-            .bind(to)
-            .fetch_all(&self.pool)
-            .await?;
-        let mut out = Buckets::default();
-        for (name, _) in HOST_COLUMNS {
-            out.series
-                .insert(name.to_string(), Vec::with_capacity(rows.len()));
-        }
-        for row in &rows {
-            out.ts.push(row.try_get(0)?);
-            out.samples.push(row.try_get(1)?);
-            for (i, (name, _)) in HOST_COLUMNS.iter().enumerate() {
-                let v: Option<f64> = row.try_get(2 + i)?;
-                out.series.get_mut(*name).expect("inserted above").push(v);
-            }
-        }
-        Ok(out)
-    }
-
     /// The `extra` JSON of one stored row — for tests and for checking what a
     /// promoted column would have held.
     pub async fn extra(&self, service: &str, ts: i64) -> Result<Option<String>, sqlx::Error> {
@@ -427,6 +354,31 @@ mod tests {
     async fn migrate_is_idempotent() {
         let db = MetricsDb::in_memory().await.unwrap();
         db.migrate().await.unwrap();
+        let (v,): (i64,) = sqlx::query_as("PRAGMA user_version")
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
+        assert_eq!(v, SCHEMA_VERSION);
+    }
+
+    #[tokio::test]
+    async fn a_v1_store_loses_its_host_table() {
+        let db = MetricsDb::in_memory().await.unwrap();
+        sqlx::raw_sql(
+            "CREATE TABLE host_sample (ts INTEGER PRIMARY KEY, load1 REAL) WITHOUT ROWID;
+             INSERT INTO host_sample VALUES (5000, 1.5);
+             PRAGMA user_version = 1;",
+        )
+        .execute(&db.pool)
+        .await
+        .unwrap();
+        db.migrate().await.unwrap();
+        let tables: Vec<String> =
+            sqlx::query_scalar("SELECT name FROM sqlite_master WHERE type = 'table'")
+                .fetch_all(&db.pool)
+                .await
+                .unwrap();
+        assert_eq!(tables, vec!["metric_sample".to_string()]);
         let (v,): (i64,) = sqlx::query_as("PRAGMA user_version")
             .fetch_one(&db.pool)
             .await
@@ -544,33 +496,7 @@ mod tests {
         ])
         .await
         .unwrap();
-        db.insert_host(1000, &HostReading::default()).await.unwrap();
-        assert_eq!(db.prune(5000).await.unwrap(), 2);
+        assert_eq!(db.prune(5000).await.unwrap(), 1);
         assert_eq!(db.last_ts("game_server").await.unwrap(), Some(9000));
-        assert!(db.host(0, 20000, 5000).await.unwrap().ts.is_empty());
-    }
-
-    #[tokio::test]
-    async fn host_buckets_average_load_and_keep_the_tightest_memory() {
-        let db = MetricsDb::in_memory().await.unwrap();
-        for (ts, load, avail) in [(0, 1.0, 500), (5000, 3.0, 300)] {
-            db.insert_host(
-                ts,
-                &HostReading {
-                    load: Some([load, load, load]),
-                    mem_total_bytes: Some(1000),
-                    mem_available_bytes: Some(avail),
-                    disk_total_bytes: None,
-                    disk_free_bytes: None,
-                },
-            )
-            .await
-            .unwrap();
-        }
-        let b = db.host(0, 10000, 10000).await.unwrap();
-        assert_eq!(b.series["load1"], vec![Some(2.0)]);
-        assert_eq!(b.series["mem_available_bytes"], vec![Some(300.0)]);
-        assert_eq!(b.series["disk_free_bytes"], vec![None]);
-        assert!(b.interval_ms.is_empty());
     }
 }

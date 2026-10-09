@@ -15,7 +15,10 @@ use loginserver::context::LoginContext;
 use loginserver::controller::{ControllerSettings, spawn};
 use loginserver::network::client_connection;
 use migration::MigratorTrait;
-use models::sea_orm::{DatabaseConnection, SqlxSqliteConnector};
+use models::entity::{account_data, accounts, ip_bans};
+use models::sea_orm::ActiveValue::Set;
+use models::sea_orm::sea_query::Expr;
+use models::sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use num_bigint_dig::BigUint;
 use tokio::net::TcpStream;
 use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
@@ -67,20 +70,15 @@ pub async fn setup_schema(db: &DatabaseConnection) {
 pub struct TestServer {
     pub addr: std::net::SocketAddr,
     pub gs_addr: std::net::SocketAddr,
-    /// The raw pool, for tests that assert with SQL. It backs `db`, so both
-    /// views see the same in-memory database.
-    pub pool: sqlx::SqlitePool,
+    /// The server's database, for tests that set up fixtures or assert on rows.
     pub db: DatabaseConnection,
+    /// SQLite, or PostgreSQL under `L2R_TEST_DATABASE_URL`; removed on drop.
+    _test_db: commons::db::testing::TestDb,
 }
 
 pub async fn start_server(config: LoginConfig) -> TestServer {
-    // One connection: a second one would open its own empty `:memory:`.
-    let pool = sqlx::sqlite::SqlitePoolOptions::new()
-        .max_connections(1)
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-    let db = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    let test_db = commons::db::testing::TestDb::new("login").await;
+    let db = commons::db::connect(&test_db.url, 2).await.unwrap();
     setup_schema(&db).await;
     // Seed the stock gameservers row + server names like dist data.
     models::repo::gameservers::register(&db, 1, "-2ad66b3f483c22be097019f55c8abdf0", "")
@@ -117,9 +115,90 @@ pub async fn start_server(config: LoginConfig) -> TestServer {
     TestServer {
         addr,
         gs_addr,
-        pool,
         db,
+        _test_db: test_db,
     }
+}
+
+/// The game account `login`.
+pub async fn account(db: &DatabaseConnection, login: &str) -> accounts::Model {
+    accounts::Entity::find()
+        .filter(accounts::Column::Login.eq(login))
+        .one(db)
+        .await
+        .unwrap()
+        .unwrap_or_else(|| panic!("no account {login}"))
+}
+
+/// A game account with `password_hash` at `access_level`; every other column
+/// takes its schema default, as an auto-created one does.
+pub async fn insert_account(
+    db: &DatabaseConnection,
+    login: &str,
+    password_hash: &str,
+    access_level: i32,
+) {
+    accounts::Entity::insert(accounts::ActiveModel {
+        login: Set(Some(login.to_string())),
+        password: Set(Some(password_hash.to_string())),
+        access_level: Set(access_level),
+        ..Default::default()
+    })
+    .exec_without_returning(db)
+    .await
+    .unwrap();
+}
+
+pub async fn insert_account_data(db: &DatabaseConnection, account: &str, var: &str, value: &str) {
+    account_data::Entity::insert(account_data::ActiveModel {
+        account_name: Set(account.to_string()),
+        var: Set(var.to_string()),
+        value: Set(Some(value.to_string())),
+    })
+    .exec_without_returning(db)
+    .await
+    .unwrap();
+}
+
+pub async fn account_data_value(
+    db: &DatabaseConnection,
+    account: &str,
+    var: &str,
+) -> Option<String> {
+    account_data::Entity::find_by_id((account.to_string(), var.to_string()))
+        .one(db)
+        .await
+        .unwrap()
+        .and_then(|row| row.value)
+}
+
+/// The one row on the ban list.
+pub async fn only_ip_ban(db: &DatabaseConnection) -> ip_bans::Model {
+    ip_bans::Entity::find()
+        .one(db)
+        .await
+        .unwrap()
+        .expect("an IP ban is stored")
+}
+
+pub async fn insert_ip_ban(db: &DatabaseConnection, ip: &str, expires_at: i64) {
+    ip_bans::Entity::insert(ip_bans::ActiveModel {
+        ip: Set(ip.to_string()),
+        expires_at: Set(expires_at),
+        ..Default::default()
+    })
+    .exec_without_returning(db)
+    .await
+    .unwrap();
+}
+
+/// Moves every ban's expiry to `expires_at` (`0` = permanent).
+pub async fn set_ip_ban_expiry(db: &DatabaseConnection, expires_at: i64) {
+    ip_bans::Entity::update_many()
+        .col_expr(ip_bans::Column::ExpiresAt, Expr::value(expires_at))
+        .exec(db)
+        .await
+        .unwrap();
 }
 
 /// Client-side inverse of `NewCrypt.encXORPass` (as the real client decodes `Init`).

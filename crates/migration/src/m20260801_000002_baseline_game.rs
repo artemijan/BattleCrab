@@ -2,7 +2,8 @@
 //!
 //! Transcribed from the Java installer's SQLite DDL (`dist/db_installer`, since
 //! removed). Column types are passed through verbatim (`MEDIUMINT`, `TINYINT`,
-//! …) so the schema matches the one the Java installer produced. Applied
+//! …) on SQLite, so the schema matches the one the Java installer produced; on
+//! PostgreSQL `crate::dialect` maps each to the type its entity reads. Applied
 //! databases depend on it: change the schema with a new migration, not here.
 //!
 //! Every statement is `IF NOT EXISTS`, which is what lets `l2r-migrate up`
@@ -10,6 +11,8 @@
 //! without touching a single existing table.
 
 use sea_orm_migration::prelude::*;
+
+use crate::dialect::{dflt, ty, ty_loose_f64};
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -240,19 +243,19 @@ async fn create_account_gsdata(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("account_name"))
-                        .custom(Alias::new("VARCHAR(45)"))
+                        .custom(ty(manager, "VARCHAR(45)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("var"))
-                        .custom(Alias::new("VARCHAR(255)"))
+                        .custom(ty(manager, "VARCHAR(255)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("value"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .primary_key(
@@ -275,15 +278,15 @@ async fn create_account_premium(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("account_name"))
-                        .custom(Alias::new("varchar(45)"))
+                        .custom(ty(manager, "varchar(45)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("enddate"))
-                        .custom(Alias::new("decimal(20,0)"))
+                        .custom(ty(manager, "decimal(20,0)"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("account_name")))
                 .to_owned(),
@@ -301,14 +304,14 @@ async fn create_airships(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("owner_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("fuel"))
-                        .custom(Alias::new("decimal(5,0)"))
+                        .custom(ty(manager, "decimal(5,0)"))
                         .not_null()
-                        .default(Expr::cust("600")),
+                        .default(dflt(manager, "600")),
                 )
                 .primary_key(Index::create().col(Alias::new("owner_id")))
                 .to_owned(),
@@ -332,35 +335,35 @@ async fn create_announcements(manager: &SchemaManager<'_>) -> Result<(), DbErr> 
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("initial"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("delay"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("repeat"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("author"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("content"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -378,43 +381,43 @@ async fn create_auction_bid(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("auctionId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("bidderId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("bidderName"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan_name"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("maxBid"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("time_bid"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(
                     Index::create()
@@ -452,24 +455,24 @@ async fn create_bbs_favorites(manager: &SchemaManager<'_>) -> Result<(), DbErr> 
                 )
                 .col(
                     ColumnDef::new(Alias::new("playerId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("favTitle"))
-                        .custom(Alias::new("VARCHAR(50)"))
+                        .custom(ty(manager, "VARCHAR(50)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("favBypass"))
-                        .custom(Alias::new("VARCHAR(127)"))
+                        .custom(ty(manager, "VARCHAR(127)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("favAddDate"))
-                        .custom(Alias::new("TIMESTAMP"))
+                        .custom(ty(manager, "TIMESTAMP"))
                         .not_null()
-                        .default(Expr::cust("CURRENT_TIMESTAMP")),
+                        .default(dflt(manager, "CURRENT_TIMESTAMP")),
                 )
                 .to_owned(),
         )
@@ -498,21 +501,21 @@ async fn create_bot_reported_char_data(manager: &SchemaManager<'_>) -> Result<()
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("botId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("reporterId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("reportDate"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(
                     Index::create()
@@ -534,19 +537,19 @@ async fn create_buffer_schemes(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("object_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("scheme_name"))
-                        .custom(Alias::new("VARCHAR(16)"))
+                        .custom(ty(manager, "VARCHAR(16)"))
                         .not_null()
-                        .default(Expr::cust("'default'")),
+                        .default(dflt(manager, "'default'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skills"))
-                        .custom(Alias::new("VARCHAR(200)"))
+                        .custom(ty(manager, "VARCHAR(200)"))
                         .not_null(),
                 )
                 .primary_key(
@@ -569,25 +572,25 @@ async fn create_buylists(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("buylist_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("item_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("count"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("next_restock_time"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -609,56 +612,56 @@ async fn create_castle(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("name"))
-                        .custom(Alias::new("varchar(25)"))
+                        .custom(ty(manager, "varchar(25)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("side"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'NEUTRAL'")),
+                        .default(dflt(manager, "'NEUTRAL'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("treasury"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("siegeDate"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("regTimeOver"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'true'")),
+                        .default(dflt(manager, "'true'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("regTimeEnd"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("showNpcCrest"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'false'")),
+                        .default(dflt(manager, "'false'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ticketBuyCount"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(Index::create().col(Alias::new("id")))
                 .to_owned(),
@@ -676,21 +679,21 @@ async fn create_castle_doorupgrade(manager: &SchemaManager<'_>) -> Result<(), Db
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("doorId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ratio"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("castleId"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("doorId")))
                 .to_owned(),
@@ -708,39 +711,39 @@ async fn create_castle_functions(manager: &SchemaManager<'_>) -> Result<(), DbEr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("castle_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lvl"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lease"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("rate"))
-                        .custom(Alias::new("decimal(20,0)"))
+                        .custom(ty(manager, "decimal(20,0)"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("endTime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(
                     Index::create()
@@ -762,45 +765,45 @@ async fn create_castle_manor_procure(manager: &SchemaManager<'_>) -> Result<(), 
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("castle_id"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("crop_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("amount"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("start_amount"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("price"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("reward_type"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("next_period"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("'1'")),
+                        .default(dflt(manager, "'1'")),
                 )
                 .primary_key(
                     Index::create()
@@ -823,39 +826,39 @@ async fn create_castle_manor_production(manager: &SchemaManager<'_>) -> Result<(
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("castle_id"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("seed_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("amount"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("start_amount"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("price"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("next_period"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("'1'")),
+                        .default(dflt(manager, "'1'")),
                 )
                 .primary_key(
                     Index::create()
@@ -878,9 +881,9 @@ async fn create_castle_siege_guards(manager: &SchemaManager<'_>) -> Result<(), D
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("castleId"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("id"))
@@ -890,45 +893,45 @@ async fn create_castle_siege_guards(manager: &SchemaManager<'_>) -> Result<(), D
                 )
                 .col(
                     ColumnDef::new(Alias::new("npcId"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("x"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("y"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("z"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("heading"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("respawnDelay"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("isHired"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'1'")),
+                        .default(dflt(manager, "'1'")),
                 )
                 .to_owned(),
         )
@@ -945,21 +948,21 @@ async fn create_castle_trapupgrade(manager: &SchemaManager<'_>) -> Result<(), Db
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("castleId"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("towerIndex"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("level"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(
                     Index::create()
@@ -981,15 +984,15 @@ async fn create_character_contacts(manager: &SchemaManager<'_>) -> Result<(), Db
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("contactId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -1011,29 +1014,29 @@ async fn create_character_daily_rewards(manager: &SchemaManager<'_>) -> Result<(
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("rewardId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("status"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("1")),
+                        .default(dflt(manager, "1")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("progress"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lastCompleted"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null(),
                 )
                 .primary_key(
@@ -1056,27 +1059,27 @@ async fn create_character_friends(manager: &SchemaManager<'_>) -> Result<(), DbE
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("friendId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("relation"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("memo"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .primary_key(
                     Index::create()
@@ -1098,26 +1101,26 @@ async fn create_character_hennas(manager: &SchemaManager<'_>) -> Result<(), DbEr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("symbol_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("slot"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("class_index"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -1163,21 +1166,21 @@ async fn create_character_instance_time(manager: &SchemaManager<'_>) -> Result<(
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("instanceId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(
                     Index::create()
@@ -1199,33 +1202,33 @@ async fn create_character_item_reuse_save(manager: &SchemaManager<'_>) -> Result
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("itemId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("itemObjId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("1")),
+                        .default(dflt(manager, "1")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("reuseDelay"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("systime"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -1248,39 +1251,39 @@ async fn create_character_macroses(manager: &SchemaManager<'_>) -> Result<(), Db
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("icon"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("name"))
-                        .custom(Alias::new("VARCHAR(40)"))
+                        .custom(ty(manager, "VARCHAR(40)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("descr"))
-                        .custom(Alias::new("VARCHAR(80)"))
+                        .custom(ty(manager, "VARCHAR(80)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("acronym"))
-                        .custom(Alias::new("VARCHAR(4)"))
+                        .custom(ty(manager, "VARCHAR(4)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("commands"))
-                        .custom(Alias::new("VARCHAR(500)"))
+                        .custom(ty(manager, "VARCHAR(500)"))
                         .null(),
                 )
                 .primary_key(
@@ -1303,15 +1306,15 @@ async fn create_character_mentees(manager: &SchemaManager<'_>) -> Result<(), DbE
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("mentorId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .to_owned(),
         )
@@ -1328,26 +1331,26 @@ async fn create_character_offline_trade(manager: &SchemaManager<'_>) -> Result<(
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("title"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .primary_key(Index::create().col(Alias::new("charId")))
                 .to_owned(),
@@ -1365,26 +1368,26 @@ async fn create_character_offline_trade_items(manager: &SchemaManager<'_>) -> Re
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("item"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("count"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("price"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .to_owned(),
         )
@@ -1421,39 +1424,39 @@ async fn create_character_pet_skills_save(manager: &SchemaManager<'_>) -> Result
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("petObjItemId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("1")),
+                        .default(dflt(manager, "1")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_sub_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("remaining_time"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("buff_index"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -1476,27 +1479,27 @@ async fn create_character_premium_items(manager: &SchemaManager<'_>) -> Result<(
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("itemNum"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("itemId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("itemCount"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("itemSender"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -1534,25 +1537,25 @@ async fn create_character_quests(manager: &SchemaManager<'_>) -> Result<(), DbEr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("name"))
-                        .custom(Alias::new("VARCHAR(60)"))
+                        .custom(ty(manager, "VARCHAR(60)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("var"))
-                        .custom(Alias::new("VARCHAR(20)"))
+                        .custom(ty(manager, "VARCHAR(20)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("value"))
-                        .custom(Alias::new("VARCHAR(255)"))
+                        .custom(ty(manager, "VARCHAR(255)"))
                         .null(),
                 )
                 .primary_key(
@@ -1611,27 +1614,27 @@ async fn create_character_recipebook(manager: &SchemaManager<'_>) -> Result<(), 
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("decimal(11)"))
+                        .custom(ty(manager, "decimal(11)"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("classIndex"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -1654,27 +1657,27 @@ async fn create_character_recipeshoplist(manager: &SchemaManager<'_>) -> Result<
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("recipeId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("price"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("index"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -1696,26 +1699,26 @@ async fn create_character_reco_bonus(manager: &SchemaManager<'_>) -> Result<(), 
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("rec_have"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("rec_left"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("time_left"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .to_owned(),
         )
@@ -1743,48 +1746,48 @@ async fn create_character_shortcuts(manager: &SchemaManager<'_>) -> Result<(), D
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("slot"))
-                        .custom(Alias::new("decimal(3)"))
+                        .custom(ty(manager, "decimal(3)"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("page"))
-                        .custom(Alias::new("decimal(3)"))
+                        .custom(ty(manager, "decimal(3)"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("decimal(3)"))
+                        .custom(ty(manager, "decimal(3)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("shortcut_id"))
-                        .custom(Alias::new("decimal(16)"))
+                        .custom(ty(manager, "decimal(16)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("level"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("sub_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("class_index"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(
                     Index::create()
@@ -1818,33 +1821,33 @@ async fn create_character_skills(manager: &SchemaManager<'_>) -> Result<(), DbEr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("1")),
+                        .default(dflt(manager, "1")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_sub_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("class_index"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -1879,63 +1882,63 @@ async fn create_character_skills_save(manager: &SchemaManager<'_>) -> Result<(),
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("1")),
+                        .default(dflt(manager, "1")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_sub_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("remaining_time"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("reuse_delay"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("systime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("restore_type"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("class_index"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("buff_index"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -1971,51 +1974,51 @@ async fn create_character_subclasses(manager: &SchemaManager<'_>) -> Result<(), 
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("class_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("exp"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("sp"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("40")),
+                        .default(dflt(manager, "40")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("vitality_points"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("class_index"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("dual_class"))
-                        .custom(Alias::new("BOOLEAN"))
+                        .custom(ty(manager, "BOOLEAN"))
                         .not_null()
-                        .default(Expr::cust("FALSE")),
+                        .default(dflt(manager, "FALSE")),
                 )
                 .primary_key(
                     Index::create()
@@ -2048,51 +2051,51 @@ async fn create_character_summon_skills_save(manager: &SchemaManager<'_>) -> Res
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("ownerId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ownerClassIndex"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("summonSkillId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("1")),
+                        .default(dflt(manager, "1")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_sub_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("remaining_time"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("buff_index"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -2117,36 +2120,36 @@ async fn create_character_summons(manager: &SchemaManager<'_>) -> Result<(), DbE
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("ownerId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("summonId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("summonSkillId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("curHp"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("curMp"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("time"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(
                     Index::create()
@@ -2169,43 +2172,43 @@ async fn create_character_tpbookmark(manager: &SchemaManager<'_>) -> Result<(), 
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("Id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("x"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("y"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("z"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("icon"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("tag"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("name"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .not_null(),
                 )
                 .primary_key(
@@ -2228,17 +2231,17 @@ async fn create_character_variables(manager: &SchemaManager<'_>) -> Result<(), D
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("var"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("val"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -2276,338 +2279,338 @@ async fn create_characters(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("account_name"))
-                        .custom(Alias::new("VARCHAR(45)"))
+                        .custom(ty(manager, "VARCHAR(45)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("char_name"))
-                        .custom(Alias::new("VARCHAR(35)"))
+                        .custom(ty(manager, "VARCHAR(35)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("level"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("maxHp"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("curHp"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty_loose_f64(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("maxCp"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("curCp"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty_loose_f64(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("maxMp"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("curMp"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty_loose_f64(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("face"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("hairStyle"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("hairColor"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("sex"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("heading"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("x"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("y"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("z"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("exp"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("expBeforeDeath"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("sp"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("reputation"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("fame"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("raidbossPoints"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("pvpkills"))
-                        .custom(Alias::new("SMALLINT"))
+                        .custom(ty(manager, "SMALLINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("pkkills"))
-                        .custom(Alias::new("SMALLINT"))
+                        .custom(ty(manager, "SMALLINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clanid"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("race"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("classid"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("base_class"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("transform_id"))
-                        .custom(Alias::new("SMALLINT"))
+                        .custom(ty(manager, "SMALLINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("deletetime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("cancraft"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("title"))
-                        .custom(Alias::new("VARCHAR(21)"))
+                        .custom(ty(manager, "VARCHAR(21)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("title_color"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .not_null()
-                        .default(Expr::cust("0xECF9A2")),
+                        .default(dflt(manager, "0xECF9A2")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("accesslevel"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("online"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("onlinetime"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("char_slot"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lastAccess"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan_privs"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("wantspeace"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("power_grade"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("nobless"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("subpledge"))
-                        .custom(Alias::new("SMALLINT"))
+                        .custom(ty(manager, "SMALLINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lvl_joined_academy"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("apprentice"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("sponsor"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan_join_expiry_time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan_create_expiry_time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("bookmarkslot"))
-                        .custom(Alias::new("SMALLINT"))
+                        .custom(ty(manager, "SMALLINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("vitality_points"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("createDate"))
-                        .custom(Alias::new("date"))
+                        .custom(ty(manager, "date"))
                         .not_null()
-                        .default(Expr::cust("'2015-01-01'")),
+                        .default(dflt(manager, "'2015-01-01'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("language"))
-                        .custom(Alias::new("VARCHAR(2)"))
+                        .custom(ty(manager, "VARCHAR(2)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("faction"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("pccafe_points"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("charId")))
                 .to_owned(),
@@ -2706,108 +2709,108 @@ async fn create_clan_data(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("clan_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan_name"))
-                        .custom(Alias::new("varchar(45)"))
+                        .custom(ty(manager, "varchar(45)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("reputation_score"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("hasCastle"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("blood_alliance_count"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("blood_oath_count"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ally_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ally_name"))
-                        .custom(Alias::new("varchar(45)"))
+                        .custom(ty(manager, "varchar(45)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("leader_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("crest_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("crest_large_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ally_crest_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("auction_bid_at"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ally_penalty_expiry_time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ally_penalty_type"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("char_penalty_expiry_time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("dissolving_expiry_time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("new_leader_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("clan_id")))
                 .to_owned(),
@@ -2855,19 +2858,19 @@ async fn create_clan_notices(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("clan_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("enabled"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'false'")),
+                        .default(dflt(manager, "'false'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("notice"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .primary_key(Index::create().col(Alias::new("clan_id")))
@@ -2886,27 +2889,27 @@ async fn create_clan_privs(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("clan_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("rank"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("party"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("privs"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -2929,33 +2932,33 @@ async fn create_clan_skills(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("clan_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("skill_name"))
-                        .custom(Alias::new("varchar(26)"))
+                        .custom(ty(manager, "varchar(26)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("sub_pledge_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'-2'")),
+                        .default(dflt(manager, "'-2'")),
                 )
                 .primary_key(
                     Index::create()
@@ -2978,26 +2981,26 @@ async fn create_clan_subpledges(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("clan_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("sub_pledge_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("name"))
-                        .custom(Alias::new("varchar(45)"))
+                        .custom(ty(manager, "varchar(45)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("leader_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(
                     Index::create()
@@ -3019,17 +3022,17 @@ async fn create_clan_variables(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("clanId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("var"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("val"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -3047,51 +3050,51 @@ async fn create_clan_wars(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("clan1"))
-                        .custom(Alias::new("varchar(35)"))
+                        .custom(ty(manager, "varchar(35)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan2"))
-                        .custom(Alias::new("varchar(35)"))
+                        .custom(ty(manager, "varchar(35)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan1Kill"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan2Kill"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("winnerClan"))
-                        .custom(Alias::new("varchar(35)"))
+                        .custom(ty(manager, "varchar(35)"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("startTime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("endTime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("state"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -3113,21 +3116,21 @@ async fn create_clanhall(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ownerId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("paidUntil"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("id")))
                 .to_owned(),
@@ -3155,27 +3158,27 @@ async fn create_clanhall_auctions_bidders(manager: &SchemaManager<'_>) -> Result
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("clanHallId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clanId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("bid"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("bidTime"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -3203,27 +3206,27 @@ async fn create_commission_items(manager: &SchemaManager<'_>) -> Result<(), DbEr
                 )
                 .col(
                     ColumnDef::new(Alias::new("item_object_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("price_per_unit"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("start_time"))
-                        .custom(Alias::new("TIMESTAMP"))
+                        .custom(ty(manager, "TIMESTAMP"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("duration_in_days"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("discount_in_percentage"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -3241,17 +3244,17 @@ async fn create_crests(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("crest_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("data"))
-                        .custom(Alias::new("VARBINARY(2176)"))
+                        .custom(ty(manager, "VARBINARY(2176)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null(),
                 )
                 .primary_key(Index::create().col(Alias::new("crest_id")))
@@ -3270,38 +3273,38 @@ async fn create_cursed_weapons(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("itemId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("playerReputation"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("playerPkKills"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("nbKills"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("endTime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("itemId")))
                 .to_owned(),
@@ -3319,29 +3322,29 @@ async fn create_custom_mail(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("date"))
-                        .custom(Alias::new("TIMESTAMP"))
+                        .custom(ty(manager, "TIMESTAMP"))
                         .not_null()
-                        .default(Expr::cust("CURRENT_TIMESTAMP")),
+                        .default(dflt(manager, "CURRENT_TIMESTAMP")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("receiver"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("subject"))
-                        .custom(Alias::new("TINYTEXT"))
+                        .custom(ty(manager, "TINYTEXT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("message"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("items"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -3359,51 +3362,51 @@ async fn create_custom_teleport(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("Description"))
-                        .custom(Alias::new("varchar(75)"))
+                        .custom(ty(manager, "varchar(75)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("loc_x"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("loc_y"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("loc_z"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("price"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("fornoble"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("itemId"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("'57'")),
+                        .default(dflt(manager, "'57'")),
                 )
                 .primary_key(Index::create().col(Alias::new("id")))
                 .to_owned(),
@@ -3427,19 +3430,19 @@ async fn create_event_schedulers(manager: &SchemaManager<'_>) -> Result<(), DbEr
                 )
                 .col(
                     ColumnDef::new(Alias::new("eventName"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("schedulerName"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lastRun"))
-                        .custom(Alias::new("timestamp"))
+                        .custom(ty(manager, "timestamp"))
                         .not_null()
-                        .default(Expr::cust("CURRENT_TIMESTAMP")),
+                        .default(dflt(manager, "CURRENT_TIMESTAMP")),
                 )
                 .to_owned(),
         )
@@ -3468,56 +3471,56 @@ async fn create_fort(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("name"))
-                        .custom(Alias::new("varchar(25)"))
+                        .custom(ty(manager, "varchar(25)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("siegeDate"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lastOwnedTime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("owner"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("fortType"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("state"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("castleId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("supplyLvL"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(Index::create().col(Alias::new("id")))
                 .to_owned(),
@@ -3545,32 +3548,32 @@ async fn create_fort_doorupgrade(manager: &SchemaManager<'_>) -> Result<(), DbEr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("doorId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("fortId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("hp"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("pDef"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("mDef"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("doorId")))
                 .to_owned(),
@@ -3588,39 +3591,39 @@ async fn create_fort_functions(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("fort_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lvl"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("lease"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("rate"))
-                        .custom(Alias::new("decimal(20,0)"))
+                        .custom(ty(manager, "decimal(20,0)"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("endTime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(
                     Index::create()
@@ -3642,9 +3645,9 @@ async fn create_fort_siege_guards(manager: &SchemaManager<'_>) -> Result<(), DbE
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("fortId"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("id"))
@@ -3654,45 +3657,45 @@ async fn create_fort_siege_guards(manager: &SchemaManager<'_>) -> Result<(), DbE
                 )
                 .col(
                     ColumnDef::new(Alias::new("npcId"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("x"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("y"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("z"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("heading"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("respawnDelay"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("isHired"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'1'")),
+                        .default(dflt(manager, "'1'")),
                 )
                 .to_owned(),
         )
@@ -3709,9 +3712,9 @@ async fn create_fort_spawnlist(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("fortId"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("id"))
@@ -3721,45 +3724,45 @@ async fn create_fort_spawnlist(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 )
                 .col(
                     ColumnDef::new(Alias::new("npcId"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("x"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("y"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("z"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("heading"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("spawnType"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("castleId"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .to_owned(),
         )
@@ -3786,15 +3789,15 @@ async fn create_fortsiege_clans(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("fort_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(
                     Index::create()
@@ -3816,45 +3819,45 @@ async fn create_forums(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("forum_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("forum_name"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("forum_parent"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("forum_post"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("forum_type"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("forum_perm"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("forum_owner_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("forum_id")))
                 .to_owned(),
@@ -3889,39 +3892,39 @@ async fn create_global_tasks(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 )
                 .col(
                     ColumnDef::new(Alias::new("task"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("last_activation"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("param1"))
-                        .custom(Alias::new("varchar(100)"))
+                        .custom(ty(manager, "varchar(100)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("param2"))
-                        .custom(Alias::new("varchar(100)"))
+                        .custom(ty(manager, "varchar(100)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("param3"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .to_owned(),
         )
@@ -3938,13 +3941,13 @@ async fn create_global_variables(manager: &SchemaManager<'_>) -> Result<(), DbEr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("var"))
-                        .custom(Alias::new("VARCHAR(255)"))
+                        .custom(ty(manager, "VARCHAR(255)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("value"))
-                        .custom(Alias::new("VARCHAR(255)"))
+                        .custom(ty(manager, "VARCHAR(255)"))
                         .null(),
                 )
                 .primary_key(Index::create().col(Alias::new("var")))
@@ -3963,51 +3966,51 @@ async fn create_grandboss_data(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("boss_id"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("loc_x"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("loc_y"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("loc_z"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("heading"))
-                        .custom(Alias::new("mediumint"))
+                        .custom(ty(manager, "mediumint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("respawn_time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("currentHP"))
-                        .custom(Alias::new("double"))
+                        .custom(ty(manager, "double"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("currentMP"))
-                        .custom(Alias::new("double"))
+                        .custom(ty(manager, "double"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("status"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("boss_id")))
                 .to_owned(),
@@ -4025,39 +4028,39 @@ async fn create_heroes(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("class_id"))
-                        .custom(Alias::new("decimal(3,0)"))
+                        .custom(ty(manager, "decimal(3,0)"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("count"))
-                        .custom(Alias::new("decimal(3,0)"))
+                        .custom(ty(manager, "decimal(3,0)"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("played"))
-                        .custom(Alias::new("decimal(1,0)"))
+                        .custom(ty(manager, "decimal(1,0)"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("claimed"))
-                        .custom(Alias::new("varchar(5)"))
+                        .custom(ty(manager, "varchar(5)"))
                         .not_null()
-                        .default(Expr::cust("'false'")),
+                        .default(dflt(manager, "'false'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("message"))
-                        .custom(Alias::new("varchar(300)"))
+                        .custom(ty(manager, "varchar(300)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .primary_key(Index::create().col(Alias::new("charId")))
                 .to_owned(),
@@ -4075,26 +4078,26 @@ async fn create_heroes_diary(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("action"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("param"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .to_owned(),
         )
@@ -4111,34 +4114,34 @@ async fn create_item_auction(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("auctionId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("instanceId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("auctionItemId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("startingTime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("endingTime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("auctionStateId"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null(),
                 )
                 .primary_key(Index::create().col(Alias::new("auctionId")))
@@ -4157,17 +4160,17 @@ async fn create_item_auction_bid(manager: &SchemaManager<'_>) -> Result<(), DbEr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("auctionId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("playerObjId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("playerBid"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null(),
                 )
                 .primary_key(
@@ -4190,21 +4193,21 @@ async fn create_item_elementals(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("itemId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("elemType"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("-1")),
+                        .default(dflt(manager, "-1")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("elemValue"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("-1")),
+                        .default(dflt(manager, "-1")),
                 )
                 .primary_key(
                     Index::create()
@@ -4237,17 +4240,17 @@ async fn create_item_variables(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("var"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("val"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -4275,23 +4278,23 @@ async fn create_item_variations(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("itemId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("mineralId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("option1"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("option2"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .primary_key(Index::create().col(Alias::new("itemId")))
@@ -4320,69 +4323,69 @@ async fn create_items(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("owner_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("object_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("item_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("count"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("enchant_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("loc"))
-                        .custom(Alias::new("VARCHAR(10)"))
+                        .custom(ty(manager, "VARCHAR(10)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("loc_data"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("time_of_use"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("custom_type1"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("custom_type2"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("mana_left"))
-                        .custom(Alias::new("decimal(5,0)"))
+                        .custom(ty(manager, "decimal(5,0)"))
                         .not_null()
-                        .default(Expr::cust("-1")),
+                        .default(dflt(manager, "-1")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("time"))
-                        .custom(Alias::new("decimal(13)"))
+                        .custom(ty(manager, "decimal(13)"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(Index::create().col(Alias::new("object_id")))
                 .to_owned(),
@@ -4519,57 +4522,57 @@ async fn create_itemsonground(manager: &SchemaManager<'_>) -> Result<(), DbErr> 
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("object_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("item_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("count"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("enchant_level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("x"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("y"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("z"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("drop_time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("equipable"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("object_id")))
                 .to_owned(),
@@ -4587,69 +4590,69 @@ async fn create_lottery(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("idnr"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("number1"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("number2"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("prize"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("newprize"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("prize1"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("prize2"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("prize3"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("enddate"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("finished"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(
                     Index::create()
@@ -4671,15 +4674,15 @@ async fn create_mdt_bets(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("lane_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("bet"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "bigint"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(Index::create().col(Alias::new("lane_id")))
                 .to_owned(),
@@ -4697,27 +4700,27 @@ async fn create_mdt_history(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("race_id"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("first"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("second"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("odd_rate"))
-                        .custom(Alias::new("DOUBLE(10,2)"))
+                        .custom(ty(manager, "DOUBLE(10,2)"))
                         .null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(Index::create().col(Alias::new("race_id")))
                 .to_owned(),
@@ -4735,30 +4738,30 @@ async fn create_merchant_lease(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("merchant_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("player_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("bid"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("player_name"))
-                        .custom(Alias::new("varchar(35)"))
+                        .custom(ty(manager, "varchar(35)"))
                         .null(),
                 )
                 .primary_key(
@@ -4782,101 +4785,101 @@ async fn create_messages(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("messageId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("senderId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("receiverId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("subject"))
-                        .custom(Alias::new("TINYTEXT"))
+                        .custom(ty(manager, "TINYTEXT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("content"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("expiration"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("reqAdena"))
-                        .custom(Alias::new("BIGINT"))
+                        .custom(ty(manager, "BIGINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("hasAttachments"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'false'")),
+                        .default(dflt(manager, "'false'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("isUnread"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'true'")),
+                        .default(dflt(manager, "'true'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("isDeletedBySender"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'false'")),
+                        .default(dflt(manager, "'false'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("isDeletedByReceiver"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'false'")),
+                        .default(dflt(manager, "'false'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("isLocked"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'false'")),
+                        .default(dflt(manager, "'false'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("sendBySystem"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("isReturned"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'false'")),
+                        .default(dflt(manager, "'false'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("itemId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("enchantLvl"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("elementals"))
-                        .custom(Alias::new("VARCHAR(25)"))
+                        .custom(ty(manager, "VARCHAR(25)"))
                         .null(),
                 )
                 .primary_key(Index::create().col(Alias::new("messageId")))
@@ -4895,43 +4898,43 @@ async fn create_npc_respawns(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("x"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("y"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("z"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("heading"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("respawnTime"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("currentHp"))
-                        .custom(Alias::new("double"))
+                        .custom(ty(manager, "double"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("currentMp"))
-                        .custom(Alias::new("double"))
+                        .custom(ty(manager, "double"))
                         .not_null(),
                 )
                 .primary_key(Index::create().col(Alias::new("id")))
@@ -4950,39 +4953,39 @@ async fn create_olympiad_data(manager: &SchemaManager<'_>) -> Result<(), DbErr> 
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("current_cycle"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .not_null()
-                        .default(Expr::cust("1")),
+                        .default(dflt(manager, "1")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("period"))
-                        .custom(Alias::new("MEDIUMINT"))
+                        .custom(ty(manager, "MEDIUMINT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("olympiad_end"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("validation_end"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("next_weekly_change"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .primary_key(Index::create().col(Alias::new("id")))
                 .to_owned(),
@@ -5000,49 +5003,49 @@ async fn create_olympiad_fights(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charOneId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("charTwoId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("charOneClass"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("charTwoClass"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("winner"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("start"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("time"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("classed"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .to_owned(),
         )
@@ -5079,51 +5082,51 @@ async fn create_olympiad_nobles(manager: &SchemaManager<'_>) -> Result<(), DbErr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("class_id"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("olympiad_points"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("competitions_done"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("competitions_won"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("competitions_lost"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("competitions_drawn"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("competitions_done_week"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(Index::create().col(Alias::new("charId")))
                 .to_owned(),
@@ -5141,45 +5144,45 @@ async fn create_olympiad_nobles_eom(manager: &SchemaManager<'_>) -> Result<(), D
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("class_id"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("olympiad_points"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("competitions_done"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("competitions_won"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("competitions_lost"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("competitions_drawn"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .primary_key(Index::create().col(Alias::new("charId")))
                 .to_owned(),
@@ -5203,15 +5206,15 @@ async fn create_party_matching_history(manager: &SchemaManager<'_>) -> Result<()
                 )
                 .col(
                     ColumnDef::new(Alias::new("title"))
-                        .custom(Alias::new("VARCHAR(21)"))
+                        .custom(ty(manager, "VARCHAR(21)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("leader"))
-                        .custom(Alias::new("VARCHAR(35)"))
+                        .custom(ty(manager, "VARCHAR(35)"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .to_owned(),
         )
@@ -5228,30 +5231,30 @@ async fn create_petition_feedback(manager: &SchemaManager<'_>) -> Result<(), DbE
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charName"))
-                        .custom(Alias::new("VARCHAR(35)"))
+                        .custom(ty(manager, "VARCHAR(35)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("gmName"))
-                        .custom(Alias::new("VARCHAR(35)"))
+                        .custom(ty(manager, "VARCHAR(35)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("rate"))
-                        .custom(Alias::new("TINYINT"))
+                        .custom(ty(manager, "TINYINT"))
                         .not_null()
-                        .default(Expr::cust("2")),
+                        .default(dflt(manager, "2")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("message"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("date"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .to_owned(),
         )
@@ -5268,60 +5271,60 @@ async fn create_pets(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("item_obj_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("name"))
-                        .custom(Alias::new("varchar(16)"))
+                        .custom(ty(manager, "varchar(16)"))
                         .null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("level"))
-                        .custom(Alias::new("smallint"))
+                        .custom(ty(manager, "smallint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("curHp"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty_loose_f64(manager, "INT"))
                         .null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("curMp"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty_loose_f64(manager, "INT"))
                         .null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("exp"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("sp"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("fed"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("ownerId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("restore"))
-                        .custom(Alias::new("varchar(10)"))
+                        .custom(ty(manager, "varchar(10)"))
                         .not_null()
-                        .default(Expr::cust("'false'")),
+                        .default(dflt(manager, "'false'")),
                 )
                 .primary_key(Index::create().col(Alias::new("item_obj_id")))
                 .to_owned(),
@@ -5339,22 +5342,22 @@ async fn create_pledge_applicant(manager: &SchemaManager<'_>) -> Result<(), DbEr
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("charId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clanId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("karma"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("message"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .primary_key(
@@ -5377,32 +5380,32 @@ async fn create_pledge_recruit(manager: &SchemaManager<'_>) -> Result<(), DbErr>
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("clan_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("karma"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("information"))
-                        .custom(Alias::new("varchar(50)"))
+                        .custom(ty(manager, "varchar(50)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("detailed_information"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("application_type"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("recruit_type"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -5420,12 +5423,12 @@ async fn create_pledge_waiting_list(manager: &SchemaManager<'_>) -> Result<(), D
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("char_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("karma"))
-                        .custom(Alias::new("tinyint"))
+                        .custom(ty(manager, "tinyint"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -5443,43 +5446,43 @@ async fn create_posts(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("post_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("post_owner_name"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("post_ownerid"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("post_date"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("post_topic_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("post_forum_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("post_txt"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -5513,32 +5516,32 @@ async fn create_punishments(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 )
                 .col(
                     ColumnDef::new(Alias::new("key"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("affect"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("expiration"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("reason"))
-                        .custom(Alias::new("TEXT"))
+                        .custom(ty(manager, "TEXT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("punishedBy"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null(),
                 )
                 .to_owned(),
@@ -5556,22 +5559,22 @@ async fn create_residence_functions(manager: &SchemaManager<'_>) -> Result<(), D
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("level"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("expiration"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null(),
                 )
                 .col(
                     ColumnDef::new(Alias::new("residenceId"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null(),
                 )
                 .primary_key(
@@ -5595,27 +5598,27 @@ async fn create_siege_clans(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("castle_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("clan_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("0")),
+                        .default(dflt(manager, "0")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("type"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("castle_owner"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .null()
-                        .default(Expr::cust("NULL")),
+                        .default(dflt(manager, "NULL")),
                 )
                 .primary_key(
                     Index::create()
@@ -5637,51 +5640,51 @@ async fn create_topic(manager: &SchemaManager<'_>) -> Result<(), DbErr> {
                 .if_not_exists()
                 .col(
                     ColumnDef::new(Alias::new("topic_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("topic_forum_id"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("topic_name"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null()
-                        .default(Expr::cust("''")),
+                        .default(dflt(manager, "''")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("topic_date"))
-                        .custom(Alias::new("bigint"))
+                        .custom(ty(manager, "bigint"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("topic_ownername"))
-                        .custom(Alias::new("varchar(255)"))
+                        .custom(ty(manager, "varchar(255)"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("topic_ownerid"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("topic_type"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .col(
                     ColumnDef::new(Alias::new("topic_reply"))
-                        .custom(Alias::new("INT"))
+                        .custom(ty(manager, "INT"))
                         .not_null()
-                        .default(Expr::cust("'0'")),
+                        .default(dflt(manager, "'0'")),
                 )
                 .to_owned(),
         )

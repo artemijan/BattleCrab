@@ -1,6 +1,11 @@
 //! `/admin/logs` — log search (`docs/MONITORING.md` §6). Admin-only, like the
 //! rest of `/admin`: every handler starts with `require_admin`.
 //!
+//! Each service's files are searched where they are: the dashboard's own
+//! in-process, the game and login servers' by the server itself, asked over
+//! its monitor channel. So a request validates here, for a clear 400, and
+//! again on the server, which does not take the dashboard's word for it.
+//!
 //! **Audit logs hold player chat and IP addresses**, so every search writes a
 //! `gmaudit` record naming the admin and what they searched for — reading
 //! someone's chat is exactly the kind of action that needs attribution
@@ -13,19 +18,16 @@ use axum::http::HeaderMap;
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
 
+use commons::logsearch::{self, SearchRequest, StreamInfo};
+
 use crate::error::{ApiError, ApiResult};
-use crate::logsearch::{self, Cursor, Level, LogSearch, Outcome, StreamInfo};
+use crate::logsearch::{DASHBOARD_SERVICE, LogSearch};
+use crate::monitor::TargetAnswer;
 use crate::routes::require_admin;
 use crate::state::AppState;
 
 const DEFAULT_RANGE_MS: i64 = 86_400_000;
 const DEFAULT_LIMIT: usize = 100;
-const MAX_LIMIT: usize = 500;
-/// Longer than any sensible search; a cap so a pattern cannot be a payload.
-const MAX_QUERY_LEN: usize = 512;
-/// Compiled-program and lazy-DFA caps: `regex` is linear-time, and these
-/// keep a pathological pattern from costing memory instead.
-const REGEX_SIZE_LIMIT: usize = 1 << 20;
 
 pub fn router() -> Router<AppState> {
     Router::new()
@@ -48,6 +50,9 @@ async fn log_search(
 #[derive(Serialize)]
 struct StreamsResponse {
     streams: Vec<StreamInfo>,
+    /// How each server answered. One that is down lists no streams; this
+    /// says why, rather than leaving it to look like a server with no logs.
+    sources: Vec<TargetAnswer>,
 }
 
 async fn streams(
@@ -55,15 +60,19 @@ async fn streams(
     headers: HeaderMap,
 ) -> ApiResult<Json<StreamsResponse>> {
     let (_, ls) = log_search(&app, &headers).await?;
-    let streams =
-        tokio::task::spawn_blocking(move || ls.sources.iter().flat_map(|s| s.streams()).collect())
-            .await
-            .map_err(|_| {
-                ApiError::Internal(crate::error::anyhow_lite::Error(
-                    "stream listing failed".into(),
-                ))
-            })?;
-    Ok(Json(StreamsResponse { streams }))
+    let (mut streams, sources) = match &app.monitor {
+        Some(m) => m.log_streams().await,
+        None => (Vec::new(), Vec::new()),
+    };
+    let local = tokio::task::spawn_blocking(move || ls.local.streams())
+        .await
+        .map_err(|_| {
+            ApiError::Internal(crate::error::anyhow_lite::Error(
+                "stream listing failed".into(),
+            ))
+        })?;
+    streams.extend(local);
+    Ok(Json(StreamsResponse { streams, sources }))
 }
 
 #[derive(Deserialize)]
@@ -84,106 +93,52 @@ pub struct SearchQuery {
     pub cursor: Option<String>,
 }
 
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-struct SearchResponse {
-    service: String,
-    stream: String,
-    from: i64,
-    to: i64,
-    #[serde(flatten)]
-    outcome: Outcome,
-}
-
-/// A literal `q` matches case-insensitively, as a search box is expected to;
-/// `regex=true` takes the pattern as written (`(?i)` opts back in).
-fn compile(q: &str, regex: bool) -> ApiResult<Option<regex::bytes::Regex>> {
-    if q.is_empty() {
-        return Ok(None);
-    }
-    if q.len() > MAX_QUERY_LEN {
-        return Err(ApiError::BadRequest(format!(
-            "`q` is limited to {MAX_QUERY_LEN} bytes"
-        )));
-    }
-    let pattern = if regex {
-        q.to_string()
-    } else {
-        regex::escape(q)
-    };
-    regex::bytes::RegexBuilder::new(&pattern)
-        .case_insensitive(!regex)
-        .size_limit(REGEX_SIZE_LIMIT)
-        .dfa_size_limit(REGEX_SIZE_LIMIT)
-        .build()
-        .map(Some)
-        .map_err(|e| ApiError::BadRequest(format!("invalid regex: {e}")))
-}
-
-/// Everything about a request that can be refused before a file is touched.
-fn validate(q: &SearchQuery, now: i64) -> ApiResult<logsearch::Query> {
-    let stream_name = q
+/// The query with its defaults filled in and this dashboard's budget
+/// attached — what a server is sent — and, validated, what a local search
+/// runs.
+fn resolve(
+    q: &SearchQuery,
+    now: i64,
+    bounds: &logsearch::Bounds,
+) -> ApiResult<(SearchRequest, logsearch::Query, logsearch::Bounds)> {
+    let stream = q
         .stream
-        .as_deref()
+        .clone()
         .ok_or_else(|| ApiError::BadRequest("`stream` is required".into()))?;
-    let stream = logsearch::Stream::parse(stream_name).ok_or_else(|| {
-        ApiError::BadRequest(format!(
-            "unknown stream {stream_name:?}; valid: diagnostic, error, audit:<category>"
-        ))
-    })?;
     let to = q.to.unwrap_or(now);
-    let from = q.from.unwrap_or(to - DEFAULT_RANGE_MS);
-    if from >= to {
-        return Err(ApiError::BadRequest("`from` must be before `to`".into()));
-    }
-    let level = match q.level.as_deref().filter(|l| !l.is_empty()) {
-        None => None,
-        Some(_) if !stream.has_level() => {
-            return Err(ApiError::BadRequest(
-                "audit records have no level; drop `level`".into(),
-            ));
-        }
-        Some(l) => Some(Level::parse(l).ok_or_else(|| {
-            ApiError::BadRequest("`level` must be trace, debug, info, warn or error".into())
-        })?),
-    };
-    let limit = q.limit.unwrap_or(DEFAULT_LIMIT);
-    if !(1..=MAX_LIMIT).contains(&limit) {
-        return Err(ApiError::BadRequest(format!(
-            "`limit` must be between 1 and {MAX_LIMIT}"
-        )));
-    }
-    let cursor = match q.cursor.as_deref().filter(|c| !c.is_empty()) {
-        None => None,
-        Some(c) => {
-            Some(Cursor::decode(c).ok_or_else(|| ApiError::BadRequest("invalid `cursor`".into()))?)
-        }
-    };
-    Ok(logsearch::Query {
+    let request = SearchRequest {
         stream,
-        from,
+        from: q.from.unwrap_or(to - DEFAULT_RANGE_MS),
         to,
-        pattern: compile(&q.q, q.regex)?,
-        level,
-        limit,
-        cursor,
-    })
+        q: q.q.clone(),
+        regex: q.regex,
+        level: q.level.clone(),
+        limit: q.limit.unwrap_or(DEFAULT_LIMIT),
+        cursor: q.cursor.clone(),
+        max_bytes: bounds.max_bytes,
+        timeout_ms: bounds.deadline.as_millis() as u64,
+    };
+    let (query, bounds) = request.validate().map_err(ApiError::BadRequest)?;
+    Ok((request, query, bounds))
 }
 
 async fn search(
     State(app): State<AppState>,
     headers: HeaderMap,
     Query(q): Query<SearchQuery>,
-) -> ApiResult<Json<SearchResponse>> {
+) -> ApiResult<Json<serde_json::Map<String, serde_json::Value>>> {
     let (actor, ls) = log_search(&app, &headers).await?;
     let service = q
         .service
         .clone()
         .ok_or_else(|| ApiError::BadRequest("`service` is required".into()))?;
-    if ls.source(&service).is_none() {
-        return Err(ApiError::NotFound);
-    }
-    let query = validate(&q, crate::monitor::epoch_ms())?;
+    // `None` is the dashboard's own logs; anything else is a server's.
+    let remote = match &app.monitor {
+        _ if service == DASHBOARD_SERVICE => None,
+        Some(m) if m.is_target(&service) => Some(m.clone()),
+        _ => return Err(ApiError::NotFound),
+    };
+    let (request, query, bounds) = resolve(&q, crate::monitor::epoch_ms(), &ls.bounds)?;
 
     // Refuse rather than queue: a queued search would still be holding the
     // admin's request open past any useful wait.
@@ -201,34 +156,47 @@ async fn search(
             "source": "dashboard",
             "admin": actor.subject(),
             "service": service,
-            "stream": query.stream.name(),
-            "q": q.q,
-            "regex": q.regex,
-            "from": query.from,
-            "to": query.to,
+            "stream": request.stream,
+            "q": request.q,
+            "regex": request.regex,
+            "from": request.from,
+            "to": request.to,
         }),
     );
 
-    let (from, to, stream) = (query.from, query.to, query.stream.name());
-    let ls2 = ls.clone();
-    let svc = service.clone();
-    let outcome = tokio::task::spawn_blocking(move || {
-        let _permit = permit;
-        let source = ls2.source(&svc).expect("checked above");
-        logsearch::search(source, &query, &ls2.bounds)
-    })
-    .await
-    .map_err(|_| {
-        ApiError::Internal(crate::error::anyhow_lite::Error("log search failed".into()))
-    })?;
-
-    Ok(Json(SearchResponse {
-        service,
-        stream,
-        from,
-        to,
-        outcome,
-    }))
+    let mut outcome = match remote {
+        Some(m) => {
+            let answer = m.log_search(&service, &request).await;
+            drop(permit);
+            answer
+                .expect("checked is_target above")
+                .map_err(|e| ApiError::Upstream(format!("{service} did not answer: {e}")))?
+        }
+        None => {
+            let ls2 = ls.clone();
+            let found = tokio::task::spawn_blocking(move || {
+                let _permit = permit;
+                logsearch::search(&ls2.local, &query, &bounds)
+            })
+            .await
+            .map_err(|_| {
+                ApiError::Internal(crate::error::anyhow_lite::Error("log search failed".into()))
+            })?;
+            match serde_json::to_value(found) {
+                Ok(serde_json::Value::Object(o)) => o,
+                _ => {
+                    return Err(ApiError::Internal(crate::error::anyhow_lite::Error(
+                        "log search failed".into(),
+                    )));
+                }
+            }
+        }
+    };
+    outcome.insert("service".into(), service.into());
+    outcome.insert("stream".into(), request.stream.into());
+    outcome.insert("from".into(), request.from.into());
+    outcome.insert("to".into(), request.to.into());
+    Ok(Json(outcome))
 }
 
 #[cfg(test)]
@@ -249,49 +217,38 @@ mod tests {
         }
     }
 
+    fn bounds() -> logsearch::Bounds {
+        logsearch::Bounds {
+            max_bytes: 1 << 20,
+            deadline: std::time::Duration::from_millis(3000),
+        }
+    }
+
     #[test]
-    fn defaults_are_the_last_day_and_a_hundred_lines() {
-        let v = validate(&q("diagnostic"), 1_000_000_000).unwrap();
+    fn defaults_are_the_last_day_and_a_hundred_lines_on_this_dashboards_budget() {
+        let (r, _, _) = resolve(&q("diagnostic"), 1_000_000_000, &bounds()).unwrap();
         assert_eq!(
-            (v.from, v.to),
+            (r.from, r.to),
             (1_000_000_000 - DEFAULT_RANGE_MS, 1_000_000_000)
         );
-        assert_eq!(v.limit, DEFAULT_LIMIT);
-        assert!(v.pattern.is_none());
+        assert_eq!(r.limit, DEFAULT_LIMIT);
+        assert_eq!((r.max_bytes, r.timeout_ms), (1 << 20, 3000));
     }
 
     #[test]
-    fn literal_text_is_escaped_and_case_insensitive() {
-        let p = compile("a.b (c)", false).unwrap().unwrap();
-        assert!(p.is_match(b"xx A.B (C) yy"));
-        assert!(!p.is_match(b"aXb (c)"), "the dot is literal");
-        let r = compile("a.b", true).unwrap().unwrap();
-        assert!(r.is_match(b"aXb"));
-        assert!(!r.is_match(b"AXB"), "a regex is taken as written");
-    }
-
-    #[test]
-    fn hostile_or_malformed_requests_are_refused_up_front() {
-        assert!(compile("(", true).is_err());
-        assert!(compile(&"a".repeat(MAX_QUERY_LEN + 1), false).is_err());
-        // Compiles to far more than the cap: refused, not built.
-        assert!(compile(r"\w{1000}\w{1000}\w{1000}", true).is_err());
-
-        assert!(validate(&q("audit:../../etc"), 0).is_err());
-        let mut audit_level = q("audit:chat");
-        audit_level.level = Some("warn".into());
-        assert!(validate(&audit_level, 0).is_err());
-        let mut bad_level = q("diagnostic");
-        bad_level.level = Some("loud".into());
-        assert!(validate(&bad_level, 0).is_err());
-        let mut big = q("diagnostic");
-        big.limit = Some(MAX_LIMIT + 1);
-        assert!(validate(&big, 0).is_err());
-        let mut inverted = q("diagnostic");
-        (inverted.from, inverted.to) = (Some(10), Some(5));
-        assert!(validate(&inverted, 0).is_err());
-        let mut cursor = q("diagnostic");
-        cursor.cursor = Some("not base64!".into());
-        assert!(validate(&cursor, 0).is_err());
+    fn a_request_the_server_would_refuse_is_a_400_here() {
+        let mut no_stream = q("diagnostic");
+        no_stream.stream = None;
+        assert!(matches!(
+            resolve(&no_stream, 0, &bounds()),
+            Err(ApiError::BadRequest(_))
+        ));
+        let mut bad = q("diagnostic");
+        bad.q = "(".into();
+        bad.regex = true;
+        assert!(matches!(
+            resolve(&bad, 0, &bounds()),
+            Err(ApiError::BadRequest(m)) if m.contains("invalid regex")
+        ));
     }
 }

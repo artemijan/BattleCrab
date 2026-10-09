@@ -2,7 +2,7 @@
  * `/admin/monitor` — per-server traffic, connections and pressure
  * (docs/MONITORING.md §5).
  *
- * One tab per server plus the host. Charts are derived client-side from the
+ * One tab per server. Charts are derived client-side from the
  * API's bucketed series: `sum` series become per-second rates over each
  * bucket's real `intervalMs`, so a bucket that lost a sample does not read as
  * a dip. The current range refetches on the server's poll interval; a longer
@@ -38,12 +38,9 @@ const RANGES = [
   { label: "7d", ms: 7 * 24 * 3_600_000 },
 ] as const;
 
-type Tab = MonitorService | "host";
-
-const TABS: Array<{ id: Tab; label: string }> = [
+const TABS: Array<{ id: MonitorService; label: string }> = [
   { id: "game_server", label: "Game server" },
   { id: "login_server", label: "Login server" },
-  { id: "host", label: "Host" },
 ];
 
 /** Points per chart. Charts are ~600-900 px wide; more would be sub-pixel. */
@@ -67,7 +64,7 @@ function errorText(error: unknown): string {
 }
 
 export function Monitoring() {
-  const [tab, setTab] = useState<Tab>("game_server");
+  const [tab, setTab] = useState<MonitorService>("game_server");
   const [rangeMs, setRangeMs] = useState<number>(RANGES[0].ms);
 
   const services = useQuery({
@@ -84,9 +81,7 @@ export function Monitoring() {
     queryFn: () => {
       const to = Date.now();
       const from = to - rangeMs;
-      return tab === "host"
-        ? api.admin.monitor.host(from, to, MAX_POINTS)
-        : api.admin.monitor.series(tab, from, to, MAX_POINTS);
+      return api.admin.monitor.series(tab, from, to, MAX_POINTS);
     },
     refetchInterval: refetchMs,
     placeholderData: (previous, previousQuery) =>
@@ -159,8 +154,6 @@ export function Monitoring() {
         </Panel>
       ) : series.isError ? (
         <Alert kind="error">{errorText(series.error)}</Alert>
-      ) : tab === "host" ? (
-        <HostCharts data={series.data} />
       ) : (
         <ServiceCharts data={series.data} game={tab === "game_server"} />
       )}
@@ -227,7 +220,7 @@ function col(data: MonitorSeries, name: string): Array<number | null> {
 }
 
 function ServiceCharts({ data, game }: { data: MonitorSeries; game: boolean }) {
-  const interval = data.intervalMs ?? [];
+  const interval = data.intervalMs;
   const rate = (name: string) => perSecond(col(data, name), interval);
   const p = chartProps(data);
 
@@ -469,81 +462,6 @@ function ServiceCharts({ data, game }: { data: MonitorSeries; game: boolean }) {
             color: C2,
             description:
               "Times per second a server thread had to wait because the audit queue was full. Should stay at zero.",
-          },
-        ]}
-      />
-    </div>
-  );
-}
-
-function HostCharts({ data }: { data: MonitorSeries }) {
-  const p = chartProps(data);
-  return (
-    <div className="grid gap-3 lg:grid-cols-2">
-      <LineChart
-        title="Load average"
-        {...p}
-        format={formatCount}
-        lines={[
-          {
-            label: "1m",
-            values: col(data, "load1"),
-            color: C1,
-            description:
-              "Runnable processes averaged over the last minute. Compare with the core count: above it, work is queuing.",
-          },
-          {
-            label: "5m",
-            values: col(data, "load5"),
-            color: C2,
-            description: "Load average over the last 5 minutes.",
-          },
-          {
-            label: "15m",
-            values: col(data, "load15"),
-            color: C3,
-            description: "Load average over the last 15 minutes.",
-          },
-        ]}
-      />
-      <LineChart
-        title="Memory available (low point)"
-        {...p}
-        format={formatBytes}
-        note="Host memory is reported on Linux only."
-        lines={[
-          {
-            label: "Available",
-            values: col(data, "mem_available_bytes"),
-            color: C1,
-            description:
-              "Memory the host can give to new work without swapping (MemAvailable). Lowest point per bucket.",
-          },
-          {
-            label: "Total",
-            values: col(data, "mem_total_bytes"),
-            color: C3,
-            description: "Total physical memory on the host.",
-          },
-        ]}
-      />
-      <LineChart
-        title="Disk free (low point)"
-        {...p}
-        format={formatBytes}
-        lines={[
-          {
-            label: "Free",
-            values: col(data, "disk_free_bytes"),
-            color: C1,
-            description:
-              "Free space on the disk holding the server files. Lowest point per bucket.",
-          },
-          {
-            label: "Total",
-            values: col(data, "disk_total_bytes"),
-            color: C3,
-            description: "Size of that disk.",
           },
         ]}
       />

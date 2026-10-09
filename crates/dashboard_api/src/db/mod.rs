@@ -1,4 +1,5 @@
-//! Data access against the live game SQLite DB — one pool, four tables.
+//! Data access against the live game database (SQLite or PostgreSQL) — one
+//! pool, four tables.
 //!
 //! `accounts` is writable in exactly two columns for players — plus, for the
 //! admin surface only, `accessLevel` restricted to values ≤ 0 (see `admin`).
@@ -13,7 +14,7 @@ pub mod items;
 
 use std::path::PathBuf;
 
-use models::sea_orm::{ConnectionTrait, DatabaseBackend, DbErr, Statement};
+use models::sea_orm::{ConnectionTrait, DatabaseBackend, Statement, Value};
 
 /// Tables this crate cannot run without.
 pub const REQUIRED_TABLES: [&str; 2] = ["accounts", "characters"];
@@ -35,32 +36,52 @@ pub fn sqlite_path(jdbc_url: &str) -> Option<PathBuf> {
     Some(PathBuf::from(path))
 }
 
-/// Returns the required tables that are **missing** from the open database.
+/// A raw statement for `db`'s backend, written once for both.
 ///
-/// Exists because `commons::db::init` opens with `create_if_missing(true)`: a
-/// wrong path does not fail, it silently produces an empty database, and every
-/// request then fails at runtime instead of at boot. Checking once at startup
-/// turns that into a single actionable error.
-pub async fn missing_tables<C: ConnectionTrait>(db: &C) -> Result<Vec<&'static str>, DbErr> {
-    let mut missing = Vec::new();
-    for table in REQUIRED_TABLES {
-        let found = db
-            .query_one_raw(Statement::from_sql_and_values(
-                DatabaseBackend::Sqlite,
-                "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-                [table.into()],
-            ))
-            .await?;
-        if found.is_none() {
-            missing.push(table);
+/// The SQL must be portable: identifiers in double quotes (both backends read
+/// them), no backend-only syntax, and `?` placeholders — which become `$1`,
+/// `$2`, … on PostgreSQL. A `?` inside a single-quoted literal is left alone.
+pub fn portable<C: ConnectionTrait>(db: &C, sql: &str, values: Vec<Value>) -> Statement {
+    let backend = db.get_database_backend();
+    let sql = match backend {
+        DatabaseBackend::Postgres => numbered_placeholders(sql),
+        _ => sql.to_string(),
+    };
+    Statement::from_sql_and_values(backend, sql, values)
+}
+
+fn numbered_placeholders(sql: &str) -> String {
+    let mut out = String::with_capacity(sql.len() + 8);
+    let mut n = 0;
+    let mut in_literal = false;
+    for c in sql.chars() {
+        match c {
+            '\'' => {
+                in_literal = !in_literal;
+                out.push(c);
+            }
+            '?' if !in_literal => {
+                n += 1;
+                out.push('$');
+                out.push_str(&n.to_string());
+            }
+            _ => out.push(c),
         }
     }
-    Ok(missing)
+    out
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn placeholders_are_numbered_for_postgres_outside_literals() {
+        assert_eq!(
+            numbered_placeholders("a = ? AND b LIKE ? ESCAPE '\\' AND c = '?' AND d = ?"),
+            "a = $1 AND b LIKE $2 ESCAPE '\\' AND c = '?' AND d = $3"
+        );
+    }
 
     #[test]
     fn extracts_the_path_from_a_jdbc_url() {
@@ -81,23 +102,35 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn reports_missing_tables() {
+    async fn reports_missing_required_tables() {
         let db = models::sea_orm::Database::connect("sqlite::memory:")
             .await
             .unwrap();
         assert_eq!(
-            missing_tables(&db).await.unwrap(),
+            commons::db::missing_tables(&db, &REQUIRED_TABLES)
+                .await
+                .unwrap(),
             vec!["accounts", "characters"]
         );
 
         db.execute_unprepared("CREATE TABLE accounts (login TEXT)")
             .await
             .unwrap();
-        assert_eq!(missing_tables(&db).await.unwrap(), vec!["characters"]);
+        assert_eq!(
+            commons::db::missing_tables(&db, &REQUIRED_TABLES)
+                .await
+                .unwrap(),
+            vec!["characters"]
+        );
 
         db.execute_unprepared("CREATE TABLE characters (char_name TEXT)")
             .await
             .unwrap();
-        assert!(missing_tables(&db).await.unwrap().is_empty());
+        assert!(
+            commons::db::missing_tables(&db, &REQUIRED_TABLES)
+                .await
+                .unwrap()
+                .is_empty()
+        );
     }
 }

@@ -2,12 +2,12 @@
 //!
 //! Each game/login server samples itself into an in-memory ring
 //! (`commons::monitor`). This module polls those rings over loopback, is the
-//! sole writer of `metrics.db`, samples host-level pressure, prunes past the
-//! retention window, and answers the `/admin/monitor` queries. It also asks
+//! sole writer of `metrics.db`, prunes past the retention window, and answers
+//! the `/admin/monitor` queries. It also asks
 //! the servers for their live client lists on demand (§10), which are never
-//! stored, and passes on the Audit page's disconnects.
+//! stored, passes on the Audit page's disconnects, and carries log searches to
+//! the server whose files they read (§6).
 
-pub mod host;
 pub mod store;
 pub mod wire;
 
@@ -19,6 +19,7 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use serde::Serialize;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
+use commons::logsearch::{SearchRequest, StreamInfo};
 use commons::monitor::clients::ClientRecord;
 
 use crate::config::DashboardConfig;
@@ -35,6 +36,15 @@ const POLL_TIMEOUT: Duration = Duration::from_secs(3);
 /// A full ring is ~720 lines of well under 1 KB; this is generous headroom and
 /// still a hard stop for anything misbehaving on the port.
 const MAX_POLL_BYTES: u64 = 8 * 1024 * 1024;
+
+/// A search answer carries up to `logsearch::MAX_HIT_BYTES` of matching lines,
+/// which JSON escaping can grow; this leaves room for that and stops a
+/// runaway answer all the same.
+const MAX_LOG_BYTES: u64 = 64 * 1024 * 1024;
+
+/// A search may take its whole deadline; this covers listing the files,
+/// serializing the hits, and the trip, on top.
+const LOG_TIMEOUT_SLACK: Duration = Duration::from_secs(5);
 
 /// Polls run this long after each period boundary, so the servers — which
 /// sample *on* the boundary — have already pushed the sample being fetched.
@@ -87,10 +97,11 @@ pub struct TargetStatus {
     pub last_error: Option<String>,
 }
 
-/// How one target answered a client-list request.
+/// How one target answered a request asked of every target at once: the
+/// client list, or the log stream listing.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ClientSource {
+pub struct TargetAnswer {
     pub service: String,
     pub up: bool,
     pub error: Option<String>,
@@ -111,8 +122,6 @@ pub struct Monitor {
     status: Mutex<BTreeMap<String, TargetStatus>>,
     pub poll_seconds: u64,
     pub retention_days: u64,
-    /// Where host disk-free is measured: the metrics database's location.
-    disk_path: PathBuf,
 }
 
 impl Monitor {
@@ -121,7 +130,6 @@ impl Monitor {
         targets: Vec<Target>,
         poll_seconds: u64,
         retention_days: u64,
-        disk_path: PathBuf,
     ) -> Self {
         let status = targets
             .iter()
@@ -142,7 +150,6 @@ impl Monitor {
             status: Mutex::new(status),
             poll_seconds: poll_seconds.max(1),
             retention_days,
-            disk_path,
         }
     }
 
@@ -209,7 +216,7 @@ impl Monitor {
             .unwrap_or(0);
         let body = tokio::time::timeout(
             POLL_TIMEOUT,
-            request(&target.address, &format!("since {since}")),
+            request(&target.address, &format!("since {since}"), MAX_POLL_BYTES),
         )
         .await
         .map_err(|_| "timed out".to_string())?
@@ -245,13 +252,18 @@ impl Monitor {
             .map(|s| (s.ts, s.started)))
     }
 
-    /// Every target's live client list, asked of all targets at once. A
-    /// target that can't answer is reported in its [`ClientSource`] and
-    /// contributes no rows; the others still do.
-    pub async fn clients(&self) -> (Vec<ClientRecord>, Vec<ClientSource>) {
+    /// Asks every target at once. A target that can't answer is reported in
+    /// its [`TargetAnswer`] and contributes no rows; the others still do.
+    async fn ask_all<T, F, Fut>(&self, ask: F) -> (Vec<T>, Vec<TargetAnswer>)
+    where
+        T: Send + 'static,
+        F: Fn(Target) -> Fut,
+        Fut: std::future::Future<Output = Result<Vec<T>, String>> + Send + 'static,
+    {
         let mut asks = tokio::task::JoinSet::new();
         for (i, target) in self.targets.iter().cloned().enumerate() {
-            asks.spawn(async move { (i, client_list(&target).await) });
+            let answer = ask(target);
+            asks.spawn(async move { (i, answer.await) });
         }
         let mut answers = Vec::with_capacity(self.targets.len());
         while let Some(joined) = asks.join_next().await {
@@ -261,27 +273,51 @@ impl Monitor {
         }
         // MonitorTargets order, whichever answered first.
         answers.sort_by_key(|(i, _)| *i);
-        let mut clients = Vec::new();
+        let mut rows = Vec::new();
         let mut sources = Vec::with_capacity(answers.len());
         for (i, answer) in answers {
             let service = self.targets[i].service.clone();
             match answer {
-                Ok(records) => {
-                    clients.extend(records);
-                    sources.push(ClientSource {
+                Ok(r) => {
+                    rows.extend(r);
+                    sources.push(TargetAnswer {
                         service,
                         up: true,
                         error: None,
                     });
                 }
-                Err(e) => sources.push(ClientSource {
+                Err(e) => sources.push(TargetAnswer {
                     service,
                     up: false,
                     error: Some(e),
                 }),
             }
         }
-        (clients, sources)
+        (rows, sources)
+    }
+
+    /// Every target's live client list.
+    pub async fn clients(&self) -> (Vec<ClientRecord>, Vec<TargetAnswer>) {
+        self.ask_all(|target| async move { client_list(&target).await })
+            .await
+    }
+
+    /// Every target's log streams (§6), listed by the server that writes them.
+    pub async fn log_streams(&self) -> (Vec<StreamInfo>, Vec<TargetAnswer>) {
+        self.ask_all(|target| async move { log_streams(&target).await })
+            .await
+    }
+
+    /// Runs `search` on `service`, over its own files. The answer is the
+    /// server's `Outcome`, passed on as it came. `None` when `service` is not
+    /// a target.
+    pub async fn log_search(
+        &self,
+        service: &str,
+        search: &SearchRequest,
+    ) -> Option<Result<serde_json::Map<String, serde_json::Value>, String>> {
+        let target = self.targets.iter().find(|t| t.service == service)?;
+        Some(log_search(target, search).await)
     }
 
     /// Asks `service` to close connection `id`, the one that opened at
@@ -323,18 +359,6 @@ impl Monitor {
         summary
     }
 
-    /// One host reading, stamped on the current period boundary.
-    pub async fn sample_host(&self) {
-        let path = self.disk_path.clone();
-        let reading = tokio::task::spawn_blocking(move || host::read(&path))
-            .await
-            .unwrap_or_default();
-        let ts = align_down(epoch_ms(), self.poll_seconds as i64 * 1000);
-        if let Err(e) = self.db.insert_host(ts, &reading).await {
-            tracing::warn!("monitor: storing host sample failed: {e}");
-        }
-    }
-
     pub async fn prune(&self) {
         let cutoff = epoch_ms() - self.retention_days as i64 * 86_400_000;
         match self.db.prune(cutoff).await {
@@ -353,7 +377,6 @@ impl Monitor {
             let wait = (period_ms - now % period_ms + POLL_OFFSET_MS) % period_ms;
             tokio::time::sleep(Duration::from_millis(wait.max(1))).await;
 
-            self.sample_host().await;
             for target in &self.targets {
                 self.poll(target).await;
             }
@@ -365,22 +388,26 @@ impl Monitor {
     }
 }
 
-/// One request on the monitor channel: a line in, the body out.
-async fn request(address: &str, line: &str) -> std::io::Result<String> {
+/// One request on the monitor channel: a line in, at most `max_bytes` of
+/// body out.
+async fn request(address: &str, line: &str, max_bytes: u64) -> std::io::Result<String> {
     let mut stream = tokio::net::TcpStream::connect(address).await?;
     stream.write_all(format!("{line}\n").as_bytes()).await?;
     let mut buf = Vec::new();
-    stream.take(MAX_POLL_BYTES).read_to_end(&mut buf).await?;
+    stream.take(max_bytes).read_to_end(&mut buf).await?;
     String::from_utf8(buf).map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
 }
 
 /// One target's `clients` answer. A target answering as another service is
 /// refused for the same reason [`Monitor::poll`] refuses its samples.
 async fn client_list(target: &Target) -> Result<Vec<ClientRecord>, String> {
-    let body = tokio::time::timeout(POLL_TIMEOUT, request(&target.address, "clients"))
-        .await
-        .map_err(|_| "timed out".to_string())?
-        .map_err(|e| e.to_string())?;
+    let body = tokio::time::timeout(
+        POLL_TIMEOUT,
+        request(&target.address, "clients", MAX_POLL_BYTES),
+    )
+    .await
+    .map_err(|_| "timed out".to_string())?
+    .map_err(|e| e.to_string())?;
     let parsed = wire::parse_clients(&body);
     if let Some(e) = parsed.error {
         return Err(format!("channel refused the request: {e}"));
@@ -404,7 +431,11 @@ async fn client_list(target: &Target) -> Result<Vec<ClientRecord>, String> {
 async fn kick(target: &Target, id: u64, connected_ms: u64) -> Result<bool, String> {
     let body = tokio::time::timeout(
         POLL_TIMEOUT,
-        request(&target.address, &format!("kick {id} {connected_ms}")),
+        request(
+            &target.address,
+            &format!("kick {id} {connected_ms}"),
+            MAX_POLL_BYTES,
+        ),
     )
     .await
     .map_err(|_| "timed out".to_string())?
@@ -412,15 +443,58 @@ async fn kick(target: &Target, id: u64, connected_ms: u64) -> Result<bool, Strin
     wire::parse_kick(&body)
 }
 
+/// One target's `logs streams` answer, refused if it names another service.
+async fn log_streams(target: &Target) -> Result<Vec<StreamInfo>, String> {
+    let body = tokio::time::timeout(
+        POLL_TIMEOUT,
+        request(&target.address, "logs streams", MAX_POLL_BYTES),
+    )
+    .await
+    .map_err(|_| "timed out".to_string())?
+    .map_err(|e| e.to_string())?;
+    let streams = wire::parse_streams(&body)?;
+    if let Some(other) = streams.iter().find(|s| s.service != target.service) {
+        return Err(format!(
+            "answered as service {:?}, expected {:?} — check MonitorTargets",
+            other.service, target.service
+        ));
+    }
+    Ok(streams)
+}
+
+async fn log_search(
+    target: &Target,
+    search: &SearchRequest,
+) -> Result<serde_json::Map<String, serde_json::Value>, String> {
+    let json = serde_json::to_string(search).map_err(|e| e.to_string())?;
+    let deadline = Duration::from_millis(search.timeout_ms) + LOG_TIMEOUT_SLACK;
+    let body = tokio::time::timeout(
+        deadline,
+        request(
+            &target.address,
+            &format!("logs search {json}"),
+            MAX_LOG_BYTES,
+        ),
+    )
+    .await
+    .map_err(|_| "timed out".to_string())?
+    .map_err(|e| e.to_string())?;
+    let outcome = wire::parse_search(&body)?;
+    match outcome.get("service").and_then(|s| s.as_str()) {
+        Some(s) if s == target.service => Ok(outcome),
+        other => Err(format!(
+            "answered as service {:?}, expected {:?} — check MonitorTargets",
+            other.unwrap_or("unnamed"),
+            target.service
+        )),
+    }
+}
+
 pub fn epoch_ms() -> i64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0)
-}
-
-fn align_down(ms: i64, period_ms: i64) -> i64 {
-    ms - ms.rem_euclid(period_ms)
 }
 
 /// The bucket width for a `range_ms` query returning at most `max_points`.
@@ -482,7 +556,6 @@ pub async fn start(config: &DashboardConfig) -> Option<Arc<Monitor>> {
         targets,
         config.metrics_poll_seconds,
         config.metrics_retention_days,
-        path,
     ));
     tokio::spawn(monitor.clone().run());
     Some(monitor)

@@ -225,13 +225,8 @@ async fn temp_ban_writes_account_data_and_bans_ip() {
     gs.send(w.into_bytes()).await;
     tokio::time::sleep(std::time::Duration::from_millis(150)).await;
 
-    let (value,): (String,) = sqlx::query_as(
-        "SELECT value FROM account_data WHERE account_name='hacker' AND var='ban_temp'",
-    )
-    .fetch_one(&server.pool)
-    .await
-    .expect("ban_temp row written");
-    assert_eq!(value, ban_until.to_string());
+    let value = common::account_data_value(&server.db, "hacker", "ban_temp").await;
+    assert_eq!(value, Some(ban_until.to_string()), "ban_temp row written");
 
     // RequestTempBan also IP-bans the reported address (Java behavior), so a
     // new connection is refused before Init: LoginFail(REASON_NOT_AUTHED)
@@ -249,11 +244,8 @@ async fn temp_ban_writes_account_data_and_bans_ip() {
 
     // Stored on the ban list, ending when the game server said the account's
     // ban ends (Java would have banned the address for decades).
-    let (expires_at, banned_by): (i64, String) =
-        sqlx::query_as("SELECT expires_at, banned_by FROM ip_bans")
-            .fetch_one(&server.pool)
-            .await
-            .expect("the IP ban is stored");
+    let ban = common::only_ip_ban(&server.db).await;
+    let (expires_at, banned_by) = (ban.expires_at, ban.banned_by);
     assert_eq!(
         (expires_at, banned_by.as_str()),
         (ban_until, "login_server")
@@ -307,12 +299,8 @@ async fn change_password_roundtrip() {
     assert_eq!(r.read_string().unwrap(), "MyChar");
     assert!(r.read_string().unwrap().contains("successfully"));
 
-    let (password,): (String,) =
-        sqlx::query_as("SELECT password FROM accounts WHERE login='pwuser'")
-            .fetch_one(&server.pool)
-            .await
-            .unwrap();
-    assert_eq!(password, hash_password("newpass"));
+    let password = common::account(&server.db, "pwuser").await.password;
+    assert_eq!(password, Some(hash_password("newpass")));
 }
 
 #[tokio::test]
@@ -334,11 +322,7 @@ async fn player_tracert_updates_accounts() {
     gs.send(w.into_bytes()).await;
     tokio::time::sleep(std::time::Duration::from_millis(150)).await;
 
-    let (pc_ip, hop1): (String, String) =
-        sqlx::query_as("SELECT pcIp, hop1 FROM accounts WHERE login='traceuser'")
-            .fetch_one(&server.pool)
-            .await
-            .unwrap();
-    assert_eq!(pc_ip, "10.0.0.5");
-    assert_eq!(hop1, "10.0.0.1");
+    let account = common::account(&server.db, "traceuser").await;
+    assert_eq!(account.pc_ip.as_deref(), Some("10.0.0.5"));
+    assert_eq!(account.hop1.as_deref(), Some("10.0.0.1"));
 }

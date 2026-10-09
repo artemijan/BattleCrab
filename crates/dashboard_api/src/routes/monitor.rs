@@ -32,7 +32,6 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/services", axum::routing::get(services))
         .route("/series", axum::routing::get(series))
-        .route("/host", axum::routing::get(host))
         .route("/clients", axum::routing::get(clients))
         .route("/clients/disconnect", axum::routing::post(disconnect))
 }
@@ -158,7 +157,7 @@ fn metrics(raw: Option<&str>) -> ApiResult<Vec<&'static Column>> {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SeriesResponse {
-    service: Option<String>,
+    service: String,
     from: i64,
     to: i64,
     bucket_ms: i64,
@@ -188,7 +187,7 @@ async fn series(
         m.db.series(service, w.from, w.to, w.bucket_ms, &cols)
             .await?;
     Ok(Json(SeriesResponse {
-        service: Some(service.to_string()),
+        service: service.to_string(),
         from: w.from,
         to: w.to,
         bucket_ms: w.bucket_ms,
@@ -208,24 +207,6 @@ async fn series(
     }))
 }
 
-async fn host(
-    State(app): State<AppState>,
-    headers: HeaderMap,
-    Query(q): Query<RangeQuery>,
-) -> ApiResult<Json<SeriesResponse>> {
-    let m = monitor(&app, &headers).await?;
-    let w = window(&q, monitor::epoch_ms(), m.retention_days)?;
-    let buckets = m.db.host(w.from, w.to, w.bucket_ms).await?;
-    Ok(Json(SeriesResponse {
-        service: None,
-        from: w.from,
-        to: w.to,
-        bucket_ms: w.bucket_ms,
-        aggregation: store::HOST_COLUMNS.iter().copied().collect(),
-        buckets,
-    }))
-}
-
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct ClientsResponse {
@@ -233,7 +214,7 @@ struct ClientsResponse {
     /// same clock that stamped `connectedMs`, not the viewer's.
     now_ms: i64,
     clients: Vec<commons::monitor::clients::ClientRecord>,
-    sources: Vec<monitor::ClientSource>,
+    sources: Vec<monitor::TargetAnswer>,
 }
 
 /// No audit record per request: the page refreshes this every few seconds,

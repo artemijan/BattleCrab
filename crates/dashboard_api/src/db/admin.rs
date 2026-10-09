@@ -20,17 +20,21 @@
 
 use models::entity::accounts::{ActiveModel, Column, Entity};
 use models::sea_orm::ActiveValue::Set;
-use models::sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, SqlErr};
-use sqlx::AssertSqlSafe;
+use models::sea_orm::{
+    ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryResult, SqlErr,
+};
 
+use super::portable;
 use crate::error::{ApiError, ApiResult};
 
 // The three list queries below stay raw SQL on purpose. Each one carries two
-// correlated `COUNT(*)` subqueries, a `LIKE … ESCAPE`, a `COLLATE NOCASE` and a
-// whitelisted dynamic `ORDER BY`; expressing that through the query builder
-// would be a rewrite of working, audited SQL rather than a port of it. They run
-// through the pool underneath the ORM connection, so there is still one pool and
-// one database handle in the process. Everything that writes is entity-based.
+// correlated `COUNT(*)` subqueries, a `LIKE … ESCAPE` and a whitelisted dynamic
+// `ORDER BY`; expressing that through the query builder would be a rewrite of
+// working, audited SQL rather than a port of it. The SQL is written once for
+// SQLite and PostgreSQL ([`portable`]): identifiers double-quoted, and
+// case-insensitive matching spelled `lower(x)`, which both backends read alike
+// — SQLite's `LIKE` ignores ASCII case and PostgreSQL's does not, so neither
+// side's default is relied on. Everything that writes is entity-based.
 
 /// One master account row in the admin list, with ownership counts.
 #[derive(Debug, serde::Serialize)]
@@ -80,8 +84,9 @@ fn like_contains(query: &str) -> String {
 /// the SQL: an unknown name never reaches the query, it fails parsing here.
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum MasterSort {
-    /// Insertion order — `rowid`, not the text timestamp, so two accounts
-    /// created in the same second still sort deterministically.
+    /// Insertion order — `rowid` (SQLite's implicit one, PostgreSQL's
+    /// `SERIAL`), not the text timestamp, so two accounts created in the same
+    /// second still sort deterministically.
     #[default]
     Created,
     Email,
@@ -110,8 +115,8 @@ impl MasterSort {
     fn sql(self) -> &'static str {
         match self {
             Self::Created => "a.rowid",
-            Self::Email => "a.email COLLATE NOCASE",
-            Self::AccessLevel => "a.accessLevel",
+            Self::Email => "lower(a.email)",
+            Self::AccessLevel => "a.\"accessLevel\"",
             Self::Verified => "COALESCE(a.is_verified, 0)",
             Self::LastActive => "a.lastactive",
             Self::GameAccounts => "game_accounts",
@@ -158,97 +163,106 @@ pub async fn list_masters(
 ) -> ApiResult<(Vec<MasterSummary>, i64)> {
     // Shared by the page query and the count query so they cannot disagree.
     const WHERE: &str = "a.login IS NULL AND (? = '' \
-         OR a.email LIKE ? ESCAPE '\\' COLLATE NOCASE \
-         OR a.email IN (SELECT g.email FROM accounts g \
-                        WHERE g.login IS NOT NULL AND g.login LIKE ? ESCAPE '\\'))";
+         OR lower(a.email) LIKE ? ESCAPE '\\' \
+         OR lower(a.email) IN (SELECT lower(g.email) FROM accounts g \
+                        WHERE g.login IS NOT NULL AND lower(g.login) LIKE ? ESCAPE '\\'))";
 
-    let pattern = like_contains(query);
-    let pool = db.get_sqlite_connection_pool();
+    let pattern = like_contains(&query.to_lowercase());
+    let filter = || vec![query.into(), pattern.clone().into(), pattern.clone().into()];
 
-    let (total,): (i64,) = sqlx::query_as(AssertSqlSafe(format!(
-        "SELECT COUNT(*) FROM accounts a WHERE {WHERE}"
-    )))
-    .bind(query)
-    .bind(&pattern)
-    .bind(&pattern)
-    .fetch_one(pool)
-    .await?;
+    let total: i64 = db
+        .query_one_raw(portable(
+            db,
+            &format!("SELECT COUNT(*) AS total FROM accounts a WHERE {WHERE}"),
+            filter(),
+        ))
+        .await?
+        .map(|row| row.try_get("", "total"))
+        .transpose()?
+        .unwrap_or(0);
 
-    type Row = (String, Option<i64>, i32, String, i64, i64, i64);
     // `sort`/`dir` are interpolated, but only through the enums' fixed sql()
     // strings — nothing caller-supplied can reach the statement text.
     let order = format!("{} {}, a.rowid DESC", sort.sql(), dir.sql());
-    let rows: Vec<Row> = sqlx::query_as(AssertSqlSafe(format!(
-        "SELECT a.email, a.is_verified, a.accessLevel, a.created_time, a.lastactive, \
-           (SELECT COUNT(*) FROM accounts g \
-              WHERE g.login IS NOT NULL AND g.email = a.email COLLATE NOCASE) AS game_accounts, \
-           (SELECT COUNT(*) FROM characters c WHERE c.deletetime = 0 AND c.account_name IN \
-              (SELECT g.login FROM accounts g \
-                 WHERE g.login IS NOT NULL AND g.email = a.email COLLATE NOCASE)) AS characters \
-         FROM accounts a WHERE {WHERE} \
-         ORDER BY {order} LIMIT ? OFFSET ?"
-    )))
-    .bind(query)
-    .bind(&pattern)
-    .bind(&pattern)
-    .bind(limit)
-    .bind(offset)
-    .fetch_all(pool)
-    .await?;
+    let mut values = filter();
+    values.extend([limit.into(), offset.into()]);
+    let rows = db
+        .query_all_raw(portable(
+            db,
+            &format!(
+                "SELECT a.email, a.is_verified, a.\"accessLevel\" AS access_level, \
+                   a.created_time, a.lastactive, \
+                   (SELECT COUNT(*) FROM accounts g \
+                      WHERE g.login IS NOT NULL AND lower(g.email) = lower(a.email)) AS game_accounts, \
+                   (SELECT COUNT(*) FROM characters c WHERE c.deletetime = 0 AND c.account_name IN \
+                      (SELECT g.login FROM accounts g \
+                         WHERE g.login IS NOT NULL AND lower(g.email) = lower(a.email))) AS characters \
+                 FROM accounts a WHERE {WHERE} \
+                 ORDER BY {order} LIMIT ? OFFSET ?"
+            ),
+            values,
+        ))
+        .await?;
 
     let masters = rows
-        .into_iter()
-        .map(
-            |(email, is_verified, access_level, created_time, last_active, games, chars)| {
-                MasterSummary {
-                    email,
-                    is_verified: is_verified.unwrap_or(0) != 0,
-                    access_level,
-                    created_time,
-                    last_active,
-                    game_accounts: games,
-                    characters: chars,
-                }
-            },
-        )
-        .collect();
+        .iter()
+        .map(|row| {
+            Ok(MasterSummary {
+                email: row.try_get("", "email")?,
+                is_verified: row.try_get::<Option<i32>>("", "is_verified")?.unwrap_or(0) != 0,
+                access_level: row.try_get("", "access_level")?,
+                created_time: row.try_get("", "created_time")?,
+                last_active: row.try_get("", "lastactive")?,
+                game_accounts: row.try_get("", "game_accounts")?,
+                characters: row.try_get("", "characters")?,
+            })
+        })
+        .collect::<Result<Vec<_>, models::sea_orm::DbErr>>()?;
 
     Ok((masters, total))
 }
-
-type GameAccountRow = (String, Option<String>, i32, i64, Option<String>, i64);
-
-fn to_game_account(
-    (login, email, access_level, last_active, last_ip, characters): GameAccountRow,
-) -> GameAccountInfo {
-    GameAccountInfo {
-        login,
-        email,
-        access_level,
-        last_active,
-        last_ip,
-        characters,
-    }
+fn to_game_account(row: &QueryResult) -> Result<GameAccountInfo, models::sea_orm::DbErr> {
+    Ok(GameAccountInfo {
+        login: row.try_get("", "login")?,
+        email: row.try_get("", "email")?,
+        access_level: row.try_get("", "access_level")?,
+        last_active: row.try_get("", "lastactive")?,
+        last_ip: row.try_get("", "last_ip")?,
+        characters: row.try_get("", "characters")?,
+    })
 }
 
-const GAME_ACCOUNT_COLUMNS: &str = "a.login, a.email, a.accessLevel, a.lastactive, a.lastIP, \
-     (SELECT COUNT(*) FROM characters c WHERE c.deletetime = 0 AND c.account_name = a.login)";
+const GAME_ACCOUNT_COLUMNS: &str = "a.login, a.email, a.\"accessLevel\" AS access_level, \
+     a.lastactive, a.\"lastIP\" AS last_ip, \
+     (SELECT COUNT(*) FROM characters c WHERE c.deletetime = 0 AND c.account_name = a.login) \
+       AS characters";
+
+async fn game_accounts(
+    db: &DatabaseConnection,
+    sql: &str,
+    values: Vec<models::sea_orm::Value>,
+) -> ApiResult<Vec<GameAccountInfo>> {
+    let rows = db.query_all_raw(portable(db, sql, values)).await?;
+    Ok(rows
+        .iter()
+        .map(to_game_account)
+        .collect::<Result<Vec<_>, _>>()?)
+}
 
 /// Every game account under a master address, with the admin-only columns.
 pub async fn game_accounts_for_master(
     db: &DatabaseConnection,
     email: &str,
 ) -> ApiResult<Vec<GameAccountInfo>> {
-    let pool = db.get_sqlite_connection_pool();
-    let rows: Vec<GameAccountRow> = sqlx::query_as(AssertSqlSafe(format!(
-        "SELECT {GAME_ACCOUNT_COLUMNS} FROM accounts a \
-         WHERE a.login IS NOT NULL AND a.email = ? COLLATE NOCASE ORDER BY a.login"
-    )))
-    .bind(super::accounts::normalize_email(email))
-    .fetch_all(pool)
-    .await?;
-
-    Ok(rows.into_iter().map(to_game_account).collect())
+    game_accounts(
+        db,
+        &format!(
+            "SELECT {GAME_ACCOUNT_COLUMNS} FROM accounts a \
+             WHERE a.login IS NOT NULL AND lower(a.email) = lower(?) ORDER BY a.login"
+        ),
+        vec![super::accounts::normalize_email(email).into()],
+    )
+    .await
 }
 
 /// Search over *all* game accounts by login, masterless ones included.
@@ -260,19 +274,20 @@ pub async fn search_game_accounts(
     query: &str,
     limit: i64,
 ) -> ApiResult<Vec<GameAccountInfo>> {
-    let pool = db.get_sqlite_connection_pool();
-    let rows: Vec<GameAccountRow> = sqlx::query_as(AssertSqlSafe(format!(
-        "SELECT {GAME_ACCOUNT_COLUMNS} FROM accounts a \
-         WHERE a.login IS NOT NULL AND (? = '' OR a.login LIKE ? ESCAPE '\\') \
-         ORDER BY a.login LIMIT ?"
-    )))
-    .bind(query)
-    .bind(like_contains(query))
-    .bind(limit)
-    .fetch_all(pool)
-    .await?;
-
-    Ok(rows.into_iter().map(to_game_account).collect())
+    game_accounts(
+        db,
+        &format!(
+            "SELECT {GAME_ACCOUNT_COLUMNS} FROM accounts a \
+             WHERE a.login IS NOT NULL AND (? = '' OR lower(a.login) LIKE ? ESCAPE '\\') \
+             ORDER BY a.login LIMIT ?"
+        ),
+        vec![
+            query.into(),
+            like_contains(&query.to_lowercase()).into(),
+            limit.into(),
+        ],
+    )
+    .await
 }
 
 /// Creates a game account under the acting admin's own master address, with

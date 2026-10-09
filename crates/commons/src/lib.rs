@@ -7,6 +7,7 @@ pub mod cron;
 pub mod crypt;
 pub mod db;
 pub mod logging;
+pub mod logsearch;
 pub mod metrics;
 pub mod monitor;
 pub mod network;

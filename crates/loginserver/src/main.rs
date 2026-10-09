@@ -28,12 +28,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // the sampler below charts these on the dashboard. Mirrors
     // `gameserver::main`.
     loginserver::metrics::register_metrics();
-    // The 5 s sampler + loopback channel the dashboard polls (Monitor.ini).
-    // No heap probe: the login server runs on the system allocator.
+    // The 5 s sampler + channel the dashboard polls (Monitor.ini), which also
+    // searches this server's logs for it. No heap probe: the login server runs
+    // on the system allocator.
     commons::monitor::spawn(
         "login_server",
         &commons::monitor::MonitorConfig::load(LOGIN_ROOT, 7780),
         None,
+        commons::logsearch::Source::of_server("login_server", LOGIN_ROOT),
     )
     .await;
     // The Audit page's live client list (`docs/MONITORING.md` §10).

@@ -40,7 +40,6 @@ use super::load_recruit_waiting;
 use super::load_residence_functions;
 use super::load_siege_clans;
 use super::load_siege_guards;
-use models::sea_orm::ConnectionTrait;
 use models::sea_orm::DatabaseConnection;
 use tracing::info;
 use tracing::warn;
@@ -60,20 +59,9 @@ pub struct GroundItemBootConfig {
 /// and that no other database on the box would have together, which makes them
 /// a cheap and unambiguous fingerprint.
 pub(crate) async fn verify_schema(db: &DatabaseConnection) -> Result<(), String> {
-    let mut missing = Vec::new();
-    for table in ["characters", "accounts"] {
-        let found = db
-            .query_one_raw(models::sea_orm::Statement::from_sql_and_values(
-                models::sea_orm::DatabaseBackend::Sqlite,
-                "SELECT name FROM sqlite_master WHERE type='table' AND name = ?",
-                [table.into()],
-            ))
-            .await
-            .map_err(|e| format!("cannot inspect database schema: {e}"))?;
-        if found.is_none() {
-            missing.push(table);
-        }
-    }
+    let missing = commons::db::missing_tables(db, &["characters", "accounts"])
+        .await
+        .map_err(|e| format!("cannot inspect database schema: {e}"))?;
     if missing.is_empty() {
         return Ok(());
     }
@@ -283,7 +271,7 @@ pub(crate) async fn send_boot_events(
 /// `items` row still consumes its object id, which is exactly what the walk
 /// after this reads.
 pub(crate) async fn clean_up_database(db: &DatabaseConnection) {
-    use models::sea_orm::{ConnectionTrait, DatabaseBackend, Statement};
+    use models::sea_orm::{ConnectionTrait, Statement};
 
     /// `(table, column, parent table, parent column)`.
     const ORPHANS: &[(&str, &str, &str, &str)] = &[
@@ -349,15 +337,15 @@ pub(crate) async fn clean_up_database(db: &DatabaseConnection) {
     const IRREGULAR: &[&str] = &[
         // An item belongs to a character *or* a clan warehouse; `-1` is the
         // mail/auction holding owner and is exempt.
-        "DELETE FROM items WHERE items.owner_id NOT IN (SELECT charId FROM characters) \
+        "DELETE FROM items WHERE items.owner_id NOT IN (SELECT \"charId\" FROM characters) \
          AND items.owner_id NOT IN (SELECT clan_id FROM clan_data) AND items.owner_id != -1",
         // …and the `-1` ones are orphaned only when their mail is gone.
-        "DELETE FROM items WHERE items.owner_id = -1 AND loc LIKE 'MAIL' \
-         AND loc_data NOT IN (SELECT messageId FROM messages WHERE senderId = -1)",
+        "DELETE FROM items WHERE items.owner_id = -1 AND upper(loc) = 'MAIL' \
+         AND loc_data NOT IN (SELECT \"messageId\" FROM messages WHERE \"senderId\" = -1)",
         // A forum's owner is a clan or a character depending on `forum_parent`.
         "DELETE FROM forums WHERE forums.forum_owner_id NOT IN (SELECT clan_id FROM clan_data) \
          AND forums.forum_parent=2",
-        "DELETE FROM forums WHERE forums.forum_owner_id NOT IN (SELECT charId FROM characters) \
+        "DELETE FROM forums WHERE forums.forum_owner_id NOT IN (SELECT \"charId\" FROM characters) \
          AND forums.forum_parent=3",
     ];
 
@@ -365,7 +353,10 @@ pub(crate) async fn clean_up_database(db: &DatabaseConnection) {
     let mut cleaned = 0u64;
     let exec = async |sql: String| -> u64 {
         match db
-            .execute_raw(Statement::from_string(DatabaseBackend::Sqlite, sql.clone()))
+            .execute_raw(Statement::from_string(
+                db.get_database_backend(),
+                sql.clone(),
+            ))
             .await
         {
             Ok(r) => r.rows_affected(),
@@ -378,9 +369,11 @@ pub(crate) async fn clean_up_database(db: &DatabaseConnection) {
         }
     };
     for (table, column, parent, parent_column) in ORPHANS {
+        // Quoted: the columns are mixed-case (`charId`), which PostgreSQL
+        // folds to lowercase unless quoted. SQLite reads the quotes alike.
         cleaned += exec(format!(
-            "DELETE FROM {table} WHERE {table}.{column} NOT IN \
-             (SELECT {parent_column} FROM {parent})"
+            "DELETE FROM \"{table}\" WHERE \"{table}\".\"{column}\" NOT IN \
+             (SELECT \"{parent_column}\" FROM \"{parent}\")"
         ))
         .await;
     }
