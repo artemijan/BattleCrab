@@ -114,12 +114,15 @@ export function Spinner({ className }: { className?: string }) {
 
 type FieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
+  /** Keep the label for assistive tech only; the placeholder carries it on
+   *  screen. */
+  hideLabel?: boolean;
   hint?: string;
   error?: string;
 };
 
 export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
-  { label, hint, error, className, id, ...rest },
+  { label, hideLabel = false, hint, error, className, id, ...rest },
   ref,
 ) {
   const generatedId = useId();
@@ -128,7 +131,10 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="text-sm font-medium text-(--text-muted)">
+      <label
+        htmlFor={inputId}
+        className={cx("text-sm font-medium text-(--text-muted)", hideLabel && "sr-only")}
+      >
         {label}
       </label>
       <input

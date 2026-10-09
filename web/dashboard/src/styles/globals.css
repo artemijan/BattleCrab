@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* `dark:` follows the theme toggle, not the OS. Tailwind's default is
+   `prefers-color-scheme`, which left every `dark:` class in light colours
+   whenever someone picked dark on a light-mode OS (and vice versa). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 /* ---------------------------------------------------------------------------
    Design tokens.
 
@@ -64,6 +69,13 @@
   --field-bg: rgba(255, 255, 255, 0.75);
   --field-border: rgba(0, 87, 183, 0.18);
 
+  /* "You are here" aura (.aura): a tinted fill, a hairline brand ring and a
+     soft blue halo. On the light page the halo has to be darker and tighter
+     than in dark mode, where a wide glow reads easily against near-black. */
+  --aura-bg: rgba(0, 87, 183, 0.1);
+  --aura-ring: rgba(0, 87, 183, 0.35);
+  --aura-glow: 0 0 14px 0 rgba(0, 87, 183, 0.32), 0 0 30px 2px rgba(61, 129, 245, 0.18);
+
   /* Monitoring charts (components/LineChart). Distinct hues rather than
      shades of brand blue: two lines on one chart must read apart at a
      glance, including for red-green colour blindness (blue/amber first). */
@@ -95,6 +107,10 @@
 
   --field-bg: rgba(255, 255, 255, 0.05);
   --field-border: rgba(255, 255, 255, 0.14);
+
+  --aura-bg: rgba(116, 166, 255, 0.14);
+  --aura-ring: rgba(116, 166, 255, 0.55);
+  --aura-glow: 0 0 16px 1px rgba(61, 129, 245, 0.55), 0 0 40px 6px rgba(0, 87, 183, 0.45);
 
   --chart-1: #74a6ff;
   --chart-2: #fbbf24;
@@ -312,6 +328,31 @@ body {
 
 :root[data-theme="dark"] .glass-sheen::before {
   opacity: 0.28;
+}
+
+/* ---------------------------------------------------------------------------
+   Aura — marks the selected item in a set (header nav, admin tabs, the
+   monitoring server cards). Colour alone was too faint to spot at a glance;
+   the halo reads in both themes and on a phone held at arm's length.
+
+   Deliberately unlayered, like `dialog:modal` below: it must replace the
+   `glass` shadow on a selected card, and an unlayered rule beats any
+   utility regardless of source order.
+   --------------------------------------------------------------------------- */
+.aura {
+  background-color: var(--aura-bg);
+  box-shadow:
+    inset 0 0 0 1px var(--aura-ring),
+    var(--aura-glow);
+}
+
+/* The card variant keeps the glass surface and border, and rings it instead. */
+.aura-card {
+  border-color: var(--aura-ring);
+  box-shadow:
+    0 0 0 1px var(--aura-ring),
+    var(--aura-glow),
+    var(--surface-shadow);
 }
 
 /* ---------------------------------------------------------------------------

@@ -102,51 +102,34 @@ export function Monitoring() {
         </p>
       </section>
 
-      {services.isError ? (
-        <Alert kind="error">{errorText(services.error)}</Alert>
-      ) : (
-        <ServiceCards statuses={services.data?.services} />
-      )}
+      {services.isError && <Alert kind="error">{errorText(services.error)}</Alert>}
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="tablist" aria-label="Server" className="flex gap-1">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
-              className={cx(
-                "rounded-xl px-3.5 py-1.5 text-sm font-medium transition-colors",
-                tab === t.id
-                  ? "bg-brand-500 text-white"
-                  : "text-(--text-muted) hover:bg-(--surface-strong) hover:text-(--text)",
-              )}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        <fieldset className="flex gap-1" aria-label="Time range">
-          {RANGES.map((r) => (
-            <button
-              key={r.label}
-              type="button"
-              aria-pressed={rangeMs === r.ms}
-              onClick={() => setRangeMs(r.ms)}
-              className={cx(
-                "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
-                rangeMs === r.ms
-                  ? "bg-(--surface-strong) text-(--text)"
-                  : "text-(--text-muted) hover:text-(--text)",
-              )}
-            >
-              {r.label}
-            </button>
-          ))}
-        </fieldset>
-      </div>
+      {/* The status cards double as the server tabs. */}
+      <ServiceCards
+        statuses={services.data?.services}
+        checking={services.isPending}
+        selected={tab}
+        onSelect={setTab}
+      />
+
+      <fieldset className="flex justify-end gap-1" aria-label="Time range">
+        {RANGES.map((r) => (
+          <button
+            key={r.label}
+            type="button"
+            aria-pressed={rangeMs === r.ms}
+            onClick={() => setRangeMs(r.ms)}
+            className={cx(
+              "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
+              rangeMs === r.ms
+                ? "bg-(--surface-strong) text-(--text)"
+                : "text-(--text-muted) hover:text-(--text)",
+            )}
+          >
+            {r.label}
+          </button>
+        ))}
+      </fieldset>
 
       {series.isPending ? (
         <Panel className="flex items-center gap-3 p-6 text-sm text-(--text-muted)">
@@ -161,52 +144,85 @@ export function Monitoring() {
   );
 }
 
-function ServiceCards({ statuses }: { statuses: MonitorServiceStatus[] | undefined }) {
-  if (!statuses) {
-    return (
-      <Panel className="flex items-center gap-3 p-4 text-sm text-(--text-muted)">
-        <Spinner /> Checking servers…
-      </Panel>
-    );
-  }
+/**
+ * One card per server, rendered from `TABS` rather than from the status
+ * response so the tabs exist while the status is loading or unavailable.
+ */
+function ServiceCards({
+  statuses,
+  checking,
+  selected,
+  onSelect,
+}: {
+  statuses: MonitorServiceStatus[] | undefined;
+  checking: boolean;
+  selected: MonitorService;
+  onSelect: (tab: MonitorService) => void;
+}) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {statuses.map((s) => (
-        <Panel key={s.service} className="p-4" strong>
-          <div className="flex items-center justify-between gap-2">
-            <p className="font-semibold">
-              {s.service === "game_server" ? "Game server" : "Login server"}
-            </p>
-            <span
-              className={cx(
-                "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium",
-                s.up
-                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"
-                  : "bg-red-500/15 text-red-600 dark:text-red-300",
+    <div role="tablist" aria-label="Server" className="grid gap-3 sm:grid-cols-2">
+      {TABS.map((t) => {
+        const s = statuses?.find((status) => status.service === t.id);
+        const active = selected === t.id;
+        return (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onSelect(t.id)}
+            className={cx(
+              "glass-strong glass-sheen block w-full touch-manipulation rounded-2xl p-4 text-left",
+              "transition-[border-color,box-shadow,transform] duration-200",
+              active ? "aura-card" : "opacity-80 hover:-translate-y-0.5 hover:opacity-100",
+            )}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <p className={cx("font-semibold", active && "text-brand-600 dark:text-brand-100")}>
+                {t.label}
+              </p>
+              {s ? (
+                <span
+                  className={cx(
+                    "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium",
+                    s.up
+                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"
+                      : "bg-red-500/15 text-red-600 dark:text-red-300",
+                  )}
+                >
+                  <span
+                    aria-hidden
+                    className={cx("size-1.5 rounded-full", s.up ? "bg-emerald-500" : "bg-red-500")}
+                  />
+                  {s.up ? "Up" : "Down"}
+                </span>
+              ) : (
+                checking && <Spinner className="size-3.5 text-(--text-faint)" />
               )}
-            >
-              <span
-                aria-hidden
-                className={cx("size-1.5 rounded-full", s.up ? "bg-emerald-500" : "bg-red-500")}
-              />
-              {s.up ? "Up" : "Down"}
-            </span>
-          </div>
-          <p className="mt-1 text-sm text-(--text-muted)">
-            {s.up && s.uptimeSeconds !== null
-              ? `Up ${formatDuration(s.uptimeSeconds)}`
-              : s.lastSampleTs
-                ? `Last sample ${new Date(s.lastSampleTs).toLocaleString()}`
-                : "No samples yet"}
-            <span className="text-(--text-faint)"> · {s.address}</span>
-          </p>
-          {!s.up && s.lastError && (
-            <p className="mt-1 truncate text-xs text-red-600 dark:text-red-300" title={s.lastError}>
-              {s.lastError}
+            </div>
+            <p className="mt-1 text-sm text-(--text-muted)">
+              {!s
+                ? checking
+                  ? "Checking…"
+                  : "Status unavailable"
+                : s.up && s.uptimeSeconds !== null
+                  ? `Up ${formatDuration(s.uptimeSeconds)}`
+                  : s.lastSampleTs
+                    ? `Last sample ${new Date(s.lastSampleTs).toLocaleString()}`
+                    : "No samples yet"}
+              {s && <span className="break-all text-(--text-faint)"> · {s.address}</span>}
             </p>
-          )}
-        </Panel>
-      ))}
+            {s && !s.up && s.lastError && (
+              <p
+                className="mt-1 truncate text-xs text-red-600 dark:text-red-300"
+                title={s.lastError}
+              >
+                {s.lastError}
+              </p>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
