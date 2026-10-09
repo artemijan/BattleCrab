@@ -876,13 +876,13 @@ pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, 
 
 /// `//reload <section>` — re-read a data section from disk (Java
 /// `AdminReload`, narrowed to the loaders this port has; scripts are
-/// compiled in and `htm` has no cache to flush).
+/// compiled in).
 pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
     let Some(&what) = args.first() else {
         send_message(
             world,
             client_id,
-            "Usage: //reload <config|access|npc|skill|item|multisell|buylist|teleport|fishing>",
+            "Usage: //reload <config|access|npc|skill|item|multisell|buylist|teleport|fishing|html>",
         );
         return;
     };
@@ -940,7 +940,10 @@ pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
             "Fishing data reloaded."
         }
         "quest" | "script" => "Scripts are compiled in — rebuild and restart to change them.",
-        "htm" | "html" => "Admin/quest html is read from disk per request — no cache to flush.",
+        "htm" | "html" => {
+            admin_reload_html(world, client_id, &root, args.get(1).copied());
+            return;
+        }
         _ => {
             send_message(
                 world,
@@ -951,6 +954,38 @@ pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
         }
     };
     send_message(world, client_id, msg);
+}
+
+/// `//reload html [path]` — Java `AdminReload`'s `htm`/`html` branch. With a
+/// path, re-read that file or directory under `data/html/` into the cache;
+/// without, `HtmCache.reload()`: the eager cache reloads the whole tree, the
+/// lazy one forgets what it read.
+fn admin_reload_html(world: &World, client_id: u32, root: &str, path: Option<&str>) {
+    use crate::data::htm_cache;
+    let Some(path) = path else {
+        let stats = htm_cache::reload_cache(root);
+        send_message(
+            world,
+            client_id,
+            &format!(
+                "Cache[HTML]: {:.3} megabytes on {} files loaded",
+                stats.megabytes(),
+                stats.files
+            ),
+        );
+        return;
+    };
+    let file = std::path::PathBuf::from(format!("{root}data/html/{path}"));
+    let msg = match htm_cache::reload_cache_path(&file) {
+        Some(_) => format!(
+            "Reloaded Htm File:{}.",
+            file.file_name()
+                .map(|n| n.to_string_lossy().into_owned())
+                .unwrap_or_default()
+        ),
+        None => "File or Directory does not exist.".to_string(),
+    };
+    send_message(world, client_id, &msg);
 }
 
 /// `//switch_gm_buffs` — Java swaps the GM special-skill tree for the aura

@@ -204,3 +204,18 @@ is inert rather than assume it is load-bearing.
   pins the three derived values against the real `EnchantItemGroups.xml` and
   asserts an enchanted accessory survives the sweep while an over-enchanted
   weapon does not.
+
+## `HtmCache = True` — every html is preloaded at boot
+
+- **Files:** `config/General.ini` (`HtmCache`)
+- **Retail:** upstream ships `HtmCache = False` — Java's lazy branch, which
+  reads each html from disk the first time it is requested (and the ini's own
+  comment recommends True for live servers).
+- **Here:** True. Every `.htm`/`.html` under `data/` (~9.8k files, ~5.6 MB) is
+  loaded and normalized before the game thread starts, so an NPC dialog,
+  community-board page or quest window never reads the disk on the game thread
+  — THREADING_MODEL rule 1. A cold read there stalls every player, not just the
+  one who clicked. The cost is Java's own: the cache is the existence oracle, so
+  an html added or edited after boot shows only after `//reload html` (or
+  `//reload html <path>` for one file or directory under `data/html/`).
+- **Guarded by:** `config::general::tests::dist_preloads_the_html_cache`.

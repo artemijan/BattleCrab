@@ -153,6 +153,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         hide_bypass_removal: config.general.hide_bypass_removal,
         check_encoding: config.general.check_html_encoding,
     });
+    // `HtmCache.getInstance()`: on `HtmCache = True` every html file is loaded
+    // now, so no dialog open ever reads the disk on the game thread.
+    let html = gameserver::data::htm_cache::install_cache(&datapack_root, config.general.htm_cache);
+    if config.general.htm_cache {
+        info!(
+            "Cache[HTML]: {:.3} megabytes on {} files loaded.",
+            html.megabytes(),
+            html.files
+        );
+    } else {
+        info!("Cache[HTML]: Running lazy cache.");
+    }
     // Character.ini `EnableModifySkillDuration`/`SkillDurationList`: bake the
     // per-skill `abnormalTime` overrides into the loaded skills (Java does this
     // in the `Skill` constructor). No-op when the list is empty/disabled.

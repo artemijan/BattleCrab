@@ -314,9 +314,9 @@ pub struct GameData {
     /// as [`SkillCheckSettings`]: `Player::from_char` applies it and sees only
     /// `&GameData`.
     pub default_access_level: i32,
-    /// Datapack root prefix (`""` when running from `dist/game`) — for the
-    /// odd loose file read at runtime (NPC dialog `.htm`s, which Java streams
-    /// through `HtmCache` rather than a boot-time loader).
+    /// Datapack root prefix (`""` when running from `dist/game`) — the prefix
+    /// of every `HtmCache` key (`{root}data/html/…`) and of the reloaders'
+    /// paths.
     pub root: String,
 }
 

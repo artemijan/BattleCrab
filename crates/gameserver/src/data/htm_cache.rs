@@ -15,16 +15,27 @@
 //! trailing `-->` as literal text in the dialog. Reading these files raw is
 //! therefore not "close enough" — it is visibly wrong.
 //!
-//! **No cache, by choice.** Java streams these through `HtmCache`, which loads
-//! every file at boot; this port reads per interaction and routes it through
-//! [`read_htm`] so the normalization is applied in exactly one place. The
-//! rendered output is identical either way — the difference is a disk read on
-//! a dialog open, against a boot-time load of the whole `html/` tree — and
-//! reading per interaction has the small operational advantage that an edited
-//! `.htm` takes effect without a restart.
+//! **The cache.** Every read goes through [`read_htm`], so the normalization
+//! is applied in exactly one place and the file is read from disk at most once.
+//! `General.ini`'s `HtmCache` picks Java's branch ([`install_cache`], at boot):
 //!
-//! Not a parity gap and not owed work. Revisit only if a profile shows dialog
-//! opens costing measurable time.
+//! - **True — eager.** The whole `data/` tree's `.htm`/`.html` (~9.8k files,
+//!   ~6 MB) is loaded before the game thread starts, and a miss means "no such
+//!   file": a dialog open never touches the disk, which is what
+//!   THREADING_MODEL rule 1 (no file syscalls on the game thread) asks for.
+//!   The cache is the existence oracle, as in Java — a file added after boot
+//!   stays invisible until `//reload html`.
+//! - **False — lazy.** A miss reads the disk once and remembers the hit (Java's
+//!   `ConcurrentHashMap` branch); misses are not remembered, so a fallback
+//!   chain still probes the disk for files that do not exist.
+//!
+//! Either way an edited `.htm` needs `//reload html` to show. With no cache
+//! installed — every unit test — reads go straight to disk, uncached, so a
+//! fixture that rewrites a file sees its own write.
+
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::sync::{OnceLock, RwLock};
 
 /// The `General.ini` keys `HtmCache.loadFile` applies to every file it reads.
 ///
@@ -49,7 +60,7 @@ impl Default for HtmlSettings {
     }
 }
 
-static HTML_SETTINGS: std::sync::OnceLock<HtmlSettings> = std::sync::OnceLock::new();
+static HTML_SETTINGS: OnceLock<HtmlSettings> = OnceLock::new();
 
 /// Install the boot-time settings. Ignored if called twice — the second call
 /// would be a second `Config` load, which cannot happen on this server.
@@ -129,15 +140,163 @@ fn strip_htm_inner(content: &str) -> String {
     out
 }
 
+/// The process-wide html cache — Java's `HTML_CACHE`. Keyed by the path the
+/// callers build (`{root}data/html/…`); `Path`'s equality and hash compare
+/// components, so the boot walk's `{root}data` + joins match them exactly.
+///
+/// After boot only the game thread reads it, and the only writer besides the
+/// lazy branch's own inserts is the `//reload html` swap, so the lock is never
+/// held across I/O and never contended in practice.
+struct Cache {
+    eager: bool,
+    files: RwLock<HashMap<PathBuf, String>>,
+}
+
+static CACHE: OnceLock<Cache> = OnceLock::new();
+
+/// What a (re)load put in memory — Java's `Cache[HTML]: %.3f megabytes on %d
+/// files loaded.`
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub struct CacheStats {
+    pub files: usize,
+    /// Raw file bytes, as Java counts them (`bis.available()`).
+    pub bytes: u64,
+}
+
+impl CacheStats {
+    pub fn megabytes(&self) -> f64 {
+        self.bytes as f64 / 1_048_576.0
+    }
+}
+
+/// Install the cache once at boot, after [`set_html_settings`] (the loads
+/// normalize with them). `eager` is `General.ini`'s `HtmCache`; on true the
+/// whole `{root}data` tree is loaded here. A second call is ignored.
+pub fn install_cache(root: &str, eager: bool) -> CacheStats {
+    let (files, stats) = if eager {
+        load_tree(&data_dir(root))
+    } else {
+        (HashMap::new(), CacheStats::default())
+    };
+    let _ = CACHE.set(Cache {
+        eager,
+        files: RwLock::new(files),
+    });
+    stats
+}
+
+/// `HtmCache.reload()`: eager rebuilds the whole tree (read without the lock,
+/// then one swap — files deleted since boot drop out too), lazy forgets
+/// everything so the next read of each file goes to disk. With no cache
+/// installed there is nothing to reload.
+pub fn reload_cache(root: &str) -> CacheStats {
+    let Some(cache) = CACHE.get() else {
+        return CacheStats::default();
+    };
+    if !cache.eager {
+        write(cache).clear();
+        return CacheStats::default();
+    }
+    let (files, stats) = load_tree(&data_dir(root));
+    *write(cache) = files;
+    stats
+}
+
+/// `HtmCache.reload(File)`: re-read one file, or a directory's html, into the
+/// cache — the `//reload html <path>` form. `None` when the path does not
+/// exist.
+pub fn reload_cache_path(path: &Path) -> Option<CacheStats> {
+    if !path.exists() {
+        return None;
+    }
+    let Some(cache) = CACHE.get() else {
+        return Some(CacheStats::default());
+    };
+    let (files, stats) = if path.is_dir() {
+        load_tree(path)
+    } else {
+        let mut one = HashMap::new();
+        let mut stats = CacheStats::default();
+        if is_html(path)
+            && let Some((text, bytes)) = load_file(path)
+        {
+            one.insert(path.to_path_buf(), text);
+            stats = CacheStats { files: 1, bytes };
+        }
+        (one, stats)
+    };
+    write(cache).extend(files);
+    Some(stats)
+}
+
+fn data_dir(root: &str) -> PathBuf {
+    PathBuf::from(format!("{root}data"))
+}
+
+fn write(cache: &Cache) -> std::sync::RwLockWriteGuard<'_, HashMap<PathBuf, String>> {
+    cache.files.write().unwrap_or_else(|e| e.into_inner())
+}
+
+/// Java's `HTML_FILTER`: the name ends `.htm`/`.html`, any case.
+fn is_html(path: &Path) -> bool {
+    path.extension()
+        .and_then(|e| e.to_str())
+        .is_some_and(|e| e.eq_ignore_ascii_case("htm") || e.eq_ignore_ascii_case("html"))
+}
+
+/// `HtmCache.parseDir`: every html file under `dir`, normalized.
+fn load_tree(dir: &Path) -> (HashMap<PathBuf, String>, CacheStats) {
+    let mut files = HashMap::new();
+    let mut stats = CacheStats::default();
+    let mut pending = vec![dir.to_path_buf()];
+    while let Some(dir) = pending.pop() {
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            match entry.file_type() {
+                Ok(t) if t.is_dir() => pending.push(path),
+                Ok(_) if is_html(&path) => {
+                    if let Some((text, bytes)) = load_file(&path) {
+                        stats.files += 1;
+                        stats.bytes += bytes;
+                        files.insert(path, text);
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    (files, stats)
+}
+
+/// `HtmCache.loadFile`: read and normalize one file; the raw byte length rides
+/// along for the stats line.
+fn load_file(path: &Path) -> Option<(String, u64)> {
+    let raw = std::fs::read_to_string(path).ok()?;
+    let shown = path.to_string_lossy();
+    Some((strip_htm_with(&raw, settings(), &shown), raw.len() as u64))
+}
+
 /// Read a datapack html file and normalize it like Java's `HtmCache`.
 /// Returns `None` when the file is missing, so callers keep their existing
 /// fallback chains (`.or_else(…)`, "text is missing" stubs).
-pub fn read_htm(path: impl AsRef<std::path::Path>) -> Option<String> {
+pub fn read_htm(path: impl AsRef<Path>) -> Option<String> {
     let p = path.as_ref();
-    let shown = p.to_string_lossy().into_owned();
-    std::fs::read_to_string(p)
-        .ok()
-        .map(|c| strip_htm_with(&c, settings(), &shown))
+    let Some(cache) = CACHE.get() else {
+        return load_file(p).map(|(text, _)| text);
+    };
+    if let Some(hit) = cache.files.read().unwrap_or_else(|e| e.into_inner()).get(p) {
+        return Some(hit.clone());
+    }
+    // Eager: everything was loaded at boot, so a miss is a missing file.
+    if cache.eager {
+        return None;
+    }
+    let (text, _) = load_file(p)?;
+    write(cache).insert(p.to_path_buf(), text.clone());
+    Some(text)
 }
 
 /// [`read_htm`] for a file being served **to a player** — Java's
@@ -228,5 +387,79 @@ mod tests {
     #[test]
     fn drops_unterminated_comment() {
         assert_eq!(strip_htm("keep<!-- dangling"), "keep");
+    }
+
+    /// A scratch datapack root (`…/` with a trailing slash, like
+    /// `DATAPACK_ROOT`) holding `data/html/…`.
+    fn scratch_root(name: &str) -> String {
+        let dir = std::env::temp_dir().join(format!("htm_cache_{name}_{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(dir.join("data/html/default")).unwrap();
+        std::fs::create_dir_all(dir.join("data/scripts/quests/Q1")).unwrap();
+        format!("{}/", dir.display())
+    }
+
+    /// `parseDir`: every `.htm`/`.html` under `data/`, any case, nested, and
+    /// nothing else — normalized on the way in, raw bytes counted.
+    #[test]
+    fn tree_load_takes_html_only_and_normalizes() {
+        let root = scratch_root("tree");
+        let raw = "<html>\n<!-- gone -->hi</html>";
+        std::fs::write(format!("{root}data/html/default/30001.htm"), raw).unwrap();
+        std::fs::write(format!("{root}data/scripts/quests/Q1/start.HTML"), "x").unwrap();
+        std::fs::write(format!("{root}data/html/default/notes.txt"), "no").unwrap();
+        std::fs::write(format!("{root}data/Routes.xml"), "<list/>").unwrap();
+
+        let (files, stats) = load_tree(&data_dir(&root));
+        assert_eq!(stats.files, 2);
+        assert_eq!(stats.bytes, raw.len() as u64 + 1);
+        assert_eq!(files.len(), 2);
+        // Looked up by the path a caller builds — the key must match it.
+        let key = PathBuf::from(format!("{root}data/html/default/30001.htm"));
+        assert_eq!(files.get(&key).map(String::as_str), Some("<html>hi</html>"));
+        assert!(files.contains_key(&PathBuf::from(format!(
+            "{root}data/scripts/quests/Q1/start.HTML"
+        ))));
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    /// `Path` equality is per component, so a caller's doubled separator
+    /// (`{root}` already ends in `/`, then a `/` in the format string) still
+    /// hits the entry the walk stored.
+    #[test]
+    fn cache_keys_ignore_doubled_separators() {
+        let root = scratch_root("keys");
+        std::fs::write(format!("{root}data/html/default/1.htm"), "a").unwrap();
+        let (files, _) = load_tree(&data_dir(&root));
+        let sloppy = PathBuf::from(format!("{root}/data//html/default/1.htm"));
+        assert!(files.contains_key(&sloppy));
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    /// The real tree: the preload finds the dist's html, and the key a dialog
+    /// builds (`show_chat_window`'s `{root}data/html/<dir>/<id>.htm`) hits.
+    #[test]
+    fn preloads_the_dist_tree_and_serves_dialog_paths() {
+        let root = crate::data::DIST_GAME;
+        let started = std::time::Instant::now();
+        let (files, stats) = load_tree(&data_dir(root));
+        eprintln!(
+            "dist html preload: {} files, {:.3} MB, {:?}",
+            stats.files,
+            stats.megabytes(),
+            started.elapsed()
+        );
+        assert!(stats.files > 9000, "dist html present? {}", stats.files);
+        let page = PathBuf::from(format!("{root}data/html/villagemaster/30026.htm"));
+        let html = files.get(&page).expect("villagemaster 30026 preloaded");
+        assert!(!html.contains('\n') && !html.contains("<!--"));
+    }
+
+    #[test]
+    fn html_filter_is_extension_based_and_case_blind() {
+        assert!(is_html(Path::new("a/b.htm")));
+        assert!(is_html(Path::new("a/b.HTML")));
+        assert!(!is_html(Path::new("a/b.htm.bak")));
+        assert!(!is_html(Path::new("a/htm")));
     }
 }
