@@ -611,17 +611,17 @@ fn resolve_location(
 /// into the shape (Java caps the NPoly retry at 1000 and returns the last
 /// candidate regardless; same here).
 fn random_point_2d(rng: &mut rand::rngs::StdRng, territory: &Territory) -> Option<(i32, i32)> {
-    use rand::Rng;
+    use rand::RngExt;
     let (min_x, max_x, min_y, max_y) = territory.bounds();
     if min_x > max_x || min_y > max_y {
         return None;
     }
-    let mut x = rng.gen_range(min_x..=max_x);
-    let mut y = rng.gen_range(min_y..=max_y);
+    let mut x = rng.random_range(min_x..=max_x);
+    let mut y = rng.random_range(min_y..=max_y);
     let mut tries = 0;
     while !territory.contains_2d(x, y) && tries < 1000 {
-        x = rng.gen_range(min_x..=max_x);
-        y = rng.gen_range(min_y..=max_y);
+        x = rng.random_range(min_x..=max_x);
+        y = rng.random_range(min_y..=max_y);
         tries += 1;
     }
     Some((x, y))

@@ -222,7 +222,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // only quests. The port's registry holds the same set, so emptying it is
     // the same switch.
     if world.cfg.general.alt_dev_no_quests {
-        world.quests = std::sync::Arc::new(quests::QuestRegistry::new(Vec::new()));
+        world.quests = Arc::new(quests::QuestRegistry::new(Vec::new()));
         info!("ScriptEngine: AltDevNoQuests is set — no scripts registered.");
     } else if world.cfg.general.alt_dev_show_quests_load_in_logs
         || world.cfg.general.alt_dev_show_scripts_load_in_logs
@@ -507,7 +507,7 @@ impl std::fmt::Display for EventLabel {
                 opcode,
                 ex: Some(sub),
             } => write!(f, "packet 0x{opcode:02x}:0x{sub:04x}"),
-            EventLabel::Packet { opcode, ex: None } => write!(f, "packet 0x{opcode:02x}"),
+            EventLabel::Packet { opcode, ex: _ } => write!(f, "packet 0x{opcode:02x}"),
             EventLabel::Login => write!(f, "login-link"),
             EventLabel::Db => write!(f, "db"),
             EventLabel::Path => write!(f, "path"),

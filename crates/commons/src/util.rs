@@ -1,7 +1,7 @@
 //! Port of `commons/util/Rnd.java` and small helpers.
 
 use num_bigint_dig::BigInt;
-use rand::Rng;
+use rand::RngExt;
 
 /// Parse a (possibly signed) base-16 hexid string into Java `BigInteger(s,16)
 /// .toByteArray()` bytes (two's-complement, big-endian).
@@ -18,7 +18,7 @@ pub fn hexid_to_string(bytes: &[u8]) -> String {
 pub mod rnd {
     use super::*;
     use rand::random;
-    use rand::seq::SliceRandom;
+    use rand::seq::{IndexedRandom, SliceRandom};
 
     /// `Rnd.nextInt()` — full-range random i32.
     pub fn next_int() -> i32 {
@@ -30,7 +30,7 @@ pub mod rnd {
         if n <= 0 {
             return 0;
         }
-        rand::thread_rng().gen_range(0..n)
+        rand::rng().random_range(0..n)
     }
 
     /// `Rnd.get(min, max)` — random value in `[min, max]` (inclusive, like Java).
@@ -38,64 +38,67 @@ pub mod rnd {
         if min >= max {
             return min;
         }
-        rand::thread_rng().gen_range(min..=max)
+        rand::rng().random_range(min..=max)
     }
 
     /// `Rnd.nextBytes(array)`.
     pub fn fill_bytes(buf: &mut [u8]) {
-        rand::thread_rng().fill(buf);
+        rand::rng().fill(buf);
     }
 
     /// Returns true if random(0..100) < chance.
     pub fn chance(chance: f64) -> bool {
-        rand::thread_rng().gen_range(0.0..100.0) < chance
+        rand::rng().random_range(0.0..100.0) < chance
     }
 
     /// Returns a random element from a slice.
     pub fn get_random_element<T>(slice: &[T]) -> Option<&T> {
-        slice.choose(&mut rand::thread_rng())
+        slice.choose(&mut rand::rng())
     }
 
     /// Shuffles a slice in place.
     pub fn shuffle<T>(slice: &mut [T]) {
-        slice.shuffle(&mut rand::thread_rng());
+        slice.shuffle(&mut rand::rng());
     }
 
-    /// Internal wrapper to use our RNG where `CryptoRng + RngCore` is required.
+    /// Internal wrapper to use our RNG where `rsa` wants `CryptoRng + RngCore`.
+    /// Those are `rsa`'s own `rand_core` (0.6), not the one `rand` is built on,
+    /// so the traits are implemented against its re-export.
     pub struct InternalRng;
-    impl rand::RngCore for InternalRng {
+    impl rsa::rand_core::RngCore for InternalRng {
         fn next_u32(&mut self) -> u32 {
-            rand::thread_rng().next_u32()
+            rand::Rng::next_u32(&mut rand::rng())
         }
         fn next_u64(&mut self) -> u64 {
-            rand::thread_rng().next_u64()
+            rand::Rng::next_u64(&mut rand::rng())
         }
         fn fill_bytes(&mut self, dest: &mut [u8]) {
-            rand::thread_rng().fill_bytes(dest)
+            rand::Rng::fill_bytes(&mut rand::rng(), dest)
         }
-        fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand::Error> {
-            rand::thread_rng().try_fill_bytes(dest)
+        fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rsa::rand_core::Error> {
+            self.fill_bytes(dest);
+            Ok(())
         }
     }
-    impl rand::CryptoRng for InternalRng {}
+    impl rsa::rand_core::CryptoRng for InternalRng {}
 
     /// Returns a random i32 in `[0, bound)`.
     pub fn get_bound(bound: i32) -> i32 {
         if bound <= 0 {
             return 0;
         }
-        rand::thread_rng().gen_range(0..bound)
+        rand::rng().random_range(0..bound)
     }
 
     /// Returns a random f64 in `[0.0, 1.0)`.
     pub fn get_f64() -> f64 {
-        rand::thread_rng().gen_range(0.0..1.0)
+        rand::rng().random_range(0.0..1.0)
     }
 
     /// Returns a standard normal draw (mean 0, sd 1).
     pub fn next_gaussian() -> f64 {
         use rand_distr::{Distribution, StandardNormal};
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         StandardNormal.sample(&mut rng)
     }
 }

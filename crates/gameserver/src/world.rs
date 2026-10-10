@@ -15,7 +15,7 @@ use crate::loginlink::CommandTx;
 use crate::scheduler::{ScheduledTask, Scheduler};
 use crate::session::{ClientSession, ClientTable, SessionKey};
 use crate::store::EntityStore;
-use rand::{Rng, SeedableRng};
+use rand::RngExt;
 
 /// One community-board favorite row (Java `bbs_favorites`). `add_date` is the
 /// display string (`yyyy-MM-dd HH:mm:ss`, matching SQL `CURRENT_TIMESTAMP` and
@@ -756,7 +756,7 @@ impl World {
             teleport_watchdog_due: HashMap::new(),
             auto_potion_players: std::collections::HashSet::new(),
             auto_play_idle: HashMap::new(),
-            rng: std::cell::RefCell::new(rand::rngs::StdRng::from_entropy()),
+            rng: std::cell::RefCell::new(rand::make_rng()),
             quest_attack_skill: None,
             #[cfg(test)]
             forced_rolls: std::cell::RefCell::new(std::collections::VecDeque::new()),
@@ -1158,7 +1158,7 @@ impl World {
         if let Some(v) = self.forced_rolls.borrow_mut().pop_front() {
             return v;
         }
-        self.rng.borrow_mut().gen_range(0..bound.max(1))
+        self.rng.borrow_mut().random_range(0..bound.max(1))
     }
 
     /// Java `Rnd.nextDouble()` in `[0, 1)`, quantized through `roll()` so

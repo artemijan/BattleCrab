@@ -18,11 +18,11 @@ license = "GPL-3.0"
 
 [workspace.dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "time", "macros", "signal", "io-util"] }
-bytes = "1"
+bytes = "1.12.1"
 # FxHash for the hot integer-keyed maps (object-id → entity/session/region).
 # These are internal ids, not attacker-controlled keys, so SipHash's DoS
 # resistance buys nothing there and costs on every broadcast recipient lookup.
-rustc-hash = "2"
+rustc-hash = "2.1.3"
 # Pinned to the version SeaORM 2 links: the two must agree or `SqlitePool`
 # from `commons::db` and the one inside a `DatabaseConnection` become different
 # types (docs/PLAN_ORM_MIGRATION.md §2). Raw sqlx survives only until the last
@@ -30,57 +30,61 @@ rustc-hash = "2"
 sqlx = { version = "0.9.0", default-features = false, features = ["runtime-tokio", "sqlite", "postgres", "macros"] }
 # The ORM. `default-features = false` drops the chrono/uuid/decimal value types
 # the schema does not use — every column here is an integer, real or text.
-sea-orm = { version = "2.0", default-features = false, features = [
+sea-orm = { version = "2.0.4", default-features = false, features = [
     "sqlx-sqlite",
     "sqlx-postgres",
     "runtime-tokio",
     "macros",
 ] }
-sea-orm-migration = { version = "2.0", default-features = false, features = [
+sea-orm-migration = { version = "2.0.4", default-features = false, features = [
     "sqlx-sqlite",
     "sqlx-postgres",
     "runtime-tokio",
 ] }
 blowfish = "0.10.0"
-byteorder = "1"
+byteorder = "1.5.0"
 cipher = "0.5.2"
 sha1 = "0.11.0"
-base64 = "0.23.0"
-num-bigint-dig = { version = "0.8", features = ["rand"] }
+base64 = "0.23.1"
+# Held at 0.8: `rsa` 0.9 hands back 0.8 `BigUint`s (`key.n()`, `key.d()`) that
+# the crypt code stores as-is, so a newer one here is a different type.
+num-bigint-dig = { version = "0.8.6", features = ["rand"] }
 rsa = "0.9"
-num-traits = "0.2"
-rand = "0.8"
+num-traits = "0.2.19"
+rand = "0.10.3"
 # Java `Say2.checkText` applies each `chatfilter.txt` line as a case-insensitive
 # regex, so the filter needs a real regex engine to stay faithful.
-regex = "1"
-rand_distr = "0.4"
+regex = "1.13.1"
+rand_distr = "0.6.0"
 # `std` only: the game thread is the single owner of the ECS world, so the
 # parallel executor (`async_executor`), reflection and backtrace machinery in
 # the default set are dead weight here (THREADING_MODEL §7).
-bevy_ecs = { version = "0.19", default-features = false, features = ["std"] }
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+bevy_ecs = { version = "0.20.0", default-features = false, features = ["std"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
 # Rotating file appender + the non-blocking writer. The game thread must never
 # pay a `write(2)` for a log line: `non_blocking` hands the formatted line to a
 # bounded channel drained by a dedicated thread, and in lossy mode drops on a
 # full channel rather than blocking the caller — logging degrades under load
 # instead of stealing tick budget.
-tracing-appender = "0.2"
-serde_json = "1"
+tracing-appender = "0.2.5"
+serde_json = "1.0.152"
 # `derive` for the datapack snapshot cache: the test fixtures re-parse the real
 # dist XML in every nextest process, so the parsed catalogues are cached to a
 # binary blob under `target/` (`data::snapshot`). Nothing in the running server
 # serializes these types — the derives exist for that cache.
-serde = { version = "1", features = ["derive"] }
-postcard = { version = "1", default-features = false, features = ["alloc"] }
+serde = { version = "1.0.229", features = ["derive"] }
+postcard = { version = "1.1.3", default-features = false, features = ["alloc"] }
 # Only for the RFC3339 stamp on audit records. Already in the tree via the
 # sqlx/sea-orm side, so this is a direct dependency on something that was
 # being compiled anyway.
-time = { version = "0.3", features = ["formatting"] }
-thiserror = "2"
-quick-xml = "0.37"
-if-addrs = "0.13"
-memmap2 = "0.9"
+time = { version = "0.3.55", features = ["formatting"] }
+thiserror = "2.0.21"
+# Held at 0.37: from 0.38 names and attribute values are `str`, not bytes, and
+# every datapack loader matches on `b"..."` literals — its own migration.
+quick-xml = "0.37.5"
+if-addrs = "0.15.0"
+memmap2 = "0.9.11"
 # Java enums that travel on the wire are used by *ordinal*, so the port needs
 # both directions of `ordinal()`/`values()[i]` for every one of them. The derive
 # generates the pair from the declaration, which is what keeps a variant's
@@ -90,18 +94,18 @@ memmap2 = "0.9"
 enum-ordinalize = { version = "4.4.2", default-features = false, features = ["derive"] }
 # Replaces the system allocator in the game server. The game thread is
 # allocation-heavy and single-threaded, which is exactly mimalloc's shape.
-mimalloc = "0.1"
+mimalloc = "0.1.52"
 # `extended` exposes `mi_process_info`, which the game server's monitor sampler
 # reads for heap usage (docs/MONITORING.md §4). `mimalloc` keeps its own
 # `libmimalloc_sys` private, so the sys crate is named directly; it is the same
 # crate `mimalloc` already builds.
-libmimalloc-sys = { version = "0.1", features = ["extended"] }
+libmimalloc-sys = { version = "0.1.49", features = ["extended"] }
 # `getrusage`/`sysconf` for the monitor sampler's process CPU and RSS
 # (docs/MONITORING.md §4). Already in the tree via tokio.
 libc = "0.2"
 # Byte search for the log-search prefilter and line splitting
 # (docs/MONITORING.md §6). Already in the tree via regex.
-memchr = "2"
+memchr = "2.8.3"
 
 # Cargo's default release profile is `codegen-units = 16`, which blocks
 # cross-crate inlining between the 16 partitions of each crate. Benchmarked
