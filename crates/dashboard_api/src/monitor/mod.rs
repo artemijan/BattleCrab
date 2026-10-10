@@ -214,13 +214,8 @@ impl Monitor {
             .await
             .map_err(|e| format!("metrics db: {e}"))?
             .unwrap_or(0);
-        let body = tokio::time::timeout(
-            POLL_TIMEOUT,
-            request(&target.address, &format!("since {since}"), MAX_POLL_BYTES),
-        )
-        .await
-        .map_err(|_| "timed out".to_string())?
-        .map_err(|e| e.to_string())?;
+        let line = format!("since {since}");
+        let body = request(target, &line, MAX_POLL_BYTES, POLL_TIMEOUT).await?;
         let parsed = wire::parse_body(&body);
         if let Some(e) = parsed.error {
             return Err(format!("channel refused the request: {e}"));
@@ -258,7 +253,7 @@ impl Monitor {
     where
         T: Send + 'static,
         F: Fn(Target) -> Fut,
-        Fut: std::future::Future<Output = Result<Vec<T>, String>> + Send + 'static,
+        Fut: Future<Output = Result<Vec<T>, String>> + Send + 'static,
     {
         let mut asks = tokio::task::JoinSet::new();
         for (i, target) in self.targets.iter().cloned().enumerate() {
@@ -389,25 +384,29 @@ impl Monitor {
 }
 
 /// One request on the monitor channel: a line in, at most `max_bytes` of
-/// body out.
-async fn request(address: &str, line: &str, max_bytes: u64) -> std::io::Result<String> {
-    let mut stream = tokio::net::TcpStream::connect(address).await?;
-    stream.write_all(format!("{line}\n").as_bytes()).await?;
-    let mut buf = Vec::new();
-    stream.take(max_bytes).read_to_end(&mut buf).await?;
-    String::from_utf8(buf).map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+/// body out, all within `timeout`.
+async fn request(
+    target: &Target,
+    line: &str,
+    max_bytes: u64,
+    timeout: Duration,
+) -> Result<String, String> {
+    tokio::time::timeout(timeout, async {
+        let mut stream = tokio::net::TcpStream::connect(&target.address).await?;
+        stream.write_all(format!("{line}\n").as_bytes()).await?;
+        let mut buf = Vec::new();
+        stream.take(max_bytes).read_to_end(&mut buf).await?;
+        String::from_utf8(buf).map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+    })
+    .await
+    .map_err(|_| "timed out".to_string())?
+    .map_err(|e| e.to_string())
 }
 
 /// One target's `clients` answer. A target answering as another service is
 /// refused for the same reason [`Monitor::poll`] refuses its samples.
 async fn client_list(target: &Target) -> Result<Vec<ClientRecord>, String> {
-    let body = tokio::time::timeout(
-        POLL_TIMEOUT,
-        request(&target.address, "clients", MAX_POLL_BYTES),
-    )
-    .await
-    .map_err(|_| "timed out".to_string())?
-    .map_err(|e| e.to_string())?;
+    let body = request(target, "clients", MAX_POLL_BYTES, POLL_TIMEOUT).await?;
     let parsed = wire::parse_clients(&body);
     if let Some(e) = parsed.error {
         return Err(format!("channel refused the request: {e}"));
@@ -429,29 +428,14 @@ async fn client_list(target: &Target) -> Result<Vec<ClientRecord>, String> {
 }
 
 async fn kick(target: &Target, id: u64, connected_ms: u64) -> Result<bool, String> {
-    let body = tokio::time::timeout(
-        POLL_TIMEOUT,
-        request(
-            &target.address,
-            &format!("kick {id} {connected_ms}"),
-            MAX_POLL_BYTES,
-        ),
-    )
-    .await
-    .map_err(|_| "timed out".to_string())?
-    .map_err(|e| e.to_string())?;
+    let line = format!("kick {id} {connected_ms}");
+    let body = request(target, &line, MAX_POLL_BYTES, POLL_TIMEOUT).await?;
     wire::parse_kick(&body)
 }
 
 /// One target's `logs streams` answer, refused if it names another service.
 async fn log_streams(target: &Target) -> Result<Vec<StreamInfo>, String> {
-    let body = tokio::time::timeout(
-        POLL_TIMEOUT,
-        request(&target.address, "logs streams", MAX_POLL_BYTES),
-    )
-    .await
-    .map_err(|_| "timed out".to_string())?
-    .map_err(|e| e.to_string())?;
+    let body = request(target, "logs streams", MAX_POLL_BYTES, POLL_TIMEOUT).await?;
     let streams = wire::parse_streams(&body)?;
     if let Some(other) = streams.iter().find(|s| s.service != target.service) {
         return Err(format!(
@@ -468,17 +452,8 @@ async fn log_search(
 ) -> Result<serde_json::Map<String, serde_json::Value>, String> {
     let json = serde_json::to_string(search).map_err(|e| e.to_string())?;
     let deadline = Duration::from_millis(search.timeout_ms) + LOG_TIMEOUT_SLACK;
-    let body = tokio::time::timeout(
-        deadline,
-        request(
-            &target.address,
-            &format!("logs search {json}"),
-            MAX_LOG_BYTES,
-        ),
-    )
-    .await
-    .map_err(|_| "timed out".to_string())?
-    .map_err(|e| e.to_string())?;
+    let line = format!("logs search {json}");
+    let body = request(target, &line, MAX_LOG_BYTES, deadline).await?;
     let outcome = wire::parse_search(&body)?;
     match outcome.get("service").and_then(|s| s.as_str()) {
         Some(s) if s == target.service => Ok(outcome),
