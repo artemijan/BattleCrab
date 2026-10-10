@@ -4,6 +4,7 @@
 mod framing;
 pub mod internal;
 mod packet;
+pub mod traffic;
 
 pub use framing::{HEADER_SIZE, frame_into, read_frame, write_frame};
 pub use packet::{PacketReader, PacketWriter};

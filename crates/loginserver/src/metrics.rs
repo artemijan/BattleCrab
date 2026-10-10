@@ -1,10 +1,9 @@
 //! Wire-traffic counters for the login server — `docs/MONITORING.md` §2 (P1).
 //!
 //! The login server had no `commons::metrics` series at all before this —
-//! `docs/LOGGING.md`'s gap list named it explicitly. These mirror the
-//! gameserver's `network::{packets_in, bytes_in, packets_out, bytes_out,
-//! connections_accepted, connections_open}` (`gameserver/src/network/mod.rs`)
-//! so the two services graph the same shape side by side.
+//! `docs/LOGGING.md`'s gap list named it explicitly. The wire series are the
+//! same ones the game server records ([`commons::network::traffic`]), so the
+//! two services graph the same shape side by side.
 //!
 //! The login server does not coalesce outbound writes the way the game
 //! server's connection task does — one `send()` call is one frame — so
@@ -12,36 +11,9 @@
 
 use commons::monitor::clients::ConnectionStats;
 use commons::network::HEADER_SIZE;
-
-fn packets_in() -> &'static commons::metrics::Counter {
-    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
-    C.get_or_init(|| commons::metrics::counter("packets_in"))
-}
-
-fn bytes_in() -> &'static commons::metrics::Counter {
-    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
-    C.get_or_init(|| commons::metrics::counter("bytes_in"))
-}
-
-fn packets_out() -> &'static commons::metrics::Counter {
-    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
-    C.get_or_init(|| commons::metrics::counter("packets_out"))
-}
-
-fn bytes_out() -> &'static commons::metrics::Counter {
-    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
-    C.get_or_init(|| commons::metrics::counter("bytes_out"))
-}
-
-fn connections_accepted() -> &'static commons::metrics::Counter {
-    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
-    C.get_or_init(|| commons::metrics::counter("connections_accepted"))
-}
-
-fn connections_open() -> &'static commons::metrics::Gauge {
-    static G: std::sync::OnceLock<commons::metrics::Gauge> = std::sync::OnceLock::new();
-    G.get_or_init(|| commons::metrics::gauge("connections_open"))
-}
+use commons::network::traffic::{
+    bytes_in, bytes_out, connections_accepted, connections_open, packets_in, packets_out,
+};
 
 /// Where each open connection is in the login flow. A connection holds exactly
 /// one of these at a time ([`LoginStage`]), so together they sum to

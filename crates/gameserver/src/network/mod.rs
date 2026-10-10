@@ -58,49 +58,6 @@ fn packets_dropped() -> &'static commons::metrics::Counter {
     C.get_or_init(|| commons::metrics::counter("packets_dropped"))
 }
 
-/// Wire-level traffic counters — `docs/MONITORING.md` §2 (P1). The raw in/out
-/// this monitors, independent of what the game thread makes of it.
-/// `packets_in` counts every frame that arrives off the socket (including ones
-/// the rate limiter then rejects); `game_loop::net::packets_handled` counts
-/// what actually reached a handler, so the gap between the two is itself a
-/// signal.
-fn packets_in() -> &'static commons::metrics::Counter {
-    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
-    C.get_or_init(|| commons::metrics::counter("packets_in"))
-}
-
-fn bytes_in() -> &'static commons::metrics::Counter {
-    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
-    C.get_or_init(|| commons::metrics::counter("bytes_in"))
-}
-
-/// Counted per coalesced *batch write*, not per queued packet: the connection
-/// task already accumulates a tick's worth of packets into one `write_all`
-/// (see `connection.rs`'s outbound arm), so this is one atomic add per socket
-/// write rather than one per broadcast recipient.
-fn packets_out() -> &'static commons::metrics::Counter {
-    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
-    C.get_or_init(|| commons::metrics::counter("packets_out"))
-}
-
-fn bytes_out() -> &'static commons::metrics::Counter {
-    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
-    C.get_or_init(|| commons::metrics::counter("bytes_out"))
-}
-
-/// Accept-time series. `connections_accepted` is the lifetime total;
-/// `connections_open` is the live count, held per connection task through
-/// [`commons::metrics::Gauge::hold`].
-fn connections_accepted() -> &'static commons::metrics::Counter {
-    static C: std::sync::OnceLock<commons::metrics::Counter> = std::sync::OnceLock::new();
-    C.get_or_init(|| commons::metrics::counter("connections_accepted"))
-}
-
-fn connections_open() -> &'static commons::metrics::Gauge {
-    static G: std::sync::OnceLock<commons::metrics::Gauge> = std::sync::OnceLock::new();
-    G.get_or_init(|| commons::metrics::gauge("connections_open"))
-}
-
 pub(crate) use traffic::{note_connection_opened, note_inbound_frame, note_outbound_batch};
 
 /// Small wrapper module so `connection.rs` records traffic through named
@@ -109,13 +66,16 @@ pub(crate) use traffic::{note_connection_opened, note_inbound_frame, note_outbou
 mod traffic {
     use commons::monitor::clients::ConnectionStats;
     use commons::network::HEADER_SIZE;
+    use commons::network::traffic::{
+        bytes_in, bytes_out, connections_accepted, connections_open, packets_in, packets_out,
+    };
 
     /// One frame received off the socket, counted before decryption or rate
     /// limiting — this is "what arrived on the wire", not "what a handler saw".
     pub(crate) fn note_inbound_frame(conn: &ConnectionStats, payload_len: usize) {
         let wire = (payload_len + HEADER_SIZE) as u64;
-        super::packets_in().incr();
-        super::bytes_in().add(wire);
+        packets_in().incr();
+        bytes_in().add(wire);
         conn.note_in(wire);
     }
 
@@ -126,8 +86,8 @@ mod traffic {
         packet_count: u64,
         wire_bytes: usize,
     ) {
-        super::packets_out().add(packet_count);
-        super::bytes_out().add(wire_bytes as u64);
+        packets_out().add(packet_count);
+        bytes_out().add(wire_bytes as u64);
         conn.note_out(packet_count, wire_bytes as u64);
     }
 
@@ -135,14 +95,17 @@ mod traffic {
     /// the connection task owns it, so the count drops when the task ends
     /// however it ends, including by panic.
     pub(crate) fn note_connection_opened() -> commons::metrics::GaugeHold {
-        super::connections_accepted().incr();
-        super::connections_open().hold()
+        connections_accepted().incr();
+        connections_open().hold()
     }
 }
 
 /// Registered at boot so every series reads `0` from the first snapshot
 /// instead of being *absent* until first traffic.
 pub fn register_metrics() {
+    use commons::network::traffic::{
+        bytes_in, bytes_out, connections_accepted, connections_open, packets_in, packets_out,
+    };
     packets_dropped();
     packets_in();
     bytes_in();
