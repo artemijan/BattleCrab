@@ -8,7 +8,7 @@
 //! `GameData::load_from` costs.
 //!
 //! [`cached`] parses once, writes the result to `target/dist-snapshots/` as
-//! bincode, and lets every later process decode it instead: 627 ms → 85 ms for
+//! postcard, and lets every later process decode it instead: 627 ms → 85 ms for
 //! `SkillData`. Nothing here is compiled into the server — the module is
 //! `#[cfg(test)]` and the running game always parses the datapack it was
 //! pointed at.
@@ -41,8 +41,8 @@ use std::path::{Path, PathBuf};
 use std::sync::LazyLock;
 
 /// Bump when the *meaning* of the encoded bytes changes in a way neither the
-/// datapack nor [`LAYOUT_SOURCES`] can show — a bincode config change, say.
-const SNAPSHOT_FORMAT: u32 = 1;
+/// datapack nor [`LAYOUT_SOURCES`] can show — a change of encoding, say.
+const SNAPSHOT_FORMAT: u32 = 2;
 
 /// The sources whose contents decide how a catalogue encodes: the loaders and
 /// their types, plus the files outside `data/` that carry a `Serialize` derive
@@ -178,15 +178,13 @@ fn hash_entry(h: &mut DefaultHasher, path: &Path) {
 
 fn read<T: DeserializeOwned>(path: &Path) -> Option<T> {
     let bytes = std::fs::read(path).ok()?;
-    bincode::serde::decode_from_slice(&bytes, bincode::config::standard())
-        .ok()
-        .map(|(value, _)| value)
+    postcard::from_bytes(&bytes).ok()
 }
 
 /// Write via a process-unique temporary and rename, so the 16 test processes
 /// that miss together cannot read each other's half-written file.
 fn write<T: Serialize>(path: &Path, value: &T) {
-    let Ok(bytes) = bincode::serde::encode_to_vec(value, bincode::config::standard()) else {
+    let Ok(bytes) = postcard::to_allocvec(value) else {
         return;
     };
     let Some(dir) = path.parent() else { return };
@@ -255,9 +253,8 @@ mod tests {
     #[test]
     fn a_snapshot_decodes_to_what_the_parse_built() {
         let parsed = crate::data::SkillData::load_from(crate::data::DIST_GAME);
-        let bytes = bincode::serde::encode_to_vec(&parsed, bincode::config::standard()).unwrap();
-        let (decoded, _): (crate::data::SkillData, usize) =
-            bincode::serde::decode_from_slice(&bytes, bincode::config::standard()).unwrap();
+        let bytes = postcard::to_allocvec(&parsed).unwrap();
+        let decoded: crate::data::SkillData = postcard::from_bytes(&bytes).unwrap();
         assert_eq!(
             format!("{:?}", decoded.gaps()),
             format!("{:?}", parsed.gaps())
