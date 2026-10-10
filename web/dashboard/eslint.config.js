@@ -53,7 +53,7 @@ const shared = {
       // the rule knows they are real.
       ["better-tailwindcss/no-unknown-classes"]: [
         "error",
-        { ignore: ["glass", "glass-sheen", "bg-field", "animate-rise", "stagger", "dark"] },
+        { ignore: ["glass", "glass-sheen", "bg-field", "animate-rise", "stagger", "dark", "aura", "aura-card"] },
       ],
       // `[transition-timing-function:var(--ease-out-soft)]` → `ease-out-soft`:
       // arbitrary values that already exist as theme utilities must use them.

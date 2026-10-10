@@ -32,16 +32,19 @@ const SECTIONS = [
 export function AdminNav() {
   const { pathname } = useLocation();
   return (
-    <nav aria-label="Admin sections" className="flex gap-1 overflow-x-auto">
+    // Wraps rather than scrolls on the narrowest phones: a scroll box clips
+    // on both axes, which would cut the active tab's aura off.
+    <nav aria-label="Admin sections" className="flex flex-wrap gap-1">
       {SECTIONS.map((s) => (
         <Link
           key={s.to}
           to={s.to}
           aria-current={s.active(pathname) ? "page" : undefined}
           className={cx(
-            "rounded-xl px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-colors",
+            "rounded-xl px-3.5 py-1.5 text-sm font-medium whitespace-nowrap",
+            "transition-[color,background-color,box-shadow] duration-200",
             s.active(pathname)
-              ? "bg-(--surface-strong) text-brand-600 dark:text-brand-200"
+              ? "aura text-brand-600 dark:text-brand-100"
               : "text-(--text-muted) hover:bg-(--surface-strong) hover:text-(--text)",
           )}
         >

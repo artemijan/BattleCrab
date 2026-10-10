@@ -83,6 +83,9 @@ export function AdminAccounts() {
   const [offset, setOffset] = useState(0);
   const [sort, setSort] = useState<AdminSortKey>("created");
   const [dir, setDir] = useState<AdminSortDir>("desc");
+  // The create form opens above the list from the table's "+" button.
+  const [creating, setCreating] = useState(false);
+  const [created, setCreated] = useState(false);
 
   const list = useQuery({
     queryKey: ["admin", "accounts", query, offset, sort, dir],
@@ -117,16 +120,31 @@ export function AdminAccounts() {
         </p>
       </section>
 
-      <CreateGameAccountPanel />
+      {creating && (
+        <CreateGameAccountPanel
+          onCreated={() => {
+            setCreating(false);
+            setCreated(true);
+          }}
+          onCancel={() => setCreating(false)}
+        />
+      )}
+      {created && (
+        <Alert kind="success">
+          Game account created — it appears under your own master account.
+        </Alert>
+      )}
 
       <Field
         label="Search"
+        hideLabel
+        type="search"
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
           setOffset(0);
         }}
-        placeholder="email or game account username"
+        placeholder="Search email or game account"
         autoComplete="off"
       />
 
@@ -136,10 +154,6 @@ export function AdminAccounts() {
         </Panel>
       ) : list.isError ? (
         <Alert kind="error">{errorMessage(list.error)}</Alert>
-      ) : list.data.accounts.length === 0 ? (
-        <Panel className="p-8 text-center text-sm text-(--text-muted)">
-          No accounts match{query ? <> “{query}”</> : null}.
-        </Panel>
       ) : (
         <>
           {/* The table scrolls inside the panel on narrow screens rather than
@@ -148,6 +162,17 @@ export function AdminAccounts() {
             <table className="w-full min-w-176 text-sm">
               <thead>
                 <tr className="border-b border-(--surface-border) text-left">
+                  {/* First, not last: the table scrolls sideways on a phone,
+                      and a trailing column would start off-screen. */}
+                  <th className="w-px py-1.5 pr-0 pl-3">
+                    <CreateGameAccountButton
+                      disabled={creating}
+                      onClick={() => {
+                        setCreated(false);
+                        setCreating(true);
+                      }}
+                    />
+                  </th>
                   {COLUMNS.map((column) => (
                     <th key={column.key} className="px-4 py-2.5 font-medium">
                       <button
@@ -168,12 +193,23 @@ export function AdminAccounts() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-(--surface-border)">
+                {list.data.accounts.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={COLUMNS.length + 1}
+                      className="px-4 py-8 text-center text-(--text-muted)"
+                    >
+                      No accounts match{query ? <> “{query}”</> : null}.
+                    </td>
+                  </tr>
+                )}
                 {list.data.accounts.map((master) => (
                   <tr
                     key={master.email}
                     onClick={() => navigate(`/admin/accounts/${encodeURIComponent(master.email)}`)}
                     className="cursor-pointer transition-colors hover:bg-(--surface-strong)"
                   >
+                    <td aria-hidden />
                     <td className="max-w-64 px-4 py-3">
                       {/* A real link so middle-click / copy address work; the
                           row onClick covers the rest of the row. */}
@@ -215,32 +251,90 @@ export function AdminAccounts() {
             </table>
           </Panel>
 
-          <div className="flex items-center justify-between text-sm text-(--text-muted)">
-            <span>
-              {shownFrom}–{shownTo} of {total}
-            </span>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                className="px-3 py-1.5 text-xs"
-                disabled={offset === 0}
-                onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="ghost"
-                className="px-3 py-1.5 text-xs"
-                disabled={shownTo >= total}
-                onClick={() => setOffset(offset + PAGE_SIZE)}
-              >
-                Next
-              </Button>
+          {total > 0 && (
+            <div className="flex items-center justify-between text-sm text-(--text-muted)">
+              <span>
+                {shownFrom}–{shownTo} of {total}
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  className="px-3 py-1.5 text-xs"
+                  disabled={offset === 0}
+                  onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="px-3 py-1.5 text-xs"
+                  disabled={shownTo >= total}
+                  onClick={() => setOffset(offset + PAGE_SIZE)}
+                >
+                  Next
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </>
       )}
     </div>
+  );
+}
+
+const CREATE_HINT = "Create a GM game account under your master account";
+
+/**
+ * The "+" that opens `CreateGameAccountPanel`. The label lives in a tooltip
+ * (hover or keyboard focus) and in the accessible name, so the table header
+ * stays a single compact row.
+ */
+function CreateGameAccountButton({
+  onClick,
+  disabled,
+}: {
+  onClick: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <span className="group relative inline-flex">
+      <button
+        type="button"
+        aria-label={CREATE_HINT}
+        onClick={onClick}
+        disabled={disabled}
+        className="grid size-8 touch-manipulation place-items-center rounded-lg
+                   bg-brand-500/10 text-brand-600 transition-colors
+                   hover:bg-brand-500 hover:text-white disabled:opacity-40
+                   disabled:hover:bg-brand-500/10 disabled:hover:text-brand-600
+                   dark:text-brand-200 dark:disabled:hover:text-brand-200"
+      >
+        <svg
+          aria-hidden
+          viewBox="0 0 24 24"
+          className="size-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </button>
+      {/* To the right, over the header labels: below would be clipped by the
+          table's scroll box when the list is a single row. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-full z-10 ml-2
+                   -translate-y-1/2 rounded-lg bg-brand-900 px-2.5 py-1.5 text-xs font-medium
+                   whitespace-nowrap text-white opacity-0 shadow-lg ring-1 ring-white/15 transition-opacity
+                   duration-150 dark:bg-brand-800
+                   group-focus-within:opacity-100 group-hover:opacity-100
+                   group-has-disabled:hidden"
+      >
+        {CREATE_HINT}
+      </span>
+    </span>
   );
 }
 
@@ -249,46 +343,27 @@ export function AdminAccounts() {
  * copies the admin's accessLevel onto it, so what comes out is a GM game
  * account — hence the explicit warning in the form.
  */
-function CreateGameAccountPanel() {
+function CreateGameAccountPanel({
+  onCreated,
+  onCancel,
+}: {
+  onCreated: () => void;
+  onCancel: () => void;
+}) {
   const invalidate = useInvalidateAdmin();
-  const [open, setOpen] = useState(false);
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
 
   const create = useMutation({
     mutationFn: () => api.admin.createGameAccount(login, password),
     onSuccess: () => {
-      setLogin("");
-      setPassword("");
-      setOpen(false);
       invalidate();
+      onCreated();
     },
   });
 
-  if (!open) {
-    return (
-      <div className="flex items-center gap-3">
-        <Button
-          variant="secondary"
-          className="px-3 py-2 text-xs"
-          onClick={() => {
-            create.reset();
-            setOpen(true);
-          }}
-        >
-          Create GM game account…
-        </Button>
-        {create.isSuccess && (
-          <span className="text-sm text-emerald-600 dark:text-emerald-300">
-            Created — it appears under your own master account.
-          </span>
-        )}
-      </div>
-    );
-  }
-
   return (
-    <Panel className="p-5">
+    <Panel className="animate-rise p-5">
       <form
         onSubmit={(e: SubmitEvent) => {
           e.preventDefault();
@@ -329,12 +404,7 @@ function CreateGameAccountPanel() {
           <Button type="submit" loading={create.isPending} className="px-3 py-2 text-xs">
             Create
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setOpen(false)}
-            className="px-3 py-2 text-xs"
-          >
+          <Button type="button" variant="ghost" onClick={onCancel} className="px-3 py-2 text-xs">
             Cancel
           </Button>
         </div>

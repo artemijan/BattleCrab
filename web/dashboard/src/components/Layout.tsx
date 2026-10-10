@@ -347,7 +347,7 @@ export function Header({ account }: { account?: Account | null }) {
   );
 }
 
-/** A nav link inside the mobile dropdown: full-width row, same active colours
+/** A nav link inside the mobile dropdown: full-width row, same active aura
  *  as the desktop `NavItem`. */
 function MenuItem({ to, children }: { to: string; children: ReactNode }) {
   return (
@@ -357,7 +357,7 @@ function MenuItem({ to, children }: { to: string; children: ReactNode }) {
         cx(
           "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
           isActive
-            ? "bg-(--surface-strong) text-brand-600 dark:text-brand-200"
+            ? "aura text-brand-600 dark:text-brand-100"
             : "text-(--text-muted) hover:bg-(--surface-strong) hover:text-(--text)",
         )
       }
@@ -373,10 +373,10 @@ function NavItem({ to, children }: { to: string; children: ReactNode }) {
       to={to}
       className={({ isActive }) =>
         cx(
-          "rounded-lg p-2  text-sm font-medium transition-colors duration-200 sm:px-3",
+          "rounded-lg p-2 text-sm font-medium transition-[color,background-color,box-shadow] duration-200 sm:px-3",
           isActive
-            ? "text-brand-600 dark:text-brand-200"
-            : "text-(--text-muted) hover:text-(--text)",
+            ? "aura text-brand-600 dark:text-brand-100"
+            : "text-(--text-muted) hover:bg-(--surface-strong) hover:text-(--text)",
         )
       }
     >
