@@ -492,6 +492,12 @@ async fn full_login_to_character_create() {
         // the flow.
         cfg.flood_protector
             .disable(gameserver::config::flood_protector::FloodAction::CharacterSelect);
+        // The fresh Human Mystic arms the Q255 newbie tutorial on login, which
+        // fires 5 s later and starts the quest — pushing an unsolicited
+        // `QuestList` (+ tutorial voice/html). On a loaded CI runner the test
+        // is still mid-exchange by then, and the QuestList lands where a
+        // request's reply is expected (seen as "ExSendManorList: 134 != 254").
+        cfg.character.disable_tutorial = true;
         cfg
     })
     .await;
