@@ -199,8 +199,20 @@ pub enum AffectObject {
     /// mob alike. That made this the one live correctness bug on the affect
     /// axis rather than a missing nicety.
     UndeadRealEnemy,
-    /// Unported filters (`INVISIBLE`, `HIDDEN_PLACE`, `WYVERN_OBJECT`,
-    /// `OBJECT_DEAD_NPC_BODY`) — no filtering, like Java's null-handler path.
-    /// None has a learnable source on this dist.
+    /// `INVISIBLE` — `target.isInvisible()`. The trap/hide detection sweeps
+    /// (Detect Trap 470, Find Trap 623, Detection 933).
+    Invisible,
+    /// `OBJECT_DEAD_NPC_BODY` (Sweeper Festival 444) — not yourself,
+    /// `isNpc() && isDead()`. The one filter `PointBlank.java` exempts from
+    /// its dead-candidate drop.
+    DeadNpcBody,
+    /// `HIDDEN_PLACE` (Nornil's Power 2353) — Java's handler is a bare
+    /// `return false` under a "What is this?" TODO, so nothing ever passes.
+    HiddenPlace,
+    /// `WYVERN_OBJECT` (Wyvern Breath 4289) — the target's npc id is in the
+    /// `WYVERN_GROUP` category.
+    WyvernObject,
+    /// A name with no Java handler — no filtering, like Java's null-handler
+    /// path. Nothing on this dist reads as this.
     Other,
 }
