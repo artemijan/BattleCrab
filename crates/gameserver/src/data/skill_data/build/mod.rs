@@ -175,6 +175,13 @@ pub(crate) fn build_skill(
             Some("SQUARE") => skill::target::AffectScope::Square,
             Some("SQUARE_PB") => skill::target::AffectScope::SquarePointBlank,
             Some("RING_RANGE") => skill::target::AffectScope::RingRange,
+            Some("PARTY_PLEDGE") => skill::target::AffectScope::PartyPledge,
+            Some("DEAD_PARTY_PLEDGE") => skill::target::AffectScope::DeadPartyPledge,
+            Some("RANGE_SORT_BY_HP") => skill::target::AffectScope::RangeSortByHp,
+            Some("SUMMON_EXCEPT_MASTER") => skill::target::AffectScope::SummonExceptMaster,
+            Some("STATIC_OBJECT_SCOPE") => skill::target::AffectScope::StaticObject,
+            Some("BALAKAS_SCOPE") => skill::target::AffectScope::Balakas,
+            Some("WYVERN_SCOPE") => skill::target::AffectScope::Wyvern,
             Some("SINGLE") | Some("NONE") | None => skill::target::AffectScope::Single,
             other => {
                 if let Some(raw) = other {

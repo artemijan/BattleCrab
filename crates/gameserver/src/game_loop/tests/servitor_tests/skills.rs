@@ -769,3 +769,46 @@ fn the_real_datapack_defaults_to_shared() {
 // ---------------------------------------------------------------------------
 // The active pet's collar (Java `Item.isAvailable` / `ExBuySellList`)
 // ---------------------------------------------------------------------------
+
+/// `SUMMON_EXCEPT_MASTER` — the owner's servitor, never the owner, whether the
+/// cast is aimed at the owner or at the servitor itself.
+#[test]
+fn summon_except_master_scope_reaches_the_servitor_and_not_the_owner() {
+    use crate::game_loop::skills::affect::targets_affected;
+    use crate::model::skill::target::AffectScope;
+
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let skill = Skill {
+        id: 11303,
+        level: 1,
+        affect_scope: AffectScope::SummonExceptMaster,
+        affect_range: 1000,
+        ..Default::default()
+    };
+
+    assert!(
+        targets_affected(&mut world, OWNER, OWNER, &skill).is_empty(),
+        "nothing summoned yet"
+    );
+
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 0, 0, 0).unwrap();
+    assert_eq!(
+        targets_affected(&mut world, OWNER, OWNER, &skill),
+        vec![servitor]
+    );
+    assert_eq!(
+        targets_affected(&mut world, OWNER, servitor, &skill),
+        vec![servitor]
+    );
+
+    world
+        .objects
+        .get_component_mut::<Position>(&servitor)
+        .unwrap()
+        .x += 5000;
+    assert!(
+        targets_affected(&mut world, OWNER, OWNER, &skill).is_empty(),
+        "out of affect_range of the target"
+    );
+}

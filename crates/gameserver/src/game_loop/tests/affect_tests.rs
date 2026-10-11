@@ -881,3 +881,148 @@ fn hidden_place_passes_nothing_and_wyvern_object_reads_the_category() {
     assert!(!passes(mob));
     assert!(!passes(CASTER), "a player has no npc id to look up");
 }
+
+// ---------------------------------------------------------------------------
+// The seven narrow scopes
+// ---------------------------------------------------------------------------
+
+/// Caster partied with `mate`, clanned with `clannie`, and a `stranger` who is
+/// neither — the fixture both PARTY_PLEDGE scopes read.
+fn party_and_clan(world: &mut World) -> (i32, i32, i32) {
+    let (mate, clannie, stranger) = (2002, 2003, 2004);
+    for (cid, oid, x) in [(2, mate, 50), (3, clannie, 100), (4, stranger, 150)] {
+        // The receiver is dropped: nothing here reads the packets.
+        let _ = ingame_caster(world, cid, oid, x, 0);
+    }
+    put_in_party(world, CASTER, mate);
+    for oid in [CASTER, clannie] {
+        world
+            .objects
+            .get_component_mut::<Player>(&oid)
+            .unwrap()
+            .clan_id = 88;
+    }
+    (mate, clannie, stranger)
+}
+
+/// `PARTY_PLEDGE` rejects a candidate only when it shares neither the clan
+/// nor the party.
+#[test]
+fn party_pledge_scope_covers_the_party_and_the_clan() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let (mate, clannie, stranger) = party_and_clan(&mut world);
+
+    let mut skill = aoe_skill(1534, AffectScope::PartyPledge, AffectObject::All, 1000);
+    skill.target_type = TargetType::Self_;
+
+    let mut hit = targets_affected(&mut world, CASTER, CASTER, &skill);
+    assert_eq!(hit.first(), Some(&CASTER));
+    hit.sort_unstable();
+    assert_eq!(hit, vec![CASTER, mate, clannie]);
+    assert!(!hit.contains(&stranger));
+}
+
+/// `DEAD_PARTY_PLEDGE` is the same membership over corpses.
+#[test]
+fn dead_party_pledge_scope_gathers_party_and_clan_corpses() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let (mate, clannie, stranger) = party_and_clan(&mut world);
+    for oid in [mate, clannie, stranger] {
+        mark_dead(&mut world, oid);
+    }
+
+    let mut skill = aoe_skill(11785, AffectScope::DeadPartyPledge, AffectObject::All, 1000);
+    skill.target_type = TargetType::Self_;
+
+    let mut hit = targets_affected(&mut world, CASTER, CASTER, &skill);
+    hit.sort_unstable();
+    assert_eq!(
+        hit,
+        vec![mate, clannie],
+        "the living caster and the stranger's corpse stay out"
+    );
+}
+
+/// `RANGE_SORT_BY_HP` hands the sweep back most-wounded first, the target
+/// sorted in with the rest rather than leading.
+#[test]
+fn range_sort_by_hp_orders_from_the_lowest_hp() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let (a, b, far) = spawn_cluster(&mut world);
+    let c = NPC_OID + 3;
+    add_test_npc(&mut world, c, 20001, "Monster", 5, 0, 100, 0);
+    for (oid, percent) in [(a, 0.6), (b, 0.2), (c, 0.9)] {
+        let v = world.objects.get_component_mut::<Vitals>(&oid).unwrap();
+        v.cur_hp = v.max_hp as f64 * percent;
+    }
+
+    let skill = aoe_skill(1553, AffectScope::RangeSortByHp, AffectObject::All, 200);
+
+    let hit = targets_affected(&mut world, CASTER, a, &skill);
+    assert_eq!(
+        hit,
+        vec![b, a, c],
+        "lowest HP first; the caster standing in range is not the target, so stays out"
+    );
+    assert!(!hit.contains(&far));
+}
+
+/// `STATIC_OBJECT_SCOPE` sweeps doors and nothing else — a `SELF` cast drops
+/// its own caster — and `HIDDEN_PLACE` then filters every one of them out,
+/// which is all Nornil's Power (2353) amounts to in Java.
+#[test]
+fn static_object_scope_sweeps_doors_only() {
+    use crate::data::door_data::DoorOpenMethod;
+
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let (_a, _b, _far) = spawn_cluster(&mut world);
+    let near =
+        crate::model::door::spawn_door_for_test(&mut world, test_door(9001, DoorOpenMethod::None));
+    let mut away = test_door(9002, DoorOpenMethod::None);
+    away.x = 900;
+    let _away = crate::model::door::spawn_door_for_test(&mut world, away);
+    let mut breached = test_door(9003, DoorOpenMethod::None);
+    breached.y = 50;
+    let breached = crate::model::door::spawn_door_for_test(&mut world, breached);
+    world
+        .objects
+        .get_component_mut::<crate::model::door::Door>(&breached)
+        .unwrap()
+        .current_hp = 0;
+
+    let mut skill = aoe_skill(2353, AffectScope::StaticObject, AffectObject::All, 600);
+    skill.target_type = TargetType::Self_;
+    assert_eq!(
+        targets_affected(&mut world, CASTER, CASTER, &skill),
+        vec![near],
+        "no caster, no monsters, no breached door, no door out of range"
+    );
+
+    skill.affect_object = AffectObject::HiddenPlace;
+    assert!(targets_affected(&mut world, CASTER, CASTER, &skill).is_empty());
+}
+
+/// `BALAKAS_SCOPE` and `WYVERN_SCOPE` are empty bodies in Java, so the cast
+/// affects nobody — not even its own `SELF` target. Valakas casts Meteor Storm
+/// (4690) from his skill AI; reading the scope as single-target landed it on
+/// Valakas himself.
+#[test]
+fn balakas_and_wyvern_scopes_affect_nobody() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 50, 0);
+    let (valakas, _b, _far) = spawn_cluster(&mut world);
+
+    let meteor_storm = dist::skills()
+        .get(4690, 1)
+        .cloned()
+        .expect("Valakas Meteor Storm");
+    assert_eq!(meteor_storm.affect_scope, AffectScope::Balakas);
+    assert!(targets_affected(&mut world, valakas, valakas, &meteor_storm).is_empty());
+
+    let wyvern_breath = aoe_skill(4289, AffectScope::Wyvern, AffectObject::WyvernObject, 200);
+    assert!(targets_affected(&mut world, CASTER, valakas, &wyvern_breath).is_empty());
+}
