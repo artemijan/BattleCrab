@@ -89,7 +89,7 @@ fn rush_slides_the_caster_onto_its_target_at_launch() {
         assert_eq!(ints[0], 3001);
         assert_eq!((ints[1], ints[2]), (300, 0));
         assert_eq!((ints[4], ints[5]), (0, 0));
-        assert_eq!(ints[7], server_packets::FlyType::Charge as i32);
+        assert_eq!(ints[7], crate::enums::FlyType::Charge as i32);
     }
 }
 
@@ -227,7 +227,7 @@ fn back_step_warps_cast_range_behind_the_caster() {
     let fly = opcode_index(&pkts, server_packets::opcodes::FLY_TO_LOCATION).unwrap();
     assert_eq!(
         i32::from_le_bytes(pkts[fly][29..33].try_into().unwrap()),
-        server_packets::FlyType::WarpBack as i32
+        crate::enums::FlyType::WarpBack as i32
     );
 }
 
@@ -267,4 +267,181 @@ fn sidesteps_land_on_the_targets_flanks() {
 
         assert_eq!(xy(&world, 3001), (300, sign * 21), "{fly:?}");
     }
+}
+
+// ---------------------------------------------------------------------------
+// `KnockBack` and `Blink` — effects that move the *effected* creature
+// ---------------------------------------------------------------------------
+
+use crate::enums::FlyType;
+use crate::game_loop::skills::effects::apply_skill_effects;
+
+const SHOVE: i32 = 99_010;
+
+/// An instant push. `magicLevel 10` puts `calcProbability(100, …)` past any
+/// roll against the fixture's level-5 targets.
+fn shove(distance: i32) -> Skill {
+    Skill {
+        id: SHOVE,
+        magic_level: 10,
+        effect_point: -100,
+        target_type: TargetType::EnemyOnly,
+        effects: vec![SkillEffect::KnockBack {
+            distance,
+            knock_down: false,
+            fly_type: FlyType::PushHorizontal,
+        }],
+        ..Default::default()
+    }
+}
+
+/// A knock-down: the same push riding a continuous debuff.
+fn knock_down(id: i32, abnormal_type: &str) -> Skill {
+    Skill {
+        id,
+        effect_point: -100,
+        target_type: TargetType::EnemyOnly,
+        is_continuous: true,
+        is_debuff: true,
+        abnormal_time: 3,
+        abnormal_level: 1,
+        abnormal_type: abnormal_type.into(),
+        effects: vec![SkillEffect::KnockBack {
+            distance: 50,
+            knock_down: true,
+            fly_type: FlyType::PushDownHorizontal,
+        }],
+        ..Default::default()
+    }
+}
+
+/// The instant push throws the victim `distance` directly away from the
+/// effector and confirms the landing with a `ValidateLocation`.
+#[test]
+fn knock_back_pushes_the_victim_away_from_the_effector() {
+    let (mut world, ..) = cast_test_world();
+    let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+    drain(&mut b_rx);
+
+    apply_skill_effects(&mut world, 3001, 3002, &shove(50));
+    assert_eq!(xy(&world, 3002), (150, 0));
+
+    let pkts = drain(&mut b_rx);
+    let fly = opcode_index(&pkts, server_packets::opcodes::FLY_TO_LOCATION).unwrap();
+    assert_eq!(
+        i32::from_le_bytes(pkts[fly][29..33].try_into().unwrap()),
+        FlyType::PushHorizontal as i32
+    );
+    let validate = opcode_index(&pkts, server_packets::opcodes::VALIDATE_LOCATION).unwrap();
+    assert!(fly < validate);
+}
+
+/// `effected.isNpc() && !effected.isAttackable()` — a town NPC stays put,
+/// while a monster beside it is thrown.
+#[test]
+fn knock_back_does_not_move_town_npcs() {
+    let (mut world, ..) = cast_test_world();
+    let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 1, 30001, "Merchant", 5, 0, 100, 0);
+
+    apply_skill_effects(&mut world, 3001, NPC_OID, &shove(50));
+    apply_skill_effects(&mut world, 3001, NPC_OID + 1, &shove(50));
+    assert_eq!(xy(&world, NPC_OID), (150, 0));
+    assert_eq!(xy(&world, NPC_OID + 1), (0, 100));
+}
+
+/// The knock-down form moves the victim when its debuff lands, holds them in
+/// `BLOCK_ACTIONS`, and turns them to face the effector. A second knock-down
+/// landing while they are still down does not throw them again.
+#[test]
+fn knock_down_floors_the_victim_once() {
+    let (mut world, ..) = cast_test_world();
+    let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let _b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+
+    // The "already down" check reads the live buff's skill row, so both
+    // skills have to be in the table, as a real one always is.
+    for (id, abnormal) in [(99_011, "KNOCKDOWN"), (99_012, "KNOCKDOWN2")] {
+        world
+            .data
+            .skill_data
+            .insert_for_test(knock_down(id, abnormal));
+    }
+
+    apply_skill_effects(&mut world, 3001, 3002, &knock_down(99_011, "KNOCKDOWN"));
+    assert!(has_buff(&world, 3002, 99_011));
+    assert_eq!(xy(&world, 3002), (150, 0));
+    assert!(crate::game_loop::abnormal::is_blocked_from_actions(
+        &world, 3002
+    ));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Position>(&3002)
+            .unwrap()
+            .heading,
+        32767, // 180° × 182.044444444, truncated
+        "facing west, back toward the effector"
+    );
+
+    apply_skill_effects(&mut world, 3001, 3002, &knock_down(99_012, "KNOCKDOWN2"));
+    assert!(has_buff(&world, 3002, 99_012));
+    assert_eq!(
+        xy(&world, 3002),
+        (150, 0),
+        "already down, so not thrown again"
+    );
+}
+
+fn blink_skill(angle: i32) -> Skill {
+    Skill {
+        id: 99_020,
+        target_type: TargetType::Self_,
+        effects: vec![SkillEffect::Blink {
+            angle,
+            range: 200,
+            fly_type: FlyType::Dummy,
+        }],
+        ..Default::default()
+    }
+}
+
+/// `Blink`: `range` along `angle` from the creature's own heading — 180 is
+/// straight ahead and 0 straight back.
+#[test]
+fn blink_warps_along_its_angle_from_the_heading() {
+    for (angle, x) in [(180, 200), (0, -200)] {
+        let (mut world, ..) = cast_test_world();
+        let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        world
+            .objects
+            .get_component_mut::<Position>(&3001)
+            .unwrap()
+            .heading = 0;
+
+        apply_skill_effects(&mut world, 3001, 3001, &blink_skill(angle));
+        assert_eq!(xy(&world, 3001), (x, 0), "angle {angle}");
+    }
+}
+
+/// `Blink.canStart`: `!effected.cannotEscape()`.
+#[test]
+fn blink_is_refused_under_an_escape_block() {
+    let (mut world, ..) = cast_test_world();
+    let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let anchor = Skill {
+        id: 99_021,
+        is_continuous: true,
+        abnormal_time: 30,
+        abnormal_type: "ANCHOR".into(),
+        effects: vec![SkillEffect::BlockEscape],
+        ..Default::default()
+    };
+    apply_skill_effects(&mut world, 3001, 3001, &anchor);
+    assert!(crate::game_loop::abnormal::cannot_escape(&world, 3001));
+
+    apply_skill_effects(&mut world, 3001, 3001, &blink_skill(180));
+    assert_eq!(xy(&world, 3001), (0, 0));
 }

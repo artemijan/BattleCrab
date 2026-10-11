@@ -597,6 +597,10 @@ impl Skill {
                 // CONDITIONAL_BLOCK_ACTIONS, but `hasBlockActions()` ORs them,
                 // so a single bit is behaviourally identical here.
                 SkillEffect::BlockActions { .. } => effect_flag::BLOCK_ACTIONS,
+                // `KnockBack.getEffectFlags()`: `_knockDown ? BLOCK_ACTIONS : 0`.
+                SkillEffect::KnockBack {
+                    knock_down: true, ..
+                } => effect_flag::BLOCK_ACTIONS,
                 SkillEffect::Root => effect_flag::ROOTED,
                 SkillEffect::Mute => effect_flag::MUTED,
                 SkillEffect::PhysicalMute => effect_flag::PHYSICAL_MUTED,

@@ -2,6 +2,7 @@ use super::apply_block_actions_interrupt;
 use super::apply_buff_to_npc;
 use super::apply_mute_interrupt;
 use super::attribute_mod;
+use super::buffs_snapshot;
 use super::calc_general_trait_bonus;
 use super::calc_skill_mastery;
 use super::casting_resists_abnormal;
@@ -423,6 +424,38 @@ pub(crate) fn apply_continuous_effects(
     // dies; done here so it covers both NPC and player targets.
     schedule_dam_over_time(world, caster_oid, target_oid, skill);
 
+    // Java's `ACTIVE_KNOCKBACKS`: a creature already held down by one
+    // knock-down is not thrown again by another. A buff this skill is about to
+    // replace does not count — Java exits it (clearing the entry) before the
+    // new one starts.
+    //
+    // The set is static and only `onExit` clears it, so in Java the *instant*
+    // push — which has no exit — marks its victim for the life of the server
+    // and can never move them twice. That half is a leak, not a rule, and is
+    // not reproduced: an instant push is never guarded here.
+    let knocked_down = buffs_snapshot(world, target_oid, |b| {
+        let replaced = if skill.abnormal_type == "NONE" {
+            b.skill_id == skill.id
+        } else {
+            b.abnormal_type == skill.abnormal_type
+        };
+        (!replaced).then_some((b.skill_id, b.skill_level))
+    })
+    .into_iter()
+    .any(|(id, level)| {
+        world.data.skill_data.get(id, level).is_some_and(|s| {
+            s.effects.iter().any(|e| {
+                matches!(
+                    e,
+                    SkillEffect::KnockBack {
+                        knock_down: true,
+                        ..
+                    }
+                )
+            })
+        })
+    });
+
     // `DefenceTrait.onStart` — merge the buff's per-trait resistances. Done
     // here, above the NPC/player split, because a resisted mob is as real as a
     // resisted player.
@@ -435,6 +468,16 @@ pub(crate) fn apply_continuous_effects(
             // `Grow.onStart` — `setCollisionHeight/Radius(getTemplate()
             // .getCollision*Grown())`, NPCs only.
             SkillEffect::Grow => set_collision_grown(world, target_oid, true),
+            // `KnockBack.continuousInstant` — the knock-down push. The
+            // `startParalyze()` beside it is the `BLOCK_ACTIONS` interrupt the
+            // landed buff triggers below.
+            SkillEffect::KnockBack {
+                distance,
+                knock_down: true,
+                fly_type,
+            } if !knocked_down => {
+                super::knock_back(world, caster_oid, target_oid, *distance, true, *fly_type);
+            }
             _ => {}
         }
     }

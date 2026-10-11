@@ -8,7 +8,6 @@ use crate::model::Player;
 use crate::model::components;
 use crate::model::skill::Skill;
 use crate::model::skill::target::SkillFly;
-use crate::network::server_packets;
 use crate::world::World;
 
 /// Port of `SkillCaster.handleSkillFly`: work out the landing point,
@@ -28,18 +27,8 @@ pub(super) fn handle_skill_fly(
         return;
     };
     use std::f64::consts::PI;
-    // Java's own shape for every branch: `Math.PI + heading + course`, the
-    // offset truncated toward zero by the `(int)` cast.
-    let offset = |origin: &components::space::Position, heading: i32, course: f64, reach: f64| {
-        let radian = crate::game_loop::skills::affect::heading_to_degree(heading).to_radians();
-        let angle = PI + radian + course;
-        (
-            origin.x + (angle.cos() * reach) as i32,
-            origin.y + (angle.sin() * reach) as i32,
-            origin.z,
-        )
-    };
-    let mut fly_type = server_packets::FlyType::Charge;
+    let offset = position::heading_offset;
+    let mut fly_type = crate::enums::FlyType::Charge;
     let (x, y, z) = match fly {
         SkillFly::ToTarget if caster_oid == target_oid => {
             // `course = 180°` on top of the `Math.PI` already in the formula:
@@ -54,7 +43,7 @@ pub(super) fn handle_skill_fly(
         }
         // No course: `Math.PI + heading` is straight back.
         SkillFly::Back => {
-            fly_type = server_packets::FlyType::WarpBack;
+            fly_type = crate::enums::FlyType::WarpBack;
             offset(&from, from.heading, 0.0, skill.cast_range as f64)
         }
         SkillFly::TargetLeft | SkillFly::TargetRight => {

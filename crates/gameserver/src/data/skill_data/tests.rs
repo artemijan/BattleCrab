@@ -1688,3 +1688,91 @@ fn aura_pulse_effect_and_my_party_target_parse() {
     let gaps = out.gaps.into_inner();
     assert!(gaps.effects.is_empty() && gaps.target_types.is_empty());
 }
+
+/// `KnockBack` picks its fly type from `knockDown` unless `type` names one,
+/// and `Blink` reads `angle`/`range` with a `DUMMY` fly type.
+#[test]
+fn knock_back_and_blink_effects_parse() {
+    use crate::enums::FlyType;
+    use skill::effects::SkillEffect;
+    let xml = r#"
+    <list>
+        <skill id="14273" toLevel="1" name="Indiscriminate Rush">
+            <operateType>DA2</operateType>
+            <targetType>ENEMY</targetType>
+            <effects>
+                <effect name="KnockBack">
+                    <speed>400</speed>
+                    <distance>100</distance>
+                    <knockDown>true</knockDown>
+                </effect>
+            </effects>
+        </skill>
+        <skill id="23639" toLevel="1" name="Rush Assault">
+            <operateType>A1</operateType>
+            <targetType>ENEMY</targetType>
+            <effects>
+                <effect name="KnockBack" />
+                <effect name="KnockBack">
+                    <distance>60</distance>
+                    <type>THROW_UP</type>
+                </effect>
+            </effects>
+        </skill>
+        <skill id="10517" toLevel="1" name="Shadow Hide">
+            <operateType>A1</operateType>
+            <targetType>SELF</targetType>
+            <effects>
+                <effect name="Blink">
+                    <angle>180</angle>
+                    <range>600</range>
+                </effect>
+            </effects>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+
+    let down = &out.skills[&(14273, 1)];
+    assert!(matches!(
+        down.effects[..],
+        [SkillEffect::KnockBack {
+            distance: 100,
+            knock_down: true,
+            fly_type: FlyType::PushDownHorizontal,
+        }]
+    ));
+    assert_ne!(
+        down.effect_flags() & skill::effect_flag::BLOCK_ACTIONS,
+        0,
+        "a knock-down holds its victim"
+    );
+
+    let push = &out.skills[&(23639, 1)];
+    assert!(matches!(
+        push.effects[..],
+        [
+            SkillEffect::KnockBack {
+                distance: 50,
+                knock_down: false,
+                fly_type: FlyType::PushHorizontal,
+            },
+            SkillEffect::KnockBack {
+                distance: 60,
+                knock_down: false,
+                fly_type: FlyType::ThrowUp,
+            },
+        ]
+    ));
+    assert_eq!(push.effect_flags(), 0);
+
+    assert!(matches!(
+        out.skills[&(10517, 1)].effects[..],
+        [SkillEffect::Blink {
+            angle: 180,
+            range: 600,
+            fly_type: FlyType::Dummy,
+        }]
+    ));
+    assert!(out.gaps.into_inner().effects.is_empty());
+}

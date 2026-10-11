@@ -387,6 +387,44 @@ pub enum ChatType {
     World = 25,
 }
 
+/// Port of `enums/FlyType`, written into `FlyToLocation` as its ordinal. Every
+/// variant is named because the ordinal *is* the wire value and a gap would
+/// silently shift the rest.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[repr(i32)]
+pub enum FlyType {
+    ThrowUp = 0,
+    ThrowHorizontal = 1,
+    /// "No effect" — a straight slide with no animation.
+    Dummy = 2,
+    Charge = 3,
+    PushHorizontal = 4,
+    JumpEffected = 5,
+    NotUsed = 6,
+    PushDownHorizontal = 7,
+    WarpBack = 8,
+    WarpForward = 9,
+}
+
+impl FlyType {
+    /// Java `StatSet.getEnum(…, FlyType.class, …)` — the datapack spelling.
+    pub fn from_name(name: &str) -> Option<Self> {
+        Some(match name {
+            "THROW_UP" => Self::ThrowUp,
+            "THROW_HORIZONTAL" => Self::ThrowHorizontal,
+            "DUMMY" => Self::Dummy,
+            "CHARGE" => Self::Charge,
+            "PUSH_HORIZONTAL" => Self::PushHorizontal,
+            "JUMP_EFFECTED" => Self::JumpEffected,
+            "NOT_USED" => Self::NotUsed,
+            "PUSH_DOWN_HORIZONTAL" => Self::PushDownHorizontal,
+            "WARP_BACK" => Self::WarpBack,
+            "WARP_FORWARD" => Self::WarpForward,
+            _ => return None,
+        })
+    }
+}
+
 /// Port of `enums/AdminTeleportType` — the GM "Additional Movement Options"
 /// click-to-move modes (`html/admin/move.htm`). The mode is a *latch* on the
 /// GM: once armed, the next `MoveBackwardToLocation` click is consumed by the

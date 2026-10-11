@@ -867,6 +867,27 @@ pub enum SkillEffect {
         power: f64,
         ticks: i32,
     },
+    /// `handlers/effecthandlers/KnockBack.java` — shove the effected creature
+    /// `distance` directly away from the effector.
+    ///
+    /// Two effects in one handler, split by `knock_down`: without it this is
+    /// an *instant* push gated on `Formulas.calcProbability(100, …)`; with it
+    /// the push rides a landed continuous skill, which also holds the victim
+    /// in `BLOCK_ACTIONS` for its duration and turns them to face the effector.
+    KnockBack {
+        distance: i32,
+        knock_down: bool,
+        fly_type: crate::enums::FlyType,
+    },
+    /// `handlers/effecthandlers/Blink.java` — warp the effected creature
+    /// `range` along `angle` from its own heading (0 = straight back, 180 =
+    /// straight ahead), stopping at the last walkable point. Refused under
+    /// `CANNOT_ESCAPE`.
+    Blink {
+        angle: i32,
+        range: i32,
+        fly_type: crate::enums::FlyType,
+    },
     /// `handlers/effecthandlers/CallSkillOnActionTime.java` — the pulse of an
     /// aura toggle (`operateType AU`). Every `ticks` it trigger-casts
     /// `skill_id` at each creature within that skill's `affectRange` of the

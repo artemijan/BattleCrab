@@ -448,7 +448,7 @@ pub(crate) fn teleport_to_target(world: &mut World, caster_oid: i32, target_oid:
             caster_oid,
             (from.x, from.y, from.z),
             dest,
-            server_packets::FlyType::Dummy,
+            crate::enums::FlyType::Dummy,
         ),
     );
     position::set_position(world, caster_oid, (dest.0, dest.1, dest.2));
@@ -542,7 +542,7 @@ pub(crate) fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill
             target_oid,
             (from.x, from.y, from.z),
             (dest.x, dest.y, dest.z),
-            server_packets::FlyType::Dummy,
+            crate::enums::FlyType::Dummy,
         ),
     );
 
