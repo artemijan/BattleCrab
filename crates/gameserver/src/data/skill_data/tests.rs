@@ -1542,8 +1542,9 @@ fn every_recorded_decision_carries_a_reason() {
     }
 }
 
-/// `SkillOperateType.isFlyType()`: DA1/DA2 are active casts that carry a rush,
-/// DA2 is additionally continuous, and an ordinary active carries none.
+/// `SkillOperateType.isFlyType()`: the DA family are active casts that carry
+/// a rush, DA2/DA4/DA5 are additionally continuous, and an ordinary active
+/// carries none.
 #[test]
 fn rush_operate_types_are_castable_and_carry_a_fly() {
     let xml = r#"
@@ -1556,6 +1557,18 @@ fn rush_operate_types_are_castable_and_carry_a_fly() {
             <operateType>DA2</operateType>
             <targetType>ENEMY</targetType>
         </skill>
+        <skill id="10774" toLevel="1" name="Quick Evasion">
+            <operateType>DA3</operateType>
+            <targetType>SELF</targetType>
+        </skill>
+        <skill id="30507" toLevel="1" name="Left Sidestep">
+            <operateType>DA4</operateType>
+            <targetType>ENEMY</targetType>
+        </skill>
+        <skill id="30508" toLevel="1" name="Right Sidestep">
+            <operateType>DA5</operateType>
+            <targetType>ENEMY</targetType>
+        </skill>
         <skill id="1177" toLevel="1" name="Wind Strike">
             <operateType>A1</operateType>
             <targetType>ENEMY_ONLY</targetType>
@@ -1564,6 +1577,18 @@ fn rush_operate_types_are_castable_and_carry_a_fly() {
     let mut out = ParsedSkills::default();
     parse_str(xml, &mut out);
     let fly = Some(skill::target::SkillFly::ToTarget);
+
+    use skill::target::SkillFly;
+    for (id, kind, continuous) in [
+        (10774, SkillFly::Back, false),
+        (30507, SkillFly::TargetLeft, true),
+        (30508, SkillFly::TargetRight, true),
+    ] {
+        let s = &out.skills[&(id, 1)];
+        assert_eq!(s.operate_type, skill::target::OperateType::Active, "{id}");
+        assert_eq!(s.fly, Some(kind), "{id}");
+        assert_eq!(s.is_continuous, continuous, "{id}");
+    }
 
     let rush = &out.skills[&(994, 1)];
     assert_eq!(rush.operate_type, skill::target::OperateType::Active);

@@ -224,8 +224,8 @@ const CONDITIONS: &[(&str, usize)] = &[("conditions/OpSweeper", 1)];
 const TARGET_TYPES: &[(&str, usize)] = &[];
 
 /// `<affectScope>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 3 name(s), 0 learnable
-/// skill(s) affected, 1 reachable.
+/// the work list, worst first. Category totals: 0 name(s), 0 learnable
+/// skill(s) affected, 0 reachable.
 const AFFECT_SCOPES: &[(&str, usize)] = &[];
 
 /// `<affectObject>` names with at least one **learnable** skill behind them —
@@ -234,7 +234,7 @@ const AFFECT_SCOPES: &[(&str, usize)] = &[];
 const AFFECT_OBJECTS: &[(&str, usize)] = &[];
 
 /// `<operateType>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 3 name(s), 0 learnable
+/// the work list, worst first. Category totals: 0 name(s), 0 learnable
 /// skill(s) affected, 3 reachable.
 const OPERATE_TYPES: &[(&str, usize)] = &[];
 
@@ -284,7 +284,7 @@ fn datapack_skill_coverage_census() {
             0,
             2,
         ),
-        ("operateType", &gaps.operate_types, OPERATE_TYPES, 3, 0, 1),
+        ("operateType", &gaps.operate_types, OPERATE_TYPES, 0, 0, 0),
     ] {
         assert_eq!(
             ranked(map, &learn)

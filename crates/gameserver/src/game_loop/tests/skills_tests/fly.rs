@@ -198,3 +198,73 @@ fn self_targeted_rush_dashes_cast_range_ahead() {
     apply_due_tasks(&mut world);
     assert_eq!(xy(&world, 3001), (300, 50));
 }
+
+/// `DA3`: `castRange` straight back along the caster's own heading, sent as
+/// `FlyType.WARP_BACK` rather than a charge.
+#[test]
+fn back_step_warps_cast_range_behind_the_caster() {
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 100, 50);
+    let mut step = rush(TargetType::Self_);
+    step.fly = Some(SkillFly::Back);
+    step.cast_range = 200;
+    step.effect_point = 0;
+    step.effects = Vec::new();
+    learn_skill(&mut world, 3001, &step);
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .heading = 0; // facing due east, so "back" is west
+    drain(&mut a_rx);
+
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(RUSH, false));
+    world.tick += 100;
+    apply_due_tasks(&mut world);
+    assert_eq!(xy(&world, 3001), (-100, 50));
+
+    let pkts = drain(&mut a_rx);
+    let fly = opcode_index(&pkts, server_packets::opcodes::FLY_TO_LOCATION).unwrap();
+    assert_eq!(
+        i32::from_le_bytes(pkts[fly][29..33].try_into().unwrap()),
+        server_packets::FlyType::WarpBack as i32
+    );
+}
+
+/// `DA4`/`DA5`: beside the target, the two collision radii off its centre —
+/// 270° and 90° round from the *target's* heading, on opposite flanks.
+#[test]
+fn sidesteps_land_on_the_targets_flanks() {
+    for (fly, sign) in [(SkillFly::TargetLeft, 1), (SkillFly::TargetRight, -1)] {
+        let (mut world, ..) = cast_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let _b_rx = ingame_caster(&mut world, 2, 3002, 300, 0);
+        let mut step = rush(TargetType::EnemyOnly);
+        step.fly = Some(fly);
+        learn_skill(&mut world, 3001, &step);
+        world
+            .objects
+            .get_component_mut::<Position>(&3002)
+            .unwrap()
+            .heading = 0;
+        // The fixture's players are points; give them the radii the landing
+        // distance is made of.
+        for (oid, radius) in [(3001, 9.0), (3002, 12.0)] {
+            world.objects.add_components(
+                &oid,
+                crate::model::components::space::Collision {
+                    radius,
+                    height: 23.0,
+                },
+            );
+        }
+        handle_action(&mut world, 1, &action_body(3002, 0));
+        drain(&mut a_rx);
+
+        handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(RUSH, true));
+        world.tick += 100;
+        apply_due_tasks(&mut world);
+
+        assert_eq!(xy(&world, 3001), (300, sign * 21), "{fly:?}");
+    }
+}

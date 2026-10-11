@@ -74,11 +74,13 @@ pub(crate) fn build_skill(
             // 426, Spell Stance 427) were seven learnable skills in exactly
             // that state.
             //
-            // DA1/DA2 are `isActive()` too. What sets them apart is
-            // `isFlyType()`, carried separately as `fly` below.
-            Some("A1" | "A2" | "A3" | "A4" | "A5" | "A6" | "DA1" | "DA2") => {
-                skill::target::OperateType::Active
-            }
+            // The DA family casts through the same pipeline. What sets it
+            // apart is `isFlyType()`, carried separately as `fly` below. (Java's
+            // `isActive()` leaves DA3 out, but nothing on the cast path asks
+            // it — only item-skill reuse and `calcMagicAffected` do.)
+            Some(
+                "A1" | "A2" | "A3" | "A4" | "A5" | "A6" | "DA1" | "DA2" | "DA3" | "DA4" | "DA5",
+            ) => skill::target::OperateType::Active,
             Some("P") => skill::target::OperateType::Passive,
             // `SkillOperateType.isToggle()`: T, TG, AU.
             Some("T" | "TG" | "AU") => skill::target::OperateType::Toggle,
@@ -94,10 +96,13 @@ pub(crate) fn build_skill(
         // `SkillOperateType.isNotBroadcastable()`, narrowed to the two toggle
         // variants — see `Skill::not_broadcastable` for why `T` is left out.
         let not_broadcastable = matches!(value_at(values, "operateType", level), Some("TG" | "AU"));
-        // `SkillOperateType.isFlyType()` — the rush skills. DA3..DA5 belong to
-        // it as well and are still unhandled (they fall to `Other` above).
+        // `SkillOperateType.isFlyType()` — the rush skills, by where
+        // `handleSkillFly` sends the caster.
         let fly = match value_at(values, "operateType", level) {
             Some("DA1" | "DA2") => Some(skill::target::SkillFly::ToTarget),
+            Some("DA3") => Some(skill::target::SkillFly::Back),
+            Some("DA4") => Some(skill::target::SkillFly::TargetLeft),
+            Some("DA5") => Some(skill::target::SkillFly::TargetRight),
             _ => None,
         };
         // Java `SkillOperateType.isContinuous()` — the A2..A6/DA2..DA5 family.
