@@ -108,6 +108,18 @@ pub(crate) fn resolve_cast_target(
             }
             return Ok(caster.object_id);
         }
+        // `MyParty.java`: another player in the caster's own party is taken as
+        // is — no liveness or line-of-sight gate — and anything else falls
+        // back to the caster.
+        TargetType::MyParty => {
+            return Ok(caster_target
+                .filter(|&t| {
+                    t != caster.object_id
+                        && world.objects.has_component::<Player>(&t)
+                        && crate::game_loop::party::same_party(world, caster.object_id, t)
+                })
+                .unwrap_or(caster.object_id));
+        }
         // `Target.java`: the selected target, friend or foe; self allowed
         // (and self skips the LOS check — "you can always target yourself").
         TargetType::Target => {

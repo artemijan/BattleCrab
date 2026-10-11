@@ -1,5 +1,6 @@
 use super::apply_skill_effects;
 use crate::game_loop::skills::skill_by_id;
+use crate::model::Player;
 use crate::model::components::skills::Buffs;
 use crate::model::components::stats::Vitals;
 use crate::model::skill::Skill;
@@ -389,4 +390,72 @@ pub(crate) fn fire_option_cast_triggers(
         OptionSkillType::Attack => magic_type == 0,
         OptionSkillType::Critical => false,
     });
+}
+
+/// `CallSkillOnActionTime.onActionTime` — one pulse of an aura toggle.
+///
+/// For every creature within the pulsed skill's `affectRange` of the effector,
+/// Java resolves that skill's own `targetType` against the creature
+/// (`forceUse`/`dontMove` both false) and, when that yields a target,
+/// `triggerCast`s at it — which expands the skill's affect scope around that
+/// target and applies it. Nothing is deduplicated: a party-scope aura is
+/// re-applied once per nearby creature, which is what keeps it refreshed (the
+/// re-application replaces the buff and resets its time, Java's `isAura()`
+/// `resetAbnormalTime`), and a debuff aura rolls to land once per attempt.
+///
+/// Player effectors only: the target handlers are the player resolver
+/// (`resolve_cast_target`), and no `AU` skill on this dist is in an NPC's
+/// skill list.
+///
+/// SKIP(unreachable): Java opens with `if (triggerSkill.isSynergySkill())
+/// triggerSkill.applyEffects(effector, effector)`. That self-application can
+/// never land — this effect's own `onStart` has already blocked the pulsed
+/// skill's abnormal type on the effector, and `EffectList.addActive` refuses a
+/// blocked type — so it is not reproduced.
+pub(crate) fn call_skill_on_action_time(
+    world: &mut World,
+    effector_oid: i32,
+    skill_id: i32,
+    skill_level: i32,
+) {
+    let Some(trigger) = skill_by_id(world, skill_id, skill_level) else {
+        return;
+    };
+    let Some(effector_pos) = crate::game_loop::space::position::maybe_position(world, effector_oid)
+    else {
+        return;
+    };
+    let range = trigger.affect_range as f64;
+    let nearby: Vec<i32> =
+        crate::game_loop::space::visibility::visible_creatures(world, effector_oid)
+            .into_iter()
+            .filter(|&c| {
+                crate::geo::distance::distance_3d(world, effector_oid, c)
+                    .is_some_and(|d| d <= range)
+            })
+            .collect();
+    for creature in nearby {
+        let Some(effector) = world.objects.get_component::<Player>(&effector_oid) else {
+            return;
+        };
+        let Ok(target) = crate::game_loop::skills::cast::resolve_cast_target(
+            world,
+            effector,
+            &effector_pos,
+            Some(creature),
+            &trigger,
+            false,
+            false,
+        ) else {
+            continue;
+        };
+        for affected in crate::game_loop::skills::affect::targets_affected(
+            world,
+            effector_oid,
+            target,
+            &trigger,
+        ) {
+            apply_skill_effects(world, effector_oid, affected, &trigger);
+        }
+    }
 }

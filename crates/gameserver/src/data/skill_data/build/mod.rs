@@ -116,6 +116,7 @@ pub(crate) fn build_skill(
         );
         let target_type = match value_at(values, "targetType", level) {
             Some("SELF") => skill::target::TargetType::Self_,
+            Some("MY_PARTY") => skill::target::TargetType::MyParty,
             Some("TARGET") => skill::target::TargetType::Target,
             Some("ENEMY") => skill::target::TargetType::Enemy,
             Some("ENEMY_ONLY") => skill::target::TargetType::EnemyOnly,

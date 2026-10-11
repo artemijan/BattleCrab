@@ -48,6 +48,9 @@ pub enum SkillFly {
 pub enum TargetType {
     /// `SELF`: always the caster.
     Self_,
+    /// `MY_PARTY`: the selection when it is another player in the caster's
+    /// party, otherwise the caster.
+    MyParty,
     /// `TARGET`: the current target, friendly or not (self allowed).
     Target,
     /// `ENEMY`: an attackable target (force-use required against unflagged

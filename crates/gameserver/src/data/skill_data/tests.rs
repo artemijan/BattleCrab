@@ -1648,3 +1648,43 @@ fn toggle_variants_parse_as_toggles() {
 
     assert!(out.gaps.into_inner().operate_types.is_empty());
 }
+
+/// `CallSkillOnActionTime` is read off an aura (`skillLevel` defaulting to 1),
+/// and `MY_PARTY` is a resolved target type rather than a gap.
+#[test]
+fn aura_pulse_effect_and_my_party_target_parse() {
+    let xml = r#"
+    <list>
+        <skill id="10030" toLevel="1" name="Challenge Aura">
+            <operateType>AU</operateType>
+            <effects>
+                <effect name="CallSkillOnActionTime">
+                    <skillId>10031</skillId>
+                    <ticks>7</ticks>
+                </effect>
+            </effects>
+        </skill>
+        <skill id="10031" toLevel="1" name="Challenge Aura">
+            <operateType>A5</operateType>
+            <targetType>MY_PARTY</targetType>
+            <affectScope>PARTY</affectScope>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+
+    assert!(matches!(
+        out.skills[&(10030, 1)].effects[..],
+        [skill::effects::SkillEffect::CallSkillOnActionTime {
+            skill_id: 10031,
+            skill_level: 1,
+            ticks: 7,
+        }]
+    ));
+    assert_eq!(
+        out.skills[&(10031, 1)].target_type,
+        skill::target::TargetType::MyParty
+    );
+    let gaps = out.gaps.into_inner();
+    assert!(gaps.effects.is_empty() && gaps.target_types.is_empty());
+}

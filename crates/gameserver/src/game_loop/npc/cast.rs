@@ -404,6 +404,9 @@ pub(crate) fn resolve_npc_cast_target(
     let resolved = match skill.target_type {
         // `None.java`: the caster outright, with no peace-zone gate.
         TargetType::None_ => return Some(npc_oid),
+        // `MyParty.java`: a party mate of the caster, else the caster — and an
+        // NPC has no party.
+        TargetType::MyParty => return Some(npc_oid),
         // `Self.java`: the caster; a *bad* self skill is refused in a peace
         // zone. This is the arm that fixes point-blank mob AoEs — the cast
         // lands on the mob, and `affectScope` sweeps outward from there.

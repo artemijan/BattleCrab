@@ -7,6 +7,7 @@ use super::calc_skill_mastery;
 use super::casting_resists_abnormal;
 use super::creature_level;
 use super::creature_name;
+use super::expire_buffs_where;
 use super::merge_attack_traits;
 use super::merge_defence_traits;
 use super::merge_skill_rates;
@@ -100,6 +101,7 @@ pub(crate) fn apply_continuous_effects(
                 | SkillEffect::ChameleonRest { .. }
                 | SkillEffect::Fear { .. }
                 | SkillEffect::FakeDeath { .. }
+                | SkillEffect::CallSkillOnActionTime { .. }
         )
     });
     // Blessing of Protection, DefenceTrait (Mental Shield / Resist Shock) and
@@ -311,6 +313,33 @@ pub(crate) fn apply_continuous_effects(
         }
     }
 
+    // `CallSkillOnActionTime.onStart`: strip whatever the bearer holds of the
+    // pulsed skill's abnormal type, then block that type for as long as the
+    // aura is up (`onExit` unblocks — here the block simply leaves with the
+    // buff that carries it). It is what keeps a second knight's aura off an
+    // aura holder, and the holder's own pulse off themselves.
+    let pulsed_abnormals: Vec<String> = skill
+        .effects
+        .iter()
+        .filter_map(|e| match e {
+            SkillEffect::CallSkillOnActionTime {
+                skill_id,
+                skill_level,
+                ..
+            } => world
+                .data
+                .skill_data
+                .get(*skill_id, *skill_level)
+                .map(|s| s.abnormal_type.clone()),
+            _ => None,
+        })
+        .collect();
+    if !pulsed_abnormals.is_empty() {
+        expire_buffs_where(world, target_oid, |_, b| {
+            pulsed_abnormals.contains(&b.abnormal_type)
+        });
+    }
+
     // `Formulas.calcEffectAbnormalTime`, which every `BuffInfo` runs through its
     // constructor:
     //
@@ -363,7 +392,7 @@ pub(crate) fn apply_continuous_effects(
             || skill.self_effects.is_empty(),
         passive: false,
         effect_flags: skill.effect_flags(),
-        blocked_abnormals: skill.blocked_abnormals(),
+        blocked_abnormals: [skill.blocked_abnormals(), pulsed_abnormals].concat(),
         abnormal_visuals: skill.abnormal_visuals.clone(),
         effects: buff_effects,
     };

@@ -159,6 +159,16 @@ pub(crate) fn handle_dam_over_time_tick(
                 helpers::spend_mp(world, target_oid, drain);
                 broadcast_vitals(world, target_oid);
             }
+            // `CallSkillOnActionTime.onActionTime` — the aura pulse. A dead
+            // effector returns `false`, which retires the toggle.
+            SkillEffect::CallSkillOnActionTime { skill_id, skill_level, ticks } if *ticks > 0 => {
+                interval = dot_interval_ticks(*ticks, ratio_ms);
+                if helpers::is_dead(world, caster_oid) {
+                    deactivate_toggle |= is_toggle;
+                    continue;
+                }
+                super::triggers::call_skill_on_action_time(world, caster_oid, *skill_id, *skill_level);
+            }
             // `ManaHealOverTime.onActionTime` — the mirror of the drain arm
             // below. Java's two early-outs are asymmetric: a **positive** power
             // stops once MP is already full, a negative one stops when the tick

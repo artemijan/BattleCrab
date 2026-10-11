@@ -867,6 +867,16 @@ pub enum SkillEffect {
         power: f64,
         ticks: i32,
     },
+    /// `handlers/effecthandlers/CallSkillOnActionTime.java` — the pulse of an
+    /// aura toggle (`operateType AU`). Every `ticks` it trigger-casts
+    /// `skill_id` at each creature within that skill's `affectRange` of the
+    /// effector; while it is up the bearer is immune to the pulsed skill's own
+    /// abnormal type (`game_loop::skills::effects::triggers`).
+    CallSkillOnActionTime {
+        skill_id: i32,
+        skill_level: i32,
+        ticks: i32,
+    },
     /// `handlers/effecthandlers/Relax.java` — the Relax toggle (skill **226**,
     /// learnable at level 5 by Human and Orc Fighters, so this is early-game
     /// content rather than a curiosity).

@@ -938,7 +938,7 @@ pub(crate) fn apply_skill_effects(
             }
             // Periodic effects do nothing on application; their work happens on
             // the tick chain armed by `schedule_dam_over_time`.
-            SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } | SkillEffect::ManaHealOverTime { .. } | SkillEffect::MpConsumePerLevel { .. } => {}
+            SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } | SkillEffect::ManaHealOverTime { .. } | SkillEffect::MpConsumePerLevel { .. } | SkillEffect::CallSkillOnActionTime { .. } => {}
             // `Relax.onStart` — the toggle seats its holder. Java calls
             // `sitDown(false)`: the un-toggleable form, so the player cannot
             // stand straight back up while the effect is running.

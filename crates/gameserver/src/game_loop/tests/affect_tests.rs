@@ -640,3 +640,136 @@ fn a_necessary_toggle_is_not_switched_off_by_a_recast() {
         "a group sibling still replaces it"
     );
 }
+
+// ---------------------------------------------------------------------------
+// `CallSkillOnActionTime` — the aura pulse
+// ---------------------------------------------------------------------------
+
+const AURA: i32 = 9130;
+const PULSE: i32 = 9131;
+/// `ticks 5 × EffectTickRatio 666 ms` in 100 ms game ticks.
+const PULSE_INTERVAL: u64 = 33;
+
+/// An `AU` toggle that pulses [`PULSE`] and does nothing else.
+fn aura_skill() -> Skill {
+    let mut s = toggle_skill(AURA, 0);
+    s.not_broadcastable = true;
+    s.effects = vec![SkillEffect::CallSkillOnActionTime {
+        skill_id: PULSE,
+        skill_level: 1,
+        ticks: 5,
+    }];
+    s
+}
+
+/// The pulsed skill, shaped like the knight auras' party half (`A5`,
+/// `MY_PARTY` / `PARTY` / `FRIEND`, a short-lived `AURA` buff).
+fn party_pulse() -> Skill {
+    let mut s = aoe_skill(PULSE, AffectScope::Party, AffectObject::Friend, 1000);
+    s.target_type = TargetType::MyParty;
+    s.is_continuous = true;
+    s.is_debuff = false;
+    s.effect_point = 0;
+    s.abnormal_type = "AURA".into();
+    s.abnormal_time = 6;
+    s
+}
+
+fn switch_aura_on(world: &mut World, pulse: Skill) -> UnboundedReceiver<bytes::Bytes> {
+    world.data.skill_data.insert_for_test(aura_skill());
+    world.data.skill_data.insert_for_test(pulse);
+    let mut out = ingame_caster(world, CID, CASTER, 0, 0);
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&CASTER)
+        .unwrap()
+        .0
+        .insert(AURA, 1);
+    drain(&mut out);
+    out
+}
+
+fn buff_expiry(world: &World, oid: i32, skill_id: i32) -> Option<u64> {
+    world
+        .objects
+        .get_component::<crate::model::components::skills::Buffs>(&oid)?
+        .0
+        .iter()
+        .find(|b| b.skill_id == skill_id)
+        .map(|b| b.expires_at_tick)
+}
+
+/// A party aura reaches the holder's party and nobody else, keeps the buff
+/// refreshed while it is on, and lets it lapse once switched off. The holder
+/// never receives their own pulse — the aura blocks that abnormal type.
+#[test]
+fn a_party_aura_pulses_its_buff_onto_the_holders_party() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = switch_aura_on(&mut world, party_pulse());
+    let (mate, stranger) = (2002, 2003);
+    let _mate_rx = ingame_caster(&mut world, 2, mate, 100, 0);
+    let _stranger_rx = ingame_caster(&mut world, 3, stranger, 150, 0);
+    put_in_party(&mut world, CASTER, mate);
+
+    use_magic(&mut world, CID, CASTER, AURA, false, false);
+    assert!(has_buff(&world, CASTER, AURA));
+    assert!(
+        !has_buff(&world, mate, PULSE),
+        "nothing lands before a tick"
+    );
+
+    world.tick += PULSE_INTERVAL;
+    apply_due_tasks(&mut world);
+    assert!(has_buff(&world, mate, PULSE), "the party mate is buffed");
+    assert!(!has_buff(&world, stranger, PULSE), "an outsider is not");
+    assert!(
+        !has_buff(&world, CASTER, PULSE),
+        "the holder is immune to their own pulse"
+    );
+
+    // The next pulse replaces the buff, pushing its expiry out.
+    let first = buff_expiry(&world, mate, PULSE).unwrap();
+    world.tick += PULSE_INTERVAL;
+    apply_due_tasks(&mut world);
+    assert!(buff_expiry(&world, mate, PULSE).unwrap() > first);
+
+    // Off: no more pulses, and the last one runs out on its own (6 s).
+    use_magic(&mut world, CID, CASTER, AURA, false, false);
+    assert!(!has_buff(&world, CASTER, AURA));
+    world.tick += 100;
+    apply_due_tasks(&mut world);
+    assert!(!has_buff(&world, mate, PULSE));
+}
+
+/// `onStart` strips the pulsed abnormal type from the holder before blocking
+/// it — switching an aura on drops another knight's aura buff.
+#[test]
+fn switching_an_aura_on_strips_the_pulsed_abnormal_from_the_holder() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = switch_aura_on(&mut world, party_pulse());
+    let pulse = party_pulse();
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &pulse);
+    assert!(has_buff(&world, CASTER, PULSE));
+
+    use_magic(&mut world, CID, CASTER, AURA, false, false);
+    assert!(!has_buff(&world, CASTER, PULSE));
+}
+
+/// A hostile aura (`ENEMY` / `RANGE` / `NOT_FRIEND`) debuffs the monsters
+/// around the holder and leaves one far outside the range alone.
+#[test]
+fn an_enemy_aura_debuffs_the_monsters_in_range() {
+    let (mut world, _db, _l) = cast_test_world();
+    let mut pulse = aoe_skill(PULSE, AffectScope::Range, AffectObject::NotFriend, 300);
+    pulse.is_continuous = true;
+    pulse.abnormal_type = "AURA".into();
+    pulse.abnormal_time = 11;
+    let _out = switch_aura_on(&mut world, pulse);
+    let (a, b, far) = spawn_cluster(&mut world);
+
+    use_magic(&mut world, CID, CASTER, AURA, false, false);
+    world.tick += PULSE_INTERVAL;
+    apply_due_tasks(&mut world);
+    assert!(has_buff(&world, a, PULSE) && has_buff(&world, b, PULSE));
+    assert!(!has_buff(&world, far, PULSE));
+}
