@@ -120,10 +120,10 @@ pub fn teleport_to_location(object_id: i32, x: i32, y: i32, z: i32, heading: i32
     w.into_bytes()
 }
 
-/// Java `FlyType`, written as its ordinal. Only `Dummy` — "no effect", the
-/// straight slide with no animation — has a caller so far (`CallPc`); the rest
-/// are named because the ordinal *is* the wire value and a gap would silently
-/// shift them.
+/// Java `FlyType`, written as its ordinal. `Dummy` — "no effect", the straight
+/// slide with no animation — and `Charge` (the rush skills) have callers; the
+/// rest are named because the ordinal *is* the wire value and a gap would
+/// silently shift them.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
 pub enum FlyType {

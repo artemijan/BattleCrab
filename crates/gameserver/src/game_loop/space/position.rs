@@ -265,12 +265,12 @@ fn set_tele_mode(world: &mut World, object_id: i32, mode: crate::enums::AdminTel
     }
 }
 
-/// Java `Creature.setXYZ` + a `FlyToLocation` — move the player without a
+/// Java `Creature.setXYZ` + a `FlyToLocation` — move a creature without a
 /// teleport (no fade, no decay/respawn round trip) and let the clients animate
-/// the slide. `FlyToLocation`'s constructor arms `blinkActive`, which makes the
-/// next `ValidatePosition` skip its out-of-sync snap so the slide survives the
-/// client's stale position report.
-fn slide_to(
+/// the slide. `FlyToLocation`'s constructor arms `blinkActive` for a player,
+/// which makes the next `ValidatePosition` skip its out-of-sync snap so the
+/// slide survives the client's stale position report.
+pub(crate) fn slide_to(
     world: &mut World,
     object_id: i32,
     dest: (i32, i32, i32),
@@ -297,7 +297,11 @@ fn slide_to(
         object_id,
         &server_packets::fly_to_location(object_id, (from.x, from.y, from.z), dest, fly_type),
     );
-    super::visibility::update_region(world, object_id);
+    if world.objects.has_component::<Player>(&object_id) {
+        super::visibility::update_region(world, object_id);
+    } else {
+        super::visibility::update_npc_region(world, object_id);
+    }
     super::zones::revalidate_zone(world, object_id, false);
 }
 

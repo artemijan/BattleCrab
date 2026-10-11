@@ -288,6 +288,11 @@ fn check_use_conditions(world: &World, npc_oid: i32, skill: &Skill) -> bool {
     if abnormal::is_blocked_from_actions(world, npc_oid) {
         return false;
     }
+    // `skill.isFlyType() && caster.isMovementDisabled()` — a rooted NPC, or
+    // one whose template cannot move at all, does not rush.
+    if skill.fly.is_some() && super::ai::tactics::movement_disabled(world, npc_oid) {
+        return false;
+    }
     if let Some(reuses) = world
         .objects
         .get_component::<crate::model::components::skills::Reuses>(&npc_oid)

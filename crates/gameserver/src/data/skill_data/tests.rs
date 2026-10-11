@@ -1541,3 +1541,43 @@ fn every_recorded_decision_carries_a_reason() {
         );
     }
 }
+
+/// `SkillOperateType.isFlyType()`: DA1/DA2 are active casts that carry a rush,
+/// DA2 is additionally continuous, and an ordinary active carries none.
+#[test]
+fn rush_operate_types_are_castable_and_carry_a_fly() {
+    let xml = r#"
+    <list>
+        <skill id="994" toLevel="1" name="Rush">
+            <operateType>DA1</operateType>
+            <targetType>ENEMY</targetType>
+        </skill>
+        <skill id="793" toLevel="1" name="Rush Impact">
+            <operateType>DA2</operateType>
+            <targetType>ENEMY</targetType>
+        </skill>
+        <skill id="1177" toLevel="1" name="Wind Strike">
+            <operateType>A1</operateType>
+            <targetType>ENEMY_ONLY</targetType>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+    let fly = Some(skill::target::SkillFly::ToTarget);
+
+    let rush = &out.skills[&(994, 1)];
+    assert_eq!(rush.operate_type, skill::target::OperateType::Active);
+    assert_eq!(rush.fly, fly);
+    assert!(!rush.is_continuous);
+
+    let impact = &out.skills[&(793, 1)];
+    assert_eq!(impact.operate_type, skill::target::OperateType::Active);
+    assert_eq!(impact.fly, fly);
+    assert!(impact.is_continuous);
+
+    assert_eq!(out.skills[&(1177, 1)].fly, None);
+    assert!(
+        out.gaps.into_inner().operate_types.is_empty(),
+        "neither name is recorded as unhandled any more"
+    );
+}

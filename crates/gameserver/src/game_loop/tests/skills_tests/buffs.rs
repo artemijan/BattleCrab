@@ -48,6 +48,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         .insert_for_test(0, skill_learn(91, 1, "Defense Aura", 5, 100));
     data.skill_data.insert_for_test(Skill {
         self_continuous: false,
+        fly: None,
         basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),

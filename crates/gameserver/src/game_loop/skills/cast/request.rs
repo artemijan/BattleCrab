@@ -420,6 +420,14 @@ pub(crate) fn use_magic_on(
         return;
     }
 
+    // `checkUseConditions`' opening line: `skill.isFlyType() &&
+    // caster.isMovementDisabled()` — a rooted caster cannot rush. Bare
+    // ActionFailed, no message.
+    if skill.fly.is_some() && crate::game_loop::abnormal::is_movement_disabled(world, object_id) {
+        helpers::send_action_failed(world, client_id);
+        return;
+    }
+
     // MP/HP prechecks (`checkUseConditions`).
     // Java `checkUseConditions`: `getMpConsume(skill) + getMpInitialConsume(skill)`
     // — the consume is rate-scaled, the *initial* consume is not.

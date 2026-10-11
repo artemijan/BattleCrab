@@ -24,6 +24,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     // lvl 4, a DamOverTime debuff) and Cure Poison 1012 (DispelBySlot POISON,3).
     let poison = |level: i32, abnormal_level: i32| Skill {
         self_continuous: false,
+        fly: None,
         basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
@@ -97,6 +98,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     world.data.skill_data.insert_for_test(poison(4, 7));
     world.data.skill_data.insert_for_test(Skill {
         self_continuous: false,
+        fly: None,
         basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
@@ -228,6 +230,7 @@ mod dispel_by_category {
     fn base_skill(id: i32, name: &str) -> Skill {
         Skill {
             self_continuous: false,
+            fly: None,
             basic_property: model::skill::BasicProperty::None,
             conditions: Vec::new(),
             target_conditions: Vec::new(),

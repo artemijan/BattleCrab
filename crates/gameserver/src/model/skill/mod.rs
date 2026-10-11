@@ -212,6 +212,9 @@ pub struct Skill {
     /// Read only by [`active_buff::ActiveBuff::displayed`]; the effects themselves behave
     /// exactly like any other active skill's.
     pub self_continuous: bool,
+    /// Java `SkillOperateType.isFlyType()` — set for the rush skills, whose
+    /// cast moves the caster (`cast::fly`). `None` for everything else.
+    pub fly: Option<target::SkillFly>,
     /// Java `EffectScope.SELF` (`<selfEffects>`) — applied to the **caster**,
     /// as a separate `applyEffects(caster, caster, …)` after the target loop.
     /// Blinding Blow 321, Sonic Rage 345, Raging Force 346, Vengeance 368,
@@ -444,6 +447,7 @@ impl Default for Skill {
             removed_on_damage: false,
             effects: Vec::new(),
             self_continuous: false,
+            fly: None,
             self_effects: Vec::new(),
             pve_effects: Vec::new(),
             pvp_effects: Vec::new(),

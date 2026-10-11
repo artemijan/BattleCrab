@@ -298,7 +298,7 @@ mod hate;
 mod intentions;
 mod movement;
 pub(crate) mod perception;
-mod tactics;
+pub(super) mod tactics;
 mod think;
 
 use crate::game_loop::net::broadcast::broadcast_near_region_in;

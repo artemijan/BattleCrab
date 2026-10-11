@@ -73,7 +73,12 @@ pub(crate) fn build_skill(
             // 369, Critical Blow 409, Aura Flare 1231) and CA5 (Battle Stance
             // 426, Spell Stance 427) were seven learnable skills in exactly
             // that state.
-            Some("A1" | "A2" | "A3" | "A4" | "A5" | "A6") => skill::target::OperateType::Active,
+            //
+            // DA1/DA2 are `isActive()` too. What sets them apart is
+            // `isFlyType()`, carried separately as `fly` below.
+            Some("A1" | "A2" | "A3" | "A4" | "A5" | "A6" | "DA1" | "DA2") => {
+                skill::target::OperateType::Active
+            }
             Some("P") => skill::target::OperateType::Passive,
             Some("T") => skill::target::OperateType::Toggle,
             // `SkillOperateType.isChanneling()`: CA1, CA2, CA5.
@@ -84,6 +89,12 @@ pub(crate) fn build_skill(
                 }
                 skill::target::OperateType::Other
             }
+        };
+        // `SkillOperateType.isFlyType()` — the rush skills. DA3..DA5 belong to
+        // it as well and are still unhandled (they fall to `Other` above).
+        let fly = match value_at(values, "operateType", level) {
+            Some("DA1" | "DA2") => Some(skill::target::SkillFly::ToTarget),
+            _ => None,
         };
         // Java `SkillOperateType.isContinuous()` — the A2..A6/DA2..DA5 family.
         // `OperateType` above collapses A1 and A2 into `Active` (the cast
@@ -328,6 +339,7 @@ pub(crate) fn build_skill(
                 .is_some_and(|v| v.eq_ignore_ascii_case("true")),
             effects: skill_effects,
             self_continuous,
+            fly,
             self_effects,
             pve_effects,
             pvp_effects,

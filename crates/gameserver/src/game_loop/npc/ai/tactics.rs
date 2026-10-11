@@ -25,7 +25,7 @@ pub(super) fn ai_type_of(world: &World, npc_oid: i32) -> AiType {
 
 /// `Creature.isMovementDisabled()` for a monster: the abnormal states that pin
 /// it (root/stun/sleep/paralysis) *or* a template that cannot move at all.
-pub(super) fn movement_disabled(world: &World, npc_oid: i32) -> bool {
+pub(in crate::game_loop::npc) fn movement_disabled(world: &World, npc_oid: i32) -> bool {
     abnormal::is_movement_disabled(world, npc_oid)
         || !npc_template(world, npc_oid).is_some_and(|t| t.can_move)
 }

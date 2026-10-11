@@ -2,7 +2,8 @@
 //! its first target and then sweeps up everyone else around it.
 
 /// Java `SkillOperateType`, scoped to what the cast pipeline dispatches on.
-/// Everything else (`A3`, `DA*`, …) reads as `Other` and isn't castable yet.
+/// Everything else (`DA3`..`DA5`, `AU`, `TG`) reads as `Other` and isn't
+/// castable yet.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum OperateType {
     /// `A1`/`A2`: an active, targeted or self-cast skill with a cast bar.
@@ -19,6 +20,17 @@ pub enum OperateType {
     /// `CA5` doesn't occur on this dist's reachable content.
     Channeling,
     Other,
+}
+
+/// Java `SkillOperateType.isFlyType()` — where `SkillCaster.handleSkillFly`
+/// puts the caster as the cast launches. Carried beside [`OperateType`] rather
+/// than in it for the same reason `self_continuous` is: a rush is an ordinary
+/// active cast that additionally moves its caster.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum SkillFly {
+    /// `DA1`/`DA2`: onto the target — or `castRange` straight ahead when the
+    /// skill targets the caster.
+    ToTarget,
 }
 
 /// Java `TargetType`, scoped to the single-target types the cast pipeline

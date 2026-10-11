@@ -300,6 +300,8 @@ pub(crate) fn resolve_cast_target(
 /// verbatim by the player resolver above and the NPC resolver
 /// (`npc::cast::resolve_npc_cast_target`):
 ///
+/// - `Target`/`EnemyNot`'s rush gate — `skill.isFlyType() &&
+///   !GeoEngine.canMoveToTarget(...)` → SM 2187.
 /// - "Geodata check when character is within range" — `GeoEngine.canSeeTarget`
 ///   → CANNOT_SEE_TARGET, short-circuited to pass when the target is a door
 ///   (`target.isDoor() || canSeeTarget(...)`): a closed siege gate occludes
@@ -323,6 +325,19 @@ pub(crate) fn finalize_target(
     ) else {
         return Err(sm_ids::CANNOT_SEE_TARGET);
     };
+    // `Target.java`/`EnemyNot.java`, ahead of their LOS check: a rush needs a
+    // walkable straight line, not just a visible target. Only those two
+    // handlers carry it — `Enemy`/`EnemyOnly` do not, and rely on
+    // `handleSkillFly` stopping the caster at the last walkable point.
+    if skill.fly.is_some()
+        && matches!(skill.target_type, TargetType::Target | TargetType::EnemyNot)
+        && resolved != caster_oid
+        && !world
+            .geo
+            .can_move_to_target(from.x, from.y, from.z, to.x, to.y, to.z)
+    {
+        return Err(sm_ids::THE_TARGET_IS_LOCATED_WHERE_YOU_CANNOT_CHARGE);
+    }
     let target_is_door = world
         .objects
         .has_component::<crate::model::door::Door>(&resolved);
