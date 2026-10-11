@@ -227,21 +227,21 @@ fn parse(content: &str) -> Vec<ArmorSet> {
     loop {
         match reader.read_event_into(&mut buf) {
             Ok(Event::Start(e)) | Ok(Event::Empty(e)) => match e.name().as_ref() {
-                b"set" => {
-                    let id = attr_i32(&e, b"id").unwrap_or(-1);
+                "set" => {
+                    let id = attr_i32(&e, "id").unwrap_or(-1);
                     cur = Some(ArmorSet {
                         id,
-                        minimum_pieces: attr_i32(&e, b"minimumPieces").unwrap_or(0),
-                        visual: attr_str(&e, b"visual").as_deref() == Some("true"),
+                        minimum_pieces: attr_i32(&e, "minimumPieces").unwrap_or(0),
+                        visual: attr_str(&e, "visual").as_deref() == Some("true"),
                         ..Default::default()
                     });
                     list = ItemList::None;
                 }
-                b"requiredItems" => list = ItemList::Required,
-                b"optionalItems" => list = ItemList::Optional,
-                b"item" => {
+                "requiredItems" => list = ItemList::Required,
+                "optionalItems" => list = ItemList::Optional,
+                "item" => {
                     if let Some(set) = cur.as_mut()
-                        && let Some(id) = attr_i32(&e, b"id")
+                        && let Some(id) = attr_i32(&e, "id")
                     {
                         // Java uses a `LinkedHashSet` and warns on a duplicate;
                         // keep insertion order and drop repeats.
@@ -257,24 +257,24 @@ fn parse(content: &str) -> Vec<ArmorSet> {
                         }
                     }
                 }
-                b"skill" => {
+                "skill" => {
                     if let Some(set) = cur.as_mut()
                         && let (Some(skill_id), Some(level)) =
-                            (attr_i32(&e, b"id"), attr_i32(&e, b"level"))
+                            (attr_i32(&e, "id"), attr_i32(&e, "level"))
                     {
                         set.skills.push(ArmorSetSkill {
                             skill_id,
                             level,
-                            minimum_pieces: attr_i32(&e, b"minimumPieces")
+                            minimum_pieces: attr_i32(&e, "minimumPieces")
                                 .unwrap_or(set.minimum_pieces),
-                            minimum_enchant: attr_i32(&e, b"minimumEnchant").unwrap_or(0),
-                            optional: attr_str(&e, b"optional").as_deref() == Some("true"),
+                            minimum_enchant: attr_i32(&e, "minimumEnchant").unwrap_or(0),
+                            optional: attr_str(&e, "optional").as_deref() == Some("true"),
                         });
                     }
                 }
-                b"stat" => {
+                "stat" => {
                     if let Some(set) = cur.as_mut()
-                        && let (Some(ty), Some(val)) = (attr_str(&e, b"type"), attr_f64(&e, b"val"))
+                        && let (Some(ty), Some(val)) = (attr_str(&e, "type"), attr_f64(&e, "val"))
                     {
                         set.stats.set(&ty, val);
                     }
@@ -282,14 +282,14 @@ fn parse(content: &str) -> Vec<ArmorSet> {
                 _ => {}
             },
             Ok(Event::End(e)) => match e.name().as_ref() {
-                b"set" => {
+                "set" => {
                     if let Some(set) = cur.take()
                         && set.id >= 0
                     {
                         out.push(set);
                     }
                 }
-                b"requiredItems" | b"optionalItems" => list = ItemList::None,
+                "requiredItems" | "optionalItems" => list = ItemList::None,
                 _ => {}
             },
             Ok(Event::Eof) => break,

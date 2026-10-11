@@ -148,31 +148,30 @@ fn parse(content: &str) -> HashMap<i32, Vec<Seed>> {
     let mut buf = Vec::new();
     loop {
         match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(e)) if e.name().as_ref() == b"castle" => {
-                castle_id = attr_i32(&e, b"id").unwrap_or(0);
+            Ok(Event::Start(e)) if e.name().as_ref() == "castle" => {
+                castle_id = attr_i32(&e, "id").unwrap_or(0);
             }
-            Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"crop" => {
-                if let (Some(crop_id), Some(seed_id)) =
-                    (attr_i32(&e, b"id"), attr_i32(&e, b"seedId"))
+            Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == "crop" => {
+                if let (Some(crop_id), Some(seed_id)) = (attr_i32(&e, "id"), attr_i32(&e, "seedId"))
                 {
                     let alternative = e
                         .attributes()
                         .flatten()
-                        .find(|a| a.key.as_ref() == b"alternative")
-                        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
+                        .find(|a| a.key.as_ref() == "alternative")
+                        .map(|a| a.value.into_owned())
                         .as_deref()
                         == Some("true");
                     out.entry(castle_id).or_default().push(Seed {
                         castle_id,
                         seed_id,
                         crop_id,
-                        mature_id: attr_i32(&e, b"mature_Id").unwrap_or(0),
-                        level: attr_i32(&e, b"level").unwrap_or(0),
-                        reward1: attr_i32(&e, b"reward1").unwrap_or(0),
-                        reward2: attr_i32(&e, b"reward2").unwrap_or(0),
+                        mature_id: attr_i32(&e, "mature_Id").unwrap_or(0),
+                        level: attr_i32(&e, "level").unwrap_or(0),
+                        reward1: attr_i32(&e, "reward1").unwrap_or(0),
+                        reward2: attr_i32(&e, "reward2").unwrap_or(0),
                         alternative,
-                        limit_seeds: attr_i32(&e, b"limit_seed").unwrap_or(0),
-                        limit_crops: attr_i32(&e, b"limit_crops").unwrap_or(0),
+                        limit_seeds: attr_i32(&e, "limit_seed").unwrap_or(0),
+                        limit_crops: attr_i32(&e, "limit_crops").unwrap_or(0),
                     });
                 }
             }

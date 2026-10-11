@@ -596,13 +596,13 @@ fn parse_file(path: &std::path::Path, out: &mut ParsedSkills) {
 pub(crate) fn effect_level_attrs(
     e: &quick_xml::events::BytesStart,
 ) -> (Option<i32>, Option<i32>, Option<i32>, Option<i32>) {
-    let level = attr_i32(e, b"level");
-    let sub_level = attr_i32(e, b"subLevel");
+    let level = attr_i32(e, "level");
+    let sub_level = attr_i32(e, "subLevel");
     (
-        attr_i32(e, b"fromLevel").or(level),
-        attr_i32(e, b"toLevel").or(level),
-        attr_i32(e, b"fromSubLevel").or(sub_level),
-        attr_i32(e, b"toSubLevel").or(sub_level),
+        attr_i32(e, "fromLevel").or(level),
+        attr_i32(e, "toLevel").or(level),
+        attr_i32(e, "fromSubLevel").or(sub_level),
+        attr_i32(e, "toSubLevel").or(sub_level),
     )
 }
 
@@ -623,16 +623,16 @@ pub(crate) struct RangedRow {
 /// (or bare) row. `fromLevel` defaults to 1 and `toLevel` to "all levels",
 /// matching Java's `parseValues` defaults.
 pub(crate) fn ranged_bounds(e: &quick_xml::events::BytesStart) -> Option<RangedRow> {
-    let from_level = attr_i32(e, b"fromLevel");
-    let from_sub = attr_i32(e, b"fromSubLevel");
+    let from_level = attr_i32(e, "fromLevel");
+    let from_sub = attr_i32(e, "fromSubLevel");
     if from_level.is_none() && from_sub.is_none() {
         return None;
     }
     Some(RangedRow {
         from_level: from_level.unwrap_or(1),
-        to_level: attr_i32(e, b"toLevel").unwrap_or(i32::MAX),
+        to_level: attr_i32(e, "toLevel").unwrap_or(i32::MAX),
         from_sub: from_sub.unwrap_or(0),
-        to_sub: attr_i32(e, b"toSubLevel").or(from_sub).unwrap_or(0),
+        to_sub: attr_i32(e, "toSubLevel").or(from_sub).unwrap_or(0),
         text: String::new(),
     })
 }

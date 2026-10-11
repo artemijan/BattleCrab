@@ -26,14 +26,14 @@ impl PlayerXpPercentLostData {
         if let Ok(content) = std::fs::read_to_string(format!("{file_path}{XP_LOST_FILE}")) {
             for event in xml::events(&content) {
                 match event {
-                    Event::Empty(e) | Event::Start(e) if e.name().as_ref() == b"xpLost" => {
+                    Event::Empty(e) | Event::Start(e) if e.name().as_ref() == "xpLost" => {
                         let mut level = 0usize;
                         let mut val = DEFAULT_XP_PERCENT_LOST;
                         for a in e.attributes().flatten() {
-                            let v = String::from_utf8_lossy(&a.value).into_owned();
+                            let v = a.value.into_owned();
                             match a.key.as_ref() {
-                                b"level" => level = v.parse().unwrap_or(0),
-                                b"val" => val = v.parse().unwrap_or(DEFAULT_XP_PERCENT_LOST),
+                                "level" => level = v.parse().unwrap_or(0),
+                                "val" => val = v.parse().unwrap_or(DEFAULT_XP_PERCENT_LOST),
                                 _ => {}
                             }
                         }

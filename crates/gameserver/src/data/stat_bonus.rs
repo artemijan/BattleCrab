@@ -32,23 +32,19 @@ impl StatBonus {
         loop {
             match reader.read_event() {
                 Ok(Event::Start(e)) => {
-                    let name = String::from_utf8_lossy(e.name().as_ref()).into_owned();
+                    let name = e.name().as_ref().to_owned();
                     if name != "list" {
                         current = Some(name);
                     }
                 }
-                Ok(Event::Empty(e)) if e.name().as_ref() == b"stat" => {
+                Ok(Event::Empty(e)) if e.name().as_ref() == "stat" => {
                     if let Some(stat) = &current {
                         let mut value = 0usize;
                         let mut b = 1.0f64;
                         for a in e.attributes().flatten() {
                             match a.key.as_ref() {
-                                b"value" => {
-                                    value = String::from_utf8_lossy(&a.value).parse().unwrap_or(0)
-                                }
-                                b"bonus" => {
-                                    b = String::from_utf8_lossy(&a.value).parse().unwrap_or(1.0)
-                                }
+                                "value" => value = a.value.parse().unwrap_or(0),
+                                "bonus" => b = a.value.parse().unwrap_or(1.0),
                                 _ => {}
                             }
                         }
@@ -60,7 +56,7 @@ impl StatBonus {
                     }
                 }
                 Ok(Event::End(e)) => {
-                    if current.as_deref() == Some(&String::from_utf8_lossy(e.name().as_ref())) {
+                    if current.as_deref() == Some(e.name().as_ref()) {
                         current = None;
                     }
                 }

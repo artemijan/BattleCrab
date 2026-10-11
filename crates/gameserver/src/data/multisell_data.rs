@@ -214,45 +214,45 @@ fn parse_file(
     for event in xml::events(&content) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
-                let attr = |key: &[u8]| attr_str(&e, key);
+                let attr = |key: &str| attr_str(&e, key);
                 match e.name().as_ref() {
-                    b"list" => {
-                        let b = |k: &[u8]| {
+                    "list" => {
+                        let b = |k: &str| {
                             attr(k)
                                 .map(|v| v.eq_ignore_ascii_case("true"))
                                 .unwrap_or(false)
                         };
-                        list.is_chance_multisell = b(b"isChanceMultisell");
-                        list.apply_taxes = b(b"applyTaxes");
-                        list.maintain_enchantment = b(b"maintainEnchantment");
-                        list.ingredient_multiplier = attr(b"ingredientMultiplier")
+                        list.is_chance_multisell = b("isChanceMultisell");
+                        list.apply_taxes = b("applyTaxes");
+                        list.maintain_enchantment = b("maintainEnchantment");
+                        list.ingredient_multiplier = attr("ingredientMultiplier")
                             .and_then(|v| v.parse().ok())
                             .unwrap_or(1.0);
-                        list.product_multiplier = attr(b"productMultiplier")
+                        list.product_multiplier = attr("productMultiplier")
                             .and_then(|v| v.parse().ok())
                             .unwrap_or(1.0);
                     }
-                    b"npcs" => npcs = Some(HashSet::new()),
-                    b"npc" => in_npc = true,
-                    b"item" => {
+                    "npcs" => npcs = Some(HashSet::new()),
+                    "npc" => in_npc = true,
+                    "item" => {
                         cur = Some(MultisellEntry {
                             ingredients: Vec::new(),
                             products: Vec::new(),
                             stackable: true,
                         })
                     }
-                    b"ingredient" => {
+                    "ingredient" => {
                         if let Some(entry) = cur.as_mut() {
-                            let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
+                            let Some(id) = attr("id").and_then(|v| v.parse::<i32>().ok()) else {
                                 continue;
                             };
-                            let count = attr(b"count")
+                            let count = attr("count")
                                 .and_then(|v| v.parse::<i64>().ok())
                                 .unwrap_or(0);
-                            let enchant_level = attr(b"enchantmentLevel")
+                            let enchant_level = attr("enchantmentLevel")
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(0);
-                            let maintain = attr(b"maintainIngredient")
+                            let maintain = attr("maintainIngredient")
                                 .map(|v| v.eq_ignore_ascii_case("true"))
                                 .unwrap_or(false);
                             if item_exists(id, count, items) {
@@ -269,16 +269,16 @@ fn parse_file(
                             }
                         }
                     }
-                    b"production" => {
+                    "production" => {
                         if let Some(entry) = cur.as_mut() {
-                            let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
+                            let Some(id) = attr("id").and_then(|v| v.parse::<i32>().ok()) else {
                                 continue;
                             };
-                            let count = attr(b"count")
+                            let count = attr("count")
                                 .and_then(|v| v.parse::<i64>().ok())
                                 .unwrap_or(0);
-                            let chance = attr(b"chance").and_then(|v| v.parse::<f64>().ok());
-                            let enchant_level = attr(b"enchantmentLevel")
+                            let chance = attr("chance").and_then(|v| v.parse::<f64>().ok());
+                            let enchant_level = attr("enchantmentLevel")
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(0);
                             if let Some(c) = chance
@@ -312,18 +312,13 @@ fn parse_file(
                 }
             }
             Event::Text(t) if in_npc => {
-                if let (Some(set), Ok(id)) = (
-                    npcs.as_mut(),
-                    String::from_utf8_lossy(&t.into_inner())
-                        .trim()
-                        .parse::<i32>(),
-                ) {
+                if let (Some(set), Ok(id)) = (npcs.as_mut(), t.into_inner().trim().parse::<i32>()) {
                     set.insert(id);
                 }
             }
             Event::End(e) => match e.name().as_ref() {
-                b"npc" => in_npc = false,
-                b"item" => {
+                "npc" => in_npc = false,
+                "item" => {
                     if let Some(mut entry) = cur.take() {
                         if correct_prices {
                             correct_entry_price(&mut entry, items, list_id);

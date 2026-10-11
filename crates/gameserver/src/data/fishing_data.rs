@@ -135,38 +135,37 @@ impl FishingData {
         for ev in xml::events(content) {
             match ev {
                 Event::Start(e) | Event::Empty(e) => {
-                    let attr = |key: &[u8]| attr_str(&e, key);
-                    let num = |key: &[u8]| attr(key).and_then(|v| v.parse::<i32>().ok());
-                    let flt = |key: &[u8]| attr(key).and_then(|v| v.parse::<f64>().ok());
+                    let attr = |key: &str| attr_str(&e, key);
+                    let num = |key: &str| attr(key).and_then(|v| v.parse::<i32>().ok());
+                    let flt = |key: &str| attr(key).and_then(|v| v.parse::<f64>().ok());
                     match e.name().as_ref() {
-                        b"baitDistance" => {
-                            self.bait_distance_min = num(b"min").unwrap_or(90);
-                            self.bait_distance_max = num(b"max").unwrap_or(250);
+                        "baitDistance" => {
+                            self.bait_distance_min = num("min").unwrap_or(90);
+                            self.bait_distance_max = num("max").unwrap_or(250);
                         }
-                        b"xpRate" => {
-                            self.xp_rate_min = flt(b"min").unwrap_or(0.033);
-                            self.xp_rate_max = flt(b"max").unwrap_or(self.xp_rate_min);
+                        "xpRate" => {
+                            self.xp_rate_min = flt("min").unwrap_or(0.033);
+                            self.xp_rate_max = flt("max").unwrap_or(self.xp_rate_min);
                         }
-                        b"spRate" => {
-                            self.sp_rate_min = flt(b"min").unwrap_or(0.033);
-                            self.sp_rate_max = flt(b"max").unwrap_or(self.sp_rate_min);
+                        "spRate" => {
+                            self.sp_rate_min = flt("min").unwrap_or(0.033);
+                            self.sp_rate_max = flt("max").unwrap_or(self.sp_rate_min);
                         }
-                        b"bait" => {
-                            if let Some(item_id) = num(b"itemId") {
-                                let time_min = num(b"timeMin").unwrap_or(0);
-                                let wait_min = num(b"waitMin").unwrap_or(0);
+                        "bait" => {
+                            if let Some(item_id) = num("itemId") {
+                                let time_min = num("timeMin").unwrap_or(0);
+                                let wait_min = num("waitMin").unwrap_or(0);
                                 cur_bait = Some((
                                     item_id,
                                     FishingBait {
-                                        min_player_level: num(b"minPlayerLevel").unwrap_or(1),
-                                        max_player_level: num(b"maxPlayerLevel")
-                                            .unwrap_or(i32::MAX),
-                                        chance: num(b"chance").unwrap_or(0),
+                                        min_player_level: num("minPlayerLevel").unwrap_or(1),
+                                        max_player_level: num("maxPlayerLevel").unwrap_or(i32::MAX),
+                                        chance: num("chance").unwrap_or(0),
                                         time_min,
-                                        time_max: num(b"timeMax").unwrap_or(time_min),
+                                        time_max: num("timeMax").unwrap_or(time_min),
                                         wait_min,
-                                        wait_max: num(b"waitMax").unwrap_or(wait_min),
-                                        premium_only: attr(b"isPremiumOnly")
+                                        wait_max: num("waitMax").unwrap_or(wait_min),
+                                        premium_only: attr("isPremiumOnly")
                                             .map(|s| s == "true")
                                             .unwrap_or(false),
                                         catches: Vec::new(),
@@ -174,25 +173,25 @@ impl FishingData {
                                 ));
                             }
                         }
-                        b"catch" => {
+                        "catch" => {
                             if let (Some((_, bait)), Some(item_id)) =
-                                (cur_bait.as_mut(), num(b"itemId"))
+                                (cur_bait.as_mut(), num("itemId"))
                             {
                                 bait.catches.push(FishingCatch {
                                     item_id,
-                                    chance: num(b"chance").unwrap_or(0),
-                                    multiplier: num(b"multiplier").unwrap_or(1),
+                                    chance: num("chance").unwrap_or(0),
+                                    multiplier: num("multiplier").unwrap_or(1),
                                 });
                             }
                         }
-                        b"rod" => {
-                            if let Some(item_id) = num(b"itemId") {
+                        "rod" => {
+                            if let Some(item_id) = num("itemId") {
                                 self.rods.insert(
                                     item_id,
                                     FishingRod {
-                                        reduce_fishing_time: num(b"reduceFishingTime").unwrap_or(0),
-                                        xp_multiplier: flt(b"xpMultiplier").unwrap_or(1.0),
-                                        sp_multiplier: flt(b"spMultiplier").unwrap_or(1.0),
+                                        reduce_fishing_time: num("reduceFishingTime").unwrap_or(0),
+                                        xp_multiplier: flt("xpMultiplier").unwrap_or(1.0),
+                                        sp_multiplier: flt("spMultiplier").unwrap_or(1.0),
                                     },
                                 );
                             }
@@ -201,7 +200,7 @@ impl FishingData {
                     }
                 }
                 Event::End(e) => {
-                    if e.name().as_ref() == b"bait"
+                    if e.name().as_ref() == "bait"
                         && let Some((id, bait)) = cur_bait.take()
                     {
                         self.baits.insert(id, bait);

@@ -145,12 +145,12 @@ impl HennaData {
         for event in xml::events(content) {
             match event {
                 Event::Start(e) | Event::Empty(e) => {
-                    let attr = |key: &[u8]| attr_str(&e, key);
-                    let num = |key: &[u8]| attr(key).and_then(|v| v.parse::<i64>().ok());
+                    let attr = |key: &str| attr_str(&e, key);
+                    let num = |key: &str| attr(key).and_then(|v| v.parse::<i64>().ok());
                     match e.name().as_ref() {
-                        b"henna" => {
+                        "henna" => {
                             let (Some(dye_id), Some(dye_item_id)) =
-                                (num(b"dyeId"), num(b"dyeItemId"))
+                                (num("dyeId"), num("dyeItemId"))
                             else {
                                 cur = None;
                                 continue;
@@ -171,26 +171,26 @@ impl HennaData {
                                 wear_classes: Vec::new(),
                             });
                         }
-                        b"stats" => {
+                        "stats" => {
                             if let Some(h) = cur.as_mut() {
-                                h.str_ = num(b"str").unwrap_or(0) as i32;
-                                h.con = num(b"con").unwrap_or(0) as i32;
-                                h.dex = num(b"dex").unwrap_or(0) as i32;
-                                h.int_ = num(b"int").unwrap_or(0) as i32;
-                                h.men = num(b"men").unwrap_or(0) as i32;
-                                h.wit = num(b"wit").unwrap_or(0) as i32;
+                                h.str_ = num("str").unwrap_or(0) as i32;
+                                h.con = num("con").unwrap_or(0) as i32;
+                                h.dex = num("dex").unwrap_or(0) as i32;
+                                h.int_ = num("int").unwrap_or(0) as i32;
+                                h.men = num("men").unwrap_or(0) as i32;
+                                h.wit = num("wit").unwrap_or(0) as i32;
                             }
                         }
-                        b"wear" => {
+                        "wear" => {
                             if let Some(h) = cur.as_mut() {
-                                h.wear_count = num(b"count").unwrap_or(0);
-                                h.wear_fee = num(b"fee").unwrap_or(0);
+                                h.wear_count = num("count").unwrap_or(0);
+                                h.wear_fee = num("fee").unwrap_or(0);
                             }
                         }
-                        b"cancel" => {
+                        "cancel" => {
                             if let Some(h) = cur.as_mut() {
-                                h.cancel_count = num(b"count").unwrap_or(0);
-                                h.cancel_fee = num(b"fee").unwrap_or(0);
+                                h.cancel_count = num("count").unwrap_or(0);
+                                h.cancel_fee = num("fee").unwrap_or(0);
                             }
                         }
                         // <duration>/<skill> are absent on Interlude dyes; ignored.
@@ -200,13 +200,13 @@ impl HennaData {
                 // `<classId>N</classId>`: the text child is the allowed class id.
                 Event::Text(t) => {
                     if let Some(h) = cur.as_mut()
-                        && let Ok(s) = t.unescape()
+                        && let s = t.into_inner()
                         && let Ok(id) = s.trim().parse::<i32>()
                     {
                         h.wear_classes.push(id);
                     }
                 }
-                Event::End(e) if e.name().as_ref() == b"henna" => {
+                Event::End(e) if e.name().as_ref() == "henna" => {
                     if let Some(h) = cur.take() {
                         self.hennas.insert(h.dye_id, h);
                     }

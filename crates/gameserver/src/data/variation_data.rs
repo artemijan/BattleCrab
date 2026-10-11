@@ -23,7 +23,7 @@
 use std::collections::HashMap;
 
 use crate::data::xml;
-use crate::data::xml::attr_strict as attr;
+use crate::data::xml::attr_str as attr;
 use quick_xml::events::Event;
 use tracing::info;
 
@@ -227,8 +227,8 @@ impl VariationData {
         for event in xml::events(content) {
             match event {
                 Event::Start(e) | Event::Empty(e) => match e.name().as_ref() {
-                    b"variation" => cur_mineral = attr(&e, "mineralId").and_then(parse_i32),
-                    b"optionGroup" => {
+                    "variation" => cur_mineral = attr(&e, "mineralId").and_then(parse_i32),
+                    "optionGroup" => {
                         cur_kind = match attr(&e, "weaponType").as_deref() {
                             Some("mage") => WeaponKind::Mage,
                             _ => WeaponKind::Warrior,
@@ -236,13 +236,13 @@ impl VariationData {
                         cur_order = attr(&e, "order").and_then(parse_i32).unwrap_or(0) as usize;
                         cur_group = OptionGroup::default();
                     }
-                    b"optionCategory" => {
+                    "optionCategory" => {
                         cur_category = OptionCategory {
                             chance: attr(&e, "chance").and_then(parse_f64).unwrap_or(0.0),
                             options: Vec::new(),
                         };
                     }
-                    b"option" => {
+                    "option" => {
                         if let (Some(id), chance) = (
                             attr(&e, "id").and_then(parse_i32),
                             attr(&e, "chance").and_then(parse_f64).unwrap_or(0.0),
@@ -250,7 +250,7 @@ impl VariationData {
                             cur_category.options.push((id, chance));
                         }
                     }
-                    b"optionRange" => {
+                    "optionRange" => {
                         if let (Some(from), Some(to), chance) = (
                             attr(&e, "from").and_then(parse_i32),
                             attr(&e, "to").and_then(parse_i32),
@@ -261,16 +261,16 @@ impl VariationData {
                             }
                         }
                     }
-                    b"itemGroup" => {
+                    "itemGroup" => {
                         cur_group_id = attr(&e, "id").and_then(parse_i32);
                         cur_items = Vec::new();
                     }
-                    b"item" => {
+                    "item" => {
                         if let Some(id) = attr(&e, "id").and_then(parse_i32) {
                             cur_items.push(id);
                         }
                     }
-                    b"fee" => {
+                    "fee" => {
                         let group_id = attr(&e, "itemGroup").and_then(parse_i32).unwrap_or(0);
                         let fee = VariationFee {
                             item_id: attr(&e, "itemId").and_then(parse_i32).unwrap_or(0),
@@ -282,12 +282,12 @@ impl VariationData {
                         cur_fee = Some((group_id, fee));
                         cur_fee_minerals = Vec::new();
                     }
-                    b"mineral" => {
+                    "mineral" => {
                         if let Some(id) = attr(&e, "id").and_then(parse_i32) {
                             cur_fee_minerals.push(id);
                         }
                     }
-                    b"mineralRange" => {
+                    "mineralRange" => {
                         if let (Some(from), Some(to)) = (
                             attr(&e, "from").and_then(parse_i32),
                             attr(&e, "to").and_then(parse_i32),
@@ -298,10 +298,10 @@ impl VariationData {
                     _ => {}
                 },
                 Event::End(e) => match e.name().as_ref() {
-                    b"optionCategory" => {
+                    "optionCategory" => {
                         cur_group.categories.push(std::mem::take(&mut cur_category))
                     }
-                    b"optionGroup" => {
+                    "optionGroup" => {
                         let slot = cur_order.min(1);
                         let group = std::mem::take(&mut cur_group);
                         match cur_kind {
@@ -309,18 +309,18 @@ impl VariationData {
                             WeaponKind::Mage => cur_variation.mage[slot] = Some(group),
                         }
                     }
-                    b"variation" => {
+                    "variation" => {
                         if let Some(mineral) = cur_mineral.take() {
                             self.variations
                                 .insert(mineral, std::mem::take(&mut cur_variation));
                         }
                     }
-                    b"itemGroup" => {
+                    "itemGroup" => {
                         if let Some(id) = cur_group_id.take() {
                             item_groups.insert(id, std::mem::take(&mut cur_items));
                         }
                     }
-                    b"fee" => {
+                    "fee" => {
                         if let Some((group_id, fee)) = cur_fee.take()
                             && let Some(items) = item_groups.get(&group_id)
                         {

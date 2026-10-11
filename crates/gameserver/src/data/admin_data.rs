@@ -122,42 +122,42 @@ impl AdminData {
                 Event::Start(e) | Event::Empty(e) => e,
                 _ => continue,
             };
-            if e.name().as_ref() != b"access" {
+            if e.name().as_ref() != "access" {
                 continue;
             }
-            let attr = |key: &[u8]| attr_str(&e, key);
-            let get_i32 = |key: &[u8], default: i32| {
+            let attr = |key: &str| attr_str(&e, key);
+            let get_i32 = |key: &str, default: i32| {
                 attr(key)
                     .and_then(|v| v.parse::<i32>().ok())
                     .unwrap_or(default)
             };
-            let get_bool = |key: &[u8], default: bool| {
+            let get_bool = |key: &str, default: bool| {
                 attr(key)
                     .map(|v| v.eq_ignore_ascii_case("true"))
                     .unwrap_or(default)
             };
-            let get_color = |key: &[u8]| {
+            let get_color = |key: &str| {
                 attr(key)
                     .and_then(|v| i32::from_str_radix(v.trim_start_matches("0x"), 16).ok())
                     .unwrap_or(DEFAULT_COLOR)
             };
-            let Some(level) = attr(b"level").and_then(|v| v.parse::<i32>().ok()) else {
+            let Some(level) = attr("level").and_then(|v| v.parse::<i32>().ok()) else {
                 continue;
             };
             let access = AccessLevel {
                 level,
-                name: attr(b"name").unwrap_or_default(),
-                name_color: get_color(b"nameColor"),
-                title_color: get_color(b"titleColor"),
-                child: get_i32(b"childAccess", 0),
-                is_gm: get_bool(b"isGM", false),
-                allow_peace_attack: get_bool(b"allowPeaceAttack", false),
-                allow_fixed_res: get_bool(b"allowFixedRes", false),
-                allow_transaction: get_bool(b"allowTransaction", true),
-                allow_alt_g: get_bool(b"allowAltg", false),
-                give_damage: get_bool(b"giveDamage", true),
-                take_aggro: get_bool(b"takeAggro", true),
-                gain_exp: get_bool(b"gainExp", true),
+                name: attr("name").unwrap_or_default(),
+                name_color: get_color("nameColor"),
+                title_color: get_color("titleColor"),
+                child: get_i32("childAccess", 0),
+                is_gm: get_bool("isGM", false),
+                allow_peace_attack: get_bool("allowPeaceAttack", false),
+                allow_fixed_res: get_bool("allowFixedRes", false),
+                allow_transaction: get_bool("allowTransaction", true),
+                allow_alt_g: get_bool("allowAltg", false),
+                give_damage: get_bool("giveDamage", true),
+                take_aggro: get_bool("takeAggro", true),
+                gain_exp: get_bool("gainExp", true),
             };
             if level > self.highest_level {
                 self.highest_level = level;
@@ -176,17 +176,17 @@ impl AdminData {
                 Event::Start(e) | Event::Empty(e) => e,
                 _ => continue,
             };
-            if e.name().as_ref() != b"admin" {
+            if e.name().as_ref() != "admin" {
                 continue;
             }
-            let attr = |key: &[u8]| attr_str(&e, key);
-            let Some(command) = attr(b"command") else {
+            let attr = |key: &str| attr_str(&e, key);
+            let Some(command) = attr("command") else {
                 continue;
             };
-            let access_level = attr(b"accessLevel")
+            let access_level = attr("accessLevel")
                 .and_then(|v| v.parse::<i32>().ok())
                 .unwrap_or(7);
-            let require_confirm = attr(b"confirmDlg")
+            let require_confirm = attr("confirmDlg")
                 .map(|v| v.eq_ignore_ascii_case("true"))
                 .unwrap_or(false);
             // Key on the lowercased command: L2J's handlers dispatch on

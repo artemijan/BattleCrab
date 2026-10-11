@@ -92,14 +92,14 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                 // Start/End pair fires for an `Empty`, so the coverage record
                 // has to happen here as well or the census under-reports.
                 if path.len() == 2
-                    && e.name().as_ref() == b"condition"
+                    && e.name().as_ref() == "condition"
                     && let Some(block) = &cond_block
                 {
                     // No Start/End pair fires for an `Empty`, so the param-less
                     // condition has to be pushed here or it is lost — which is
                     // most of them (`CanSummon`, `EquipShield`, `OpCanEscape`…).
                     if let (Some(scope), Some(name)) =
-                        (CondScope::from_xml(block), attr_str(&e, b"name"))
+                        (CondScope::from_xml(block), attr_str(&e, "name"))
                     {
                         conditions.push(ParsedCondition {
                             scope,
@@ -118,25 +118,25 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                 if in_effects
                     && cur_effect_field == "items"
                     && path.len() == 5
-                    && e.name().as_ref() == b"item"
+                    && e.name().as_ref() == "item"
                 {
                     if let (Some(item_id), Some(count)) =
-                        (attr_i32(&e, b"id"), attr_i64(&e, b"count"))
+                        (attr_i32(&e, "id"), attr_i64(&e, "count"))
                     {
                         cur_group_items.push(RestorationItem {
                             item_id,
                             count,
-                            min_enchant: attr_i32(&e, b"minEnchant").unwrap_or(0),
-                            max_enchant: attr_i32(&e, b"maxEnchant").unwrap_or(0),
+                            min_enchant: attr_i32(&e, "minEnchant").unwrap_or(0),
+                            max_enchant: attr_i32(&e, "maxEnchant").unwrap_or(0),
                         });
                     }
-                } else if in_effects && path.len() == 2 && e.name().as_ref() == b"effect" {
+                } else if in_effects && path.len() == 2 && e.name().as_ref() == "effect" {
                     // A param-less self-closing `<effect name="X" />` (Spoil,
                     // Sweeper, ConsumeBody, …). No Start/End pair fires for an
                     // `Empty` element, so capture it here with empty params —
                     // otherwise the effect is silently dropped and the skill
                     // becomes a no-op.
-                    if let Some(effect_name) = attr_str(&e, b"name") {
+                    if let Some(effect_name) = attr_str(&e, "name") {
                         if cur_scope == EffectScope::Other {
                             record_dropped_scope(
                                 &mut out.gaps.borrow_mut(),
@@ -165,7 +165,7 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                 }
             }
             Event::Start(e) => {
-                let name = String::from_utf8_lossy(e.name().as_ref()).into_owned();
+                let name = e.name().as_ref().to_owned();
 
                 // Coverage record (PLAN_G34 §S0) — every `<condition>` in any
                 // of the three scopes, ported or not; `record_condition` drops
@@ -179,9 +179,9 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                         // to `<skill>`, see its matching End guard below.
                         continue;
                     }
-                    skill_id = attr_i32(&e, b"id").unwrap_or(-1);
-                    skill_name = attr_str(&e, b"name").unwrap_or_default();
-                    to_level = attr_i32(&e, b"toLevel").unwrap_or(1).max(1);
+                    skill_id = attr_i32(&e, "id").unwrap_or(-1);
+                    skill_name = attr_str(&e, "name").unwrap_or_default();
+                    to_level = attr_i32(&e, "toLevel").unwrap_or(1).max(1);
                     values.clear();
                     effects.clear();
                     conditions.clear();
@@ -201,14 +201,14 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                     }
                 } else if path.len() == 2 && name == "value" && !in_effects && cond_block.is_none()
                 {
-                    pending_level = attr_i32(&e, b"level").unwrap_or(0);
+                    pending_level = attr_i32(&e, "level").unwrap_or(0);
                     pending_range = ranged_bounds(&e);
                 } else if path.len() == 2 && cond_block.is_some() && name == "condition" {
-                    cur_cond_name = attr_str(&e, b"name");
+                    cur_cond_name = attr_str(&e, "name");
                 } else if path.len() == 4 && cond_block.is_some() && name == "value" {
                     // `<condition><amount><value level="2">…` — same shape as an
                     // effect param one level shallower.
-                    pending_level = attr_i32(&e, b"level").unwrap_or(0);
+                    pending_level = attr_i32(&e, "level").unwrap_or(0);
                     pending_range = ranged_bounds(&e);
                 } else if path.len() == 3 && cond_block.is_some() {
                     cur_cond_field = name.clone();
@@ -217,11 +217,11 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                         record_dropped_scope(
                             &mut out.gaps.borrow_mut(),
                             &cur_field,
-                            attr_str(&e, b"name").as_deref(),
+                            attr_str(&e, "name").as_deref(),
                             skill_id,
                         );
                     }
-                    cur_effect_name = attr_str(&e, b"name");
+                    cur_effect_name = attr_str(&e, "name");
                     cur_effect_levels = effect_level_attrs(&e);
                     cur_effect_params = HashMap::new();
                     cur_effect_mode = String::from("DIFF");
@@ -232,7 +232,7 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                 } else if path.len() == 3 && in_effects {
                     cur_effect_field = name.clone();
                 } else if path.len() == 4 && in_effects && name == "value" {
-                    pending_level = attr_i32(&e, b"level").unwrap_or(0);
+                    pending_level = attr_i32(&e, "level").unwrap_or(0);
                     pending_range = ranged_bounds(&e);
                 } else if path.len() == 4
                     && in_effects
@@ -240,13 +240,13 @@ pub(crate) fn parse_str(content: &str, out: &mut ParsedSkills) {
                     && name == "item"
                 {
                     // `RestorationRandom`'s outer `<item chance="30">` group tag.
-                    cur_group_chance = attr_f64(&e, b"chance").unwrap_or(0.0);
+                    cur_group_chance = attr_f64(&e, "chance").unwrap_or(0.0);
                     cur_group_items = Vec::new();
                 }
                 path.push(name);
             }
             Event::Text(txt) => {
-                let text = txt.unescape().unwrap_or_default();
+                let text = txt.into_inner();
                 let text = text.trim();
                 if text.is_empty() {
                     continue;

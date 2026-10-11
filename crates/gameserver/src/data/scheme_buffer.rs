@@ -55,8 +55,8 @@ fn parse(content: &str) -> HashMap<i32, i32> {
     let mut buf = Vec::new();
     loop {
         match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == b"buff" => {
-                if let (Some(id), Some(level)) = (attr(&e, b"id"), attr(&e, b"level")) {
+            Ok(Event::Start(e)) | Ok(Event::Empty(e)) if e.name().as_ref() == "buff" => {
+                if let (Some(id), Some(level)) = (attr(&e, "id"), attr(&e, "level")) {
                     out.insert(id, level);
                 }
             }

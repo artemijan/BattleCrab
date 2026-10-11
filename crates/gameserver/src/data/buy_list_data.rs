@@ -224,16 +224,16 @@ fn parse_file(
     for event in xml::events(&content) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
-                let attr = |key: &[u8]| attr_str(&e, key);
+                let attr = |key: &str| attr_str(&e, key);
                 match e.name().as_ref() {
-                    b"list" => {
+                    "list" => {
                         default_base_tax =
-                            attr(b"baseTax").and_then(|v| v.parse().ok()).unwrap_or(0);
+                            attr("baseTax").and_then(|v| v.parse().ok()).unwrap_or(0);
                     }
-                    b"npcs" => in_npcs = true,
-                    b"npc" if in_npcs => in_npc = true,
-                    b"item" => {
-                        let Some(item_id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
+                    "npcs" => in_npcs = true,
+                    "npc" if in_npcs => in_npc = true,
+                    "item" => {
+                        let Some(item_id) = attr("id").and_then(|v| v.parse::<i32>().ok()) else {
                             continue;
                         };
                         let Some(template) = items.get(item_id) else {
@@ -247,7 +247,7 @@ fn parse_file(
                             continue;
                         }
                         let declared: i64 =
-                            attr(b"price").and_then(|v| v.parse().ok()).unwrap_or(-1);
+                            attr("price").and_then(|v| v.parse().ok()).unwrap_or(-1);
                         // `Config.CORRECT_PRICES` (**True** on this dist):
                         // never sell below the item's own sell value — but
                         // only on a list an npc serves. The `getNpcsAllowed() != null`
@@ -268,16 +268,16 @@ fn parse_file(
                         if price < 0 {
                             price = template.price;
                         }
-                        let base_tax = attr(b"baseTax")
+                        let base_tax = attr("baseTax")
                             .and_then(|v| v.parse().ok())
                             .unwrap_or(default_base_tax);
                         list.products.push(Product {
                             item_id,
                             price,
                             base_tax,
-                            max_count: attr(b"count").and_then(|v| v.parse().ok()).unwrap_or(-1),
+                            max_count: attr("count").and_then(|v| v.parse().ok()).unwrap_or(-1),
                             // `restockDelay * 60000` — the attribute is minutes.
-                            restock_delay_ms: attr(b"restock_delay")
+                            restock_delay_ms: attr("restock_delay")
                                 .and_then(|v| v.parse::<i64>().ok())
                                 .unwrap_or(-1)
                                 * 60_000,
@@ -287,16 +287,13 @@ fn parse_file(
                 }
             }
             Event::Text(t) if in_npc => {
-                if let Ok(id) = String::from_utf8_lossy(&t.into_inner())
-                    .trim()
-                    .parse::<i32>()
-                {
+                if let Ok(id) = t.into_inner().trim().parse::<i32>() {
                     list.npcs.push(id);
                 }
             }
             Event::End(e) => match e.name().as_ref() {
-                b"npcs" => in_npcs = false,
-                b"npc" => in_npc = false,
+                "npcs" => in_npcs = false,
+                "npc" => in_npc = false,
                 _ => {}
             },
             _ => {}

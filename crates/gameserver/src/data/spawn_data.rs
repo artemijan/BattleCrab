@@ -302,7 +302,7 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
             Event::Empty(e) => (e, true),
             Event::End(e) => {
                 match e.name().as_ref() {
-                    b"spawn" => {
+                    "spawn" => {
                         if let Some(mut s) = cur_spawn.take() {
                             if let Some(g) = default_group.take() {
                                 s.groups.push(g);
@@ -310,13 +310,13 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
                             out.push(s);
                         }
                     }
-                    b"group" => {
+                    "group" => {
                         in_group = false;
                         if let (Some(s), Some(g)) = (cur_spawn.as_mut(), cur_group.take()) {
                             s.groups.push(g);
                         }
                     }
-                    b"territory" => finish_territory(
+                    "territory" => finish_territory(
                         &mut cur_territory,
                         &mut cur_spawn,
                         &mut cur_group,
@@ -330,33 +330,33 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
         };
 
         match e.name().as_ref() {
-            b"spawn" => {
+            "spawn" => {
                 cur_spawn = Some(SpawnTemplate {
-                    name: attr_str(&e, b"name"),
+                    name: attr_str(&e, "name"),
                     file: rel_path.to_string(),
-                    ai: attr_str(&e, b"ai"),
+                    ai: attr_str(&e, "ai"),
                     parameters: std::collections::HashMap::new(),
                     territories: Vec::new(),
                     groups: Vec::new(),
                 });
             }
-            b"group" => {
+            "group" => {
                 in_group = true;
                 cur_group = Some(SpawnGroup {
-                    name: attr_str(&e, b"name"),
-                    spawn_by_default: attr_str(&e, b"spawnByDefault")
+                    name: attr_str(&e, "name"),
+                    spawn_by_default: attr_str(&e, "spawnByDefault")
                         .map(|v| v != "false")
                         .unwrap_or(true),
                     territories: Vec::new(),
                     npcs: Vec::new(),
                 });
             }
-            b"territory" => {
+            "territory" => {
                 cur_territory = Some(PendingTerritory {
-                    shape: attr_str(&e, b"shape").unwrap_or_else(|| "NPoly".to_string()),
-                    min_z: attr_i32(&e, b"minZ").unwrap_or(0),
-                    max_z: attr_i32(&e, b"maxZ").unwrap_or(0),
-                    rad: attr_i32(&e, b"rad"),
+                    shape: attr_str(&e, "shape").unwrap_or_else(|| "NPoly".to_string()),
+                    min_z: attr_i32(&e, "minZ").unwrap_or(0),
+                    max_z: attr_i32(&e, "maxZ").unwrap_or(0),
+                    rad: attr_i32(&e, "rad"),
                     xs: Vec::new(),
                     ys: Vec::new(),
                 });
@@ -366,49 +366,49 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
             }
             // `<parameters><param name value/>` — kept only at template level,
             // which is where this dist puts them.
-            b"param" => {
+            "param" => {
                 if let (Some(sp), Some(name), Some(value)) = (
                     cur_spawn.as_mut(),
-                    attr_str(&e, b"name"),
-                    attr_str(&e, b"value"),
+                    attr_str(&e, "name"),
+                    attr_str(&e, "value"),
                 ) {
                     sp.parameters.insert(name, value);
                 }
             }
-            b"node" => {
+            "node" => {
                 if let Some(t) = cur_territory.as_mut() {
-                    t.xs.push(attr_i32(&e, b"x").unwrap_or(0));
-                    t.ys.push(attr_i32(&e, b"y").unwrap_or(0));
+                    t.xs.push(attr_i32(&e, "x").unwrap_or(0));
+                    t.ys.push(attr_i32(&e, "y").unwrap_or(0));
                 }
             }
-            b"npc" => {
-                let Some(npc_id) = attr_i32(&e, b"id") else {
+            "npc" => {
+                let Some(npc_id) = attr_i32(&e, "id") else {
                     continue;
                 };
-                let (x, y, z) = (attr_i32(&e, b"x"), attr_i32(&e, b"y"), attr_i32(&e, b"z"));
+                let (x, y, z) = (attr_i32(&e, "x"), attr_i32(&e, "y"), attr_i32(&e, "z"));
                 let loc = match (x, y, z) {
                     (Some(x), Some(y), Some(z)) => Some(FixedLoc {
                         x,
                         y,
                         z,
-                        heading: attr_i32(&e, b"heading").unwrap_or(0),
+                        heading: attr_i32(&e, "heading").unwrap_or(0),
                     }),
                     _ => None,
                 };
                 let def = NpcSpawnDef {
                     npc_id,
-                    count: attr_i32(&e, b"count").unwrap_or(1),
+                    count: attr_i32(&e, "count").unwrap_or(1),
                     loc,
-                    respawn_secs: attr_str(&e, b"respawnTime")
+                    respawn_secs: attr_str(&e, "respawnTime")
                         .as_deref()
                         .and_then(parse_duration_secs)
                         .unwrap_or(0),
-                    respawn_random_secs: attr_str(&e, b"respawnRandom")
+                    respawn_random_secs: attr_str(&e, "respawnRandom")
                         .as_deref()
                         .and_then(parse_duration_secs)
                         .unwrap_or(0),
-                    chase_range: attr_i32(&e, b"chaseRange").unwrap_or(0),
-                    db_save: attr_str(&e, b"dbSave").as_deref() == Some("true"),
+                    chase_range: attr_i32(&e, "chaseRange").unwrap_or(0),
+                    db_save: attr_str(&e, "dbSave").as_deref() == Some("true"),
                 };
                 if in_group {
                     if let Some(g) = cur_group.as_mut() {

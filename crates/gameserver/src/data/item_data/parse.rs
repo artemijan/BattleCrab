@@ -61,10 +61,10 @@ pub(super) fn parse_file(
 
     for event in xml::events(&content) {
         match event {
-            Event::Start(e) if e.name().as_ref() == b"item" => {
-                cur_id = attr_i32(&e, b"id");
-                cur_name = attr_str(&e, b"name").unwrap_or_default();
-                cur_kind = match attr_str(&e, b"type").as_deref() {
+            Event::Start(e) if e.name().as_ref() == "item" => {
+                cur_id = attr_i32(&e, "id");
+                cur_name = attr_str(&e, "name").unwrap_or_default();
+                cur_kind = match attr_str(&e, "type").as_deref() {
                     Some("Weapon") => ItemKind::Weapon,
                     Some("Armor") => ItemKind::Armor,
                     _ => ItemKind::Etc,
@@ -75,23 +75,21 @@ pub(super) fn parse_file(
                 cur_conditions.clear();
                 cur_stats = ItemStats::default();
             }
-            Event::Start(e) if e.name().as_ref() == b"stats" => {
+            Event::Start(e) if e.name().as_ref() == "stats" => {
                 in_stats = true;
             }
-            Event::End(e) if e.name().as_ref() == b"stats" => {
+            Event::End(e) if e.name().as_ref() == "stats" => {
                 in_stats = false;
             }
-            Event::Start(e) if in_stats && e.name().as_ref() == b"stat" => {
-                cur_stat_type = attr_str(&e, b"type");
+            Event::Start(e) if in_stats && e.name().as_ref() == "stat" => {
+                cur_stat_type = attr_str(&e, "type");
             }
-            Event::End(e) if in_stats && e.name().as_ref() == b"stat" => {
+            Event::End(e) if in_stats && e.name().as_ref() == "stat" => {
                 cur_stat_type = None;
             }
             Event::Text(t) if in_stats && cur_stat_type.is_some() => {
                 let ty = cur_stat_type.as_deref().unwrap();
-                if let Ok(text) = t.unescape()
-                    && let Ok(val) = text.trim().parse::<f64>()
-                {
+                if let Ok(val) = t.trim().parse::<f64>() {
                     match ty {
                         "pAtkRange" => cur_stats.atk_range = Some(val as i32),
                         "randomDamage" => cur_stats.random_damage = Some(val as i32),
@@ -105,26 +103,26 @@ pub(super) fn parse_file(
                     }
                 }
             }
-            Event::Empty(e) if e.name().as_ref() == b"set" => {
+            Event::Empty(e) if e.name().as_ref() == "set" => {
                 if cur_id.is_none() {
                     continue;
                 }
-                if let (Some(name), Some(val)) = (attr_str(&e, b"name"), attr_str(&e, b"val")) {
+                if let (Some(name), Some(val)) = (attr_str(&e, "name"), attr_str(&e, "val")) {
                     attrs.insert(name, val);
                 }
             }
-            Event::Start(e) if e.name().as_ref() == b"capsuled_items" => {
+            Event::Start(e) if e.name().as_ref() == "capsuled_items" => {
                 in_capsules = true;
             }
-            Event::End(e) if e.name().as_ref() == b"capsuled_items" => {
+            Event::End(e) if e.name().as_ref() == "capsuled_items" => {
                 in_capsules = false;
             }
-            Event::Empty(e) if in_capsules && e.name().as_ref() == b"item" => {
+            Event::Empty(e) if in_capsules && e.name().as_ref() == "item" => {
                 if let (Some(item_id), Some(min), Some(max), Some(chance)) = (
-                    attr_i32(&e, b"id"),
-                    attr_i64(&e, b"min"),
-                    attr_i64(&e, b"max"),
-                    attr_f64(&e, b"chance"),
+                    attr_i32(&e, "id"),
+                    attr_i64(&e, "min"),
+                    attr_i64(&e, "max"),
+                    attr_f64(&e, "chance"),
                 ) {
                     cur_capsules.push(CapsuledItem {
                         item_id,
@@ -134,28 +132,28 @@ pub(super) fn parse_file(
                     });
                 }
             }
-            Event::Start(e) if e.name().as_ref() == b"skills" => {
+            Event::Start(e) if e.name().as_ref() == "skills" => {
                 in_skills = true;
             }
-            Event::End(e) if e.name().as_ref() == b"skills" => {
+            Event::End(e) if e.name().as_ref() == "skills" => {
                 in_skills = false;
             }
-            Event::Empty(e) if in_skills && e.name().as_ref() == b"skill" => {
-                if let (Some(id), Some(level)) = (attr_i32(&e, b"id"), attr_i32(&e, b"level")) {
+            Event::Empty(e) if in_skills && e.name().as_ref() == "skill" => {
+                if let (Some(id), Some(level)) = (attr_i32(&e, "id"), attr_i32(&e, "level")) {
                     cur_item_skills.push((id, level));
                 }
             }
             // `<cond msgId="113" addName="1"><and><player …/></and></cond>` —
             // Java `DocumentItem`'s `cond` arm. The block's message lives on
             // the `<cond>` element; the tree is assembled by [`CondBuilder`].
-            Event::Start(e) if e.name().as_ref() == b"cond" => {
+            Event::Start(e) if e.name().as_ref() == "cond" => {
                 conds.begin(item_cond::message_from(
-                    attr_str(&e, b"msg"),
-                    attr_str(&e, b"msgId").as_deref(),
-                    attr_str(&e, b"addName").as_deref(),
+                    attr_str(&e, "msg"),
+                    attr_str(&e, "msgId").as_deref(),
+                    attr_str(&e, "addName").as_deref(),
                 ));
             }
-            Event::End(e) if e.name().as_ref() == b"cond" => {
+            Event::End(e) if e.name().as_ref() == "cond" => {
                 if let Some(condition) = conds.finish() {
                     cur_conditions.push(condition);
                 }
@@ -165,22 +163,22 @@ pub(super) fn parse_file(
                     // A `<player>`/`<target>` written with an explicit end tag
                     // rather than self-closed. None on this dist, but the two
                     // spellings are the same element.
-                    b"player" => conds.push_leaf(item_cond::player_condition(&attr_pairs(&e))),
-                    b"target" => conds.push_leaf(item_cond::target_condition(&attr_pairs(&e))),
+                    "player" => conds.push_leaf(item_cond::player_condition(&attr_pairs(&e))),
+                    "target" => conds.push_leaf(item_cond::target_condition(&attr_pairs(&e))),
                     name => conds.open_group(name),
                 }
             }
             Event::Empty(e) if conds.is_open() => match e.name().as_ref() {
-                b"player" => conds.push_leaf(item_cond::player_condition(&attr_pairs(&e))),
-                b"target" => conds.push_leaf(item_cond::target_condition(&attr_pairs(&e))),
+                "player" => conds.push_leaf(item_cond::player_condition(&attr_pairs(&e))),
+                "target" => conds.push_leaf(item_cond::target_condition(&attr_pairs(&e))),
                 _ => {}
             },
             Event::End(e) if conds.is_open() => {
-                if !matches!(e.name().as_ref(), b"player" | b"target") {
+                if !matches!(e.name().as_ref(), "player" | "target") {
                     conds.close_group(e.name().as_ref());
                 }
             }
-            Event::End(e) if e.name().as_ref() == b"item" => {
+            Event::End(e) if e.name().as_ref() == "item" => {
                 if let Some(item_id) = cur_id.take() {
                     out.insert(
                         item_id,

@@ -36,7 +36,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::data::xml::attr_strict as attr;
+use crate::data::xml::attr_str as attr;
 use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
@@ -265,7 +265,7 @@ fn parse(content: &str) -> Option<Transform> {
             // the census before adding them: the answer changes the moment the
             // datapack gains a source for item 9648.
             match e.name().as_ref() {
-                b"base" => {
+                "base" => {
                     let num = |k: &str| attr(e, k).and_then(|s| s.trim().parse::<f64>().ok());
                     tmpl.base = Some(TransformBase {
                         attack_range: num("range"),
@@ -277,7 +277,7 @@ fn parse(content: &str) -> Option<Transform> {
                         attack_type: attr(e, "attackType"),
                     });
                 }
-                b"collision" => {
+                "collision" => {
                     if let Some(r) = attr(e, "radius").and_then(|s| s.parse().ok()) {
                         tmpl.collision_radius = r;
                     }
@@ -285,12 +285,12 @@ fn parse(content: &str) -> Option<Transform> {
                         tmpl.collision_height = h;
                     }
                 }
-                b"moving" => {
+                "moving" => {
                     tmpl.run_spd = attr(e, "run").and_then(|s| s.parse().ok());
                     tmpl.walk_spd = attr(e, "walk").and_then(|s| s.parse().ok());
                 }
-                b"skills" => *in_skills = true,
-                b"skill" if *in_skills => {
+                "skills" => *in_skills = true,
+                "skill" if *in_skills => {
                     if let (Some(sid), level) = (
                         attr(e, "id").and_then(|s| s.parse().ok()),
                         attr(e, "level").and_then(|s| s.parse().ok()).unwrap_or(1),
@@ -306,7 +306,7 @@ fn parse(content: &str) -> Option<Transform> {
     loop {
         match reader.read_event_into(&mut buf) {
             Ok(Event::Start(e)) | Ok(Event::Empty(e)) => match e.name().as_ref() {
-                b"transform" => {
+                "transform" => {
                     id = attr(&e, "id").and_then(|s| s.parse().ok());
                     let ty = attr(&e, "type");
                     kind = TransformKind::parse(ty.as_deref());
@@ -316,15 +316,15 @@ fn parse(content: &str) -> Option<Transform> {
                     // `set.getInt("can_swim", 0) == 1` — absent means "no".
                     can_swim = attr(&e, "can_swim").as_deref() == Some("1");
                 }
-                b"Male" => {
+                "Male" => {
                     gender = 0;
                     in_skills = false;
                 }
-                b"Female" => {
+                "Female" => {
                     gender = 1;
                     in_skills = false;
                 }
-                b"actions" => in_actions = true,
+                "actions" => in_actions = true,
                 _ => {
                     let tmpl = if gender == 0 { &mut male } else { &mut female };
                     handle(&e, tmpl, &mut in_skills);
@@ -332,15 +332,11 @@ fn parse(content: &str) -> Option<Transform> {
             },
             Ok(Event::Text(t)) if in_actions => {
                 let tmpl = if gender == 0 { &mut male } else { &mut female };
-                if let Ok(text) = t.unescape() {
-                    tmpl.actions.extend(
-                        text.split_whitespace()
-                            .filter_map(|s| s.parse::<i32>().ok()),
-                    );
-                }
+                tmpl.actions
+                    .extend(t.split_whitespace().filter_map(|s| s.parse::<i32>().ok()));
             }
-            Ok(Event::End(e)) if e.name().as_ref() == b"actions" => in_actions = false,
-            Ok(Event::End(e)) if e.name().as_ref() == b"skills" => in_skills = false,
+            Ok(Event::End(e)) if e.name().as_ref() == "actions" => in_actions = false,
+            Ok(Event::End(e)) if e.name().as_ref() == "skills" => in_skills = false,
             Ok(Event::Eof) => break,
             Err(_) => break,
             _ => {}

@@ -27,12 +27,12 @@ impl SellBuffData {
         let mut allowed = HashSet::new();
         for event in xml::events(&content) {
             match event {
-                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"skill" => {
+                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == "skill" => {
                     if let Some(id) = e
                         .attributes()
                         .flatten()
-                        .find(|a| a.key.as_ref() == b"id")
-                        .and_then(|a| String::from_utf8_lossy(&a.value).parse::<i32>().ok())
+                        .find(|a| a.key.as_ref() == "id")
+                        .and_then(|a| a.value.parse::<i32>().ok())
                     {
                         allowed.insert(id);
                     }

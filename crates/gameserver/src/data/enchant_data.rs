@@ -37,7 +37,7 @@ use super::item_data::kinds::CrystalType;
 use super::item_data::slot_mask;
 use super::item_data::template::ItemTemplate;
 use crate::data::xml;
-use crate::data::xml::attr_strict as attr;
+use crate::data::xml::attr_str as attr;
 
 pub const GROUPS_FILE: &str = "data/EnchantItemGroups.xml";
 pub const ITEMS_FILE: &str = "data/EnchantItemData.xml";
@@ -394,11 +394,11 @@ impl EnchantData {
         for event in xml::events(content) {
             match event {
                 Event::Start(e) | Event::Empty(e) => match e.name().as_ref() {
-                    b"enchantRateGroup" => {
+                    "enchantRateGroup" => {
                         cur_group_name = attr(&e, "name");
                         cur_group = EnchantItemGroup::default();
                     }
-                    b"current" => {
+                    "current" => {
                         if let (Some(range), Some(chance)) = (
                             attr(&e, "enchant"),
                             attr(&e, "chance").and_then(|s| s.parse::<f64>().ok()),
@@ -407,16 +407,16 @@ impl EnchantData {
                             cur_group.chances.push(RangeChance { min, max, chance });
                         }
                     }
-                    b"enchantScrollGroup" => {
+                    "enchantScrollGroup" => {
                         cur_scroll_id = attr(&e, "id").and_then(|s| s.parse().ok());
                         cur_scroll = EnchantScrollGroup::default();
                     }
-                    b"enchantRate" => {
+                    "enchantRate" => {
                         let mut r = EnchantRateItem::default();
                         r.group_name = attr(&e, "group").unwrap_or_default();
                         cur_rate = Some(r);
                     }
-                    b"item" => {
+                    "item" => {
                         if let Some(r) = cur_rate.as_mut() {
                             if let Some(slot) = attr(&e, "slot") {
                                 r.slot |= slot_mask(&slot);
@@ -432,7 +432,7 @@ impl EnchantData {
                     _ => {}
                 },
                 Event::End(e) => match e.name().as_ref() {
-                    b"enchantRateGroup" => {
+                    "enchantRateGroup" => {
                         if let Some(name) = cur_group_name.take() {
                             // Java's "Try to get a generic max value" block,
                             // which runs per `<current>` row; folded to the
@@ -461,12 +461,12 @@ impl EnchantData {
                                 .insert(name, std::mem::take(&mut cur_group));
                         }
                     }
-                    b"enchantRate" => {
+                    "enchantRate" => {
                         if let Some(r) = cur_rate.take() {
                             cur_scroll.rate_groups.push(r);
                         }
                     }
-                    b"enchantScrollGroup" => {
+                    "enchantScrollGroup" => {
                         if let Some(id) = cur_scroll_id.take() {
                             self.scroll_groups
                                 .insert(id, std::mem::take(&mut cur_scroll));
@@ -486,28 +486,28 @@ impl EnchantData {
             match event {
                 // Self-closing `<enchant .../>` (no whitelist) — build and store
                 // at once; the child-bearing form is the `Start`/`End` arms below.
-                Event::Empty(e) if e.name().as_ref() == b"enchant" => {
+                Event::Empty(e) if e.name().as_ref() == "enchant" => {
                     if let Some(s) = build_scroll(&e) {
                         self.scrolls.insert(s.id, s);
                     }
                 }
-                Event::Start(e) if e.name().as_ref() == b"enchant" => {
+                Event::Start(e) if e.name().as_ref() == "enchant" => {
                     cur = build_scroll(&e);
                 }
-                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"item" => {
+                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == "item" => {
                     if let (Some(c), Some(id)) =
                         (cur.as_mut(), attr(&e, "id").and_then(|s| s.parse().ok()))
                     {
                         c.item_ids.insert(id);
                     }
                 }
-                Event::End(e) if e.name().as_ref() == b"enchant" => {
+                Event::End(e) if e.name().as_ref() == "enchant" => {
                     if let Some(c) = cur.take() {
                         self.scrolls.insert(c.id, c);
                     }
                 }
                 // `<support .../>` — always self-closing.
-                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"support" => {
+                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == "support" => {
                     if let Some(s) = build_support(&e) {
                         self.supports.insert(s.id, s);
                     }

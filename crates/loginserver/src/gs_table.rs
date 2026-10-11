@@ -194,14 +194,14 @@ fn load_server_names() -> HashMap<i32, String> {
     loop {
         match reader.read_event() {
             Ok(quick_xml::events::Event::Empty(e)) | Ok(quick_xml::events::Event::Start(e))
-                if e.name().as_ref() == b"server" =>
+                if e.name().as_ref() == "server" =>
             {
                 let mut id = None;
                 let mut name = None;
                 for attr in e.attributes().flatten() {
                     match attr.key.as_ref() {
-                        b"id" => id = String::from_utf8_lossy(&attr.value).parse::<i32>().ok(),
-                        b"name" => name = Some(String::from_utf8_lossy(&attr.value).into_owned()),
+                        "id" => id = attr.value.parse::<i32>().ok(),
+                        "name" => name = Some(attr.value.into_owned()),
                         _ => {}
                     }
                 }

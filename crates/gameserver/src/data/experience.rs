@@ -77,20 +77,20 @@ impl ExperienceData {
         loop {
             match reader.read_event() {
                 Ok(Event::Empty(e)) | Ok(Event::Start(e)) => match e.name().as_ref() {
-                    b"table" => {
+                    "table" => {
                         for a in e.attributes().flatten() {
-                            if a.key.as_ref() == b"maxLevel" {
-                                table_max_level = attr_str(&a.value).parse().unwrap_or(0);
+                            if a.key.as_ref() == "maxLevel" {
+                                table_max_level = a.value.parse().unwrap_or(0);
                             }
                         }
                     }
-                    b"experience" => {
+                    "experience" => {
                         let mut level = 0i32;
                         let mut tolevel = 0i64;
                         for a in e.attributes().flatten() {
                             match a.key.as_ref() {
-                                b"level" => level = attr_str(&a.value).parse().unwrap_or(0),
-                                b"tolevel" => tolevel = attr_str(&a.value).parse().unwrap_or(0),
+                                "level" => level = a.value.parse().unwrap_or(0),
+                                "tolevel" => tolevel = a.value.parse().unwrap_or(0),
                                 _ => {}
                             }
                         }
@@ -149,10 +149,6 @@ impl ExperienceData {
         let idx = level.clamp(1, self.exp_for_level.len() as i32 - 1) as usize;
         self.exp_for_level[idx]
     }
-}
-
-fn attr_str(v: &[u8]) -> std::borrow::Cow<'_, str> {
-    String::from_utf8_lossy(v)
 }
 
 #[cfg(test)]

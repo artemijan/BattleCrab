@@ -72,35 +72,35 @@ impl ResidenceFunctionData {
         let mut current: Option<ResidenceFunctionDef> = None;
         for event in xml::events_trimmed(&content) {
             match event {
-                Event::Start(e) if e.name().as_ref() == b"function" => {
+                Event::Start(e) if e.name().as_ref() == "function" => {
                     // The outer <function id type> — start a new def.
                     current = Some(ResidenceFunctionDef {
-                        func_id: attr_i32(&e, b"id").unwrap_or(0),
-                        func_type: attr(&e, b"type").unwrap_or_default(),
+                        func_id: attr_i32(&e, "id").unwrap_or(0),
+                        func_type: attr(&e, "type").unwrap_or_default(),
                         levels: HashMap::new(),
                     });
                 }
-                Event::Empty(e) if e.name().as_ref() == b"function" => {
+                Event::Empty(e) if e.name().as_ref() == "function" => {
                     // An inner <function level costId costCount duration value>.
                     if let Some(def) = current.as_mut()
-                        && let Some(level) = attr_i32(&e, b"level")
+                        && let Some(level) = attr_i32(&e, "level")
                     {
                         def.levels.insert(
                             level,
                             FunctionLevel {
-                                cost_id: attr_i32(&e, b"costId").unwrap_or(0),
-                                cost_count: attr_i64(&e, b"costCount").unwrap_or(0),
+                                cost_id: attr_i32(&e, "costId").unwrap_or(0),
+                                cost_count: attr_i64(&e, "costCount").unwrap_or(0),
                                 duration_ms: parse_duration(
-                                    &attr(&e, b"duration").unwrap_or_default(),
+                                    &attr(&e, "duration").unwrap_or_default(),
                                 ),
-                                value: attr(&e, b"value")
+                                value: attr(&e, "value")
                                     .and_then(|v| v.parse().ok())
                                     .unwrap_or(0.0),
                             },
                         );
                     }
                 }
-                Event::End(e) if e.name().as_ref() == b"function" => {
+                Event::End(e) if e.name().as_ref() == "function" => {
                     if let Some(def) = current.take() {
                         by_id.insert(def.func_id, def);
                     }

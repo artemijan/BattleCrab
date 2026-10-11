@@ -72,22 +72,22 @@ impl InitialShortcutData {
                     // in-flight command at the bottom of this arm.
                     let self_closing = matches!(event, Ok(Event::Empty(_)));
                     match e.name().as_ref() {
-                        b"shortcuts" => cur_class = Some(attr_i32(e, b"classId")),
-                        b"page" => cur_page = attr_i32(e, b"pageId").unwrap_or(0),
-                        b"slot" => {
+                        "shortcuts" => cur_class = Some(attr_i32(e, "classId")),
+                        "page" => cur_page = attr_i32(e, "pageId").unwrap_or(0),
+                        "slot" => {
                             let Some(scope) = &cur_class else { continue };
                             let Some(kind) =
-                                attr_str(e, b"shortcutType").map(|s| shortcut_type_of(&s))
+                                attr_str(e, "shortcutType").map(|s| shortcut_type_of(&s))
                             else {
                                 continue;
                             };
                             let sc = InitialShortcut {
-                                slot: attr_i32(e, b"slotId").unwrap_or(0),
+                                slot: attr_i32(e, "slotId").unwrap_or(0),
                                 page: cur_page,
                                 kind,
-                                id: attr_i32(e, b"shortcutId").unwrap_or(0),
-                                level: attr_i32(e, b"shortcutLevel").unwrap_or(0),
-                                character_type: attr_i32(e, b"characterType").unwrap_or(0),
+                                id: attr_i32(e, "shortcutId").unwrap_or(0),
+                                level: attr_i32(e, "shortcutLevel").unwrap_or(0),
+                                character_type: attr_i32(e, "characterType").unwrap_or(0),
                             };
                             match scope {
                                 Some(class_id) => {
@@ -96,40 +96,40 @@ impl InitialShortcutData {
                                 None => self.global.push(sc),
                             }
                         }
-                        b"macro" => {
-                            let enabled = attr_str(e, b"enabled").as_deref() != Some("false");
+                        "macro" => {
+                            let enabled = attr_str(e, "enabled").as_deref() != Some("false");
                             cur_macro = Some((
                                 Macro {
-                                    id: attr_i32(e, b"macroId").unwrap_or(0),
-                                    icon: attr_i32(e, b"icon").unwrap_or(0),
-                                    name: attr_str(e, b"name").unwrap_or_default(),
-                                    descr: attr_str(e, b"description").unwrap_or_default(),
-                                    acronym: attr_str(e, b"acronym").unwrap_or_default(),
+                                    id: attr_i32(e, "macroId").unwrap_or(0),
+                                    icon: attr_i32(e, "icon").unwrap_or(0),
+                                    name: attr_str(e, "name").unwrap_or_default(),
+                                    descr: attr_str(e, "description").unwrap_or_default(),
+                                    acronym: attr_str(e, "acronym").unwrap_or_default(),
                                     commands: Vec::new(),
                                 },
                                 enabled,
                             ));
                         }
-                        b"command" => {
+                        "command" => {
                             let Some((m, _)) = &mut cur_macro else {
                                 continue;
                             };
-                            let kind = attr_str(e, b"type")
+                            let kind = attr_str(e, "type")
                                 .map(|s| macro_type_of(&s))
                                 .unwrap_or(MacroType::None);
                             // The Java `parseMacros` d1/d2 switch.
                             let (d1, d2) = match kind {
                                 MacroType::Skill => (
-                                    attr_i32(e, b"skillId").unwrap_or(0),
-                                    attr_i32(e, b"skillLevel").unwrap_or(0),
+                                    attr_i32(e, "skillId").unwrap_or(0),
+                                    attr_i32(e, "skillLevel").unwrap_or(0),
                                 ),
-                                MacroType::Action => (attr_i32(e, b"actionId").unwrap_or(0), 0),
+                                MacroType::Action => (attr_i32(e, "actionId").unwrap_or(0), 0),
                                 MacroType::Shortcut => (
-                                    attr_i32(e, b"page").unwrap_or(0),
-                                    attr_i32(e, b"slot").unwrap_or(0),
+                                    attr_i32(e, "page").unwrap_or(0),
+                                    attr_i32(e, "slot").unwrap_or(0),
                                 ),
-                                MacroType::Item => (attr_i32(e, b"itemId").unwrap_or(0), 0),
-                                MacroType::Delay => (attr_i32(e, b"delay").unwrap_or(0), 0),
+                                MacroType::Item => (attr_i32(e, "itemId").unwrap_or(0), 0),
+                                MacroType::Delay => (attr_i32(e, "delay").unwrap_or(0), 0),
                                 MacroType::Text | MacroType::None => (0, 0),
                             };
                             let cmd = MacroCmd {
@@ -144,7 +144,7 @@ impl InitialShortcutData {
                         _ => {}
                     }
                     if self_closing
-                        && e.name().as_ref() == b"command"
+                        && e.name().as_ref() == "command"
                         && let (Some(cmd), Some((m, _))) = (cur_cmd.take(), &mut cur_macro)
                     {
                         m.commands.push(cmd);
@@ -152,19 +152,19 @@ impl InitialShortcutData {
                 }
                 Ok(Event::Text(t)) => {
                     if let Some(cmd) = &mut cur_cmd {
-                        cmd.cmd = t.unescape().map(|s| s.into_owned()).unwrap_or_default();
+                        cmd.cmd = t.into_inner().into_owned();
                     }
                 }
                 Ok(Event::End(e)) => match e.name().as_ref() {
-                    b"shortcuts" => cur_class = None,
-                    b"macro" => {
+                    "shortcuts" => cur_class = None,
+                    "macro" => {
                         if let Some((m, enabled)) = cur_macro.take()
                             && enabled
                         {
                             self.macro_presets.insert(m.id, m);
                         }
                     }
-                    b"command" => {
+                    "command" => {
                         if let (Some(cmd), Some((m, _))) = (cur_cmd.take(), &mut cur_macro) {
                             m.commands.push(cmd);
                         }

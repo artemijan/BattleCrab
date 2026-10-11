@@ -71,11 +71,11 @@ impl IpConfig {
             match reader.read_event() {
                 Ok(Event::Start(e)) | Ok(Event::Empty(e)) => {
                     let name = e.name();
-                    if name.as_ref().eq_ignore_ascii_case(b"gameserver") {
-                        default_address = attr(&e, b"address").or(default_address);
-                    } else if name.as_ref().eq_ignore_ascii_case(b"define")
+                    if name.as_ref().eq_ignore_ascii_case("gameserver") {
+                        default_address = attr(&e, "address").or(default_address);
+                    } else if name.as_ref().eq_ignore_ascii_case("define")
                         && let (Some(subnet), Some(address)) =
-                            (attr(&e, b"subnet"), attr(&e, b"address"))
+                            (attr(&e, "subnet"), attr(&e, "address"))
                     {
                         self.subnets.push(subnet);
                         self.hosts.push(address);
@@ -130,11 +130,11 @@ impl IpConfig {
     }
 }
 
-fn attr(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
+fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
     e.attributes()
         .flatten()
         .find(|a| a.key.as_ref().eq_ignore_ascii_case(key))
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
+        .map(|a| a.value.into_owned())
 }
 
 /// Count the leading one-bits of an IPv4 netmask → prefix length.

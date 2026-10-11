@@ -29,29 +29,26 @@ impl CategoryData {
             for event in xml::events(&content) {
                 match event {
                     Event::Start(e) => match e.name().as_ref() {
-                        b"category" => {
+                        "category" => {
                             current = e
                                 .attributes()
                                 .flatten()
-                                .find(|a| a.key.as_ref() == b"name")
-                                .map(|a| String::from_utf8_lossy(&a.value).into_owned());
+                                .find(|a| a.key.as_ref() == "name")
+                                .map(|a| a.value.into_owned());
                         }
-                        b"id" => in_id = true,
+                        "id" => in_id = true,
                         _ => {}
                     },
                     Event::Text(t) if in_id => {
-                        if let (Some(name), Ok(id)) = (
-                            current.as_ref(),
-                            String::from_utf8_lossy(&t.into_inner())
-                                .trim()
-                                .parse::<i32>(),
-                        ) {
+                        if let (Some(name), Ok(id)) =
+                            (current.as_ref(), t.into_inner().trim().parse::<i32>())
+                        {
                             by_name.entry(name.clone()).or_default().insert(id);
                         }
                     }
                     Event::End(e) => match e.name().as_ref() {
-                        b"category" => current = None,
-                        b"id" => in_id = false,
+                        "category" => current = None,
+                        "id" => in_id = false,
                         _ => {}
                     },
                     _ => {}

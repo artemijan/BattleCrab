@@ -42,25 +42,25 @@ impl EnchantHpBonusData {
         let mut text = String::new();
         for event in xml::events(&content) {
             match event {
-                Event::Start(e) if e.name().as_ref() == b"enchantHP" => {
+                Event::Start(e) if e.name().as_ref() == "enchantHP" => {
                     // The file declares `grade="S80"` **twice**. Java stores
                     // into an `EnumMap`, so the second row silently replaces the
                     // first; inserting into a map here does the same thing.
                     current = Some(CrystalType::from_name(
-                        xml::attr_str(&e, b"grade").as_deref(),
+                        xml::attr_str(&e, "grade").as_deref(),
                     ));
                     if let Some(g) = current {
                         by_grade.insert(g, Vec::with_capacity(12));
                     }
                 }
-                Event::Start(e) if e.name().as_ref() == b"bonus" => {
+                Event::Start(e) if e.name().as_ref() == "bonus" => {
                     text.clear();
                     let _ = e;
                 }
                 Event::Text(t) => {
-                    text = String::from_utf8_lossy(t.as_ref()).trim().to_string();
+                    text = t.trim().to_string();
                 }
-                Event::End(e) if e.name().as_ref() == b"bonus" => {
+                Event::End(e) if e.name().as_ref() == "bonus" => {
                     if let Some(g) = current
                         && let Ok(v) = text.parse::<i32>()
                         && let Some(list) = by_grade.get_mut(&g)
@@ -69,7 +69,7 @@ impl EnchantHpBonusData {
                     }
                     text.clear();
                 }
-                Event::End(e) if e.name().as_ref() == b"enchantHP" => current = None,
+                Event::End(e) if e.name().as_ref() == "enchantHP" => current = None,
                 _ => {}
             }
         }

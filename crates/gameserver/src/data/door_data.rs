@@ -131,7 +131,7 @@ fn parse_file(path: &str, out: &mut Vec<DoorTemplate>) {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
-                if e.name().as_ref() == b"door" && in_door {
+                if e.name().as_ref() == "door" && in_door {
                     in_door = false;
                     if let Some(door) = build_door(&attrs, &xs, &ys) {
                         out.push(door);
@@ -142,16 +142,16 @@ fn parse_file(path: &str, out: &mut Vec<DoorTemplate>) {
             _ => continue,
         };
         match e.name().as_ref() {
-            b"door" => {
+            "door" => {
                 in_door = true;
                 attrs.clear();
                 xs.clear();
                 ys.clear();
                 absorb_attrs(&e, &mut attrs);
             }
-            b"node" if in_door => {
-                xs.push(attr_i32(&e, b"x").unwrap_or(0));
-                ys.push(attr_i32(&e, b"y").unwrap_or(0));
+            "node" if in_door => {
+                xs.push(attr_i32(&e, "x").unwrap_or(0));
+                ys.push(attr_i32(&e, "y").unwrap_or(0));
             }
             // <nodes>/<location>/<stats>/<status>/<openStatus>/<event> — all
             // attributes flatten into the same bag, like Java's parseDoor.
@@ -201,10 +201,7 @@ fn build_door(attrs: &HashMap<String, String>, xs: &[i32], ys: &[i32]) -> Option
 
 fn absorb_attrs(e: &quick_xml::events::BytesStart, out: &mut HashMap<String, String>) {
     for a in e.attributes().flatten() {
-        out.insert(
-            String::from_utf8_lossy(a.key.as_ref()).into_owned(),
-            String::from_utf8_lossy(&a.value).into_owned(),
-        );
+        out.insert(a.key.as_ref().to_owned(), a.value.into_owned());
     }
 }
 

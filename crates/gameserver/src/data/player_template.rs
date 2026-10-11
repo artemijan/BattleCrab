@@ -150,22 +150,22 @@ impl PlayerTemplate {
 /// `<basePDef>`/`<baseMDef>` child tag → the `PaperdollSlot as usize` its base
 /// defense belongs to (Java's per-slot `_baseSlotDef` keys). Tags with no
 /// paperdoll slot (none here) are ignored.
-fn def_slot_index(tag: &[u8]) -> Option<usize> {
+fn def_slot_index(tag: &str) -> Option<usize> {
     use crate::model::inventory::PaperdollSlot;
     Some(match tag {
-        b"chest" => PaperdollSlot::Chest,
-        b"legs" => PaperdollSlot::Legs,
-        b"head" => PaperdollSlot::Head,
-        b"feet" => PaperdollSlot::Feet,
-        b"gloves" => PaperdollSlot::Gloves,
-        b"underwear" => PaperdollSlot::Under,
-        b"cloak" => PaperdollSlot::Cloak,
-        b"hair" => PaperdollSlot::Hair,
-        b"rear" => PaperdollSlot::REar,
-        b"lear" => PaperdollSlot::LEar,
-        b"rfinger" => PaperdollSlot::RFinger,
-        b"lfinger" => PaperdollSlot::LFinger,
-        b"neck" => PaperdollSlot::Neck,
+        "chest" => PaperdollSlot::Chest,
+        "legs" => PaperdollSlot::Legs,
+        "head" => PaperdollSlot::Head,
+        "feet" => PaperdollSlot::Feet,
+        "gloves" => PaperdollSlot::Gloves,
+        "underwear" => PaperdollSlot::Under,
+        "cloak" => PaperdollSlot::Cloak,
+        "hair" => PaperdollSlot::Hair,
+        "rear" => PaperdollSlot::REar,
+        "lear" => PaperdollSlot::LEar,
+        "rfinger" => PaperdollSlot::RFinger,
+        "lfinger" => PaperdollSlot::LFinger,
+        "neck" => PaperdollSlot::Neck,
         _ => return None,
     } as usize)
 }
@@ -262,26 +262,26 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
     t.mp_regen_table = vec![0.0; 90];
     t.cp_regen_table = vec![0.0; 90];
 
-    let mut cur_tag: Vec<u8> = Vec::new();
+    let mut cur_tag = String::new();
     let mut in_creation_points = false;
     let mut cur_level: i32 = 0; // 0 = not inside a <level>
     // Nested section we're inside, if any (for summed / grouped values).
-    let mut section: Option<Vec<u8>> = None;
+    let mut section: Option<String> = None;
 
     loop {
         match reader.read_event() {
             Ok(Event::Start(e)) => {
-                let name = e.name().as_ref().to_vec();
-                match name.as_slice() {
-                    b"creationPoints" => in_creation_points = true,
-                    b"basePDef" | b"baseMDef" | b"baseMoveSpd" | b"collisionMale"
-                    | b"collisionFemale" => section = Some(name.clone()),
-                    b"level" => {
+                let name = e.name().as_ref().to_owned();
+                match name.as_str() {
+                    "creationPoints" => in_creation_points = true,
+                    "basePDef" | "baseMDef" | "baseMoveSpd" | "collisionMale"
+                    | "collisionFemale" => section = Some(name.clone()),
+                    "level" => {
                         cur_level = e
                             .attributes()
                             .flatten()
-                            .find(|a| a.key.as_ref() == b"val")
-                            .and_then(|a| String::from_utf8_lossy(&a.value).parse::<i32>().ok())
+                            .find(|a| a.key.as_ref() == "val")
+                            .and_then(|a| a.value.parse::<i32>().ok())
                             .unwrap_or(0);
                     }
                     _ => {}
@@ -289,16 +289,14 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                 cur_tag = name;
             }
             Ok(Event::Empty(e)) => {
-                if in_creation_points && e.name().as_ref() == b"node" {
+                if in_creation_points && e.name().as_ref() == "node" {
                     let (mut x, mut y, mut z) = (0, 0, 0);
                     for a in e.attributes().flatten() {
-                        let v = String::from_utf8_lossy(&a.value)
-                            .parse::<i32>()
-                            .unwrap_or(0);
+                        let v = a.value.parse::<i32>().unwrap_or(0);
                         match a.key.as_ref() {
-                            b"x" => x = v,
-                            b"y" => y = v,
-                            b"z" => z = v,
+                            "x" => x = v,
+                            "y" => y = v,
+                            "z" => z = v,
                             _ => {}
                         }
                     }
@@ -306,7 +304,7 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                 }
             }
             Ok(Event::Text(txt)) => {
-                let text = txt.unescape().unwrap_or_default();
+                let text = txt.into_inner();
                 let text = text.trim().to_string();
                 if text.is_empty() {
                     continue;
@@ -315,84 +313,85 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
                 let flt = || text.parse::<f64>().unwrap_or(0.0);
                 // Per-level HP/MP/CP tables.
                 if cur_level > 0 && (cur_level as usize) < t.hp_table.len() {
-                    match cur_tag.as_slice() {
-                        b"hp" => t.hp_table[cur_level as usize] = flt(),
-                        b"mp" => t.mp_table[cur_level as usize] = flt(),
-                        b"cp" => t.cp_table[cur_level as usize] = flt(),
-                        b"hpRegen" => t.hp_regen_table[cur_level as usize] = flt(),
-                        b"mpRegen" => t.mp_regen_table[cur_level as usize] = flt(),
-                        b"cpRegen" => t.cp_regen_table[cur_level as usize] = flt(),
+                    match cur_tag.as_str() {
+                        "hp" => t.hp_table[cur_level as usize] = flt(),
+                        "mp" => t.mp_table[cur_level as usize] = flt(),
+                        "cp" => t.cp_table[cur_level as usize] = flt(),
+                        "hpRegen" => t.hp_regen_table[cur_level as usize] = flt(),
+                        "mpRegen" => t.mp_regen_table[cur_level as usize] = flt(),
+                        "cpRegen" => t.cp_regen_table[cur_level as usize] = flt(),
                         _ => {}
                     }
                     continue;
                 }
                 // Summed / grouped sections.
                 match section.as_deref() {
-                    Some(b"basePDef") => {
+                    Some("basePDef") => {
                         t.base_p_def += int();
                         if let Some(slot) = def_slot_index(&cur_tag) {
                             t.base_def_by_slot.insert(slot, int());
                         }
                         continue;
                     }
-                    Some(b"baseMDef") => {
+                    Some("baseMDef") => {
                         t.base_m_def += int();
                         if let Some(slot) = def_slot_index(&cur_tag) {
                             t.base_def_by_slot.insert(slot, int());
                         }
                         continue;
                     }
-                    Some(b"baseMoveSpd") => {
-                        match cur_tag.as_slice() {
-                            b"walk" => t.base_walk_spd = int(),
-                            b"run" => t.base_run_spd = int(),
-                            b"slowSwim" => t.base_swim_walk_spd = int(),
-                            b"fastSwim" => t.base_swim_run_spd = int(),
+                    Some("baseMoveSpd") => {
+                        match cur_tag.as_str() {
+                            "walk" => t.base_walk_spd = int(),
+                            "run" => t.base_run_spd = int(),
+                            "slowSwim" => t.base_swim_walk_spd = int(),
+                            "fastSwim" => t.base_swim_run_spd = int(),
                             _ => {}
                         }
                         continue;
                     }
-                    Some(b"collisionMale") => {
-                        match cur_tag.as_slice() {
-                            b"radius" => t.collision_radius = flt(),
-                            b"height" => t.collision_height = flt(),
+                    Some("collisionMale") => {
+                        match cur_tag.as_str() {
+                            "radius" => t.collision_radius = flt(),
+                            "height" => t.collision_height = flt(),
                             _ => {}
                         }
                         continue;
                     }
-                    Some(b"collisionFemale") => {
-                        match cur_tag.as_slice() {
-                            b"radius" => t.collision_radius_female = flt(),
-                            b"height" => t.collision_height_female = flt(),
+                    Some("collisionFemale") => {
+                        match cur_tag.as_str() {
+                            "radius" => t.collision_radius_female = flt(),
+                            "height" => t.collision_height_female = flt(),
                             _ => {}
                         }
                         continue;
                     }
                     _ => {}
                 }
-                match cur_tag.as_slice() {
-                    b"classId" => t.class_id = int(),
-                    b"baseSTR" => t.base_str = int(),
-                    b"baseDEX" => t.base_dex = int(),
-                    b"baseCON" => t.base_con = int(),
-                    b"baseINT" => t.base_int = int(),
-                    b"baseWIT" => t.base_wit = int(),
-                    b"baseMEN" => t.base_men = int(),
-                    b"basePAtk" => t.base_p_atk = int(),
-                    b"basePAtkSpd" => t.base_p_atk_spd = int(),
-                    b"baseMAtk" => t.base_m_atk = int(),
-                    b"baseMAtkSpd" => t.base_m_atk_spd = int(),
-                    b"baseCritRate" => t.base_crit_rate = int(),
-                    b"baseMCritRate" => t.base_m_crit_rate = int(),
-                    b"baseAtkRange" => t.base_atk_range = int(),
+                match cur_tag.as_str() {
+                    "classId" => t.class_id = int(),
+                    "baseSTR" => t.base_str = int(),
+                    "baseDEX" => t.base_dex = int(),
+                    "baseCON" => t.base_con = int(),
+                    "baseINT" => t.base_int = int(),
+                    "baseWIT" => t.base_wit = int(),
+                    "baseMEN" => t.base_men = int(),
+                    "basePAtk" => t.base_p_atk = int(),
+                    "basePAtkSpd" => t.base_p_atk_spd = int(),
+                    "baseMAtk" => t.base_m_atk = int(),
+                    "baseMAtkSpd" => t.base_m_atk_spd = int(),
+                    "baseCritRate" => t.base_crit_rate = int(),
+                    "baseMCritRate" => t.base_m_crit_rate = int(),
+                    "baseAtkRange" => t.base_atk_range = int(),
                     _ => {}
                 }
             }
             Ok(Event::End(e)) => match e.name().as_ref() {
-                b"creationPoints" => in_creation_points = false,
-                b"level" => cur_level = 0,
-                b"basePDef" | b"baseMDef" | b"baseMoveSpd" | b"collisionMale"
-                | b"collisionFemale" => section = None,
+                "creationPoints" => in_creation_points = false,
+                "level" => cur_level = 0,
+                "basePDef" | "baseMDef" | "baseMoveSpd" | "collisionMale" | "collisionFemale" => {
+                    section = None
+                }
                 _ => {}
             },
             Ok(Event::Eof) => break,

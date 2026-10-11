@@ -102,19 +102,19 @@ fn parse(content: &str) -> Vec<AuctionInstanceCfg> {
     for event in xml::events(content) {
         match event {
             Event::Start(e) | Event::Empty(e) => match e.name().as_ref() {
-                b"instance" => {
+                "instance" => {
                     if let Some(cfg) = parse_instance(&e) {
                         cur = Some(cfg);
                     }
                 }
-                b"item" => {
+                "item" => {
                     if let (Some(cfg), Some(item)) = (cur.as_mut(), parse_item(&e)) {
                         cfg.items.push(item);
                     }
                 }
-                b"extra" => {
+                "extra" => {
                     // `<extra enchant_level=…>` belongs to the last-parsed item.
-                    if let Some(lvl) = attr_i32(&e, b"enchant_level")
+                    if let Some(lvl) = attr_i32(&e, "enchant_level")
                         && let Some(item) = cur.as_mut().and_then(|c| c.items.last_mut())
                     {
                         item.enchant_level = lvl;
@@ -122,7 +122,7 @@ fn parse(content: &str) -> Vec<AuctionInstanceCfg> {
                 }
                 _ => {}
             },
-            Event::End(e) if e.name().as_ref() == b"instance" => {
+            Event::End(e) if e.name().as_ref() == "instance" => {
                 // Java drops an instance with no items ("No items defined").
                 if let Some(cfg) = cur.take()
                     && !cfg.items.is_empty()
@@ -137,12 +137,12 @@ fn parse(content: &str) -> Vec<AuctionInstanceCfg> {
 }
 
 fn parse_instance(e: &BytesStart) -> Option<AuctionInstanceCfg> {
-    let instance_id = attr_i32(e, b"id")?;
-    let hour = attr_i32(e, b"hour_of_day").filter(|h| (0..=23).contains(h))? as u32;
-    let minute = attr_i32(e, b"minute_of_hour").unwrap_or(0).clamp(0, 59) as u32;
+    let instance_id = attr_i32(e, "id")?;
+    let hour = attr_i32(e, "hour_of_day").filter(|h| (0..=23).contains(h))? as u32;
+    let minute = attr_i32(e, "minute_of_hour").unwrap_or(0).clamp(0, 59) as u32;
     // Either an interval (days) or a fixed weekday (XML `1=Mon..7=Sun`).
-    let interval_days = attr_i32(e, b"interval").filter(|&i| i >= 1);
-    let weekday = attr_i32(e, b"day_of_week")
+    let interval_days = attr_i32(e, "interval").filter(|&i| i >= 1);
+    let weekday = attr_i32(e, "day_of_week")
         .filter(|&d| (1..=7).contains(&d))
         .map(|d| (d - 1) as u32); // → Mon=0..Sun=6
     if interval_days.is_none() && weekday.is_none() {
@@ -161,13 +161,13 @@ fn parse_instance(e: &BytesStart) -> Option<AuctionInstanceCfg> {
 }
 
 fn parse_item(e: &BytesStart) -> Option<AuctionItem> {
-    let auction_length_min = attr_i32(e, b"auctionLength").filter(|&l| l >= 1)?;
+    let auction_length_min = attr_i32(e, "auctionLength").filter(|&l| l >= 1)?;
     Some(AuctionItem {
-        auction_item_id: attr_i32(e, b"auctionItemId")?,
+        auction_item_id: attr_i32(e, "auctionItemId")?,
         auction_length_min,
-        auction_init_bid: attr_i32(e, b"auctionInitBid").unwrap_or(0) as i64,
-        item_id: attr_i32(e, b"itemId")?,
-        item_count: attr_i32(e, b"itemCount").unwrap_or(1) as i64,
+        auction_init_bid: attr_i32(e, "auctionInitBid").unwrap_or(0) as i64,
+        item_id: attr_i32(e, "itemId")?,
+        item_count: attr_i32(e, "itemCount").unwrap_or(1) as i64,
         enchant_level: 0,
     })
 }

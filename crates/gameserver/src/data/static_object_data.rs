@@ -43,20 +43,20 @@ impl StaticObjectData {
                     Event::Start(e) | Event::Empty(e) => e,
                     _ => continue,
                 };
-                if e.name().as_ref() != b"object" {
+                if e.name().as_ref() != "object" {
                     continue;
                 }
-                let attr = |key: &[u8]| attr_str(&e, key);
-                let get_i32 = |key: &[u8]| attr(key).and_then(|v| v.parse::<i32>().ok());
+                let attr = |key: &str| attr_str(&e, key);
+                let get_i32 = |key: &str| attr(key).and_then(|v| v.parse::<i32>().ok());
                 let (Some(id), Some(x), Some(y), Some(z)) =
-                    (get_i32(b"id"), get_i32(b"x"), get_i32(b"y"), get_i32(b"z"))
+                    (get_i32("id"), get_i32("x"), get_i32("y"), get_i32("z"))
                 else {
                     continue;
                 };
                 objects.push(StaticObjectTemplate {
                     id,
-                    name: attr(b"name").unwrap_or_default(),
-                    kind: get_i32(b"type").unwrap_or(0),
+                    name: attr("name").unwrap_or_default(),
+                    kind: get_i32("type").unwrap_or(0),
                     x,
                     y,
                     z,

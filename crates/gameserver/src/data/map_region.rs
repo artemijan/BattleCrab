@@ -201,7 +201,7 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
-                if e.name().as_ref() == b"region"
+                if e.name().as_ref() == "region"
                     && let Some(r) = cur.take()
                 {
                     out.push(r);
@@ -210,35 +210,35 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
             }
             _ => continue,
         };
-        let attr = |key: &[u8]| attr_str(&e, key);
+        let attr = |key: &str| attr_str(&e, key);
         match e.name().as_ref() {
-            b"region" => {
+            "region" => {
                 cur = Some(MapRegion {
-                    name: attr(b"name").unwrap_or_default(),
-                    loc_id: attr(b"locId").and_then(|v| v.parse().ok()).unwrap_or(0),
-                    bbs: attr(b"bbs").and_then(|v| v.parse().ok()).unwrap_or(0),
+                    name: attr("name").unwrap_or_default(),
+                    loc_id: attr("locId").and_then(|v| v.parse().ok()).unwrap_or(0),
+                    bbs: attr("bbs").and_then(|v| v.parse().ok()).unwrap_or(0),
                     respawn_points: Vec::new(),
                     tiles: Vec::new(),
                 });
             }
-            b"respawnPoint" => {
+            "respawnPoint" => {
                 if let Some(r) = cur.as_mut() {
                     // Chaotic (karma) and "other" points are skipped — the
                     // callers that use them aren't ported.
                     let special = ["isChaotic", "isOther"]
                         .iter()
-                        .any(|k| attr(k.as_bytes()).is_some_and(|v| v == "true"));
+                        .any(|k| attr(k).is_some_and(|v| v == "true"));
                     if !special
-                        && let (Some(x), Some(y), Some(z)) = (attr(b"X"), attr(b"Y"), attr(b"Z"))
+                        && let (Some(x), Some(y), Some(z)) = (attr("X"), attr("Y"), attr("Z"))
                         && let (Ok(x), Ok(y), Ok(z)) = (x.parse(), y.parse(), z.parse())
                     {
                         r.respawn_points.push((x, y, z));
                     }
                 }
             }
-            b"map" => {
+            "map" => {
                 if let Some(r) = cur.as_mut()
-                    && let (Some(x), Some(y)) = (attr(b"X"), attr(b"Y"))
+                    && let (Some(x), Some(y)) = (attr("X"), attr("Y"))
                     && let (Ok(x), Ok(y)) = (x.parse(), y.parse())
                 {
                     r.tiles.push((x, y));
@@ -275,7 +275,7 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
-                if e.name().as_ref() == b"zone"
+                if e.name().as_ref() == "zone"
                     && let Some(p) = cur.take()
                     && p.is_respawn
                     && let Some(form) =
@@ -295,44 +295,44 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
             }
             _ => continue,
         };
-        let attr = |key: &[u8]| attr_str(&e, key);
+        let attr = |key: &str| attr_str(&e, key);
         match e.name().as_ref() {
-            b"zone" => {
+            "zone" => {
                 cur = Some(Pending {
-                    name: attr(b"name").unwrap_or_default(),
-                    is_respawn: attr(b"type").as_deref() == Some("RespawnZone"),
-                    shape: attr(b"shape").unwrap_or_else(|| "NPoly".to_string()),
-                    min_z: attr(b"minZ")
+                    name: attr("name").unwrap_or_default(),
+                    is_respawn: attr("type").as_deref() == Some("RespawnZone"),
+                    shape: attr("shape").unwrap_or_else(|| "NPoly".to_string()),
+                    min_z: attr("minZ")
                         .and_then(|v| v.parse().ok())
                         .unwrap_or(i32::MIN),
-                    max_z: attr(b"maxZ")
+                    max_z: attr("maxZ")
                         .and_then(|v| v.parse().ok())
                         .unwrap_or(i32::MAX),
-                    rad: attr(b"rad").and_then(|v| v.parse().ok()),
+                    rad: attr("rad").and_then(|v| v.parse().ok()),
                     xs: Vec::new(),
                     ys: Vec::new(),
                     race_points: HashMap::new(),
                 });
             }
-            b"node" => {
+            "node" => {
                 if let Some(p) = cur.as_mut() {
                     p.xs.push(
-                        attr(b"X")
-                            .or_else(|| attr(b"x"))
+                        attr("X")
+                            .or_else(|| attr("x"))
                             .and_then(|v| v.parse().ok())
                             .unwrap_or(0),
                     );
                     p.ys.push(
-                        attr(b"Y")
-                            .or_else(|| attr(b"y"))
+                        attr("Y")
+                            .or_else(|| attr("y"))
                             .and_then(|v| v.parse().ok())
                             .unwrap_or(0),
                     );
                 }
             }
-            b"race" => {
+            "race" => {
                 if let Some(p) = cur.as_mut()
-                    && let (Some(name), Some(point)) = (attr(b"name"), attr(b"point"))
+                    && let (Some(name), Some(point)) = (attr("name"), attr("point"))
                     && let Some(race) = Race::from_name(&name)
                 {
                     p.race_points.insert(race, point);

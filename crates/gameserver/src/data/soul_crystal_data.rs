@@ -133,14 +133,14 @@ impl SoulCrystalData {
         for event in xml::events(content) {
             match event {
                 Event::Start(e) | Event::Empty(e) => {
-                    let attr = |key: &[u8]| attr_str(&e, key);
-                    let num = |key: &[u8]| attr(key).and_then(|v| v.parse::<i32>().ok());
+                    let attr = |key: &str| attr_str(&e, key);
+                    let num = |key: &str| attr(key).and_then(|v| v.parse::<i32>().ok());
                     match e.name().as_ref() {
-                        b"npc" => in_npc_section = true,
-                        b"crystal" => in_npc_section = false,
-                        b"item" if !in_npc_section => {
+                        "npc" => in_npc_section = true,
+                        "crystal" => in_npc_section = false,
+                        "item" if !in_npc_section => {
                             if let (Some(item_id), Some(level), Some(leveled)) =
-                                (num(b"itemId"), num(b"level"), num(b"leveledItemId"))
+                                (num("itemId"), num("level"), num("leveledItemId"))
                             {
                                 self.crystals.insert(
                                     item_id,
@@ -151,29 +151,29 @@ impl SoulCrystalData {
                                 );
                             }
                         }
-                        b"item" if in_npc_section => {
-                            cur_npc = num(b"npcId");
+                        "item" if in_npc_section => {
+                            cur_npc = num("npcId");
                             if let Some(id) = cur_npc {
                                 self.npc_info.entry(id).or_default();
                             }
                         }
-                        b"detail" => {
+                        "detail" => {
                             let Some(npc_id) = cur_npc else { continue };
                             let info = LevelingInfo {
-                                absorb_type: attr(b"absorbType")
+                                absorb_type: attr("absorbType")
                                     .map(|s| AbsorbType::parse(&s))
                                     .unwrap_or_default(),
-                                skill_needed: attr(b"skill").map(|s| s == "true").unwrap_or(false),
-                                chance: num(b"chance").unwrap_or(5),
+                                skill_needed: attr("skill").map(|s| s == "true").unwrap_or(false),
+                                chance: num("chance").unwrap_or(5),
                             };
                             let map = self.npc_info.entry(npc_id).or_default();
                             // `maxLevel="N"` → levels 0..=N; `levelList="a,b,c"`
                             // → exactly those levels.
-                            if let Some(max_level) = num(b"maxLevel") {
+                            if let Some(max_level) = num("maxLevel") {
                                 for lvl in 0..=max_level {
                                     map.insert(lvl, info);
                                 }
-                            } else if let Some(list) = attr(b"levelList") {
+                            } else if let Some(list) = attr("levelList") {
                                 for tok in list.split(',') {
                                     if let Ok(lvl) = tok.trim().parse::<i32>() {
                                         map.insert(lvl, info);
@@ -184,7 +184,7 @@ impl SoulCrystalData {
                         _ => {}
                     }
                 }
-                Event::End(e) if e.name().as_ref() == b"item" && in_npc_section => {
+                Event::End(e) if e.name().as_ref() == "item" && in_npc_section => {
                     cur_npc = None;
                 }
                 _ => {}

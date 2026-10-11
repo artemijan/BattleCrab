@@ -136,10 +136,10 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
     loop {
         match reader.read_event_into(&mut buf) {
             Ok(Event::Start(e)) | Ok(Event::Empty(e)) => {
-                let attr = |key: &str| super::xml::attr_strict(&e, key);
+                let attr = |key: &str| super::xml::attr_str(&e, key);
                 let num = |key: &str| attr(key).and_then(|v| v.parse::<f64>().ok());
                 match e.name().as_ref() {
-                    b"option" => {
+                    "option" => {
                         current =
                             attr("id")
                                 .and_then(|v| v.parse::<i32>().ok())
@@ -148,30 +148,30 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
                                     ..Default::default()
                                 });
                     }
-                    b"effect" => {
+                    "effect" => {
                         effect_name = attr("name");
                         amount = None;
                         mode = StatModifierType::Diff;
                     }
-                    b"amount" => text_target = Some("amount"),
-                    b"mode" => text_target = Some("mode"),
-                    tag @ (b"passive_skill" | b"active_skill" | b"attack_skill"
-                    | b"magic_skill" | b"critical_skill") => {
+                    "amount" => text_target = Some("amount"),
+                    "mode" => text_target = Some("mode"),
+                    tag @ ("passive_skill" | "active_skill" | "attack_skill" | "magic_skill"
+                    | "critical_skill") => {
                         if let (Some(o), Some(id), Some(level)) = (
                             current.as_mut(),
                             num("id").map(|v| v as i32),
                             num("level").map(|v| v as i32),
                         ) {
                             match tag {
-                                b"passive_skill" => o.passive_skills.push((id, level)),
-                                b"active_skill" => o.active_skills.push((id, level)),
+                                "passive_skill" => o.passive_skills.push((id, level)),
+                                "active_skill" => o.active_skills.push((id, level)),
                                 _ => o.triggers.push(OptionTrigger {
                                     skill_id: id,
                                     skill_level: level,
                                     chance: num("chance").unwrap_or(0.0),
                                     kind: match tag {
-                                        b"attack_skill" => OptionSkillType::Attack,
-                                        b"magic_skill" => OptionSkillType::Magic,
+                                        "attack_skill" => OptionSkillType::Attack,
+                                        "magic_skill" => OptionSkillType::Magic,
                                         _ => OptionSkillType::Critical,
                                     },
                                 }),
@@ -182,7 +182,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
                 }
             }
             Ok(Event::Text(t)) => {
-                let value = t.unescape().unwrap_or_default().trim().to_string();
+                let value = t.into_inner().trim().to_string();
                 match text_target.take() {
                     Some("amount") => amount = value.parse().ok(),
                     Some("mode") => {
@@ -196,7 +196,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
                 }
             }
             Ok(Event::End(e)) => match e.name().as_ref() {
-                b"effect" => {
+                "effect" => {
                     if let (Some(o), Some(name), Some(amount)) =
                         (current.as_mut(), effect_name.take(), amount.take())
                         && let Some(stat) = crate::data::skill_data::stat_for_effect_name(&name)
@@ -217,7 +217,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, OptionEntry>) {
                         });
                     }
                 }
-                b"option" => {
+                "option" => {
                     if let Some(o) = current.take() {
                         out.insert(o.id, o);
                     }

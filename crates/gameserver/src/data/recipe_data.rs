@@ -111,15 +111,15 @@ impl RecipeData {
         for event in xml::events(content) {
             match event {
                 Event::Start(e) | Event::Empty(e) => {
-                    let attr = |key: &[u8]| attr_str(&e, key);
-                    let num = |key: &[u8]| attr(key).and_then(|v| v.parse::<i64>().ok());
+                    let attr = |key: &str| attr_str(&e, key);
+                    let num = |key: &str| attr(key).and_then(|v| v.parse::<i64>().ok());
                     match e.name().as_ref() {
-                        b"item" => {
+                        "item" => {
                             let (Some(id), Some(recipe_item_id), Some(level), Some(success_rate)) = (
-                                num(b"id"),
-                                num(b"recipeId"),
-                                num(b"craftLevel"),
-                                num(b"successRate"),
+                                num("id"),
+                                num("recipeId"),
+                                num("craftLevel"),
+                                num("successRate"),
                             ) else {
                                 warn!(
                                     "RecipeData: recipe item missing required attribute, skipping"
@@ -131,12 +131,12 @@ impl RecipeData {
                                 id: id as i32,
                                 level: level as i32,
                                 recipe_item_id: recipe_item_id as i32,
-                                name: attr(b"name").unwrap_or_default(),
+                                name: attr("name").unwrap_or_default(),
                                 success_rate: success_rate as i32,
                                 item_id: 0,
                                 count: 0,
                                 rare: None,
-                                is_dwarven: attr(b"type").as_deref() == Some("dwarven"),
+                                is_dwarven: attr("type").as_deref() == Some("dwarven"),
                                 ingredients: Vec::new(),
                                 mp_use: 0,
                                 hp_use: 0,
@@ -145,25 +145,25 @@ impl RecipeData {
                                 alt_gim: 1,
                             });
                         }
-                        b"ingredient" => {
+                        "ingredient" => {
                             if let (Some(r), Some(id), Some(count)) =
-                                (cur.as_mut(), num(b"id"), num(b"count"))
+                                (cur.as_mut(), num("id"), num("count"))
                                 && count > 0
                             {
                                 r.ingredients.push((id as i32, count));
                             }
                         }
-                        b"production" => {
+                        "production" => {
                             if let (Some(r), Some(id), Some(count)) =
-                                (cur.as_mut(), num(b"id"), num(b"count"))
+                                (cur.as_mut(), num("id"), num("count"))
                             {
                                 r.item_id = id as i32;
                                 r.count = count as i32;
                             }
                         }
-                        b"productionRare" => {
+                        "productionRare" => {
                             if let (Some(r), Some(id), Some(count), Some(rarity)) =
-                                (cur.as_mut(), num(b"id"), num(b"count"), num(b"rarity"))
+                                (cur.as_mut(), num("id"), num("count"), num("rarity"))
                             {
                                 r.rare = Some(RareProduction {
                                     item_id: id as i32,
@@ -172,9 +172,9 @@ impl RecipeData {
                                 });
                             }
                         }
-                        b"statUse" => {
+                        "statUse" => {
                             if let (Some(r), Some(name), Some(value)) =
-                                (cur.as_mut(), attr(b"name"), num(b"value"))
+                                (cur.as_mut(), attr("name"), num("value"))
                             {
                                 match name.as_str() {
                                     "MP" => r.mp_use = value as i32,
@@ -183,9 +183,9 @@ impl RecipeData {
                                 }
                             }
                         }
-                        b"altStatChange" => {
+                        "altStatChange" => {
                             if let (Some(r), Some(name), Some(value)) =
-                                (cur.as_mut(), attr(b"name"), num(b"value"))
+                                (cur.as_mut(), attr("name"), num("value"))
                             {
                                 match name.as_str() {
                                     "XP" => r.alt_exp = Some(value),
@@ -198,7 +198,7 @@ impl RecipeData {
                         _ => {}
                     }
                 }
-                Event::End(e) if e.name().as_ref() == b"item" => {
+                Event::End(e) if e.name().as_ref() == "item" => {
                     if let Some(r) = cur.take() {
                         self.by_item.insert(r.recipe_item_id, r.id);
                         self.recipes.insert(r.id, r);

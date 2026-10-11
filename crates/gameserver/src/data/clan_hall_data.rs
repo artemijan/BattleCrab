@@ -47,9 +47,9 @@ fn xml_files(root: &str) -> Vec<std::path::PathBuf> {
 
 fn point(e: &quick_xml::events::BytesStart) -> (i32, i32, i32) {
     (
-        attr_i32(e, b"x").unwrap_or(0),
-        attr_i32(e, b"y").unwrap_or(0),
-        attr_i32(e, b"z").unwrap_or(0),
+        attr_i32(e, "x").unwrap_or(0),
+        attr_i32(e, "y").unwrap_or(0),
+        attr_i32(e, "z").unwrap_or(0),
     )
 }
 
@@ -57,12 +57,12 @@ fn parse_file(content: &str, out: &mut HashMap<i32, ClanHall>) {
     let mut current: Option<ClanHall> = None;
     for event in xml::events_trimmed(content) {
         match event {
-            Event::Start(e) if e.name().as_ref() == b"clanHall" => {
+            Event::Start(e) if e.name().as_ref() == "clanHall" => {
                 current = Some(ClanHall {
-                    id: attr_i32(&e, b"id").unwrap_or(0),
-                    name: attr(&e, b"name").unwrap_or_default(),
-                    grade: ClanHallGrade::from_name(&attr(&e, b"grade").unwrap_or_default()),
-                    hall_type: ClanHallType::from_name(&attr(&e, b"type").unwrap_or_default()),
+                    id: attr_i32(&e, "id").unwrap_or(0),
+                    name: attr(&e, "name").unwrap_or_default(),
+                    grade: ClanHallGrade::from_name(&attr(&e, "grade").unwrap_or_default()),
+                    hall_type: ClanHallType::from_name(&attr(&e, "type").unwrap_or_default()),
                     min_bid: 0,
                     lease: 0,
                     deposit: 0,
@@ -74,7 +74,7 @@ fn parse_file(content: &str, out: &mut HashMap<i32, ClanHall>) {
                     paid_until: 0,
                 });
             }
-            Event::End(e) if e.name().as_ref() == b"clanHall" => {
+            Event::End(e) if e.name().as_ref() == "clanHall" => {
                 if let Some(hall) = current.take() {
                     out.insert(hall.id, hall);
                 }
@@ -84,23 +84,23 @@ fn parse_file(content: &str, out: &mut HashMap<i32, ClanHall>) {
                     continue;
                 };
                 match e.name().as_ref() {
-                    b"auction" => {
-                        hall.min_bid = attr_i64(&e, b"minBid").unwrap_or(0);
-                        hall.lease = attr_i64(&e, b"lease").unwrap_or(0);
-                        hall.deposit = attr_i64(&e, b"deposit").unwrap_or(0);
+                    "auction" => {
+                        hall.min_bid = attr_i64(&e, "minBid").unwrap_or(0);
+                        hall.lease = attr_i64(&e, "lease").unwrap_or(0);
+                        hall.deposit = attr_i64(&e, "deposit").unwrap_or(0);
                     }
-                    b"npc" => {
-                        if let Some(id) = attr_i32(&e, b"id") {
+                    "npc" => {
+                        if let Some(id) = attr_i32(&e, "id") {
                             hall.npcs.push(id);
                         }
                     }
-                    b"door" => {
-                        if let Some(id) = attr_i32(&e, b"id") {
+                    "door" => {
+                        if let Some(id) = attr_i32(&e, "id") {
                             hall.doors.push(id);
                         }
                     }
-                    b"ownerRestartPoint" => hall.owner_restart = point(&e),
-                    b"banishPoint" => hall.banish = point(&e),
+                    "ownerRestartPoint" => hall.owner_restart = point(&e),
+                    "banishPoint" => hall.banish = point(&e),
                     _ => {}
                 }
             }

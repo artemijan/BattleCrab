@@ -103,21 +103,21 @@ fn parse_file(content: &str, out: &mut HashMap<i32, SiegeGuardHolder>) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
                 let name = e.name();
-                let attr = |key: &[u8]| xml::attr_i32(&e, key);
+                let attr = |key: &str| xml::attr_i32(&e, key);
                 match name.as_ref() {
-                    b"castle" => castle_id = attr(b"id").unwrap_or(0),
-                    b"guard" => {
+                    "castle" => castle_id = attr("id").unwrap_or(0),
+                    "guard" => {
                         if castle_id > 0
-                            && let Some(item_id) = attr(b"itemId")
+                            && let Some(item_id) = attr("itemId")
                         {
                             out.insert(
                                 item_id,
                                 SiegeGuardHolder {
                                     castle_id,
                                     item_id,
-                                    npc_id: attr(b"npcId").unwrap_or(0),
-                                    max_npc_amount: attr(b"npcMaxAmount").unwrap_or(0),
-                                    stationary: xml::attr_str(&e, b"stationary").as_deref()
+                                    npc_id: attr("npcId").unwrap_or(0),
+                                    max_npc_amount: attr("npcMaxAmount").unwrap_or(0),
+                                    stationary: xml::attr_str(&e, "stationary").as_deref()
                                         == Some("true"),
                                 },
                             );

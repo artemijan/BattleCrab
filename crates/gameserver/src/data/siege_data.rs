@@ -107,17 +107,17 @@ pub fn load_siege_schedule(file_path: &str) -> HashMap<i32, SiegeScheduleEntry> 
     for event in xml::events_trimmed(&content) {
         match event {
             quick_xml::events::Event::Empty(e) | quick_xml::events::Event::Start(e)
-                if e.name().as_ref() == b"schedule" =>
+                if e.name().as_ref() == "schedule" =>
             {
-                let attr = |k: &[u8]| attr_str(&e, k);
+                let attr = |k: &str| attr_str(&e, k);
                 let (Some(castle_id), Some(day), Some(hour)) = (
-                    attr(b"castleId").and_then(|v| v.parse::<i32>().ok()),
-                    attr(b"day").and_then(|v| weekday_from_name(&v)),
-                    attr(b"hour").and_then(|v| v.parse::<u32>().ok()),
+                    attr("castleId").and_then(|v| v.parse::<i32>().ok()),
+                    attr("day").and_then(|v| weekday_from_name(&v)),
+                    attr("hour").and_then(|v| v.parse::<u32>().ok()),
                 ) else {
                     continue;
                 };
-                let enabled = attr(b"siegeEnabled").is_none_or(|v| v.eq_ignore_ascii_case("true"));
+                let enabled = attr("siegeEnabled").is_none_or(|v| v.eq_ignore_ascii_case("true"));
                 out.insert(
                     castle_id,
                     SiegeScheduleEntry {

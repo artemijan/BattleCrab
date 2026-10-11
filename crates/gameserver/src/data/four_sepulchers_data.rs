@@ -38,17 +38,17 @@ impl FourSepulchersData {
         for event in xml::events(&text) {
             match event {
                 quick_xml::events::Event::Empty(e) | quick_xml::events::Event::Start(e)
-                    if e.name().as_ref() == b"spawn" =>
+                    if e.name().as_ref() == "spawn" =>
                 {
-                    let attr = |key: &[u8]| xml::attr_i32(&e, key).unwrap_or(0);
+                    let attr = |key: &str| xml::attr_i32(&e, key).unwrap_or(0);
                     out.spawns.push(FsSpawn {
-                        sepulcher: attr(b"sepulcherId"),
-                        wave: attr(b"wave"),
-                        npc_id: attr(b"npcId"),
-                        x: attr(b"x"),
-                        y: attr(b"y"),
-                        z: attr(b"z"),
-                        heading: attr(b"heading"),
+                        sepulcher: attr("sepulcherId"),
+                        wave: attr("wave"),
+                        npc_id: attr("npcId"),
+                        x: attr("x"),
+                        y: attr("y"),
+                        z: attr("z"),
+                        heading: attr("heading"),
                     });
                 }
                 _ => {}

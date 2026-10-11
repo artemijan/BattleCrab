@@ -66,7 +66,7 @@ pub fn load_castle_restart_points(file_path: &str) -> HashMap<i32, CastleRespawn
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
-                if e.name().as_ref() == b"zone" {
+                if e.name().as_ref() == "zone" {
                     if castle_id > 0 {
                         let slot = out.entry(castle_id).or_default();
                         slot.spawn.append(&mut pts.spawn);
@@ -82,25 +82,19 @@ pub fn load_castle_restart_points(file_path: &str) -> HashMap<i32, CastleRespawn
             _ => continue,
         };
         match e.name().as_ref() {
-            b"zone" => {
+            "zone" => {
                 castle_id = 0;
                 pts = CastleRespawnPoints::default();
             }
-            b"stat" if attr_str(&e, b"name").as_deref() == Some("castleId") => {
-                castle_id = attr_i32(&e, b"val").unwrap_or(0);
+            "stat" if attr_str(&e, "name").as_deref() == Some("castleId") => {
+                castle_id = attr_i32(&e, "val").unwrap_or(0);
             }
-            b"spawn" => {
-                let x = attr_i32(&e, b"X")
-                    .or_else(|| attr_i32(&e, b"x"))
-                    .unwrap_or(0);
-                let y = attr_i32(&e, b"Y")
-                    .or_else(|| attr_i32(&e, b"y"))
-                    .unwrap_or(0);
-                let z = attr_i32(&e, b"Z")
-                    .or_else(|| attr_i32(&e, b"z"))
-                    .unwrap_or(0);
+            "spawn" => {
+                let x = attr_i32(&e, "X").or_else(|| attr_i32(&e, "x")).unwrap_or(0);
+                let y = attr_i32(&e, "Y").or_else(|| attr_i32(&e, "y")).unwrap_or(0);
+                let z = attr_i32(&e, "Z").or_else(|| attr_i32(&e, "z")).unwrap_or(0);
                 // Java warns and drops an unknown type rather than pooling it.
-                match attr_str(&e, b"type").as_deref() {
+                match attr_str(&e, "type").as_deref() {
                     None | Some("") => pts.spawn.push((x, y, z)),
                     Some("other") => pts.other.push((x, y, z)),
                     Some("chaotic") => pts.chaotic.push((x, y, z)),

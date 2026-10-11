@@ -200,13 +200,13 @@ fn social_class_ordinal(name: &str) -> Option<u8> {
 
 fn new_learn(e: &quick_xml::events::BytesStart) -> PledgeSkillLearn {
     PledgeSkillLearn {
-        skill_id: attr_i32(e, b"skillId").unwrap_or(-1),
-        skill_level: attr_i32(e, b"skillLevel").unwrap_or(0),
-        get_level: attr_i32(e, b"getLevel").unwrap_or(99),
+        skill_id: attr_i32(e, "skillId").unwrap_or(-1),
+        skill_level: attr_i32(e, "skillLevel").unwrap_or(0),
+        get_level: attr_i32(e, "getLevel").unwrap_or(99),
         social_class: None,
-        residencial: attr_str(e, b"residenceSkill").as_deref() == Some("true"),
+        residencial: attr_str(e, "residenceSkill").as_deref() == Some("true"),
         residence_ids: Vec::new(),
-        level_up_sp: attr_str(e, b"levelUpSp")
+        level_up_sp: attr_str(e, "levelUpSp")
             .and_then(|s| s.parse().ok())
             .unwrap_or(0),
     }
@@ -227,13 +227,13 @@ fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
     for event in xml::events(&content) {
         match event {
             Event::Start(e) => match e.name().as_ref() {
-                b"skillTree" => in_tree = attr_str(&e, b"type").as_deref() == Some(tree_type),
-                b"skill" if in_tree => cur = Some(new_learn(&e)),
-                b"socialClass" if cur.is_some() => in_social = true,
-                b"residenceId" if cur.is_some() => in_residence = true,
+                "skillTree" => in_tree = attr_str(&e, "type").as_deref() == Some(tree_type),
+                "skill" if in_tree => cur = Some(new_learn(&e)),
+                "socialClass" if cur.is_some() => in_social = true,
+                "residenceId" if cur.is_some() => in_residence = true,
                 _ => {}
             },
-            Event::Empty(e) if in_tree && e.name().as_ref() == b"skill" => {
+            Event::Empty(e) if in_tree && e.name().as_ref() == "skill" => {
                 let learn = new_learn(&e);
                 if learn.skill_id > 0 {
                     out.push(learn);
@@ -241,28 +241,25 @@ fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
             }
             Event::Text(t) if in_social => {
                 if let Some(c) = cur.as_mut() {
-                    c.social_class = social_class_ordinal(&t.unescape().unwrap_or_default());
+                    c.social_class = social_class_ordinal(&t.into_inner());
                 }
             }
             Event::Text(t) if in_residence => {
-                if let (Some(c), Ok(id)) = (
-                    cur.as_mut(),
-                    t.unescape().unwrap_or_default().trim().parse(),
-                ) {
+                if let (Some(c), Ok(id)) = (cur.as_mut(), t.into_inner().trim().parse()) {
                     c.residence_ids.push(id);
                 }
             }
             Event::End(e) => match e.name().as_ref() {
-                b"socialClass" => in_social = false,
-                b"residenceId" => in_residence = false,
-                b"skill" => {
+                "socialClass" => in_social = false,
+                "residenceId" => in_residence = false,
+                "skill" => {
                     if let Some(c) = cur.take()
                         && c.skill_id > 0
                     {
                         out.push(c);
                     }
                 }
-                b"skillTree" => in_tree = false,
+                "skillTree" => in_tree = false,
                 _ => {}
             },
             _ => {}

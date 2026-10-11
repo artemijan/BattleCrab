@@ -6,7 +6,7 @@ use quick_xml::Reader;
 use quick_xml::events::Event;
 use tracing::info;
 
-use crate::data::xml::attr_strict as attr;
+use crate::data::xml::attr_str as attr;
 use crate::model::cursed_weapon::CursedWeapon;
 
 const CURSED_WEAPONS_XML: &str = "data/CursedWeapons.xml";
@@ -50,7 +50,7 @@ fn parse(content: &str) -> Vec<CursedWeapon> {
     loop {
         match reader.read_event_into(&mut buf) {
             Ok(Event::Start(e)) | Ok(Event::Empty(e)) => match e.name().as_ref() {
-                b"item" => {
+                "item" => {
                     cur = Some(CursedWeapon {
                         item_id: attr(&e, "id").and_then(|s| s.parse().ok()).unwrap_or(0),
                         skill_id: attr(&e, "skillId")
@@ -76,17 +76,17 @@ fn parse(content: &str) -> Vec<CursedWeapon> {
                 tag => {
                     if let Some(cw) = cur.as_mut() {
                         match tag {
-                            b"disapearChance" => cw.disappear_chance = val(&e),
-                            b"dropRate" => cw.drop_rate = val(&e),
-                            b"duration" => cw.duration = val(&e),
-                            b"durationLost" => cw.duration_lost = val(&e),
-                            b"stageKills" => cw.stage_kills = val(&e),
+                            "disapearChance" => cw.disappear_chance = val(&e),
+                            "dropRate" => cw.drop_rate = val(&e),
+                            "duration" => cw.duration = val(&e),
+                            "durationLost" => cw.duration_lost = val(&e),
+                            "stageKills" => cw.stage_kills = val(&e),
                             _ => {}
                         }
                     }
                 }
             },
-            Ok(Event::End(e)) if e.name().as_ref() == b"item" => {
+            Ok(Event::End(e)) if e.name().as_ref() == "item" => {
                 if let Some(cw) = cur.take()
                     && cw.item_id != 0
                 {

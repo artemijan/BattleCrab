@@ -156,27 +156,27 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
     for event in xml::events(&content) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
-                let attr = |key: &[u8]| attr_str(&e, key);
+                let attr = |key: &str| attr_str(&e, key);
                 match e.name().as_ref() {
-                    b"npcs" => in_npcs = true,
-                    b"npc" if in_npcs => {
-                        if let Some(id) = attr(b"id").and_then(|v| v.parse().ok()) {
+                    "npcs" => in_npcs = true,
+                    "npc" if in_npcs => {
+                        if let Some(id) = attr("id").and_then(|v| v.parse().ok()) {
                             alias_ids.push(id);
                         }
                     }
-                    b"npc" => {
-                        npc_id = attr(b"id").and_then(|v| v.parse().ok());
+                    "npc" => {
+                        npc_id = attr("id").and_then(|v| v.parse().ok());
                         lists.clear();
                         alias_ids.clear();
                     }
-                    b"teleport" => {
+                    "teleport" => {
                         let Some(teleport_type) =
-                            attr(b"type").as_deref().and_then(TeleportType::parse)
+                            attr("type").as_deref().and_then(TeleportType::parse)
                         else {
                             warn!("TeleporterData: bad teleport type in {}.", path.display());
                             continue;
                         };
-                        let name = attr(b"name")
+                        let name = attr("name")
                             .unwrap_or_else(|| teleport_type.default_name().to_string());
                         current = Some(TeleportHolder {
                             name,
@@ -184,28 +184,27 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
                             locations: Vec::new(),
                         });
                     }
-                    b"location" => {
+                    "location" => {
                         if let Some(holder) = current.as_mut() {
-                            let num = |key: &[u8]| attr(key).and_then(|v| v.parse::<i64>().ok());
-                            let (Some(x), Some(y), Some(z)) = (num(b"x"), num(b"y"), num(b"z"))
-                            else {
+                            let num = |key: &str| attr(key).and_then(|v| v.parse::<i64>().ok());
+                            let (Some(x), Some(y), Some(z)) = (num("x"), num("y"), num("z")) else {
                                 continue;
                             };
                             holder.locations.push(TeleportLocation {
                                 x: x as i32,
                                 y: y as i32,
                                 z: z as i32,
-                                name: attr(b"name"),
-                                npc_string_id: num(b"npcStringId").unwrap_or(-1) as i32,
-                                castle_ids: attr(b"castleId")
+                                name: attr("name"),
+                                npc_string_id: num("npcStringId").unwrap_or(-1) as i32,
+                                castle_ids: attr("castleId")
                                     .map(|v| {
                                         v.split(';')
                                             .filter_map(|p| p.trim().parse::<i32>().ok())
                                             .collect()
                                     })
                                     .unwrap_or_default(),
-                                fee_id: num(b"feeId").unwrap_or(ADENA_ID as i64) as i32,
-                                fee_count: num(b"feeCount").unwrap_or(0),
+                                fee_id: num("feeId").unwrap_or(ADENA_ID as i64) as i32,
+                                fee_count: num("feeCount").unwrap_or(0),
                             });
                         }
                     }
@@ -213,8 +212,8 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
                 }
             }
             Event::End(e) => match e.name().as_ref() {
-                b"npcs" => in_npcs = false,
-                b"teleport" => {
+                "npcs" => in_npcs = false,
+                "teleport" => {
                     if let Some(holder) = current.take() {
                         // Java warns on duplicates and keeps the first
                         // (`putIfAbsent`).
@@ -229,7 +228,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
                         }
                     }
                 }
-                b"npc" if !in_npcs => {
+                "npc" if !in_npcs => {
                     if let Some(id) = npc_id.take() {
                         for alias in alias_ids.drain(..) {
                             out.insert(alias, lists.clone());

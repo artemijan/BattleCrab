@@ -79,37 +79,37 @@ fn parse_str(content: &str, out: &mut HashMap<i32, EnchantSkillCost>) {
     for event in xml::events_trimmed(content) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
-                let attr = |key: &[u8]| attr_str(&e, key);
+                let attr = |key: &str| attr_str(&e, key);
                 match e.name().as_ref() {
-                    b"enchant" => {
-                        let level = attr(b"level").and_then(|v| v.parse().ok()).unwrap_or(0);
+                    "enchant" => {
+                        let level = attr("level").and_then(|v| v.parse().ok()).unwrap_or(0);
                         cur = Some(EnchantSkillCost {
                             level,
-                            enchant_fail_level: attr(b"enchantFailLevel")
+                            enchant_fail_level: attr("enchantFailLevel")
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(0),
                             ..Default::default()
                         });
                     }
-                    b"sp" => {
+                    "sp" => {
                         if let (Some(c), Some(ty), Some(amount)) =
-                            (cur.as_mut(), attr(b"type"), attr(b"amount"))
+                            (cur.as_mut(), attr("type"), attr("amount"))
                         {
                             c.sp.insert(ty, amount.parse().unwrap_or(0));
                         }
                     }
-                    b"chance" => {
+                    "chance" => {
                         if let (Some(c), Some(ty), Some(value)) =
-                            (cur.as_mut(), attr(b"type"), attr(b"value"))
+                            (cur.as_mut(), attr("type"), attr("value"))
                         {
                             c.chance.insert(ty, value.parse().unwrap_or(0));
                         }
                     }
-                    b"item" => {
+                    "item" => {
                         if let (Some(c), Some(ty), Some(id)) =
-                            (cur.as_mut(), attr(b"type"), attr(b"id"))
+                            (cur.as_mut(), attr("type"), attr("id"))
                         {
-                            let count = attr(b"count").and_then(|v| v.parse().ok()).unwrap_or(0);
+                            let count = attr("count").and_then(|v| v.parse().ok()).unwrap_or(0);
                             if let Ok(id) = id.parse() {
                                 c.items.entry(ty).or_default().push((id, count));
                             }
@@ -118,7 +118,7 @@ fn parse_str(content: &str, out: &mut HashMap<i32, EnchantSkillCost>) {
                     _ => {}
                 }
             }
-            Event::End(e) if e.name().as_ref() == b"enchant" => {
+            Event::End(e) if e.name().as_ref() == "enchant" => {
                 if let Some(c) = cur.take() {
                     out.insert(c.level, c);
                 }

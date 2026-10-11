@@ -155,8 +155,8 @@ impl CubicData {
             match reader.read_event_into(&mut buf) {
                 Ok(Event::Start(e)) | Ok(Event::Empty(e)) => {
                     let name = e.name();
-                    let tag = String::from_utf8_lossy(name.as_ref()).to_string();
-                    let attr = |key: &str| super::xml::attr_str(&e, key.as_bytes());
+                    let tag = name.as_ref().to_string();
+                    let attr = |key: &str| super::xml::attr_str(&e, key);
                     match tag.as_str() {
                         "cubic" => {
                             let mut t = CubicTemplate {
@@ -233,7 +233,7 @@ impl CubicData {
                     }
                 }
                 Ok(Event::End(e)) => {
-                    if e.name().as_ref() == b"cubic"
+                    if e.name().as_ref() == "cubic"
                         && let Some(t) = cur.take()
                     {
                         self.by_key.insert((t.id, t.level), t);

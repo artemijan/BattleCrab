@@ -318,9 +318,9 @@ fn compiled(pattern: &str) -> Option<std::sync::Arc<Regex>> {
 // --- XML loading ------------------------------------------------------------
 
 fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
-    e.attributes().flatten().find_map(|a| {
-        (a.key.as_ref() == key.as_bytes()).then(|| String::from_utf8_lossy(&a.value).into_owned())
-    })
+    e.attributes()
+        .flatten()
+        .find_map(|a| (a.key.as_ref() == key).then(|| a.value.into_owned()))
 }
 
 fn open_xml(path: &Path) -> Result<XmlReader<std::io::BufReader<std::fs::File>>, String> {
@@ -336,7 +336,7 @@ fn load_links(path: &Path) -> Result<Vec<Link>, String> {
     let mut links = Vec::new();
     loop {
         match reader.read_event_into(&mut buf) {
-            Ok(Event::Empty(e)) | Ok(Event::Start(e)) if e.name().as_ref() == b"link" => {
+            Ok(Event::Empty(e)) | Ok(Event::Start(e)) if e.name().as_ref() == "link" => {
                 if let (Some(pattern), Some(schema)) = (attr(&e, "pattern"), attr(&e, "file")) {
                     links.push(Link {
                         pattern,
@@ -361,10 +361,10 @@ fn load_enums(path: &Path) -> Result<HashMap<String, HashMap<i64, String>>, Stri
     let mut current = String::new();
     loop {
         match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(e)) if e.name().as_ref() == b"enum" => {
+            Ok(Event::Start(e)) if e.name().as_ref() == "enum" => {
                 current = attr(&e, "name").unwrap_or_default();
             }
-            Ok(Event::Empty(e)) | Ok(Event::Start(e)) if e.name().as_ref() == b"node" => {
+            Ok(Event::Empty(e)) | Ok(Event::Start(e)) if e.name().as_ref() == "node" => {
                 if let (Some(i), Some(n)) = (attr(&e, "index"), attr(&e, "name"))
                     && let Ok(i) = i.parse::<i64>()
                 {
@@ -386,11 +386,11 @@ fn load_definitions(path: &Path) -> Result<HashMap<String, Vec<Node>>, String> {
     let mut out = HashMap::new();
     loop {
         match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(e)) if e.name().as_ref() == b"definition" => {
+            Ok(Event::Start(e)) if e.name().as_ref() == "definition" => {
                 let name = attr(&e, "name").unwrap_or_default();
                 // Definitions may not reference other definitions, so an empty
                 // macro table is the right context here.
-                let nodes = read_children(&mut reader, b"definition", &HashMap::new(), path)?;
+                let nodes = read_children(&mut reader, "definition", &HashMap::new(), path)?;
                 out.insert(name, nodes);
             }
             Ok(Event::Eof) => break,
@@ -408,10 +408,10 @@ fn load_schema(path: &Path, defs: &HashMap<String, Vec<Node>>) -> Result<Vec<Lay
     let mut out = Vec::new();
     loop {
         match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(e)) if e.name().as_ref() == b"file" => {
+            Ok(Event::Start(e)) if e.name().as_ref() == "file" => {
                 let version = attr(&e, "pattern").unwrap_or_default();
                 let safe_package = attr(&e, "isSafePackage").as_deref() == Some("true");
-                let mut nodes = read_children(&mut reader, b"file", defs, path)?;
+                let mut nodes = read_children(&mut reader, "file", defs, path)?;
                 mark_iterators(&mut nodes);
                 out.push(Layout {
                     version,
@@ -431,7 +431,7 @@ fn load_schema(path: &Path, defs: &HashMap<String, Vec<Node>>) -> Result<Vec<Lay
 /// Read nodes until `</close_tag>`, expanding macro readers as it goes.
 fn read_children<R: std::io::BufRead>(
     reader: &mut XmlReader<R>,
-    close_tag: &[u8],
+    close_tag: &str,
     defs: &HashMap<String, Vec<Node>>,
     path: &Path,
 ) -> Result<Vec<Node>, String> {
@@ -443,16 +443,16 @@ fn read_children<R: std::io::BufRead>(
             .map_err(|e| format!("{}: {e}", path.display()))?;
         match event {
             Event::Start(e) => {
-                let tag = e.name().as_ref().to_vec();
+                let tag = e.name().as_ref().to_owned();
                 let name = attr(&e, "name").unwrap_or_default();
                 let children = read_children(reader, &tag, defs, path)?;
                 nodes.push(build_container(&tag, name, &e, children, path)?);
             }
             Event::Empty(e) => {
-                let tag = e.name().as_ref().to_vec();
-                match tag.as_slice() {
-                    b"node" => nodes.extend(build_leaf(&e, defs, path)?),
-                    b"write" => nodes.push(Node::Constant {
+                let tag = e.name().as_ref().to_owned();
+                match tag.as_str() {
+                    "node" => nodes.extend(build_leaf(&e, defs, path)?),
+                    "write" => nodes.push(Node::Constant {
                         text: unescape_constant(&attr(&e, "name").unwrap_or_default()),
                     }),
                     // A self-closing container has no children; keep it so the
@@ -476,14 +476,14 @@ fn read_children<R: std::io::BufRead>(
 }
 
 fn build_container(
-    tag: &[u8],
+    tag: &str,
     name: String,
     e: &quick_xml::events::BytesStart,
     children: Vec<Node>,
     path: &Path,
 ) -> Result<Node, String> {
     Ok(match tag {
-        b"for" => {
+        "for" => {
             let size = attr(e, "size").unwrap_or_default();
             let count = match size.strip_prefix('#') {
                 Some(var) => Count::Var(var.to_string()),
@@ -496,16 +496,16 @@ fn build_container(
                 children,
             }
         }
-        b"wrapper" => Node::Wrapper { name, children },
-        b"if" | b"else" => Node::If {
+        "wrapper" => Node::Wrapper { name, children },
+        "if" | "else" => Node::If {
             param: attr(e, "param")
                 .and_then(|p| p.strip_prefix('#').map(str::to_owned))
                 .ok_or_else(|| format!("{}: <if> needs param=\"#var\"", path.display()))?,
             val: attr(e, "val").unwrap_or_default(),
-            negate: tag == b"else",
+            negate: tag == "else",
             children,
         },
-        b"mask" => Node::Mask {
+        "mask" => Node::Mask {
             param: attr(e, "param")
                 .and_then(|p| p.strip_prefix('#').map(str::to_owned))
                 .ok_or_else(|| format!("{}: <mask> needs param=\"#var\"", path.display()))?,
@@ -518,7 +518,7 @@ fn build_container(
             return Err(format!(
                 "{}: unexpected element <{}>",
                 path.display(),
-                String::from_utf8_lossy(other)
+                other
             ));
         }
     })

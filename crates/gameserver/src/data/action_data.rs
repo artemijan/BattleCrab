@@ -54,17 +54,17 @@ impl ActionData {
         });
         for event in xml::events(&content) {
             match event {
-                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"action" => {
-                    let attr = |key: &[u8]| xml::attr_str(&e, key);
-                    let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
+                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == "action" => {
+                    let attr = |key: &str| xml::attr_str(&e, key);
+                    let Some(id) = attr("id").and_then(|v| v.parse::<i32>().ok()) else {
                         continue;
                     };
                     action_ids.push(id);
                     rows.insert(
                         id,
                         ActionRow {
-                            handler: attr(b"handler").unwrap_or_default(),
-                            option: attr(b"option")
+                            handler: attr("handler").unwrap_or_default(),
+                            option: attr("option")
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(0),
                         },

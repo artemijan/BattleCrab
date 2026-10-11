@@ -664,47 +664,47 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             Event::Text(text) => {
                 if in_corpse_time {
                     if let Some(t) = cur.as_mut()
-                        && let Ok(v) = String::from_utf8_lossy(&text).trim().parse()
+                        && let Ok(v) = text.trim().parse()
                     {
                         t.corpse_time = Some(v);
                     }
                 } else if in_clan {
                     if let Some(t) = cur.as_mut() {
-                        let name = String::from_utf8_lossy(&text).trim().to_string();
+                        let name = text.trim().to_string();
                         if !name.is_empty() {
                             t.clans.push(name);
                         }
                     }
                 } else if in_ignore_npc_id {
                     if let Some(t) = cur.as_mut()
-                        && let Ok(v) = String::from_utf8_lossy(&text).trim().parse()
+                        && let Ok(v) = text.trim().parse()
                     {
                         t.ignore_clan_npc_ids.push(v);
                     }
                 } else if in_race && let Some(t) = cur.as_mut() {
-                    t.race = parse_race(String::from_utf8_lossy(&text).trim());
+                    t.race = parse_race(text.trim());
                 }
                 continue;
             }
             Event::End(e) => {
-                match e.name().as_ref().to_ascii_lowercase().as_slice() {
-                    b"parameters" => in_parameters = false,
-                    b"minions" => in_minions = false,
-                    b"skilllist" => in_skill_list = false,
+                match e.name().as_ref().to_ascii_lowercase().as_str() {
+                    "parameters" => in_parameters = false,
+                    "minions" => in_minions = false,
+                    "skilllist" => in_skill_list = false,
                     // A minion's `</npc>` inside `<parameters>` must not flush
                     // the parent template.
-                    b"npc" if !in_parameters => {
+                    "npc" if !in_parameters => {
                         if let Some(t) = cur.take() {
                             finish_template(t, out);
                         }
                     }
-                    b"attribute" => in_attribute = false,
-                    b"corpsetime" => in_corpse_time = false,
-                    b"race" => in_race = false,
-                    b"clan" => in_clan = false,
-                    b"ignorenpcid" => in_ignore_npc_id = false,
-                    b"drop" | b"spoil" => drop_scope = DropScope::None,
-                    b"group" => {
+                    "attribute" => in_attribute = false,
+                    "corpsetime" => in_corpse_time = false,
+                    "race" => in_race = false,
+                    "clan" => in_clan = false,
+                    "ignorenpcid" => in_ignore_npc_id = false,
+                    "drop" | "spoil" => drop_scope = DropScope::None,
+                    "group" => {
                         if let (Some(t), Some(g)) = (cur.as_mut(), cur_group.take()) {
                             t.drop_groups.push(g);
                         }
@@ -716,34 +716,34 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             _ => continue,
         };
         let name = e.name().as_ref().to_ascii_lowercase();
-        match name.as_slice() {
-            b"parameters" => in_parameters = !self_closing,
-            b"skilllist" => in_skill_list = !self_closing,
+        match name.as_str() {
+            "parameters" => in_parameters = !self_closing,
+            "skilllist" => in_skill_list = !self_closing,
             // `<skillList><skill id level/>` — a template skill. (The
             // `name`-tagged `<parameters><skill>` rows never reach here:
             // `in_skill_list` is false inside `<parameters>`.)
-            b"skill" if in_skill_list => {
-                if let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
-                    let level = attr_i32(&e, b"level").unwrap_or(1);
+            "skill" if in_skill_list => {
+                if let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, "id")) {
+                    let level = attr_i32(&e, "level").unwrap_or(1);
                     t.skill_list.push((id, level));
                 }
             }
             // `<parameters><skill name id level/>` — a parameter
             // SkillHolder (`union_skill`, boss AI skills). Keyed by
             // its `name` attribute, never merged into `skill_list`.
-            b"skill" if in_parameters => {
+            "skill" if in_parameters => {
                 if let (Some(t), Some(pname), Some(id)) =
-                    (cur.as_mut(), attr_str(&e, b"name"), attr_i32(&e, b"id"))
+                    (cur.as_mut(), attr_str(&e, "name"), attr_i32(&e, "id"))
                 {
-                    let level = attr_i32(&e, b"level").unwrap_or(1);
+                    let level = attr_i32(&e, "level").unwrap_or(1);
                     t.ai_skill_params.insert(pname, (id, level));
                 }
             }
             // `<parameters><param name value/>` — a scalar AI
             // parameter (`despawn_time`, `skill_delay`, …).
-            b"param" if in_parameters => {
+            "param" if in_parameters => {
                 if let (Some(t), Some(pname), Some(v)) =
-                    (cur.as_mut(), attr_str(&e, b"name"), attr_str(&e, b"value"))
+                    (cur.as_mut(), attr_str(&e, "name"), attr_str(&e, "value"))
                 {
                     t.ai_params.insert(pname, v);
                 }
@@ -751,71 +751,64 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             // Minion references inside `<parameters>` are not templates
             // — but they *are* this NPC's escort list, so record them
             // on the parent before skipping the template handling.
-            b"npc" if in_parameters => {
-                if in_minions && let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
+            "npc" if in_parameters => {
+                if in_minions && let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, "id")) {
                     t.minions.push(MinionHolder {
                         npc_id: id,
-                        count: attr_i32(&e, b"count").unwrap_or(1),
+                        count: attr_i32(&e, "count").unwrap_or(1),
                         group: minion_group.clone(),
                     });
                 }
                 continue;
             }
-            b"npc" => {
-                let Some(id) = attr_i32(&e, b"id") else {
+            "npc" => {
+                let Some(id) = attr_i32(&e, "id") else {
                     continue;
                 };
                 let mut t = default_template(id);
-                if let Some(v) = attr_i32(&e, b"displayId") {
+                if let Some(v) = attr_i32(&e, "displayId") {
                     t.display_id = v;
                 }
-                if let Some(v) = attr_i32(&e, b"level") {
+                if let Some(v) = attr_i32(&e, "level") {
                     t.level = v;
                 }
-                if let Some(v) = attr_str(&e, b"type") {
+                if let Some(v) = attr_str(&e, "type") {
                     t.type_name = v;
                 }
-                t.name = attr_str(&e, b"name").unwrap_or_default();
-                t.title = attr_str(&e, b"title").unwrap_or_default();
+                t.name = attr_str(&e, "name").unwrap_or_default();
+                t.title = attr_str(&e, "title").unwrap_or_default();
                 // NpcTemplate.set: randomWalk defaults to `!type.equals("Guard")`.
                 t.random_walk = t.type_name != "Guard";
-                t.server_side_name = attr_bool(&e, b"usingServerSideName").unwrap_or(false);
-                t.server_side_title = attr_bool(&e, b"usingServerSideTitle").unwrap_or(false);
+                t.server_side_name = attr_bool(&e, "usingServerSideName").unwrap_or(false);
+                t.server_side_title = attr_bool(&e, "usingServerSideTitle").unwrap_or(false);
                 cur = Some(t);
             }
-            b"attribute" => in_attribute = true,
-            b"stats" => {
+            "attribute" => in_attribute = true,
+            "stats" => {
                 if let Some(t) = cur.as_mut() {
-                    set_i32(&e, b"str", &mut t.base_str);
-                    set_i32(&e, b"int", &mut t.base_int);
-                    set_i32(&e, b"dex", &mut t.base_dex);
-                    set_i32(&e, b"wit", &mut t.base_wit);
-                    set_i32(&e, b"con", &mut t.base_con);
-                    set_i32(&e, b"men", &mut t.base_men);
+                    set_i32(&e, "str", &mut t.base_str);
+                    set_i32(&e, "int", &mut t.base_int);
+                    set_i32(&e, "dex", &mut t.base_dex);
+                    set_i32(&e, "wit", &mut t.base_wit);
+                    set_i32(&e, "con", &mut t.base_con);
+                    set_i32(&e, "men", &mut t.base_men);
                 }
             }
-            b"vitals" => {
+            "vitals" => {
                 if let Some(t) = cur.as_mut() {
-                    set_f64(&e, b"hp", &mut t.base_hp_max);
-                    set_f64(&e, b"mp", &mut t.base_mp_max);
-                    set_f64(&e, b"hpRegen", &mut t.base_hp_reg);
-                    set_f64(&e, b"mpRegen", &mut t.base_mp_reg);
+                    set_f64(&e, "hp", &mut t.base_hp_max);
+                    set_f64(&e, "mp", &mut t.base_mp_max);
+                    set_f64(&e, "hpRegen", &mut t.base_hp_reg);
+                    set_f64(&e, "mpRegen", &mut t.base_mp_reg);
                 }
             }
             // `<attribute><defence fire=… dark=…/>` — the six element
             // defence bases (PLAN_G19_ATTRIBUTES.md).
-            b"defence" if in_attribute => {
+            "defence" if in_attribute => {
                 if let Some(t) = cur.as_mut() {
-                    for (i, key) in [
-                        b"fire" as &[u8],
-                        b"water",
-                        b"wind",
-                        b"earth",
-                        b"holy",
-                        b"dark",
-                    ]
-                    .iter()
-                    .enumerate()
+                    for (i, key) in ["fire" as &str, "water", "wind", "earth", "holy", "dark"]
+                        .iter()
+                        .enumerate()
                     {
                         if let Some(v) = attr_f64(&e, key) {
                             t.base_element_res[i] = v as i32;
@@ -826,116 +819,116 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             // `<attribute><attack type value/>` — the attack element.
             // A handful of templates declare several rows; last wins,
             // matching a repeated `set` of the same base stat.
-            b"attack" if in_attribute => {
-                if let (Some(t), Some(ty)) = (cur.as_mut(), attr_str(&e, b"type"))
+            "attack" if in_attribute => {
+                if let (Some(t), Some(ty)) = (cur.as_mut(), attr_str(&e, "type"))
                     && let Some(el) = crate::model::stats::Element::from_xml(&ty)
                 {
-                    let v = attr_f64(&e, b"value").unwrap_or(0.0) as i32;
+                    let v = attr_f64(&e, "value").unwrap_or(0.0) as i32;
                     t.base_attack_element = Some((el, v));
                 }
             }
-            b"attack" if !in_attribute => {
+            "attack" if !in_attribute => {
                 if let Some(t) = cur.as_mut() {
-                    set_f64(&e, b"physical", &mut t.base_p_atk);
-                    set_f64(&e, b"magical", &mut t.base_m_atk);
-                    if let Some(v) = attr_f64(&e, b"attackSpeed") {
+                    set_f64(&e, "physical", &mut t.base_p_atk);
+                    set_f64(&e, "magical", &mut t.base_m_atk);
+                    if let Some(v) = attr_f64(&e, "attackSpeed") {
                         t.base_p_atk_spd = v as i32;
                     }
-                    set_i32(&e, b"range", &mut t.base_atk_range);
-                    set_i32(&e, b"random", &mut t.base_rnd_dam);
-                    set_f64(&e, b"critical", &mut t.base_crit_rate);
+                    set_i32(&e, "range", &mut t.base_atk_range);
+                    set_i32(&e, "random", &mut t.base_rnd_dam);
+                    set_f64(&e, "critical", &mut t.base_crit_rate);
                 }
             }
-            b"defence" if !in_attribute => {
+            "defence" if !in_attribute => {
                 if let Some(t) = cur.as_mut() {
-                    set_f64(&e, b"physical", &mut t.base_p_def);
-                    set_f64(&e, b"magical", &mut t.base_m_def);
+                    set_f64(&e, "physical", &mut t.base_p_def);
+                    set_f64(&e, "magical", &mut t.base_m_def);
                 }
             }
-            b"walk" => {
+            "walk" => {
                 if let Some(t) = cur.as_mut()
-                    && let Some(v) = attr_f64(&e, b"ground")
+                    && let Some(v) = attr_f64(&e, "ground")
                 {
                     // NpcData: `groundWalk <= 0 → 0.1`.
                     t.base_walk_spd = if v <= 0.0 { 0.1 } else { v };
                 }
             }
-            b"run" => {
+            "run" => {
                 if let Some(t) = cur.as_mut()
-                    && let Some(v) = attr_f64(&e, b"ground")
+                    && let Some(v) = attr_f64(&e, "ground")
                 {
                     t.base_run_spd = if v <= 0.0 { 0.1 } else { v };
                 }
             }
-            b"acquire" => {
+            "acquire" => {
                 if let Some(t) = cur.as_mut() {
-                    set_f64(&e, b"exp", &mut t.exp);
-                    set_f64(&e, b"sp", &mut t.sp);
-                    set_f64(&e, b"raidPoints", &mut t.raid_points);
+                    set_f64(&e, "exp", &mut t.exp);
+                    set_f64(&e, "sp", &mut t.sp);
+                    set_f64(&e, "raidPoints", &mut t.raid_points);
                 }
             }
-            b"equipment" => {
+            "equipment" => {
                 if let Some(t) = cur.as_mut() {
-                    set_i32(&e, b"rhand", &mut t.rhand);
-                    set_i32(&e, b"lhand", &mut t.lhand);
-                    set_i32(&e, b"weaponEnchant", &mut t.weapon_enchant);
+                    set_i32(&e, "rhand", &mut t.rhand);
+                    set_i32(&e, "lhand", &mut t.lhand);
+                    set_i32(&e, "weaponEnchant", &mut t.weapon_enchant);
                 }
             }
-            b"status" => {
+            "status" => {
                 if let Some(t) = cur.as_mut() {
-                    t.attackable = attr_bool(&e, b"attackable").unwrap_or(true);
-                    t.targetable = attr_bool(&e, b"targetable").unwrap_or(true);
-                    t.talkable = attr_bool(&e, b"talkable").unwrap_or(true);
-                    t.show_name = attr_bool(&e, b"showName").unwrap_or(true);
-                    t.can_move = attr_bool(&e, b"canMove").unwrap_or(true);
-                    t.can_be_sown = attr_bool(&e, b"canBeSown").unwrap_or(false);
-                    t.undying = attr_bool(&e, b"undying").unwrap_or(false);
-                    if let Some(v) = attr_bool(&e, b"randomWalk") {
+                    t.attackable = attr_bool(&e, "attackable").unwrap_or(true);
+                    t.targetable = attr_bool(&e, "targetable").unwrap_or(true);
+                    t.talkable = attr_bool(&e, "talkable").unwrap_or(true);
+                    t.show_name = attr_bool(&e, "showName").unwrap_or(true);
+                    t.can_move = attr_bool(&e, "canMove").unwrap_or(true);
+                    t.can_be_sown = attr_bool(&e, "canBeSown").unwrap_or(false);
+                    t.undying = attr_bool(&e, "undying").unwrap_or(false);
+                    if let Some(v) = attr_bool(&e, "randomWalk") {
                         t.random_walk = v;
                     }
-                    if let Some(v) = attr_bool(&e, b"randomAnimation") {
+                    if let Some(v) = attr_bool(&e, "randomAnimation") {
                         t.random_animation = v;
                     }
                 }
             }
-            b"ai" => {
+            "ai" => {
                 if let Some(t) = cur.as_mut() {
-                    if let Some(v) = attr_bool(&e, b"isAggressive") {
+                    if let Some(v) = attr_bool(&e, "isAggressive") {
                         t.is_aggressive = v;
                     }
-                    set_i32(&e, b"aggroRange", &mut t.aggro_range);
-                    set_i32(&e, b"clanHelpRange", &mut t.clan_help_range);
-                    if let Some(v) = attr_str(&e, b"type") {
+                    set_i32(&e, "aggroRange", &mut t.aggro_range);
+                    set_i32(&e, "clanHelpRange", &mut t.clan_help_range);
+                    if let Some(v) = attr_str(&e, "type") {
                         t.ai_type = AiType::parse(&v);
                     }
-                    set_i32(&e, b"minSkillChance", &mut t.min_skill_chance);
-                    set_i32(&e, b"maxSkillChance", &mut t.max_skill_chance);
+                    set_i32(&e, "minSkillChance", &mut t.min_skill_chance);
+                    set_i32(&e, "maxSkillChance", &mut t.max_skill_chance);
                 }
             }
-            b"corpsetime" => in_corpse_time = !self_closing,
-            b"race" => in_race = !self_closing,
-            b"minions" => {
+            "corpsetime" => in_corpse_time = !self_closing,
+            "race" => in_race = !self_closing,
+            "minions" => {
                 in_minions = !self_closing;
                 if in_minions {
-                    minion_group = attr_str(&e, b"name").unwrap_or_else(|| "Privates".to_string());
+                    minion_group = attr_str(&e, "name").unwrap_or_else(|| "Privates".to_string());
                 }
             }
-            b"clan" => in_clan = !self_closing,
-            b"ignorenpcid" => in_ignore_npc_id = !self_closing,
-            b"drop" => drop_scope = DropScope::Death,
-            b"spoil" => drop_scope = DropScope::Spoil,
-            b"group" => {
+            "clan" => in_clan = !self_closing,
+            "ignorenpcid" => in_ignore_npc_id = !self_closing,
+            "drop" => drop_scope = DropScope::Death,
+            "spoil" => drop_scope = DropScope::Spoil,
+            "group" => {
                 cur_group = Some(DropGroup {
-                    chance: attr_f64(&e, b"chance").unwrap_or(0.0),
+                    chance: attr_f64(&e, "chance").unwrap_or(0.0),
                     items: Vec::new(),
                 });
             }
-            b"item" if drop_scope != DropScope::None || cur_group.is_some() => {
+            "item" if drop_scope != DropScope::None || cur_group.is_some() => {
                 let holder = DropHolder {
-                    item_id: attr_i32(&e, b"id").unwrap_or(0),
-                    min: attr_i32(&e, b"min").unwrap_or(1) as i64,
-                    max: attr_i32(&e, b"max").unwrap_or(1) as i64,
-                    chance: attr_f64(&e, b"chance").unwrap_or(0.0),
+                    item_id: attr_i32(&e, "id").unwrap_or(0),
+                    min: attr_i32(&e, "min").unwrap_or(1) as i64,
+                    max: attr_i32(&e, "max").unwrap_or(1) as i64,
+                    chance: attr_f64(&e, "chance").unwrap_or(0.0),
                 };
                 if let Some(g) = cur_group.as_mut() {
                     g.items.push(holder);
@@ -949,23 +942,23 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                     t.drop_list_spoil.push(holder);
                 }
             }
-            b"radius" => {
+            "radius" => {
                 if let Some(t) = cur.as_mut() {
-                    set_f64(&e, b"normal", &mut t.collision_radius);
-                    set_f64(&e, b"grown", &mut t.collision_radius_grown);
+                    set_f64(&e, "normal", &mut t.collision_radius);
+                    set_f64(&e, "grown", &mut t.collision_radius_grown);
                 }
             }
-            b"height" => {
+            "height" => {
                 if let Some(t) = cur.as_mut() {
-                    set_f64(&e, b"normal", &mut t.collision_height);
-                    set_f64(&e, b"grown", &mut t.collision_height_grown);
+                    set_f64(&e, "normal", &mut t.collision_height);
+                    set_f64(&e, "grown", &mut t.collision_height_grown);
                 }
             }
             _ => {}
         }
         // Self-closing `<npc …/>` (no children) — no End event follows.
         if self_closing
-            && name.as_slice() == b"npc"
+            && name.as_str() == "npc"
             && let Some(t) = cur.take()
         {
             finish_template(t, out);
@@ -1003,41 +996,41 @@ fn parse_race(text: &str) -> Option<i32> {
 
 /// An attribute's value with XML entities resolved.
 ///
-/// The raw bytes are not the string: `&amp;` is five characters in the file and
+/// The raw text is not the string: `&amp;` is five characters in the file and
 /// one in the name a player reads. Two attributes on this dist carry one (npc
 /// 1594, "Singer & Dancer Agathion"), and without the unescape they reach both
 /// `NpcInfo` — for a template flagged `usingServerSideName` — and
 /// `l2r-tools sync-npc` still spelled `&amp;`.
-fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
+fn attr_str(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
     e.attributes()
         .flatten()
         .find(|a| a.key.as_ref() == key)
         .map(|a| {
-            a.unescape_value()
+            a.normalized_value(quick_xml::XmlVersion::Implicit1_0)
                 .map(std::borrow::Cow::into_owned)
-                .unwrap_or_else(|_| String::from_utf8_lossy(&a.value).into_owned())
+                .unwrap_or_else(|_| a.value.into_owned())
         })
 }
 
-fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
+fn attr_i32(e: &quick_xml::events::BytesStart, key: &str) -> Option<i32> {
     attr_str(e, key).and_then(|v| v.parse().ok())
 }
 
-fn attr_f64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<f64> {
+fn attr_f64(e: &quick_xml::events::BytesStart, key: &str) -> Option<f64> {
     attr_str(e, key).and_then(|v| v.parse().ok())
 }
 
-fn attr_bool(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<bool> {
+fn attr_bool(e: &quick_xml::events::BytesStart, key: &str) -> Option<bool> {
     attr_str(e, key).map(|v| v == "true")
 }
 
-fn set_i32(e: &quick_xml::events::BytesStart, key: &[u8], dst: &mut i32) {
+fn set_i32(e: &quick_xml::events::BytesStart, key: &str, dst: &mut i32) {
     if let Some(v) = attr_i32(e, key) {
         *dst = v;
     }
 }
 
-fn set_f64(e: &quick_xml::events::BytesStart, key: &[u8], dst: &mut f64) {
+fn set_f64(e: &quick_xml::events::BytesStart, key: &str, dst: &mut f64) {
     if let Some(v) = attr_f64(e, key) {
         *dst = v;
     }
@@ -1048,12 +1041,12 @@ mod tests {
     use super::*;
     use crate::data::dist;
 
-    /// The bug this guards: `quick-xml` hands back the attribute's raw bytes,
+    /// The bug this guards: `quick-xml` hands back the attribute's raw text,
     /// so an entity survives into the string a player reads.
     #[test]
     fn xml_entities_in_an_attribute_are_resolved() {
-        let e = quick_xml::events::BytesStart::from_content(r#"npc name="a &amp; b""#, 3);
-        assert_eq!(attr_str(&e, b"name").as_deref(), Some("a & b"));
+        let e = quick_xml::events::BytesStart::from_content(r#"npc name="a &amp; ""#, 3);
+        assert_eq!(attr_str(&e, "name").as_deref(), Some("a & "));
     }
 
     #[test]

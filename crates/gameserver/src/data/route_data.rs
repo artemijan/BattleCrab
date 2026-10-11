@@ -75,7 +75,7 @@ impl RouteData {
             let e = match event {
                 Event::Start(e) | Event::Empty(e) => e,
                 Event::End(e) => {
-                    if e.name().as_ref() == b"route"
+                    if e.name().as_ref() == "route"
                         && let Some(r) = cur.take()
                         && !r.nodes.is_empty()
                     {
@@ -86,9 +86,9 @@ impl RouteData {
                 _ => continue,
             };
             match e.name().as_ref() {
-                b"route" => {
-                    let repeat = attr(&e, b"repeat").as_deref() == Some("true");
-                    let repeat_style = match attr(&e, b"repeatStyle").as_deref() {
+                "route" => {
+                    let repeat = attr(&e, "repeat").as_deref() == Some("true");
+                    let repeat_style = match attr(&e, "repeatStyle").as_deref() {
                         Some("back") => RepeatStyle::GoBack,
                         Some("cycle") => RepeatStyle::GoFirst,
                         Some("conveyor") => RepeatStyle::TeleportFirst,
@@ -96,28 +96,28 @@ impl RouteData {
                         _ => RepeatStyle::None,
                     };
                     cur = Some(WalkRoute {
-                        name: attr(&e, b"name").unwrap_or_default(),
+                        name: attr(&e, "name").unwrap_or_default(),
                         repeat,
                         repeat_style,
                         nodes: Vec::new(),
                     });
                 }
-                b"target" => {
-                    if let Some(id) = attr(&e, b"id").and_then(|v| v.parse().ok()) {
+                "target" => {
+                    if let Some(id) = attr(&e, "id").and_then(|v| v.parse().ok()) {
                         // The route is pushed at `</route>`, so its index is
                         // the current length.
                         by_npc.insert(id, routes.len());
                     }
                 }
-                b"point" => {
+                "point" => {
                     if let Some(r) = cur.as_mut() {
                         r.nodes.push(WalkNode {
-                            x: attr_i(&e, b"X"),
-                            y: attr_i(&e, b"Y"),
-                            z: attr_i(&e, b"Z"),
-                            delay: attr(&e, b"delay").and_then(|v| v.parse().ok()).unwrap_or(0),
-                            run: attr(&e, b"run").as_deref() == Some("true"),
-                            chat: attr(&e, b"string").unwrap_or_default(),
+                            x: attr_i(&e, "X"),
+                            y: attr_i(&e, "Y"),
+                            z: attr_i(&e, "Z"),
+                            delay: attr(&e, "delay").and_then(|v| v.parse().ok()).unwrap_or(0),
+                            run: attr(&e, "run").as_deref() == Some("true"),
+                            chat: attr(&e, "string").unwrap_or_default(),
                         });
                     }
                 }
@@ -155,14 +155,14 @@ impl RouteData {
     }
 }
 
-fn attr(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
+fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
     e.attributes()
         .flatten()
         .find(|a| a.key.as_ref().eq_ignore_ascii_case(key))
-        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
+        .map(|a| a.value.into_owned())
 }
 
-fn attr_i(e: &quick_xml::events::BytesStart, key: &[u8]) -> i32 {
+fn attr_i(e: &quick_xml::events::BytesStart, key: &str) -> i32 {
     attr(e, key).and_then(|v| v.parse().ok()).unwrap_or(0)
 }
 

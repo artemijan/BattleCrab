@@ -51,16 +51,16 @@ impl HitConditionBonusData {
                 let val = e
                     .attributes()
                     .flatten()
-                    .find(|a| a.key.as_ref() == b"val")
-                    .and_then(|a| String::from_utf8_lossy(&a.value).parse::<f64>().ok());
+                    .find(|a| a.key.as_ref() == "val")
+                    .and_then(|a| a.value.parse::<f64>().ok());
                 let Some(val) = val else { continue };
                 match e.name().as_ref() {
-                    b"front" => out.front_bonus = val,
-                    b"side" => out.side_bonus = val,
-                    b"back" => out.back_bonus = val,
-                    b"high" => out.high_bonus = val,
-                    b"low" => out.low_bonus = val,
-                    b"dark" => out.dark_bonus = val,
+                    "front" => out.front_bonus = val,
+                    "side" => out.side_bonus = val,
+                    "back" => out.back_bonus = val,
+                    "high" => out.high_bonus = val,
+                    "low" => out.low_bonus = val,
+                    "dark" => out.dark_bonus = val,
                     _ => {}
                 }
             }

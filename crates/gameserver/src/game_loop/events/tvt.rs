@@ -603,12 +603,12 @@ pub(crate) fn load_schedule(root: &str) -> Vec<String> {
     loop {
         match reader.read_event_into(&mut buf) {
             Ok(quick_xml::events::Event::Start(e)) | Ok(quick_xml::events::Event::Empty(e)) => {
-                if e.name().as_ref() == b"schedule"
+                if e.name().as_ref() == "schedule"
                     && let Some(pattern) = e
                         .attributes()
                         .flatten()
-                        .find(|a| a.key.as_ref() == b"pattern")
-                        .and_then(|a| String::from_utf8(a.value.to_vec()).ok())
+                        .find(|a| a.key.as_ref() == "pattern")
+                        .map(|a| a.value.into_owned())
                 {
                     out.push(pattern);
                 }

@@ -33,11 +33,11 @@ impl KarmaData {
         let mut by_level = HashMap::new();
         for event in xml::events(&content) {
             match event {
-                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"increase" => {
-                    let attr = |key: &[u8]| xml::attr_str(&e, key);
+                Event::Start(e) | Event::Empty(e) if e.name().as_ref() == "increase" => {
+                    let attr = |key: &str| xml::attr_str(&e, key);
                     let (Some(level), Some(val)) = (
-                        attr(b"lvl").and_then(|v| v.parse::<i32>().ok()),
-                        attr(b"val").and_then(|v| v.parse::<f64>().ok()),
+                        attr("lvl").and_then(|v| v.parse::<i32>().ok()),
+                        attr("val").and_then(|v| v.parse::<f64>().ok()),
                     ) else {
                         continue;
                     };

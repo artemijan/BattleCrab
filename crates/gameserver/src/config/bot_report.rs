@@ -87,18 +87,18 @@ fn parse_punishments(xml: &str) -> Vec<BotReportPunishment> {
     let mut out = Vec::new();
     loop {
         match reader.read_event_into(&mut buf) {
-            Ok(Event::Empty(e)) | Ok(Event::Start(e)) if e.name().as_ref() == b"punishment" => {
+            Ok(Event::Empty(e)) | Ok(Event::Start(e)) if e.name().as_ref() == "punishment" => {
                 let mut needed_report_count = None;
                 let mut skill_id = None;
                 let mut skill_level = 1;
                 let mut sys_message_id = -1;
                 for attr in e.attributes().flatten() {
-                    let value = String::from_utf8_lossy(&attr.value).to_string();
+                    let value = attr.value.to_string();
                     match attr.key.as_ref() {
-                        b"neededReportCount" => needed_report_count = value.parse().ok(),
-                        b"skillId" => skill_id = value.parse().ok(),
-                        b"skillLevel" => skill_level = value.parse().unwrap_or(1),
-                        b"sysMessageId" => sys_message_id = value.parse().unwrap_or(-1),
+                        "neededReportCount" => needed_report_count = value.parse().ok(),
+                        "skillId" => skill_id = value.parse().ok(),
+                        "skillLevel" => skill_level = value.parse().unwrap_or(1),
+                        "sysMessageId" => sys_message_id = value.parse().unwrap_or(-1),
                         _ => {}
                     }
                 }

@@ -717,7 +717,7 @@ fn parse_file(
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
-                if e.name().as_ref() == b"zone"
+                if e.name().as_ref() == "zone"
                     && let Some(p) = cur.take()
                     && let Some(form) =
                         super::spawn_data::build_zone_form(&p.shape, p.xs, p.ys, p.rad)
@@ -784,21 +784,21 @@ fn parse_file(
             _ => continue,
         };
         match e.name().as_ref() {
-            b"zone" => {
+            "zone" => {
                 cur = Some(Pending {
-                    id: attr_i32(&e, b"id").unwrap_or(0),
-                    name: attr_str(&e, b"name").unwrap_or_default(),
-                    shape: attr_str(&e, b"shape").unwrap_or_else(|| "NPoly".to_string()),
-                    min_z: attr_i32(&e, b"minZ").unwrap_or(i32::MIN),
-                    max_z: attr_i32(&e, b"maxZ").unwrap_or(i32::MAX),
-                    rad: attr_i32(&e, b"rad"),
+                    id: attr_i32(&e, "id").unwrap_or(0),
+                    name: attr_str(&e, "name").unwrap_or_default(),
+                    shape: attr_str(&e, "shape").unwrap_or_else(|| "NPoly".to_string()),
+                    min_z: attr_i32(&e, "minZ").unwrap_or(i32::MIN),
+                    max_z: attr_i32(&e, "maxZ").unwrap_or(i32::MAX),
+                    rad: attr_i32(&e, "rad"),
                     xs: Vec::new(),
                     ys: Vec::new(),
                     castle_id: 0,
                     clan_hall_id: 0,
                     // A zone's own `type=` wins; the filename mapping is the
                     // fallback for the single-type files.
-                    kind: attr_str(&e, b"type")
+                    kind: attr_str(&e, "type")
                         .as_deref()
                         .and_then(kind_from_type)
                         .unwrap_or(kind),
@@ -822,7 +822,7 @@ fn parse_file(
                 });
                 // A zone whose `type=` names a kind we don't port yet is
                 // skipped outright rather than mis-filed under the fallback.
-                if let Some(ty) = attr_str(&e, b"type")
+                if let Some(ty) = attr_str(&e, "type")
                     && kind_from_type(&ty).is_none()
                 {
                     cur = None;
@@ -830,44 +830,30 @@ fn parse_file(
             }
             // `<spawn X Y Z/>` — a `ResidenceTeleportZone`'s oust destination
             // (Java `ZoneRespawn._spawnLocs`).
-            b"spawn" => {
+            "spawn" => {
                 if let Some(p) = cur.as_mut() {
                     p.spawns.push((
-                        attr_i32(&e, b"X")
-                            .or_else(|| attr_i32(&e, b"x"))
-                            .unwrap_or(0),
-                        attr_i32(&e, b"Y")
-                            .or_else(|| attr_i32(&e, b"y"))
-                            .unwrap_or(0),
-                        attr_i32(&e, b"Z")
-                            .or_else(|| attr_i32(&e, b"z"))
-                            .unwrap_or(0),
+                        attr_i32(&e, "X").or_else(|| attr_i32(&e, "x")).unwrap_or(0),
+                        attr_i32(&e, "Y").or_else(|| attr_i32(&e, "y")).unwrap_or(0),
+                        attr_i32(&e, "Z").or_else(|| attr_i32(&e, "z")).unwrap_or(0),
                     ));
                 }
             }
             // Zone files capitalize the node attributes (`X`/`Y`), unlike
             // the spawn territories' lowercase — accept either.
-            b"node" => {
+            "node" => {
                 if let Some(p) = cur.as_mut() {
-                    p.xs.push(
-                        attr_i32(&e, b"X")
-                            .or_else(|| attr_i32(&e, b"x"))
-                            .unwrap_or(0),
-                    );
-                    p.ys.push(
-                        attr_i32(&e, b"Y")
-                            .or_else(|| attr_i32(&e, b"y"))
-                            .unwrap_or(0),
-                    );
+                    p.xs.push(attr_i32(&e, "X").or_else(|| attr_i32(&e, "x")).unwrap_or(0));
+                    p.ys.push(attr_i32(&e, "Y").or_else(|| attr_i32(&e, "y")).unwrap_or(0));
                 }
             }
             // `SiegeZone`s carry `<stat name="castleId" val="N"/>`; other zone
             // stats are still skipped (see module docs).
-            b"stat" => {
-                let (Some(p), Some(name)) = (cur.as_mut(), attr_str(&e, b"name")) else {
+            "stat" => {
+                let (Some(p), Some(name)) = (cur.as_mut(), attr_str(&e, "name")) else {
                     continue;
                 };
-                let val = attr_str(&e, b"val").unwrap_or_default();
+                let val = attr_str(&e, "val").unwrap_or_default();
                 match name.as_str() {
                     "castleId" => p.castle_id = val.parse().unwrap_or(0),
                     // `ResidenceTeleportZone` names its castle `residenceId`.

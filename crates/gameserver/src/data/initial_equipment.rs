@@ -49,19 +49,19 @@ impl InitialEquipmentData {
             let mut cur_class: Option<i32> = None;
             for event in xml::events(&content) {
                 match event {
-                    Event::Start(e) if e.name().as_ref() == b"equipment" => {
-                        cur_class = attr_i32(&e, b"classId");
+                    Event::Start(e) if e.name().as_ref() == "equipment" => {
+                        cur_class = attr_i32(&e, "classId");
                     }
-                    Event::End(e) if e.name().as_ref() == b"equipment" => {
+                    Event::End(e) if e.name().as_ref() == "equipment" => {
                         cur_class = None;
                     }
-                    Event::Empty(e) if e.name().as_ref() == b"item" => {
+                    Event::Empty(e) if e.name().as_ref() == "item" => {
                         let Some(class_id) = cur_class else { continue };
-                        let Some(item_id) = attr_i32(&e, b"id") else {
+                        let Some(item_id) = attr_i32(&e, "id") else {
                             continue;
                         };
-                        let count = attr_i32(&e, b"count").unwrap_or(1) as i64;
-                        let equipped = attr_str(&e, b"equipped").as_deref() == Some("true");
+                        let count = attr_i32(&e, "count").unwrap_or(1) as i64;
+                        let equipped = attr_str(&e, "equipped").as_deref() == Some("true");
                         by_class
                             .entry(class_id)
                             .or_default()

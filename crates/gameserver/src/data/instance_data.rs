@@ -145,9 +145,9 @@ fn parse(content: &str) -> Option<InstanceTemplate> {
                 );
             }
             Event::End(e) => match e.name().as_ref() {
-                b"enter" => in_enter = false,
-                b"exit" => in_exit = false,
-                b"group" => {
+                "enter" => in_enter = false,
+                "exit" => in_exit = false,
+                "group" => {
                     if let Some(g) = group.take() {
                         groups.push(g);
                     }
@@ -186,26 +186,26 @@ fn handle_open(
     in_exit: &mut bool,
 ) {
     match e.name().as_ref() {
-        b"instance" => {
-            *id = attr_i32(e, b"id");
-            *name = attr_str(e, b"name").filter(|s| !s.is_empty());
-            *max_worlds = attr_i32(e, b"maxWorlds").unwrap_or(-1);
+        "instance" => {
+            *id = attr_i32(e, "id");
+            *name = attr_str(e, "name").filter(|s| !s.is_empty());
+            *max_worlds = attr_i32(e, "maxWorlds").unwrap_or(-1);
         }
-        b"time" => {
-            *duration_min = attr_i32(e, b"duration").unwrap_or(0);
-            *empty_destroy_min = attr_i32(e, b"empty").unwrap_or(0);
+        "time" => {
+            *duration_min = attr_i32(e, "duration").unwrap_or(0);
+            *empty_destroy_min = attr_i32(e, "empty").unwrap_or(0);
         }
-        b"enter" => *in_enter = true,
-        b"exit" => {
+        "enter" => *in_enter = true,
+        "exit" => {
             *in_exit = true;
             // A self-closing `<exit type="ORIGIN"/>` has no location child.
-            if attr_str(e, b"type").as_deref() == Some("ORIGIN") {
+            if attr_str(e, "type").as_deref() == Some("ORIGIN") {
                 *exit = ExitType::Origin;
             }
         }
-        b"location" => {
+        "location" => {
             if let (Some(x), Some(y), Some(z)) =
-                (attr_i32(e, b"x"), attr_i32(e, b"y"), attr_i32(e, b"z"))
+                (attr_i32(e, "x"), attr_i32(e, "y"), attr_i32(e, "z"))
             {
                 if *in_enter {
                     *enter = Some((x, y, z));
@@ -214,27 +214,27 @@ fn handle_open(
                 }
             }
         }
-        b"door" => {
-            if let Some(door_id) = attr_i32(e, b"id") {
+        "door" => {
+            if let Some(door_id) = attr_i32(e, "id") {
                 doors.push(door_id);
             }
         }
-        b"group" => {
+        "group" => {
             *group = Some(SpawnGroup {
-                name: attr_str(e, b"name").unwrap_or_default(),
+                name: attr_str(e, "name").unwrap_or_default(),
                 // Java defaults `spawnByDefault` to true.
-                spawn_by_default: attr_str(e, b"spawnByDefault").as_deref() != Some("false"),
+                spawn_by_default: attr_str(e, "spawnByDefault").as_deref() != Some("false"),
                 npcs: Vec::new(),
             });
         }
-        b"npc" => {
-            if let (Some(g), Some(npc_id)) = (group.as_mut(), attr_i32(e, b"id")) {
+        "npc" => {
+            if let (Some(g), Some(npc_id)) = (group.as_mut(), attr_i32(e, "id")) {
                 g.npcs.push(TemplateSpawn {
                     npc_id,
-                    x: attr_i32(e, b"x").unwrap_or(0),
-                    y: attr_i32(e, b"y").unwrap_or(0),
-                    z: attr_i32(e, b"z").unwrap_or(0),
-                    heading: attr_i32(e, b"heading").unwrap_or(0),
+                    x: attr_i32(e, "x").unwrap_or(0),
+                    y: attr_i32(e, "y").unwrap_or(0),
+                    z: attr_i32(e, "z").unwrap_or(0),
+                    heading: attr_i32(e, "heading").unwrap_or(0),
                 });
             }
         }

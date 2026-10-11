@@ -579,7 +579,7 @@ fn parse_tree(
             Ok(Event::Start(e)) => (e, false),
             Ok(Event::Empty(e)) => (e, true),
             Ok(Event::End(e)) => {
-                if e.name().as_ref() == b"skill"
+                if e.name().as_ref() == "skill"
                     && let Some(learn) = pending.take()
                 {
                     push_learn(learn, current_class, out, common);
@@ -590,11 +590,11 @@ fn parse_tree(
             _ => continue,
         };
         match e.name().as_ref() {
-            b"skillTree" => {
-                is_class_tree = attr_str(&e, b"type").as_deref() == Some("classSkillTree");
-                current_class = attr_i32(&e, b"classId");
+            "skillTree" => {
+                is_class_tree = attr_str(&e, "type").as_deref() == Some("classSkillTree");
+                current_class = attr_i32(&e, "classId");
                 // Java `_parentClassMap`: record a real, distinct parent.
-                if let (Some(cid), Some(parent)) = (current_class, attr_i32(&e, b"parentClassId"))
+                if let (Some(cid), Some(parent)) = (current_class, attr_i32(&e, "parentClassId"))
                     && cid > -1
                     && parent > -1
                     && parent != cid
@@ -602,13 +602,13 @@ fn parse_tree(
                     parents.entry(cid).or_insert(parent);
                 }
             }
-            b"skill" if is_class_tree => {
-                let skill_id = attr_i32(&e, b"skillId").unwrap_or(-1);
-                let skill_level = attr_i32(&e, b"skillLevel").unwrap_or(0);
-                let get_level = attr_i32(&e, b"getLevel").unwrap_or(99);
-                let level_up_sp = attr_i64(&e, b"levelUpSp").unwrap_or(0);
-                let name = attr_str(&e, b"skillName").unwrap_or_default();
-                let auto_get = attr_str(&e, b"autoGet").as_deref() == Some("true")
+            "skill" if is_class_tree => {
+                let skill_id = attr_i32(&e, "skillId").unwrap_or(-1);
+                let skill_level = attr_i32(&e, "skillLevel").unwrap_or(0);
+                let get_level = attr_i32(&e, "getLevel").unwrap_or(99);
+                let level_up_sp = attr_i64(&e, "levelUpSp").unwrap_or(0);
+                let name = attr_str(&e, "skillName").unwrap_or_default();
+                let auto_get = attr_str(&e, "autoGet").as_deref() == Some("true")
                     || (get_level <= 1 && skill_level == 1);
                 if skill_id > 0 {
                     let learn = SkillLearn {
@@ -630,11 +630,11 @@ fn parse_tree(
             // Java `<item id count/>` → `SkillLearn.addRequiredItem`. Attached to
             // the `<skill>` still being read; a stray `<item>` outside one is
             // ignored rather than mis-assigned.
-            b"item" if is_class_tree => {
+            "item" if is_class_tree => {
                 if let Some(learn) = pending.as_mut()
-                    && let Some(item_id) = attr_i32(&e, b"id")
+                    && let Some(item_id) = attr_i32(&e, "id")
                 {
-                    let count = attr_i64(&e, b"count").unwrap_or(1);
+                    let count = attr_i64(&e, "count").unwrap_or(1);
                     learn.required_items.push((item_id, count));
                 }
             }
@@ -670,18 +670,18 @@ fn parse_check_only_tree(path: &str) -> Vec<(i32, i32, Vec<crate::enums::Race>)>
     let mut in_race = false;
     for event in xml::events(&content) {
         match event {
-            Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"skill" => {
-                let id = attr_i32(&e, b"skillId").unwrap_or(-1);
-                let level = attr_i32(&e, b"skillLevel").unwrap_or(1);
+            Event::Start(e) | Event::Empty(e) if e.name().as_ref() == "skill" => {
+                let id = attr_i32(&e, "skillId").unwrap_or(-1);
+                let level = attr_i32(&e, "skillLevel").unwrap_or(1);
                 if id > 0 {
                     out.push((id, level, Vec::new()));
                 }
             }
-            Event::Start(e) if e.name().as_ref() == b"race" => in_race = true,
-            Event::End(e) if e.name().as_ref() == b"race" => in_race = false,
+            Event::Start(e) if e.name().as_ref() == "race" => in_race = true,
+            Event::End(e) if e.name().as_ref() == "race" => in_race = false,
             Event::Text(t) if in_race => {
                 if let Some(entry) = out.last_mut()
-                    && let Ok(name) = t.unescape()
+                    && let name = t.into_inner()
                     && let Some(race) = crate::enums::Race::from_name(name.trim())
                 {
                     entry.2.push(race);
@@ -700,9 +700,9 @@ fn parse_hero_tree(path: &str) -> Vec<Skill> {
     let mut out = Vec::new();
     for event in xml::events(&content) {
         match event {
-            Event::Start(e) | Event::Empty(e) if e.name().as_ref() == b"skill" => {
-                let id = attr_i32(&e, b"skillId").unwrap_or(-1);
-                let level = attr_i32(&e, b"skillLevel").unwrap_or(1);
+            Event::Start(e) | Event::Empty(e) if e.name().as_ref() == "skill" => {
+                let id = attr_i32(&e, "skillId").unwrap_or(-1);
+                let level = attr_i32(&e, "skillLevel").unwrap_or(1);
                 if id > 0 {
                     out.push((id, level));
                 }

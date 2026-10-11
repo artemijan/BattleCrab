@@ -257,37 +257,33 @@ fn parse_str(
     for event in xml::events(content) {
         match event {
             Event::Start(e) | Event::Empty(e) => {
-                let name = e.name().as_ref().to_vec();
-                match name.as_slice() {
-                    b"pet" => {
+                let name = e.name().as_ref().to_owned();
+                match name.as_str() {
+                    "pet" => {
                         let mut t = PetTemplate::default();
                         for a in e.attributes().flatten() {
-                            let v = String::from_utf8_lossy(&a.value)
-                                .parse::<i32>()
-                                .unwrap_or(0);
+                            let v = a.value.parse::<i32>().unwrap_or(0);
                             match a.key.as_ref() {
-                                b"id" => t.npc_id = v,
-                                b"itemId" => t.item_id = v,
+                                "id" => t.npc_id = v,
+                                "itemId" => t.item_id = v,
                                 _ => {}
                             }
                         }
                         cur = Some(t);
                     }
-                    b"stats" => in_stats = true,
+                    "stats" => in_stats = true,
                     // `<skills><skill minLevel= skillId= skillLevel=/></skills>`
                     // — a sibling of `<stats>`, not a child, so it needs no
                     // `in_stats` guard. The element name is `skill`, which
                     // nothing else in a pet file uses.
-                    b"skill" => {
+                    "skill" => {
                         let mut row = PetSkillLearn::default();
                         for a in e.attributes().flatten() {
-                            let v = String::from_utf8_lossy(&a.value)
-                                .parse::<i32>()
-                                .unwrap_or(0);
+                            let v = a.value.parse::<i32>().unwrap_or(0);
                             match a.key.as_ref() {
-                                b"skillId" => row.skill_id = v,
-                                b"skillLevel" => row.skill_level = v,
-                                b"minLevel" => row.min_level = v,
+                                "skillId" => row.skill_id = v,
+                                "skillLevel" => row.skill_level = v,
+                                "minLevel" => row.min_level = v,
                                 _ => {}
                             }
                         }
@@ -297,18 +293,18 @@ fn parse_str(
                             t.skills.push(row);
                         }
                     }
-                    b"stat" => {
+                    "stat" => {
                         cur_level = e
                             .attributes()
                             .flatten()
-                            .find(|a| a.key.as_ref() == b"level")
-                            .and_then(|a| String::from_utf8_lossy(&a.value).parse().ok())
+                            .find(|a| a.key.as_ref() == "level")
+                            .and_then(|a| a.value.parse().ok())
                             .unwrap_or(0);
                         if let Some(t) = cur.as_mut() {
                             t.levels.entry(cur_level).or_default();
                         }
                     }
-                    b"set" => {
+                    "set" => {
                         let mut key = String::new();
                         let mut val = String::new();
                         // `speed_on_ride` is the one `<set>` whose payload is
@@ -317,17 +313,16 @@ fn parse_str(
                         let mut ride = [0.0f64; 4];
                         for a in e.attributes().flatten() {
                             match a.key.as_ref() {
-                                b"name" => key = String::from_utf8_lossy(&a.value).into_owned(),
-                                b"val" => val = String::from_utf8_lossy(&a.value).into_owned(),
-                                k @ (b"walk" | b"run" | b"slowSwim" | b"fastSwim") => {
+                                "name" => key = a.value.into_owned(),
+                                "val" => val = a.value.into_owned(),
+                                k @ ("walk" | "run" | "slowSwim" | "fastSwim") => {
                                     let idx = match k {
-                                        b"walk" => 0,
-                                        b"run" => 1,
-                                        b"slowSwim" => 2,
+                                        "walk" => 0,
+                                        "run" => 1,
+                                        "slowSwim" => 2,
                                         _ => 3,
                                     };
-                                    ride[idx] =
-                                        String::from_utf8_lossy(&a.value).parse().unwrap_or(0.0);
+                                    ride[idx] = a.value.parse().unwrap_or(0.0);
                                 }
                                 _ => {}
                             }
@@ -382,8 +377,8 @@ fn parse_str(
                 }
             }
             Event::End(e) => match e.name().as_ref() {
-                b"stats" => in_stats = false,
-                b"pet" => {
+                "stats" => in_stats = false,
+                "pet" => {
                     if let Some(t) = cur.take()
                         && t.npc_id > 0
                     {

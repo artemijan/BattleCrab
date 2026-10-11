@@ -5,17 +5,16 @@
 //! element and half as a private `fn attr_str`. They are here instead.
 //!
 //! What is deliberately *not* here: the loaders whose readers only look alike.
-//! `npc_data` unescapes XML entities (`unescape_value`) and `route_data`
+//! `npc_data` unescapes XML entities (`normalized_value`) and `route_data`
 //! matches attribute names case-insensitively. Those differences decide what a
-//! datapack file means, so each keeps its own reader. Strict-vs-lossy and
-//! trim-vs-not are differences too, but they are *arguments* — [`attr_strict`]
-//! and [`attr_i32_trimmed`] — not separate readers.
+//! datapack file means, so each keeps its own reader. Trim-vs-not is a
+//! difference too, but it is an *argument* — [`attr_i32_trimmed`] — not a
+//! separate reader. (Strict-vs-lossy UTF-8 used to be one as well; since
+//! quick-xml 0.38 every value is already `str`, so there is nothing to decode.)
 //!
-//! Loaders that want the short `attr(b"id")` form keep a closure over the
+//! Loaders that want the short `attr("id")` form keep a closure over the
 //! current element; the closure body is one call to a reader here, which is the
-//! point. `pledge_skill_tree` used to be listed as strict-on-purpose and is
-//! not any more: every one of its call sites either parses a number or compares
-//! against a literal, so strict and lossy cannot produce different answers.
+//! point.
 
 use quick_xml::Reader;
 use quick_xml::events::{BytesStart, Event};
@@ -111,32 +110,19 @@ pub(crate) fn xml_files_under(dir: impl AsRef<Path>) -> Vec<PathBuf> {
 }
 
 /// The raw text of attribute `key`, or `None` when the element does not carry
-/// it. Invalid UTF-8 is replaced rather than rejected (`from_utf8_lossy`):
-/// the datapack is authored as UTF-8, and a mangled character in one name is
-/// not worth dropping the whole entry over.
+/// it.
 ///
 /// Entity references are **not** expanded — see the module note.
-pub(crate) fn attr_str(e: &BytesStart, key: &[u8]) -> Option<String> {
+pub(crate) fn attr_str(e: &BytesStart, key: &str) -> Option<String> {
     e.attributes()
         .flatten()
         .find(|a| a.key.as_ref() == key)
-        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
-}
-
-/// The raw text of attribute `key`, named as a `&str` and read **strictly**:
-/// invalid UTF-8 gives `None`, so the caller drops the entry rather than
-/// storing a mangled one. The counterpart to [`attr_str`] for the loaders that
-/// would rather lose an entry than keep a corrupt one.
-pub(crate) fn attr_strict(e: &BytesStart, key: &str) -> Option<String> {
-    e.attributes()
-        .flatten()
-        .find(|a| a.key.as_ref() == key.as_bytes())
-        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
+        .map(|a| a.value.into_owned())
 }
 
 /// Attribute `key` parsed as `i32` — `None` if absent *or* unparseable, which
 /// every caller treats the same way: fall back to a default, or skip the entry.
-pub(crate) fn attr_i32(e: &BytesStart, key: &[u8]) -> Option<i32> {
+pub(crate) fn attr_i32(e: &BytesStart, key: &str) -> Option<i32> {
     attr_str(e, key).and_then(|v| v.parse().ok())
 }
 
@@ -145,18 +131,18 @@ pub(crate) fn attr_i32(e: &BytesStart, key: &[u8]) -> Option<i32> {
 /// numeric attributes with whitespace, and a plain `parse()` rejects those —
 /// while trimming everywhere would quietly start accepting padded values in
 /// files that have never contained any.
-pub(crate) fn attr_i32_trimmed(e: &BytesStart, key: &[u8]) -> Option<i32> {
+pub(crate) fn attr_i32_trimmed(e: &BytesStart, key: &str) -> Option<i32> {
     attr_str(e, key).and_then(|v| v.trim().parse().ok())
 }
 
 /// Attribute `key` parsed as `i64` — the [`attr_i32`] counterpart for counts and
 /// timestamps that outgrow 32 bits.
-pub(crate) fn attr_i64(e: &BytesStart, key: &[u8]) -> Option<i64> {
+pub(crate) fn attr_i64(e: &BytesStart, key: &str) -> Option<i64> {
     attr_str(e, key).and_then(|v| v.parse().ok())
 }
 
 /// Attribute `key` parsed as `f64` — chances, multipliers and stat values.
-pub(crate) fn attr_f64(e: &BytesStart, key: &[u8]) -> Option<f64> {
+pub(crate) fn attr_f64(e: &BytesStart, key: &str) -> Option<f64> {
     attr_str(e, key).and_then(|v| v.parse().ok())
 }
 
@@ -165,16 +151,10 @@ pub(crate) fn attr_f64(e: &BytesStart, key: &[u8]) -> Option<f64> {
 /// The readers above answer "what is attribute X"; this one answers "what
 /// attributes are there", which is what an attribute-*driven* format needs —
 /// `<cond>`'s `<player races="…" level="…"/>`, where the attribute name
-/// chooses the condition. Names and values are both read lossily, matching
-/// [`attr_str`].
+/// chooses the condition. Values are raw, matching [`attr_str`].
 pub(crate) fn attr_pairs(e: &BytesStart) -> Vec<(String, String)> {
     e.attributes()
         .flatten()
-        .map(|a| {
-            (
-                String::from_utf8_lossy(a.key.as_ref()).into_owned(),
-                String::from_utf8_lossy(&a.value).into_owned(),
-            )
-        })
+        .map(|a| (a.key.as_ref().to_owned(), a.value.into_owned()))
         .collect()
 }

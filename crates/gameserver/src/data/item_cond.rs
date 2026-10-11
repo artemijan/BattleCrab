@@ -365,11 +365,11 @@ impl CondBuilder {
 
     /// `<and>` / `<or>` / `<not>` — open a group. Anything else is ignored,
     /// which is `parseCondition`'s switch with no default.
-    pub(crate) fn open_group(&mut self, name: &[u8]) {
+    pub(crate) fn open_group(&mut self, name: &str) {
         let kind = match name {
-            b"and" => Group::And,
-            b"or" => Group::Or,
-            b"not" => Group::Not,
+            "and" => Group::And,
+            "or" => Group::Or,
+            "not" => Group::Not,
             _ => return,
         };
         self.stack.push(Frame {
@@ -379,8 +379,8 @@ impl CondBuilder {
     }
 
     /// The matching end tag: fold the group into its parent.
-    pub(crate) fn close_group(&mut self, name: &[u8]) {
-        if !matches!(name, b"and" | b"or" | b"not") || self.stack.len() < 2 {
+    pub(crate) fn close_group(&mut self, name: &str) {
+        if !matches!(name, "and" | "or" | "not") || self.stack.len() < 2 {
             return;
         }
         let frame = self.stack.pop().expect("checked len");
