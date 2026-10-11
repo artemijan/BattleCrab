@@ -1581,3 +1581,45 @@ fn rush_operate_types_are_castable_and_carry_a_fly() {
         "neither name is recorded as unhandled any more"
     );
 }
+
+/// `SkillOperateType.isToggle()` is `T || TG || AU`; the two variants are the
+/// not-broadcastable ones, and `isNecessaryToggle` is read off its own tag.
+#[test]
+fn toggle_variants_parse_as_toggles() {
+    let xml = r#"
+    <list>
+        <skill id="11007" toLevel="1" name="Fire Stance">
+            <toggleGroupId>1</toggleGroupId>
+            <isNecessaryToggle>true</isNecessaryToggle>
+            <operateType>TG</operateType>
+        </skill>
+        <skill id="10028" toLevel="1" name="Rage Aura">
+            <operateType>AU</operateType>
+            <toggleGroupId>4</toggleGroupId>
+        </skill>
+        <skill id="9999" toLevel="1" name="A Toggle">
+            <operateType>T</operateType>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+    let toggle = skill::target::OperateType::Toggle;
+
+    let stance = &out.skills[&(11007, 1)];
+    assert_eq!(stance.operate_type, toggle);
+    assert!(stance.not_broadcastable && stance.necessary_toggle);
+    assert!(
+        stance.stay_after_death,
+        "`isStayAfterDeath()` ORs the tag in"
+    );
+
+    let aura = &out.skills[&(10028, 1)];
+    assert_eq!(aura.operate_type, toggle);
+    assert!(aura.not_broadcastable && !aura.necessary_toggle);
+
+    let plain = &out.skills[&(9999, 1)];
+    assert_eq!(plain.operate_type, toggle);
+    assert!(!plain.not_broadcastable && !plain.necessary_toggle);
+
+    assert!(out.gaps.into_inner().operate_types.is_empty());
+}

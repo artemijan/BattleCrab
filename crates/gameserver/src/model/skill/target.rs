@@ -2,15 +2,16 @@
 //! its first target and then sweeps up everyone else around it.
 
 /// Java `SkillOperateType`, scoped to what the cast pipeline dispatches on.
-/// Everything else (`DA3`..`DA5`, `AU`, `TG`) reads as `Other` and isn't
-/// castable yet.
+/// Everything else (`DA3`..`DA5`) reads as `Other` and isn't castable yet.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum OperateType {
     /// `A1`/`A2`: an active, targeted or self-cast skill with a cast bar.
     Active,
     /// `P`: passive — never sent to `RequestMagicSkillUse`, no cast pipeline.
     Passive,
-    /// `T`: toggle — out of scope for G6 (see plan's deferred list).
+    /// `SkillOperateType.isToggle()` — `T`, and the `TG`/`AU` variants, which
+    /// switch on and off the same way and differ only in
+    /// `Skill::not_broadcastable`.
     Toggle,
     /// `CA1` (`SkillOperateType.isChanneling()`): an active cast whose payload
     /// is delivered by `channeling_effects` ticks while the cast bar runs

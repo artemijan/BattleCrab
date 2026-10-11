@@ -221,18 +221,18 @@ pub(crate) fn use_magic_on(
     // a live toggle switches it **off** and casts nothing; otherwise a toggle
     // in a group first stops the others in that group, then casts normally.
     //
-    // Java's `isNecessaryToggle()` exemption (a toggle that may never be
-    // switched off) is not ported. **Ten** skills on this dist do set it —
-    // the Borna and elemental/Holy/Dark Stances — but every one is 11xxx /
-    // 19xxx / 23xxx, i.e. post-Interlude, so none is reachable here. Re-check
-    // the carriers, not this sentence, before relying on it.
+    // A necessary toggle (`isNecessaryToggle()` — the Borna and elemental/
+    // Holy/Dark Stances) is the exception to the first half: recasting it
+    // still casts nothing, but leaves it on.
     if skill.operate_type == OperateType::Toggle {
         let already_on = world
             .objects
             .get_component::<crate::model::components::skills::Buffs>(&object_id)
             .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill.id));
         if already_on {
-            crate::game_loop::skills::effects::handle_buff_expire(world, object_id, skill.id);
+            if !skill.necessary_toggle {
+                crate::game_loop::skills::effects::handle_buff_expire(world, object_id, skill.id);
+            }
             helpers::send_action_failed(world, client_id);
             return;
         }
@@ -270,11 +270,14 @@ pub(crate) fn use_magic_on(
             return;
         }
         // `MagicSkillUse` with a 0 cast time — the client plays the toggle's
-        // animation without drawing a cast bar.
-        if let (Some(caster), Some(pos)) = (
-            world.objects.get_component::<Player>(&object_id),
-            maybe_position(world, object_id),
-        ) {
+        // animation without drawing a cast bar. The `TG`/`AU` variants are
+        // `isNotBroadcastable()` and send nothing.
+        if !skill.not_broadcastable
+            && let (Some(caster), Some(pos)) = (
+                world.objects.get_component::<Player>(&object_id),
+                maybe_position(world, object_id),
+            )
+        {
             let pkt = server_packets::magic_skill_use(
                 caster,
                 &pos,

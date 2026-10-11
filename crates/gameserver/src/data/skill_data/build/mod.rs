@@ -80,7 +80,8 @@ pub(crate) fn build_skill(
                 skill::target::OperateType::Active
             }
             Some("P") => skill::target::OperateType::Passive,
-            Some("T") => skill::target::OperateType::Toggle,
+            // `SkillOperateType.isToggle()`: T, TG, AU.
+            Some("T" | "TG" | "AU") => skill::target::OperateType::Toggle,
             // `SkillOperateType.isChanneling()`: CA1, CA2, CA5.
             Some("CA1" | "CA2" | "CA5") => skill::target::OperateType::Channeling,
             other => {
@@ -90,6 +91,9 @@ pub(crate) fn build_skill(
                 skill::target::OperateType::Other
             }
         };
+        // `SkillOperateType.isNotBroadcastable()`, narrowed to the two toggle
+        // variants — see `Skill::not_broadcastable` for why `T` is left out.
+        let not_broadcastable = matches!(value_at(values, "operateType", level), Some("TG" | "AU"));
         // `SkillOperateType.isFlyType()` — the rush skills. DA3..DA5 belong to
         // it as well and are still unhandled (they fall to `Other` above).
         let fly = match value_at(values, "operateType", level) {
@@ -339,6 +343,10 @@ pub(crate) fn build_skill(
                 .is_some_and(|v| v.eq_ignore_ascii_case("true")),
             effects: skill_effects,
             self_continuous,
+            not_broadcastable,
+            // Java `set.getBoolean("isNecessaryToggle", false)`.
+            necessary_toggle: value_at(values, "isNecessaryToggle", level)
+                .is_some_and(|v| v.eq_ignore_ascii_case("true")),
             fly,
             self_effects,
             pve_effects,

@@ -562,3 +562,81 @@ fn dead_party_scope_respects_the_affect_limit() {
         "the limit counts corpses from zero, so 1 means 1"
     );
 }
+
+// ---------------------------------------------------------------------------
+// The `TG` / `AU` toggle variants
+// ---------------------------------------------------------------------------
+
+fn magic_skill_uses(out: &mut UnboundedReceiver<bytes::Bytes>) -> usize {
+    drain_count(out, server_packets::opcodes::MAGIC_SKILL_USE)
+}
+
+/// `SkillOperateType.isNotBroadcastable()`: a `TG`/`AU` toggle switches on
+/// without a `MagicSkillUse`, where a plain `T` toggle sends one.
+#[test]
+fn a_not_broadcastable_toggle_switches_on_silently() {
+    let (mut world, _db, _l) = cast_test_world();
+    let mut aura = toggle_skill(9110, 0);
+    aura.not_broadcastable = true;
+    world.data.skill_data.insert_for_test(aura);
+    world.data.skill_data.insert_for_test(toggle_skill(9111, 0));
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    {
+        let book = world
+            .objects
+            .get_component_mut::<SkillBook>(&CASTER)
+            .unwrap();
+        book.0.insert(9110, 1);
+        book.0.insert(9111, 1);
+    }
+    drain(&mut out);
+
+    use_magic(&mut world, CID, CASTER, 9110, false, false);
+    assert!(has_buff(&world, CASTER, 9110));
+    assert_eq!(magic_skill_uses(&mut out), 0);
+
+    use_magic(&mut world, CID, CASTER, 9111, false, false);
+    assert!(has_buff(&world, CASTER, 9111));
+    assert_eq!(
+        magic_skill_uses(&mut out),
+        1,
+        "a plain toggle still animates"
+    );
+
+    // It is still a toggle: the recast switches it off.
+    use_magic(&mut world, CID, CASTER, 9110, false, false);
+    assert!(!has_buff(&world, CASTER, 9110));
+}
+
+/// `Player.useMagic`: recasting a necessary toggle casts nothing and leaves it
+/// on — only a sibling in its toggle group takes it off.
+#[test]
+fn a_necessary_toggle_is_not_switched_off_by_a_recast() {
+    let (mut world, _db, _l) = cast_test_world();
+    for id in [9120, 9121] {
+        let mut stance = toggle_skill(id, 3);
+        stance.necessary_toggle = true;
+        world.data.skill_data.insert_for_test(stance);
+    }
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    {
+        let book = world
+            .objects
+            .get_component_mut::<SkillBook>(&CASTER)
+            .unwrap();
+        book.0.insert(9120, 1);
+        book.0.insert(9121, 1);
+    }
+    drain(&mut out);
+
+    use_magic(&mut world, CID, CASTER, 9120, false, false);
+    use_magic(&mut world, CID, CASTER, 9120, false, false);
+    assert!(has_buff(&world, CASTER, 9120), "the recast leaves it on");
+
+    use_magic(&mut world, CID, CASTER, 9121, false, false);
+    assert!(has_buff(&world, CASTER, 9121));
+    assert!(
+        !has_buff(&world, CASTER, 9120),
+        "a group sibling still replaces it"
+    );
+}
