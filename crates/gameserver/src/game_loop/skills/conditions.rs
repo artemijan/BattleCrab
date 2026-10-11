@@ -230,7 +230,7 @@ pub(crate) fn check_for_test(
 fn eval(
     world: &World,
     caster: i32,
-    _skill: &skill::Skill,
+    skill: &skill::Skill,
     target: i32,
     cond: &skill::condition::SkillCondition,
 ) -> Result<(), Refusal> {
@@ -357,6 +357,9 @@ fn eval(
         }
         skill::condition::SkillCondition::CanSummonSiegeGolem
         | skill::condition::SkillCondition::BuildCamp => ok(siege_deployable(world, caster)),
+        skill::condition::SkillCondition::PossessHolything => {
+            possess_holything(world, caster, skill, target)
+        }
         skill::condition::SkillCondition::CallPc => call_pc(world, caster),
         skill::condition::SkillCondition::CanUntransform => can_untransform(world, caster),
         // ---- target state --------------------------------------------------
@@ -814,6 +817,82 @@ fn siege_deployable(world: &World, caster: i32) -> bool {
                     })
             })
         })
+}
+
+/// Java's Z tolerance between the engraver and the artifact.
+const HOLYTHING_MAX_Z_GAP: i32 = 45;
+
+/// `PossessHolythingSkillCondition` — the gate on engraving a castle's Holy
+/// Artifact (Imprint of Light / Darkness, Seal of Ruler).
+///
+/// Java works out `canTakeCastle` first (alive, uncursed, clan leader) and then
+/// runs a message ladder that can only lower it, so a dead caster in the wrong
+/// place still hears about the wrong place. The ladder's first rung sends the
+/// generic "cannot be used due to unsuitable terms" itself; [`send_refusal`]
+/// sends that line for every refusal, so it is not sent a second time here.
+fn possess_holything(
+    world: &World,
+    caster: i32,
+    skill: &skill::Skill,
+    target: i32,
+) -> Result<(), Refusal> {
+    let Some(p) = helpers::player(world, caster) else {
+        return Err(Refusal(None));
+    };
+    let Some(pos) = maybe_position(world, caster) else {
+        return Err(Refusal(None));
+    };
+    // `CastleManager.getCastle(player)` — the castle whose grounds the caster
+    // stands on — with its siege running and the caster's clan attacking.
+    let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z);
+    let attacking = castle_id.is_some_and(|id| {
+        world.sieges.get(&id).is_some_and(|s| {
+            s.in_progress
+                && s.clans.iter().any(|c| {
+                    c.clan_id == p.clan_id && c.kind == crate::model::siege::SiegeClanType::Attacker
+                })
+        })
+    });
+    if p.clan_id == 0 || !attacking {
+        return Err(Refusal(None));
+    }
+    // `castle.getArtefacts().contains(target)`.
+    let on_this_castle = crate::game_loop::skills::cast::is_artefact(world, target)
+        && maybe_position(world, target)
+            .and_then(|t| world.data.zone_data.siege_castle_at(t.x, t.y, t.z))
+            == castle_id;
+    if !on_this_castle {
+        return Err(Refusal(Some(RefusalLine::Sm(sm_ids::INVALID_TARGET))));
+    }
+    // `!Util.checkIfInRange(castRange, player, target, true) ||
+    // Math.abs(player.getZ() - target.getZ()) > 45`.
+    let near = crate::game_loop::skills::cast::in_cast_range(
+        world,
+        caster,
+        &pos,
+        target,
+        skill.cast_range,
+        true,
+    ) && maybe_position(world, target)
+        .is_some_and(|t| (pos.z - t.z).abs() <= HOLYTHING_MAX_Z_GAP);
+    if !near {
+        return Err(Refusal(Some(RefusalLine::Sm(
+            sm_ids::THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED,
+        ))));
+    }
+    // `!isAlikeDead() && !isCursedWeaponEquipped() && isClanLeader()`.
+    let is_leader = world
+        .clans
+        .get(&p.clan_id)
+        .is_some_and(|c| c.leader_id == caster);
+    if helpers::is_dead(world, caster)
+        || flags_of(world, caster) & skill::effect_flag::FAKE_DEATH != 0
+        || p.cursed_weapon_equipped_id != 0
+        || !is_leader
+    {
+        return Err(Refusal(None));
+    }
+    Ok(())
 }
 
 /// `CanUntransformSkillCondition` — may this caster drop their transform?

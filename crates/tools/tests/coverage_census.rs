@@ -61,7 +61,7 @@ fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
 }
 
 /// `<effect>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 122 name(s), 9 learnable
+/// the work list, worst first. Category totals: 121 name(s), 9 learnable
 /// skill(s) affected, 876 reachable — the live figures the tuple below
 /// asserts. (This header had drifted to 143/10/1167, the totals from before
 /// the S6 and S9 passes; it is a comment, so nothing failed when it went
@@ -190,7 +190,7 @@ const EFFECTS: &[(&str, usize)] = &[("StatUp", 9)];
 const EFFECT_SCOPES: &[(&str, usize)] = &[];
 
 /// `<condition>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 55 name(s), 1 learnable
+/// the work list, worst first. Category totals: 54 name(s), 1 learnable
 /// skill(s) affected, 716 reachable.
 ///
 /// **G34 S1 took this from 111 names / 215 learnable skills down to this.**
@@ -214,8 +214,8 @@ const EFFECT_SCOPES: &[(&str, usize)] = &[];
 const CONDITIONS: &[(&str, usize)] = &[("conditions/OpSweeper", 1)];
 
 /// `<targetType>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 7 name(s), 0 learnable
-/// skill(s) affected, 457 reachable.
+/// the work list, worst first. Category totals: 0 name(s), 0 learnable
+/// skill(s) affected, 0 reachable.
 ///
 /// 9 → 8 at S9: `OWNER_PET`. It had been folded into `TargetType::Other`
 /// with a note claiming every reachable carrier resolved correctly anyway —
@@ -271,10 +271,10 @@ fn datapack_skill_coverage_census() {
         // (Porta 20213 / skill 4161) and the player prompt (Summon Friend
         // 1403 and its siblings) — so counting it as handled no longer
         // overstates anything. It did until 2026-08-06.
-        ("effect", &gaps.effects, EFFECTS, 122, 9, 876),
+        ("effect", &gaps.effects, EFFECTS, 121, 9, 876),
         ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 2, 0, 1),
-        ("condition", &gaps.conditions, CONDITIONS, 55, 1, 716),
-        ("targetType", &gaps.target_types, TARGET_TYPES, 7, 0, 457),
+        ("condition", &gaps.conditions, CONDITIONS, 54, 1, 716),
+        ("targetType", &gaps.target_types, TARGET_TYPES, 0, 0, 0),
         ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 0, 0, 0),
         (
             "affectObject",

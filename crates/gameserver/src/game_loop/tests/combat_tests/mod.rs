@@ -5,6 +5,7 @@ mod pvp;
 mod siege;
 mod siege_capture;
 mod siege_defence;
+mod siege_engrave;
 
 use super::*;
 use crate::game_loop;

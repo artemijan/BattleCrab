@@ -291,7 +291,23 @@ pub(crate) fn resolve_cast_target(
         // skill, resolved on the servitor path in `npc_cast`), but Java would
         // self-target here rather than refuse, so this does too.
         TargetType::OwnerPet => caster.object_id,
-        TargetType::Other => return Err(sm_ids::INVALID_TARGET),
+        // `HolyThing.java` / `Artillery.java` / `AdvanceBase.java` /
+        // `FortressFlagpole.java` — one shape: the selection passes the
+        // handler's own test or the cast is `THAT_IS_AN_INCORRECT_TARGET`.
+        // None of the four runs a line-of-sight or liveness gate afterwards.
+        TargetType::HolyThing
+        | TargetType::Artillery
+        | TargetType::AdvanceBase
+        | TargetType::FortressFlagpole => {
+            return caster_target
+                .filter(|&t| selection_fits(world, caster.object_id, t, skill.target_type))
+                .ok_or(sm_ids::THAT_IS_AN_INCORRECT_TARGET);
+        }
+        // The handlers that return null. `use_magic_on` refuses these before
+        // resolving; this is the tick's quiet re-resolve.
+        TargetType::Item | TargetType::MyMentor | TargetType::WyvernTarget | TargetType::Other => {
+            return Err(sm_ids::INVALID_TARGET);
+        }
     };
     let (.., target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;
     // A corpse (`NPC_BODY`) is *supposed* to be dead; `EnemyNot` explicitly
@@ -306,6 +322,70 @@ pub(crate) fn resolve_cast_target(
         return Err(sm_ids::INVALID_TARGET);
     }
     finalize_target(world, caster.object_id, resolved, skill)
+}
+
+/// The outpost NPC `AdvanceBase.java` hard-codes.
+const ADVANCE_BASE_NPC_ID: i32 = 36590;
+
+/// Whether a castle's Holy Artifact — Java `isArtefact()`.
+pub(crate) fn is_artefact(world: &World, oid: i32) -> bool {
+    npc_template(world, oid).is_some_and(|t| t.type_name == "Artefact")
+}
+
+/// The selection test of the four handlers that take `creature.getTarget()`
+/// and accept it only if it is the one kind of object the skill is for. Shared
+/// by the player resolver above and `npc::cast::resolve_npc_cast_target`.
+pub(crate) fn selection_fits(
+    world: &World,
+    caster_oid: i32,
+    selected: i32,
+    target_type: TargetType,
+) -> bool {
+    match target_type {
+        TargetType::HolyThing => is_artefact(world, selected),
+        // `!targetDoor.isDead() && targetDoor.isAutoAttackable(creature) &&
+        // targetDoor.isEnemy()`. `Door.isAutoAttackable` wants a playable
+        // attacker, a door that shows its HP, a residence whose siege zone is
+        // active, and an attacker outside the owning clan; `isEnemy` repeats
+        // the residence and show-HP legs.
+        TargetType::Artillery => {
+            let Some(door) = world
+                .objects
+                .get_component::<crate::model::door::Door>(&selected)
+            else {
+                return false;
+            };
+            let shows_hp = world
+                .data
+                .door_data
+                .get(door.door_id)
+                .is_some_and(|t| t.show_hp);
+            let Some(castle_id) =
+                crate::game_loop::combat::pvp::active_siege_castle(world, selected)
+            else {
+                return false;
+            };
+            let owner = crate::game_loop::combat::pvp::acting_player(world, caster_oid);
+            let Some(player) = world.objects.get_component::<Player>(&owner) else {
+                return false;
+            };
+            let owns_castle = player.clan_id != 0
+                && crate::game_loop::siege::owner_clan_id_opt(world, castle_id)
+                    == Some(player.clan_id);
+            door.current_hp > 0 && shows_hp && !owns_castle
+        }
+        TargetType::AdvanceBase => {
+            world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&selected)
+                .is_some_and(|n| n.npc_id == ADVANCE_BASE_NPC_ID)
+                && !crate::game_loop::helpers::is_dead(world, selected)
+        }
+        // `creature.isInsideZone(ZoneId.HQ) && creature.isInsideZone(ZoneId.FORT)`
+        // — no zone on this dist is a FORT zone, so the second leg never holds.
+        TargetType::FortressFlagpole => false,
+        _ => false,
+    }
 }
 
 /// The closing gates of `Target.java`/`Enemy.java`/`EnemyOnly.java`, shared

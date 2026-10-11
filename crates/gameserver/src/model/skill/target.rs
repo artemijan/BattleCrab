@@ -120,7 +120,45 @@ pub enum TargetType {
     /// owner had clicked — or refused with "invalid target" when they had
     /// clicked nothing.
     OwnerPet,
+    /// `HOLYTHING` (`targethandlers/HolyThing.java`): the selection, if it is
+    /// a castle's Holy Artifact (`isArtefact()`). What the clan leader's
+    /// Imprint of Light / Darkness (19034 / 19035) and Seal of Ruler (246) are
+    /// cast on to take a castle.
+    HolyThing,
+    /// `ARTILLERY` (`targethandlers/Artillery.java`): the selection, if it is
+    /// a standing door the caster may attack and that belongs to a residence
+    /// under siege. The Swoop Cannon's two shots (5110 / 5111).
+    Artillery,
+    /// `ADVANCE_BASE` (`targethandlers/AdvanceBase.java`): the selection, if
+    /// it is a live outpost (NPC 36590). Territory War content.
+    AdvanceBase,
+    /// `FORTRESS_FLAGPOLE` (`targethandlers/FortressFlagpole.java`): the
+    /// selection, for a caster inside both an HQ and a FORT zone. There are no
+    /// fortresses on this chronicle, so nothing ever qualifies.
+    FortressFlagpole,
+    /// `ITEM` (`targethandlers/Item.java`): the selection, if it is an *item*
+    /// object. A creature is all a client can select, so this resolves to
+    /// nothing; its 500 carriers are enchant scrolls and the like, driven by
+    /// their own item handlers rather than by a cast.
+    Item,
+    /// `MY_MENTOR` (`targethandlers/MyMentor.java`): the caster's mentor.
+    /// There is no mentoring system here, so nobody has one.
+    MyMentor,
+    /// `WYVERN_TARGET` (`targethandlers/WyvernTarget.java`): `return null`.
+    WyvernTarget,
+    /// A name with no Java handler. Nothing on this dist reads as this.
     Other,
+}
+
+impl TargetType {
+    /// The handlers that come back `null` without telling the caster why —
+    /// Java's `useMagic` then answers with a bare `ActionFailed`.
+    pub fn resolves_to_nothing(self) -> bool {
+        matches!(
+            self,
+            Self::Item | Self::MyMentor | Self::WyvernTarget | Self::Other
+        )
+    }
 }
 
 /// Java `AffectScope` (`handlers/targethandlers/affectscope/*`) — how the

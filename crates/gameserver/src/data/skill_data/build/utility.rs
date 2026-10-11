@@ -126,6 +126,13 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
                     .is_some_and(|v| v.eq_ignore_ascii_case("true")),
             }]
         }
+        // Java's `params.getEnum("side", CastleSide.class)` throws on a
+        // missing or unknown side, so the effect is dropped rather than
+        // defaulted.
+        "TakeCastle" => value_at(params, "side", level)
+            .and_then(crate::model::castle::CastleSide::from_string)
+            .map(|side| vec![skill::effects::SkillEffect::TakeCastle { side }])
+            .unwrap_or_default(),
         "Flag" => vec![skill::effects::SkillEffect::PvpFlag],
         // `CallSkill.java` — cast another skill outright.
         // Java's `skillLevel` default is 1; a declared 0 means
