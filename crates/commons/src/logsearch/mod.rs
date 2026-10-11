@@ -1,4 +1,4 @@
-//! Log search over a service's own files — `docs/MONITORING.md` §6 (P4).
+//! Log search over a service's own files — `docs/MONITORING.md` §6.
 //!
 //! Each service searches its own files, on its own machine: the game and
 //! login servers answer `logs` requests on their monitor channel

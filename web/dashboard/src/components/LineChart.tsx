@@ -1,6 +1,6 @@
 /**
  * A hand-rolled SVG line chart for the monitoring page (docs/MONITORING.md
- * §9 q4: no chart library, matching the dashboard's dependency habit).
+ * §9 item 4: no chart library, matching the dashboard's dependency habit).
  *
  * Drawn at the container's measured pixel width rather than scaled through a
  * viewBox, so strokes and labels stay crisp at every size. Static: no

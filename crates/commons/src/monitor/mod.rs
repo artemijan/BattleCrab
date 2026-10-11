@@ -1,4 +1,4 @@
-//! Per-server sampler — `docs/MONITORING.md` §4 (P2).
+//! Per-server sampler — `docs/MONITORING.md` §4.
 //!
 //! Every `SampleSeconds` a plain thread reads the [`crate::metrics`] registry
 //! and the process's CPU and memory, turns them into one interval [`Sample`],

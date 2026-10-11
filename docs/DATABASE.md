@@ -151,7 +151,7 @@ either backend, and both are tested in CI.
 One thing only PostgreSQL allows: SQLite is one file on one disk, so with it the
 login server, game server and dashboard share a machine. Pointed at one
 PostgreSQL server, they can run on separate machines on a private network
-(`docs/MONITORING.md` §9 q5; the deploy scripts take a host per service).
+(`docs/MONITORING.md` §9 item 5; the deploy scripts take a host per service).
 
 ```ini
 # LoginServer.ini, Server.ini and Dashboard.ini — the same value in all three

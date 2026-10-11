@@ -1,4 +1,4 @@
-//! Wire-traffic counters for the login server — `docs/MONITORING.md` §2 (P1).
+//! Wire-traffic counters for the login server — `docs/MONITORING.md` §2.
 //!
 //! The login server had no `commons::metrics` series at all before this —
 //! `docs/LOGGING.md`'s gap list named it explicitly. The wire series are the

@@ -1,4 +1,4 @@
-//! Wire-level traffic counters — `docs/MONITORING.md` §2 (P1). The raw in/out
+//! Wire-level traffic counters — `docs/MONITORING.md` §2. The raw in/out
 //! of a server's client sockets, independent of what the server then makes of
 //! it. Shared by the login and game servers so the two graph the same series
 //! side by side (each process has its own registry, so the names don't clash).
