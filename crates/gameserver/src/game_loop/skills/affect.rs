@@ -663,7 +663,7 @@ fn sweep_ring(
 
 /// Java `Util.convertHeadingToDegree` — client heading units (0..65536, 0 =
 /// east, counter-clockwise) to degrees, with Java's exact divisor.
-fn heading_to_degree(heading: i32) -> f64 {
+pub(crate) fn heading_to_degree(heading: i32) -> f64 {
     heading as f64 / 182.044444444
 }
 

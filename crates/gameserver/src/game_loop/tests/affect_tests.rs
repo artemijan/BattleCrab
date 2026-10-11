@@ -562,3 +562,214 @@ fn dead_party_scope_respects_the_affect_limit() {
         "the limit counts corpses from zero, so 1 means 1"
     );
 }
+
+// ---------------------------------------------------------------------------
+// The `TG` / `AU` toggle variants
+// ---------------------------------------------------------------------------
+
+fn magic_skill_uses(out: &mut UnboundedReceiver<bytes::Bytes>) -> usize {
+    drain_count(out, server_packets::opcodes::MAGIC_SKILL_USE)
+}
+
+/// `SkillOperateType.isNotBroadcastable()`: a `TG`/`AU` toggle switches on
+/// without a `MagicSkillUse`, where a plain `T` toggle sends one.
+#[test]
+fn a_not_broadcastable_toggle_switches_on_silently() {
+    let (mut world, _db, _l) = cast_test_world();
+    let mut aura = toggle_skill(9110, 0);
+    aura.not_broadcastable = true;
+    world.data.skill_data.insert_for_test(aura);
+    world.data.skill_data.insert_for_test(toggle_skill(9111, 0));
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    {
+        let book = world
+            .objects
+            .get_component_mut::<SkillBook>(&CASTER)
+            .unwrap();
+        book.0.insert(9110, 1);
+        book.0.insert(9111, 1);
+    }
+    drain(&mut out);
+
+    use_magic(&mut world, CID, CASTER, 9110, false, false);
+    assert!(has_buff(&world, CASTER, 9110));
+    assert_eq!(magic_skill_uses(&mut out), 0);
+
+    use_magic(&mut world, CID, CASTER, 9111, false, false);
+    assert!(has_buff(&world, CASTER, 9111));
+    assert_eq!(
+        magic_skill_uses(&mut out),
+        1,
+        "a plain toggle still animates"
+    );
+
+    // It is still a toggle: the recast switches it off.
+    use_magic(&mut world, CID, CASTER, 9110, false, false);
+    assert!(!has_buff(&world, CASTER, 9110));
+}
+
+/// `Player.useMagic`: recasting a necessary toggle casts nothing and leaves it
+/// on — only a sibling in its toggle group takes it off.
+#[test]
+fn a_necessary_toggle_is_not_switched_off_by_a_recast() {
+    let (mut world, _db, _l) = cast_test_world();
+    for id in [9120, 9121] {
+        let mut stance = toggle_skill(id, 3);
+        stance.necessary_toggle = true;
+        world.data.skill_data.insert_for_test(stance);
+    }
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    {
+        let book = world
+            .objects
+            .get_component_mut::<SkillBook>(&CASTER)
+            .unwrap();
+        book.0.insert(9120, 1);
+        book.0.insert(9121, 1);
+    }
+    drain(&mut out);
+
+    use_magic(&mut world, CID, CASTER, 9120, false, false);
+    use_magic(&mut world, CID, CASTER, 9120, false, false);
+    assert!(has_buff(&world, CASTER, 9120), "the recast leaves it on");
+
+    use_magic(&mut world, CID, CASTER, 9121, false, false);
+    assert!(has_buff(&world, CASTER, 9121));
+    assert!(
+        !has_buff(&world, CASTER, 9120),
+        "a group sibling still replaces it"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// `CallSkillOnActionTime` — the aura pulse
+// ---------------------------------------------------------------------------
+
+const AURA: i32 = 9130;
+const PULSE: i32 = 9131;
+/// `ticks 5 × EffectTickRatio 666 ms` in 100 ms game ticks.
+const PULSE_INTERVAL: u64 = 33;
+
+/// An `AU` toggle that pulses [`PULSE`] and does nothing else.
+fn aura_skill() -> Skill {
+    let mut s = toggle_skill(AURA, 0);
+    s.not_broadcastable = true;
+    s.effects = vec![SkillEffect::CallSkillOnActionTime {
+        skill_id: PULSE,
+        skill_level: 1,
+        ticks: 5,
+    }];
+    s
+}
+
+/// The pulsed skill, shaped like the knight auras' party half (`A5`,
+/// `MY_PARTY` / `PARTY` / `FRIEND`, a short-lived `AURA` buff).
+fn party_pulse() -> Skill {
+    let mut s = aoe_skill(PULSE, AffectScope::Party, AffectObject::Friend, 1000);
+    s.target_type = TargetType::MyParty;
+    s.is_continuous = true;
+    s.is_debuff = false;
+    s.effect_point = 0;
+    s.abnormal_type = "AURA".into();
+    s.abnormal_time = 6;
+    s
+}
+
+fn switch_aura_on(world: &mut World, pulse: Skill) -> UnboundedReceiver<bytes::Bytes> {
+    world.data.skill_data.insert_for_test(aura_skill());
+    world.data.skill_data.insert_for_test(pulse);
+    let mut out = ingame_caster(world, CID, CASTER, 0, 0);
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&CASTER)
+        .unwrap()
+        .0
+        .insert(AURA, 1);
+    drain(&mut out);
+    out
+}
+
+fn buff_expiry(world: &World, oid: i32, skill_id: i32) -> Option<u64> {
+    world
+        .objects
+        .get_component::<crate::model::components::skills::Buffs>(&oid)?
+        .0
+        .iter()
+        .find(|b| b.skill_id == skill_id)
+        .map(|b| b.expires_at_tick)
+}
+
+/// A party aura reaches the holder's party and nobody else, keeps the buff
+/// refreshed while it is on, and lets it lapse once switched off. The holder
+/// never receives their own pulse — the aura blocks that abnormal type.
+#[test]
+fn a_party_aura_pulses_its_buff_onto_the_holders_party() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = switch_aura_on(&mut world, party_pulse());
+    let (mate, stranger) = (2002, 2003);
+    let _mate_rx = ingame_caster(&mut world, 2, mate, 100, 0);
+    let _stranger_rx = ingame_caster(&mut world, 3, stranger, 150, 0);
+    put_in_party(&mut world, CASTER, mate);
+
+    use_magic(&mut world, CID, CASTER, AURA, false, false);
+    assert!(has_buff(&world, CASTER, AURA));
+    assert!(
+        !has_buff(&world, mate, PULSE),
+        "nothing lands before a tick"
+    );
+
+    world.tick += PULSE_INTERVAL;
+    apply_due_tasks(&mut world);
+    assert!(has_buff(&world, mate, PULSE), "the party mate is buffed");
+    assert!(!has_buff(&world, stranger, PULSE), "an outsider is not");
+    assert!(
+        !has_buff(&world, CASTER, PULSE),
+        "the holder is immune to their own pulse"
+    );
+
+    // The next pulse replaces the buff, pushing its expiry out.
+    let first = buff_expiry(&world, mate, PULSE).unwrap();
+    world.tick += PULSE_INTERVAL;
+    apply_due_tasks(&mut world);
+    assert!(buff_expiry(&world, mate, PULSE).unwrap() > first);
+
+    // Off: no more pulses, and the last one runs out on its own (6 s).
+    use_magic(&mut world, CID, CASTER, AURA, false, false);
+    assert!(!has_buff(&world, CASTER, AURA));
+    world.tick += 100;
+    apply_due_tasks(&mut world);
+    assert!(!has_buff(&world, mate, PULSE));
+}
+
+/// `onStart` strips the pulsed abnormal type from the holder before blocking
+/// it — switching an aura on drops another knight's aura buff.
+#[test]
+fn switching_an_aura_on_strips_the_pulsed_abnormal_from_the_holder() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = switch_aura_on(&mut world, party_pulse());
+    let pulse = party_pulse();
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &pulse);
+    assert!(has_buff(&world, CASTER, PULSE));
+
+    use_magic(&mut world, CID, CASTER, AURA, false, false);
+    assert!(!has_buff(&world, CASTER, PULSE));
+}
+
+/// A hostile aura (`ENEMY` / `RANGE` / `NOT_FRIEND`) debuffs the monsters
+/// around the holder and leaves one far outside the range alone.
+#[test]
+fn an_enemy_aura_debuffs_the_monsters_in_range() {
+    let (mut world, _db, _l) = cast_test_world();
+    let mut pulse = aoe_skill(PULSE, AffectScope::Range, AffectObject::NotFriend, 300);
+    pulse.is_continuous = true;
+    pulse.abnormal_type = "AURA".into();
+    pulse.abnormal_time = 11;
+    let _out = switch_aura_on(&mut world, pulse);
+    let (a, b, far) = spawn_cluster(&mut world);
+
+    use_magic(&mut world, CID, CASTER, AURA, false, false);
+    world.tick += PULSE_INTERVAL;
+    apply_due_tasks(&mut world);
+    assert!(has_buff(&world, a, PULSE) && has_buff(&world, b, PULSE));
+    assert!(!has_buff(&world, far, PULSE));
+}

@@ -353,7 +353,10 @@ pub(super) fn reuses_to_save(
 /// * dances/songs, unless `AltStoreDances` — not kept in retail;
 /// * toggles (Java `isToggle() && !isNecessaryToggle()`) — modelled here as
 ///   buffs with no expiry, which is also what a 0-`abnormalTime` skill looks
-///   like; neither should come back on its own after a relog;
+///   like; neither should come back on its own after a relog. Java *does*
+///   save a necessary toggle; this drops it with the rest, since a no-expiry
+///   row has no remaining time to store. The ten carriers (the Borna and
+///   elemental/Holy/Dark Stances) are all off-chronicle and unobtainable;
 /// * `LIFE_FORCE_OTHERS` — Java refuses to persist heal-over-time herbs;
 /// * one row per skill id, first occurrence wins (Java dedupes on
 ///   `getReuseHashCode()`).

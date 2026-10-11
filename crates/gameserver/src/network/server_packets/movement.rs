@@ -120,19 +120,6 @@ pub fn teleport_to_location(object_id: i32, x: i32, y: i32, z: i32, heading: i32
     w.into_bytes()
 }
 
-/// Java `FlyType`, written as its ordinal. Only `Dummy` — "no effect", the
-/// straight slide with no animation — has a caller so far (`CallPc`); the rest
-/// are named because the ordinal *is* the wire value and a gap would silently
-/// shift them.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(i32)]
-pub enum FlyType {
-    ThrowUp = 0,
-    ThrowHorizontal = 1,
-    Dummy = 2,
-    Charge = 3,
-}
-
 /// Port of `serverpackets/FlyToLocation`. Interlude writes eight ints and
 /// stops — the `flySpeed`/`flyDelay`/`animationSpeed` tail Mobius appends is a
 /// later chronicle's addition (verified against the C6/Interlude L2J server,
@@ -141,7 +128,7 @@ pub fn fly_to_location(
     object_id: i32,
     from: (i32, i32, i32),
     to: (i32, i32, i32),
-    fly_type: FlyType,
+    fly_type: crate::enums::FlyType,
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::FLY_TO_LOCATION);

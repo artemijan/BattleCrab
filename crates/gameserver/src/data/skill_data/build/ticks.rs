@@ -47,6 +47,23 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
                 _ => Vec::new(),
             }
         }
+        // `CallSkillOnActionTime.java`: `skillLevel` defaults to 1, `ticks`
+        // is mandatory.
+        "CallSkillOnActionTime" => {
+            match (
+                param("skillId"),
+                value_at(params, "ticks", level).and_then(|v| v.parse::<i32>().ok()),
+            ) {
+                (Some(skill_id), Some(ticks)) if skill_id > 0.0 && ticks > 0 => {
+                    vec![skill::effects::SkillEffect::CallSkillOnActionTime {
+                        skill_id: skill_id as i32,
+                        skill_level: param("skillLevel").unwrap_or(1.0) as i32,
+                        ticks,
+                    }]
+                }
+                _ => Vec::new(),
+            }
+        }
         "HealOverTime" => {
             match (
                 param("power"),

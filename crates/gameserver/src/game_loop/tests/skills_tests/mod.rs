@@ -7,6 +7,7 @@ mod charges;
 mod damage;
 mod debuffs;
 mod dispel;
+mod fly;
 mod hate;
 mod learning;
 mod npc;
@@ -60,6 +61,9 @@ fn synthetic_buff(
     use model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
+        not_broadcastable: false,
+        necessary_toggle: false,
+        fly: None,
         basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),

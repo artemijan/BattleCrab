@@ -688,6 +688,7 @@ pub(crate) fn schedule_dam_over_time(
             | SkillEffect::ManaHealOverTime { ticks, .. }
             | SkillEffect::Fear { ticks }
             | SkillEffect::FakeDeath { ticks, .. }
+            | SkillEffect::CallSkillOnActionTime { ticks, .. }
                 if *ticks > 0 =>
             {
                 Some(dot_interval_ticks(

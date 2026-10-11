@@ -1541,3 +1541,238 @@ fn every_recorded_decision_carries_a_reason() {
         );
     }
 }
+
+/// `SkillOperateType.isFlyType()`: the DA family are active casts that carry
+/// a rush, DA2/DA4/DA5 are additionally continuous, and an ordinary active
+/// carries none.
+#[test]
+fn rush_operate_types_are_castable_and_carry_a_fly() {
+    let xml = r#"
+    <list>
+        <skill id="994" toLevel="1" name="Rush">
+            <operateType>DA1</operateType>
+            <targetType>ENEMY</targetType>
+        </skill>
+        <skill id="793" toLevel="1" name="Rush Impact">
+            <operateType>DA2</operateType>
+            <targetType>ENEMY</targetType>
+        </skill>
+        <skill id="10774" toLevel="1" name="Quick Evasion">
+            <operateType>DA3</operateType>
+            <targetType>SELF</targetType>
+        </skill>
+        <skill id="30507" toLevel="1" name="Left Sidestep">
+            <operateType>DA4</operateType>
+            <targetType>ENEMY</targetType>
+        </skill>
+        <skill id="30508" toLevel="1" name="Right Sidestep">
+            <operateType>DA5</operateType>
+            <targetType>ENEMY</targetType>
+        </skill>
+        <skill id="1177" toLevel="1" name="Wind Strike">
+            <operateType>A1</operateType>
+            <targetType>ENEMY_ONLY</targetType>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+    let fly = Some(skill::target::SkillFly::ToTarget);
+
+    use skill::target::SkillFly;
+    for (id, kind, continuous) in [
+        (10774, SkillFly::Back, false),
+        (30507, SkillFly::TargetLeft, true),
+        (30508, SkillFly::TargetRight, true),
+    ] {
+        let s = &out.skills[&(id, 1)];
+        assert_eq!(s.operate_type, skill::target::OperateType::Active, "{id}");
+        assert_eq!(s.fly, Some(kind), "{id}");
+        assert_eq!(s.is_continuous, continuous, "{id}");
+    }
+
+    let rush = &out.skills[&(994, 1)];
+    assert_eq!(rush.operate_type, skill::target::OperateType::Active);
+    assert_eq!(rush.fly, fly);
+    assert!(!rush.is_continuous);
+
+    let impact = &out.skills[&(793, 1)];
+    assert_eq!(impact.operate_type, skill::target::OperateType::Active);
+    assert_eq!(impact.fly, fly);
+    assert!(impact.is_continuous);
+
+    assert_eq!(out.skills[&(1177, 1)].fly, None);
+    assert!(
+        out.gaps.into_inner().operate_types.is_empty(),
+        "neither name is recorded as unhandled any more"
+    );
+}
+
+/// `SkillOperateType.isToggle()` is `T || TG || AU`; the two variants are the
+/// not-broadcastable ones, and `isNecessaryToggle` is read off its own tag.
+#[test]
+fn toggle_variants_parse_as_toggles() {
+    let xml = r#"
+    <list>
+        <skill id="11007" toLevel="1" name="Fire Stance">
+            <toggleGroupId>1</toggleGroupId>
+            <isNecessaryToggle>true</isNecessaryToggle>
+            <operateType>TG</operateType>
+        </skill>
+        <skill id="10028" toLevel="1" name="Rage Aura">
+            <operateType>AU</operateType>
+            <toggleGroupId>4</toggleGroupId>
+        </skill>
+        <skill id="9999" toLevel="1" name="A Toggle">
+            <operateType>T</operateType>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+    let toggle = skill::target::OperateType::Toggle;
+
+    let stance = &out.skills[&(11007, 1)];
+    assert_eq!(stance.operate_type, toggle);
+    assert!(stance.not_broadcastable && stance.necessary_toggle);
+    assert!(
+        stance.stay_after_death,
+        "`isStayAfterDeath()` ORs the tag in"
+    );
+
+    let aura = &out.skills[&(10028, 1)];
+    assert_eq!(aura.operate_type, toggle);
+    assert!(aura.not_broadcastable && !aura.necessary_toggle);
+
+    let plain = &out.skills[&(9999, 1)];
+    assert_eq!(plain.operate_type, toggle);
+    assert!(!plain.not_broadcastable && !plain.necessary_toggle);
+
+    assert!(out.gaps.into_inner().operate_types.is_empty());
+}
+
+/// `CallSkillOnActionTime` is read off an aura (`skillLevel` defaulting to 1),
+/// and `MY_PARTY` is a resolved target type rather than a gap.
+#[test]
+fn aura_pulse_effect_and_my_party_target_parse() {
+    let xml = r#"
+    <list>
+        <skill id="10030" toLevel="1" name="Challenge Aura">
+            <operateType>AU</operateType>
+            <effects>
+                <effect name="CallSkillOnActionTime">
+                    <skillId>10031</skillId>
+                    <ticks>7</ticks>
+                </effect>
+            </effects>
+        </skill>
+        <skill id="10031" toLevel="1" name="Challenge Aura">
+            <operateType>A5</operateType>
+            <targetType>MY_PARTY</targetType>
+            <affectScope>PARTY</affectScope>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+
+    assert!(matches!(
+        out.skills[&(10030, 1)].effects[..],
+        [skill::effects::SkillEffect::CallSkillOnActionTime {
+            skill_id: 10031,
+            skill_level: 1,
+            ticks: 7,
+        }]
+    ));
+    assert_eq!(
+        out.skills[&(10031, 1)].target_type,
+        skill::target::TargetType::MyParty
+    );
+    let gaps = out.gaps.into_inner();
+    assert!(gaps.effects.is_empty() && gaps.target_types.is_empty());
+}
+
+/// `KnockBack` picks its fly type from `knockDown` unless `type` names one,
+/// and `Blink` reads `angle`/`range` with a `DUMMY` fly type.
+#[test]
+fn knock_back_and_blink_effects_parse() {
+    use crate::enums::FlyType;
+    use skill::effects::SkillEffect;
+    let xml = r#"
+    <list>
+        <skill id="14273" toLevel="1" name="Indiscriminate Rush">
+            <operateType>DA2</operateType>
+            <targetType>ENEMY</targetType>
+            <effects>
+                <effect name="KnockBack">
+                    <speed>400</speed>
+                    <distance>100</distance>
+                    <knockDown>true</knockDown>
+                </effect>
+            </effects>
+        </skill>
+        <skill id="23639" toLevel="1" name="Rush Assault">
+            <operateType>A1</operateType>
+            <targetType>ENEMY</targetType>
+            <effects>
+                <effect name="KnockBack" />
+                <effect name="KnockBack">
+                    <distance>60</distance>
+                    <type>THROW_UP</type>
+                </effect>
+            </effects>
+        </skill>
+        <skill id="10517" toLevel="1" name="Shadow Hide">
+            <operateType>A1</operateType>
+            <targetType>SELF</targetType>
+            <effects>
+                <effect name="Blink">
+                    <angle>180</angle>
+                    <range>600</range>
+                </effect>
+            </effects>
+        </skill>
+    </list>"#;
+    let mut out = ParsedSkills::default();
+    parse_str(xml, &mut out);
+
+    let down = &out.skills[&(14273, 1)];
+    assert!(matches!(
+        down.effects[..],
+        [SkillEffect::KnockBack {
+            distance: 100,
+            knock_down: true,
+            fly_type: FlyType::PushDownHorizontal,
+        }]
+    ));
+    assert_ne!(
+        down.effect_flags() & skill::effect_flag::BLOCK_ACTIONS,
+        0,
+        "a knock-down holds its victim"
+    );
+
+    let push = &out.skills[&(23639, 1)];
+    assert!(matches!(
+        push.effects[..],
+        [
+            SkillEffect::KnockBack {
+                distance: 50,
+                knock_down: false,
+                fly_type: FlyType::PushHorizontal,
+            },
+            SkillEffect::KnockBack {
+                distance: 60,
+                knock_down: false,
+                fly_type: FlyType::ThrowUp,
+            },
+        ]
+    ));
+    assert_eq!(push.effect_flags(), 0);
+
+    assert!(matches!(
+        out.skills[&(10517, 1)].effects[..],
+        [SkillEffect::Blink {
+            angle: 180,
+            range: 600,
+            fly_type: FlyType::Dummy,
+        }]
+    ));
+    assert!(out.gaps.into_inner().effects.is_empty());
+}

@@ -1022,6 +1022,9 @@ fn cast_test_world() -> (World, db::CmdRx, UnboundedReceiver<LoginLinkCommand>) 
 
     let base = Skill {
         self_continuous: false,
+        not_broadcastable: false,
+        necessary_toggle: false,
+        fly: None,
         basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
@@ -2285,6 +2288,9 @@ fn passive_clan_test_skill(id: i32) -> Skill {
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
+        not_broadcastable: false,
+        necessary_toggle: false,
+        fly: None,
         basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),
@@ -2371,6 +2377,9 @@ fn clan_advent_test_skill() -> Skill {
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         self_continuous: false,
+        not_broadcastable: false,
+        necessary_toggle: false,
+        fly: None,
         basic_property: model::skill::BasicProperty::None,
         conditions: Vec::new(),
         target_conditions: Vec::new(),

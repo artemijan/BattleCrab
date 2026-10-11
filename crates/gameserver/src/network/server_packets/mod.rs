@@ -119,10 +119,9 @@ pub use manor::{
     ex_show_seed_info, ex_show_seed_setting, ex_ui_setting, show_mini_map,
 };
 pub use movement::{
-    FlyType, action_failed, change_move_type, ex_server_primitive,
-    ex_teleport_to_location_activate, fly_to_location, move_to_location, move_to_pawn,
-    observation_mode, observation_return, ride, start_rotation, stop_move, stop_rotation,
-    teleport_to_location, validate_location,
+    action_failed, change_move_type, ex_server_primitive, ex_teleport_to_location_activate,
+    fly_to_location, move_to_location, move_to_pawn, observation_mode, observation_return, ride,
+    start_rotation, stop_move, stop_rotation, teleport_to_location, validate_location,
 };
 pub use multisell::{ex_multi_sell_result, multi_sell_list};
 pub use npc::{

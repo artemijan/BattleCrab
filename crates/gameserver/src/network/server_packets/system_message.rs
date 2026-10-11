@@ -370,6 +370,9 @@ pub mod sm_ids {
     // Zones (G12)
     pub const YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE: i16 = 85;
     pub const YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE: i16 = 2167;
+    /// `targethandlers/{Target,EnemyNot}.java` — a rush skill whose straight
+    /// line to the target is not walkable.
+    pub const THE_TARGET_IS_LOCATED_WHERE_YOU_CANNOT_CHARGE: i16 = 2187;
     // Siege zone (combat zone) enter/exit
     pub const YOU_HAVE_ENTERED_A_COMBAT_ZONE: i16 = 283;
     pub const YOU_HAVE_LEFT_A_COMBAT_ZONE: i16 = 284;

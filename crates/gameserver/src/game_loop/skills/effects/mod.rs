@@ -57,9 +57,10 @@ pub(crate) use continuous::{
     restore_persisted_buffs, set_collision_grown, stop_fake_death,
 };
 pub(crate) use control::{
-    apply_block_actions_interrupt, apply_mute_interrupt, bluff, break_fake_death_on_damage,
+    apply_block_actions_interrupt, apply_mute_interrupt, blink, bluff, break_fake_death_on_damage,
     casting_resists_abnormal, confuse_chance_passes, fake_death, fear_action, fear_can_start,
-    random_bystander, retarget_onto, skill_turning, stop_effects_on_damage, try_break_stun,
+    knock_back, random_bystander, retarget_onto, skill_turning, stop_effects_on_damage,
+    try_break_stun,
 };
 #[cfg(test)]
 pub(crate) use creature::creature_level_for_test;
@@ -560,6 +561,18 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::RandomizeHate { chance } => {
                 randomize_hate(world, caster_oid, target_oid, skill, *chance);
             }
+            // `KnockBack.instant` — the plain push, behind `calcSuccess`'s
+            // `Formulas.calcProbability(100, …)`. The knock-down form is not
+            // instant: it fires from `apply_continuous_effects` when the
+            // skill lands.
+            SkillEffect::KnockBack { distance, knock_down, fly_type } => {
+                if !*knock_down && confuse_chance_passes(world, caster_oid, target_oid, skill, 100) {
+                    knock_back(world, caster_oid, target_oid, *distance, false, *fly_type);
+                }
+            }
+            SkillEffect::Blink { angle, range, fly_type } => {
+                blink(world, target_oid, *angle, *range, *fly_type);
+            }
             // `MagicalAttackMp.instant()` — drain the target's **MP**, not HP.
             // Distinct from `MagicalAttack` in three ways: its own
             // `calcManaDam` formula (target max MP is a multiplier), a
@@ -938,7 +951,7 @@ pub(crate) fn apply_skill_effects(
             }
             // Periodic effects do nothing on application; their work happens on
             // the tick chain armed by `schedule_dam_over_time`.
-            SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } | SkillEffect::ManaHealOverTime { .. } | SkillEffect::MpConsumePerLevel { .. } => {}
+            SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } | SkillEffect::ManaHealOverTime { .. } | SkillEffect::MpConsumePerLevel { .. } | SkillEffect::CallSkillOnActionTime { .. } => {}
             // `Relax.onStart` — the toggle seats its holder. Java calls
             // `sitDown(false)`: the un-toggleable form, so the player cannot
             // stand straight back up while the effect is running.

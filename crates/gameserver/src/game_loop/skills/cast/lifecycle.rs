@@ -91,6 +91,12 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
         }
     }
 
+    // "Finish flying by setting the target location after picking targets.
+    // Packet is sent before MagicSkillLaunched."
+    if let Some(fly) = skill.fly {
+        super::fly::handle_skill_fly(world, player_object_id, cast.target_object_id, &skill, fly);
+    }
+
     broadcast::broadcast_including_self(
         world,
         player_object_id,

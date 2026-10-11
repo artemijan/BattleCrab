@@ -2,14 +2,16 @@
 //! its first target and then sweeps up everyone else around it.
 
 /// Java `SkillOperateType`, scoped to what the cast pipeline dispatches on.
-/// Everything else (`A3`, `DA*`, …) reads as `Other` and isn't castable yet.
+/// An operate type this dist does not use reads as `Other` and isn't castable.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum OperateType {
     /// `A1`/`A2`: an active, targeted or self-cast skill with a cast bar.
     Active,
     /// `P`: passive — never sent to `RequestMagicSkillUse`, no cast pipeline.
     Passive,
-    /// `T`: toggle — out of scope for G6 (see plan's deferred list).
+    /// `SkillOperateType.isToggle()` — `T`, and the `TG`/`AU` variants, which
+    /// switch on and off the same way and differ only in
+    /// `Skill::not_broadcastable`.
     Toggle,
     /// `CA1` (`SkillOperateType.isChanneling()`): an active cast whose payload
     /// is delivered by `channeling_effects` ticks while the cast bar runs
@@ -21,6 +23,24 @@ pub enum OperateType {
     Other,
 }
 
+/// Java `SkillOperateType.isFlyType()` — where `SkillCaster.handleSkillFly`
+/// puts the caster as the cast launches. Carried beside [`OperateType`] rather
+/// than in it for the same reason `self_continuous` is: a rush is an ordinary
+/// active cast that additionally moves its caster.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum SkillFly {
+    /// `DA1`/`DA2`: onto the target — or `castRange` straight ahead when the
+    /// skill targets the caster.
+    ToTarget,
+    /// `DA3`: `castRange` straight back from where the caster stands,
+    /// whatever the target.
+    Back,
+    /// `DA4`: to the target's left flank, the two collision radii away.
+    TargetLeft,
+    /// `DA5`: to the target's right flank, likewise.
+    TargetRight,
+}
+
 /// Java `TargetType`, scoped to the single-target types the cast pipeline
 /// resolves (see `resolve_cast_target`) plus a catch-all so unhandled skills
 /// still load instead of failing to parse.
@@ -28,6 +48,9 @@ pub enum OperateType {
 pub enum TargetType {
     /// `SELF`: always the caster.
     Self_,
+    /// `MY_PARTY`: the selection when it is another player in the caster's
+    /// party, otherwise the caster.
+    MyParty,
     /// `TARGET`: the current target, friendly or not (self allowed).
     Target,
     /// `ENEMY`: an attackable target (force-use required against unflagged

@@ -73,9 +73,17 @@ pub(crate) fn build_skill(
             // 369, Critical Blow 409, Aura Flare 1231) and CA5 (Battle Stance
             // 426, Spell Stance 427) were seven learnable skills in exactly
             // that state.
-            Some("A1" | "A2" | "A3" | "A4" | "A5" | "A6") => skill::target::OperateType::Active,
+            //
+            // The DA family casts through the same pipeline. What sets it
+            // apart is `isFlyType()`, carried separately as `fly` below. (Java's
+            // `isActive()` leaves DA3 out, but nothing on the cast path asks
+            // it — only item-skill reuse and `calcMagicAffected` do.)
+            Some(
+                "A1" | "A2" | "A3" | "A4" | "A5" | "A6" | "DA1" | "DA2" | "DA3" | "DA4" | "DA5",
+            ) => skill::target::OperateType::Active,
             Some("P") => skill::target::OperateType::Passive,
-            Some("T") => skill::target::OperateType::Toggle,
+            // `SkillOperateType.isToggle()`: T, TG, AU.
+            Some("T" | "TG" | "AU") => skill::target::OperateType::Toggle,
             // `SkillOperateType.isChanneling()`: CA1, CA2, CA5.
             Some("CA1" | "CA2" | "CA5") => skill::target::OperateType::Channeling,
             other => {
@@ -84,6 +92,18 @@ pub(crate) fn build_skill(
                 }
                 skill::target::OperateType::Other
             }
+        };
+        // `SkillOperateType.isNotBroadcastable()`, narrowed to the two toggle
+        // variants — see `Skill::not_broadcastable` for why `T` is left out.
+        let not_broadcastable = matches!(value_at(values, "operateType", level), Some("TG" | "AU"));
+        // `SkillOperateType.isFlyType()` — the rush skills, by where
+        // `handleSkillFly` sends the caster.
+        let fly = match value_at(values, "operateType", level) {
+            Some("DA1" | "DA2") => Some(skill::target::SkillFly::ToTarget),
+            Some("DA3") => Some(skill::target::SkillFly::Back),
+            Some("DA4") => Some(skill::target::SkillFly::TargetLeft),
+            Some("DA5") => Some(skill::target::SkillFly::TargetRight),
+            _ => None,
         };
         // Java `SkillOperateType.isContinuous()` — the A2..A6/DA2..DA5 family.
         // `OperateType` above collapses A1 and A2 into `Active` (the cast
@@ -96,6 +116,7 @@ pub(crate) fn build_skill(
         );
         let target_type = match value_at(values, "targetType", level) {
             Some("SELF") => skill::target::TargetType::Self_,
+            Some("MY_PARTY") => skill::target::TargetType::MyParty,
             Some("TARGET") => skill::target::TargetType::Target,
             Some("ENEMY") => skill::target::TargetType::Enemy,
             Some("ENEMY_ONLY") => skill::target::TargetType::EnemyOnly,
@@ -328,6 +349,11 @@ pub(crate) fn build_skill(
                 .is_some_and(|v| v.eq_ignore_ascii_case("true")),
             effects: skill_effects,
             self_continuous,
+            not_broadcastable,
+            // Java `set.getBoolean("isNecessaryToggle", false)`.
+            necessary_toggle: value_at(values, "isNecessaryToggle", level)
+                .is_some_and(|v| v.eq_ignore_ascii_case("true")),
+            fly,
             self_effects,
             pve_effects,
             pvp_effects,

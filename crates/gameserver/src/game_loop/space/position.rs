@@ -203,7 +203,7 @@ fn take_admin_tele_mode(
             // `FlyToLocation(DUMMY)` — the Interlude "slide, no animation"
             // packet — so the client actually follows the server instead of
             // staying put and being snapped back.
-            slide_to(world, object_id, dest, server_packets::FlyType::Dummy);
+            slide_to(world, object_id, dest, crate::enums::FlyType::Dummy);
             set_tele_mode(world, object_id, crate::enums::AdminTeleportType::Normal);
         }
         crate::enums::AdminTeleportType::Charge => {
@@ -236,7 +236,7 @@ fn take_admin_tele_mode(
                     )
                 })
                 .unwrap_or_default();
-            slide_to(world, object_id, dest, server_packets::FlyType::Charge);
+            slide_to(world, object_id, dest, crate::enums::FlyType::Charge);
             // The two skill packets bracket the fly in Java; the fly itself is
             // sent by `slide_to`, which also moves the server position.
             broadcast::broadcast_including_self(world, object_id, &skill_use);
@@ -265,16 +265,35 @@ fn set_tele_mode(world: &mut World, object_id: i32, mode: crate::enums::AdminTel
     }
 }
 
-/// Java `Creature.setXYZ` + a `FlyToLocation` — move the player without a
+/// The point `reach` away from `origin` along `Math.PI + heading + course` —
+/// the one expression `SkillCaster.handleSkillFly` and the `Blink` effect both
+/// place a flier with, each axis truncated toward zero by Java's `(int)` cast.
+/// A `course` of π is straight ahead of `heading`, 0 straight behind it.
+pub(crate) fn heading_offset(
+    origin: &components::space::Position,
+    heading: i32,
+    course: f64,
+    reach: f64,
+) -> (i32, i32, i32) {
+    let radian = crate::game_loop::skills::affect::heading_to_degree(heading).to_radians();
+    let angle = std::f64::consts::PI + radian + course;
+    (
+        origin.x + (angle.cos() * reach) as i32,
+        origin.y + (angle.sin() * reach) as i32,
+        origin.z,
+    )
+}
+
+/// Java `Creature.setXYZ` + a `FlyToLocation` — move a creature without a
 /// teleport (no fade, no decay/respawn round trip) and let the clients animate
-/// the slide. `FlyToLocation`'s constructor arms `blinkActive`, which makes the
-/// next `ValidatePosition` skip its out-of-sync snap so the slide survives the
-/// client's stale position report.
-fn slide_to(
+/// the slide. `FlyToLocation`'s constructor arms `blinkActive` for a player,
+/// which makes the next `ValidatePosition` skip its out-of-sync snap so the
+/// slide survives the client's stale position report.
+pub(crate) fn slide_to(
     world: &mut World,
     object_id: i32,
     dest: (i32, i32, i32),
-    fly_type: server_packets::FlyType,
+    fly_type: crate::enums::FlyType,
 ) {
     let Some(from) = maybe_position(world, object_id) else {
         return;
@@ -297,7 +316,11 @@ fn slide_to(
         object_id,
         &server_packets::fly_to_location(object_id, (from.x, from.y, from.z), dest, fly_type),
     );
-    super::visibility::update_region(world, object_id);
+    if world.objects.has_component::<Player>(&object_id) {
+        super::visibility::update_region(world, object_id);
+    } else {
+        super::visibility::update_npc_region(world, object_id);
+    }
     super::zones::revalidate_zone(world, object_id, false);
 }
 

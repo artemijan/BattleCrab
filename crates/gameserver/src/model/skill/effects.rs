@@ -867,6 +867,37 @@ pub enum SkillEffect {
         power: f64,
         ticks: i32,
     },
+    /// `handlers/effecthandlers/KnockBack.java` — shove the effected creature
+    /// `distance` directly away from the effector.
+    ///
+    /// Two effects in one handler, split by `knock_down`: without it this is
+    /// an *instant* push gated on `Formulas.calcProbability(100, …)`; with it
+    /// the push rides a landed continuous skill, which also holds the victim
+    /// in `BLOCK_ACTIONS` for its duration and turns them to face the effector.
+    KnockBack {
+        distance: i32,
+        knock_down: bool,
+        fly_type: crate::enums::FlyType,
+    },
+    /// `handlers/effecthandlers/Blink.java` — warp the effected creature
+    /// `range` along `angle` from its own heading (0 = straight back, 180 =
+    /// straight ahead), stopping at the last walkable point. Refused under
+    /// `CANNOT_ESCAPE`.
+    Blink {
+        angle: i32,
+        range: i32,
+        fly_type: crate::enums::FlyType,
+    },
+    /// `handlers/effecthandlers/CallSkillOnActionTime.java` — the pulse of an
+    /// aura toggle (`operateType AU`). Every `ticks` it trigger-casts
+    /// `skill_id` at each creature within that skill's `affectRange` of the
+    /// effector; while it is up the bearer is immune to the pulsed skill's own
+    /// abnormal type (`game_loop::skills::effects::triggers`).
+    CallSkillOnActionTime {
+        skill_id: i32,
+        skill_level: i32,
+        ticks: i32,
+    },
     /// `handlers/effecthandlers/Relax.java` — the Relax toggle (skill **226**,
     /// learnable at level 5 by Human and Orc Fighters, so this is early-game
     /// content rather than a curiosity).

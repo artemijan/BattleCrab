@@ -510,3 +510,95 @@ pub(crate) fn try_break_stun(world: &mut World, object_id: i32) {
         buff.abnormal_type.eq_ignore_ascii_case("STUN")
     });
 }
+
+/// The shared tail of `KnockBack.knockBack` and `Blink.instant`:
+/// `setIntention(AI_INTENTION_IDLE)`, a `FlyToLocation` broadcast, `setXYZ`,
+/// a `ValidateLocation` broadcast and `revalidateZone(true)`.
+fn fly_creature_to(
+    world: &mut World,
+    object_id: i32,
+    dest: (i32, i32, i32),
+    fly_type: crate::enums::FlyType,
+) {
+    world
+        .objects
+        .remove_component::<crate::model::components::combat::Intent>(&object_id);
+    position::slide_to(world, object_id, dest, fly_type);
+    if let Some(at) = maybe_position(world, object_id) {
+        broadcast::broadcast_including_self(
+            world,
+            object_id,
+            &server_packets::validate_location(object_id, at.x, at.y, at.z, at.heading),
+        );
+    }
+    crate::game_loop::space::zones::revalidate_zone(world, object_id, true);
+}
+
+/// `KnockBack.knockBack` — throw `effected` `distance` straight away from
+/// `effector`, stopping at the last walkable point. Raids and non-attackable
+/// ("town") NPCs are never moved. A knock-down also turns the victim to face
+/// whoever floored them.
+pub(crate) fn knock_back(
+    world: &mut World,
+    effector_oid: i32,
+    effected_oid: i32,
+    distance: i32,
+    knock_down: bool,
+    fly_type: crate::enums::FlyType,
+) {
+    // `effected.isRaid() || (effected.isNpc() && !effected.isAttackable())`.
+    // A servitor or pet is a `Playable` in Java, not an `Npc`.
+    let is_summon = world
+        .objects
+        .has_component::<crate::model::components::summons::ServitorOf>(&effected_oid)
+        || world
+            .objects
+            .has_component::<crate::model::components::summons::PetOf>(&effected_oid);
+    if npc::is_raid_npc(world, effected_oid)
+        || (!is_summon
+            && npc::npc_template(world, effected_oid).is_some_and(|t| !t.is_attackable_class()))
+    {
+        return;
+    }
+    let (Some(from), Some(at)) = (
+        maybe_position(world, effector_oid),
+        maybe_position(world, effected_oid),
+    ) else {
+        return;
+    };
+    // `Util.calculateAngleFrom(effector, effected)` — the bearing the victim
+    // lies on, which is the direction they are thrown.
+    let radians = ((at.y - from.y) as f64).atan2((at.x - from.x) as f64);
+    let x = (at.x as f64 + distance as f64 * radians.cos()) as i32;
+    let y = (at.y as f64 + distance as f64 * radians.sin()) as i32;
+    let dest = world.geo.get_valid_location(at.x, at.y, at.z, x, y, at.z);
+    if knock_down {
+        // `setHeading(Util.calculateHeadingFrom(effected, effector))`.
+        let heading = crate::model::movement::calculate_heading(
+            (from.x - at.x) as f64,
+            (from.y - at.y) as f64,
+        );
+        position::set_position_heading(world, effected_oid, (at.x, at.y, at.z), heading);
+    }
+    fly_creature_to(world, effected_oid, dest, fly_type);
+}
+
+/// `Blink.instant`, behind its `canStart` (`!effected.cannotEscape()`).
+pub(crate) fn blink(
+    world: &mut World,
+    effected_oid: i32,
+    angle: i32,
+    range: i32,
+    fly_type: crate::enums::FlyType,
+) {
+    if crate::game_loop::abnormal::cannot_escape(world, effected_oid) {
+        return;
+    }
+    let Some(at) = maybe_position(world, effected_oid) else {
+        return;
+    };
+    let (x, y, z) =
+        position::heading_offset(&at, at.heading, (angle as f64).to_radians(), range as f64);
+    let dest = world.geo.get_valid_location(at.x, at.y, at.z, x, y, z);
+    fly_creature_to(world, effected_oid, dest, fly_type);
+}

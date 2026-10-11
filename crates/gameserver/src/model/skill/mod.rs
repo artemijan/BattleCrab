@@ -212,6 +212,17 @@ pub struct Skill {
     /// Read only by [`active_buff::ActiveBuff::displayed`]; the effects themselves behave
     /// exactly like any other active skill's.
     pub self_continuous: bool,
+    /// Java `SkillOperateType.isNotBroadcastable()`, for the `AU` and `TG`
+    /// toggles: switching one on sends no `MagicSkillUse`. Java's predicate
+    /// names `T`, `A5` and `A6` as well; a plain `T` toggle keeps its
+    /// `MagicSkillUse` here (see `cast::request`), and this stays false for it.
+    pub not_broadcastable: bool,
+    /// Java `Skill.isNecessaryToggle()` — a toggle that recasting does not
+    /// switch off; only a sibling in its toggle group replaces it.
+    pub necessary_toggle: bool,
+    /// Java `SkillOperateType.isFlyType()` — set for the rush skills, whose
+    /// cast moves the caster (`cast::fly`). `None` for everything else.
+    pub fly: Option<target::SkillFly>,
     /// Java `EffectScope.SELF` (`<selfEffects>`) — applied to the **caster**,
     /// as a separate `applyEffects(caster, caster, …)` after the target loop.
     /// Blinding Blow 321, Sonic Rage 345, Raging Force 346, Vengeance 368,
@@ -444,6 +455,9 @@ impl Default for Skill {
             removed_on_damage: false,
             effects: Vec::new(),
             self_continuous: false,
+            not_broadcastable: false,
+            necessary_toggle: false,
+            fly: None,
             self_effects: Vec::new(),
             pve_effects: Vec::new(),
             pvp_effects: Vec::new(),
@@ -583,6 +597,10 @@ impl Skill {
                 // CONDITIONAL_BLOCK_ACTIONS, but `hasBlockActions()` ORs them,
                 // so a single bit is behaviourally identical here.
                 SkillEffect::BlockActions { .. } => effect_flag::BLOCK_ACTIONS,
+                // `KnockBack.getEffectFlags()`: `_knockDown ? BLOCK_ACTIONS : 0`.
+                SkillEffect::KnockBack {
+                    knock_down: true, ..
+                } => effect_flag::BLOCK_ACTIONS,
                 SkillEffect::Root => effect_flag::ROOTED,
                 SkillEffect::Mute => effect_flag::MUTED,
                 SkillEffect::PhysicalMute => effect_flag::PHYSICAL_MUTED,

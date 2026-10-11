@@ -2,11 +2,13 @@ use super::apply_block_actions_interrupt;
 use super::apply_buff_to_npc;
 use super::apply_mute_interrupt;
 use super::attribute_mod;
+use super::buffs_snapshot;
 use super::calc_general_trait_bonus;
 use super::calc_skill_mastery;
 use super::casting_resists_abnormal;
 use super::creature_level;
 use super::creature_name;
+use super::expire_buffs_where;
 use super::merge_attack_traits;
 use super::merge_defence_traits;
 use super::merge_skill_rates;
@@ -100,6 +102,7 @@ pub(crate) fn apply_continuous_effects(
                 | SkillEffect::ChameleonRest { .. }
                 | SkillEffect::Fear { .. }
                 | SkillEffect::FakeDeath { .. }
+                | SkillEffect::CallSkillOnActionTime { .. }
         )
     });
     // Blessing of Protection, DefenceTrait (Mental Shield / Resist Shock) and
@@ -311,6 +314,33 @@ pub(crate) fn apply_continuous_effects(
         }
     }
 
+    // `CallSkillOnActionTime.onStart`: strip whatever the bearer holds of the
+    // pulsed skill's abnormal type, then block that type for as long as the
+    // aura is up (`onExit` unblocks — here the block simply leaves with the
+    // buff that carries it). It is what keeps a second knight's aura off an
+    // aura holder, and the holder's own pulse off themselves.
+    let pulsed_abnormals: Vec<String> = skill
+        .effects
+        .iter()
+        .filter_map(|e| match e {
+            SkillEffect::CallSkillOnActionTime {
+                skill_id,
+                skill_level,
+                ..
+            } => world
+                .data
+                .skill_data
+                .get(*skill_id, *skill_level)
+                .map(|s| s.abnormal_type.clone()),
+            _ => None,
+        })
+        .collect();
+    if !pulsed_abnormals.is_empty() {
+        expire_buffs_where(world, target_oid, |_, b| {
+            pulsed_abnormals.contains(&b.abnormal_type)
+        });
+    }
+
     // `Formulas.calcEffectAbnormalTime`, which every `BuffInfo` runs through its
     // constructor:
     //
@@ -363,7 +393,7 @@ pub(crate) fn apply_continuous_effects(
             || skill.self_effects.is_empty(),
         passive: false,
         effect_flags: skill.effect_flags(),
-        blocked_abnormals: skill.blocked_abnormals(),
+        blocked_abnormals: [skill.blocked_abnormals(), pulsed_abnormals].concat(),
         abnormal_visuals: skill.abnormal_visuals.clone(),
         effects: buff_effects,
     };
@@ -394,6 +424,38 @@ pub(crate) fn apply_continuous_effects(
     // dies; done here so it covers both NPC and player targets.
     schedule_dam_over_time(world, caster_oid, target_oid, skill);
 
+    // Java's `ACTIVE_KNOCKBACKS`: a creature already held down by one
+    // knock-down is not thrown again by another. A buff this skill is about to
+    // replace does not count — Java exits it (clearing the entry) before the
+    // new one starts.
+    //
+    // The set is static and only `onExit` clears it, so in Java the *instant*
+    // push — which has no exit — marks its victim for the life of the server
+    // and can never move them twice. That half is a leak, not a rule, and is
+    // not reproduced: an instant push is never guarded here.
+    let knocked_down = buffs_snapshot(world, target_oid, |b| {
+        let replaced = if skill.abnormal_type == "NONE" {
+            b.skill_id == skill.id
+        } else {
+            b.abnormal_type == skill.abnormal_type
+        };
+        (!replaced).then_some((b.skill_id, b.skill_level))
+    })
+    .into_iter()
+    .any(|(id, level)| {
+        world.data.skill_data.get(id, level).is_some_and(|s| {
+            s.effects.iter().any(|e| {
+                matches!(
+                    e,
+                    SkillEffect::KnockBack {
+                        knock_down: true,
+                        ..
+                    }
+                )
+            })
+        })
+    });
+
     // `DefenceTrait.onStart` — merge the buff's per-trait resistances. Done
     // here, above the NPC/player split, because a resisted mob is as real as a
     // resisted player.
@@ -406,6 +468,16 @@ pub(crate) fn apply_continuous_effects(
             // `Grow.onStart` — `setCollisionHeight/Radius(getTemplate()
             // .getCollision*Grown())`, NPCs only.
             SkillEffect::Grow => set_collision_grown(world, target_oid, true),
+            // `KnockBack.continuousInstant` — the knock-down push. The
+            // `startParalyze()` beside it is the `BLOCK_ACTIONS` interrupt the
+            // landed buff triggers below.
+            SkillEffect::KnockBack {
+                distance,
+                knock_down: true,
+                fly_type,
+            } if !knocked_down => {
+                super::knock_back(world, caster_oid, target_oid, *distance, true, *fly_type);
+            }
             _ => {}
         }
     }

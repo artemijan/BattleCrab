@@ -108,6 +108,33 @@ pub(super) fn build(cx: &Cx<'_>) -> Option<Vec<skill::effects::SkillEffect>> {
             ticks: cx.int_param("ticks", 0),
         }],
         "SilentMove" => vec![skill::effects::SkillEffect::SilentMove],
+        // `KnockBack.java`. `type` defaults by `knockDown`; the packet's
+        // `speed`/`delay`/`animationSpeed` tail does not exist on Interlude
+        // (see `server_packets::fly_to_location`), so those are not read.
+        "KnockBack" => {
+            use crate::enums::FlyType;
+            let knock_down = value_at(params, "knockDown", level)
+                .is_some_and(|v| v.eq_ignore_ascii_case("true"));
+            vec![skill::effects::SkillEffect::KnockBack {
+                distance: cx.int_param("distance", 50),
+                knock_down,
+                fly_type: value_at(params, "type", level)
+                    .and_then(FlyType::from_name)
+                    .unwrap_or(if knock_down {
+                        FlyType::PushDownHorizontal
+                    } else {
+                        FlyType::PushHorizontal
+                    }),
+            }]
+        }
+        // `Blink.java` — `angle`/`range` are its `flyCourse`/`flyRadius`.
+        "Blink" => vec![skill::effects::SkillEffect::Blink {
+            angle: cx.int_param("angle", 0),
+            range: cx.int_param("range", 0),
+            fly_type: value_at(params, "flyType", level)
+                .and_then(crate::enums::FlyType::from_name)
+                .unwrap_or(crate::enums::FlyType::Dummy),
+        }],
         "Bluff" => vec![skill::effects::SkillEffect::Bluff {
             chance: param("chance").unwrap_or(100.0) as i32,
         }],
