@@ -212,7 +212,12 @@ fn sweep_radius(
         if seeds_target && candidate == caster_oid && target_oid != caster_oid {
             continue;
         }
-        if is_dead(world, candidate) && !corpse_skill(skill) {
+        // `PointBlank.java` alone keeps the dead for `OBJECT_DEAD_NPC_BODY`
+        // (`c.isDead() && (skill.getAffectObject() != OBJECT_DEAD_NPC_BODY)`);
+        // `Range.java` has only the corpse target types.
+        let keeps_dead = corpse_skill(skill)
+            || (centre == Centre::PointBlank && skill.affect_object == AffectObject::DeadNpcBody);
+        if is_dead(world, candidate) && !keeps_dead {
             continue;
         }
         // Dist-local fix in `Range.java` (82a54bbc, "Fix minion buffs are
@@ -750,6 +755,29 @@ pub(crate) fn passes_affect_object(
                     world, caster_oid, candidate,
                 )
         }
+        // `Invisible.checkAffectedObject` — `target.isInvisible()`. `//hide`
+        // (and the olympiad observer, which sets the same flag) is the only
+        // source of invisibility in this port.
+        AffectObject::Invisible => world
+            .objects
+            .get_component::<crate::model::components::player::AdminFlags>(&candidate)
+            .is_some_and(|f| f.hidden),
+        // `ObjectDeadNpcBody.checkAffectedObject`.
+        AffectObject::DeadNpcBody => {
+            caster_oid != candidate
+                && world
+                    .objects
+                    .has_component::<crate::model::npc::Npc>(&candidate)
+                && is_dead(world, candidate)
+        }
+        // `HiddenPlace.checkAffectedObject` is `return false`.
+        AffectObject::HiddenPlace => false,
+        // `WyvernObject.checkAffectedObject` —
+        // `isInCategory(WYVERN_GROUP, target.getId())`.
+        AffectObject::WyvernObject => world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&candidate)
+            .is_some_and(|n| world.data.categories.contains("WYVERN_GROUP", n.npc_id)),
     }
 }
 

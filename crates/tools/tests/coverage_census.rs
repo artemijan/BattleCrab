@@ -229,8 +229,8 @@ const TARGET_TYPES: &[(&str, usize)] = &[];
 const AFFECT_SCOPES: &[(&str, usize)] = &[];
 
 /// `<affectObject>` names with at least one **learnable** skill behind them —
-/// the work list, worst first. Category totals: 4 name(s), 0 learnable
-/// skill(s) affected, 2 reachable.
+/// the work list, worst first. Category totals: 0 name(s), 0 learnable
+/// skill(s) affected, 0 reachable.
 const AFFECT_OBJECTS: &[(&str, usize)] = &[];
 
 /// `<operateType>` names with at least one **learnable** skill behind them —
@@ -280,9 +280,9 @@ fn datapack_skill_coverage_census() {
             "affectObject",
             &gaps.affect_objects,
             AFFECT_OBJECTS,
-            4,
             0,
-            2,
+            0,
+            0,
         ),
         ("operateType", &gaps.operate_types, OPERATE_TYPES, 0, 0, 0),
     ] {

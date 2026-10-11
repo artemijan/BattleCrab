@@ -773,3 +773,111 @@ fn an_enemy_aura_debuffs_the_monsters_in_range() {
     assert!(has_buff(&world, a, PULSE) && has_buff(&world, b, PULSE));
     assert!(!has_buff(&world, far, PULSE));
 }
+
+// ---------------------------------------------------------------------------
+// The four narrow affect objects
+// ---------------------------------------------------------------------------
+
+fn mark_dead(world: &mut World, oid: i32) {
+    world
+        .objects
+        .get_component_mut::<Vitals>(&oid)
+        .unwrap()
+        .dead = true;
+}
+
+/// Sweeper Festival (444): `SELF` + `POINT_BLANK` + `OBJECT_DEAD_NPC_BODY`.
+/// `PointBlank.java` drops the dead for every affect object but this one, so
+/// the sweep comes back with the corpses and nothing else.
+#[test]
+fn dead_npc_body_point_blank_sweeps_only_corpses() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let (corpse, _alive, far) = spawn_cluster(&mut world);
+    let dead_player = 2002;
+    let _o2 = ingame_caster(&mut world, 2, dead_player, 50, 0);
+    for oid in [corpse, far, dead_player] {
+        mark_dead(&mut world, oid);
+    }
+
+    let mut skill = aoe_skill(444, AffectScope::PointBlank, AffectObject::DeadNpcBody, 200);
+    skill.target_type = TargetType::Self_;
+
+    assert_eq!(
+        targets_affected(&mut world, CASTER, CASTER, &skill),
+        vec![corpse],
+        "the live mob, the dead player and the corpse out of range all stay out"
+    );
+
+    // `Range.java` has no such exemption: only the corpse target types keep
+    // the dead there.
+    skill.affect_scope = AffectScope::Range;
+    assert_eq!(
+        targets_affected(&mut world, CASTER, CASTER, &skill),
+        vec![CASTER],
+        "RANGE still drops the dead, and the live mob fails the filter"
+    );
+}
+
+/// `INVISIBLE` is `target.isInvisible()` — the `//hide` flag here.
+#[test]
+fn invisible_passes_only_the_hidden() {
+    use crate::game_loop::skills::affect::passes_affect_object;
+    use crate::model::components::player::AdminFlags;
+
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let (hidden, seen) = (2002, 2003);
+    let _o2 = ingame_caster(&mut world, 2, hidden, 50, 0);
+    let _o3 = ingame_caster(&mut world, 3, seen, 80, 0);
+    world.objects.add_components(
+        &hidden,
+        AdminFlags {
+            hidden: true,
+            ..Default::default()
+        },
+    );
+
+    let passes =
+        |world: &World, oid: i32| passes_affect_object(world, CASTER, oid, AffectObject::Invisible);
+    assert!(passes(&world, hidden));
+    assert!(!passes(&world, seen));
+
+    let mut skill = aoe_skill(933, AffectScope::Range, AffectObject::Invisible, 300);
+    skill.target_type = TargetType::Self_;
+    assert_eq!(
+        targets_affected(&mut world, CASTER, CASTER, &skill),
+        vec![CASTER, hidden],
+        "the sweep reaches a hidden player and leaves the visible one"
+    );
+}
+
+/// `HIDDEN_PLACE` is a bare `return false` in Java; `WYVERN_OBJECT` is
+/// membership of the `WYVERN_GROUP` category by npc id.
+#[test]
+fn hidden_place_passes_nothing_and_wyvern_object_reads_the_category() {
+    use crate::game_loop::skills::affect::passes_affect_object;
+
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let (wyvern, mob, _far) = spawn_cluster(&mut world);
+    add_test_npc(&mut world, wyvern + 10, 12621, "Monster", 5, 50, 0, 0);
+    let wyvern = wyvern + 10;
+    world
+        .data
+        .categories
+        .insert_for_test("WYVERN_GROUP", &[12621]);
+
+    for oid in [CASTER, wyvern, mob] {
+        assert!(!passes_affect_object(
+            &world,
+            CASTER,
+            oid,
+            AffectObject::HiddenPlace
+        ));
+    }
+    let passes = |oid: i32| passes_affect_object(&world, CASTER, oid, AffectObject::WyvernObject);
+    assert!(passes(wyvern));
+    assert!(!passes(mob));
+    assert!(!passes(CASTER), "a player has no npc id to look up");
+}

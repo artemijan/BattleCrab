@@ -191,6 +191,10 @@ pub(crate) fn build_skill(
             Some("FRIEND") | Some("FRIEND_PC") => skill::target::AffectObject::Friend,
             Some("CLAN") => skill::target::AffectObject::Clan,
             Some("UNDEAD_REAL_ENEMY") => skill::target::AffectObject::UndeadRealEnemy,
+            Some("INVISIBLE") => skill::target::AffectObject::Invisible,
+            Some("OBJECT_DEAD_NPC_BODY") => skill::target::AffectObject::DeadNpcBody,
+            Some("HIDDEN_PLACE") => skill::target::AffectObject::HiddenPlace,
+            Some("WYVERN_OBJECT") => skill::target::AffectObject::WyvernObject,
             Some("ALL") | None => skill::target::AffectObject::All,
             other => {
                 if let Some(raw) = other {
