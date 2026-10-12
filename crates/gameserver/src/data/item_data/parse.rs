@@ -416,6 +416,10 @@ fn make_template(
             .map(|v| v == "true")
             .unwrap_or(false),
         for_npc: attrs.get("for_npc").map(|v| v == "true").unwrap_or(false),
+        change_weapon_id: attrs
+            .get("change_weaponId")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0),
     }
 }
 

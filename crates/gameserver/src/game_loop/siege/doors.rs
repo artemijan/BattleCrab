@@ -1,14 +1,16 @@
-//! Castle doors, the artifact capture, battlefield despawn and the
+//! Castle doors, the artifact engraving, battlefield despawn and the
 //! end-of-siege ousting teleports.
 
 use super::capture;
 use super::teleport_all_to_town;
+use crate::db::DbCommand;
 use crate::game_loop::clans::clan_of_or_zero;
 use crate::game_loop::space::position::maybe_position;
 use crate::model::Player;
+use crate::model::castle::CastleSide;
 use crate::model::components::space::Position;
 use crate::model::door::Door;
-use crate::model::siege::SiegeClanType;
+use crate::network::server_packets::{SmParam, sm_ids};
 use crate::world::World;
 /// Despawn every NPC spawned for this siege (Java `removeSiegeGuards` + the
 /// control/flame towers — the latter unported yet).
@@ -103,31 +105,66 @@ pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool
     breached
 }
 
-/// The throne-room Holy Artifact capture (Java `Artefact.onAction` →
-/// `Castle.setOwner` → `Siege.midVictory`): an attacker clan member touching the
-/// artifact during an active siege takes the castle. No-op otherwise.
-pub(crate) fn try_capture_artifact(world: &mut World, player_oid: i32, artifact_oid: i32) {
-    let Some(pos) = maybe_position(world, artifact_oid) else {
-        return;
-    };
-    let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else {
-        return;
-    };
-    if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
+/// `Castle.engrave(clan, target, side)`, reached from the `TakeCastle` effect
+/// of the leader's Imprint skills: the castle the engraver stands in goes to
+/// their clan, on `side`, if `artifact_oid` is one of that castle's Holy
+/// Artifacts.
+///
+/// Like Java this checks the artifact and nothing else — that the engraver is
+/// an attacking clan's leader is `PossessHolything`'s job, and the cast does
+/// not start without it.
+pub(crate) fn engrave(world: &mut World, player_oid: i32, artifact_oid: i32, side: CastleSide) {
+    // `TakeCastle.instant`: `if (!effector.isPlayer()) return;`.
+    if !world.objects.has_component::<Player>(&player_oid) {
         return;
     }
+    // `CastleManager.getCastle(effector)`.
+    let Some(castle_id) = maybe_position(world, player_oid)
+        .and_then(|p| world.data.zone_data.siege_castle_at(p.x, p.y, p.z))
+    else {
+        return;
+    };
+    // `if (!_artefacts.contains(target)) return;` — an artifact registers with
+    // the castle whose grounds it spawns on.
+    let on_this_castle = crate::game_loop::skills::cast::is_artefact(world, artifact_oid)
+        && maybe_position(world, artifact_oid)
+            .and_then(|p| world.data.zone_data.siege_castle_at(p.x, p.y, p.z))
+            == Some(castle_id);
     let clan_id = clan_of_or_zero(world, player_oid);
-    if clan_id == 0 {
+    if !on_this_castle || clan_id == 0 {
         return;
     }
-    // Only a registered attacker can seize the castle.
-    let is_attacker = world.sieges.get(&castle_id).is_some_and(|s| {
-        s.clans
-            .iter()
-            .any(|c| c.clan_id == clan_id && c.kind == SiegeClanType::Attacker)
+
+    // `setSide(side)`.
+    if let Some(castle) = world.castle_mut(castle_id) {
+        castle.side = side;
+    }
+    let _ = world.db.send(DbCommand::UpdateCastleSide {
+        castle_id,
+        side: side.as_db().to_string(),
     });
-    if is_attacker {
-        capture(world, castle_id, clan_id);
+    // `setOwner(clan)` → `Siege.midVictory()`.
+    capture(world, castle_id, clan_id);
+
+    // `getSiege().announceToPlayer(CLAN_S1_HAS_SUCCEEDED_IN_S2, true)` — both
+    // sides of the siege hear it.
+    let clan_name = world
+        .clans
+        .get(&clan_id)
+        .map(|c| c.name.clone())
+        .unwrap_or_default();
+    let castle_name = world
+        .castle(castle_id)
+        .map(|c| c.name.clone())
+        .unwrap_or_default();
+    let params = [SmParam::Text(clan_name), SmParam::Text(castle_name)];
+    for oid in super::registered_online_members(world, castle_id) {
+        crate::game_loop::helpers::send_sm_to_player(
+            world,
+            oid,
+            sm_ids::CLAN_S1_HAS_SUCCEEDED_IN_S2,
+            &params,
+        );
     }
 }
 

@@ -117,8 +117,9 @@ pub(super) fn record_castle_taken_for_nobles(world: &mut World, clan_id: i32, ca
 /// becomes the OWNER defender.
 ///
 /// Reached in production: the Holy Artifact (type `Artefact`, e.g. Gludio's
-/// 35063) is a permanent castle spawn, so an attacker touching it during an
-/// active siege calls [`try_capture_artifact`] → here.
+/// 35063) is a permanent castle spawn, and an attacking clan's leader who
+/// finishes an Imprint cast on it during an active siege lands in
+/// [`super::engrave`] → here.
 ///
 /// Castle crests are modelled end to end even though the display is inert on
 /// this dist: `Npc.onSpawn`'s tax-zone `setClanId` lives in

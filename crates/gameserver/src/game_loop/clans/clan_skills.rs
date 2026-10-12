@@ -226,8 +226,8 @@ const SIEGE_CLAN_MIN_LEVEL: i32 = 5;
 /// tree (G17), not from this clan-siege set, so it is still skipped here.
 /// The cast behaviour behind them has since landed: Build Headquarters plants
 /// a siege flag (`siege::build_headquarters`, reached from the
-/// `CreateHeadquarter` effect) and the castle is taken by touching the throne
-/// -room artifact (`siege::try_capture_artifact`).
+/// `CreateHeadquarter` effect) and the two Imprints engrave the throne-room
+/// artifact to take the castle (`siege::engrave`, reached from `TakeCastle`).
 pub(crate) fn apply_siege_skills_to_leader(world: &mut World, clan_id: i32, member_oid: i32) {
     let Some(clan) = world.clans.get(&clan_id) else {
         return;

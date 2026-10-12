@@ -189,6 +189,33 @@ fn cast_at(world: &mut World, npc_oid: i32, selected_oid: i32, skill: &Skill) ->
     true
 }
 
+/// `Summon.useMagic` — a summon's owner-ordered cast: `skill.checkCondition(
+/// this, target)`, then the cast.
+///
+/// Java evaluates a skill's `<conditions>` in exactly two places,
+/// `Player.useMagic` and here. A monster's AI cast (`AttackableAI` →
+/// `doCast`) and a script's `doCast` never do, so those keep going through
+/// [`cast_checked`] unconditioned. What this gates is the siege machines — the
+/// Siege Golem's hammer and the cannons fire only inside a running siege
+/// (`OpSiegeHammer`, `CanUseSwoopCannon`) — and a pet's rush, which wants its
+/// minimum run-up (`OpCheckCastRange`).
+///
+/// Returns whether the cast started; a refusal is silent beyond Java's bare
+/// `ActionFailed`, which a summon has no client to receive.
+pub(crate) fn cast_ordered_by_owner(
+    world: &mut World,
+    summon_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+) -> bool {
+    if crate::game_loop::skills::conditions::check_cast(world, summon_oid, skill, target_oid)
+        .is_err()
+    {
+        return false;
+    }
+    cast_checked(world, summon_oid, target_oid, skill)
+}
+
 /// `Npc.hasSkillChance()` — `Rnd.get(100) < Rnd.get(min, max)`.
 fn has_skill_chance(min: i32, max: i32) -> bool {
     let ceiling = rnd::get_range(min, max);
@@ -511,14 +538,26 @@ pub(crate) fn resolve_npc_cast_target(
         // self-target. Java has no such fallback: `getActingPlayer()` is null
         // for a bare `Npc`, so the cast finds no target and dies.
         TargetType::OwnerPet => crate::game_loop::servitor::owner_of(world, npc_oid)?,
-        // The handlers this port still collapses into `Other` (`OTHERS`,
-        // `ARTILLERY`, `WYVERN_TARGET`, `ADVANCE_BASE`, …): passing the
-        // selected target through matches each reachable carrier. `OTHERS`
-        // ("not self") can only receive an aggro target here, never the
-        // caster; and the siege-machine types (`ARTILLERY`, `WYVERN_TARGET`)
-        // have no AI route on this dist — their casts come from scripts that
-        // pick the target explicitly.
+        // A name with no Java handler; nothing on this dist reads as this.
         TargetType::Other => selected_oid,
+        // The four selection-testing handlers, as on the player path. The one
+        // that matters is `ARTILLERY`: the Swoop Cannon's shots land on a
+        // besieged gate and on nothing else.
+        TargetType::HolyThing
+        | TargetType::Artillery
+        | TargetType::AdvanceBase
+        | TargetType::FortressFlagpole => {
+            return crate::game_loop::skills::cast::selection_fits(
+                world,
+                npc_oid,
+                selected_oid,
+                skill.target_type,
+            )
+            .then_some(selected_oid);
+        }
+        // `Item.java` needs an item selection, `MyMentor.java` a player
+        // caster, and `WyvernTarget.java` is `return null`.
+        TargetType::Item | TargetType::MyMentor | TargetType::WyvernTarget => return None,
     };
 
     // The closing LOS + peace-zone gates, shared with the player resolver.

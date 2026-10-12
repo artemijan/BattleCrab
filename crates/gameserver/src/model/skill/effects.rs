@@ -1109,6 +1109,14 @@ pub enum SkillEffect {
     CreateHeadquarter {
         advanced: bool,
     },
+    /// `handlers/effecthandlers/TakeCastle.java` — the engraving itself:
+    /// `castle.engrave(effector.getClan(), effected, side)` hands the castle
+    /// the caster stands in to their clan, on `side`, provided `effected` is
+    /// one of that castle's Holy Artifacts. This is the only way a castle
+    /// changes hands mid-siege.
+    TakeCastle {
+        side: crate::model::castle::CastleSide,
+    },
     /// `handlers/effecthandlers/OpenCommonRecipeBook.java` /
     /// `OpenDwarfRecipeBook.java` — the "Common Craft" (1322) / "Dwarven Craft"
     /// (1321) ability skills: casting one opens the matching recipe window

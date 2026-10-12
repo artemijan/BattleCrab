@@ -97,14 +97,18 @@ pub enum SkillCondition {
     CanSummonCubic,
     /// `CanSummonSiegeGolem`.
     CanSummonSiegeGolem,
-    /// `CanUseInBattlefield` **and** `OpSiegeHammer` — two Java classes with
-    /// one body: the caster is inside a `SIEGE` zone.
+    /// `CanUseInBattlefield`, `OpSiegeHammer` **and** `CanUseSwoopCannon` —
+    /// three Java classes with one body: the caster is inside a `SIEGE` zone.
     InsideSiegeZone,
     /// `OpSocialClass` — clan leader always passes; otherwise the pledge type
     /// must be at least `social_class`. `-1` means "leader only".
     SocialClass { social_class: i32 },
     /// `BuildCamp` — the outpost/headquarters gate.
     BuildCamp,
+    /// `PossessHolything` — may this caster engrave the castle's Holy
+    /// Artifact: a living, uncursed clan leader on the attacker side of the
+    /// siege they stand in, aimed at that castle's artifact from close by.
+    PossessHolything,
     /// `OpSkillAcquire` — the *target* has (or hasn't) learned a skill.
     SkillAcquire { skill_id: i32, has_learned: bool },
     /// `OpStrider` / `OpWyvern` — the caster is riding that mount.
@@ -154,6 +158,109 @@ pub enum SkillCondition {
         skill_level: i32,
         has_learned: bool,
     },
+    /// A handler whose answer does not depend on the cast. Two sources: the
+    /// Java classes that are literally `return true; // TODO` (or `return
+    /// false`), and the ones that read a system this chronicle does not have —
+    /// agathions, airships, mentoring, fortresses, instances, souls — where
+    /// the absent state pins the answer. The builder says which, per name.
+    Constant { passes: bool },
+    /// `OpCanNotUseAirship` — `caster.isPlayer() && !(vehicle instanceof
+    /// AirShip)`. With no airships that is "the caster is a player".
+    CasterIsPlayer,
+    /// `OpCheckAbnormal` — the subject does (`has_abnormal`) or does not carry
+    /// an abnormal of this type at `level` or better. Java's `affectType`
+    /// defaults to `TARGET` here, unlike most of its siblings.
+    CheckAbnormal {
+        abnormal_type: String,
+        level: i32,
+        has_abnormal: bool,
+        affect: AffectType,
+    },
+    /// `OpCheckClass` — the caster's class is (`is_within`) or is not
+    /// `class_id`. `None` is a name `ClassId` does not have, which no one can
+    /// be. Java's `TARGET` leg requires a *non*-player target
+    /// and then reads its acting player, so it is a test on a summon's owner.
+    CheckClass {
+        class_id: Option<i32>,
+        affect: AffectType,
+        is_within: bool,
+    },
+    /// `OpCheckClassList` — the subject is a player whose class is in (or,
+    /// `!is_within`, not in) the list.
+    CheckClassList {
+        class_ids: Vec<i32>,
+        affect: AffectType,
+        is_within: bool,
+    },
+    /// `OpCheckSkill` / `OpCheckSkillList` — the subject knows at least one of
+    /// these skills. As with `OpCheckClass`, Java's `TARGET` leg accepts only
+    /// a non-player target and asks its acting player.
+    CheckSkillList {
+        skill_ids: Vec<i32>,
+        affect: AffectType,
+    },
+    /// `OpCheckCastRange` — there is a target, it is **at least** `distance`
+    /// away in 3D, and it is in line of sight. The minimum-run gate on the
+    /// rush skills.
+    CheckCastRange { distance: i32 },
+    /// `OpBlink` — the spot `range` units along the caster's heading, turned by
+    /// `angle` degrees, can be walked to in a straight line.
+    Blink { angle: i32, range: i32 },
+    /// `OpNotOlympiad` — a player who is not in an Olympiad match.
+    NotOlympiad,
+    /// `OpNotCursed` — a player not holding a cursed weapon.
+    NotCursed,
+    /// `OpPkcount` — the subject is a player with at least one PK.
+    PkCount { affect: AffectType },
+    /// `TargetMyPledge` — the target is a player in the caster's clan.
+    TargetMyPledge,
+    /// `OpPeacezone` (`inside`) / `OpNotInPeacezone` (`!inside`).
+    PeaceZone { inside: bool },
+    /// `OpEquipItem` — the subject has one of these items equipped. `BOTH`
+    /// wants the target (a player) *and* the caster each wearing one.
+    EquipItem {
+        item_ids: Vec<i32>,
+        affect: AffectType,
+    },
+    /// `OpCannotUseTargetWithPrivateStore` — refused on a player who has a
+    /// private store open.
+    TargetNoPrivateStore,
+    /// `OpHaveSummon` — `caster.hasServitors()`; a pet does not count.
+    HaveSummon,
+    /// `OpNeedSummonOrPet` — the caster's pet or servitor is one of these NPCs.
+    NeedSummonOrPet { npc_ids: Vec<i32> },
+    /// `OpHaveSummonedNpc` — the caster has summoned an NPC with this id.
+    HaveSummonedNpc { npc_id: i32 },
+    /// `OpSubjob` — a player on a subclass.
+    Subjob,
+    /// `OpAffectedBySkill` — the caster carries this skill's buff, at
+    /// `skill_level` or better when that is positive.
+    AffectedBySkill { skill_id: i32, skill_level: i32 },
+    /// `OpCheckCrtEffect` — the target is an NPC whose template `canBeCrt()`
+    /// (`<exCrtEffect>`, default true).
+    CheckCrtEffect,
+    /// `OpInSiege` — the caster stands in the siege zone of one of these
+    /// residences while its siege runs. Castles only; there are no fortresses.
+    InSiege { residence_ids: Vec<i32> },
+    /// `EquipArmor` — the chest is of a listed armor type, and so are the legs
+    /// unless the chest is a full-body piece.
+    EquipArmor { mask: u8 },
+    /// `EquipSigil` — the off hand holds an `ArmorType.SIGIL`.
+    EquipSigil,
+    /// `EquippedCloakEnchant` — the cloak is enchanted to at least `amount`.
+    EquippedCloakEnchant { amount: i32 },
+    /// `OpChangeWeapon` — the equipped weapon has a `change_weaponId` to turn
+    /// into. Java also refuses while an item request (an enchant or the like)
+    /// is open, which this port does not model as one flag.
+    ChangeWeapon,
+    /// `CanSummonMulti` — the multi-servitor gate. This chronicle has no
+    /// summon points, so the player's count and cap are both zero: it passes
+    /// only for a skill costing none, cast by an unmounted, unprotected player
+    /// with no servitor out.
+    CanSummonMulti { summon_points: i32 },
+    /// `CanUseVitalityIncreaseItem` — the item's `amount` still fits under the
+    /// vitality cap.
+    VitalityRoom { amount: i32 },
 }
 
 /// `enums/ResidenceType` — [`SkillCondition::Home`]'s parameter. `FORTRESS` is

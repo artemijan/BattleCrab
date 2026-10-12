@@ -676,6 +676,7 @@ mod tests {
             is_oly_restricted: false,
             is_event_restricted: false,
             for_npc: false,
+            change_weapon_id: 0,
             time: -1,
             duration: -1,
             immediate_effect: false,

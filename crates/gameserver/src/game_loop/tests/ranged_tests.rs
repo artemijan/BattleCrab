@@ -21,6 +21,7 @@ fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i32) -> ItemTem
         is_oly_restricted: false,
         is_event_restricted: false,
         for_npc: false,
+        change_weapon_id: 0,
         time: -1,
         duration: -1,
         immediate_effect: false,

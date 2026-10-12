@@ -770,6 +770,9 @@ pub(crate) fn apply_skill_effects(
                 // `BuildCampSkillCondition`).
                 crate::game_loop::siege::place_siege_flag(world, caster_oid, *advanced);
             }
+            SkillEffect::TakeCastle { side } => {
+                crate::game_loop::siege::engrave(world, caster_oid, target_oid, *side);
+            }
             SkillEffect::OpenRecipeBook { dwarven } => {
                 open_recipe_book(world, caster_oid, *dwarven);
             }

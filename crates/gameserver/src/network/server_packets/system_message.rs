@@ -950,6 +950,8 @@ pub mod sm_ids {
     // Recommendations (RequestVoteNew / RecoGiveTask / GiveRecommendation)
     pub const SELECT_TARGET: i16 = 242;
     pub const THAT_IS_AN_INCORRECT_TARGET: i16 = 144;
+    /// "Clan $s1 has succeeded in $s2!" — `Castle.engrave`.
+    pub const CLAN_S1_HAS_SUCCEEDED_IN_S2: i16 = 285;
     pub const YOU_CANNOT_RECOMMEND_YOURSELF: i16 = 829;
     pub const YOU_HAVE_RECOMMENDED_C1_YOU_HAVE_S2_RECOMMENDATIONS_LEFT: i16 = 830;
     pub const YOU_HAVE_BEEN_RECOMMENDED_BY_C1: i16 = 831;

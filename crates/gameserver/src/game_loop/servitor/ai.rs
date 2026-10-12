@@ -490,7 +490,7 @@ fn use_pet_skill(world: &mut World, client_id: u32, owner_oid: i32, pet_oid: i32
         } else {
             owner_target
         };
-        crate::game_loop::npc::cast::cast_checked(world, pet_oid, target_oid, &skill);
+        crate::game_loop::npc::cast::cast_ordered_by_owner(world, pet_oid, target_oid, &skill);
     }
 
     // SKIP(census): `if (optionId == PET_SWITCH_STANCE) pet.switchMode()`.
@@ -560,5 +560,5 @@ pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i3
         }
     };
 
-    crate::game_loop::npc::cast::cast_checked(world, servitor_oid, target_oid, &skill);
+    crate::game_loop::npc::cast::cast_ordered_by_owner(world, servitor_oid, target_oid, &skill);
 }

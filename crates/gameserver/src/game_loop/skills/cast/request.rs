@@ -300,7 +300,10 @@ pub(crate) fn use_magic_on(
     ) {
         return;
     }
-    if skill.target_type == TargetType::Other {
+    // The target handlers that return null with no message of their own;
+    // `useMagic` answers `target == null` with a bare ActionFailed.
+    if skill.target_type.resolves_to_nothing() {
+        helpers::send_action_failed(world, client_id);
         return;
     }
     // `useMagic`: a GROUND cast with no stored world position (the client

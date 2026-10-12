@@ -1103,12 +1103,15 @@ pub(crate) fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Opti
         }),
         "CanSummonCubic" => Some(SkillCondition::CanSummonCubic),
         "CanSummonSiegeGolem" => Some(SkillCondition::CanSummonSiegeGolem),
-        // Two Java classes, one body.
-        "CanUseInBattlefield" | "OpSiegeHammer" => Some(SkillCondition::InsideSiegeZone),
+        // Three Java classes, one body.
+        "CanUseInBattlefield" | "OpSiegeHammer" | "CanUseSwoopCannon" => {
+            Some(SkillCondition::InsideSiegeZone)
+        }
         "OpSocialClass" => Some(SkillCondition::SocialClass {
             social_class: num("socialClass").unwrap_or(-1),
         }),
         "BuildCamp" => Some(SkillCondition::BuildCamp),
+        "PossessHolything" => Some(SkillCondition::PossessHolything),
         "OpSkillAcquire" => num("skillId").map(|skill_id| SkillCondition::SkillAcquire {
             skill_id,
             has_learned: flag("hasLearned", false),
@@ -1178,6 +1181,137 @@ pub(crate) fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Opti
                 affect: affect(),
                 chaotic,
             }),
+        // ---- answers that do not depend on the cast ----------------------
+        // Java bodies that are `return true; // TODO`.
+        "OpAgathionEnergy"
+        | "CanEnchantAttribute"
+        | "TargetItemCrystalType"
+        | "OpEnchantRange"
+        | "CanUseInDragonLair"
+        | "OpUsePraseed"
+        | "CanChangeVitalItemCount"
+        | "BuildAdvanceBase" => Some(SkillCondition::Constant { passes: true }),
+        // `OpCheckAccountType` is `return false`. The rest read state that is
+        // pinned here: `getAgathionId() != 0` with no agathions; a
+        // `ControllableAirShip` to refuel; a mentee; a fortress under siege
+        // (`OpCheckFlag`, whose own "unsuitable terms" line is the generic one
+        // every refusal already sends); an instance of a given template; and
+        // `getChargedSouls() < MAX_SOULS` with both at zero.
+        "OpCheckAccountType" | "OpNeedAgathion" | "CanRefuelAirship" | "TargetMyMentee"
+        | "OpCheckFlag" | "OpInstantzone" | "OpSoulMax" => {
+            Some(SkillCondition::Constant { passes: false })
+        }
+        // `caster.getInstanceId() == 0` — nobody is ever in an instance.
+        "OpNotInstantzone" => Some(SkillCondition::Constant { passes: true }),
+        // `getChargedSouls() >= amount` with no souls to charge.
+        "SoulSaved" => Some(SkillCondition::Constant {
+            passes: num("amount").unwrap_or(0) <= 0,
+        }),
+        // `getBookMarkSlot() + slots > 18` refuses; the slot count is always 0.
+        "CanBookmarkAddSlot" => Some(SkillCondition::Constant {
+            passes: num("teleportBookmarkSlots").unwrap_or(0) <= 18,
+        }),
+        "OpCanNotUseAirship" => Some(SkillCondition::CasterIsPlayer),
+        // ---- world state --------------------------------------------------
+        "OpCheckAbnormal" => {
+            value_at(&params, "type", level).map(|t| SkillCondition::CheckAbnormal {
+                abnormal_type: t.to_string(),
+                level: num("level").unwrap_or(0),
+                has_abnormal: flag("hasAbnormal", false),
+                // Java: `getEnum("affectType", …, SkillConditionAffectType.TARGET)`.
+                affect: value_at(&params, "affectType", level)
+                    .map_or(AffectType::Target, AffectType::from_xml),
+            })
+        }
+        "OpCheckClass" => Some(SkillCondition::CheckClass {
+            class_id: value_at(&params, "classId", level)
+                .and_then(crate::model::class_names::class_id_by_name),
+            affect: affect(),
+            is_within: flag("isWithin", false),
+        }),
+        "OpCheckClassList" => Some(SkillCondition::CheckClassList {
+            class_ids: c
+                .lists
+                .get("classIds")
+                .map(|names| {
+                    names
+                        .iter()
+                        .filter_map(|n| crate::model::class_names::class_id_by_name(n))
+                        .collect()
+                })
+                .unwrap_or_default(),
+            affect: affect(),
+            is_within: flag("isWithin", false),
+        }),
+        "OpCheckSkillList" => Some(SkillCondition::CheckSkillList {
+            skill_ids: id_list(c, "skillIds"),
+            affect: affect(),
+        }),
+        "OpCheckSkill" => num("skillId").map(|id| SkillCondition::CheckSkillList {
+            skill_ids: vec![id],
+            affect: affect(),
+        }),
+        "OpCheckCastRange" => {
+            num("distance").map(|distance| SkillCondition::CheckCastRange { distance })
+        }
+        // `direction`: FRONT → 0°, BACK → 180°, anything else → -1°.
+        "OpBlink" => num("range").map(|range| SkillCondition::Blink {
+            angle: match value_at(&params, "direction", level) {
+                Some("FRONT") => 0,
+                Some("BACK") => 180,
+                _ => -1,
+            },
+            range,
+        }),
+        "OpNotOlympiad" => Some(SkillCondition::NotOlympiad),
+        "OpNotCursed" => Some(SkillCondition::NotCursed),
+        "OpPkcount" => Some(SkillCondition::PkCount { affect: affect() }),
+        "TargetMyPledge" => Some(SkillCondition::TargetMyPledge),
+        "OpPeacezone" => Some(SkillCondition::PeaceZone { inside: true }),
+        "OpNotInPeacezone" => Some(SkillCondition::PeaceZone { inside: false }),
+        // Java reads the `itemIds` list and, failing that, a lone `itemId`.
+        "OpEquipItem" => Some(SkillCondition::EquipItem {
+            item_ids: match id_list(c, "itemIds") {
+                ids if ids.is_empty() => num("itemId").into_iter().collect(),
+                ids => ids,
+            },
+            affect: affect(),
+        }),
+        "OpCannotUseTargetWithPrivateStore" => Some(SkillCondition::TargetNoPrivateStore),
+        "OpHaveSummon" => Some(SkillCondition::HaveSummon),
+        "OpNeedSummonOrPet" => Some(SkillCondition::NeedSummonOrPet {
+            npc_ids: id_list(c, "npcIds"),
+        }),
+        "OpHaveSummonedNpc" => {
+            num("npcId").map(|npc_id| SkillCondition::HaveSummonedNpc { npc_id })
+        }
+        "OpSubjob" => Some(SkillCondition::Subjob),
+        "OpAffectedBySkill" => Some(SkillCondition::AffectedBySkill {
+            skill_id: num("skillId").unwrap_or(-1),
+            skill_level: num("skillLevel").unwrap_or(-1),
+        }),
+        "OpCheckCrtEffect" => Some(SkillCondition::CheckCrtEffect),
+        "OpInSiege" => Some(SkillCondition::InSiege {
+            residence_ids: id_list(c, "residenceIds"),
+        }),
+        "EquipArmor" => Some(SkillCondition::EquipArmor {
+            mask: c.lists.get("armorType").map_or(0, |types| {
+                types.iter().fold(0u8, |acc, t| {
+                    acc | crate::data::item_data::kinds::ArmorType::from_name(t).mask_bit()
+                })
+            }),
+        }),
+        "EquipSigil" => Some(SkillCondition::EquipSigil),
+        "EquippedCloakEnchant" => Some(SkillCondition::EquippedCloakEnchant {
+            amount: num("amount").unwrap_or(0),
+        }),
+        "OpChangeWeapon" => Some(SkillCondition::ChangeWeapon),
+        "CanSummonMulti" => Some(SkillCondition::CanSummonMulti {
+            summon_points: num("summonPoints").unwrap_or(0),
+        }),
+        "CanUseVitalityIncreaseItem" => Some(SkillCondition::VitalityRoom {
+            amount: num("amount").unwrap_or(0),
+        }),
         "OpSkill" => num("skillId").map(|skill_id| SkillCondition::SkillKnown {
             skill_id,
             skill_level: num("skillLevel").unwrap_or(1),

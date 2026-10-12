@@ -162,6 +162,10 @@ pub(crate) fn passive_stat_gate(
                 && items.armor_type(inventory.paperdoll_item_id(PaperdollSlot::LHand))
                     == crate::data::item_data::kinds::ArmorType::Shield
         }
+        skill::condition::SkillCondition::EquipArmor { mask } => {
+            wears_armor_of(inventory, items, *mask)
+        }
+        skill::condition::SkillCondition::EquipSigil => holds_sigil(inventory, items),
         _ => true,
     })
 }
@@ -204,12 +208,6 @@ pub(crate) fn send_refusal(
     helpers::send_action_failed(world, client_id);
 }
 
-/// `skill` is deliberately unused: every ported condition reads world state
-/// only. Java passes it so a handler can name the skill in its message
-/// (`OpResurrection`) or re-run its affect scope (`OpSweeper`); neither is
-/// reachable here — the skill name goes into the *generic* refusal, which
-/// `send_refusal` builds. Kept in the signature so adding such a condition
-/// doesn't have to re-thread it.
 /// Evaluate one condition on its own — the dispatcher's per-condition step,
 /// exposed so a test can exercise a single gate without building a `Skill`
 /// around it. `eval` ignores the skill argument for every condition this
@@ -230,7 +228,7 @@ pub(crate) fn check_for_test(
 fn eval(
     world: &World,
     caster: i32,
-    _skill: &skill::Skill,
+    skill: &skill::Skill,
     target: i32,
     cond: &skill::condition::SkillCondition,
 ) -> Result<(), Refusal> {
@@ -289,9 +287,9 @@ fn eval(
         skill::condition::SkillCondition::CanEscape => {
             ok(!super::abnormal::cannot_escape(world, caster))
         }
-        skill::condition::SkillCondition::InsideSiegeZone => ok(
-            crate::game_loop::space::zones::has_zone_flag(world, caster, ZoneKind::Siege),
-        ),
+        skill::condition::SkillCondition::InsideSiegeZone => {
+            ok(in_active_siege_zone(world, caster))
+        }
         skill::condition::SkillCondition::NotInUnderwater => ok(
             !crate::game_loop::space::zones::has_zone_flag(world, caster, ZoneKind::Water),
         ),
@@ -357,6 +355,188 @@ fn eval(
         }
         skill::condition::SkillCondition::CanSummonSiegeGolem
         | skill::condition::SkillCondition::BuildCamp => ok(siege_deployable(world, caster)),
+        // ---- the narrow ones (PLAN_G34: the off-chronicle tail) -----------
+        skill::condition::SkillCondition::Constant { passes } => ok(*passes),
+        skill::condition::SkillCondition::CasterIsPlayer => ok(is_player(world, caster)),
+        skill::condition::SkillCondition::CheckAbnormal {
+            abnormal_type,
+            level,
+            has_abnormal,
+            affect,
+        } => {
+            // CASTER reads the caster; TARGET needs a creature target; BOTH
+            // falls out of Java's switch to `return false`.
+            let subject = match affect {
+                skill::AffectType::Caster => Some(caster),
+                skill::AffectType::Target => Some(target).filter(|t| *t != 0),
+                skill::AffectType::Both => None,
+            };
+            ok(subject.is_some_and(|oid| {
+                has_abnormal_at_least(world, oid, abnormal_type, *level) == *has_abnormal
+            }))
+        }
+        skill::condition::SkillCondition::CheckClass {
+            class_id,
+            affect,
+            is_within,
+        } => {
+            let is_class = |oid: i32| {
+                helpers::player(world, oid).map(|p| *is_within == (Some(p.class_id) == *class_id))
+            };
+            ok(match affect {
+                skill::AffectType::Caster => is_class(caster) == Some(true),
+                // `(target != null) && !target.isPlayer()` → the acting
+                // player's class: a summon's owner, in practice.
+                skill::AffectType::Target => {
+                    crate::game_loop::servitor::owner_of(world, target).and_then(is_class)
+                        == Some(true)
+                }
+                skill::AffectType::Both => false,
+            })
+        }
+        skill::condition::SkillCondition::CheckClassList {
+            class_ids,
+            affect,
+            is_within,
+        } => {
+            let subject = match affect {
+                skill::AffectType::Caster => Some(caster),
+                skill::AffectType::Target => Some(target).filter(|t| *t != 0),
+                skill::AffectType::Both => None,
+            };
+            ok(subject
+                .and_then(|oid| helpers::player(world, oid))
+                .is_some_and(|p| class_ids.contains(&p.class_id) == *is_within))
+        }
+        skill::condition::SkillCondition::CheckSkillList { skill_ids, affect } => {
+            let knows_any = |oid: i32| skill_ids.iter().any(|id| knows_skill(world, oid, *id));
+            ok(match affect {
+                skill::AffectType::Caster => knows_any(caster),
+                skill::AffectType::Target => {
+                    crate::game_loop::servitor::owner_of(world, target).is_some_and(knows_any)
+                }
+                skill::AffectType::Both => false,
+            })
+        }
+        skill::condition::SkillCondition::CheckCastRange { distance } => {
+            ok(far_enough_and_visible(world, caster, target, *distance))
+        }
+        skill::condition::SkillCondition::Blink { angle, range } => {
+            ok(can_blink(world, caster, *angle, *range))
+        }
+        skill::condition::SkillCondition::NotOlympiad => {
+            ok(is_player(world, caster) && !world.olympiad.is_in_competition(caster))
+        }
+        skill::condition::SkillCondition::NotCursed => {
+            ok(helpers::player(world, caster).is_some_and(|p| p.cursed_weapon_equipped_id == 0))
+        }
+        skill::condition::SkillCondition::PkCount { affect } => {
+            let subject = match affect {
+                skill::AffectType::Caster => Some(caster),
+                skill::AffectType::Target => Some(target).filter(|t| *t != 0),
+                skill::AffectType::Both => None,
+            };
+            ok(subject
+                .and_then(|oid| helpers::player(world, oid))
+                .is_some_and(|p| p.pk_kills > 0))
+        }
+        skill::condition::SkillCondition::TargetMyPledge => {
+            let clan = clans::clan_of_or_zero(world, caster);
+            ok(is_player(world, target)
+                && clan != 0
+                && clan == clans::clan_of_or_zero(world, target))
+        }
+        skill::condition::SkillCondition::PeaceZone { inside } => {
+            ok(crate::game_loop::space::zones::in_zone(world, caster, ZoneKind::Peace) == *inside)
+        }
+        skill::condition::SkillCondition::EquipItem { item_ids, affect } => {
+            let wears = |oid: i32| wears_any(world, oid, item_ids);
+            let target_player = is_player(world, target);
+            ok(match affect {
+                skill::AffectType::Caster => wears(caster),
+                skill::AffectType::Target => target_player && wears(target),
+                skill::AffectType::Both => target_player && wears(target) && wears(caster),
+            })
+        }
+        // `(target == null) || !target.isPlayer() || storeType == NONE`.
+        skill::condition::SkillCondition::TargetNoPrivateStore => {
+            ok(helpers::player(world, target).is_none_or(|p| p.store_type == 0))
+        }
+        skill::condition::SkillCondition::HaveSummon => {
+            ok(crate::game_loop::servitor::servitor_of(world, caster).is_some())
+        }
+        skill::condition::SkillCondition::NeedSummonOrPet { npc_ids } => {
+            ok(crate::game_loop::servitor::pet_of(world, caster)
+                .into_iter()
+                .chain(crate::game_loop::servitor::servitor_of(world, caster))
+                .any(|oid| npc_ids.contains(&template_id_of(world, oid))))
+        }
+        // `caster.getSummonedNpcs()` — the NPCs a `SummonNpc` effect spawned
+        // for this caster, which carry a `SummonerRef` back to them.
+        skill::condition::SkillCondition::HaveSummonedNpc { npc_id } => {
+            ok(world.npcs_with_id(*npc_id).iter().any(|oid| {
+                world
+                    .objects
+                    .get_component::<components::summons::SummonerRef>(oid)
+                    .is_some_and(|s| s.0 == caster)
+            }))
+        }
+        skill::condition::SkillCondition::Subjob => {
+            ok(helpers::player(world, caster).is_some_and(|p| p.class_index != 0))
+        }
+        skill::condition::SkillCondition::AffectedBySkill {
+            skill_id,
+            skill_level,
+        } => ok(world
+            .objects
+            .get_component::<components::skills::Buffs>(&caster)
+            .is_some_and(|b| {
+                b.0.iter().any(|e| {
+                    e.skill_id == *skill_id && (*skill_level <= 0 || e.skill_level >= *skill_level)
+                })
+            })),
+        skill::condition::SkillCondition::CheckCrtEffect => {
+            ok(crate::game_loop::npc::npc_template(world, target).is_some_and(|t| t.ex_crt_effect))
+        }
+        // `castleSiege.isInProgress() && castle.getZone().isInsideZone(caster)`.
+        skill::condition::SkillCondition::InSiege { residence_ids } => ok(
+            crate::game_loop::combat::pvp::active_siege_castle(world, caster)
+                .is_some_and(|castle_id| residence_ids.contains(&castle_id)),
+        ),
+        skill::condition::SkillCondition::EquipArmor { mask } => ok(world
+            .objects
+            .get_component::<Inventory>(&caster)
+            .is_some_and(|inv| wears_armor_of(inv, &world.data.item_data, *mask))),
+        skill::condition::SkillCondition::EquipSigil => ok(world
+            .objects
+            .get_component::<Inventory>(&caster)
+            .is_some_and(|inv| holds_sigil(inv, &world.data.item_data))),
+        skill::condition::SkillCondition::EquippedCloakEnchant { amount } => ok(world
+            .objects
+            .get_component::<Inventory>(&caster)
+            .and_then(|inv| inv.paperdoll_item(PaperdollSlot::Cloak))
+            .is_some_and(|cloak| cloak.enchant_level >= *amount)),
+        skill::condition::SkillCondition::ChangeWeapon => ok(world
+            .objects
+            .get_component::<Inventory>(&caster)
+            .map(|inv| inv.paperdoll_item_id(PaperdollSlot::RHand))
+            .and_then(|id| world.data.item_data.get(id))
+            .is_some_and(|t| t.change_weapon_id != 0)),
+        // `getSummonPoints()` and `getMaxSummonPoints()` are both 0 here, so
+        // of Java's ladder what is left is: no servitor out (one servitor with
+        // zero points refuses), the usual summon gate, and a skill that costs
+        // no points.
+        skill::condition::SkillCondition::CanSummonMulti { summon_points } => {
+            ok(can_summon(world, caster)
+                && crate::game_loop::servitor::servitor_of(world, caster).is_none()
+                && *summon_points <= 0)
+        }
+        skill::condition::SkillCondition::VitalityRoom { amount } => ok(is_player(world, caster)
+            && crate::game_loop::character::vitality::vitality_points(world, caster) + *amount
+                <= crate::model::MAX_VITALITY_POINTS),
+        skill::condition::SkillCondition::PossessHolything => {
+            possess_holything(world, caster, skill, target)
+        }
         skill::condition::SkillCondition::CallPc => call_pc(world, caster),
         skill::condition::SkillCondition::CanUntransform => can_untransform(world, caster),
         // ---- target state --------------------------------------------------
@@ -672,6 +852,10 @@ fn is_chest(world: &World, target: i32) -> bool {
 }
 
 fn knows_skill(world: &World, target: i32, skill_id: i32) -> bool {
+    // `Creature.getSkillLevel(id) > 0` — an NPC's skills are its template's.
+    if let Some(t) = crate::game_loop::npc::npc_template(world, target) {
+        return t.skill_list.iter().any(|&(id, _)| id == skill_id);
+    }
     world
         .objects
         .get_component::<components::skills::SkillBook>(&target)
@@ -814,6 +998,166 @@ fn siege_deployable(world: &World, caster: i32) -> bool {
                     })
             })
         })
+}
+
+/// `isInsideZone(ZoneId.SIEGE)` — the flag a siege zone hands out only while
+/// its siege is active. A player carries it cached; a summon (the Siege Golem,
+/// the cannons) has no cached flags and is placed by position.
+fn in_active_siege_zone(world: &World, caster: i32) -> bool {
+    if is_player(world, caster) {
+        return crate::game_loop::space::zones::has_zone_flag(world, caster, ZoneKind::Siege);
+    }
+    crate::game_loop::combat::pvp::active_siege_castle(world, caster).is_some()
+}
+
+/// `EffectList.hasAbnormalType(type, i -> i.getSkill().getAbnormalLevel() >= level)`.
+fn has_abnormal_at_least(world: &World, oid: i32, abnormal_type: &str, level: i32) -> bool {
+    world
+        .objects
+        .get_component::<components::skills::Buffs>(&oid)
+        .is_some_and(|b| {
+            b.0.iter()
+                .any(|e| e.abnormal_type == abnormal_type && e.abnormal_level >= level)
+        })
+}
+
+/// `OpCheckCastRange`: `(target != null) && (calculateDistance3D(target) >=
+/// distance) && GeoEngine.canSeeTarget(caster, target)`.
+fn far_enough_and_visible(world: &World, caster: i32, target: i32, distance: i32) -> bool {
+    let (Some(from), Some(to)) = (maybe_position(world, caster), maybe_position(world, target))
+    else {
+        return false;
+    };
+    crate::geo::distance::dist3d_xyz(from.x, from.y, from.z, to.x, to.y, to.z) >= distance as f64
+        && world
+            .geo
+            .can_see_target(from.x, from.y, from.z, to.x, to.y, to.z)
+}
+
+/// `OpBlink`: the landing spot — `range` units from the caster at
+/// `π + heading + angle` — is reachable in a straight line.
+fn can_blink(world: &World, caster: i32, angle: i32, range: i32) -> bool {
+    let Some(pos) = maybe_position(world, caster) else {
+        return false;
+    };
+    let heading = super::affect::heading_to_degree(pos.heading).to_radians();
+    let turn = std::f64::consts::PI + heading + (angle as f64).to_radians();
+    let x = pos.x + (turn.cos() * range as f64) as i32;
+    let y = pos.y + (turn.sin() * range as f64) as i32;
+    world
+        .geo
+        .can_move_to_target(pos.x, pos.y, pos.z, x, y, pos.z)
+}
+
+/// `Inventory.isItemEquipped(id)` for any of `item_ids`.
+fn wears_any(world: &World, oid: i32, item_ids: &[i32]) -> bool {
+    world
+        .objects
+        .get_component::<Inventory>(&oid)
+        .is_some_and(|inv| {
+            inv.equipped_items()
+                .iter()
+                .any(|i| item_ids.contains(&i.item_id))
+        })
+}
+
+/// `EquipArmorSkillCondition`: the chest must be of a listed type; a full-body
+/// chest settles it, otherwise the legs must match too.
+fn wears_armor_of(inv: &Inventory, items: &crate::data::item_data::ItemData, mask: u8) -> bool {
+    let chest = inv.paperdoll_item_id(PaperdollSlot::Chest);
+    if chest == 0 || items.armor_type(chest).mask_bit() & mask == 0 {
+        return false;
+    }
+    if items
+        .get(chest)
+        .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_FULL_ARMOR)
+    {
+        return true;
+    }
+    let legs = inv.paperdoll_item_id(PaperdollSlot::Legs);
+    legs != 0 && items.armor_type(legs).mask_bit() & mask != 0
+}
+
+/// `caster.getSecondaryWeaponItem().getItemType() == ArmorType.SIGIL`.
+fn holds_sigil(inv: &Inventory, items: &crate::data::item_data::ItemData) -> bool {
+    let lhand = inv.paperdoll_item_id(PaperdollSlot::LHand);
+    lhand != 0 && items.armor_type(lhand) == crate::data::item_data::kinds::ArmorType::Sigil
+}
+
+/// Java's Z tolerance between the engraver and the artifact.
+const HOLYTHING_MAX_Z_GAP: i32 = 45;
+
+/// `PossessHolythingSkillCondition` — the gate on engraving a castle's Holy
+/// Artifact (Imprint of Light / Darkness, Seal of Ruler).
+///
+/// Java works out `canTakeCastle` first (alive, uncursed, clan leader) and then
+/// runs a message ladder that can only lower it, so a dead caster in the wrong
+/// place still hears about the wrong place. The ladder's first rung sends the
+/// generic "cannot be used due to unsuitable terms" itself; [`send_refusal`]
+/// sends that line for every refusal, so it is not sent a second time here.
+fn possess_holything(
+    world: &World,
+    caster: i32,
+    skill: &skill::Skill,
+    target: i32,
+) -> Result<(), Refusal> {
+    let Some(p) = helpers::player(world, caster) else {
+        return Err(Refusal(None));
+    };
+    let Some(pos) = maybe_position(world, caster) else {
+        return Err(Refusal(None));
+    };
+    // `CastleManager.getCastle(player)` — the castle whose grounds the caster
+    // stands on — with its siege running and the caster's clan attacking.
+    let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z);
+    let attacking = castle_id.is_some_and(|id| {
+        world.sieges.get(&id).is_some_and(|s| {
+            s.in_progress
+                && s.clans.iter().any(|c| {
+                    c.clan_id == p.clan_id && c.kind == crate::model::siege::SiegeClanType::Attacker
+                })
+        })
+    });
+    if p.clan_id == 0 || !attacking {
+        return Err(Refusal(None));
+    }
+    // `castle.getArtefacts().contains(target)`.
+    let on_this_castle = crate::game_loop::skills::cast::is_artefact(world, target)
+        && maybe_position(world, target)
+            .and_then(|t| world.data.zone_data.siege_castle_at(t.x, t.y, t.z))
+            == castle_id;
+    if !on_this_castle {
+        return Err(Refusal(Some(RefusalLine::Sm(sm_ids::INVALID_TARGET))));
+    }
+    // `!Util.checkIfInRange(castRange, player, target, true) ||
+    // Math.abs(player.getZ() - target.getZ()) > 45`.
+    let near = crate::game_loop::skills::cast::in_cast_range(
+        world,
+        caster,
+        &pos,
+        target,
+        skill.cast_range,
+        true,
+    ) && maybe_position(world, target)
+        .is_some_and(|t| (pos.z - t.z).abs() <= HOLYTHING_MAX_Z_GAP);
+    if !near {
+        return Err(Refusal(Some(RefusalLine::Sm(
+            sm_ids::THE_DISTANCE_IS_TOO_FAR_AND_SO_THE_CASTING_HAS_BEEN_CANCELLED,
+        ))));
+    }
+    // `!isAlikeDead() && !isCursedWeaponEquipped() && isClanLeader()`.
+    let is_leader = world
+        .clans
+        .get(&p.clan_id)
+        .is_some_and(|c| c.leader_id == caster);
+    if helpers::is_dead(world, caster)
+        || flags_of(world, caster) & skill::effect_flag::FAKE_DEATH != 0
+        || p.cursed_weapon_equipped_id != 0
+        || !is_leader
+    {
+        return Err(Refusal(None));
+    }
+    Ok(())
 }
 
 /// `CanUntransformSkillCondition` — may this caster drop their transform?

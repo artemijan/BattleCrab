@@ -724,12 +724,6 @@ pub(crate) fn interact_with_npc(
         crate::game_loop::combat::start_interact_intent(world, object_id, npc_object_id);
         return;
     }
-    // `Artefact.onAction`: the throne-room Holy Artifact — an attacker touching
-    // it during a siege captures the castle.
-    if t.type_name == "Artefact" {
-        crate::game_loop::siege::try_capture_artifact(world, object_id, npc_object_id);
-        return;
-    }
     // Everything below hands `world` out mutably, so take what we need off the
     // template first.
     let npc_id = t.id;
