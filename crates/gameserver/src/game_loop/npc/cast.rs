@@ -511,14 +511,26 @@ pub(crate) fn resolve_npc_cast_target(
         // self-target. Java has no such fallback: `getActingPlayer()` is null
         // for a bare `Npc`, so the cast finds no target and dies.
         TargetType::OwnerPet => crate::game_loop::servitor::owner_of(world, npc_oid)?,
-        // The handlers this port still collapses into `Other` (`OTHERS`,
-        // `ARTILLERY`, `WYVERN_TARGET`, `ADVANCE_BASE`, …): passing the
-        // selected target through matches each reachable carrier. `OTHERS`
-        // ("not self") can only receive an aggro target here, never the
-        // caster; and the siege-machine types (`ARTILLERY`, `WYVERN_TARGET`)
-        // have no AI route on this dist — their casts come from scripts that
-        // pick the target explicitly.
+        // A name with no Java handler; nothing on this dist reads as this.
         TargetType::Other => selected_oid,
+        // The four selection-testing handlers, as on the player path. The one
+        // that matters is `ARTILLERY`: the Swoop Cannon's shots land on a
+        // besieged gate and on nothing else.
+        TargetType::HolyThing
+        | TargetType::Artillery
+        | TargetType::AdvanceBase
+        | TargetType::FortressFlagpole => {
+            return crate::game_loop::skills::cast::selection_fits(
+                world,
+                npc_oid,
+                selected_oid,
+                skill.target_type,
+            )
+            .then_some(selected_oid);
+        }
+        // `Item.java` needs an item selection, `MyMentor.java` a player
+        // caster, and `WyvernTarget.java` is `return null`.
+        TargetType::Item | TargetType::MyMentor | TargetType::WyvernTarget => return None,
     };
 
     // The closing LOS + peace-zone gates, shared with the player resolver.

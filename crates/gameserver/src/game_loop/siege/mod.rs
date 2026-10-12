@@ -53,7 +53,7 @@ use capture::{
     increase_blood_alliance, record_castle_taken_for_nobles, reopen_time_registration,
     reset_castle_ticket_count, teleport_all_to_town,
 };
-pub(crate) use doors::{attackable_door, damage_door, oust_all_players, try_capture_artifact};
+pub(crate) use doors::{attackable_door, damage_door, engrave, oust_all_players};
 use doors::{despawn_siege_npcs, spawn_castle_doors, teleport_non_owners};
 pub(crate) use packets::{
     handle_request_confirm_siege_waiting_list, handle_request_join_siege,

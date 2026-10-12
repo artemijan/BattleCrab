@@ -105,6 +105,10 @@ pub enum SkillCondition {
     SocialClass { social_class: i32 },
     /// `BuildCamp` — the outpost/headquarters gate.
     BuildCamp,
+    /// `PossessHolything` — may this caster engrave the castle's Holy
+    /// Artifact: a living, uncursed clan leader on the attacker side of the
+    /// siege they stand in, aimed at that castle's artifact from close by.
+    PossessHolything,
     /// `OpSkillAcquire` — the *target* has (or hasn't) learned a skill.
     SkillAcquire { skill_id: i32, has_learned: bool },
     /// `OpStrider` / `OpWyvern` — the caster is riding that mount.

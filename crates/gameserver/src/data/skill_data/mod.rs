@@ -1109,6 +1109,7 @@ pub(crate) fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Opti
             social_class: num("socialClass").unwrap_or(-1),
         }),
         "BuildCamp" => Some(SkillCondition::BuildCamp),
+        "PossessHolything" => Some(SkillCondition::PossessHolything),
         "OpSkillAcquire" => num("skillId").map(|skill_id| SkillCondition::SkillAcquire {
             skill_id,
             has_learned: flag("hasLearned", false),

@@ -32,7 +32,9 @@ pub(crate) use request::{
 };
 pub(crate) use reuse::{check_skill_reuse, set_skill_reuse};
 pub(crate) use start::{begin_cast, start_casting, stop_casting};
-pub(crate) use target::{finalize_target, in_cast_range, resolve_cast_target, target_state};
+pub(crate) use target::{
+    finalize_target, in_cast_range, is_artefact, resolve_cast_target, selection_fits, target_state,
+};
 // A deliberate one-function test seam, not path plumbing: `consequences` is the
 // only module here imported with a *private* glob (`use consequences::*` below),
 // because the cast pipeline's consequence half is internal. The shim on the
