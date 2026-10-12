@@ -233,6 +233,9 @@ pub struct ItemTemplate {
     /// be handed to a pet at all. `RequestPetUseItem` refuses anything else
     /// before it reaches the conditions.
     pub for_npc: bool,
+    /// `<set name="change_weaponId">` (Java `Weapon._changeWeaponId`) — the
+    /// item this weapon turns into under a change-weapon skill; 0 for none.
+    pub change_weapon_id: i32,
 }
 
 #[cfg(test)]

@@ -143,6 +143,8 @@ pub struct NpcTemplate {
 
     /// `<corpseTime>` (seconds); `None` = `Config.DEFAULT_CORPSE_TIME`.
     pub corpse_time: Option<i32>,
+    /// `<exCrtEffect>` — Java `NpcTemplate.canBeCrt()`, default true.
+    pub ex_crt_effect: bool,
 
     /// `<dropLists><drop>` — ungrouped death drops (`_dropListDeath`).
     pub drop_list_death: Vec<DropHolder>,
@@ -584,6 +586,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         raid_points: 0.0,
         sp: 0.0,
         corpse_time: None,
+        ex_crt_effect: true,
         drop_list_death: Vec::new(),
         drop_groups: Vec::new(),
         drop_list_spoil: Vec::new(),
@@ -637,6 +640,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
     let mut cur_group: Option<DropGroup> = None;
     // `<corpseTime>` carries its value as element text.
     let mut in_corpse_time = false;
+    let mut in_ex_crt_effect = false;
     let mut in_clan = false;
     let mut in_ignore_npc_id = false;
     // `<parameters>` can nest `<minions><npc .../></minions>` (and skill/param
@@ -662,7 +666,11 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             Event::Start(e) => (e, false),
             Event::Empty(e) => (e, true),
             Event::Text(text) => {
-                if in_corpse_time {
+                if in_ex_crt_effect {
+                    if let Some(t) = cur.as_mut() {
+                        t.ex_crt_effect = text.trim().eq_ignore_ascii_case("true");
+                    }
+                } else if in_corpse_time {
                     if let Some(t) = cur.as_mut()
                         && let Ok(v) = text.trim().parse()
                     {
@@ -700,6 +708,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                     }
                     "attribute" => in_attribute = false,
                     "corpsetime" => in_corpse_time = false,
+                    "excrteffect" => in_ex_crt_effect = false,
                     "race" => in_race = false,
                     "clan" => in_clan = false,
                     "ignorenpcid" => in_ignore_npc_id = false,
@@ -906,6 +915,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                 }
             }
             "corpsetime" => in_corpse_time = !self_closing,
+            "excrteffect" => in_ex_crt_effect = !self_closing,
             "race" => in_race = !self_closing,
             "minions" => {
                 in_minions = !self_closing;

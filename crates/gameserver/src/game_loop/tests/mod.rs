@@ -185,6 +185,7 @@ mod shortcuts_tests;
 mod siege_registration_tests;
 mod siege_schedule_tests;
 mod skill_check_tests;
+mod skill_condition_narrow_tests;
 mod skill_condition_tests;
 mod skill_enchant_tests;
 mod skill_rate_tests;

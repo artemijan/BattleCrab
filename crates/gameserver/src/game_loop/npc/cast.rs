@@ -189,6 +189,33 @@ fn cast_at(world: &mut World, npc_oid: i32, selected_oid: i32, skill: &Skill) ->
     true
 }
 
+/// `Summon.useMagic` — a summon's owner-ordered cast: `skill.checkCondition(
+/// this, target)`, then the cast.
+///
+/// Java evaluates a skill's `<conditions>` in exactly two places,
+/// `Player.useMagic` and here. A monster's AI cast (`AttackableAI` →
+/// `doCast`) and a script's `doCast` never do, so those keep going through
+/// [`cast_checked`] unconditioned. What this gates is the siege machines — the
+/// Siege Golem's hammer and the cannons fire only inside a running siege
+/// (`OpSiegeHammer`, `CanUseSwoopCannon`) — and a pet's rush, which wants its
+/// minimum run-up (`OpCheckCastRange`).
+///
+/// Returns whether the cast started; a refusal is silent beyond Java's bare
+/// `ActionFailed`, which a summon has no client to receive.
+pub(crate) fn cast_ordered_by_owner(
+    world: &mut World,
+    summon_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+) -> bool {
+    if crate::game_loop::skills::conditions::check_cast(world, summon_oid, skill, target_oid)
+        .is_err()
+    {
+        return false;
+    }
+    cast_checked(world, summon_oid, target_oid, skill)
+}
+
 /// `Npc.hasSkillChance()` — `Rnd.get(100) < Rnd.get(min, max)`.
 fn has_skill_chance(min: i32, max: i32) -> bool {
     let ceiling = rnd::get_range(min, max);
