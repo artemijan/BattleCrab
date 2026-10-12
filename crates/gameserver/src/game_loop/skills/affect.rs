@@ -17,17 +17,14 @@
 //! …plus the `DEAD_*` family (`DEAD_PLEDGE`/`DEAD_PARTY`/`DEAD_UNION`, the
 //! mass-resurrect sweeps, 1 skill each).
 //!
-//! **Not ported, all falling back to single-target — and every one of them
-//! verified to have no carrier a character on this dist can reach** (checked
-//! against the skill trees and the whole datapack, the
-//! [[l2r-abnormal-resist-dispel]] "rank by learnable usage" discipline):
-//! `SUMMON_EXCEPT_MASTER` (22 skills, all id 11269+ — the Freya-era summoner
-//! revamp, none learnable); `PARTY_PLEDGE` (5 — the Pa'agrio clan buffs 1534
-//! -1563, in no skill tree); `RANGE_SORT_BY_HP` (4 — Chain Heal and later
-//! -chronicle heals, likewise); `STATIC_OBJECT_SCOPE` (2 — Nornil's Power and
-//! `Test - …` debug skills); and `WYVERN_SCOPE`/`BALAKAS_SCOPE` (boss
-//! scripting). Note the first of these is **not** blocked on summons any more
-//! — servitors and pets landed at G29; it is blocked on being off-chronicle.
+//! …and seven narrow ones, none with a learnable carrier on this dist:
+//! `PARTY_PLEDGE` (6 — the Pa'agrio clan buffs 1534-1563), `DEAD_PARTY_PLEDGE`
+//! (1), `RANGE_SORT_BY_HP` (4 — Chain Heal and later-chronicle heals),
+//! `SUMMON_EXCEPT_MASTER` (22 — the Freya-era Mass Servitor buffs),
+//! `STATIC_OBJECT_SCOPE` (2 — Nornil's Power and a `Test - …` debug skill),
+//! and `BALAKAS_SCOPE`/`WYVERN_SCOPE`, whose Java handlers are empty bodies.
+//! The last matters on this chronicle: Valakas casts Meteor Storm (4690), and
+//! like Java's it lands on nobody.
 //!
 //! **Deviation worth knowing:** Java sweeps `World.forEachVisibleObjectInRange`,
 //! which walks the region grid and so is bounded by *visibility*, not just the
@@ -115,6 +112,34 @@ pub(crate) fn targets_affected(
         AffectScope::DeadUnion => {
             sweep_dead_group(world, caster_oid, target_oid, skill, limit, Group::Alliance)
         }
+        AffectScope::PartyPledge => sweep_group(
+            world,
+            caster_oid,
+            target_oid,
+            skill,
+            limit,
+            Group::PartyOrClan,
+        ),
+        AffectScope::DeadPartyPledge => sweep_dead_group(
+            world,
+            caster_oid,
+            target_oid,
+            skill,
+            limit,
+            Group::PartyOrClan,
+        ),
+        AffectScope::RangeSortByHp => {
+            sweep_sorted_by_hp(world, caster_oid, target_oid, skill, limit)
+        }
+        AffectScope::SummonExceptMaster => {
+            sweep_summons(world, caster_oid, target_oid, skill, limit)
+        }
+        AffectScope::StaticObject => {
+            sweep_static_objects(world, caster_oid, target_oid, skill, limit)
+        }
+        // `BalakasScope.java` / `WyvernScope.java` — `// TODO Unknown affect
+        // scope.` and nothing else: `forEachAffected` never calls `action`.
+        AffectScope::Balakas | AffectScope::Wyvern => Vec::new(),
     }
 }
 
@@ -149,6 +174,8 @@ enum Group {
     /// `DEAD_UNION`'s membership: the target's party, or any party sharing
     /// their command channel.
     Alliance,
+    /// `PARTY_PLEDGE` / `DEAD_PARTY_PLEDGE`: the target's clan **or** party.
+    PartyOrClan,
 }
 
 /// `Range.java` / `PointBlank.java` — every creature within `affect_range` of
@@ -275,6 +302,12 @@ fn sweep_group(
         // calls this helper.
         Group::Alliance => vec![target_oid],
         Group::Party => crate::game_loop::party::group_or_self(world, target_oid),
+        // `PartyPledge.java` rejects a candidate only when it shares
+        // *neither* the clan nor the party.
+        Group::PartyOrClan => world
+            .in_game_player_oids()
+            .filter(|&oid| same_clan(world, oid, target_oid) || same_party(world, oid, target_oid))
+            .collect(),
         Group::Clan => {
             let clan_id = clan_of_or_zero(world, target_oid);
             if clan_id <= 0 {
@@ -354,6 +387,9 @@ fn sweep_dead_group(
             Group::Alliance => {
                 same_party(world, oid, target_oid) || same_command_channel(world, oid, target_oid)
             }
+            Group::PartyOrClan => {
+                same_clan(world, oid, target_oid) || same_party(world, oid, target_oid)
+            }
         }
     };
 
@@ -379,6 +415,162 @@ fn sweep_dead_group(
         }
         out.push(oid);
         affected += 1;
+    }
+    out
+}
+
+/// `RangeSortByHp.java` — a radius sweep around the target, handed back from
+/// the lowest HP percent to the highest.
+///
+/// It is not [`sweep_radius`] with a sort bolted on. The filter has no LOS leg
+/// and no corpse exemption, and the **target runs through it like everyone
+/// else** — affect object included — rather than being seeded. The limit is
+/// also spent *while collecting* (the filter counts as it goes), so with more
+/// candidates than the limit Java sorts the first ones the world sweep found,
+/// not the most wounded in range; and the target, tested last, is the one
+/// that falls off.
+fn sweep_sorted_by_hp(
+    world: &World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    limit: i32,
+) -> Vec<i32> {
+    let Some(origin) = maybe_position(world, target_oid) else {
+        return Vec::new();
+    };
+    let mut affected = 0;
+    let mut filter = |c: i32| -> bool {
+        if limit > 0 && affected >= limit {
+            return false;
+        }
+        if is_dead(world, c) {
+            return false;
+        }
+        if c == caster_oid && target_oid != caster_oid {
+            return false;
+        }
+        if !passes_affect_object(world, caster_oid, c, skill.affect_object) {
+            return false;
+        }
+        affected += 1;
+        true
+    };
+
+    let mut out = Vec::new();
+    for candidate in candidates(world, target_oid) {
+        if candidate == target_oid {
+            continue;
+        }
+        let in_range = maybe_position(world, candidate)
+            .is_some_and(|pos| within(&origin, &pos, skill.affect_range));
+        if in_range && filter(candidate) {
+            out.push(candidate);
+        }
+    }
+    // "Add object of origin since its skipped in the getVisibleObjects method."
+    if filter(target_oid) {
+        out.push(target_oid);
+    }
+    // `Comparator.comparingInt(Creature::getCurrentHpPercent)` — a stable sort
+    // on the truncated percentage.
+    out.sort_by_key(|&oid| {
+        crate::game_loop::helpers::hp_fraction(world, oid).map_or(0, |f| (f * 100.0) as i32)
+    });
+    out
+}
+
+/// `SummonExceptMaster.java` — the servitor and pet of the target's acting
+/// player, alive, within `affect_range` of the target. The owner is never in it.
+///
+/// Java's `Util.checkIfInRange` pads the radius with both collision radii;
+/// this measures centre to centre.
+fn sweep_summons(
+    world: &World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    limit: i32,
+) -> Vec<i32> {
+    // `target.isPlayable()` — a player or one of their summons.
+    let owner = crate::game_loop::servitor::owner_of(world, target_oid).unwrap_or(target_oid);
+    if !world.objects.has_component::<Player>(&owner) {
+        return Vec::new();
+    }
+    let Some(origin) = maybe_position(world, target_oid) else {
+        return Vec::new();
+    };
+    let range = skill.affect_range;
+    // `getServitorsAndPets()` — the servitors first, then the pet.
+    let summons = crate::game_loop::servitor::servitor_of(world, owner)
+        .into_iter()
+        .chain(crate::game_loop::servitor::pet_of(world, owner));
+
+    let mut out = Vec::new();
+    for summon in summons {
+        if is_dead(world, summon) {
+            continue;
+        }
+        let in_range =
+            maybe_position(world, summon).is_some_and(|pos| within(&origin, &pos, range));
+        if range > 0 && !in_range {
+            continue;
+        }
+        if !passes_affect_object(world, caster_oid, summon, skill.affect_object) {
+            continue;
+        }
+        out.push(summon);
+        if limit > 0 && out.len() as i32 >= limit {
+            break;
+        }
+    }
+    out
+}
+
+/// `StaticObjectScope.java` — the doors within `affect_range` of the target
+/// (`c.isDoor() || c instanceof StaticObject`; doors are the only static
+/// object this port spawns). The target itself is tested first, so a `SELF`
+/// cast drops its own caster for not being a door.
+fn sweep_static_objects(
+    world: &World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    limit: i32,
+) -> Vec<i32> {
+    let (Some(origin), Some(region)) = (
+        maybe_position(world, target_oid),
+        region_cell_of(world, target_oid),
+    ) else {
+        return Vec::new();
+    };
+    // A door has no `Vitals`; it is dead when breached (`current_hp` 0).
+    let standing_door = |oid: i32| {
+        world
+            .objects
+            .get_component::<crate::model::door::Door>(&oid)
+            .is_some_and(|d| d.current_hp > 0)
+    };
+
+    let mut out = Vec::new();
+    let mut doors = world.doors_visible_from(region);
+    doors.retain(|&d| d != target_oid);
+    for candidate in std::iter::once(target_oid).chain(doors) {
+        if limit > 0 && out.len() as i32 >= limit {
+            break;
+        }
+        if !standing_door(candidate) {
+            continue;
+        }
+        let in_range = maybe_position(world, candidate)
+            .is_some_and(|pos| within(&origin, &pos, skill.affect_range));
+        if candidate != target_oid && !in_range {
+            continue;
+        }
+        if !passes_affect_object(world, caster_oid, candidate, skill.affect_object) {
+            continue;
+        }
+        out.push(candidate);
     }
     out
 }

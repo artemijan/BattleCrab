@@ -275,7 +275,7 @@ fn datapack_skill_coverage_census() {
         ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 2, 0, 1),
         ("condition", &gaps.conditions, CONDITIONS, 55, 1, 716),
         ("targetType", &gaps.target_types, TARGET_TYPES, 7, 0, 457),
-        ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 7, 0, 3),
+        ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 0, 0, 0),
         (
             "affectObject",
             &gaps.affect_objects,

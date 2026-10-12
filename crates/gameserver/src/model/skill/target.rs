@@ -130,12 +130,8 @@ pub enum TargetType {
 /// skills — `RANGE` (820 skills), `POINT_BLANK` (785), `PARTY` (272), `PLEDGE`
 /// (44) — and the geometric family (plan: PLAN_G19_GEOMETRIC_SCOPES.md) —
 /// `FAN`/`FAN_PB` (163+16, 5 learnable), `SQUARE`/`SQUARE_PB` (35+17),
-/// `RING_RANGE` (18) and the `DEAD_*` family. Reading as
-/// [`AffectScope::Other`] and falling back to single-target — each verified to
-/// have no reachable carrier on this dist (see `skills::affect`'s header):
-/// `SUMMON_EXCEPT_MASTER` (22, off-chronicle), `BALAKAS_SCOPE`/`WYVERN_SCOPE`
-/// (boss/wyvern scripting), `RANGE_SORT_BY_HP` (4), `PARTY_PLEDGE` (5) and
-/// `STATIC_OBJECT_SCOPE` (2).
+/// `RING_RANGE` (18) and the `DEAD_*` family — and the seven narrow ones
+/// below, none of which has a learnable carrier on this dist.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum AffectScope {
     /// `SINGLE` (and the `NONE`/absent default): only the primary target.
@@ -172,7 +168,27 @@ pub enum AffectScope {
     DeadPledge,
     DeadParty,
     DeadUnion,
-    /// Any scope not ported yet — treated as [`AffectScope::Single`].
+    /// `PARTY_PLEDGE` (the Pa'agrio buffs 1534-1563): `PLEDGE` widened to
+    /// "the target's clan **or** party".
+    PartyPledge,
+    /// `DEAD_PARTY_PLEDGE` (Party Resurrection 11785): `DEAD_PARTY` widened
+    /// to clan mates' corpses.
+    DeadPartyPledge,
+    /// `RANGE_SORT_BY_HP` (Chain Heal 1553): a `RANGE` sweep ordered from the
+    /// lowest HP percent up.
+    RangeSortByHp,
+    /// `SUMMON_EXCEPT_MASTER` (the Mass Servitor buffs, 11303+): the target's
+    /// owner's servitors, never the owner.
+    SummonExceptMaster,
+    /// `STATIC_OBJECT_SCOPE` (Nornil's Power 2353): doors in range.
+    StaticObject,
+    /// `BALAKAS_SCOPE` (Valakas Meteor Storm 4690) / `WYVERN_SCOPE` (Wyvern
+    /// Breath 4289): both Java handlers are an empty body under a "TODO
+    /// Unknown affect scope", so the cast affects **nobody**.
+    Balakas,
+    Wyvern,
+    /// A name with no Java handler — treated as [`AffectScope::Single`].
+    /// Nothing on this dist reads as this.
     Other,
 }
 
