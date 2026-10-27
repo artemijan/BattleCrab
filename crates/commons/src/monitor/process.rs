@@ -7,6 +7,7 @@
 /// User + system CPU time this process has consumed since it started, in
 /// microseconds. `getrusage(RUSAGE_SELF)` sums every thread on both Linux and
 /// macOS, so the game thread, the tokio workers and the writers all count.
+#[cfg(unix)]
 pub fn cpu_micros() -> u64 {
     let mut usage = std::mem::MaybeUninit::<libc::rusage>::zeroed();
     // SAFETY: `usage` is a valid, writable `rusage`; RUSAGE_SELF is always a
@@ -19,6 +20,36 @@ pub fn cpu_micros() -> u64 {
     let usage = unsafe { usage.assume_init() };
     let micros = |t: libc::timeval| t.tv_sec as u64 * 1_000_000 + t.tv_usec as u64;
     micros(usage.ru_utime) + micros(usage.ru_stime)
+}
+
+/// Windows has no `getrusage`; `GetProcessTimes` gives the same all-threads
+/// user + kernel totals, in 100 ns ticks.
+#[cfg(windows)]
+pub fn cpu_micros() -> u64 {
+    use windows_sys::Win32::Foundation::FILETIME;
+    use windows_sys::Win32::System::Threading::{GetCurrentProcess, GetProcessTimes};
+
+    let zero = FILETIME {
+        dwLowDateTime: 0,
+        dwHighDateTime: 0,
+    };
+    let (mut creation, mut exit, mut kernel, mut user) = (zero, zero, zero, zero);
+    // SAFETY: the pseudo-handle from `GetCurrentProcess` is always valid and
+    // all four out-pointers are writable `FILETIME`s.
+    let ok = unsafe {
+        GetProcessTimes(
+            GetCurrentProcess(),
+            &mut creation,
+            &mut exit,
+            &mut kernel,
+            &mut user,
+        )
+    };
+    if ok == 0 {
+        return 0;
+    }
+    let ticks = |t: FILETIME| (u64::from(t.dwHighDateTime) << 32) | u64::from(t.dwLowDateTime);
+    (ticks(kernel) + ticks(user)) / 10
 }
 
 /// Resident set size in bytes: `/proc/self/statm`'s second field (resident
@@ -46,14 +77,19 @@ mod tests {
     #[test]
     fn cpu_time_only_moves_forward() {
         let before = cpu_micros();
-        // Burn a little CPU so the reading has something to count.
+        // Burn enough CPU to cross Windows' ~15.6 ms accounting tick, so the
+        // reading has something to count on every platform.
+        let start = std::time::Instant::now();
         let mut x = 0u64;
-        for i in 0..2_000_000u64 {
+        let mut i = 0u64;
+        while start.elapsed() < std::time::Duration::from_millis(50) {
             x = x.wrapping_mul(31).wrapping_add(i);
+            i += 1;
         }
         std::hint::black_box(x);
-        assert!(cpu_micros() >= before);
-        assert!(before > 0, "a running test process has used some CPU");
+        let after = cpu_micros();
+        assert!(after >= before);
+        assert!(after > 0, "a running test process has used some CPU");
     }
 
     #[test]
