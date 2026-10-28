@@ -927,6 +927,10 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             "ignorenpcid" => in_ignore_npc_id = !self_closing,
             "drop" => drop_scope = DropScope::Death,
             "spoil" => drop_scope = DropScope::Spoil,
+            // TODO(salvation): `<lucky>` (DropType.LUCKY, 2,333 blocks) joins the
+            // drop list in Java but rolls through `Player.tryLuck`, which
+            // needs the LUC stat (S5); until then its items are not read, so
+            // they never reach the plain `<drop>` roll.
             "group" => {
                 cur_group = Some(DropGroup {
                     chance: attr_f64(&e, "chance").unwrap_or(0.0),
@@ -1088,20 +1092,19 @@ mod tests {
         assert_eq!(t.base_p_def, 341.375);
         assert_eq!(t.base_m_def, 249.80341);
 
-        // The only two escaped attributes on this dist (npc 1594). Reading
-        // them raw sent `&amp;` to the client over `NpcInfo`, and wrote it
-        // into the client's own name table via `l2r-tools sync-npc`.
-        let amp = data.get(1594).expect("npc 1594");
-        assert_eq!(amp.name, "Singer & Dancer Agathion");
-        assert_eq!(amp.title, "Singer & Dancer Agathion");
+        // Npc 1594 carried this dist's only escaped attributes on Interlude
+        // (`Singer &amp; Dancer`); Salvation spells the name out, so no npc
+        // attribute here needs unescaping any more.
+        let agathion = data.get(1594).expect("npc 1594");
+        assert_eq!(agathion.name, "Singer and Dancer Agathion");
 
-        // A real monster: Gremlin (id 20001).
+        // A real monster: npc 20001 (unnamed on Salvation).
         let g = data.get(20001).expect("npc 20001");
         assert!(g.is_monster());
         assert!(g.is_attackable_class());
-        // <attack random critical> feed the G9 combat formulas.
+        // <attack random="30" critical="4"> feed the G9 combat formulas.
         assert_eq!(g.base_rnd_dam, 30);
-        assert_eq!(g.base_crit_rate, 4.75);
+        assert_eq!(g.base_crit_rate, 4.0);
 
         // Starting-village Gremlin (18342): has aggroRange 450 but no
         // isAggressive flag — must stay passive (the aggroRange-implies-
@@ -1116,24 +1119,25 @@ mod tests {
         let goblin = data.get(20003).expect("npc 20003");
         assert_eq!(goblin.aggro_range, 450);
         assert!(!goblin.is_aggressive);
-        assert_eq!(goblin.drop_list_death.len(), 9);
+        assert_eq!(goblin.drop_list_death.len(), 11);
         let adena = goblin
             .drop_list_death
             .iter()
             .find(|d| d.item_id == 57)
             .expect("adena line");
-        assert_eq!((adena.min, adena.max), (13, 30));
+        assert_eq!((adena.min, adena.max), (1, 1));
         assert_eq!(adena.chance, 70.0);
         assert!(goblin.drop_groups.is_empty());
         // <spoil> lines land in `drop_list_spoil` (Goblin 20003: Magic Ring
-        // 76.92%, Charcoal 12.1%) — a separate list from the 9 death drops.
+        // 11.41%, Recipe: Broadsword 0.3%) — a separate list from the 11
+        // `<drop>` lines.
         assert_eq!(goblin.drop_list_spoil.len(), 2);
         let magic_ring = goblin
             .drop_list_spoil
             .iter()
             .find(|d| d.item_id == 116)
             .expect("spoil Magic Ring");
-        assert_eq!(magic_ring.chance, 76.92);
+        assert_eq!(magic_ring.chance, 11.41);
 
         // <corpseTime> element text (npc 103, Holiday Santa); absent = None.
         assert_eq!(data.get(103).unwrap().corpse_time, Some(3));
@@ -1183,23 +1187,17 @@ mod tests {
         );
     }
 
-    /// The one dist file with `<group chance>` drops (Primeval Isle mobs).
+    /// The one dist file with `<group chance>` drops (29000-29099.xml).
+    /// Scarlet van Halisha (29047) is its first grouped npc: 19 groups, the
+    /// first `<group chance="30">` holding one item.
     #[test]
     fn grouped_drops_parse() {
         let data = dist::npcs();
-        let t = data
-            .get(22119)
-            .or_else(|| data.get(22100))
-            .expect("a 221xx monster");
-        // Every monster in that file carries grouped drops.
-        assert!(
-            !t.drop_groups.is_empty(),
-            "npc {} should have drop groups",
-            t.id
-        );
+        let t = data.get(29047).expect("npc 29047");
+        assert_eq!(t.drop_groups.len(), 19);
         let group = &t.drop_groups[0];
-        assert!(group.chance > 0.0);
-        assert!(!group.items.is_empty());
+        assert_eq!(group.chance, 30.0);
+        assert_eq!(group.items.len(), 1);
     }
 
     #[test]
@@ -1244,7 +1242,7 @@ mod tests {
     /// not overwrite the parent's `cur` (which used to swallow the parent's
     /// whole body — stats *and* the `<dropLists>` that follow `<parameters>`).
     /// Raid boss 3404 (Tracker Captain Sharuk) declares minions 3405/3406 then
-    /// a 15-line drop list.
+    /// a 24-line `<drop>` list.
     #[test]
     fn npc_with_nested_minions_keeps_its_body_and_drops() {
         let data = dist::npcs();
@@ -1254,7 +1252,7 @@ mod tests {
             .expect("npc 3404 must load despite nested minions");
         assert_eq!(boss.type_name, "RaidBoss");
         assert_eq!(boss.level, 23);
-        assert_eq!(boss.drop_list_death.len(), 15, "all 15 death drops parsed");
+        assert_eq!(boss.drop_list_death.len(), 24, "all 24 death drops parsed");
         assert!(
             boss.drop_list_death.iter().any(|d| d.item_id == 955),
             "D-grade enchant scroll drop"
@@ -1279,12 +1277,11 @@ mod clan_tests {
         let leaders = data.all().filter(|t| !t.minions.is_empty()).count();
         let entries: usize = data.all().map(|t| t.minions.len()).sum();
         println!("MINION LEADERS={leaders} ENTRIES={entries}");
-        // 467 `<minions>` *blocks* exist in the XML but they sit on 460
-        // distinct NPCs — a handful declare many groups each (25100 has 28,
-        // 25200 has 29, 22602 has 15). The entry count is the check that
-        // matters: every one of the 962 `<npc>` rows is captured.
-        assert_eq!(leaders, 460, "expected the dist's 460 minion-leading NPCs");
-        assert_eq!(entries, 962, "expected the dist's 962 minion entries");
+        // 527 NPCs carry `<parameters><minions>` blocks, some declaring
+        // several groups each. The entry count is the check that matters:
+        // every one of the 1142 `<npc>` rows is captured.
+        assert_eq!(leaders, 527, "expected the dist's 527 minion-leading NPCs");
+        assert_eq!(entries, 1142, "expected the dist's 1142 minion entries");
 
         // Tracker Captain Sharuk 3404 declares 3402 x3 and 3403 x1.
         let boss = data.get(3404).expect("3404 loads");
@@ -1339,10 +1336,11 @@ mod race_tests {
             let t = data.get(npc_id).unwrap_or_else(|| panic!("{npc_id} loads"));
             assert_eq!(t.race, Some(race), "npc {npc_id} race");
         }
-        // A monster's `<race>UNDEAD</race>` now parses too (24), and it's
-        // still never equal to any playable race's ordinal (0-6).
+        // A monster's `<race>UNDEAD</race>` (Festering Zombie 2530) parses
+        // too (24), and it's still never equal to any playable race's
+        // ordinal (0-6).
         assert_eq!(
-            data.get(20015).and_then(|t| t.race),
+            data.get(2530).and_then(|t| t.race),
             Some(crate::enums::Race::Undead.ordinal()),
             "undead parses to its own Race ordinal"
         );
