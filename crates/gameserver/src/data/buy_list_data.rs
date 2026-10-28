@@ -24,8 +24,6 @@
 //! is **not** here: `world.data` is shared and immutable, so the counts live on
 //! the `World` (`buy_list_stock`) and the rules in `game_loop/commerce/shop.rs`.
 
-use crate::data::item_data::kinds::CrystalType;
-
 use std::collections::HashMap;
 
 use quick_xml::events::Event;
@@ -125,13 +123,12 @@ pub struct BuyListData {
 
 impl BuyListData {
     pub fn load(items: &ItemData) -> Self {
-        Self::load_from("", items, CrystalType::S, true, true)
+        Self::load_from("", items, true, true)
     }
 
     pub fn load_from(
         file_path: &str,
         items: &ItemData,
-        max_grade: CrystalType,
         custom: bool,
         correct_prices: bool,
     ) -> Self {
@@ -139,16 +136,10 @@ impl BuyListData {
         // Java parses "data/buylists" then "data/buylists/custom"; on an id
         // collision the later (custom) file wins.
         let dir = format!("{file_path}{BUYLISTS_DIR}");
-        load_dir(&dir, items, max_grade, correct_prices, &mut by_id);
+        load_dir(&dir, items, correct_prices, &mut by_id);
         // `CustomBuyListLoad` (**True** here): the 143 GM-shop lists.
         if custom {
-            load_dir(
-                &format!("{dir}/custom"),
-                items,
-                max_grade,
-                correct_prices,
-                &mut by_id,
-            );
+            load_dir(&format!("{dir}/custom"), items, correct_prices, &mut by_id);
         }
         info!("BuyListData: Loaded {} buy lists.", by_id.len());
         Self { by_id }
@@ -164,8 +155,7 @@ impl BuyListData {
         self.by_id.insert(list.list_id, list);
     }
 
-    /// Every list, in unspecified order — for whole-catalogue assertions
-    /// (e.g. that the max-grade filter dropped what it should).
+    /// Every list, in unspecified order — for whole-catalogue assertions.
     pub fn lists(&self) -> impl Iterator<Item = &BuyList> {
         self.by_id.values()
     }
@@ -183,13 +173,7 @@ impl BuyListData {
     }
 }
 
-fn load_dir(
-    dir: &str,
-    items: &ItemData,
-    max_grade: CrystalType,
-    correct_prices: bool,
-    by_id: &mut HashMap<i32, BuyList>,
-) {
+fn load_dir(dir: &str, items: &ItemData, correct_prices: bool, by_id: &mut HashMap<i32, BuyList>) {
     for path in crate::data::xml::xml_files_in(dir) {
         let Some(list_id) = path
             .file_stem()
@@ -199,7 +183,7 @@ fn load_dir(
             warn!("BuyListData: non-numeric buylist file {}", path.display());
             continue;
         };
-        if let Some(list) = parse_file(&path, list_id, items, max_grade, correct_prices) {
+        if let Some(list) = parse_file(&path, list_id, items, correct_prices) {
             by_id.insert(list_id, list);
         }
     }
@@ -209,7 +193,6 @@ fn parse_file(
     path: &std::path::Path,
     list_id: i32,
     items: &ItemData,
-    max_grade: CrystalType,
     correct_prices: bool,
 ) -> Option<BuyList> {
     let content = std::fs::read_to_string(path).ok()?;
@@ -240,12 +223,6 @@ fn parse_file(
                             warn!("BuyListData: item {item_id} not found (buylist {list_id})");
                             continue;
                         };
-                        // `Config.MAX_EQUIPABLE_ITEM_GRADE` — Java `break`s out
-                        // of the item node, dropping the line entirely.
-                        let grade = template.crystal_type.level();
-                        if grade > max_grade.level() && grade < CrystalType::Event.level() {
-                            continue;
-                        }
                         let declared: i64 =
                             attr("price").and_then(|v| v.parse().ok()).unwrap_or(-1);
                         // `Config.CORRECT_PRICES` (**True** on this dist):
@@ -345,9 +322,9 @@ mod tests {
     fn loads_real_dist_files() {
         let root = crate::data::DIST_GAME;
         let items = dist::items();
-        let data = BuyListData::load_from(root, items, CrystalType::S, true, true);
-        // 338 regular merchant lists + 143 custom (GM shop) lists.
-        assert_eq!(data.len(), 481);
+        let data = BuyListData::load_from(root, items, true, true);
+        // 560 regular merchant lists + 333 custom (GM shop) lists.
+        assert_eq!(data.len(), 893);
 
         // custom/0009916.xml: GM-shop "Currency" list (`//buy 9916`). No
         // <npcs> block — only the admin path, which skips the npc check,
@@ -356,20 +333,12 @@ mod tests {
         assert!(gm.npcs.is_empty());
         assert!(gm.product(57).is_some(), "adena line");
 
-        // 3000101.xml: Weapon Trader Lector's Gludin weapon list.
+        // 3000101.xml: Lector's (30001) list, `<list baseTax="20">`.
         let list = data.get(3000101).expect("buylist 3000101");
         assert!(list.is_npc_allowed(30001));
         assert!(!list.is_npc_allowed(31319));
-        let p = list.product(1).expect("short sword line");
-        assert_eq!(p.price, 883);
-        assert_eq!(p.base_tax, 0);
-
-        // 0000138.xml declares a list-level baseTax="50".
-        let taxed = data.get(138).expect("buylist 138");
-        assert!(taxed.is_npc_allowed(31319));
-        let p = taxed.product(3031).expect("spirit ore line");
-        assert_eq!(p.price, 400);
-        assert_eq!(p.base_tax, 50, "list-level baseTax applied");
+        let p = list.product(7).expect("Apprentice's Rod line");
+        assert_eq!(p.base_tax, 20, "list-level baseTax applied");
 
         // CorrectPrices floors an npc-served list at the sell value…
         for list in data.by_id.values().filter(|l| !l.npcs.is_empty()) {
@@ -397,7 +366,7 @@ mod tests {
 
         // No price attribute means the item's *reference* price, not "no
         // sale" — Java resolves it in `Product`'s constructor. 3079 of the
-        // npc-served lines rely on this.
+        // npc-served lines rely on this (18351 on Salvation).
         let cooper = data.get(3082900).expect("buylist 3082900");
         let canine = cooper.product(2505).expect("Iron Canine line");
         assert_eq!(canine.price, items.get(2505).expect("item 2505").price);
@@ -408,7 +377,7 @@ mod tests {
             }
         }
 
-        // Limited stock: 1928 lines across 147 files, every one with a
+        // Limited stock: 3144 lines across 199 files, every one with a
         // restock delay, and the minutes→ms conversion applied.
         let mut limited = 0;
         let mut limited_files = std::collections::HashSet::new();
@@ -426,8 +395,8 @@ mod tests {
                 }
             }
         }
-        assert_eq!(limited, 1928, "limited-stock product lines");
-        assert_eq!(limited_files.len(), 147, "files declaring limited stock");
+        assert_eq!(limited, 3144, "limited-stock product lines");
+        assert_eq!(limited_files.len(), 199, "files declaring limited stock");
         let hall = data.get(3538400).expect("buylist 3538400");
         let soe = hall.product(1829).expect("Scroll of Escape: Clan Hall");
         assert_eq!(soe.max_count, 5);
@@ -435,27 +404,6 @@ mod tests {
         let shield = hall.product(6902).expect("Pledge Shield");
         assert!(!shield.has_limited_stock(), "no count attribute");
         assert_eq!(shield.max_count, -1);
-
-        // `MaxEquipableItemGrade = S` drops the five S80 lines on the GM
-        // armour list, and nothing else on this dist.
-        let gm_armour = data.get(9917).expect("GM armour buylist 9917");
-        for id in [10170, 16025, 16026, 21712, 22175] {
-            assert!(
-                gm_armour.product(id).is_none(),
-                "S80 item {id} should be filtered out"
-            );
-        }
-        for list in data.by_id.values() {
-            for p in &list.products {
-                let grade = items.get(p.item_id).expect("template").crystal_type.level();
-                assert!(
-                    grade <= CrystalType::S.level() || grade >= CrystalType::Event.level(),
-                    "buylist {} item {} is above grade S",
-                    list.list_id,
-                    p.item_id
-                );
-            }
-        }
     }
 }
 
@@ -489,8 +437,8 @@ mod correct_prices_tests {
     fn the_shipped_catalogue_is_the_same_either_way() {
         let items = dist::items();
         let root = crate::data::DIST_GAME;
-        let on = BuyListData::load_from(root, items, CrystalType::S, true, true);
-        let off = BuyListData::load_from(root, items, CrystalType::S, true, false);
+        let on = BuyListData::load_from(root, items, true, true);
+        let off = BuyListData::load_from(root, items, true, false);
         let differing = on
             .by_id
             .iter()

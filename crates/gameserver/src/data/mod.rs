@@ -328,8 +328,6 @@ pub struct GameData {
 /// cached snapshot is always the shipped configuration.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DataOptions {
-    /// `MaxEquipableItemGrade` — the buy-list / multisell grade filter.
-    pub max_equipable_item_grade: item_data::kinds::CrystalType,
     /// `MaximumPlayerLevel` **as Java stores it** (the ini value + 1) — the
     /// ceiling `ExperienceData` clamps its own `maxLevel + 1` to, and stops
     /// loading rows above.
@@ -350,7 +348,6 @@ pub struct DataOptions {
 impl Default for DataOptions {
     fn default() -> Self {
         Self {
-            max_equipable_item_grade: item_data::kinds::CrystalType::S,
             maximum_player_level: experience::DIST_PLAYER_MAXIMUM_LEVEL,
             correct_prices: true,
             // The dist's values, so the cached test snapshot is the shipped
@@ -375,7 +372,6 @@ impl GameData {
 
     pub fn load_from_with(file_path: &str, opts: DataOptions) -> Self {
         let DataOptions {
-            max_equipable_item_grade,
             maximum_player_level,
             correct_prices,
             custom_npc_data,
@@ -387,13 +383,8 @@ impl GameData {
         // Buy lists read item reference prices (`CorrectPrices`), so items
         // load first.
         let item_data = ItemData::load_from_with(file_path, custom_items_load);
-        let buy_lists = BuyListData::load_from(
-            file_path,
-            &item_data,
-            max_equipable_item_grade,
-            custom_buylist_load,
-            correct_prices,
-        );
+        let buy_lists =
+            BuyListData::load_from(file_path, &item_data, custom_buylist_load, correct_prices);
         let multisells =
             MultisellData::load_from(file_path, &item_data, custom_multisell_load, correct_prices);
         let instance_templates = instance_data::InstanceData::load_from(file_path);

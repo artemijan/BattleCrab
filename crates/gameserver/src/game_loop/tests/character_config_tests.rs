@@ -60,58 +60,6 @@ fn the_grade_name_parses_and_fails_open() {
     );
 }
 
-/// `MaxEquipableItemGrade` filters products out of every buy list at load.
-/// Lowering it to A must drop the S-grade lines the shipped S keeps.
-///
-/// This exercises the loader, not the config plumbing: it calls
-/// `BuyListData::load_from` directly, because going through
-/// `GameData::load_from_with` would re-parse the whole datapack twice. The
-/// plumbing above it is one call site each (`main.rs` and `//reload buylist`),
-/// both of which read `cfg.character.max_equipable_item_grade`.
-#[test]
-fn the_grade_filter_follows_the_config_key() {
-    use crate::data::BuyListData;
-    let items = dist::items();
-    let count_above = |lists: &BuyListData, limit: i32| {
-        lists
-            .lists()
-            .flat_map(|l| l.products.iter())
-            .filter(|p| {
-                items
-                    .get(p.item_id)
-                    .is_some_and(|t| t.crystal_type.level() > limit)
-            })
-            .count()
-    };
-    let at_s = BuyListData::load_from(crate::data::DIST_GAME, items, CrystalType::S, true, true);
-    let at_a = BuyListData::load_from(crate::data::DIST_GAME, items, CrystalType::A, true, true);
-
-    // At S the catalogue carries S-grade lines…
-    let s_lines = count_above(&at_s, CrystalType::A.level());
-    assert!(s_lines > 0, "the dist sells S-grade goods at MaxGrade=S");
-    // …and at A they are gone, while the A-and-below stock is untouched.
-    assert_eq!(
-        count_above(&at_a, CrystalType::A.level()),
-        0,
-        "MaxEquipableItemGrade=A must drop every S line"
-    );
-    let below = |l: &BuyListData| {
-        l.lists()
-            .flat_map(|x| x.products.iter())
-            .filter(|p| {
-                items
-                    .get(p.item_id)
-                    .is_some_and(|t| t.crystal_type.level() <= CrystalType::A.level())
-            })
-            .count()
-    };
-    assert_eq!(
-        below(&at_a),
-        below(&at_s),
-        "lowering the grade must not disturb anything at or below it"
-    );
-}
-
 /// `Formulas.calcEffectLandRate`'s `constrain(rate, minChance, maxChance)`.
 /// The 10/90 pair is what stops any debuff on this dist being a certainty or
 /// an impossibility.
