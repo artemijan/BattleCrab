@@ -14,6 +14,10 @@ gap — `Custom/PcCafe.ini` looks authoritative and is dead in Java itself
 This is an **Interlude** server. Content from later chronicles is not ported and
 is not expected to be.
 
+*(Being revised: `main` is moving to Salvation — see
+[PLAN_SALVATION.md](PLAN_SALVATION.md). This file is rewritten as each
+milestone settles what is in and out.)*
+
 | Not ported | Why |
 |---|---|
 | Gracia / Hellbound content, elemental item attributes, `AdminGraciaSeeds`, `AdminElement` | Kamael-era content. |

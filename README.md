@@ -45,6 +45,12 @@ from the **config file's path** plus the uppercased key, so
 [the table below](#2-know-where-the-database-is-looked-for) for the three that
 matter.
 
+> **`main` is moving to L2J Mobius Salvation (protocol 140).** The Interlude
+> server described below, the one live on battlecrab.com, is frozen on the
+> [`interlude`](https://github.com/artemijan/BattleCrab/tree/interlude) branch
+> (tag `interlude-final`) and deploys from there. The port is tracked in
+> [docs/PLAN_SALVATION.md](docs/PLAN_SALVATION.md).
+
 ## Status
 
 **The port is done. The project is in its testing phase.**
