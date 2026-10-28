@@ -80,10 +80,10 @@ mod tests {
     #[test]
     fn loads_available_buff_levels_from_dist() {
         let d = SchemeBufferData::load_from(&dist());
-        // Concentration (1078) is registered at level 6 in the dist xml.
-        assert_eq!(d.level_of(1078), Some(6), "Concentration level 6");
-        // Wind Walk (1204) at level 2.
-        assert_eq!(d.level_of(1204), Some(2), "Wind Walk level 2");
+        // Salvation registers every buff at level 1: Concentration (1078)
+        // and Wind Walk (1204) among them.
+        assert_eq!(d.level_of(1078), Some(1), "Concentration level 1");
+        assert_eq!(d.level_of(1204), Some(1), "Wind Walk level 1");
         assert!(d.contains(1059), "Empower is a registered buffer skill");
         assert_eq!(d.level_of(999_999), None, "unknown skill has no level");
     }
