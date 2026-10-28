@@ -28,8 +28,9 @@ fn admin_command_ignored_for_non_gm() {
 
 /// A GM whose tier lacks the required access level is refused with the Java
 /// message. We synthesize a right the master tier's childAccess cannot reach by
-/// using a real command but a mid-tier GM: `admin_serverinfo` needs level 100,
-/// and a level-70 Admin's chain descends (never ascends) so it is denied.
+/// using a real command but a mid-tier GM: `admin_heal` needs level 100 (and
+/// has no `confirmDlg`), and a level-70 Admin's chain descends (never ascends)
+/// so it is denied.
 #[test]
 fn admin_command_access_denied_for_insufficient_level() {
     let (mut world, ..) = admin_world();
@@ -41,14 +42,10 @@ fn admin_command_access_denied_for_insufficient_level() {
     on_packet(
         &mut world,
         1,
-        [
-            vec![cop::SEND_BYPASS_BUILD_CMD],
-            build_cmd_body("serverinfo"),
-        ]
-        .concat(),
+        [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("heal")].concat(),
     );
     let pkts = drain(&mut rx);
-    // One system message: the "no access rights" refusal, not the 3 info lines.
+    // One system message: the "no access rights" refusal, nothing from heal.
     assert_eq!(
         count_system_messages(&pkts),
         1,
