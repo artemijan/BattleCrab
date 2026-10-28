@@ -3303,6 +3303,8 @@ fn day_night_test_template(day_npc: i32, night_npc: i32) -> SpawnTemplate {
         respawn_random_secs: 0,
         chase_range: 0,
         db_save: false,
+        locations: Vec::new(),
+        minions: Vec::new(),
     };
     SpawnTemplate {
         file: "test/day-night.xml".to_string(),
@@ -3310,17 +3312,20 @@ fn day_night_test_template(day_npc: i32, night_npc: i32) -> SpawnTemplate {
         ai: Some("DayNightSpawns".to_string()),
         parameters: Default::default(),
         territories: Vec::new(),
+        banned_territories: Vec::new(),
         groups: vec![
             SpawnGroup {
                 name: Some("dayTime".to_string()),
                 spawn_by_default: false,
                 territories: Vec::new(),
+                banned_territories: Vec::new(),
                 npcs: vec![line(day_npc)],
             },
             SpawnGroup {
                 name: Some("nightTime".to_string()),
                 spawn_by_default: false,
                 territories: Vec::new(),
+                banned_territories: Vec::new(),
                 npcs: vec![line(night_npc)],
             },
         ],

@@ -2,9 +2,10 @@
 //! SpawnGroup / NpcSpawnTemplate) + the `ZoneForm` shapes territory spawns
 //! randomize inside, scoped to what this dist's `data/spawns/**` actually
 //! uses: fixed-location spawns, `count`, `respawnTime`/`respawnRandom`
-//! (sec/min/hour), `chaseRange` and `<territories>` on the spawn or group. Unused-by-data
-//! features are not ported: `zone=`/`banned_territory`/`<locations>`/
-//! `<minions>`/`respawnPattern` (0 occurrences each), `<parameters>`
+//! (sec/min/hour), `chaseRange`, `<territories>` and `<banned_territory>` on
+//! the spawn or group, and an `<npc>`'s `<locations>` (chance-weighted spawn
+//! points, 2 lines) and `<minions>` (1 line). Unused-by-data features are not
+//! ported: `zone=`/`respawnPattern` (0 occurrences each), `<parameters>`
 //! (consumed by AI scripts only, G11). `dbSave` raid persistence
 //! (`DBSpawnManager`) is ported — see [`crate::game_loop::boss_respawn`].
 
@@ -32,6 +33,9 @@ pub struct SpawnTemplate {
     /// `disableRandomWalk` / `disableRandomAnimation` are used on this dist.
     pub parameters: std::collections::HashMap<String, String>,
     pub territories: Vec<Territory>,
+    /// `<banned_territory>` (Java `BannedSpawnTerritory`): a random point
+    /// inside one of these is re-rolled. Consulted with [`Self::territories`].
+    pub banned_territories: Vec<Territory>,
     pub groups: Vec<SpawnGroup>,
 }
 
@@ -46,6 +50,9 @@ pub struct SpawnGroup {
     /// spawns it (the day/night halves). 95 groups on this dist.
     pub spawn_by_default: bool,
     pub territories: Vec<Territory>,
+    /// The group's own `<banned_territory>` list, consulted with its
+    /// [`Self::territories`].
+    pub banned_territories: Vec<Territory>,
     pub npcs: Vec<NpcSpawnDef>,
 }
 
@@ -69,9 +76,32 @@ pub struct NpcSpawnDef {
     pub chase_range: i32,
     /// `dbSave="true"` (Java `NpcSpawnTemplate.hasDBSave`) — this NPC's live
     /// HP/MP and pending respawn time survive a server restart, via the
-    /// `npc_respawns` table and `DBSpawnManager`. 225 spawns on this dist, all
+    /// `npc_respawns` table and `DBSpawnManager`. 251 spawns on this dist, all
     /// raid bosses in `RaidbossSpawns.xml`.
     pub db_save: bool,
+    /// `<locations><location x y z heading chance/>` — Java's `ChanceLocation`
+    /// list for a line with no fixed point: one is picked by cumulative
+    /// chance each spawn (Uruka 25527, Eilhalder von Hellmann 25328).
+    pub locations: Vec<ChanceLoc>,
+    /// `<minions><minion id count/>` (Java `NpcSpawnTemplate._minions`) — an
+    /// escort the spawn line adds on top of the template's `Privates`.
+    pub minions: Vec<SpawnMinion>,
+}
+
+/// Java `ChanceLocation`.
+#[derive(Clone, Copy, serde::Serialize, serde::Deserialize)]
+pub struct ChanceLoc {
+    pub loc: FixedLoc,
+    pub chance: f64,
+}
+
+/// Java `MinionHolder(StatSet)` as a spawn line declares it: `id`, `count`
+/// (default 1). Its `respawnTime` is not read — the minion respawn path here
+/// resolves delays from `NpcConfig`, as it does for template escorts.
+#[derive(Clone, Copy, serde::Serialize, serde::Deserialize)]
+pub struct SpawnMinion {
+    pub npc_id: i32,
+    pub count: i32,
 }
 
 #[derive(Clone, Copy, serde::Serialize, serde::Deserialize)]
@@ -295,6 +325,9 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
     // <territories> scope: attach finished territories to the group when it's
     // open, else to the spawn template.
     let mut cur_territory: Option<PendingTerritory> = None;
+    // Inside a non-empty `<npc>`: its `<location>`/`<minion>` children belong
+    // to the line just pushed.
+    let mut in_npc = false;
 
     for event in xml::events(&content) {
         let (e, self_closing) = match event {
@@ -316,12 +349,13 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
                             s.groups.push(g);
                         }
                     }
-                    "territory" => finish_territory(
+                    "territory" | "banned_territory" => finish_territory(
                         &mut cur_territory,
                         &mut cur_spawn,
                         &mut cur_group,
                         in_group,
                     ),
+                    "npc" => in_npc = false,
                     _ => {}
                 }
                 continue;
@@ -337,6 +371,7 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
                     ai: attr_str(&e, "ai"),
                     parameters: std::collections::HashMap::new(),
                     territories: Vec::new(),
+                    banned_territories: Vec::new(),
                     groups: Vec::new(),
                 });
             }
@@ -348,11 +383,13 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
                         .map(|v| v != "false")
                         .unwrap_or(true),
                     territories: Vec::new(),
+                    banned_territories: Vec::new(),
                     npcs: Vec::new(),
                 });
             }
-            "territory" => {
+            "territory" | "banned_territory" => {
                 cur_territory = Some(PendingTerritory {
+                    banned: e.name().as_ref() == "banned_territory",
                     shape: attr_str(&e, "shape").unwrap_or_else(|| "NPoly".to_string()),
                     min_z: attr_i32(&e, "minZ").unwrap_or(0),
                     max_z: attr_i32(&e, "maxZ").unwrap_or(0),
@@ -381,10 +418,46 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
                     t.ys.push(attr_i32(&e, "y").unwrap_or(0));
                 }
             }
+            // `<npc><locations><location …/>` — `parseLocations`. (A
+            // `<parameters><location name=…>` is a script parameter and is
+            // never inside an `<npc>` spawn line here.)
+            "location" if in_npc => {
+                let (Some(x), Some(y), Some(z)) =
+                    (attr_i32(&e, "x"), attr_i32(&e, "y"), attr_i32(&e, "z"))
+                else {
+                    continue;
+                };
+                let chance = attr_str(&e, "chance")
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(0.0);
+                if let Some(def) = last_npc(&mut cur_group, &mut default_group, in_group) {
+                    def.locations.push(ChanceLoc {
+                        loc: FixedLoc {
+                            x,
+                            y,
+                            z,
+                            heading: attr_i32(&e, "heading").unwrap_or(0),
+                        },
+                        chance,
+                    });
+                }
+            }
+            "minion" if in_npc => {
+                let Some(npc_id) = attr_i32(&e, "id") else {
+                    continue;
+                };
+                if let Some(def) = last_npc(&mut cur_group, &mut default_group, in_group) {
+                    def.minions.push(SpawnMinion {
+                        npc_id,
+                        count: attr_i32(&e, "count").unwrap_or(1),
+                    });
+                }
+            }
             "npc" => {
                 let Some(npc_id) = attr_i32(&e, "id") else {
                     continue;
                 };
+                in_npc = !self_closing;
                 let (x, y, z) = (attr_i32(&e, "x"), attr_i32(&e, "y"), attr_i32(&e, "z"));
                 let loc = match (x, y, z) {
                     (Some(x), Some(y), Some(z)) => Some(FixedLoc {
@@ -409,6 +482,8 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
                         .unwrap_or(0),
                     chase_range: attr_i32(&e, "chaseRange").unwrap_or(0),
                     db_save: attr_str(&e, "dbSave").as_deref() == Some("true"),
+                    locations: Vec::new(),
+                    minions: Vec::new(),
                 };
                 if in_group {
                     if let Some(g) = cur_group.as_mut() {
@@ -420,6 +495,7 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
                             name: None,
                             spawn_by_default: true,
                             territories: Vec::new(),
+                            banned_territories: Vec::new(),
                             npcs: Vec::new(),
                         })
                         .npcs
@@ -431,8 +507,21 @@ fn parse_file(path: &std::path::Path, rel_path: &str, out: &mut Vec<SpawnTemplat
     }
 }
 
-/// A `<territory>` mid-parse, before its `<node>` children are complete.
+/// The `<npc>` line most recently pushed — the one a `<locations>` or
+/// `<minions>` child belongs to.
+fn last_npc<'a>(
+    group: &'a mut Option<SpawnGroup>,
+    default_group: &'a mut Option<SpawnGroup>,
+    in_group: bool,
+) -> Option<&'a mut NpcSpawnDef> {
+    let g = if in_group { group } else { default_group };
+    g.as_mut()?.npcs.last_mut()
+}
+
+/// A `<territory>` (or `<banned_territory>`) mid-parse, before its `<node>`
+/// children are complete.
 struct PendingTerritory {
+    banned: bool,
     shape: String,
     min_z: i32,
     max_z: i32,
@@ -448,6 +537,7 @@ fn finish_territory(
     in_group: bool,
 ) {
     let Some(PendingTerritory {
+        banned,
         shape,
         min_z,
         max_z,
@@ -465,10 +555,18 @@ fn finish_territory(
     let territory = Territory { form, min_z, max_z };
     if in_group {
         if let Some(g) = group.as_mut() {
-            g.territories.push(territory);
+            if banned {
+                g.banned_territories.push(territory);
+            } else {
+                g.territories.push(territory);
+            }
         }
     } else if let Some(s) = spawn.as_mut() {
-        s.territories.push(territory);
+        if banned {
+            s.banned_territories.push(territory);
+        } else {
+            s.territories.push(territory);
+        }
     }
 }
 
@@ -493,24 +591,62 @@ mod tests {
         let lines = data.npc_line_count();
         assert!(lines > 25_000, "expected >25k spawn lines, got {lines}");
 
-        // Giran.xml is a plain fixed-location file: first line is
-        // <npc id="30878" x="47984" y="186832" z="-3445" heading="42000" respawnTime="60sec"/>.
+        // Giran/TownOfGiran.xml is a plain fixed-location file: first line is
+        // <npc id="30080" x="83396" y="147904" z="-3384" heading="16384" respawnTime="60sec"/>.
         let giran = data
             .spawns
             .iter()
-            .find(|s| s.name.as_deref() == Some("Giran"))
-            .expect("Giran spawn template");
+            .find(|s| s.name.as_deref() == Some("TownOfGiran"))
+            .expect("TownOfGiran spawn template");
         // `NpcActionShift`'s %spawnfile%: the path below `data/spawns/`, with
-        // the subdirectory kept (two files on this dist are named Giran.xml).
-        assert_eq!(giran.file, "Giran/Giran.xml");
+        // the subdirectory kept.
+        assert_eq!(giran.file, "Giran/TownOfGiran.xml");
         let first = &giran.groups[0].npcs[0];
-        assert_eq!(first.npc_id, 30878);
+        assert_eq!(first.npc_id, 30080);
         let loc = first.loc.expect("fixed loc");
         assert_eq!(
             (loc.x, loc.y, loc.z, loc.heading),
-            (47984, 186832, -3445, 42000)
+            (83396, 147904, -3384, 16384)
         );
         assert_eq!(first.respawn_secs, 60);
+
+        let line = |npc_id: i32| {
+            data.spawns
+                .iter()
+                .flat_map(|s| s.groups.iter().flat_map(|g| g.npcs.iter()))
+                .find(|d| d.npc_id == npc_id)
+                .unwrap_or_else(|| panic!("a spawn line for {npc_id}"))
+        };
+        // Uruka 25527 (RaidbossSpawns.xml): no fixed point, three
+        // `<locations>` at 30/30/40.
+        let uruka = line(25527);
+        assert!(uruka.loc.is_none());
+        let chances: Vec<f64> = uruka.locations.iter().map(|c| c.chance).collect();
+        assert_eq!(chances, vec![30.0, 30.0, 40.0]);
+        assert_eq!(
+            (uruka.locations[0].loc.x, uruka.locations[0].loc.y),
+            (3075, -10966)
+        );
+        // Andreas Van Halter's line declares four `<minion>` rows.
+        let with_minions: Vec<&NpcSpawnDef> = data
+            .spawns
+            .iter()
+            .flat_map(|s| s.groups.iter().flat_map(|g| g.npcs.iter()))
+            .filter(|d| !d.minions.is_empty())
+            .collect();
+        assert_eq!(with_minions.len(), 1);
+        let ids: Vec<i32> = with_minions[0].minions.iter().map(|m| m.npc_id).collect();
+        assert_eq!(ids, vec![29063, 29063, 29063, 29064]);
+        assert!(with_minions[0].minions.iter().all(|m| m.count == 1));
+        // Four `<banned_territory>`s, all at template level.
+        let banned: usize = data.spawns.iter().map(|s| s.banned_territories.len()).sum();
+        let group_banned: usize = data
+            .spawns
+            .iter()
+            .flat_map(|s| s.groups.iter())
+            .map(|g| g.banned_territories.len())
+            .sum();
+        assert_eq!((banned, group_banned), (4, 0));
 
         // At least one template carries territories with a polygon.
         assert!(

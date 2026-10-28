@@ -385,10 +385,12 @@ fn dead_monster_decays_and_respawns() {
             parameters: Default::default(),
             name: None,
             territories: vec![],
+            banned_territories: Vec::new(),
             groups: vec![crate::data::spawn_data::SpawnGroup {
                 name: None,
                 spawn_by_default: true,
                 territories: vec![],
+                banned_territories: Vec::new(),
                 npcs: vec![crate::data::spawn_data::NpcSpawnDef {
                     npc_id: 40001,
                     count: 1,
@@ -402,6 +404,8 @@ fn dead_monster_decays_and_respawns() {
                     respawn_random_secs: 0,
                     chase_range: 0,
                     db_save: false,
+                    locations: Vec::new(),
+                    minions: Vec::new(),
                 }],
             }],
         }],
