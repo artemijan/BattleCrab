@@ -101,6 +101,9 @@ libmimalloc-sys = { version = "0.1.49", features = ["extended"] }
 # `getrusage`/`sysconf` for the monitor sampler's process CPU and RSS
 # (docs/MONITORING.md §4). Already in the tree via tokio.
 libc = "0.2"
+# `GetProcessTimes` for the same CPU reading on Windows, where `getrusage` does
+# not exist. Already in the tree via tokio.
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Threading"] }
 # Byte search for the log-search prefilter and line splitting
 # (docs/MONITORING.md §6). Already in the tree via regex.
 memchr = "2.8.3"
