@@ -1,4 +1,4 @@
-//! Movement/position handlers (`MoveBackwardToLocation`, `RequestStopMove`,
+//! Movement/position handlers (`MoveToLocation`, `RequestStopMove`,
 //! `ValidatePosition`) and the path-worker reply handler (`handle_path_result`).
 
 use crate::game_loop::helpers;
@@ -15,7 +15,7 @@ use crate::world::World;
 use crate::game_loop::net::broadcast;
 use crate::model;
 
-/// Port of `clientpackets/MoveBackwardToLocation.runImpl` +
+/// Port of `clientpackets/MoveToLocation.runImpl` +
 /// `Creature.moveToLocation`'s geodata movement checks: the requested
 /// destination is clamped to the last walkable cell via
 /// `GeoEngine.getValidLocation`, and when the clamp shortens the move by
@@ -26,8 +26,8 @@ use crate::model;
 /// ported (see [`take_admin_tele_mode`]). Java's "remove queued skill upon move request" is
 /// covered by the busy branch overwriting the `QueuedAction` slot — outside
 /// a cast/swing the slot is always empty, so there is nothing to clear.
-pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::movement::MoveBackwardToLocation::read(body) else {
+pub(crate) fn handle_move_to_location(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::movement::MoveToLocation::read(body) else {
         return;
     };
     let Some(object_id) = world.player_oid(client_id) else {
@@ -51,7 +51,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         return;
     }
 
-    // Java `MoveBackwardToLocation`: "Correcting targetZ from floor level to
+    // Java `MoveToLocation`: "Correcting targetZ from floor level to
     // head level." The client sends the destination z at *floor* level, which
     // does not resolve to the right geodata layer (on stacked terrain — bridges
     // — the raw floor z can snap to the surface *under* the deck). Bumping it up
@@ -65,7 +65,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         .map_or(0.0, |c| c.height);
     let target_z = (pkt.target_z as f64 + collision_height) as i32;
 
-    // Java `MoveBackwardToLocation`'s `switch (player.getTeleMode())`, armed
+    // Java `MoveToLocation`'s `switch (player.getTeleMode())`, armed
     // from the GM "Additional Movement Options" window (`//instant_move`,
     // `//teleto sayune|charge`). It sits here — *before* the movement-disabled
     // / rest / dead gates, which live inside `PlayerAI.onIntentionMoveTo`, i.e.
@@ -156,7 +156,7 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
 }
 
 /// The GM click-to-move latch (`Player.getTeleMode()`) armed from the
-/// "Additional Movement Options" window — `MoveBackwardToLocation`'s
+/// "Additional Movement Options" window — `MoveToLocation`'s
 /// `switch (teleMode)`. Returns `true` when the click was consumed by a mode
 /// and must not start an ordinary walk.
 ///

@@ -76,7 +76,7 @@ pub struct Intent(pub crate::model::PlayerIntent);
 /// Written while a cast or attack swing is in flight, consumed when it stops
 /// (`stop_casting` / the `AttackFinish` task), dropped on death/teleport.
 /// The slot is last-click-wins, matching Java's observable outcomes: a move
-/// packet wipes `_queuedSkill` (`MoveBackwardToLocation.runImpl`), and a
+/// packet wipes `_queuedSkill` (`MoveToLocation.runImpl`), and a
 /// queued skill's `stopCasting` launch supersedes the saved move. Known
 /// narrowing: Java keeps the equip in its own slot and can fire it
 /// *alongside* a queued move; this single slot keeps only the last click.

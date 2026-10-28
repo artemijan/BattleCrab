@@ -4,7 +4,7 @@ use crate::game_loop;
 /// The queue slot is last-click-wins, both ways: a skill click supersedes a
 /// queued move (Java: the `stopCasting` skill launch makes the new cast
 /// forget `_nextIntention`), and a later move click wipes a queued skill
-/// (Java `MoveBackwardToLocation.runImpl`'s "remove queued skill upon move
+/// (Java `MoveToLocation.runImpl`'s "remove queued skill upon move
 /// request").
 #[test]
 fn queued_action_slot_is_last_click_wins() {
@@ -28,7 +28,7 @@ fn queued_action_slot_is_last_click_wins() {
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
     drain(&mut a_rx);
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
     assert!(matches!(
         world.objects.get_component::<QueuedAction>(&3001),
         Some(QueuedAction::Move { .. })
@@ -38,7 +38,7 @@ fn queued_action_slot_is_last_click_wins() {
         world.objects.get_component::<QueuedAction>(&3001),
         Some(QueuedAction::Skill { skill_id: 1015, .. })
     ));
-    handle_move_backward_to_location(&mut world, 1, &move_body((600, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((600, 0, 0), (0, 0, 0), 1));
     match world.objects.get_component::<QueuedAction>(&3001) {
         Some(&QueuedAction::Move { x, .. }) => {
             assert_eq!(x, 600, "move click wipes the queued skill")
@@ -933,7 +933,7 @@ fn region_crossing_exchanges_delete_object_and_char_info() {
         .0 = Some(6201);
 
     // Walk west: region 0 → -1 → -2; (−1,0) is no longer adjacent to (1,0).
-    handle_move_backward_to_location(&mut world, 1, &move_body((-2500, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((-2500, 0, 0), (0, 0, 0), 1));
     assert_eq!(
         mover_rx.try_recv().unwrap()[0],
         server_packets::opcodes::MOVE_TO_LOCATION
@@ -982,7 +982,7 @@ fn region_crossing_exchanges_delete_object_and_char_info() {
 
     // Walk back east: crossing into region 0 re-enters the watcher's block —
     // CharInfo, then the in-flight move (describeStateToPlayer).
-    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (-2500, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((500, 0, 0), (-2500, 0, 0), 1));
     assert_eq!(
         mover_rx.try_recv().unwrap()[0],
         server_packets::opcodes::MOVE_TO_LOCATION

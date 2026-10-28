@@ -11,7 +11,7 @@ use std::collections::HashMap;
 /// character, so no dirty tracking is needed.
 ///
 /// Only the keys a ported subsystem reads live here today —
-/// [`VITALITY_ITEMS_USED`]. The rest of Java's key set (instance origin/restore,
+/// [`VITALITY_ITEMS_USED`] and [`HAIR_ACCESSORY_ENABLED`]. The rest of Java's key set (instance origin/restore,
 /// UI key mapping, ability points, auto-use settings, …) belongs to subsystems
 /// that are not ported; they will land as their milestones do. Player-only.
 #[derive(Component, Debug, Clone, Default)]
@@ -37,6 +37,10 @@ impl PlayerVariables {
 /// vitality-restoring items the character has consumed this week, capped by
 /// `Config.VITALITY_MAX_ITEMS_ALLOWED` and reported by `ExVitalityEffectInfo`.
 pub const VITALITY_ITEMS_USED: &str = "VITALITY_ITEMS_USED";
+
+/// `PlayerVariables.HAIR_ACCESSORY_VARIABLE_NAME` — whether the hair
+/// accessory is drawn (absent = shown). Read by `CharSelectionInfo`.
+pub const HAIR_ACCESSORY_ENABLED: &str = "HAIR_ACCESSORY_ENABLED";
 
 /// `PlayerVariables.UI_KEY_MAPPING` — the client's saved key layout, stored as
 /// Java stores it: the raw bytes joined by tabs (`RequestSaveKeyMapping`'s

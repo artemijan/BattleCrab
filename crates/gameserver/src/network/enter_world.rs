@@ -26,17 +26,28 @@ fn ex(sub: i16) -> PacketWriter {
     w
 }
 
-/// `AbstractItemPacket.writeItem`, shared by `ItemList` and `InventoryUpdate`:
-/// mask (always 0 — augmentation/elemental/enchant-effect/visual-id are later
-/// milestones), object id, item id, T1, count, type2, customType1, equipped,
-/// body part, enchant level, customType2, mana, time, available.
+/// `ItemListType.AUGMENT_BONUS` — the item carries two augmentation options.
+const ITEM_MASK_AUGMENT_BONUS: u8 = 0x01;
+
+/// `AbstractItemPacket.writeItem` (protocol 140), shared by `ItemList`,
+/// `InventoryUpdate` and every store/trade/warehouse list: mask, object id,
+/// item id, T1, count, type2, customType1, equipped, body part, enchant level,
+/// customType2, mana, time, available, two protocol-140 zero bytes, then the
+/// masked blocks. Only the augment block can be set today: elemental
+/// attributes, enchant options (`EnchantItemOptions.xml`, S10), visual ids and
+/// soul crystals are not ported, so their bits stay clear.
 pub(crate) fn write_item_entry(
     w: &mut PacketWriter,
     item: &ItemInstance,
     template: &ItemTemplate,
     equipped: bool,
 ) {
-    w.write_u8(0); // mask
+    let augmented = item.is_augmented();
+    w.write_u8(if augmented {
+        ITEM_MASK_AUGMENT_BONUS
+    } else {
+        0
+    });
     w.write_i32(item.object_id);
     w.write_i32(item.item_id);
     w.write_u8(if equipped { 0xFF } else { 0 }); // T1
@@ -50,6 +61,12 @@ pub(crate) fn write_item_entry(
     w.write_i32(item.mana_left);
     w.write_i32(item.time);
     w.write_u8(1); // available
+    w.write_u8(0); // protocol 140
+    w.write_u8(0); // protocol 140
+    if augmented {
+        w.write_i32(item.augment_option1);
+        w.write_i32(item.augment_option2);
+    }
 }
 
 /// Every inventory item paired with its template, dropping ids with no

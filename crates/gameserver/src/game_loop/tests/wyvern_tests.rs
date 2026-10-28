@@ -195,7 +195,7 @@ fn flying_move_ignores_geodata_and_allows_vertical_flight() {
     drain(&mut rx);
 
     // Across the wall at cell 10 — a walker would get PathWait, no Movement.
-    handle_move_backward_to_location(&mut world, 1, &move_body((328, 8, 0), (8, 8, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((328, 8, 0), (8, 8, 0), 1));
     let md = world
         .objects
         .get_component::<Movement>(&4001)
@@ -223,7 +223,7 @@ fn flying_move_ignores_geodata_and_allows_vertical_flight() {
 
     // Straight up: dx = dy = 0, dz > 0 — Java's verticalMovementOnly.
     world.objects.remove_component::<Movement>(&4001);
-    handle_move_backward_to_location(&mut world, 1, &move_body((8, 8, 500), (8, 8, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((8, 8, 500), (8, 8, 0), 1));
     let md = world
         .objects
         .get_component::<Movement>(&4001)

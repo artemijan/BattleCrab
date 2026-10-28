@@ -95,7 +95,7 @@ fn an_emote_is_refused_while_the_player_is_moving() {
         .get_component_mut::<Speeds>(&7003)
         .unwrap()
         .running = true;
-    handle_move_backward_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
+    handle_move_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
     assert!(
         world.objects.has_component::<Movement>(&7003),
         "the fixture has to actually be moving or the test proves nothing"

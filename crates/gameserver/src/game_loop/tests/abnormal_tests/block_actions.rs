@@ -74,7 +74,7 @@ fn stun_blocks_movement_requests() {
     let mut vout = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
 
     // Baseline: the move is accepted.
-    handle_move_backward_to_location(
+    handle_move_to_location(
         &mut world,
         VICTIM_CID,
         &move_body((500, 0, 0), (50, 0, 0), 1),
@@ -88,7 +88,7 @@ fn stun_blocks_movement_requests() {
 
     land(&mut world, STUN_ID, VICTIM);
     drain(&mut vout);
-    handle_move_backward_to_location(
+    handle_move_to_location(
         &mut world,
         VICTIM_CID,
         &move_body((900, 0, 0), (50, 0, 0), 1),
@@ -113,7 +113,7 @@ fn root_blocks_movement_requests() {
     let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
 
     land(&mut world, ROOT_ID, VICTIM);
-    handle_move_backward_to_location(
+    handle_move_to_location(
         &mut world,
         VICTIM_CID,
         &move_body((900, 0, 0), (50, 0, 0), 1),
@@ -163,7 +163,7 @@ fn stun_interrupts_an_in_flight_cast_and_movement() {
 
     // Victim starts casting and moving.
     use_magic(&mut world, VICTIM_CID, VICTIM, 91, false, false);
-    handle_move_backward_to_location(
+    handle_move_to_location(
         &mut world,
         VICTIM_CID,
         &move_body((900, 0, 0), (50, 0, 0), 1),

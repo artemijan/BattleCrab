@@ -13,7 +13,7 @@
 //! The window is `Player.ini`'s `PlayerSpawnProtection` (600 s here), but it
 //! ends at the player's first deliberate action, which is what
 //! `Player.onActionRequest` does. Java calls that from five client packets —
-//! `Action`, `AttackRequest`, `MoveBackwardToLocation`, `RequestMagicSkillUse`
+//! `Action`, `AttackRequest`, `MoveToLocation`, `RequestMagicSkillUse`
 //! and `UseItem` — so 600 is a ceiling on an AFK login, not ten minutes of
 //! safety. (`AutoPlayTaskManager` is Java's sixth caller and is post-Interlude.)
 //!

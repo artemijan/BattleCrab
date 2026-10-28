@@ -459,9 +459,12 @@ pub(crate) fn on_characters_loaded(
             s.play_ok1(),
             &s.state.chars,
             -1,
-            world.max_characters_per_account,
-            &world.data.experience,
-            &world.cursed_weapons,
+            &server_packets::CharSelectCtx {
+                max_characters: world.max_characters_per_account,
+                exp: &world.data.experience,
+                olympiad: &world.olympiad,
+                rate_vitality_exp_multiplier: world.cfg.rates.rate_vitality_exp_multiplier,
+            },
         );
         s.send(body);
     }

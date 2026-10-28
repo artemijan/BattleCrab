@@ -134,8 +134,8 @@ fn a_limited_product_sells_out_and_leaves_the_buy_window() {
 /// the player is holding, so a byte scan finds the item either way.
 fn buy_tab(packets: &[Vec<u8>]) -> Option<Vec<(i32, i64)>> {
     /// mask, oid, id, T1, count, type2, ct1, equipped, bodypart, enchant,
-    /// ct2, mana, time, available, price.
-    const PRODUCT_LEN: usize = 1 + 4 + 4 + 1 + 8 + 1 + 1 + 2 + 8 + 1 + 1 + 4 + 4 + 1 + 8;
+    /// ct2, mana, time, available, the two protocol-140 bytes, price.
+    const PRODUCT_LEN: usize = 1 + 4 + 4 + 1 + 8 + 1 + 1 + 2 + 8 + 1 + 1 + 4 + 4 + 1 + 2 + 8;
     /// 0xFE, 0x00B8, type, money, list id, slots, entry count.
     const HEADER_LEN: usize = 1 + 2 + 4 + 8 + 4 + 4 + 2;
     let i32_at = |p: &[u8], o: usize| i32::from_le_bytes(p[o..o + 4].try_into().unwrap());

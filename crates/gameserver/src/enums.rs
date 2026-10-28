@@ -427,7 +427,7 @@ impl FlyType {
 
 /// Port of `enums/AdminTeleportType` — the GM "Additional Movement Options"
 /// click-to-move modes (`html/admin/move.htm`). The mode is a *latch* on the
-/// GM: once armed, the next `MoveBackwardToLocation` click is consumed by the
+/// GM: once armed, the next `MoveToLocation` click is consumed by the
 /// matching branch instead of starting an ordinary walk. Never persisted
 /// (Java: a plain `Player` field defaulting to `NORMAL`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]

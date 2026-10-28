@@ -36,8 +36,8 @@ use crate::game_loop::skills::cast::handle_request_magic_skill_use;
 use crate::game_loop::skills::handle_request_acquire_skill;
 use crate::game_loop::skills::handle_request_dispel;
 use crate::game_loop::space::position::{
-    handle_ex_send_selected_quest_zone_id, handle_move_backward_to_location,
-    handle_request_stop_move, handle_validate_position,
+    handle_ex_send_selected_quest_zone_id, handle_move_to_location, handle_request_stop_move,
+    handle_validate_position,
 };
 
 /// Dispatch one decrypted client packet body (opcode + payload) on the game
@@ -89,7 +89,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::ACTION
             | cop::ATTACK
             | cop::ATTACK_REQUEST
-            | cop::MOVE_BACKWARD_TO_LOCATION
+            | cop::MOVE_TO_LOCATION
             | cop::REQUEST_MAGIC_SKILL_USE
             | cop::USE_ITEM
     ) && let Some(player) = world.player_oid(client_id)
@@ -182,7 +182,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::APPEARING => handle_appearing(world, client_id),
         cop::REQUEST_RESTART_POINT => handle_request_restart_point(world, client_id, body),
         cop::REQUEST_TARGET_CANCELD => handle_request_target_canceld(world, client_id, body),
-        cop::MOVE_BACKWARD_TO_LOCATION => handle_move_backward_to_location(world, client_id, body),
+        cop::MOVE_TO_LOCATION => handle_move_to_location(world, client_id, body),
         cop::VALIDATE_POSITION => handle_validate_position(world, client_id, body),
         cop::CANNOT_MOVE_ANYMORE => {
             crate::game_loop::space::position::handle_cannot_move_anymore(world, client_id, body)
@@ -1073,9 +1073,12 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                     session.play_ok1(),
                     &session.state.chars,
                     -1,
-                    world.max_characters_per_account,
-                    &world.data.experience,
-                    &world.cursed_weapons,
+                    &server_packets::CharSelectCtx {
+                        max_characters: world.max_characters_per_account,
+                        exp: &world.data.experience,
+                        olympiad: &world.olympiad,
+                        rate_vitality_exp_multiplier: world.cfg.rates.rate_vitality_exp_multiplier,
+                    },
                 );
                 session.send(body);
             }

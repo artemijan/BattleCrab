@@ -259,7 +259,7 @@ pub struct Player {
     pub true_hero: bool,
     /// Java `Player._teleportType` — the GM click-to-move latch armed from the
     /// "Additional Movement Options" window (`//instant_move`, `//teleto
-    /// sayune|charge|end`). Consumed by `MoveBackwardToLocation`. Transient,
+    /// sayune|charge|end`). Consumed by `MoveToLocation`. Transient,
     /// exactly like Java (a field, no DB column).
     pub tele_mode: crate::enums::AdminTeleportType,
     /// Java `Player._blinkActive`, set by every `FlyToLocation` sent for a

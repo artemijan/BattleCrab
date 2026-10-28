@@ -66,6 +66,8 @@ pub fn buy_list(
         w.write_i32(0); // mana
         w.write_i32(0); // time
         w.write_u8(1); // available
+        w.write_u8(0); // protocol 140
+        w.write_u8(0); // protocol 140
         w.write_i64(
             (p.price_at(t, siege_guards_price_rate) as f64
                 * (1.0 + castle_tax_rate + f64::from(p.base_tax) / 100.0)) as i64,

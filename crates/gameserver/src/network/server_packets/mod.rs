@@ -103,9 +103,9 @@ pub use henna::{
     henna_item_remove_info, henna_remove_list,
 };
 pub use lobby::{
-    char_create_fail, char_create_ok, char_delete_fail, char_delete_success, char_selected,
-    char_selection_info, ex_is_char_name_creatable, key_packet, leave_world, login_fail,
-    login_success, new_character_success, restart_response,
+    CharSelectCtx, char_create_fail, char_create_ok, char_delete_fail, char_delete_success,
+    char_selected, char_selection_info, ex_is_char_name_creatable, key_packet, leave_world,
+    login_fail, login_success, new_character_success, restart_response,
 };
 pub use mail::{
     MESSAGE_FEE, MESSAGE_FEE_PER_SLOT, MailListView, ex_change_post_state, ex_notice_post_arrived,
